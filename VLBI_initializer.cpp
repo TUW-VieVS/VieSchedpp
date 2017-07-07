@@ -317,7 +317,7 @@ namespace VieVS{
                 vector<string> mask_cat = maskCatalog.at(id_MS);
                 
                 // loop through all element and convert them 
-                for(int i=3; i<mask_cat.size(); ++i){
+                for(size_t i=3; i<mask_cat.size(); ++i){
                     try{
                         hmask.push_back(boost::lexical_cast<double>(mask_cat.at(i)));
                     }
@@ -425,7 +425,7 @@ namespace VieVS{
         
         if (!tooWeak.empty()){
             cout << "weak sources:\n";
-            for (int i=0; i<tooWeak.size(); ++i){
+            for (size_t i=0; i<tooWeak.size(); ++i){
                 string name = tooWeak[i];
                 double jy = tooWeak_Jy[i];
                 cout << boost::format("  %-8s: %4.2f [Jy]\n") %name %jy;
@@ -461,6 +461,16 @@ namespace VieVS{
         
     }
     
+    void VLBI_initializer::initializeStations(){
+        int c = 0;
+        for(auto& any: stations){
+            VLBI_pointingVector pV(c, 0, any.getCableWrapNeutralPoint(1), any.getCableWrapNeutralPoint(1), PARA.startTime);
+            any.pushPointingVector(pV);
+            ++c;
+        }
+
+    }
+
     void VLBI_initializer::displaySummary(){
         
         cout << "List of all sources:\n";

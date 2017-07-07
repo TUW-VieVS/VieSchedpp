@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     run();
 
-    MainWindow w;
-    w.show();
+//    MainWindow w;
+//    w.show();
 
     return a.exec();
 }
@@ -28,6 +28,8 @@ void run(){
     init.createStationsFromCatalogs(path);
     init.createSourcesFromCatalogs(path);
     init.createSkyCoverages();
+    init.initializeStations();
+
 //    init.displaySummary();
 
 

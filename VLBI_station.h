@@ -62,19 +62,17 @@ namespace VieVS{
             vector<string> minSNR_band;
             vector<double> minSNR_value;
             
-            int wait_setup = 10;
-            int wait_source = 5;
-            int wait_tape = 1;
-            int wait_idle = 0;
-            int wait_calibration = 10;
-            int wait_corsynch = 3;
-            int maxSlewtime = 9999;
-            int maxWait = 9999;
-            int maxScan = 600;
-            int minScan = 30;
+            unsigned int wait_setup = 10;
+            unsigned int wait_source = 5;
+            unsigned int wait_tape = 1;
+            unsigned int wait_idle = 0;
+            unsigned int wait_calibration = 10;
+            unsigned int wait_corsynch = 3;
+            unsigned int maxSlewtime = 9999;
+            unsigned int maxWait = 9999;
+            unsigned int maxScan = 600;
+            unsigned int minScan = 30;
         };
-        
-        
         
         VLBI_station();
                 
@@ -99,6 +97,10 @@ namespace VieVS{
         
         VLBI_pointingVector getAzEl(VLBI_source source, boost::posix_time::ptime time);
         
+        void pushPointingVector(VLBI_pointingVector pointingVector);
+
+        double getCableWrapNeutralPoint(int axis);
+
         friend ostream& operator<<(ostream& out, const VLBI_station& sta);
                         
     private:

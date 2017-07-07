@@ -30,15 +30,42 @@ namespace VieVS{
     }
     
     void VLBI_subcon::calcSlewTimes(vector<VLBI_station> stations){
+        vector<int> srcIds(n1scans);
+        vector<vector<int> > srcStaId(n1scans);
         for(int i=0; i<n1scans; ++i){
-            vector<VLBI_pointingVector> pointingVectors = subnet1[i].getPointingVectors();
-            for(int j=0; j<pointingVectors.size(); ++j){
-                stations[pointingVectors[j].getStaid()].slewTo(pointingVectors[j]);
+            srcIds[i] = subnet1[i].getSourceId();
+            for(int j=0; j<subnet1[i].getNSta(); ++j){
+                int staid = subnet1[i].getStationId(j);
+                srcStaId[i].push_back(staid);
+                stations[staid].slewTo(subnet1[i].getPointingVector(j));
             }
         }
         
         for(int i=0; i<n2scans; ++i){
-            
+            int srcid1 = subnet2[i].first.getSourceId();
+            vector<int>::iterator it1 = find(srcIds.begin(), srcIds.end(), srcid1);
+            int idxSrcStaId11 = it1-srcIds.begin();
+            for(int j=0; j<subnet2[i].first.getNSta(); ++j){
+                int staid = subnet2[i].first.getStationId(j);
+                vector<int>::iterator it2 = find(srcStaId[idxSrcStaId11].begin(), srcStaId[idxSrcStaId11].end(), staid);
+                int idxSrcStaId12 = it2-srcStaId[idxSrcStaId11].begin();
+
+                subnet2[i].first.setPointingVector(j,subnet1[idxSrcStaId11].getPointingVector(idxSrcStaId12));
+
+            }
+
+            int srcid2 = subnet2[i].second.getSourceId();
+            vector<int>::iterator it2 = find(srcIds.begin(), srcIds.end(), srcid2);
+            int idxSrcStaId21 = it2-srcIds.begin();
+            for(int j=0; j<subnet2[i].second.getNSta(); ++j){
+                int staid = subnet2[i].second.getStationId(j);
+                vector<int>::iterator it2 = find(srcStaId[idxSrcStaId21].begin(), srcStaId[idxSrcStaId21].end(), staid);
+                int idxSrcStaId22 = it2-srcStaId[idxSrcStaId21].begin();
+
+                subnet2[i].second.setPointingVector(j,subnet1[idxSrcStaId21].getPointingVector(idxSrcStaId22));
+
+            }
+
         }
     }
     

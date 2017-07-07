@@ -33,7 +33,7 @@ namespace VieVS{
             double minSunDistance = 0;
             
             boost::posix_time::ptime startTime = boost::posix_time::ptime(boost::gregorian::date(2017,01,01),boost::posix_time::time_duration(18,30,00));
-            boost::posix_time::ptime endTime = boost::posix_time::ptime(boost::gregorian::date(2017,01,01),boost::posix_time::time_duration(18,30,00));
+            boost::posix_time::ptime endTime = boost::posix_time::ptime(boost::gregorian::date(2017,01,02),boost::posix_time::time_duration(18,30,00));
             
             double maxDistanceTwinTeleskopes = 5000;
             vector<string> selectedStations = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
@@ -52,11 +52,14 @@ namespace VieVS{
         void createSourcesFromCatalogs(string catalogPath);
         void createSkyCoverages();
         void displaySummary();
+
         vector<VLBI_station> getStations(){ return stations;}
         vector<VLBI_source> getSources(){ return sources;}
         vector<VLBI_skyCoverage> getSkyCoverages(){ return skyCoverages;}
         PARAMETERS getPARA(){ return PARA;}
-       
+
+        void initializeStations();
+
     private:
         vector<VLBI_station> stations;
         vector<VLBI_source> sources;
