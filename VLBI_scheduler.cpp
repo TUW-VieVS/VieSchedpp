@@ -30,8 +30,8 @@ namespace VieVS{
     
     void VLBI_scheduler::start(){
         VLBI_subcon subcon = allVisibleScans();
-        
-        
+        subcon.calcSlewTimes(stations);
+
         cout << "scheduling finished!\n";
     }
     
@@ -67,7 +67,7 @@ namespace VieVS{
                     continue;
                 }
                 
-                for(int nsrc2 = 0; nsrc2<PRE.subnettingSrcIds[isrc1].size(); ++nsrc2){
+                for(size_t nsrc2 = 0; nsrc2<PRE.subnettingSrcIds[isrc1].size(); ++nsrc2){
                     int isrc2 = PRE.subnettingSrcIds[isrc1][nsrc2];
                     vector<int> sta2 = visible[isrc2];
                     if (sta2.size()<PARA.minStaPerScan){
@@ -108,7 +108,7 @@ namespace VieVS{
                             }
                             if (scan1sta.size()>=PARA.minStaPerScan && scan2sta.size()>=PARA.minStaPerScan && scan1sta.size()+scan2sta.size()>=PARA.minStaPerSubnet){
                                 vector<VLBI_pointingVector> p1;
-                                for(int i=0; i<scan1sta.size(); ++i){
+                                for(size_t i=0; i<scan1sta.size(); ++i){
                                     vector<int>::iterator it = find(visible.at(isrc1).begin(), visible.at(isrc1).end(), scan1sta.at(i));
                                     if (it != visible[isrc1].end()){
                                         p1.push_back(pointingVectors[isrc1][it-visible[isrc1].begin()]);
@@ -116,7 +116,7 @@ namespace VieVS{
                                     
                                 }
                                 vector<VLBI_pointingVector> p2;
-                                for(int i=0; i<scan2sta.size(); ++i){
+                                for(size_t i=0; i<scan2sta.size(); ++i){
                                     vector<int>::iterator it = find(visible.at(isrc2).begin(), visible.at(isrc2).end(), scan2sta.at(i));
                                     if (it != visible[isrc2].end()){
                                         p2.push_back(pointingVectors[isrc2][it-visible[isrc2].begin()]);

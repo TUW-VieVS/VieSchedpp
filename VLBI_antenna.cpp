@@ -35,8 +35,8 @@ namespace VieVS{
     
     void VLBI_antenna::scanStart(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector, int wait_setup, int wait_source, int wait_tape, int wait_idle, int wait_calibration){
         
-        double delta1 = old_pointingVector.getAz()-new_pointingVector.getAz();
-        double delta2 = old_pointingVector.getEl()-new_pointingVector.getEl();
+        double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
+        double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
         double acc1 = 1*deg2rad;
         double acc2 = 1*deg2rad;
         

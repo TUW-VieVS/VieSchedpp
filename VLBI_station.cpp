@@ -51,7 +51,14 @@ namespace VieVS{
             axis = axisType::undefined;
     }
         
-    
+    void VLBI_station::pushPointingVector(VLBI_pointingVector pointingVector){
+        current = pointingVector;
+    }
+
+    double VLBI_station::getCableWrapNeutralPoint(int axis){
+        return cableWrap.neutralPoint(axis);
+    }
+
     ostream& operator<<(ostream& out, const VLBI_station& sta){
         cout << boost::format("%=36s\n") %sta.name; 
         cout << sta.position ;
@@ -167,7 +174,7 @@ namespace VieVS{
         }
         double az = fmod(saz+DPI,DPI*2);
 
-        return VLBI_pointingVector(id,source.getId(),az,el);
+        return VLBI_pointingVector(id,source.getId(),az,el,time);
     }
     
     double VLBI_station::distance(VLBI_station other){

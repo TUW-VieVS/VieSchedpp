@@ -27,13 +27,21 @@ namespace VieVS{
     public:
         VLBI_scan();
         VLBI_scan(vector<VLBI_pointingVector> pointingVectors);
-        vector<VLBI_pointingVector> getPointingVectors(){return pointingVectors;}
+
+        int getNSta(){return nsta;}
+
+        int getStationId(int i){return pointingVectors.at(i).getStaid() ;}
+
+        int getSourceId(){return pointingVectors[0].getSrcid();}
+
+        VLBI_pointingVector& getPointingVector(int i){return pointingVectors.at(i);}
+
+        void setPointingVector(int i, VLBI_pointingVector& pointingVector){pointingVectors[i] = pointingVector;}
+
         virtual ~VLBI_scan();
     private:
         vector<VLBI_pointingVector> pointingVectors;
-//        vector<int> staids;
-//        int srcid;
-//        vector<VLBI_baseline> baselines;
+        int nsta;
     };
 }
 #endif /* VLBI_SCAN_H */

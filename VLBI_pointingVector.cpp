@@ -16,8 +16,8 @@ namespace VieVS{
     VLBI_pointingVector::VLBI_pointingVector() {
     }
     
-    VLBI_pointingVector::VLBI_pointingVector(int staid, int srcid, double az_rad, double el_rad):
-    staid{staid}, srcid{srcid}, az{az_rad}, el{el_rad}{
+    VLBI_pointingVector::VLBI_pointingVector(int staid, int srcid, double az_rad, double el_rad, boost::posix_time::ptime time):
+    staid{staid}, srcid{srcid}, az{az_rad}, el{el_rad}, time{time}{
     }
     
     VLBI_pointingVector::~VLBI_pointingVector() {

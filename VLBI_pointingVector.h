@@ -24,11 +24,11 @@ namespace VieVS{
     class VLBI_pointingVector {
     public:
         VLBI_pointingVector();
-        VLBI_pointingVector(int staid, int srcid, double az_rad, double el_rad);
+        VLBI_pointingVector(int staid, int srcid, double az_rad, double el_rad, boost::posix_time::ptime time);
         virtual ~VLBI_pointingVector();
         
-        double getStaid(){return staid;}
-        double getSrcid(){return srcid;}
+        int getStaid(){return staid;}
+        int getSrcid(){return srcid;}
         double getAz(){return az;}
         double getEl(){return el;}
         boost::posix_time::ptime getTime(){return time;}

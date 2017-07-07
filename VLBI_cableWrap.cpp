@@ -84,7 +84,18 @@ namespace VieVS{
         }
         
     }
-    
+
+    double VLBI_cableWrap::neutralPoint(int axis){
+        if (axis==1){
+            return (lim1_low+lim1_up)/2;
+        } else if(axis==2){
+            return (lim2_low+lim2_up)/2;
+        } else {
+            cerr<< "Wrong axis number, use 1 or 2!\n";
+        }
+        return 0;
+    }
+
     ostream& operator<<(ostream& out, const VLBI_cableWrap& cable){
         cout << "cable wrap: \n";
         double lim1_lowdeg = cable.lim1_low*rad2deg;

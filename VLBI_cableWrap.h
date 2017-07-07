@@ -28,6 +28,8 @@ namespace VieVS{
         
         VLBI_cableWrap(double lim1_low_deg, double lim1_up_deg, double lim2_low_deg, double lim2_up_deg);
         
+        double neutralPoint(int axis);
+
         virtual ~VLBI_cableWrap();
                 
         bool anglesInside(VLBI_pointingVector p);

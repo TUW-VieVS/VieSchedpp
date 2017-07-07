@@ -44,7 +44,7 @@ namespace VieVS{
         int n1scans;
         vector<VLBI_scan> subnet1;
         int n2scans;
-        vector<pair<VLBI_scan,VLBI_scan>> subnet2;
+        vector<pair<VLBI_scan,VLBI_scan> > subnet2;
     };
 }
 #endif /* VLBI_SUBCON_H */

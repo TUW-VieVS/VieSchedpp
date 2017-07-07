@@ -16,12 +16,11 @@ namespace VieVS{
     VLBI_scan::VLBI_scan() {
     }
     
-    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors):pointingVectors{pointingVectors} {
+    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors):pointingVectors{pointingVectors}, nsta{pointingVectors.size()} {
     }
-    
-//    VLBI_scan::VLBI_scan(vector<int> staids, int srcid):staids{staids}, srcid{srcid} {
-//    }
-    
+
+
+
     VLBI_scan::~VLBI_scan() {
     }
 }
