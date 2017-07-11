@@ -19,8 +19,6 @@ namespace VieVS{
     VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors):pointingVectors{pointingVectors}, nsta{pointingVectors.size()} {
     }
 
-
-
     VLBI_scan::~VLBI_scan() {
     }
 }

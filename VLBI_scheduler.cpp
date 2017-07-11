@@ -45,7 +45,7 @@ namespace VieVS{
         
         cout << "start constructing all Visible Scans\n";
         for (int isrc=0; isrc<nsrc; ++isrc){
-            int visibleSta = 0;
+            unsigned int visibleSta = 0;
             for (int ista=0; ista<nsta; ++ista){
                 VLBI_pointingVector p;
                 bool flag = stations[ista].isVisible(sources[isrc],PARA.currentTime,p);
@@ -55,7 +55,7 @@ namespace VieVS{
                     pointingVectors[isrc].push_back(p);
                 }
             }
-            if (visibleSta>=PARA.minStaPerSubnet){
+            if (visibleSta>=PARA.minStaPerScan){
                 subcon.addScan(VLBI_scan(pointingVectors[isrc]));
             }
         }
@@ -106,7 +106,7 @@ namespace VieVS{
                                     scan2sta.push_back(intersection.at(i));
                                 }
                             }
-                            if (scan1sta.size()>=PARA.minStaPerScan && scan2sta.size()>=PARA.minStaPerScan && scan1sta.size()+scan2sta.size()>=PARA.minStaPerSubnet){
+                            if (scan1sta.size()>=PARA.minStaPerScan && scan2sta.size()>=PARA.minStaPerScan){
                                 vector<VLBI_pointingVector> p1;
                                 for(size_t i=0; i<scan1sta.size(); ++i){
                                     vector<int>::iterator it = find(visible.at(isrc1).begin(), visible.at(isrc1).end(), scan1sta.at(i));

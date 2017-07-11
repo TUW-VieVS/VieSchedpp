@@ -59,6 +59,45 @@ namespace VieVS{
         return cableWrap.neutralPoint(axis);
     }
 
+    void VLBI_station::setParameters(const string& group, boost::property_tree::ptree& PARA_station){
+        PARA.parameterGroups.push_back(group);
+        for (auto it: PARA_station){
+            string name = it.first;
+            if ( name == "<xmlattr>")
+                continue;
+            else if ( name == "axis1_low_offset")
+                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset")*deg2rad;
+            else if ( name == "axis1_up_offset")
+                PARA.axis1_up_offset  = PARA_station.get<double>("axis1_up_offset")*deg2rad;
+            else if ( name == "axis2_low_offset")
+                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset")*deg2rad;
+            else if ( name == "axis2_up_offset")
+                PARA.axis2_up_offset  = PARA_station.get<double>("axis2_up_offset")*deg2rad;
+            else if ( name == "wait_setup")
+                PARA.wait_setup = PARA_station.get<unsigned int>("wait_setup");
+            else if ( name == "wait_source")
+                PARA.wait_source = PARA_station.get<unsigned int>("wait_source");
+            else if ( name == "wait_tape")
+                PARA.wait_tape = PARA_station.get<unsigned int>("wait_tape");
+            else if ( name == "wait_idle")
+                PARA.wait_idle = PARA_station.get<unsigned int>("wait_idle");
+            else if ( name == "wait_calibration")
+                PARA.wait_calibration = PARA_station.get<unsigned int>("wait_calibration");
+            else if ( name == "wait_corsynch")
+                PARA.wait_corsynch = PARA_station.get<unsigned int>("wait_corsynch");
+            else if ( name == "maxSlewtime")
+                PARA.maxSlewtime = PARA_station.get<unsigned int>("maxSlewtime");
+            else if ( name == "maxWait")
+                PARA.maxWait = PARA_station.get<unsigned int>("maxWait");
+            else if ( name == "maxScan")
+                PARA.maxScan = PARA_station.get<unsigned int>("maxScan");
+            else if ( name == "minScan")
+                PARA.minScan = PARA_station.get<unsigned int>("minScan");
+            else
+                cerr << "Station " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
+        }
+    }
+
     ostream& operator<<(ostream& out, const VLBI_station& sta){
         cout << boost::format("%=36s\n") %sta.name; 
         cout << sta.position ;

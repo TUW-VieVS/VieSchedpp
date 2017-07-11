@@ -17,6 +17,8 @@
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <math.h>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "VLBI_flux.h"
 #include "VieVS_constants.h"
@@ -27,11 +29,14 @@ namespace VieVS{
     class VLBI_source {
     public:
         struct PARAMETERS{
+            vector<string> parameterGroups;
+
             double weight = 1;
             
             vector<string> minSNR_band;
             vector<double> minSNR_value;
-            
+
+            double minFlux = .01;
             double minRepeat = 1800;
             double maxScan = 600;
             double minScan = 30;
@@ -43,10 +48,13 @@ namespace VieVS{
         VLBI_source();
         VLBI_source(string src_name, int id, double src_ra_deg, double src_de_deg, VLBI_flux src_flux);
 //        double* getSourceInCrs(){ return STORAGE.sourceInCrs;}
+        string getName() {return name;}
         double getRa() {return ra;}
         double getDe() {return de;}
         double getId() {return id;}
         double angleDistance(VLBI_source other);
+
+        void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
 
         virtual ~VLBI_source();
         

@@ -14,6 +14,38 @@
 #include "VLBI_initializer.h"
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
+        ifstream is("../parameters.xml");
+
+        cout << "reading: parameters.xml \n";
+        boost::property_tree::read_xml(is, PARA_xml);
+
+        try{
+            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("general.start");
+            cout << "start time:" << PARA.startTime << "\n";
+            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("general.end");
+            cout << "end time:" << PARA.startTime << "\n";
+
+            string stastr = PARA_xml.get<string>("general.stations");
+            
+            vector<string> splitSta;
+            boost::split( splitSta, stastr, boost::algorithm::is_any_of(","));
+            PARA.selectedStations = splitSta;
+        }catch(const boost::property_tree::ptree_error &e){
+            cout << "ERROR: reading parameters.xml file!"<< endl;
+            throw;
+        }
+
+        PARA.experimentName = PARA_xml.get<string>("general.experiment_name","dummy");
+        PARA.experimentDescription = PARA_xml.get<string>("general.experiment_description","dummy");
+
+        try{
+            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("general.maxDistanceTwinTeleskopes",0);
+        }catch(const boost::property_tree::ptree_error &e){
+            cout << "ERROR: reading parameters.xml file!"<< endl;
+            throw;
+        }
+
+        cout << "finished\n";
     }
 
     VLBI_initializer::~VLBI_initializer() {
@@ -255,17 +287,17 @@ namespace VieVS{
             
             // convert all items from antenna.cat
             string type = any.second.at(2);
-            double offset,rate1,con1,lim1_low,lim1_up,rate2,con2,lim2_low,lim2_up,diam;
+            double offset,rate1,con1,axis1_low,axis1_up,rate2,con2,axis2_low,axis2_up,diam;
             try{
                 offset = boost::lexical_cast<double>(any.second.at(3));
                 rate1 = boost::lexical_cast<double>(any.second.at(4));
                 con1 = boost::lexical_cast<double>(any.second.at(5));
-                lim1_low = boost::lexical_cast<double>(any.second.at(6));
-                lim1_up = boost::lexical_cast<double>(any.second.at(7));
+                axis1_low = boost::lexical_cast<double>(any.second.at(6));
+                axis1_up = boost::lexical_cast<double>(any.second.at(7));
                 rate2 = boost::lexical_cast<double>(any.second.at(8));
                 con2 = boost::lexical_cast<double>(any.second.at(9));
-                lim2_low = boost::lexical_cast<double>(any.second.at(10));
-                lim2_up = boost::lexical_cast<double>(any.second.at(11));
+                axis2_low = boost::lexical_cast<double>(any.second.at(10));
+                axis2_up = boost::lexical_cast<double>(any.second.at(11));
                 diam = boost::lexical_cast<double>(any.second.at(12));
             }
             catch(const std::exception& e){
@@ -334,7 +366,7 @@ namespace VieVS{
             stations.push_back(VLBI_station(name,
                                             created,
                                             VLBI_antenna(offset,diam,rate1,con1,rate2,con2), 
-                                            VLBI_cableWrap(lim1_low,lim1_up,lim2_low,lim2_up),
+                                            VLBI_cableWrap(axis1_low,axis1_up,axis2_low,axis2_up),
                                             VLBI_position(x,y,z),
                                             VLBI_equip(vector<string>{"X","S"},vector<double>{SEFD_X,SEFD_S}),
                                             VLBI_mask(hmask),
@@ -463,12 +495,81 @@ namespace VieVS{
     
     void VLBI_initializer::initializeStations(){
         int c = 0;
+        boost::property_tree::ptree PARA_station;
+        try{
+            PARA_station = PARA_xml.get_child("station");
+        }catch(const boost::property_tree::ptree_error &e){
+            cerr << "ERROR: reading parameters.xml file!"<<
+                    "    probably missing <station> block?" << endl;
+            throw;
+        }
         for(auto& any: stations){
-            VLBI_pointingVector pV(c, 0, any.getCableWrapNeutralPoint(1), any.getCableWrapNeutralPoint(1), PARA.startTime);
+            VLBI_pointingVector pV(c, 0, any.getCableWrapNeutralPoint(1), any.getCableWrapNeutralPoint(2), PARA.startTime);
             any.pushPointingVector(pV);
+            for (auto it: PARA_station){
+                string group = it.first;
+                if (group != "group"){
+                    cerr << "ERROR: reading parameters.xml file!\n"<<
+                            "    couldn't understand <" << group << "> in <station>" << endl;
+                    continue;
+                }
+                boost::property_tree::ptree current_PARA_station = it.second;
+                try{
+                    string name = it.second.get_child("<xmlattr>.name").data();
+                    string members = it.second.get_child("<xmlattr>.members").data();
+
+                    vector<string> splitSta;
+                    boost::split( splitSta, members, boost::algorithm::is_any_of(","));
+                    if (find(splitSta.begin(), splitSta.end(), any.getName()) != splitSta.end() || members.compare("*") == 0){
+                        any.setParameters(name, current_PARA_station);
+                    }
+
+                }catch(const boost::property_tree::ptree_error &e){
+                    cerr << "ERROR: reading parameters.xml file!\n"<<
+                            "    Probably missing 'name' or 'members' attribute in <station> <group>" << endl;
+                    throw;
+                }
+            }
             ++c;
         }
+    }
+    void VLBI_initializer::initializeSources(){
+        int c = 0;
+        boost::property_tree::ptree PARA_source;
+        try{
+            PARA_source = PARA_xml.get_child("source");
+        }catch(const boost::property_tree::ptree_error &e){
+            cout << "ERROR: reading parameters.xml file!"<<
+                    "    probably missing <station> block?" << endl;
+            throw;
+        }
+        for(auto& any: sources){
+            for (auto it: PARA_source){
+                string group = it.first;
+                if (group != "group"){
+                    cout << "ERROR: reading parameters.xml file!\n"<<
+                            "    couldn't understand <" << group << "> in <source>" << endl;
+                    continue;
+                }
+                boost::property_tree::ptree current_PARA_source = it.second;
+                try{
+                    string name = it.second.get_child("<xmlattr>.name").data();
+                    string members = it.second.get_child("<xmlattr>.members").data();
 
+                    vector<string> splitSrc;
+                    boost::split( splitSrc, members, boost::algorithm::is_any_of(","));
+                    if (find(splitSrc.begin(), splitSrc.end(), any.getName()) != splitSrc.end() || members.compare("*") == 0){
+                        any.setParameters(name, current_PARA_source);
+                    }
+
+                }catch(const boost::property_tree::ptree_error &e){
+                    cout << "ERROR: reading parameters.xml file!\n"<<
+                            "    Probably missing 'name' or 'members' attribute in <source> <group>" << endl;
+                    throw;
+                }
+            }
+            ++c;
+        }
     }
 
     void VLBI_initializer::displaySummary(){

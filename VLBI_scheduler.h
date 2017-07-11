@@ -28,9 +28,8 @@ namespace VieVS{
         struct PARAMETERS { 
             bool subnetting = true;
             bool fillinmode = true;
-            int minStaPerSubnet = 2;
-            int minStaPerScan = 2;
-            int minStaPerFillin = 2;
+            unsigned int minStaPerScan = 2;
+            unsigned int minStaPerFillin = 2;
             double minAngleBetweenSubnettingSources = 120*deg2rad;
             double skyCoverageInterval = 3600;
             

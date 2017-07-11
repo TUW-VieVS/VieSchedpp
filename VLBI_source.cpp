@@ -30,6 +30,27 @@ namespace VieVS{
         return acos(cos(de)*cos(other.de) * cos(ra-other.ra) + sin(de)*sin(other.de));
     }
     
+    void VLBI_source::setParameters(const string& group, boost::property_tree::ptree& PARA_station){
+        PARA.parameterGroups.push_back(group);
+        for (auto it: PARA_station){
+            string name = it.first;
+            if ( name == "<xmlattr>")
+                continue;
+            else if ( name == "weight")
+                PARA.weight = PARA_station.get<double>("weight");
+            else if ( name == "minRepeat")
+                PARA.minRepeat = PARA_station.get<double>("minRepeat");
+            else if ( name == "maxScan")
+                PARA.maxScan = PARA_station.get<double>("maxScan");
+            else if ( name == "minScan")
+                PARA.minScan = PARA_station.get<double>("minScan");
+            else if ( name == "minFlux")
+                PARA.minFlux = PARA_station.get<double>("minFlux");
+            else
+                cerr << "Source " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
+        }
+    }
+
     ostream& operator<<(ostream& out, const VLBI_source& src){
         cout << boost::format("%=36s\n") %src.name; 
         double ra_deg = src.ra*rad2deg;

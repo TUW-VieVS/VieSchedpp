@@ -26,7 +26,7 @@ namespace VieVS{
     public:
         VLBI_cableWrap();
         
-        VLBI_cableWrap(double lim1_low_deg, double lim1_up_deg, double lim2_low_deg, double lim2_up_deg);
+        VLBI_cableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
         
         double neutralPoint(int axis);
 
@@ -39,10 +39,10 @@ namespace VieVS{
         friend ostream& operator<<(ostream& out, const VLBI_cableWrap& sta);
         
     private:
-        double lim1_low;
-        double lim1_up; 
-        double lim2_low;
-        double lim2_up;
+        double axis1_low;
+        double axis1_up;
+        double axis2_low;
+        double axis2_up;
         
         double n_low;
         double n_up;

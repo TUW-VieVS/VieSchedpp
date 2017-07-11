@@ -16,6 +16,8 @@
 #include <vector>
 #include <map>
 #include <boost/date_time.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "VieVS_constants.h"
 #include "VLBI_station.h"
@@ -32,11 +34,13 @@ namespace VieVS{
             double minimumFlux = .5;
             double minSunDistance = 0;
             
-            boost::posix_time::ptime startTime = boost::posix_time::ptime(boost::gregorian::date(2017,01,01),boost::posix_time::time_duration(18,30,00));
-            boost::posix_time::ptime endTime = boost::posix_time::ptime(boost::gregorian::date(2017,01,02),boost::posix_time::time_duration(18,30,00));
+            string experimentName;
+            string experimentDescription;
+            boost::posix_time::ptime startTime;
+            boost::posix_time::ptime endTime;
             
-            double maxDistanceTwinTeleskopes = 5000;
-            vector<string> selectedStations = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
+            double maxDistanceTwinTeleskopes = 0;
+            vector<string> selectedStations;
             
         };
         
@@ -59,8 +63,10 @@ namespace VieVS{
         PARAMETERS getPARA(){ return PARA;}
 
         void initializeStations();
+        void initializeSources();
 
     private:
+        boost::property_tree::ptree PARA_xml;
         vector<VLBI_station> stations;
         vector<VLBI_source> sources;
         vector<VLBI_skyCoverage> skyCoverages;

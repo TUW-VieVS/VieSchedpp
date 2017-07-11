@@ -32,6 +32,8 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "VLBI_position.h"
 #include "VLBI_antenna.h"
@@ -54,10 +56,12 @@ namespace VieVS{
         enum class azelModel {simple, rigoros};
         
         struct PARAMETERS{
-            double lim1_low_offset = 5*deg2rad;
-            double lim1_up_offset = 5*deg2rad;
-            double lim2_low_offset = 5*deg2rad;
-            double lim2_up_offset = 5*deg2rad;
+            vector<string> parameterGroups;
+
+            double axis1_low_offset = 5*deg2rad;
+            double axis1_up_offset = 5*deg2rad;
+            double axis2_low_offset = 5*deg2rad;
+            double axis2_up_offset = 5*deg2rad;
             
             vector<string> minSNR_band;
             vector<double> minSNR_value;
@@ -86,6 +90,8 @@ namespace VieVS{
                 string sta_axis);
                 
         virtual ~VLBI_station(){};
+
+        string getName(){return name;}
         
         double distance(VLBI_station other);
         
@@ -100,6 +106,8 @@ namespace VieVS{
         void pushPointingVector(VLBI_pointingVector pointingVector);
 
         double getCableWrapNeutralPoint(int axis);
+
+        void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
 
         friend ostream& operator<<(ostream& out, const VLBI_station& sta);
                         
