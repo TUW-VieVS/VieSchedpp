@@ -30,22 +30,22 @@ namespace VieVS{
         return acos(cos(de)*cos(other.de) * cos(ra-other.ra) + sin(de)*sin(other.de));
     }
     
-    void VLBI_source::setParameters(const string& group, boost::property_tree::ptree& PARA_station){
+    void VLBI_source::setParameters(const string& group, boost::property_tree::ptree& PARA_source){
         PARA.parameterGroups.push_back(group);
-        for (auto it: PARA_station){
+        for (auto& it: PARA_source){
             string name = it.first;
             if ( name == "<xmlattr>")
                 continue;
             else if ( name == "weight")
-                PARA.weight = PARA_station.get<double>("weight");
+                PARA.weight = PARA_source.get<double>("weight");
             else if ( name == "minRepeat")
-                PARA.minRepeat = PARA_station.get<double>("minRepeat");
+                PARA.minRepeat = PARA_source.get<double>("minRepeat");
             else if ( name == "maxScan")
-                PARA.maxScan = PARA_station.get<double>("maxScan");
+                PARA.maxScan = PARA_source.get<double>("maxScan");
             else if ( name == "minScan")
-                PARA.minScan = PARA_station.get<double>("minScan");
+                PARA.minScan = PARA_source.get<double>("minScan");
             else if ( name == "minFlux")
-                PARA.minFlux = PARA_station.get<double>("minFlux");
+                PARA.minFlux = PARA_source.get<double>("minFlux");
             else if ( name == "minSNR"){
                 string bandName = it.second.get_child("<xmlattr>.band").data();
                 double value = it.second.get_value<double>();

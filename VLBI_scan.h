@@ -48,7 +48,7 @@ namespace VieVS{
             return pointingVectors.at(i);
         }
 
-        const vector<VLBI_baseline> &getBaselines() const {
+        vector<VLBI_baseline> &getBaselines() {
             return baselines;
         }
 

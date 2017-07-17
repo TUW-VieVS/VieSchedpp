@@ -44,7 +44,7 @@ namespace VieVS{
 
         void updateAzEl(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
 
-        void calcAllScanDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
+        void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
 
     private:
         int n1scans;

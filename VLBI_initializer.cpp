@@ -269,7 +269,7 @@ namespace VieVS{
         
         int created = 0;
         // loop through all antennas in antennaCatalog
-        for (auto any : antennaCatalog){
+        for (auto& any : antennaCatalog){
             counter ++;
             // get antenna name
             string name = any.first;
@@ -628,44 +628,45 @@ namespace VieVS{
         vector<double> tooWeak_Jy;
         int c = 0;
         while(c < sources.size()){
-            VLBI_source any = sources[c];
-            for (auto it: PARA_source){
+            VLBI_source& any = sources[c];
+            for (auto it: PARA_source) {
                 string group = it.first;
-                if (group != "group"){
-                    cout << "ERROR: reading parameters.xml file!\n"<<
-                            "    couldn't understand <" << group << "> in <source>" << endl;
+                if (group != "group") {
+                    cout << "ERROR: reading parameters.xml file!\n" <<
+                         "    couldn't understand <" << group << "> in <source>" << endl;
                     continue;
                 }
                 boost::property_tree::ptree current_PARA_source = it.second;
-                try{
+                try {
                     string name = it.second.get_child("<xmlattr>.name").data();
                     string members = it.second.get_child("<xmlattr>.members").data();
 
                     vector<string> splitSrc;
-                    boost::split( splitSrc, members, boost::algorithm::is_any_of(","));
-                    if (find(splitSrc.begin(), splitSrc.end(), any.getName()) != splitSrc.end() || members.compare("*") == 0){
+                    boost::split(splitSrc, members, boost::algorithm::is_any_of(","));
+                    if (find(splitSrc.begin(), splitSrc.end(), any.getName()) != splitSrc.end() ||
+                        members.compare("*") == 0) {
                         any.setParameters(name, current_PARA_source);
                     }
 
-                }catch(const boost::property_tree::ptree_error &e){
-                    cout << "ERROR: reading parameters.xml file!\n"<<
-                            "    Probably missing 'name' or 'members' attribute in <source> <group>" << endl;
+                } catch (const boost::property_tree::ptree_error &e) {
+                    cout << "ERROR: reading parameters.xml file!\n" <<
+                         "    Probably missing 'name' or 'members' attribute in <source> <group>" << endl;
                     throw;
                 }
-                
-                double maxJy;
-                bool flag = any.isStrongEnough(maxJy);
-                
-                if(!flag){
-                    sources.erase(sources.begin()+c);
-                    tooWeak.push_back(any.getName());
-                    tooWeak_Jy.push_back(maxJy);
-                    continue;
-                } else {
-                    ++c;
-                }
+            }
+            double maxJy;
+            bool flag = any.isStrongEnough(maxJy);
+
+            if(!flag){
+                sources.erase(sources.begin()+c);
+                tooWeak.push_back(any.getName());
+                tooWeak_Jy.push_back(maxJy);
+                continue;
+            } else {
+                ++c;
             }
         }
+
         if (!tooWeak.empty()){
             cout << tooWeak.size() << " weak sources:\n";
             for (size_t i=0; i<tooWeak.size(); ++i){
