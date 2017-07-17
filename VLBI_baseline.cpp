@@ -14,9 +14,14 @@
 #include "VLBI_baseline.h"
 
 namespace VieVS{
-    VLBI_baseline::VLBI_baseline() {
+    VLBI_baseline::VLBI_baseline(){
+    }
+
+    VLBI_baseline::VLBI_baseline(int srcid, int staid1, int staid2, unsigned int startTime)
+            : srcid(srcid), staid1(staid1), staid2(staid2), startTime{startTime}{
     }
 
     VLBI_baseline::~VLBI_baseline() {
     }
+
 }

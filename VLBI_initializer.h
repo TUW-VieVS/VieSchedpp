@@ -30,14 +30,13 @@ namespace VieVS{
     class VLBI_initializer {
     
     public:
-        struct PARAMETERS{
-            double minimumFlux = .5;
-            double minSunDistance = 0;
-            
+        struct PARAMETERS{            
             string experimentName;
             string experimentDescription;
             boost::posix_time::ptime startTime;
             boost::posix_time::ptime endTime;
+            unsigned int duration;
+            double mjdStart;
             
             double maxDistanceTwinTeleskopes = 0;
             vector<string> selectedStations;
@@ -53,16 +52,31 @@ namespace VieVS{
         map<string,vector<string> > readCatalog(string path, catalog type);
         
         void createStationsFromCatalogs(string catalogPath);
+
         void createSourcesFromCatalogs(string catalogPath);
+
         void createSkyCoverages();
+
         void displaySummary();
 
-        vector<VLBI_station> getStations(){ return stations;}
-        vector<VLBI_source> getSources(){ return sources;}
-        vector<VLBI_skyCoverage> getSkyCoverages(){ return skyCoverages;}
-        PARAMETERS getPARA(){ return PARA;}
+        vector<VLBI_station> getStations(){
+            return stations;
+        }
+
+        vector<VLBI_source> getSources(){
+            return sources;
+        }
+
+        vector<VLBI_skyCoverage> getSkyCoverages(){
+            return skyCoverages;
+        }
+
+        PARAMETERS getPARA(){
+            return PARA;
+        }
 
         void initializeStations();
+
         void initializeSources();
 
     private:

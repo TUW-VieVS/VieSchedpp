@@ -13,7 +13,9 @@
 
 #ifndef VLBI_EQUIP_H
 #define VLBI_EQUIP_H
+
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 
 using namespace std;
@@ -24,11 +26,15 @@ namespace VieVS{
         VLBI_equip();
         VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs);
         virtual ~VLBI_equip();
+
+        const unordered_map<string, double> &getSEFD() const {
+            return SEFD;
+        }
+
         friend ostream& operator<<(ostream& out, const VLBI_equip& equip);
         
     private:
-        vector<double> SEFDs;
-        vector<string> channelNames;
+        unordered_map<string,double> SEFD;
     };
 }
 #endif /* VLBI_EQUIP_H */

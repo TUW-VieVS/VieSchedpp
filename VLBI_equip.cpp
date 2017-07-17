@@ -15,16 +15,19 @@
 namespace VieVS{
     VLBI_equip::VLBI_equip(){}
     
-    VLBI_equip::VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs):
-    channelNames{all_channelNames}, SEFDs{corresponding_SEFDs}{}
+    VLBI_equip::VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs){
+        for (int i = 0; i < all_channelNames.size(); ++i) {
+            SEFD.insert(make_pair(all_channelNames[i],corresponding_SEFDs[i]));
+        }
+    }
 
     VLBI_equip::~VLBI_equip() {
     }
     
     ostream& operator<<(ostream& out, const VLBI_equip& equip){
         cout << "SEFD:\n";
-        for (int i=0; i<equip.SEFDs.size(); ++i){
-            cout << "    " << equip.channelNames[i] << ": " << equip.SEFDs[i] << "\n";
+        for(auto& any: equip.SEFD){
+            cout << "Band: " << any.first << " " << any.second;
         }
         return out;
     }

@@ -24,25 +24,25 @@ namespace VieVS{
     class VLBI_pointingVector {
     public:
         VLBI_pointingVector();
-        VLBI_pointingVector(int staid, int srcid, double az_rad, double el_rad, boost::posix_time::ptime time);
+        VLBI_pointingVector(int staid, int srcid);
         virtual ~VLBI_pointingVector();
         
         int getStaid(){return staid;}
         int getSrcid(){return srcid;}
         double getAz(){return az;}
         double getEl(){return el;}
-        boost::posix_time::ptime getTime(){return time;}
+        unsigned int getTime(){return time;}
         
         void setAz(double new_az){az = new_az;};
         void setEl(double new_el){el = new_el;};
-        void setTime(boost::posix_time::ptime new_time){time = new_time;};
+        void setTime(unsigned int new_time){time = new_time;};
         
     private:
         int staid;
         int srcid;
         double az;
         double el;
-        boost::posix_time::ptime time;
+        unsigned int time;
     };
 }
 #endif /* VLBI_POINTINGVECTOR_H */

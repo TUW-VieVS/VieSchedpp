@@ -13,19 +13,51 @@
 
 #ifndef BASELINE_H
 #define BASELINE_H
-#include <iostream>
-#include "VLBI_obs.h"
-#include "VieVS_constants.h"
+
+#include <string>
+#include <unordered_map>
 
 using namespace std;
 namespace VieVS{
     class VLBI_baseline {
     public:
         VLBI_baseline();
+
+        VLBI_baseline(int staid1, int staid2, int srcid, unsigned int startTime);
+
+        int getStaid1() const {
+            return staid1;
+        }
+
+        int getStaid2() const {
+            return staid2;
+        }
+
+        int getSrcid() const {
+            return srcid;
+        }
+
+        unsigned int getStartTime() const {
+            return startTime;
+        }
+
+        unordered_map<string, double> getObservedFlux() const {
+            return observedFlux;
+        }
+
+        unordered_map<string, unsigned int> getScanDuration() const {
+            return scanDuration;
+        }
+
         virtual ~VLBI_baseline();
     private:
-        VLBI_obs sta1;
-        VLBI_obs sta2;
+        int staid1;
+        int staid2;
+        int srcid;
+        unsigned int startTime;
+
+        unordered_map<string,double> observedFlux;
+        unordered_map<string,unsigned int> scanDuration;
     };
 }
 #endif /* BASELINE_H */

@@ -1,10 +1,6 @@
-#include "mainwindow.h"
-#include <QApplication>
-
 #include <cstdlib>
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
-
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -18,7 +14,6 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
     try{
         createParameterFile();
         run();
@@ -26,16 +21,12 @@ int main(int argc, char *argv[])
         cout << "ERROR: scheduling failed!\n";
     }
 
-//    MainWindow w;
-//    w.show();
-
-    return a.exec();
+    return 0;
 }
 
 void run(){
 
-
-    string path = "/data/VieVS/CATALOGS";
+    string path = "D:/VieVS/CATALOGS";
 
     VieVS::VLBI_initializer init;
 
@@ -47,7 +38,6 @@ void run(){
 //    init.displaySummary();
 
     VieVS::VLBI_scheduler scheduler(init);
-    cout << "Good Bye!" << endl;
 
     scheduler.precalcSubnettingSrcIds();
     scheduler.start();
@@ -87,10 +77,9 @@ void createParameterFile(){
     flux2_sta.add("minSNR",15);
     flux2_sta.put("minSNR.<xmlattr>.band","S");
     station_global.add_child("global.minSNR",flux2_sta.get_child("minSNR"));
-    station_global.add("global.wait_setup",10);
+    station_global.add("global.wait_setup",0);
     station_global.add("global.wait_source",5);
     station_global.add("global.wait_tape",1);
-    station_global.add("global.wait_idle",0);
     station_global.add("global.wait_calibration",10);
     station_global.add("global.wait_corsynch",3);
     station_global.add("global.maxSlewtime",9999);
@@ -138,8 +127,20 @@ void createParameterFile(){
     pt.add_child("station",station);
     pt.add_child("source",source);
 
-    std::ofstream os("../parameters.xml");
 
+
+    boost::property_tree::ptree bands;
+    boost::property_tree::ptree X;
+    X.add("wavelength",0.0349);
+    boost::property_tree::ptree S;
+    S.add("wavelength",3.8000);
+
+    bands.add_child("X",X);
+    bands.add_child("S",S);
+    pt.add_child("bands",bands);
+
+
+    std::ofstream os("parameters.xml");
     boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }

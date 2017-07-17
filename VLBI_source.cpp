@@ -15,7 +15,7 @@
 namespace VieVS{
     VLBI_source::VLBI_source() {
     }
-    VLBI_source::VLBI_source(string src_name,int id, double src_ra_deg, double src_de_deg, VLBI_flux src_flux):
+    VLBI_source::VLBI_source(string src_name,int id, double src_ra_deg, double src_de_deg, unordered_map<string,VLBI_flux> src_flux):
     name{src_name}, id{id}, ra{src_ra_deg*deg2rad}, de{src_de_deg*deg2rad}, flux{src_flux}{
 //        STORAGE.sourceInCrs[0] = cos(de)*cos(ra);
 //        STORAGE.sourceInCrs[1] = cos(de)*sin(ra);
@@ -46,9 +46,28 @@ namespace VieVS{
                 PARA.minScan = PARA_station.get<double>("minScan");
             else if ( name == "minFlux")
                 PARA.minFlux = PARA_station.get<double>("minFlux");
-            else
+            else if ( name == "minSNR"){
+                string bandName = it.second.get_child("<xmlattr>.band").data();
+                double value = it.second.get_value<double>();
+                PARA.minSNR.insert(make_pair(bandName,value));
+            } else
                 cerr << "Source " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
         }
+    }
+    
+    bool VLBI_source::isStrongEnough(double& maxFlux){
+        maxFlux = 0;
+        
+        for (auto& any: flux){
+            double thisFlux = any.second.getMaximumFlux();
+            if (thisFlux > maxFlux){
+                maxFlux = thisFlux;
+            }
+        }
+        if(maxFlux > PARA.minFlux){
+            return true;
+        }
+        return false;
     }
 
     ostream& operator<<(ostream& out, const VLBI_source& src){
@@ -58,10 +77,28 @@ namespace VieVS{
         cout << "position:\n";
         cout << boost::format("  RA: %10.6f [deg]\n") % ra_deg;
         cout << boost::format("  DE: %10.6f [deg]\n") % de_deg;
-        cout << src.flux;
+//        cout << src.flux;
         cout << "------------------------------------\n";
         return out;
     }
-    
-    
+
+    unordered_map<string, double> VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) {
+        unordered_map<string, double> fluxes;
+
+        double cosdec = cos(de);
+        double ha = gmst - ra;
+
+        double u = dx * sin(ha) + dy * cos(ha);
+        double v = dz*cos(de) + sin(de) * (-dx * cos(ha) + dy * sin(ha));
+
+        for(auto& thisFlux: flux){
+            double observedFlux = thisFlux.second.getFlux(u,v);
+
+            fluxes.insert(make_pair(thisFlux.first,observedFlux));
+        }
+
+        return fluxes;
+    }
+
+
 }

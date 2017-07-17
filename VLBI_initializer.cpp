@@ -22,9 +22,18 @@ namespace VieVS{
         try{
             PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("general.start");
             cout << "start time:" << PARA.startTime << "\n";
+            PARA.mjdStart = PARA.startTime.date().modjulian_day() + PARA.startTime.time_of_day().seconds();
+
             PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("general.end");
             cout << "end time:" << PARA.startTime << "\n";
 
+            boost::posix_time::time_duration a = PARA.endTime - PARA.startTime;
+            int sec = a.total_seconds();
+            if(sec<0){
+                cerr << "ERROR: duration is less than zero seconds!\n";
+            }
+            PARA.duration = sec;
+            cout << "duration: " << PARA.duration << " [s]\n";
             string stastr = PARA_xml.get<string>("general.stations");
             
             vector<string> splitSta;
@@ -35,8 +44,8 @@ namespace VieVS{
             throw;
         }
 
-        PARA.experimentName = PARA_xml.get<string>("general.experiment_name","dummy");
-        PARA.experimentDescription = PARA_xml.get<string>("general.experiment_description","dummy");
+        PARA.experimentName = PARA_xml.get<string>("general.experiment_name","");
+        PARA.experimentDescription = PARA_xml.get<string>("general.experiment_description","");
 
         try{
             PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("general.maxDistanceTwinTeleskopes",0);
@@ -181,6 +190,7 @@ namespace VieVS{
                 break;
             }
             
+            // TODO: split_Vector_total is now unnecessary
             case catalog::flux:{
                 // open file
                 ifstream fid (filepath);
@@ -189,6 +199,7 @@ namespace VieVS{
                 }
                 else{
                     string line;
+                    vector<string> lines;
                     vector<string> splitVector_total;
                     string station;
                     
@@ -199,6 +210,7 @@ namespace VieVS{
                         if(line.length()>0 && line.at(0)!='*'){
                             boost::split( splitVector_total, line, boost::is_space(),boost::token_compress_on);
                             station = splitVector_total[indexOfKey];
+                            lines.push_back(line);
                             break;
                         }
                     }
@@ -214,9 +226,12 @@ namespace VieVS{
                             string newStation = splitVector[indexOfKey];
 
                             if(newStation.compare(station) == 0){
+                                lines.push_back(line);
                                 splitVector_total.insert(splitVector_total.end(), splitVector.begin(), splitVector.end());
                             } else {
-                                all.insert( pair<string,vector<string>>(station,splitVector_total) );
+                                all.insert( pair<string,vector<string>>(station,lines) );
+                                lines.clear();
+                                lines.push_back(line);
                                 station = newStation;
                                 splitVector_total = splitVector;
                             }
@@ -388,8 +403,6 @@ namespace VieVS{
         int counter = 0;
         int nsrc = sourceCatalog.size();
         int created = 0;
-        vector<string> tooWeak;
-        vector<double> tooWeak_Jy;
         
         for (auto any: sourceCatalog){
             counter ++;
@@ -428,41 +441,90 @@ namespace VieVS{
             }
             
             vector<string> flux_cat = fluxCatalog.at(name);
-            if (flux_cat.size() < 6){
-                cout <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
-                continue;
+//            if (flux_cat.size() < 6){
+//                cout <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
+//                continue;
+//            }
+
+            unordered_map<string,VLBI_flux> flux;
+
+            vector<vector<string> > flux_split;
+            for (unsigned int i=0; i<flux_cat.size(); ++i){
+                vector<string> splitVector;
+                boost::split( splitVector, flux_cat[i], boost::is_space(),boost::token_compress_on);
+                if(splitVector.size()>3){
+                    flux_split.push_back(splitVector);
+                }
             }
-            string fluxType = flux_cat.at(2);
-            VLBI_flux srcFlux(fluxType);
             
-            bool fluxAdded = srcFlux.addFluxParameters(flux_cat);
-            if(! fluxAdded){
-                cout <<"*** ERROR: "<< name << ": flux could not be read ***\n";
-                continue;
+            vector<int> alreadyConsidered;
+            int cflux = 0;
+            while (cflux < flux_split.size()){
+                if(find(alreadyConsidered.begin(),alreadyConsidered.end(),cflux) != alreadyConsidered.end()){
+                    ++cflux;
+                    continue;
+                }
+                vector<string> parameters;
+                alreadyConsidered.push_back(cflux);
+                
+                string thisBand = flux_split[cflux][1];
+                string thisType = flux_split[cflux][2];
+                if (thisType == "M"){
+                    bool flagAdd = false;
+                    if (flux_split[cflux].size() == 5){
+                        flux_split[cflux].push_back("0");
+                        flagAdd = true;
+                    }
+                    if (flux_split[cflux].size() == 4){
+                        flux_split[cflux].push_back("0");
+                        flux_split[cflux].push_back("0");
+                        flagAdd = true;
+                    }
+                    if (flagAdd){
+                        cout << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
+                    }
+                }
+                
+                parameters.insert(parameters.end(), flux_split[cflux].begin()+3, flux_split[cflux].end());
+                
+                for(int i=cflux+1; i<flux_split.size(); ++i){
+                    if (flux_split[i][1] == thisBand){
+                        if (flux_split[i][2] == thisType){
+                            parameters.insert(parameters.end(), flux_split[i].begin()+3, flux_split[i].end());
+                        }else {
+                            cerr << "*** ERROR: Source:" << name << "Flux: " << thisBand << "\n";
+                            cerr << "    You can not mix B and M flux information for one band!";
+                        }
+                    }
+                }
+                
+                VLBI_flux srcFlux(thisType);
+                bool flagFlux = srcFlux.addFluxParameters(parameters);
+
+                if(thisBand == "X"){
+                    double wavelength = PARA_xml.get<double>("bands.X.wavelength");
+                    srcFlux.setWavelength(wavelength);
+                }else if(thisBand == "S"){
+                    srcFlux.setWavelength(PARA_xml.get<double>("bands.S.wavelength"));
+                }
+
+
+                if (flagFlux){
+                    flux.insert(make_pair(thisBand,srcFlux));
+                }else{
+                    cerr << "error reading flux info of: "<< name << "\n";
+                }
+                ++cflux;
             }
-            
-            double minFlux = srcFlux.getMinimalFlux();
-            if(minFlux < PARA.minimumFlux){
-                tooWeak.push_back(name);
-                tooWeak_Jy.push_back(minFlux);
-                continue;
+            if (!flux.empty()){
+                sources.push_back(VLBI_source(name,created,ra,de,flux));
+                created++;
+                cout << boost::format("  %-8s added\n") %name;
             }
-            sources.push_back(VLBI_source(name,created,ra,de,srcFlux));
-            
-            created++;
-            cout << boost::format("  %-8s added\n") %name;
         }
         
         cout <<"Finished! "<< created <<" of " << nsrc << " sources created\n\n" << endl;
         
-        if (!tooWeak.empty()){
-            cout << "weak sources:\n";
-            for (size_t i=0; i<tooWeak.size(); ++i){
-                string name = tooWeak[i];
-                double jy = tooWeak_Jy[i];
-                cout << boost::format("  %-8s: %4.2f [Jy]\n") %name %jy;
-            }
-        }
         
     }
     void VLBI_initializer::createSkyCoverages(){
@@ -504,7 +566,10 @@ namespace VieVS{
             throw;
         }
         for(auto& any: stations){
-            VLBI_pointingVector pV(c, 0, any.getCableWrapNeutralPoint(1), any.getCableWrapNeutralPoint(2), PARA.startTime);
+            VLBI_pointingVector pV(c, 0);
+            pV.setAz(any.getCableWrapNeutralPoint(1));
+            pV.setEl( any.getCableWrapNeutralPoint(2));
+            pV.setTime(0);
             any.pushPointingVector(pV);
             for (auto it: PARA_station){
                 string group = it.first;
@@ -531,10 +596,25 @@ namespace VieVS{
                 }
             }
             ++c;
+
+        }
+        int nsta = stations.size();
+        for (int i = 0; i < nsta; ++i) {
+            vector<double> distance(nsta);
+            vector<double> dx(nsta);
+            vector<double> dy(nsta);
+            vector<double> dz(nsta);
+            for (int j = i+1; j<nsta; ++j) {
+                distance[j] = stations[i].distance(stations[j]);
+                dx[j] = stations[j].getX()-stations[i].getX();
+                dy[j] = stations[j].getY()-stations[i].getY();
+                dz[j] = stations[j].getZ()-stations[i].getZ();
+            }
+            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
         }
     }
     void VLBI_initializer::initializeSources(){
-        int c = 0;
+        
         boost::property_tree::ptree PARA_source;
         try{
             PARA_source = PARA_xml.get_child("source");
@@ -543,7 +623,12 @@ namespace VieVS{
                     "    probably missing <station> block?" << endl;
             throw;
         }
-        for(auto& any: sources){
+
+        vector<string> tooWeak;
+        vector<double> tooWeak_Jy;
+        int c = 0;
+        while(c < sources.size()){
+            VLBI_source any = sources[c];
             for (auto it: PARA_source){
                 string group = it.first;
                 if (group != "group"){
@@ -567,9 +652,30 @@ namespace VieVS{
                             "    Probably missing 'name' or 'members' attribute in <source> <group>" << endl;
                     throw;
                 }
+                
+                double maxJy;
+                bool flag = any.isStrongEnough(maxJy);
+                
+                if(!flag){
+                    sources.erase(sources.begin()+c);
+                    tooWeak.push_back(any.getName());
+                    tooWeak_Jy.push_back(maxJy);
+                    continue;
+                } else {
+                    ++c;
+                }
             }
-            ++c;
         }
+        if (!tooWeak.empty()){
+            cout << tooWeak.size() << " weak sources:\n";
+            for (size_t i=0; i<tooWeak.size(); ++i){
+                string name = tooWeak[i];
+                double jy = tooWeak_Jy[i];
+                cout << boost::format("  %-8s: %4.2f [Jy]\n") %name %jy;
+            }
+            cout << sources.size() << " sources left\n";
+        }
+
     }
 
     void VLBI_initializer::displaySummary(){

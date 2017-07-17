@@ -38,14 +38,30 @@ namespace VieVS{
         VLBI_position(double x_m, double y_m, double z_m);
         
         virtual ~VLBI_position(){};
-        
+
+        double getX() const {
+            return x;
+        }
+
+        double getY() const {
+            return y;
+        }
+
+        double getZ() const {
+            return z;
+        }
+
+        double getLat() const {
+            return lat;
+        }
+
+        double getLon() const {
+            return lon;
+        }
+
         double getDistance(VLBI_position other);
-        double getLat(){ return lat;}
-        double getLon(){ return lon;}
-        double getX() { return x;}
-        double getY() { return y;}
-        double getZ() { return z;}
-        
+
+
         friend ostream& operator<<(ostream& out, const VLBI_position& position);
 
     private:

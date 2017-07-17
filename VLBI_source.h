@@ -19,6 +19,7 @@
 #include <math.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <unordered_map>
 
 #include "VLBI_flux.h"
 #include "VieVS_constants.h"
@@ -33,9 +34,8 @@ namespace VieVS{
 
             double weight = 1;
             
-            vector<string> minSNR_band;
-            vector<double> minSNR_value;
-
+            unordered_map<string,double> minSNR;
+            int minNumberOfStations = 2;
             double minFlux = .01;
             double minRepeat = 1800;
             double maxScan = 600;
@@ -46,15 +46,19 @@ namespace VieVS{
 //        };
         
         VLBI_source();
-        VLBI_source(string src_name, int id, double src_ra_deg, double src_de_deg, VLBI_flux src_flux);
+        VLBI_source(string src_name, int id, double src_ra_deg, double src_de_deg, unordered_map<string,VLBI_flux> src_flux);
 //        double* getSourceInCrs(){ return STORAGE.sourceInCrs;}
         string getName() {return name;}
         double getRa() {return ra;}
         double getDe() {return de;}
         double getId() {return id;}
+        int getMinNumberOfStations() {return 2;}
         double angleDistance(VLBI_source other);
-
+        bool isStrongEnough(double& maxFlux);
+        
         void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
+
+        unordered_map<string,double> observedFlux(double gmst, double dx, double dy, double dz);
 
         virtual ~VLBI_source();
         
@@ -65,7 +69,7 @@ namespace VieVS{
         int id;
         double ra;
         double de;
-        VLBI_flux flux;
+        unordered_map<string,VLBI_flux> flux;
         
         PARAMETERS PARA;
 //        PRECALC STORAGE;

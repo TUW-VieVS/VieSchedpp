@@ -28,7 +28,6 @@ namespace VieVS{
         struct PARAMETERS { 
             bool subnetting = true;
             bool fillinmode = true;
-            unsigned int minStaPerScan = 2;
             unsigned int minStaPerFillin = 2;
             double minAngleBetweenSubnettingSources = 120*deg2rad;
             double skyCoverageInterval = 3600;
@@ -39,7 +38,8 @@ namespace VieVS{
             
             boost::posix_time::ptime startTime;
             boost::posix_time::ptime endTime;
-            boost::posix_time::ptime currentTime;
+            double mjdStart;
+            unsigned int currentTime;
         };
         
         struct PRECALC{
@@ -55,9 +55,7 @@ namespace VieVS{
         VLBI_subcon allVisibleScans();
         
         vector<double> sort_subcon(VLBI_subcon subcon);
-        
-        void subconStartTime();
-        
+
         void subconScanDuration();
         
         void precalcSubnettingSrcIds();
@@ -70,6 +68,7 @@ namespace VieVS{
         vector<VLBI_skyCoverage> skyCoverages;
         PARAMETERS PARA;
         PRECALC PRE;
+        vector<VLBI_scan> scans;
     };
 }
 #endif /* VLBI_SCHEDULER_H */

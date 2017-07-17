@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<software>
+	<name>VieVS Scheduler</name>
+	<version>1.0</version>
+	<created_local_time>2017-Jul-16 19:11:38</created_local_time>
+</software>
+<general>
+	<experiment_name>R1XXX</experiment_name>
+	<experiment_description>This is this experiment R1XXX</experiment_description>
+	<start>2017-Jan-01 12:30:00</start>
+	<end>2017-Jan-02 12:30:00</end>
+	<stations>HART15M,NYALES20,SEJONG,WETTZ13N,WETTZ13S,WETTZELL,YARRA12M,KATH12M</stations>
+	<maxDistanceTwinTeleskopes>5000</maxDistanceTwinTeleskopes>
+</general>
+<station>
+	<group name="global" members="*">
+		<minSNR band="X">20</minSNR>
+		<minSNR band="S">15</minSNR>
+		<wait_setup>0</wait_setup>
+		<wait_source>5</wait_source>
+		<wait_tape>1</wait_tape>
+		<wait_calibration>10</wait_calibration>
+		<wait_corsynch>3</wait_corsynch>
+		<maxSlewtime>9999</maxSlewtime>
+		<maxWait>9999</maxWait>
+		<maxScan>600</maxScan>
+		<minScan>42</minScan>
+	</group>
+	<group name="group1" members="HART15M,NYALES20,SEJONG">
+		<maxScan>500</maxScan>
+		<wait_setup>5</wait_setup>
+	</group>
+</station>
+<source>
+	<group name="global" members="*">
+		<minRepeat>1800</minRepeat>
+		<maxScan>500</maxScan>
+		<minScan>42</minScan>
+		<minFlux>0.050000000000000003</minFlux>
+		<minSNR band="X">20</minSNR>
+		<minSNR band="S">15</minSNR>
+	</group>
+	<group name="group1" members="2355-534,2329-384">
+		<minRepeat>3600</minRepeat>
+		<maxScan>200</maxScan>
+		<minScan>20</minScan>
+		<minFlux>0</minFlux>
+	</group>
+</source>
+<bands>
+	<X>
+		<wavelength>0.0349</wavelength>
+	</X>
+	<S>
+		<wavelength>3.7999999999999998</wavelength>
+	</S>
+</bands>

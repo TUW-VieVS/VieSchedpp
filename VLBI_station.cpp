@@ -30,8 +30,10 @@ namespace VieVS{
         axis = axisType::undefined;
     }
     
-    VLBI_station::VLBI_station(string sta_name, int id, VLBI_antenna sta_antenna, VLBI_cableWrap sta_cableWrap, VLBI_position sta_position, VLBI_equip sta_equip, VLBI_mask sta_mask, string sta_axis):
-            name{sta_name}, id{id}, antenna{sta_antenna}, cableWrap{sta_cableWrap}, position{sta_position}, equip{sta_equip}, mask{sta_mask}{
+    VLBI_station::VLBI_station(string sta_name, int id, VLBI_antenna sta_antenna, VLBI_cableWrap sta_cableWrap,
+                               VLBI_position sta_position, VLBI_equip sta_equip, VLBI_mask sta_mask, string sta_axis):
+            name{sta_name}, id{id}, antenna{sta_antenna}, cableWrap{sta_cableWrap}, position{sta_position},
+            equip{sta_equip}, mask{sta_mask}{
         skyCoverageID = -1;
         if (sta_axis.compare("AZEL") == 0)
             axis = axisType::AZEL;
@@ -49,6 +51,8 @@ namespace VieVS{
             axis = axisType::ALGO;
         else 
             axis = axisType::undefined;
+        
+        history_time.push_back(0);
     }
         
     void VLBI_station::pushPointingVector(VLBI_pointingVector pointingVector){
@@ -79,8 +83,6 @@ namespace VieVS{
                 PARA.wait_source = PARA_station.get<unsigned int>("wait_source");
             else if ( name == "wait_tape")
                 PARA.wait_tape = PARA_station.get<unsigned int>("wait_tape");
-            else if ( name == "wait_idle")
-                PARA.wait_idle = PARA_station.get<unsigned int>("wait_idle");
             else if ( name == "wait_calibration")
                 PARA.wait_calibration = PARA_station.get<unsigned int>("wait_calibration");
             else if ( name == "wait_corsynch")
@@ -93,7 +95,11 @@ namespace VieVS{
                 PARA.maxScan = PARA_station.get<unsigned int>("maxScan");
             else if ( name == "minScan")
                 PARA.minScan = PARA_station.get<unsigned int>("minScan");
-            else
+            else if ( name == "minSNR"){
+                string bandName = it.second.get_child("<xmlattr>.band").data();
+                double value = it.second.get_value<double>();
+                PARA.minSNR.insert(make_pair(bandName,value));
+            } else
                 cerr << "Station " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
         }
     }
@@ -107,12 +113,22 @@ namespace VieVS{
         return out;
     }
     
-    bool VLBI_station::isVisible(VLBI_source source, boost::posix_time::ptime time, VLBI_pointingVector& p){
-        p = getAzEl(source, time);
+    bool VLBI_station::isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation){
+        if (useTimeFromStation){
+            double time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
+                    PARA.wait_tape;
+            getAzEl(source, p, time);
+        }else {
+            double time = p.getTime();
+            getAzEl(source, p, time);
+        }
+        
         return cableWrap.anglesInside(p);
     }
     
-    VLBI_pointingVector VLBI_station::getAzEl(VLBI_source source, boost::posix_time::ptime time){
+    void VLBI_station::getAzEl(VLBI_source source, VLBI_pointingVector& p, unsigned int time){
+        
+        
         double ra = source.getRa();
         double de = source.getDe();
         double lat = position.getLat();
@@ -121,13 +137,16 @@ namespace VieVS{
 
         //  TIME 
         double date1, date2;
-        iauCal2jd(time.date().year(), time.date().month(), time.date().day(), &date1, &date2);
+//        iauCal2jd(time.date().year(), time.date().month(), time.date().day(), &date1, &date2);
+//        
+//        date2 = date2 + 
+//                time.time_of_day().hours()/24 + 
+//                time.time_of_day().minutes()/3600 + 
+//                time.time_of_day().seconds()/86400;
         
-        date2 = date2 + 
-                time.time_of_day().hours()/24 + 
-                time.time_of_day().minutes()/3600 + 
-                time.time_of_day().seconds()/86400;
-        
+        date1 = 2400000.5;
+        date2 = PRECALC.mjdStart + time/86400;
+
         //  GCRS to Intermediate 
         double x,y,s;
         iauXys06a(date1, date2, &x, &y, &s);
@@ -213,18 +232,28 @@ namespace VieVS{
         }
         double az = fmod(saz+DPI,DPI*2);
 
-        return VLBI_pointingVector(id,source.getId(),az,el,time);
+        p.setAz(az);
+        p.setEl(el);
+        p.setTime(time);
+    }
+    
+    void VLBI_station::preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz) {
+        PRECALC.mjdStart = mjd;
+        PRECALC.distance = distance;
+        PRECALC.dx = dx;
+        PRECALC.dy = dy;
+        PRECALC.dz = dz;
+
     }
     
     double VLBI_station::distance(VLBI_station other){
         return position.getDistance(other.position);
     }
     
-    void VLBI_station::slewTo(VLBI_pointingVector& pointingVector){
-        
+    unsigned int  VLBI_station::unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector){
         cableWrap.calcUnwrappedAz(current,pointingVector);
-        antenna.scanStart(current,pointingVector,PARA.wait_setup, PARA.wait_source, PARA.wait_tape, PARA.wait_idle, PARA.wait_calibration);
-        
-        
+        return antenna.slewTime(current,pointingVector);
     }
+
+
 }

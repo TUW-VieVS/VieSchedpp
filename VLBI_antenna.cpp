@@ -33,11 +33,11 @@ namespace VieVS{
     VLBI_antenna::~VLBI_antenna() {
     }
     
-    void VLBI_antenna::scanStart(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector, int wait_setup, int wait_source, int wait_tape, int wait_idle, int wait_calibration){
+    unsigned int VLBI_antenna::slewTime(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector){
         
         double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
         double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
-        double acc1 = 1*deg2rad;
+        double acc1 = 1*deg2rad; // TODO acceleration is hardcoded
         double acc2 = 1*deg2rad;
         
         double t_acc_1 = rate1/acc1;
@@ -58,20 +58,12 @@ namespace VieVS{
             t_2 = 2*t_acc_2 + (delta2)/rate2;
         }
         
-        int slewtime = (int) ceil(t_1);
+        unsigned int slewtime = (unsigned int) ceil(t_1);
         if(t_2>t_1){
-            slewtime = (int) ceil(t_2);
+            slewtime = (unsigned int) ceil(t_2);
         }
         
-        
-        new_pointingVector.setTime(new_pointingVector.getTime()+
-                                   boost::posix_time::seconds(slewtime)+
-                                   boost::posix_time::seconds(wait_setup)+
-                                   boost::posix_time::seconds(wait_source)+
-                                   boost::posix_time::seconds(wait_tape)+
-                                   boost::posix_time::seconds(wait_idle)+
-                                   boost::posix_time::seconds(wait_calibration));
-        
+        return slewtime;        
     }
     
     ostream& operator<<(ostream& out, const VLBI_antenna& antenna){

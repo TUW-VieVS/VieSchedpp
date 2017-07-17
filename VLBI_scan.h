@@ -14,11 +14,11 @@
 #ifndef VLBI_SCAN_H
 #define VLBI_SCAN_H
 #include <iostream>
-#include <boost/date_time.hpp>
 #include <vector>
 
 #include "VLBI_pointingVector.h"
-#include "VieVS_constants.h"
+#include "VLBI_baseline.h"
+#include "VLBI_scanTimes.h"
 
 using namespace std;
 namespace VieVS{
@@ -26,22 +26,61 @@ namespace VieVS{
     class VLBI_scan {
     public:
         VLBI_scan();
-        VLBI_scan(vector<VLBI_pointingVector> pointingVectors);
+        VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations);
 
-        int getNSta(){return nsta;}
+        const VLBI_scanTimes &getTimes() const {
+            return times;
+        }
 
-        int getStationId(int i){return pointingVectors.at(i).getStaid() ;}
+        int getNSta(){
+            return nsta;
+        }
 
-        int getSourceId(){return pointingVectors[0].getSrcid();}
+        int getStationId(int i){
+            return pointingVectors.at(i).getStaid();
+        }
 
-        VLBI_pointingVector& getPointingVector(int i){return pointingVectors.at(i);}
+        int getSourceId(){
+            return pointingVectors[0].getSrcid();
+        }
+
+        VLBI_pointingVector& getPointingVector(int i){
+            return pointingVectors.at(i);
+        }
+
+        const vector<VLBI_baseline> &getBaselines() const {
+            return baselines;
+        }
+
+        bool removeElement(int idx);
 
         void setPointingVector(int i, VLBI_pointingVector& pointingVector){pointingVectors[i] = pointingVector;}
 
+        void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
+                      unsigned int calib);
+
+        void addTimes(int idx, VLBI_scan& other, int idx_other);
+
+        void constructBaselines();
+
+        void updateSlewtime(int idx, unsigned int new_slewtime);
+
+        bool checkIdleTimes(vector<unsigned int> maxIdle);
+
+
+//        int idxLatestStation(unsigned int &time);
+//        void updateStation(int idx,unsigned int slewtime, VLBI_pointingVector p);
+
         virtual ~VLBI_scan();
     private:
-        vector<VLBI_pointingVector> pointingVectors;
         int nsta;
+        int srcid;
+
+        int minimumNumberOfStations;
+
+        VLBI_scanTimes times;
+        vector<VLBI_pointingVector> pointingVectors;
+        vector<VLBI_baseline> baselines;
     };
 }
 #endif /* VLBI_SCAN_H */

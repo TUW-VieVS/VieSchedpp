@@ -33,14 +33,32 @@ namespace VieVS{
                      double constantOverhead2_s);
         
         virtual ~VLBI_antenna();
-        
-        double getOffset()   const{return offset;}
-        double getDiam()     const{return diam;}
-        double getRate1()    const{return rate1;}
-        double getCon1()     const{return con1;}
-        double getRate2()    const{return rate2;}
-        
-        void scanStart(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector, int wait_setup, int wait_source, int wait_tape, int wait_idle, int wait_calibration);
+
+        double getOffset() const {
+            return offset;
+        }
+
+        double getDiam() const {
+            return diam;
+        }
+
+        double getRate1() const {
+            return rate1;
+        }
+
+        double getCon1() const {
+            return con1;
+        }
+
+        double getRate2() const {
+            return rate2;
+        }
+
+        double getCon2() const {
+            return con2;
+        }
+
+        unsigned int slewTime(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector);
         
         friend ostream& operator<<(ostream& out, const VLBI_antenna& antenna);
         

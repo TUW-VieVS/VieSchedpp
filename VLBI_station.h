@@ -24,16 +24,16 @@
 
 #ifndef VLBI_STATION_H
 #define VLBI_STATION_H
-#include <map>
 #include <iostream>
 #include <fstream>
 
-#include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <utility>
+#include <unordered_map>
 
 #include "VLBI_position.h"
 #include "VLBI_antenna.h"
@@ -44,7 +44,7 @@
 #include "VLBI_pointingVector.h"
 #include "VieVS_constants.h"
 
-#include <sofa.h>
+#include "sofa.h"
 
 using namespace std;
 
@@ -54,7 +54,8 @@ namespace VieVS{
     public:        
         enum class axisType {AZEL, HADC, XYNS, XYEW, RICH, SEST, ALGO, undefined};
         enum class azelModel {simple, rigoros};
-        
+
+
         struct PARAMETERS{
             vector<string> parameterGroups;
 
@@ -63,19 +64,26 @@ namespace VieVS{
             double axis2_low_offset = 5*deg2rad;
             double axis2_up_offset = 5*deg2rad;
             
-            vector<string> minSNR_band;
-            vector<double> minSNR_value;
-            
+            unordered_map<string,double> minSNR;
+
             unsigned int wait_setup = 10;
             unsigned int wait_source = 5;
             unsigned int wait_tape = 1;
-            unsigned int wait_idle = 0;
             unsigned int wait_calibration = 10;
             unsigned int wait_corsynch = 3;
             unsigned int maxSlewtime = 9999;
             unsigned int maxWait = 9999;
             unsigned int maxScan = 600;
             unsigned int minScan = 30;
+        };
+        
+        struct PRECALCULATED{
+            double mjdStart;
+            vector<double> distance;
+            vector<double> dx;
+            vector<double> dy;
+            vector<double> dz;
+
         };
         
         VLBI_station();
@@ -91,17 +99,65 @@ namespace VieVS{
                 
         virtual ~VLBI_station(){};
 
-        string getName(){return name;}
-        
+        unsigned int getMaxSlewtime(){
+            return PARA.maxWait;
+        }
+
+        unsigned int getMaxIdleTime(){
+            return PARA.maxWait;
+        }
+
+        const VLBI_cableWrap &getCableWrap() const {
+            return cableWrap;
+        }
+
+        string getName(){
+            return name;
+        }
+
+        unsigned int getCurrentTime(){
+            return current.getTime();
+        }
+
+        unordered_map<string, double> getSEFD(){
+            return equip.getSEFD();
+        }
+
+        double getDistance(int other_staid){
+            return PRECALC.distance[other_staid];
+        }
+
+        double getX() const{
+            return position.getX();
+        }
+
+        double getY() const{
+            return position.getY();
+        }
+
+        double getZ() const{
+            return position.getZ();
+        }
+
+        double dx(int id) const{
+            return PRECALC.dx[id];
+        }
+        double dy(int id) const{
+            return PRECALC.dy[id];
+        }
+        double dz(int id) const{
+            return PRECALC.dz[id];
+        }
+
         double distance(VLBI_station other);
         
         void setSkyCoverageId(int id){skyCoverageID = id;}
         
-        bool isVisible(VLBI_source source, boost::posix_time::ptime time, VLBI_pointingVector& p);
+        bool isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation = false);
         
-        void slewTo(VLBI_pointingVector& pointingVector);
+        unsigned int unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector);
         
-        VLBI_pointingVector getAzEl(VLBI_source source, boost::posix_time::ptime time);
+        void getAzEl(VLBI_source source, VLBI_pointingVector& p, unsigned int time);
         
         void pushPointingVector(VLBI_pointingVector pointingVector);
 
@@ -110,7 +166,16 @@ namespace VieVS{
         void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
 
         friend ostream& operator<<(ostream& out, const VLBI_station& sta);
-                        
+        
+        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
+
+
+        unsigned int getWaitSetup() {return PARA.wait_setup;};
+        unsigned int getWaitSource() {return PARA.wait_source;};
+        unsigned int getWaitTape() {return PARA.wait_tape;};
+        unsigned int getWaitCalibration() {return PARA.wait_calibration;};
+        unsigned int getWaitCorsynch() {return PARA.wait_corsynch;};
+
     private:
         string name;
         int id;
@@ -123,8 +188,12 @@ namespace VieVS{
         int skyCoverageID;
         
         PARAMETERS PARA;
+        PRECALCULATED PRECALC;
         
         VLBI_pointingVector current;
+        
+        vector<unsigned int> history_time;
+        vector<string> history_events;
         
         int nscans;
         int nbls;

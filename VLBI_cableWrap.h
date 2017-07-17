@@ -32,7 +32,7 @@ namespace VieVS{
 
         virtual ~VLBI_cableWrap();
                 
-        bool anglesInside(VLBI_pointingVector p);
+        bool anglesInside(VLBI_pointingVector& p);
         
         void calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector);
         

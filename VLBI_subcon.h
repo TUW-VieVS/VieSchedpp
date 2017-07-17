@@ -19,7 +19,7 @@
 #include "VLBI_station.h"
 #include "VLBI_source.h"
 #include "VLBI_scan.h"
-#include "VieVS_constants.h"
+
 using namespace std;
 
 namespace VieVS{
@@ -38,8 +38,14 @@ namespace VieVS{
         
         int getNumberSubnettingScans(){return n2scans;}
         
-        void calcSlewTimes(vector<VLBI_station> stations);
-        
+        void calcStartTimes(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+
+        void constructAllBaselines();
+
+        void updateAzEl(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+
+        void calcAllScanDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
+
     private:
         int n1scans;
         vector<VLBI_scan> subnet1;
