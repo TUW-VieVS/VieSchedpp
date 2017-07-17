@@ -4,8 +4,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/boost")
-SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/boost")
+#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/boost")
+#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/boost")
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/mschartn/boost_1_64_0")
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/home/mschartn/boost_1_64_0")
+
 find_package(Boost 1.64.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -49,5 +52,6 @@ set(SOURCE_FILES
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 
-FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
+# FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
+FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
 TARGET_LINK_LIBRARIES(VieVS_Scheduler_clion ${SOFA})

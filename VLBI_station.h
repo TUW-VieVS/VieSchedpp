@@ -107,6 +107,14 @@ namespace VieVS{
             return PARA.maxWait;
         }
 
+        unsigned int getMinScanTime(){
+            return PARA.minScan;
+        }
+
+        unsigned int getMaxScanTime(){
+            return PARA.maxScan;
+        }
+
         const VLBI_cableWrap &getCableWrap() const {
             return cableWrap;
         }
@@ -121,6 +129,10 @@ namespace VieVS{
 
         unordered_map<string, double> getSEFD(){
             return equip.getSEFD();
+        }
+
+        unordered_map<string, double> getMinSNR(){
+            return PARA.minSNR;
         }
 
         double getDistance(int other_staid){
@@ -148,6 +160,8 @@ namespace VieVS{
         double dz(int id) const{
             return PRECALC.dz[id];
         }
+
+
 
         double distance(VLBI_station other);
         

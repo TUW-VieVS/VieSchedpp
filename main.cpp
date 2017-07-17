@@ -26,7 +26,9 @@ int main(int argc, char *argv[])
 
 void run(){
 
-    string path = "D:/VieVS/CATALOGS";
+//    string path = "D:/VieVS/CATALOGS";
+
+    string path = "/data/VieVS/CATALOGS";
 
     VieVS::VLBI_initializer init;
 

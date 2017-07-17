@@ -49,9 +49,19 @@ namespace VieVS{
         VLBI_source(string src_name, int id, double src_ra_deg, double src_de_deg, unordered_map<string,VLBI_flux> src_flux);
 //        double* getSourceInCrs(){ return STORAGE.sourceInCrs;}
         string getName() {return name;}
+
         double getRa() {return ra;}
+
         double getDe() {return de;}
+
         double getId() {return id;}
+
+        unordered_map<string, double> getMinSNR(){
+            return PARA.minSNR;
+        }
+
+
+        // todo: minimum number of stations
         int getMinNumberOfStations() {return 2;}
         double angleDistance(VLBI_source other);
         bool isStrongEnough(double& maxFlux);

@@ -45,8 +45,12 @@ namespace VieVS{
             return observedFlux;
         }
 
-        unordered_map<string, unsigned int> getScanDuration() const {
+        unsigned int getScanDuration() const {
             return scanDuration;
+        }
+
+        void setScanDuration(unsigned int scanDuration) {
+            VLBI_baseline::scanDuration = scanDuration;
         }
 
         virtual ~VLBI_baseline();
@@ -57,7 +61,7 @@ namespace VieVS{
         unsigned int startTime;
 
         unordered_map<string,double> observedFlux;
-        unordered_map<string,unsigned int> scanDuration;
+        unsigned int scanDuration;
     };
 }
 #endif /* BASELINE_H */
