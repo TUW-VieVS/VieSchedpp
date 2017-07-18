@@ -127,12 +127,12 @@ namespace VieVS{
             return current.getTime();
         }
 
-        unordered_map<string, double> getSEFD(){
-            return equip.getSEFD();
+        double getSEFD(string band){
+            return equip.getSEFD(band);
         }
 
-        unordered_map<string, double> getMinSNR(){
-            return PARA.minSNR;
+        double getMinSNR(string band){
+            return PARA.minSNR[band];
         }
 
         double getDistance(int other_staid){

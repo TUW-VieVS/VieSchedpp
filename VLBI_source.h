@@ -38,8 +38,8 @@ namespace VieVS{
             int minNumberOfStations = 2;
             double minFlux = .01;
             double minRepeat = 1800;
-            double maxScan = 600;
-            double minScan = 30;
+            unsigned int maxScan = 600;
+            unsigned int minScan = 30;
         };
 //        struct PRECALC{
 //            double sourceInCrs[3];
@@ -58,6 +58,14 @@ namespace VieVS{
 
         unordered_map<string, double> getMinSNR(){
             return PARA.minSNR;
+        }
+
+        unsigned int getMinScanTime(){
+            return PARA.minScan;
+        }
+
+        unsigned int getMaxScanTime(){
+            return PARA.maxScan;
         }
 
 

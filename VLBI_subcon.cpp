@@ -126,108 +126,26 @@ namespace VieVS{
 
     void
     VLBI_subcon::calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart) {
-
-        vector<unordered_map<string,double>> SEFDs(stations.size());
-        for (int i = 0; i < stations.size(); ++i) {
-            SEFDs[i] = stations[i].getSEFD();
-        }
-
-        vector<unordered_map<string,double>> minSNR(stations.size());
-        for (int i = 0; i < stations.size(); ++i) {
-            minSNR[i] = stations[i].getMinSNR();
-        }
-
         for (int i = 0; i < n1scans; ++i) {
+            VLBI_scan& thisScan = subnet1[i];
+            thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()], mjdStart);
+        }
+    }
 
+    void VLBI_subcon::calcAllScanDurations(vector<VLBI_station>& stations, vector<VLBI_source>& sources) {
+        int i=0;
+        while (i<n1scans){
+            VLBI_scan& thisScan = subnet1[i];
+            int srcid = thisScan.getSourceId();
 
-            vector<VLBI_baseline>& baselines = subnet1[i].getBaselines();
-            int srcid = subnet1[i].getSourceId();
-            for (int ibl = 0; ibl < baselines.size(); ++ibl) {
-                int staid1 = baselines[ibl].getStaid1();
-                int staid2 = baselines[ibl].getStaid2();
-                unsigned int startTime = baselines[ibl].getStartTime();
-
-                double date1 = 2400000.5;
-                double date2 = mjdStart + startTime/86400;
-                double gmst = iauGmst82(date1, date2);
-
-                unsigned int duration = 0;
-                unordered_map<string,double> flux = sources[srcid].observedFlux(gmst,stations[staid1].dx(staid2),stations[staid1].dy(staid2),stations[staid1].dz(staid2));
-                for(auto& any:flux){
-                    string fluxname = any.first;
-                    double SEFD_src = any.second;
-
-                    auto it1 = SEFDs[staid1].find(fluxname);
-                    auto it12 = minSNR[staid1].find(fluxname);
-
-                    auto it2 = SEFDs[staid2].find(fluxname);
-                    auto it22 = minSNR[staid2].find(fluxname);
-
-
-                    double SEFD_sta1 = 9999;
-                    double SEFD_sta2 = 9999;
-                    double minSNR_sta1 = 0;
-                    double minSNR_sta2 = 0;
-
-                    bool bandsFound = true;
-                    if (it1 != SEFDs[staid1].end() && it12 != minSNR[staid1].end()){
-                        SEFD_sta1 = it1->second;
-                        minSNR_sta1 = it12->second;
-                    }else{
-                        cerr << "WARNING: SEFD information for band " << fluxname << "not found for" << stations[staid1].getName() <<"\n";
-                        bandsFound = false;
-                    }
-                    if (it2 != SEFDs[staid2].end() && it22 != minSNR[staid2].end()){
-                        SEFD_sta2 = it2->second;
-                        minSNR_sta2 = it22->second;
-                    }else{
-                        cerr << "WARNING: SEFD information for band " << fluxname << "not found for" << stations[staid1].getName() <<"\n";
-                        bandsFound = false;
-                    }
-
-                    unordered_map<string,double> minSNRs_src = sources[srcid].getMinSNR();
-                    double minSNR_src = 0;
-                    auto it_src = minSNRs_src.find(fluxname);
-                    if (it_src != minSNRs_src.end()){
-                        minSNR_src = it_src->second;
-                    }
-
-
-                    double maxminSNR = minSNR_src;
-                    if (minSNR_sta1>minSNR_src){
-                        maxminSNR = minSNR_sta1;
-                    } if (minSNR_sta2>minSNR_src){
-                        maxminSNR = minSNR_sta2;
-                    }
-
-
-                    double maxCorSynch1 = stations[staid1].getWaitCorsynch();
-                    double maxCorSynch = maxCorSynch1;
-                    double maxCorSynch2 = stations[staid2].getWaitCorsynch();
-                    if (maxCorSynch2 > maxCorSynch){
-                        maxCorSynch = maxCorSynch2;
-                    }
-
-                    if (bandsFound){
-                        // TODO: do not hardcode observing mode!!!
-                        double anum = (1.75*maxminSNR / SEFD_src);
-                        double anu1 = SEFD_sta1*SEFD_sta2;
-                        double anu2 = 1024 * 1.0e6 * 16 * 2;
-
-                        double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
-                        new_duration = ceil(new_duration);
-                        unsigned int new_duration_uint = (unsigned int) new_duration;
-                        if(new_duration_uint > duration){
-                            duration = new_duration_uint;
-                        }
-                    }else{
-                        cerr << "WARNING: duration of band " << fluxname << " ignored\n";
-                    }
-                }
-                baselines[ibl].setScanDuration(duration);
+            bool scanValid = thisScan.scanDuration(stations, sources[srcid]);
+            if (scanValid){
+                ++i;
+                cout << i << endl;
+            } else {
+                --n1scans;
+                subnet1.erase(subnet1.begin()+i);
             }
-
-
         }
     }
 

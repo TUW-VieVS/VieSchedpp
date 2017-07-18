@@ -85,6 +85,8 @@ namespace VieVS{
         while (i<baselines.size()){
             if(baselines[i].getStaid1()==staid || baselines[i].getStaid2()==staid){
                 baselines.erase(baselines.begin()+i);
+            } else {
+                ++i;
             }
         }
 
@@ -130,6 +132,155 @@ namespace VieVS{
 
     void VLBI_scan::updateSlewtime(int idx, unsigned int new_slewtime){
         times.updateSlewtime(idx,new_slewtime);
+    }
+
+    void
+    VLBI_scan::calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source& source, double mjdStart) {
+
+        for (int ibl = 0; ibl < baselines.size(); ++ibl) {
+            VLBI_baseline& thisBaseline = baselines[ibl];
+            int staid1 = thisBaseline.getStaid1();
+            int staid2 = thisBaseline.getStaid2();
+            unsigned int startTime = thisBaseline.getStartTime();
+
+            double date1 = 2400000.5;
+            double date2 = mjdStart + startTime/86400;
+            double gmst = iauGmst82(date1, date2);
+
+            unordered_map<string,unsigned int> durations;
+            unordered_map<string,double> flux = source.observedFlux(gmst,stations[staid1].dx(staid2),stations[staid1].dy(staid2),stations[staid1].dz(staid2));
+            for(auto& any:flux){
+                string fluxname = any.first;
+                double SEFD_src = any.second;
+
+                // TODO: check if band is in station and source
+                bool bandsFound = true;
+                double SEFD_sta1 = stations[staid1].getSEFD(fluxname);
+                double SEFD_sta2 = stations[staid2].getSEFD(fluxname);
+                double minSNR_sta1 = stations[staid1].getMinSNR(fluxname);
+                double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
+
+
+                unordered_map<string,double> minSNRs_src = source.getMinSNR();
+                double minSNR_src = 0;
+                auto it_src = minSNRs_src.find(fluxname);
+                if (it_src != minSNRs_src.end()){
+                    minSNR_src = it_src->second;
+                }
+
+
+                double maxminSNR = minSNR_src;
+                if (minSNR_sta1>minSNR_src){
+                    maxminSNR = minSNR_sta1;
+                } if (minSNR_sta2>minSNR_src){
+                    maxminSNR = minSNR_sta2;
+                }
+
+
+                double maxCorSynch1 = stations[staid1].getWaitCorsynch();
+                double maxCorSynch = maxCorSynch1;
+                double maxCorSynch2 = stations[staid2].getWaitCorsynch();
+                if (maxCorSynch2 > maxCorSynch){
+                    maxCorSynch = maxCorSynch2;
+                }
+
+                if (bandsFound){
+
+                    double anum = (1.75*maxminSNR / SEFD_src);
+                    double anu1 = SEFD_sta1*SEFD_sta2;
+                    // TODO: do not hardcode observing mode!!!
+                    double anu2 = 1024 * 1.0e6 * 16 * 2;
+
+                    double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
+                    new_duration = ceil(new_duration);
+                    unsigned int new_duration_uint = (unsigned int) new_duration;
+                    durations.insert(make_pair(fluxname,new_duration_uint));
+                }else{
+                    cerr << "WARNING: duration of band " << fluxname << " ignored\n";
+                }
+            }
+            thisBaseline.setObservedFlux(flux);
+            thisBaseline.setScanDuration(durations);
+            cout << "worked!";
+        }
+
+
+    }
+
+    bool VLBI_scan::scanDuration(vector<VLBI_station> &stations, VLBI_source &source) {
+
+        bool scanDurationsValid = false;
+        bool scanValid = true;
+
+        while (!scanDurationsValid){
+
+            scanDurationsValid = true;
+
+            vector<unsigned int> scanTimes(nsta,source.getMinScanTime());
+
+            for (int i = 0; i < nsta; ++i) {
+                unsigned int stationMinScanTime = stations[pointingVectors[i].getStaid()].getMinScanTime();
+                if(scanTimes[i]<stationMinScanTime){
+                    scanTimes[i] = stationMinScanTime;
+                }
+            }
+
+
+            vector<int> eraseStations;
+            for (int i = 0; i < baselines.size(); ++i) {
+                VLBI_baseline& thisBaseline = baselines[i];
+                int staid1 = thisBaseline.getStaid1();
+                int staidx1 = findIdxOfStationId(staid1);
+                int staid2 = thisBaseline.getStaid2();
+                int staidx2 = findIdxOfStationId(staid2);
+
+                unsigned int duration = thisBaseline.getScanDuration();
+                if(scanTimes[staidx1]<duration){
+                    scanTimes[staidx1] = duration;
+                }
+                if(scanTimes[staidx2]<duration){
+                    scanTimes[staidx2] = duration;
+                }
+                unsigned int station1MaxScanTime = stations[staid1].getMaxScanTime();
+                unsigned int station2MaxScanTime = stations[staid2].getMaxScanTime();
+
+
+                if(duration>station1MaxScanTime || duration>station2MaxScanTime || duration>source.getMaxScanTime()){
+                    string band = thisBaseline.longestScanDurationBand();
+                    double SEFD1 = stations[staid1].getSEFD(band);
+                    double SEFD2 = stations[staid2].getSEFD(band);
+                    if (SEFD1<SEFD2){
+                        eraseStations.push_back(staidx1);
+                        scanDurationsValid = false;
+                    } else{
+                        eraseStations.push_back(staidx2);
+                        scanDurationsValid = false;
+                    }
+                }
+            }
+
+            sort(eraseStations.begin(), eraseStations.end());
+            reverse(eraseStations.begin(), eraseStations.end());
+            unique(eraseStations.begin(), eraseStations.end());
+
+            for (int i = 0; i < eraseStations.size(); ++i) {
+                scanValid = removeElement(eraseStations[i]);
+                scanTimes.erase(scanTimes.begin()+eraseStations[i]);
+            }
+            if (!scanValid){
+                break;
+            }
+        }
+        return scanValid;
+    }
+
+    int VLBI_scan::findIdxOfStationId(int id) {
+        for (int idx = 0; idx < nsta; ++idx) {
+            if(pointingVectors[idx].getStaid()==id){
+                return idx;
+            }
+        }
+        return -1;
     }
 
 

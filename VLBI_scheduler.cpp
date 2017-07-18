@@ -51,10 +51,11 @@ namespace VieVS{
 
         cout << "calc baseline Duration\n";
         subcon.calcAllBaselineDurations(stations, sources, PARA.mjdStart);
-        cout << "calc baseline Duration\n";
+        cout << "baseline Duration calculated\n";
 
         cout << "calc all scan Duration\n";
-        cout << "calc baseline Duration\n";
+        subcon.calcAllScanDurations(stations,sources);
+        cout << "scan Durations calculated\n";
 
 
 /*        cout << "create subnetting subcons\n";

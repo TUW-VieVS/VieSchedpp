@@ -16,6 +16,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 namespace VieVS{
@@ -49,9 +50,13 @@ namespace VieVS{
             return scanDuration;
         }
 
-        void setScanDuration(unsigned int scanDuration) {
-            VLBI_baseline::scanDuration = scanDuration;
+        void setObservedFlux(const unordered_map<string, double> &observedFlux) {
+            VLBI_baseline::observedFlux = observedFlux;
         }
+
+        void setScanDuration(unordered_map<string,unsigned int>& scanDurations);
+
+        string longestScanDurationBand();
 
         virtual ~VLBI_baseline();
     private:
@@ -61,6 +66,8 @@ namespace VieVS{
         unsigned int startTime;
 
         unordered_map<string,double> observedFlux;
+        unordered_map<string,unsigned int> scanDurations;
+
         unsigned int scanDuration;
     };
 }

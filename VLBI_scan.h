@@ -13,12 +13,17 @@
 
 #ifndef VLBI_SCAN_H
 #define VLBI_SCAN_H
+
+
 #include <iostream>
 #include <vector>
 
 #include "VLBI_pointingVector.h"
 #include "VLBI_baseline.h"
 #include "VLBI_scanTimes.h"
+#include "VLBI_station.h"
+#include "VLBI_source.h"
+
 
 using namespace std;
 namespace VieVS{
@@ -54,6 +59,8 @@ namespace VieVS{
 
         bool removeElement(int idx);
 
+        int findIdxOfStationId(int id);
+
         void setPointingVector(int i, VLBI_pointingVector& pointingVector){pointingVectors[i] = pointingVector;}
 
         void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
@@ -67,6 +74,9 @@ namespace VieVS{
 
         bool checkIdleTimes(vector<unsigned int> maxIdle);
 
+        void calcBaselineScanDuration(vector<VLBI_station>& stations,VLBI_source& sources, double mjdStart);
+
+        bool scanDuration(vector<VLBI_station> &stations, VLBI_source &source);
 
 //        int idxLatestStation(unsigned int &time);
 //        void updateStation(int idx,unsigned int slewtime, VLBI_pointingVector p);

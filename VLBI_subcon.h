@@ -46,6 +46,8 @@ namespace VieVS{
 
         void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
 
+        void calcAllScanDurations(vector<VLBI_station>& stations, vector<VLBI_source>& sources);
+
     private:
         int n1scans;
         vector<VLBI_scan> subnet1;

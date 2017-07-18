@@ -27,8 +27,8 @@ namespace VieVS{
         VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs);
         virtual ~VLBI_equip();
 
-        const unordered_map<string, double> &getSEFD() const {
-            return SEFD;
+        double getSEFD(string band) {
+            return SEFD[band];
         }
 
         friend ostream& operator<<(ostream& out, const VLBI_equip& equip);

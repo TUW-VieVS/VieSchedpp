@@ -41,9 +41,9 @@ namespace VieVS{
             else if ( name == "minRepeat")
                 PARA.minRepeat = PARA_source.get<double>("minRepeat");
             else if ( name == "maxScan")
-                PARA.maxScan = PARA_source.get<double>("maxScan");
+                PARA.maxScan = PARA_source.get<unsigned int>("maxScan");
             else if ( name == "minScan")
-                PARA.minScan = PARA_source.get<double>("minScan");
+                PARA.minScan = PARA_source.get<unsigned int>("minScan");
             else if ( name == "minFlux")
                 PARA.minFlux = PARA_source.get<double>("minFlux");
             else if ( name == "minSNR"){

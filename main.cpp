@@ -2,11 +2,6 @@
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/date_time.hpp>
-#include <boost/algorithm/string/join.hpp>
-
 using namespace std;
 
 void run();
