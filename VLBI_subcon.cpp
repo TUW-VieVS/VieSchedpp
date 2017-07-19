@@ -148,5 +148,77 @@ namespace VieVS{
         }
     }
 
+    void VLBI_subcon::createSubcon2(vector<vector<int>> &subnettingSrcIds) {
+        vector<int> sourceIds(n1scans);
+        for (int i = 0; i < n1scans; ++i) {
+            sourceIds[i] = subnet1[i].getSourceId();
+        }
+
+        for (int i = 0; i < n1scans; ++i) {
+            int firstSrcId = sourceIds[i];
+            VLBI_scan first = subnet1[i];
+            vector<int> secondSrcIds = subnettingSrcIds[firstSrcId];
+            for (int j = 0; j < secondSrcIds.size(); ++j) {
+                vector<int> sta1 = first.getStationIds();
+
+                int secondSrcId = secondSrcIds[j];
+                auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
+                if (it != sourceIds.end()) {
+                    int idx = distance(sourceIds.begin(), it);
+                    VLBI_scan second = subnet1[idx];
+                    vector<int> sta2 = second.getStationIds();
+
+
+                    vector<int> uniqueSta1;
+                    vector<int> uniqueSta2;
+                    vector<int> intersection;
+                    for (int any: sta1) {
+                        if (find(sta2.begin(), sta2.end(), any) == sta2.end()) {
+                            uniqueSta1.push_back(any);
+                        } else {
+                            intersection.push_back(any);
+                        }
+                    }
+                    for (int any: sta2) {
+                        if (find(sta1.begin(), sta1.end(), any) == sta1.end()) {
+                            uniqueSta2.push_back(any);
+                        }
+                    }
+
+                    int nint = (int) intersection.size();
+
+                    for (int igroup = 0; igroup <= nint; ++igroup) {
+
+                        vector<int> data(nint, 1);
+                        for (int ii = nint - igroup; ii < nint; ++ii) {
+                            data.at(ii) = 2;
+                        }
+
+
+                        do {
+                            vector<int> scan1sta{uniqueSta1};
+                            vector<int> scan2sta{uniqueSta2};
+                            for (int ii = 0; ii < nint; ++ii) {
+                                if (data.at(ii) == 1) {
+                                    scan1sta.push_back(intersection[ii]);
+                                } else {
+                                    scan2sta.push_back(intersection[ii]);
+                                }
+                            }
+                            if (scan1sta.size() >= first.getMinimumNumberOfStations() &&
+                                scan2sta.size() >= second.getMinimumNumberOfStations()) {
+                                bool firstValid = first.removeAllBut(scan1sta);
+                                bool secondValid = second.removeAllBut(scan2sta);
+                                if (firstValid && secondValid) {
+                                    ++n2scans;
+                                    subnet2.push_back(make_pair(first, second));
+                                }
+                            }
+                        } while (next_permutation(std::begin(data), std::end(data)));
+                    }
+                }
+            }
+        }
+    }
 
 }

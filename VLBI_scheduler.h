@@ -53,11 +53,7 @@ namespace VieVS{
         void start();
         
         VLBI_subcon allVisibleScans();
-        
-        vector<double> sort_subcon(VLBI_subcon subcon);
 
-        void subconScanDuration();
-        
         void precalcSubnettingSrcIds();
         
         virtual ~VLBI_scheduler();

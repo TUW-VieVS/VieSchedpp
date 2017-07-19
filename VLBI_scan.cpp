@@ -202,7 +202,6 @@ namespace VieVS{
             }
             thisBaseline.setObservedFlux(flux);
             thisBaseline.setScanDuration(durations);
-            cout << "worked!";
         }
 
 
@@ -333,6 +332,32 @@ namespace VieVS{
             }
         }
         return -1;
+    }
+
+    vector<int> VLBI_scan::getStationIds() {
+        vector<int> ids;
+        for (int i = 0; i < nsta; ++i) {
+            ids.push_back(pointingVectors[i].getStaid());
+        }
+
+        return ids;
+    }
+
+    bool VLBI_scan::removeAllBut(vector<int> &station_ids) {
+        int i = 0;
+        bool valid = true;
+        while (i < nsta) {
+            int thisId = pointingVectors[i].getStaid();
+            if (find(station_ids.begin(), station_ids.end(), thisId) == station_ids.end()) {
+                valid = removeElement(i);
+                if (!valid) {
+                    break;
+                }
+            } else {
+                ++i;
+            }
+        }
+        return valid;
     }
 
 

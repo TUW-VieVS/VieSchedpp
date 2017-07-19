@@ -57,6 +57,10 @@ namespace VieVS{
             return baselines;
         }
 
+        int getMinimumNumberOfStations() const {
+            return minimumNumberOfStations;
+        }
+
         bool removeElement(int idx);
 
         int findIdxOfStationId(int id);
@@ -82,6 +86,11 @@ namespace VieVS{
 //        void updateStation(int idx,unsigned int slewtime, VLBI_pointingVector p);
 
         virtual ~VLBI_scan();
+
+        vector<int> getStationIds();
+
+        bool removeAllBut(vector<int> &station_ids);
+
     private:
         int nsta;
         int srcid;

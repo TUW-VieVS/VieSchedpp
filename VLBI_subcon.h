@@ -48,6 +48,8 @@ namespace VieVS{
 
         void calcAllScanDurations(vector<VLBI_station>& stations, vector<VLBI_source>& sources);
 
+        void createSubcon2(vector<vector<int>> &subnettingSrcIds);
+
     private:
         int n1scans;
         vector<VLBI_scan> subnet1;

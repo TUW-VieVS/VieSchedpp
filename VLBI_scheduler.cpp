@@ -34,35 +34,36 @@ namespace VieVS{
         cout << "start constructing all Visible Scans\n";
         VLBI_subcon subcon = allVisibleScans();
         cout << "subcon created\n";
-        cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n";
-        cout << "    2 scan subcons" << subcon.getNumberSubnettingScans() << "\n";
+        cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n\n";
 
         cout << "calc start times\n";
         subcon.calcStartTimes(stations, sources);
-        cout << "start times calculated\n";
+        cout << "start times calculated\n\n";
 
         cout << "update az el times\n";
         subcon.updateAzEl(stations,sources);
-        cout << "az el updated!\n";
+        cout << "az el updated!\n\n";
 
         cout << "construct all baselines\n";
         subcon.constructAllBaselines();
-        cout << "baselines constructed\n";
+        cout << "baselines constructed\n\n";
 
         cout << "calc baseline Duration\n";
         subcon.calcAllBaselineDurations(stations, sources, PARA.mjdStart);
-        cout << "baseline Duration calculated\n";
+        cout << "baseline Duration calculated\n\n";
 
         cout << "calc all scan Duration\n";
         subcon.calcAllScanDurations(stations,sources);
-        cout << "scan Durations calculated\n";
+        cout << "scan Durations calculated\n\n";
 
 
-/*        cout << "create subnetting subcons\n";
-        subcon.createSubcon2();
-        cout << "scheduling finished!\n";
+        cout << "create subnetting subcons\n";
+        subcon.createSubcon2(PRE.subnettingSrcIds);
+        cout << "subcon2 created!\n";
+        cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n";
+        cout << "    2 scan subcons" << subcon.getNumberSubnettingScans() << "\n\n";
 
-        cout << "calculate score for each subcon\n";
+/*        cout << "calculate score for each subcon\n";
         subcon.score();
         cout << "scores calculated\n";
 
@@ -121,87 +122,6 @@ namespace VieVS{
             }
         }
         
-//        if (PARA.subnetting){
-//            for (int isrc1=0; isrc1<nsrc; ++isrc1){
-//                vector<int> sta1 = visible[isrc1];
-//                if (sta1.size()<PARA.minStaPerScan){
-//                    continue;
-//                }
-//
-//                for(size_t nsrc2 = 0; nsrc2<PRE.subnettingSrcIds[isrc1].size(); ++nsrc2){
-//                    int isrc2 = PRE.subnettingSrcIds[isrc1][nsrc2];
-//                    vector<int> sta2 = visible[isrc2];
-//                    if (sta2.size()<PARA.minStaPerScan){
-//                        continue;
-//                    }
-//                    vector<int> uniqueSta1;
-//                    vector<int> uniqueSta2;
-//                    vector<int> intersection;
-//                    for (int any: sta1){
-//                        if(find(sta2.begin(), sta2.end(), any) == sta2.end()){
-//                            uniqueSta1.push_back(any);
-//                        } else {
-//                            intersection.push_back(any);
-//                        }
-//                    }
-//                    for (int any: sta2){
-//                        if(find(sta1.begin(), sta1.end(), any) == sta1.end()){
-//                            uniqueSta2.push_back(any);
-//                        }
-//                    }
-//
-//                    int nint = intersection.size();
-//                    for (int igroup = 0; igroup<=nint; ++igroup){
-//
-//                        vector<int> data(nint,1);
-//                        for(int i=nint-igroup; i<nint; ++i)
-//                            data.at(i) = 2;
-//
-//                        do {
-//                            vector<int> scan1sta{uniqueSta1};
-//                            vector<int> scan2sta{uniqueSta2};
-//                            for(int i=0; i<nint; ++i){
-//                                if (data.at(i)==1){
-//                                    scan1sta.push_back(intersection.at(i));
-//                                } else{
-//                                    scan2sta.push_back(intersection.at(i));
-//                                }
-//                            }
-//                            if (scan1sta.size()>=PARA.minStaPerScan && scan2sta.size()>=PARA.minStaPerScan){
-//                                vector<VLBI_pointingVector> p1;
-//
-//                                for(size_t i=0; i<scan1sta.size(); ++i){
-//                                    vector<int>::iterator it = find(visible.at(isrc1).begin(), visible.at(isrc1).end(), scan1sta.at(i));
-//                                    if (it != visible[isrc1].end()){
-//                                        p1.push_back(pointingVectors[isrc1][it-visible[isrc1].begin()]);
-//                                    }
-//                                }
-//                                vector<VLBI_pointingVector> p2;
-//
-//                                for(size_t i=0; i<scan2sta.size(); ++i){
-//                                    vector<int>::iterator it = find(visible.at(isrc2).begin(), visible.at(isrc2).end(), scan2sta.at(i));
-//                                    if (it != visible[isrc2].end()){
-//                                        p2.push_back(pointingVectors[isrc2][it-visible[isrc2].begin()]);
-//                                    }
-//                                }
-//                                vector<unsigned int> eols1;
-//                                for (int i=0; i<p1.size(); ++i){
-//                                    int ista = p1[i].getStaid();
-//                                    eols1.push_back(lastScanLookup[ista]);
-//                                }
-//                                vector<unsigned int> eols2;
-//                                for (int i=0; i<p2.size(); ++i){
-//                                    int ista = p2[i].getStaid();
-//                                    eols2.push_back(lastScanLookup[ista]);
-//                                }
-//                                subcon.addScan(VLBI_scan(p1,eols1),VLBI_scan(p2,eols2));
-//                            }
-//
-//                        }while(next_permutation(std::begin(data), std::end(data)));
-//                    }
-//                }
-//            }
-//        }
         return subcon;
     }
     
