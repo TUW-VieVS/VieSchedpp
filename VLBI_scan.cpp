@@ -11,6 +11,7 @@
  * Created on June 29, 2017, 3:27 PM
  */
 
+#include <set>
 #include "VLBI_scan.h"
 
 namespace VieVS{
@@ -124,7 +125,7 @@ namespace VieVS{
         }while(!idleTimeValid && !scan_valid);
 
         if(scan_valid){
-            times.alignStartTimes(latestSlewTime);
+            times.alignStartTimes();
         }
 
         return scan_valid;
@@ -212,21 +213,32 @@ namespace VieVS{
         bool scanDurationsValid = false;
         bool scanValid = true;
 
-        while (!scanDurationsValid){
+        vector<unsigned int> minscanTimes(nsta,source.getMinScanTime());
+        vector<unsigned int> maxScanTimes(nsta,source.getMaxScanTime());
 
+        for (int i = 0; i < nsta; ++i) {
+            unsigned int stationMinScanTime = stations[pointingVectors[i].getStaid()].getMinScanTime();
+            unsigned int stationMaxScanTime = stations[pointingVectors[i].getStaid()].getMaxScanTime();
+
+            if(minscanTimes[i]<stationMinScanTime){
+                minscanTimes[i] = stationMinScanTime;
+            }
+            if(maxScanTimes[i]>stationMaxScanTime){
+                maxScanTimes[i] = stationMaxScanTime;
+            }
+        }
+
+        vector<unsigned int> scanTimes(nsta);
+        do{
             scanDurationsValid = true;
 
-            vector<unsigned int> scanTimes(nsta,source.getMinScanTime());
-
+            vector<int> eraseStations1;
+            vector<int> eraseStations2;
             for (int i = 0; i < nsta; ++i) {
-                unsigned int stationMinScanTime = stations[pointingVectors[i].getStaid()].getMinScanTime();
-                if(scanTimes[i]<stationMinScanTime){
-                    scanTimes[i] = stationMinScanTime;
-                }
+                scanTimes[i] = 0;
             }
 
 
-            vector<int> eraseStations;
             for (int i = 0; i < baselines.size(); ++i) {
                 VLBI_baseline& thisBaseline = baselines[i];
                 int staid1 = thisBaseline.getStaid1();
@@ -241,36 +253,76 @@ namespace VieVS{
                 if(scanTimes[staidx2]<duration){
                     scanTimes[staidx2] = duration;
                 }
-                unsigned int station1MaxScanTime = stations[staid1].getMaxScanTime();
-                unsigned int station2MaxScanTime = stations[staid2].getMaxScanTime();
 
-
-                if(duration>station1MaxScanTime || duration>station2MaxScanTime || duration>source.getMaxScanTime()){
-                    string band = thisBaseline.longestScanDurationBand();
-                    double SEFD1 = stations[staid1].getSEFD(band);
-                    double SEFD2 = stations[staid2].getSEFD(band);
-                    if (SEFD1<SEFD2){
-                        eraseStations.push_back(staidx1);
-                        scanDurationsValid = false;
-                    } else{
-                        eraseStations.push_back(staidx2);
-                        scanDurationsValid = false;
-                    }
+                if(duration>maxScanTimes[staidx1] || duration>maxScanTimes[staidx2]){
+                    eraseStations1.push_back(staidx1);
+                    eraseStations2.push_back(staidx2);
+                    scanDurationsValid = false;
                 }
             }
 
-            sort(eraseStations.begin(), eraseStations.end());
-            reverse(eraseStations.begin(), eraseStations.end());
-            unique(eraseStations.begin(), eraseStations.end());
 
-            for (int i = 0; i < eraseStations.size(); ++i) {
-                scanValid = removeElement(eraseStations[i]);
-                scanTimes.erase(scanTimes.begin()+eraseStations[i]);
+            if(eraseStations1.size()>0){
+                int eraseThis;
+
+                vector<int> counter(nsta);
+                for (int i = 0; i < eraseStations1.size(); ++i) {
+                    counter[eraseStations1[i]]++;
+                    counter[eraseStations2[i]]++;
+                }
+
+                int max = 0;
+                vector<int> maxIdx;
+                for (int i = 0; i< nsta; ++i){
+                    if(counter[i] == max){
+                        maxIdx.push_back(i);
+                    }
+                    if(counter[i] > max){
+                        max=counter[i];
+                        maxIdx.clear();
+                        maxIdx.push_back(i);
+                    }
+                }
+
+                if(maxIdx.size()==1){
+                    eraseThis = maxIdx[0];
+                } else {
+
+                    vector<double> maxFlux(maxIdx.size());
+                    vector<int> maxFluxIdx(maxIdx.size());
+                    for(int i=0; i<maxIdx.size(); ++i){
+                        int thisIdx = maxIdx[i];
+                        maxFluxIdx[i] = thisIdx;
+                        int id = pointingVectors[thisIdx].getStaid();
+                        maxFlux[i] = stations[id].getMaxSEFT();
+                    }
+
+                    if(maxFluxIdx.size()==1){
+                        eraseThis = maxFluxIdx[0];
+                    } else {
+                        vector<unsigned int> thisScanStartTimes(maxFluxIdx.size());
+                        for(int i=0; i<maxFluxIdx.size(); ++i){
+                            thisScanStartTimes.push_back(times.getEndOfSlewTime(maxFluxIdx[i]));
+                        }
+
+                        int maxmaxFluxIdx = distance(thisScanStartTimes.begin(), max_element(thisScanStartTimes.begin(), thisScanStartTimes.end()));
+                        eraseThis = maxFluxIdx[maxmaxFluxIdx];
+                    }
+                }
+
+                scanValid = removeElement(eraseThis);
+                scanTimes.erase(scanTimes.begin()+eraseThis);
+
+                if (!scanValid){
+                    break;
+                }
             }
-            if (!scanValid){
-                break;
-            }
-        }
+
+        }while(!scanDurationsValid);
+
+        times.addScanTimes(scanTimes);
+
+
         return scanValid;
     }
 

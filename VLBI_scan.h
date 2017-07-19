@@ -91,6 +91,7 @@ namespace VieVS{
         VLBI_scanTimes times;
         vector<VLBI_pointingVector> pointingVectors;
         vector<VLBI_baseline> baselines;
+
     };
 }
 #endif /* VLBI_SCAN_H */

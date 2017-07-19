@@ -50,6 +50,13 @@ namespace VieVS{
         endOfTapeTime.erase(endOfTapeTime.begin()+idx);
         endOfCalibrationTime.erase(endOfCalibrationTime.begin()+idx);
         endOfScanTime.erase(endOfScanTime.begin()+idx);
+
+        unsigned int maxEndOfSlewTime;
+        for (int i = 0; i < endOfSlewTime.size(); ++i) {
+
+        }
+
+        alignStartTimes();
     }
 
     void VLBI_scanTimes::updateSlewtime(int idx, unsigned int new_slewtime) {
@@ -58,16 +65,31 @@ namespace VieVS{
         endOfSlewTime[idx] = endOfSlewTime[idx]+delta;
     }
 
-    void VLBI_scanTimes::alignStartTimes(unsigned int latestSlewtimes) {
-        for (int i = 0; i < endOfSlewTime.size(); ++i) {
+    void VLBI_scanTimes::alignStartTimes() {
+        int nsta = endOfSlewTime.size();
+
+        unsigned int latestSlewTime = 0;
+        for (int i = 0; i < nsta; ++i) {
+            if(endOfSlewTime[i]>latestSlewTime){
+                latestSlewTime = endOfSlewTime[i];
+            }
+        }
+
+        for (int i = 0; i < nsta; ++i) {
             unsigned int tapeTime = endOfTapeTime[i]-endOfIdleTime[i];
             unsigned int calibrationTime = endOfCalibrationTime[i]-endOfTapeTime[i];
             unsigned int scanTime = endOfScanTime[i]-endOfCalibrationTime[i];
 
-            endOfIdleTime[i] = latestSlewtimes;
+            endOfIdleTime[i] = latestSlewTime;
             endOfTapeTime[i] =  endOfIdleTime[i] + tapeTime;
             endOfCalibrationTime[i] = endOfTapeTime[i] + calibrationTime;
             endOfScanTime[i] = endOfCalibrationTime[i] + scanTime;
+        }
+    }
+
+    void VLBI_scanTimes::addScanTimes(vector<unsigned int> &scanTimes) {
+        for (int i = 0; i < endOfSlewTime.size(); ++i) {
+            endOfScanTime[i] = endOfCalibrationTime[i]+scanTimes[i];
         }
     }
 

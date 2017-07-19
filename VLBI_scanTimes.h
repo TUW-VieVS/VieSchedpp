@@ -34,9 +34,16 @@ namespace VieVS {
             return endOfIdleTime[idx];
         }
 
-        void alignStartTimes(unsigned int latestSlewtimes);
+        const unsigned int getEndOfSlewTime(int idx) const{
+            return endOfSlewTime[idx];
+        }
+
+
+        void alignStartTimes();
 
         void updateSlewtime(int idx, unsigned int new_slewtime);
+
+        void addScanTimes(vector<unsigned int> &scanTimes);
 
     private:
         vector<unsigned int> endOfLastScan;

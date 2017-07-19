@@ -141,7 +141,6 @@ namespace VieVS{
             bool scanValid = thisScan.scanDuration(stations, sources[srcid]);
             if (scanValid){
                 ++i;
-                cout << i << endl;
             } else {
                 --n1scans;
                 subnet1.erase(subnet1.begin()+i);

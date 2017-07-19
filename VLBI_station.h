@@ -131,6 +131,10 @@ namespace VieVS{
             return equip.getSEFD(band);
         }
 
+        double getMaxSEFT(){
+            return equip.getMaxSEFD();
+        }
+
         double getMinSNR(string band){
             return PARA.minSNR[band];
         }
