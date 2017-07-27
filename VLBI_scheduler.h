@@ -15,7 +15,7 @@
 #define VLBI_SCHEDULER_H
 #include <vector>
 #include <boost/date_time.hpp>
-#include <bitset>
+#include <utility>
 
 #include "VLBI_initializer.h"
 #include "VLBI_subcon.h"
@@ -28,7 +28,6 @@ namespace VieVS{
         struct PARAMETERS { 
             bool subnetting = true;
             bool fillinmode = true;
-            unsigned int minStaPerFillin = 2;
             double minAngleBetweenSubnettingSources = 120*deg2rad;
             double skyCoverageInterval = 3600;
             
@@ -39,7 +38,7 @@ namespace VieVS{
             boost::posix_time::ptime startTime;
             boost::posix_time::ptime endTime;
             double mjdStart;
-            unsigned int currentTime;
+            unsigned int duration;
         };
         
         struct PRECALC{
@@ -47,8 +46,8 @@ namespace VieVS{
         };
         
         VLBI_scheduler();
-        
-        VLBI_scheduler(VLBI_initializer init);
+
+        VLBI_scheduler(VLBI_initializer &init);
         
         void start();
         
@@ -57,7 +56,9 @@ namespace VieVS{
         void precalcSubnettingSrcIds();
         
         virtual ~VLBI_scheduler();
-        
+
+        bool update(VLBI_scan &scan);
+
     private:
         vector<VLBI_station> stations;
         vector<VLBI_source> sources;
@@ -65,6 +66,7 @@ namespace VieVS{
         PARAMETERS PARA;
         PRECALC PRE;
         vector<VLBI_scan> scans;
+
     };
 }
 #endif /* VLBI_SCHEDULER_H */

@@ -2,7 +2,7 @@
 <software>
 	<name>VieVS Scheduler</name>
 	<version>1.0</version>
-	<created_local_time>2017-Jul-16 19:11:38</created_local_time>
+    <created_local_time>2017-Jul-27 13:06:56</created_local_time>
 </software>
 <general>
 	<experiment_name>R1XXX</experiment_name>
@@ -36,7 +36,7 @@
 		<minRepeat>1800</minRepeat>
 		<maxScan>500</maxScan>
 		<minScan>42</minScan>
-		<minFlux>0.050000000000000003</minFlux>
+        <minFlux>0.5</minFlux>
 		<minSNR band="X">20</minSNR>
 		<minSNR band="S">15</minSNR>
 	</group>
@@ -44,7 +44,7 @@
 		<minRepeat>3600</minRepeat>
 		<maxScan>200</maxScan>
 		<minScan>20</minScan>
-		<minFlux>0</minFlux>
+        <minFlux>0.5</minFlux>
 	</group>
 </source>
 <bands>

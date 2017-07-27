@@ -28,6 +28,7 @@ namespace VieVS{
     }
     
     void VLBI_scan::constructBaselines(){
+        baselines.clear();
         for (int i=0; i<pointingVectors.size(); ++i){
             for (int j=i+1; j<pointingVectors.size(); ++j){
 
@@ -43,28 +44,6 @@ namespace VieVS{
             }
         }
     }
-
-    void VLBI_scan::addTimes(int idx, VLBI_scan& other, int idx_other){
-        times.addTimes(idx,other.getTimes(),idx_other);
-    }
-
-//    int VLBI_scan::idxLatestStation(unsigned int &time) {
-//        auto it = max_element(endOfCalibrationTime.begin(),endOfCalibrationTime.end());
-//        time = *it;
-//        int idx = distance(endOfCalibrationTime.begin(),it);
-//        int idx = time
-//        return pointingVectors[idx].getStaid();
-//    }
-//
-//    void VLBI_scan::updateStation(int idx,unsigned int slewtime, VLBI_pointingVector p){
-//        int oldSlewTime = endOfSlewTime[idx]-endOfSourceTime[idx];
-//        int delta = slewtime-oldSlewTime;
-//
-//        endOfSlewTime[idx] = endOfSlewTime[idx]+delta;
-//        endOfIdleTime[idx] = endOfIdleTime[idx]+delta;
-//        endOfTapeTime[idx] = endOfTapeTime[idx]+delta;
-//        endOfCalibrationTime[idx] = endOfCalibrationTime[idx]+delta;
-//    }
 
     void VLBI_scan::addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
                              unsigned int calib) {
@@ -227,7 +206,7 @@ namespace VieVS{
             }
         }
 
-        vector<unsigned int> scanTimes(nsta);
+        vector<unsigned int> scanTimes(minscanTimes);
         do{
             scanDurationsValid = true;
 
@@ -287,13 +266,20 @@ namespace VieVS{
                     eraseThis = maxIdx[0];
                 } else {
 
-                    vector<double> maxFlux(maxIdx.size());
+                    double maxFlux = 0;
                     vector<int> maxFluxIdx(maxIdx.size());
                     for(int i=0; i<maxIdx.size(); ++i){
                         int thisIdx = maxIdx[i];
-                        maxFluxIdx[i] = thisIdx;
                         int id = pointingVectors[thisIdx].getStaid();
-                        maxFlux[i] = stations[id].getMaxSEFT();
+                        double thisMaxFlux = stations[id].getMaxSEFT();
+                        if (thisMaxFlux == maxFlux) {
+                            maxFluxIdx.push_back(thisIdx);
+                        }
+                        if (thisMaxFlux > maxFlux) {
+                            maxFlux = thisMaxFlux;
+                            maxFluxIdx.clear();
+                            maxFluxIdx.push_back(i);
+                        }
                     }
 
                     if(maxFluxIdx.size()==1){
@@ -301,10 +287,12 @@ namespace VieVS{
                     } else {
                         vector<unsigned int> thisScanStartTimes(maxFluxIdx.size());
                         for(int i=0; i<maxFluxIdx.size(); ++i){
-                            thisScanStartTimes.push_back(times.getEndOfSlewTime(maxFluxIdx[i]));
+                            thisScanStartTimes[(times.getEndOfSlewTime(maxFluxIdx[i]))];
                         }
 
-                        int maxmaxFluxIdx = distance(thisScanStartTimes.begin(), max_element(thisScanStartTimes.begin(), thisScanStartTimes.end()));
+                        long maxmaxFluxIdx = distance(thisScanStartTimes.begin(),
+                                                      max_element(thisScanStartTimes.begin(),
+                                                                  thisScanStartTimes.end()));
                         eraseThis = maxFluxIdx[maxmaxFluxIdx];
                     }
                 }
@@ -357,7 +345,196 @@ namespace VieVS{
                 ++i;
             }
         }
+        if (!valid) {
+            cout << "HERE!";
+        }
         return valid;
+    }
+
+    unsigned int VLBI_scan::maxTime() const {
+        return times.maxTime();
+    }
+
+    void VLBI_scan::calcScore_nunmberOfObservations(unsigned long maxObs) {
+        int nbl = baselines.size();
+        double thisScore = (double) nbl / (double) maxObs;
+        single_scores.nunmberOfObservations = thisScore;
+    }
+
+    void VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
+        double finalScore = 0;
+
+        vector<unsigned long> bl_counter(nmaxsta);
+        for (auto &bl:baselines) {
+            ++bl_counter[bl.getStaid1()];
+            ++bl_counter[bl.getStaid2()];
+        }
+
+        for (auto &pv:pointingVectors) {
+            int thisStaId = pv.getStaid();
+            finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nmaxsta - 1);
+        }
+
+        single_scores.averageStations = finalScore;
+    }
+
+    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl) {
+        unsigned long nbl = baselines.size();
+        single_scores.averageSources = asrcs[srcid] * nbl / nmaxbl;
+    }
+
+    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta) {
+        unsigned int thisEndTime = times.maxTime();
+        double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
+        single_scores.duration = score * nsta / nmaxsta;
+    }
+
+    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta) {
+        vector<vector<int>> pv2sky(skyCoverages.size());
+
+        vector<int> sta2sky = VLBI_skyCoverage::sta2sky;
+
+        for (int i = 0; i < nsta; ++i) {
+            VLBI_pointingVector &pv = pointingVectors[i];
+            int thisStaId = pv.getStaid();
+            int skyCovId = sta2sky[thisStaId];
+
+            pv2sky[skyCovId].push_back(i);
+        }
+
+
+        vector<double> singleScores(skyCoverages.size(), 0);
+        for (int i = 0; i < skyCoverages.size(); ++i) {
+            vector<int> pvIds = pv2sky[i];
+
+            vector<VLBI_pointingVector> pvs;
+            for (auto &id:pvIds) {
+                pvs.push_back(pointingVectors[id]);
+            }
+            singleScores[i] = skyCoverages[i].calcScore(pvs);
+        }
+
+
+        single_scores.skyCoverage = accumulate(singleScores.begin(), singleScores.end(), 0.0) / nmaxsta;
+    }
+
+    void VLBI_scan::sumScores() {
+        score = single_scores.skyCoverage +
+                single_scores.averageSources +
+                single_scores.averageStations +
+                single_scores.nunmberOfObservations +
+                single_scores.duration;
+    }
+
+    bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
+        bool flag = true;
+        int srcid = source.getId();
+
+        bool scanValid = true;
+        int i = 0;
+        while (i < nsta) {
+
+            VLBI_pointingVector &pv = pointingVectors[i];
+            unsigned int slewStart = times.getEndOfSourceTime(i);
+            unsigned int slewEnd = times.getEndOfSlewTime(i);
+            int staid = pv.getStaid();
+            VLBI_station &thisSta = stations[staid];
+
+            VLBI_pointingVector new_p(staid, srcid);
+            unsigned int oldSlewEnd;
+            unsigned int newSlewEnd = slewEnd;
+            unsigned int slewtime;
+            bool stationValid = true;
+            do {
+                oldSlewEnd = newSlewEnd;
+                new_p.setTime(newSlewEnd);
+
+                stationValid = thisSta.isVisible(source, new_p);
+                if (!stationValid) {
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+                }
+                slewtime = stations[staid].unwrapAzGetSlewTime(new_p);
+                newSlewEnd = slewStart + slewtime;
+            } while (abs(newSlewEnd - oldSlewEnd) > 1);
+
+            if (stationValid) {
+                pointingVectors[i] = new_p;
+                times.updateSlewtime(i, slewtime);
+                ++i;
+            }
+        }
+
+        times.alignStartTimes();
+
+        constructBaselines();
+        calcBaselineScanDuration(stations, source, mjdStart);
+        scanValid = scanDuration(stations, source);
+
+        if (!scanValid) {
+            return false;
+        }
+
+        i = 0;
+        while (i < nsta) {
+
+            unsigned int scanStart = times.getEndOfCalibrationTime(i);
+            unsigned int scanEnd = times.getEndOfScanTime(i);
+            int thisStaId = pointingVectors[i].getStaid();
+
+            VLBI_pointingVector pv(thisStaId, srcid);
+            VLBI_station thisSta = stations[thisStaId];
+
+            bool stationValid = true;
+
+            for (unsigned int j = scanStart; j < scanEnd; j += 10) {
+                pv.setTime(j);
+                stationValid = thisSta.isVisible(source, pv);
+                if (!stationValid) {
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    break;
+                }
+                if (j == scanStart) {
+                    pointingVectors[i] = pv;
+                }
+            }
+
+            if (!stationValid) {
+                continue;
+            }
+
+            pv.setTime(scanEnd);
+            stationValid = thisSta.isVisible(source, pv);
+            if (!stationValid) {
+                scanValid = removeElement(i);
+                if (!scanValid) {
+                    return false;
+                }
+                continue;
+            }
+
+            pointingVectors_endtime.push_back(pv);
+
+            ++i;
+        }
+        return true;
+    }
+
+    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
+        calcScore_nunmberOfObservations(nmaxbl);
+        calcScore_averageStations(astas, nmaxsta);
+        calcScore_averageSources(asrcs, nmaxbl);
+        calcScore_duration(minTime, maxTime, nmaxsta);
+        calcScore_skyCoverage(skyCoverages, nmaxsta);
+        sumScores();
+
+
     }
 
 

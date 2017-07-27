@@ -19,17 +19,6 @@ namespace VieVS{
         endOfScanTime.resize(nsta);
     }
 
-    void VLBI_scanTimes::addTimes(int idx, const VLBI_scanTimes &other, int idx_other) {
-        endOfLastScan[idx] = other.endOfLastScan[idx_other];
-        endOfSetupTime[idx] = other.endOfSetupTime[idx_other];
-        endOfSourceTime[idx] = other.endOfSourceTime[idx_other];
-        endOfSlewTime[idx] = other.endOfSlewTime[idx_other];
-        endOfTapeTime[idx] = other.endOfTapeTime[idx_other];
-        endOfIdleTime[idx] = other.endOfIdleTime[idx_other];
-        endOfCalibrationTime[idx] = other.endOfCalibrationTime[idx_other];
-        endOfScanTime[idx] = other.endOfScanTime[idx_other];
-    }
-
     void
     VLBI_scanTimes::addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
                              unsigned int calib) {
@@ -60,9 +49,20 @@ namespace VieVS{
     }
 
     void VLBI_scanTimes::updateSlewtime(int idx, unsigned int new_slewtime) {
-        unsigned int currentSlewtime = endOfSourceTime[idx] - endOfSlewTime[idx];
-        int delta = new_slewtime-currentSlewtime;
-        endOfSlewTime[idx] = endOfSlewTime[idx]+delta;
+        unsigned int currentSlewtime = endOfSlewTime[idx] - endOfSourceTime[idx];
+        if (currentSlewtime != new_slewtime) {
+            unsigned int tapeTime = endOfTapeTime[idx] - endOfIdleTime[idx];
+            unsigned int calibrationTime = endOfCalibrationTime[idx] - endOfTapeTime[idx];
+            unsigned int scanTime = endOfScanTime[idx] - endOfCalibrationTime[idx];
+
+            int delta = new_slewtime - currentSlewtime;
+            endOfSlewTime[idx] = endOfSlewTime[idx] + delta;
+            endOfIdleTime[idx] = endOfSlewTime[idx] - delta;
+            endOfTapeTime[idx] = endOfIdleTime[idx] + tapeTime;
+            endOfCalibrationTime[idx] = endOfTapeTime[idx] + calibrationTime;
+            endOfScanTime[idx] = endOfCalibrationTime[idx] + scanTime;
+        }
+
     }
 
     void VLBI_scanTimes::alignStartTimes() {
@@ -91,6 +91,16 @@ namespace VieVS{
         for (int i = 0; i < endOfSlewTime.size(); ++i) {
             endOfScanTime[i] = endOfCalibrationTime[i]+scanTimes[i];
         }
+    }
+
+    unsigned int VLBI_scanTimes::maxTime() const {
+        unsigned int max = 0;
+        for (auto &thisTime: endOfScanTime) {
+            if (thisTime > max) {
+                max = thisTime;
+            }
+        }
+        return max;
     }
 
 }

@@ -53,7 +53,9 @@ namespace VieVS{
     class VLBI_station {
     public:        
         enum class axisType {AZEL, HADC, XYNS, XYEW, RICH, SEST, ALGO, undefined};
-        enum class azelModel {simple, rigoros};
+        enum class azelModel {
+            simple, rigorous
+        };
 
 
         struct PARAMETERS{
@@ -84,6 +86,12 @@ namespace VieVS{
             vector<double> dy;
             vector<double> dz;
 
+            vector<double> nut_x;
+            vector<double> nut_y;
+            vector<double> nut_s;
+            vector<unsigned int> nut_time;
+
+
         };
         
         VLBI_station();
@@ -100,7 +108,7 @@ namespace VieVS{
         virtual ~VLBI_station(){};
 
         unsigned int getMaxSlewtime(){
-            return PARA.maxWait;
+            return PARA.maxSlewtime;
         }
 
         unsigned int getMaxIdleTime(){
@@ -165,12 +173,24 @@ namespace VieVS{
             return PRECALC.dz[id];
         }
 
+        int getNbls() const {
+            return nbls;
+        }
 
+        int getSkyCoverageID() const {
+            return skyCoverageID;
+        }
+
+        void setSkyCoverageId(int id) {
+            skyCoverageID = id;
+        }
+
+        void setId(int id) {
+            VLBI_station::id = id;
+        }
 
         double distance(VLBI_station other);
-        
-        void setSkyCoverageId(int id){skyCoverageID = id;}
-        
+
         bool isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation = false);
         
         unsigned int unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector);
@@ -184,15 +204,32 @@ namespace VieVS{
         void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
 
         friend ostream& operator<<(ostream& out, const VLBI_station& sta);
-        
-        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
 
+        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz,
+                     vector<unsigned int> nut_t, vector<double> nut_x, vector<double> nut_y, vector<double> nut_s);
 
-        unsigned int getWaitSetup() {return PARA.wait_setup;};
-        unsigned int getWaitSource() {return PARA.wait_source;};
-        unsigned int getWaitTape() {return PARA.wait_tape;};
-        unsigned int getWaitCalibration() {return PARA.wait_calibration;};
-        unsigned int getWaitCorsynch() {return PARA.wait_corsynch;};
+        void update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end, vector<unsigned int> times,
+                    string srcName);
+
+        unsigned int getWaitSetup() {
+            return PARA.wait_setup;
+        }
+
+        unsigned int getWaitSource() {
+            return PARA.wait_source;
+        }
+
+        unsigned int getWaitTape() {
+            return PARA.wait_tape;
+        }
+
+        unsigned int getWaitCalibration() {
+            return PARA.wait_calibration;
+        }
+
+        unsigned int getWaitCorsynch() {
+            return PARA.wait_corsynch;
+        }
 
     private:
         string name;
@@ -212,7 +249,9 @@ namespace VieVS{
         
         vector<unsigned int> history_time;
         vector<string> history_events;
-        
+        vector<VLBI_pointingVector> pv_starScan;
+        vector<VLBI_pointingVector> pv_endScan;
+
         int nscans;
         int nbls;
     };
