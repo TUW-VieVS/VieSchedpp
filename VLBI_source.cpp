@@ -15,12 +15,16 @@
 namespace VieVS{
     VLBI_source::VLBI_source() {
     }
-    VLBI_source::VLBI_source(string src_name,int id, double src_ra_deg, double src_de_deg, unordered_map<string,VLBI_flux> src_flux):
-    name{src_name}, id{id}, ra{src_ra_deg*deg2rad}, de{src_de_deg*deg2rad}, flux{src_flux}{
+
+    VLBI_source::VLBI_source(string src_name, double src_ra_deg, double src_de_deg, unordered_map<string,
+            VLBI_flux> src_flux) :
+            name{src_name}, id{0}, ra{src_ra_deg * deg2rad}, de{src_de_deg * deg2rad}, flux{src_flux}, lastScan{0},
+            nscans{0}, nbls{0} {
+
 //        STORAGE.sourceInCrs[0] = cos(de)*cos(ra);
 //        STORAGE.sourceInCrs[1] = cos(de)*sin(ra);
 //        STORAGE.sourceInCrs[2] = sin(de);
-        
+
     }
     
     VLBI_source::~VLBI_source() {
@@ -98,6 +102,12 @@ namespace VieVS{
         }
 
         return fluxes;
+    }
+
+    void VLBI_source::update(unsigned long nbl, unsigned int time) {
+        ++nscans;
+        nbls += nbl;
+        lastScan = time;
     }
 
 

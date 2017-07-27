@@ -17,6 +17,7 @@
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -30,6 +31,8 @@ namespace VieVS{
         double getSEFD(string band) {
             return SEFD[band];
         }
+
+        double getMaxSEFD();
 
         friend ostream& operator<<(ostream& out, const VLBI_equip& equip);
         

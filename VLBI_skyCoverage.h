@@ -15,27 +15,39 @@
 #define SKYCOVERAGE_H
 #include <vector>
 #include <iostream>
-#include <boost/date_time.hpp>
+#include <cmath>
+#include <limits>
+#include <boost/math/distributions/normal.hpp>
+#include "VLBI_pointingVector.h"
 
-#include "VieVS_constants.h"
-
+using boost::math::normal;
 using namespace std;
 namespace VieVS{
     class VLBI_skyCoverage {
     public:
         VLBI_skyCoverage();
-        VLBI_skyCoverage(int nStations);
+
+        VLBI_skyCoverage(vector<int> &staids);
+
+        const vector<int> &getStaids() const {
+            return staids;
+        }
+
+        double calcScore(vector<VLBI_pointingVector> &pvs);
+
+        void update(VLBI_pointingVector &start, VLBI_pointingVector &end);
+
         virtual ~VLBI_skyCoverage();
+
+        static vector<int> sta2sky;
     private:
-        int nStations;
-        
-        vector<double> az;
-        vector<double> el;
-        vector<boost::posix_time::ptime> startTime;
-        vector<boost::posix_time::ptime> endTime;
-        vector<int> stationId;
-        vector<int> sourceId;
+        unsigned long nStations;
+        vector<int> staids;
+
+        vector<VLBI_pointingVector> pv_start;
+        vector<VLBI_pointingVector> pv_end;
     };
 }
+
 #endif /* SKYCOVERAGE_H */
 

@@ -9,12 +9,8 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    try{
-        createParameterFile();
-        run();
-    }catch(...){
-        cout << "ERROR: scheduling failed!\n";
-    }
+    // createParameterFile();
+    run();
 
     return 0;
 }
@@ -99,7 +95,7 @@ void createParameterFile(){
     source_global.add("group.minRepeat",1800);
     source_global.add("group.maxScan",500);
     source_global.add("group.minScan",42);
-    source_global.add("group.minFlux",0.05);
+    source_global.add("group.minFlux", 0.5);
     boost::property_tree::ptree flux1_src;
     flux1_src.add("minSNR",20);
     flux1_src.put("minSNR.<xmlattr>.band","X");
@@ -116,7 +112,7 @@ void createParameterFile(){
     source_group1.add("group.minRepeat",3600);
     source_group1.add("group.maxScan",200);
     source_group1.add("group.minScan",20);
-    source_group1.add("group.minFlux",0.0);
+    source_group1.add("group.minFlux", 0.5);
     source_group1.put("group.<xmlattr>.name","group1");
     source_group1.put("group.<xmlattr>.members","2355-534,2329-384");
     source.add_child("group",source_group1.get_child("group"));
@@ -137,7 +133,7 @@ void createParameterFile(){
     pt.add_child("bands",bands);
 
 
-    std::ofstream os("parameters.xml");
+    std::ofstream os("/home/mschartn/programming/VieVS_Scheduler_clion/VLBI_scheduler/parameters.xml");
     boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }

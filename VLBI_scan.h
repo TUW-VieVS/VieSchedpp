@@ -23,6 +23,8 @@
 #include "VLBI_scanTimes.h"
 #include "VLBI_station.h"
 #include "VLBI_source.h"
+#include "VLBI_skyCoverage.h"
+//#include "VieVS_helper.h"
 
 
 using namespace std;
@@ -30,6 +32,14 @@ namespace VieVS{
 
     class VLBI_scan {
     public:
+        struct SCORESTRUCT {
+            double nunmberOfObservations = 0;
+            double averageStations = 0;
+            double averageSources = 0;
+            double duration = 0;
+            double skyCoverage = 0;
+        };
+
         VLBI_scan();
         VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations);
 
@@ -37,36 +47,48 @@ namespace VieVS{
             return times;
         }
 
-        int getNSta(){
+        unsigned long getNSta() {
             return nsta;
         }
 
-        int getStationId(int i){
-            return pointingVectors.at(i).getStaid();
+        int getStationId(int idx) {
+            return pointingVectors[idx].getStaid();
         }
 
         int getSourceId(){
             return pointingVectors[0].getSrcid();
         }
 
-        VLBI_pointingVector& getPointingVector(int i){
-            return pointingVectors.at(i);
+        VLBI_pointingVector &getPointingVector(int idx) {
+            return pointingVectors[idx];
+        }
+
+        VLBI_pointingVector &getPointingVectors_endtime(int idx) {
+            return pointingVectors_endtime[idx];
         }
 
         vector<VLBI_baseline> &getBaselines() {
             return baselines;
         }
 
+        int getMinimumNumberOfStations() const {
+            return minimumNumberOfStations;
+        }
+
+        double getScore() const {
+            return score;
+        }
+
         bool removeElement(int idx);
 
         int findIdxOfStationId(int id);
 
-        void setPointingVector(int i, VLBI_pointingVector& pointingVector){pointingVectors[i] = pointingVector;}
+        void setPointingVector(int i, VLBI_pointingVector &pointingVector) {
+            pointingVectors[i] = pointingVector;
+        }
 
         void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
                       unsigned int calib);
-
-        void addTimes(int idx, VLBI_scan& other, int idx_other);
 
         void constructBaselines();
 
@@ -78,19 +100,50 @@ namespace VieVS{
 
         bool scanDuration(vector<VLBI_station> &stations, VLBI_source &source);
 
-//        int idxLatestStation(unsigned int &time);
-//        void updateStation(int idx,unsigned int slewtime, VLBI_pointingVector p);
-
         virtual ~VLBI_scan();
+
+        vector<int> getStationIds();
+
+        bool removeAllBut(vector<int> &station_ids);
+
+        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages);
+
+        void calcScore_nunmberOfObservations(unsigned long maxObs);
+
+        void calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
+
+        void calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl);
+
+        void calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta);
+
+        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta);
+
+        void sumScores();
+
+        unsigned int maxTime() const;
+
+        bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart);
+
+        unsigned long getNBl() {
+            return baselines.size();
+        }
+
     private:
-        int nsta;
+        unsigned long nsta;
         int srcid;
 
         int minimumNumberOfStations;
 
+        SCORESTRUCT single_scores;
+
+        double score;
+
         VLBI_scanTimes times;
         vector<VLBI_pointingVector> pointingVectors;
+        vector<VLBI_pointingVector> pointingVectors_endtime;
         vector<VLBI_baseline> baselines;
+
     };
 }
 #endif /* VLBI_SCAN_H */

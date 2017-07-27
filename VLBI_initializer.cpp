@@ -257,8 +257,8 @@ namespace VieVS{
         map<string,vector<string>> equipCatalog    =  readCatalog(catalogPath,catalog::equip);
         cout << "  reading mask.cat:\n";
         map<string,vector<string>> maskCatalog     =  readCatalog(catalogPath,catalog::mask);
-        
-        int nant;
+
+        unsigned long nant;
         int counter = 0;
         
         if (!PARA.selectedStations.empty()){
@@ -301,7 +301,7 @@ namespace VieVS{
             }
             
             // convert all items from antenna.cat
-            string type = any.second.at(2);
+            string type = any.second[2];
             double offset,rate1,con1,axis1_low,axis1_up,rate2,con2,axis2_low,axis2_up,diam;
             try{
                 offset = boost::lexical_cast<double>(any.second.at(3));
@@ -317,10 +317,11 @@ namespace VieVS{
             }
             catch(const std::exception& e){
                 cout << "*** ERROR: "<< e.what() << " ***\n";
+                continue;
             }
             
             // check if position.cat is long enough. Otherwise not all information is available. 
-            vector<string> po_cat = positionCatalog.at(id_PO);
+            vector<string> po_cat = positionCatalog[id_PO];
             if (po_cat.size()<5){
                 cout <<"*** ERROR: "<< any.first << ": positon.cat to small ***\n";
                 continue;
@@ -335,10 +336,11 @@ namespace VieVS{
             }
             catch(const std::exception& e){
                 cout <<"*** ERROR: "<< e.what() << " ***\n";
+                continue;
             }
             
             // check if equip.cat is long enough. Otherwise not all information is available. 
-            vector<string> eq_cat = equipCatalog.at(id_EQ+"|"+name);
+            vector<string> eq_cat = equipCatalog[id_EQ + "|" + name];
             if (eq_cat.size()<9){
                 cout <<"*** ERROR: " << any.first << ": equip.cat to small ***\n";
                 continue;
@@ -356,12 +358,13 @@ namespace VieVS{
             }
             catch(const std::exception& e){
                 cout << "*** ERROR: "<< e.what() << "\n";
+                continue;
             }
             
             // check if an horizontal mask exists
             vector<double> hmask;
             if (maskCatalog.find(id_MS) != maskCatalog.end()){
-                vector<string> mask_cat = maskCatalog.at(id_MS);
+                vector<string> mask_cat = maskCatalog[id_MS];
                 
                 // loop through all element and convert them 
                 for(size_t i=3; i<mask_cat.size(); ++i){
@@ -401,7 +404,7 @@ namespace VieVS{
         map<string,vector<string>> fluxCatalog =  readCatalog(catalogPath,catalog::flux);
         
         int counter = 0;
-        int nsrc = sourceCatalog.size();
+        unsigned long nsrc = sourceCatalog.size();
         int created = 0;
         
         for (auto any: sourceCatalog){
@@ -433,14 +436,15 @@ namespace VieVS{
             }
             catch(const std::exception& e){
                 cout << "*** ERROR: "<< e.what() << " ***\n";
+                continue;
             }
             double ra = 15*(ra_h + ra_m/60 + ra_s/3600);
             double de =    (abs(de_deg) + de_m/60 + de_s/3600);
             if (sign == '-'){
                 de = -1*de;
             }
-            
-            vector<string> flux_cat = fluxCatalog.at(name);
+
+            vector<string> flux_cat = fluxCatalog[name];
 //            if (flux_cat.size() < 6){
 //                cout <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
 //                continue;
@@ -517,31 +521,29 @@ namespace VieVS{
                 ++cflux;
             }
             if (!flux.empty()){
-                sources.push_back(VLBI_source(name,created,ra,de,flux));
+                sources.push_back(VLBI_source(name, ra, de, flux));
                 created++;
                 cout << boost::format("  %-8s added\n") %name;
             }
         }
-        
         cout <<"Finished! "<< created <<" of " << nsrc << " sources created\n\n" << endl;
-        
-        
     }
+
     void VLBI_initializer::createSkyCoverages(){
-        int nsta = stations.size();
+        unsigned long nsta = stations.size();
         vector<bool> alreadyConsidered(nsta,false);
         int skyCoverageId = 0;
-        vector<int> stationsPerId(nsta,0);
+        vector<vector<int> > stationsPerId(nsta);
         
         for(int i=0; i<nsta; ++i){
             if(!alreadyConsidered[i]){
                 stations[i].setSkyCoverageId(skyCoverageId);
-                stationsPerId[skyCoverageId]++;
+                stationsPerId[skyCoverageId].push_back(i);
                 alreadyConsidered[i] = true;
                 for(int j=i+1; j<nsta; ++j){
                     if(!alreadyConsidered[j] && (stations[i].distance(stations[j])<PARA.maxDistanceTwinTeleskopes)){
                         stations[j].setSkyCoverageId(skyCoverageId);
-                        stationsPerId[skyCoverageId]++;
+                        stationsPerId[skyCoverageId].push_back(i);
                         alreadyConsidered[j] = true;
                     }
                 }
@@ -552,7 +554,20 @@ namespace VieVS{
         for (int i=0; i<skyCoverageId; ++i){
             skyCoverages.push_back(VLBI_skyCoverage(stationsPerId[i]));
         }
-        
+
+        vector<int> sta2sky_(nsta);
+
+        for (int i = 0; i < skyCoverages.size(); ++i) {
+            vector<int> sky2sta = skyCoverages[i].getStaids();
+            for (int j = 0; j < sky2sta.size(); ++j) {
+                sta2sky_[sky2sta[j]] = i;
+            }
+        }
+
+        VLBI_skyCoverage::sta2sky = sta2sky_;
+
+
+
     }
     
     void VLBI_initializer::initializeStations(){
@@ -571,7 +586,7 @@ namespace VieVS{
             pV.setEl( any.getCableWrapNeutralPoint(2));
             pV.setTime(0);
             any.pushPointingVector(pV);
-            for (auto it: PARA_station){
+            for (auto &it: PARA_station) {
                 string group = it.first;
                 if (group != "group"){
                     cerr << "ERROR: reading parameters.xml file!\n"<<
@@ -598,7 +613,33 @@ namespace VieVS{
             ++c;
 
         }
-        int nsta = stations.size();
+
+        vector<unsigned int> nut_t;
+        vector<double> nut_x;
+        vector<double> nut_y;
+        vector<double> nut_s;
+
+        double date1 = 2400000.5;
+        double date2 = PARA.mjdStart;
+
+        unsigned int counter = 0;
+        unsigned int frequency = 3600;
+        unsigned int refTime;
+
+        do {
+            refTime = counter * frequency;
+            date2 = PARA.mjdStart + (double) refTime / 86400;
+
+            double x, y, s;
+            iauXys06a(date1, date2, &x, &y, &s);
+            nut_t.push_back(refTime);
+            nut_x.push_back(x);
+            nut_y.push_back(y);
+            nut_s.push_back(s);
+            ++counter;
+        } while (refTime < PARA.duration + 3600);
+
+        unsigned long nsta = stations.size();
         for (int i = 0; i < nsta; ++i) {
             vector<double> distance(nsta);
             vector<double> dx(nsta);
@@ -610,7 +651,9 @@ namespace VieVS{
                 dy[j] = stations[j].getY()-stations[i].getY();
                 dz[j] = stations[j].getZ()-stations[i].getZ();
             }
-            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
+
+            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz, nut_t, nut_x, nut_y, nut_s);
+
         }
     }
     void VLBI_initializer::initializeSources(){
@@ -629,7 +672,7 @@ namespace VieVS{
         int c = 0;
         while(c < sources.size()){
             VLBI_source& any = sources[c];
-            for (auto it: PARA_source) {
+            for (auto &it: PARA_source) {
                 string group = it.first;
                 if (group != "group") {
                     cout << "ERROR: reading parameters.xml file!\n" <<
@@ -675,6 +718,12 @@ namespace VieVS{
                 cout << boost::format("  %-8s: %4.2f [Jy]\n") %name %jy;
             }
             cout << sources.size() << " sources left\n";
+        }
+
+        // TODO TO CLOSE TO SUN
+
+        for (int i = 0; i < sources.size(); ++i) {
+            sources[i].setId(i);
         }
 
     }

@@ -133,23 +133,39 @@ namespace VieVS{
         double de = source.getDe();
         double lat = position.getLat();
         double lon = position.getLon();
-        double omega = 1.00273781191135448*D2PI/86400;
+        double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
         //  TIME 
         double date1, date2;
 //        iauCal2jd(time.date().year(), time.date().month(), time.date().day(), &date1, &date2);
 //        
 //        date2 = date2 + 
-//                time.time_of_day().hours()/24 + 
-//                time.time_of_day().minutes()/3600 + 
+//                time.time_of_day().hours()/24 +
+//                time.time_of_day().minutes()/3600 +
 //                time.time_of_day().seconds()/86400;
         
         date1 = 2400000.5;
-        date2 = PRECALC.mjdStart + time/86400;
+        date2 = PRECALC.mjdStart + (double) time / 86400;
 
-        //  GCRS to Intermediate 
-        double x,y,s;
-        iauXys06a(date1, date2, &x, &y, &s);
+        //  GCRS to Intermediate
+        unsigned int nut_precalc_idx = 0;
+
+        while (PRECALC.nut_time[nut_precalc_idx + 1] < time) {
+            ++nut_precalc_idx;
+        }
+        int delta = PRECALC.nut_time[1] - PRECALC.nut_time[0];
+
+        unsigned int deltaTime = time - PRECALC.nut_time[nut_precalc_idx];
+
+        double x = PRECALC.nut_x[nut_precalc_idx] +
+                   (PRECALC.nut_x[nut_precalc_idx + 1] - PRECALC.nut_x[nut_precalc_idx]) / delta * deltaTime;
+        double y = PRECALC.nut_y[nut_precalc_idx] +
+                   (PRECALC.nut_y[nut_precalc_idx + 1] - PRECALC.nut_y[nut_precalc_idx]) / delta * deltaTime;
+        double s = PRECALC.nut_s[nut_precalc_idx] +
+                   (PRECALC.nut_s[nut_precalc_idx + 1] - PRECALC.nut_s[nut_precalc_idx]) / delta * deltaTime;
+
+//        double x,y,s;
+//        iauXys06a(date1, date2, &x, &y, &s);
         
         double C[3][3];
         iauC2ixys(x, y, s, C);
@@ -236,14 +252,20 @@ namespace VieVS{
         p.setEl(el);
         p.setTime(time);
     }
-    
-    void VLBI_station::preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz) {
+
+    void VLBI_station::preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy,
+                               vector<double> dz, vector<unsigned int> nut_t, vector<double> nut_x,
+                               vector<double> nut_y, vector<double> nut_s) {
         PRECALC.mjdStart = mjd;
         PRECALC.distance = distance;
         PRECALC.dx = dx;
         PRECALC.dy = dy;
         PRECALC.dz = dz;
 
+        PRECALC.nut_time = nut_t;
+        PRECALC.nut_x = nut_x;
+        PRECALC.nut_y = nut_y;
+        PRECALC.nut_s = nut_s;
     }
     
     double VLBI_station::distance(VLBI_station other){
@@ -253,6 +275,38 @@ namespace VieVS{
     unsigned int  VLBI_station::unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector){
         cableWrap.calcUnwrappedAz(current,pointingVector);
         return antenna.slewTime(current,pointingVector);
+    }
+
+    void VLBI_station::update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end,
+                              vector<unsigned int> times, string srcName) {
+        ++nscans;
+        nbls += nbl;
+        pv_starScan.push_back(start);
+        pv_endScan.push_back(end);
+        current = end;
+
+        history_time.push_back(times[0]);
+        history_events.push_back("setup");
+
+        history_time.push_back(times[1]);
+        history_events.push_back("source");
+
+        history_time.push_back(times[2]);
+        history_events.push_back("slew to " + srcName);
+
+        history_time.push_back(times[3]);
+        history_events.push_back("idle");
+
+        history_time.push_back(times[4]);
+        history_events.push_back("tape");
+
+        history_time.push_back(times[5]);
+        history_events.push_back("calibration");
+
+        history_time.push_back(times[6]);
+        history_events.push_back("scan " + srcName);
+
+
     }
 
 

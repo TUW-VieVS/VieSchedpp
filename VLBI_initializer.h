@@ -24,6 +24,8 @@
 #include "VLBI_source.h"
 #include "VLBI_skyCoverage.h"
 
+#include "sofa.h"
+
 using namespace std;
 namespace VieVS{
     

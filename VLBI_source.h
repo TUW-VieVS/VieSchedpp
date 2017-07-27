@@ -46,15 +46,34 @@ namespace VieVS{
 //        };
         
         VLBI_source();
-        VLBI_source(string src_name, int id, double src_ra_deg, double src_de_deg, unordered_map<string,VLBI_flux> src_flux);
+
+        VLBI_source(string src_name, double src_ra_deg, double src_de_deg, unordered_map<string, VLBI_flux> src_flux);
 //        double* getSourceInCrs(){ return STORAGE.sourceInCrs;}
         string getName() {return name;}
 
-        double getRa() {return ra;}
+        double getRa() const {
+            return ra;
+        }
 
-        double getDe() {return de;}
+        double getDe() const {
+            return de;
+        }
 
-        double getId() {return id;}
+        int getId() const {
+            return id;
+        }
+
+        int getNbls() const {
+            return nbls;
+        }
+
+        unsigned int lastScanTime() const {
+            return lastScan;
+        }
+
+        unsigned int minRepeatTime() const {
+            return PARA.minRepeat;
+        }
 
         unordered_map<string, double> getMinSNR(){
             return PARA.minSNR;
@@ -68,6 +87,9 @@ namespace VieVS{
             return PARA.maxScan;
         }
 
+        void setId(int id) {
+            VLBI_source::id = id;
+        }
 
         // todo: minimum number of stations
         int getMinNumberOfStations() {return 2;}
@@ -79,7 +101,9 @@ namespace VieVS{
         unordered_map<string,double> observedFlux(double gmst, double dx, double dy, double dz);
 
         virtual ~VLBI_source();
-        
+
+        void update(unsigned long nbl, unsigned int time);
+
         friend ostream& operator<<(ostream& out, const VLBI_source& src);
         
     private:
@@ -91,10 +115,10 @@ namespace VieVS{
         
         PARAMETERS PARA;
 //        PRECALC STORAGE;
-                
-        boost::posix_time::ptime lastScan;
+
+        unsigned int lastScan;
         int nscans;
-        int nbls;
+        unsigned long nbls;
     };
     
     

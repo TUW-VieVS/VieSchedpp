@@ -22,8 +22,6 @@ namespace VieVS {
 
         void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape, unsigned int calib);
 
-        void addTimes(int idx, const VLBI_scanTimes &other, int idx_other);
-
         void removeElement(int idx);
 
         const vector<unsigned int> &getEndOfSlewTime() const {
@@ -34,9 +32,35 @@ namespace VieVS {
             return endOfIdleTime[idx];
         }
 
-        void alignStartTimes(unsigned int latestSlewtimes);
+        const unsigned int getEndOfSlewTime(int idx) const{
+            return endOfSlewTime[idx];
+        }
+
+        const unsigned int getEndOfSourceTime(int idx) const {
+            return endOfSourceTime[idx];
+        }
+
+        const unsigned int getEndOfScanTime(int idx) const {
+            return endOfScanTime[idx];
+        }
+
+        const unsigned int getEndOfCalibrationTime(int idx) const {
+            return endOfCalibrationTime[idx];
+        }
+
+        vector<unsigned int> stationTimes(int idx) const {
+            return vector<unsigned int>{endOfSetupTime[idx], endOfSourceTime[idx], endOfSlewTime[idx],
+                                        endOfIdleTime[idx], endOfTapeTime[idx], endOfCalibrationTime[idx],
+                                        endOfScanTime[idx]};
+        }
+
+        void alignStartTimes();
 
         void updateSlewtime(int idx, unsigned int new_slewtime);
+
+        void addScanTimes(vector<unsigned int> &scanTimes);
+
+        unsigned int maxTime() const;
 
     private:
         vector<unsigned int> endOfLastScan;
