@@ -43,6 +43,8 @@
 #include "VLBI_source.h"
 #include "VLBI_pointingVector.h"
 #include "VieVS_constants.h"
+#include "VieVS_nutation.h"
+#include "VieVS_earth.h"
 
 #include "sofa.h"
 
@@ -85,12 +87,6 @@ namespace VieVS{
             vector<double> dx;
             vector<double> dy;
             vector<double> dz;
-
-            vector<double> nut_x;
-            vector<double> nut_y;
-            vector<double> nut_s;
-            vector<unsigned int> nut_time;
-
 
         };
         
@@ -194,8 +190,9 @@ namespace VieVS{
         bool isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation = false);
         
         unsigned int unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector);
-        
-        void getAzEl(VLBI_source source, VLBI_pointingVector& p, unsigned int time);
+
+        void
+        getAzEl(VLBI_source source, VLBI_pointingVector &p, unsigned int time, azelModel model = azelModel::simple);
         
         void pushPointingVector(VLBI_pointingVector pointingVector);
 
@@ -205,8 +202,7 @@ namespace VieVS{
 
         friend ostream& operator<<(ostream& out, const VLBI_station& sta);
 
-        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz,
-                     vector<unsigned int> nut_t, vector<double> nut_x, vector<double> nut_y, vector<double> nut_s);
+        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
 
         void update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end, vector<unsigned int> times,
                     string srcName);

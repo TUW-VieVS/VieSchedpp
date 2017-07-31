@@ -59,6 +59,8 @@ namespace VieVS{
 
         bool update(VLBI_scan &scan);
 
+        void outputHeader(vector<VLBI_station> &stations);
+
     private:
         vector<VLBI_station> stations;
         vector<VLBI_source> sources;

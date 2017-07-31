@@ -38,7 +38,7 @@ namespace VieVS{
 
                 unsigned int slewtime = stations[staid].unwrapAzGetSlewTime(subnet1[i].getPointingVector(j));
                 if (slewtime > stations[staid].getMaxSlewtime()){
-                    cout << "scan: " << i << "deleting station" << stations[staid].getName() << "\n";
+//                    cout << "scan: " << i << "deleting station" << stations[staid].getName() << "\n";
                     scanValid_slew = subnet1[i].removeElement(j);
                     if(!scanValid_slew){
                         break;
@@ -55,7 +55,7 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-                cout << "scan: " << i << " not valid anymore\n";
+//                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{
@@ -110,7 +110,7 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-                cout << "scan: " << i << " not valid anymore\n";
+//                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{

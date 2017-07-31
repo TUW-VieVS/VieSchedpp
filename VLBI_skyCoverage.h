@@ -35,6 +35,8 @@ namespace VieVS{
 
         double calcScore(vector<VLBI_pointingVector> &pvs);
 
+        double scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old);
+
         void update(VLBI_pointingVector &start, VLBI_pointingVector &end);
 
         virtual ~VLBI_skyCoverage();
@@ -46,6 +48,13 @@ namespace VieVS{
 
         vector<VLBI_pointingVector> pv_start;
         vector<VLBI_pointingVector> pv_end;
+
+        normal ndistTime;
+        normal ndistDistance;
+
+        double preFactorTime;
+        double preFactorDistance;
+
     };
 }
 

@@ -17,6 +17,9 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/format.hpp>
+#include <boost/date_time.hpp>
+#include <limits>
 
 #include "VLBI_pointingVector.h"
 #include "VLBI_baseline.h"
@@ -128,6 +131,9 @@ namespace VieVS{
         unsigned long getNBl() {
             return baselines.size();
         }
+
+        void output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
+                    boost::posix_time::ptime sessionStart);
 
     private:
         unsigned long nsta;

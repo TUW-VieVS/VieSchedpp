@@ -639,6 +639,22 @@ namespace VieVS{
             ++counter;
         } while (refTime < PARA.duration + 3600);
 
+        VieVS_nutation::nut_x = nut_x;
+        VieVS_nutation::nut_y = nut_y;
+        VieVS_nutation::nut_s = nut_s;
+        VieVS_nutation::nut_time = nut_t;
+
+
+        double pvh[2][3];
+        double pvb[2][3];
+        (date1, date2, pvh, pvb);
+        double aud2ms = DAU / DAYSEC;
+        double vearth[3] = {aud2ms * pvb[1][0],
+                            aud2ms * pvb[1][1],
+                            aud2ms * pvb[1][2]};
+        VieVS_earth::velocity = {vearth[0], vearth[1], vearth[2]};
+
+
         unsigned long nsta = stations.size();
         for (int i = 0; i < nsta; ++i) {
             vector<double> distance(nsta);
@@ -652,7 +668,7 @@ namespace VieVS{
                 dz[j] = stations[j].getZ()-stations[i].getZ();
             }
 
-            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz, nut_t, nut_x, nut_y, nut_s);
+            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
 
         }
     }

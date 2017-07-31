@@ -22,6 +22,8 @@ namespace VieVS{
     srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()}, minimumNumberOfStations{minimumNumberOfStations}{
         times = VLBI_scanTimes(nsta);
         times.setEndOfLastScan(endOfLastScan);
+
+        pointingVectors.reserve((nsta * (nsta - 1)) / 2);
     }
 
     VLBI_scan::~VLBI_scan() {
@@ -427,6 +429,7 @@ namespace VieVS{
     }
 
     bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
+        pointingVectors_endtime.reserve(nsta);
         bool flag = true;
         int srcid = source.getId();
 
@@ -535,6 +538,102 @@ namespace VieVS{
         sumScores();
 
 
+    }
+
+    void VLBI_scan::output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
+                           boost::posix_time::ptime sessionStart) {
+        unsigned long nmaxsta = stations.size();
+
+        stringstream buffer1;
+        buffer1 << "|-------------";
+        for (int i = 0; i < nmaxsta - 1; ++i) {
+            buffer1 << "-----------";
+        }
+        buffer1 << "----------| \n";
+        cout << buffer1.str();
+
+        string sname = source.getName();
+        double sra = source.getRa() * rad2deg / 15;
+        double sde = source.getDe() * rad2deg;
+        stringstream buffer2;
+        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) RA: %6.3f DE: %+6.2f   stations: %2d") % nr %
+                   sname % srcid % sra % sde % nsta;
+        while (buffer2.str().size() < buffer1.str().size() - 3) {
+            buffer2 << " ";
+        }
+        buffer2 << "| \n";
+        cout << buffer2.str();
+        unsigned int maxValue = numeric_limits<unsigned int>::max();
+
+        vector<unsigned int> slewStart(nmaxsta, maxValue);
+        vector<unsigned int> slewEnd(nmaxsta, maxValue);
+        vector<unsigned int> ideling(nmaxsta, maxValue);
+        vector<unsigned int> scanStart(nmaxsta, maxValue);
+        vector<unsigned int> scanEnd(nmaxsta, maxValue);
+
+
+        for (int idx = 0; idx < nsta; ++idx) {
+            int staid = pointingVectors[idx].getStaid();
+            slewStart[staid] = times.getEndOfSourceTime(idx);
+            slewEnd[staid] = times.getEndOfSlewTime(idx);
+            ideling[staid] = times.getEndOfIdleTime(idx);
+            scanStart[staid] = times.getEndOfCalibrationTime(idx);
+            scanEnd[staid] = times.getEndOfScanTime(idx);
+        }
+        cout << "| slew start | ";
+        for (auto &t:slewStart) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| slew end   | ";
+        for (auto &t:slewEnd) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| idle end   | ";
+        for (auto &t:ideling) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| scan start | ";
+        for (auto &t:scanStart) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| scan end   | ";
+        for (auto &t:scanEnd) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
     }
 
 

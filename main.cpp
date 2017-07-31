@@ -54,7 +54,7 @@ void createParameterFile(){
     pt.add("general.experiment_name","R1XXX");
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
-    pt.add("general.end",time+boost::posix_time::hours(24));
+    pt.add("general.end", time + boost::posix_time::hours(.5));
     vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
     pt.add("general.stations",boost::algorithm::join(sta, ","));
     pt.add("general.maxDistanceTwinTeleskopes",5000);
@@ -95,7 +95,7 @@ void createParameterFile(){
     source_global.add("group.minRepeat",1800);
     source_global.add("group.maxScan",500);
     source_global.add("group.minScan",42);
-    source_global.add("group.minFlux", 0.5);
+    source_global.add("group.minFlux", 0.05);
     boost::property_tree::ptree flux1_src;
     flux1_src.add("minSNR",20);
     flux1_src.put("minSNR.<xmlattr>.band","X");
@@ -112,7 +112,7 @@ void createParameterFile(){
     source_group1.add("group.minRepeat",3600);
     source_group1.add("group.maxScan",200);
     source_group1.add("group.minScan",20);
-    source_group1.add("group.minFlux", 0.5);
+    source_group1.add("group.minFlux", 0.0);
     source_group1.put("group.<xmlattr>.name","group1");
     source_group1.put("group.<xmlattr>.members","2355-534,2329-384");
     source.add_child("group",source_group1.get_child("group"));

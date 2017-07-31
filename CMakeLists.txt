@@ -3,7 +3,6 @@ project(VieVS_Scheduler_clion)
 set(CMAKE_CXX_STANDARD 14)
 
 
-
 #SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "C:/boost")
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "C:/boost")
 SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/mschartn/boost_1_64_0")
@@ -48,7 +47,7 @@ set(SOURCE_FILES
         VLBI_subcon.cpp
         VLBI_subcon.h
         sofa.h
-        sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h)
+        sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h VieVS_nutation.cpp VieVS_nutation.h VieVS_earth.cpp VieVS_earth.h)
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 

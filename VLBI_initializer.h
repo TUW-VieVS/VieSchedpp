@@ -23,6 +23,8 @@
 #include "VLBI_station.h"
 #include "VLBI_source.h"
 #include "VLBI_skyCoverage.h"
+#include "VieVS_nutation.h"
+#include "VieVS_earth.h"
 
 #include "sofa.h"
 

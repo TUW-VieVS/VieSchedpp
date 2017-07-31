@@ -34,52 +34,54 @@ namespace VieVS{
     void VLBI_scheduler::start(){
         bool endOfScheduleReached = false;
 
+        outputHeader(stations);
+
         while (true) {
-            cout << "############################ new scan ############################\n";
-            cout << "start constructing all Visible Scans\n";
+//            cout << "############################ new scan ############################\n";
+//            cout << "start constructing all Visible Scans\n";
             VLBI_subcon subcon = allVisibleScans();
-            cout << "subcon created\n";
-            cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n\n";
+//            cout << "subcon created\n";
+//            cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n\n";
 
-            cout << "calc start times\n";
+//            cout << "calc start times\n";
             subcon.calcStartTimes(stations, sources);
-            cout << "start times calculated\n\n";
+//            cout << "start times calculated\n\n";
 
-            cout << "update az_end el_end times\n";
+//            cout << "update az_end el_end times\n";
             subcon.updateAzEl(stations, sources);
-            cout << "az_end el_end updated!\n\n";
+//            cout << "az_end el_end updated!\n\n";
 
-            cout << "construct all baselines\n";
+//            cout << "construct all baselines\n";
             subcon.constructAllBaselines();
-            cout << "baselines constructed\n\n";
+//            cout << "baselines constructed\n\n";
 
-            cout << "calc baseline Duration\n";
+//            cout << "calc baseline Duration\n";
             subcon.calcAllBaselineDurations(stations, sources, PARA.mjdStart);
-            cout << "baseline Duration calculated\n\n";
+//            cout << "baseline Duration calculated\n\n";
 
-            cout << "calc all scan Duration\n";
+//            cout << "calc all scan Duration\n";
             subcon.calcAllScanDurations(stations, sources);
-            cout << "scan Durations calculated\n\n";
+//            cout << "scan Durations calculated\n\n";
 
             // TODO: check if start time is adjusted !!!
-            cout << "create subnetting subcons\n";
+//            cout << "create subnetting subcons\n";
             subcon.createSubcon2(PRE.subnettingSrcIds, stations.size() * 0.66);
-            cout << "subcon2 created!\n";
-            cout << "    1 scan subcons " << subcon.getNumberSingleScans() << "\n";
-            cout << "    2 scan subcons " << subcon.getNumberSubnettingScans() << "\n\n";
+//            cout << "subcon2 created!\n";
+//            cout << "    1 scan subcons " << subcon.getNumberSingleScans() << "\n";
+//            cout << "    2 scan subcons " << subcon.getNumberSubnettingScans() << "\n\n";
 
-            cout << "calculate single scores for each subcon\n";
+//            cout << "calculate single scores for each subcon\n";
             subcon.precalcScore(stations, sources);
             subcon.generateScore(stations, skyCoverages);
-            cout << "scores calculated\n";
+//            cout << "scores calculated\n";
 
-            cout << "calc all scores\n";
+//            cout << "calc all scores\n";
             subcon.calcScores();
-            cout << "all scores calculated\n";
+//            cout << "all scores calculated\n";
 
-            cout << "check best with rigorous model\n";
+//            cout << "check best with rigorous model\n";
             int bestIdx = subcon.rigorousScore(stations, sources, skyCoverages, PARA.mjdStart);
-            cout << "best scan found\n";
+//            cout << "best scan found\n";
 
             if (bestIdx < subcon.getNumberSingleScans()) {
                 VLBI_scan bestScan = subcon.getSingleSourceScan(bestIdx);
@@ -178,7 +180,7 @@ namespace VieVS{
         unsigned long nsta = scan.getNSta();
         unsigned long nbl = scan.getNBl();
 
-        cout << "scan of: " << sourceName << " until: " << latestTime << " \n";
+
         for (int i = 0; i < scan.getNSta(); ++i) {
             VLBI_pointingVector pv = scan.getPointingVector(i);
             int staid = pv.getStaid();
@@ -196,9 +198,23 @@ namespace VieVS{
         thisSource.update(nbl, latestTime);
 
         scans.push_back(scan);
+        scan.output(scans.size(), stations, thisSource, PARA.startTime);
+
 
         return false;
+    }
 
+    void VLBI_scheduler::outputHeader(vector<VLBI_station> &stations) {
+        cout << ".------------.";
+        for (auto &t:stations) {
+            cout << "----------.";
+        }
+        cout << "\n";
+        cout << "| stations   | ";
+        for (auto &t:stations) {
+            cout << boost::format("%8s | ") % t.getName();
+        }
+        cout << "\n";
     }
 
 }
