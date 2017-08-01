@@ -47,7 +47,7 @@ set(SOURCE_FILES
         VLBI_subcon.cpp
         VLBI_subcon.h
         sofa.h
-        sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h VieVS_nutation.cpp VieVS_nutation.h VieVS_earth.cpp VieVS_earth.h)
+        sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h VieVS_nutation.cpp VieVS_nutation.h VieVS_earth.cpp VieVS_earth.h VieVS_unordered_flat_map.cpp VieVS_unordered_flat_map.h)
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 

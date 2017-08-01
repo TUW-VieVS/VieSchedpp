@@ -98,7 +98,7 @@ namespace VieVS{
             else if ( name == "minSNR"){
                 string bandName = it.second.get_child("<xmlattr>.band").data();
                 double value = it.second.get_value<double>();
-                PARA.minSNR.insert(make_pair(bandName,value));
+                PARA.minSNR.push_back(make_pair(bandName, value));
             } else
                 cerr << "Station " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
         }

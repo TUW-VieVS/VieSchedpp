@@ -15,7 +15,8 @@
 #define BASELINE_H
 
 #include <string>
-#include <unordered_map>
+#include <vector>
+#include <utility>
 #include <algorithm>
 
 using namespace std;
@@ -52,7 +53,7 @@ namespace VieVS{
             return startTime;
         }
 
-        unordered_map<string, double> getObservedFlux() const {
+        vector<pair<string, double> > getObservedFlux() const {
             return observedFlux;
         }
 
@@ -60,11 +61,11 @@ namespace VieVS{
             return scanDuration;
         }
 
-        void setObservedFlux(const unordered_map<string, double> &observedFlux) {
+        void setObservedFlux(const vector<pair<string, double> > &observedFlux) {
             VLBI_baseline::observedFlux = observedFlux;
         }
 
-        void setScanDuration(unordered_map<string,unsigned int>& scanDurations);
+        void setScanDuration(vector<pair<string, unsigned int> > &scanDurations);
 
         string longestScanDurationBand();
 
@@ -74,11 +75,11 @@ namespace VieVS{
         int srcid;
         unsigned int startTime;
 
-        unordered_map<string,double> observedFlux;
+        vector<pair<string, double> > observedFlux;
         vector<string> observedFlux_name;
         vector<double> observedFlux_value;
 
-        unordered_map<string,unsigned int> scanDurations;
+        vector<pair<string, unsigned int> > scanDurations;
         vector<string> scanDurations_name;
         vector<unsigned int> scanDurations_value;
 

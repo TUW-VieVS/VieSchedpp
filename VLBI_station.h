@@ -33,7 +33,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <utility>
-#include <unordered_map>
+#include <boost/container/flat_map.hpp>
 
 #include "VLBI_position.h"
 #include "VLBI_antenna.h"
@@ -67,8 +67,8 @@ namespace VieVS{
             double axis1_up_offset = 5*deg2rad;
             double axis2_low_offset = 5*deg2rad;
             double axis2_up_offset = 5*deg2rad;
-            
-            unordered_map<string,double> minSNR;
+
+            vector<pair<string, double> > minSNR;
 
             unsigned int wait_setup = 10;
             unsigned int wait_source = 5;
@@ -140,7 +140,11 @@ namespace VieVS{
         }
 
         double getMinSNR(string band){
-            return PARA.minSNR[band];
+            for (auto &any:PARA.minSNR) {
+                if (any.first == band) {
+                    return any.second;
+                }
+            }
         }
 
         double getDistance(int other_staid){

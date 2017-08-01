@@ -134,8 +134,10 @@ namespace VieVS{
             double date2 = mjdStart + startTime/86400;
             double gmst = iauGmst82(date1, date2);
 
-            unordered_map<string,unsigned int> durations;
-            unordered_map<string,double> flux = source.observedFlux(gmst,stations[staid1].dx(staid2),stations[staid1].dy(staid2),stations[staid1].dz(staid2));
+            vector<pair<string, unsigned int> > durations;
+            vector<pair<string, double> > flux = source.observedFlux(gmst, stations[staid1].dx(staid2),
+                                                                     stations[staid1].dy(staid2),
+                                                                     stations[staid1].dz(staid2));
             for(auto& any:flux){
                 string fluxname = any.first;
                 double SEFD_src = any.second;
@@ -148,11 +150,13 @@ namespace VieVS{
                 double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
 
 
-                unordered_map<string,double> minSNRs_src = source.getMinSNR();
+                vector<pair<string, double> > minSNRs_src = source.getMinSNR();
                 double minSNR_src = 0;
-                auto it_src = minSNRs_src.find(fluxname);
-                if (it_src != minSNRs_src.end()){
-                    minSNR_src = it_src->second;
+                for (auto &any_minFlux:minSNRs_src) {
+                    if (any_minFlux.first == fluxname) {
+                        minSNR_src = any_minFlux.second;
+                        break;
+                    }
                 }
 
 
@@ -181,7 +185,7 @@ namespace VieVS{
                     double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
                     new_duration = ceil(new_duration);
                     unsigned int new_duration_uint = (unsigned int) new_duration;
-                    durations.insert(make_pair(fluxname,new_duration_uint));
+                    durations.push_back(make_pair(fluxname, new_duration_uint));
                 }else{
                     cerr << "WARNING: duration of band " << fluxname << " ignored\n";
                 }

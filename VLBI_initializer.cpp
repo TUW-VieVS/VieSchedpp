@@ -450,7 +450,7 @@ namespace VieVS{
 //                continue;
 //            }
 
-            unordered_map<string,VLBI_flux> flux;
+            vector<pair<string, VLBI_flux> > flux;
 
             vector<vector<string> > flux_split;
             for (unsigned int i=0; i<flux_cat.size(); ++i){
@@ -514,7 +514,7 @@ namespace VieVS{
 
 
                 if (flagFlux){
-                    flux.insert(make_pair(thisBand,srcFlux));
+                    flux.push_back(make_pair(thisBand, srcFlux));
                 }else{
                     cerr << "error reading flux info of: "<< name << "\n";
                 }
