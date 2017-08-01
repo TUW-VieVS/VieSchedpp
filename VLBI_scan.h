@@ -128,11 +128,11 @@ namespace VieVS{
 
         void calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
 
-        void calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl);
+        void calcScore_averageSources(vector<double> &asrcs);
 
-        void calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta);
+        void calcScore_duration(unsigned int minTime, unsigned int maxTime);
 
-        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta);
+        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages);
 
         void sumScores();
 

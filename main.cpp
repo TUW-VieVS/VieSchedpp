@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <chrono>
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
 
@@ -9,8 +10,13 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    createParameterFile();
+//    createParameterFile();
+    auto start = std::chrono::high_resolution_clock::now();
     run();
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
+    std::cout << "execution time: " << (double) microseconds.count() / 1e6 << " [s]\n";
+
 
     return 0;
 }
@@ -56,7 +62,7 @@ void createParameterFile(){
     pt.add("general.experiment_name","R1XXX");
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
-    pt.add("general.end", time + boost::posix_time::minutes(30));
+    pt.add("general.end", time + boost::posix_time::hours(24));
     vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
     pt.add("general.stations",boost::algorithm::join(sta, ","));
     pt.add("general.maxDistanceTwinTeleskopes",5000);

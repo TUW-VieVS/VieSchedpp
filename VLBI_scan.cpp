@@ -134,10 +134,11 @@ namespace VieVS{
             double date2 = mjdStart + startTime/86400;
             double gmst = iauGmst82(date1, date2);
 
-            vector<pair<string, unsigned int> > durations;
+//            vector<pair<string, unsigned int> > durations;
             vector<pair<string, double> > flux = source.observedFlux(gmst, stations[staid1].dx(staid2),
                                                                      stations[staid1].dy(staid2),
                                                                      stations[staid1].dz(staid2));
+            unsigned int maxScanDuration = 0;
             for(auto& any:flux){
                 string fluxname = any.first;
                 double SEFD_src = any.second;
@@ -185,13 +186,18 @@ namespace VieVS{
                     double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
                     new_duration = ceil(new_duration);
                     unsigned int new_duration_uint = (unsigned int) new_duration;
-                    durations.push_back(make_pair(fluxname, new_duration_uint));
+                    if (new_duration_uint > maxScanDuration) {
+                        maxScanDuration = new_duration_uint;
+                    }
+
+//                    durations.push_back(make_pair(fluxname, new_duration_uint));
                 }else{
                     cerr << "WARNING: duration of band " << fluxname << " ignored\n";
                 }
             }
-            thisBaseline.setObservedFlux(flux);
-            thisBaseline.setScanDuration(durations);
+//            thisBaseline.setObservedFlux(flux);
+//            thisBaseline.setScanDuration(durations);
+            thisBaseline.setScanDuration(maxScanDuration);
         }
 
 
@@ -217,15 +223,13 @@ namespace VieVS{
             }
         }
 
-        vector<unsigned int> scanTimes(minscanTimes);
+        vector<unsigned int> scanTimes;
         do{
             scanDurationsValid = true;
 
             vector<int> eraseStations1;
             vector<int> eraseStations2;
-            for (int i = 0; i < nsta; ++i) {
-                scanTimes[i] = 0;
-            }
+            scanTimes = minscanTimes;
 
 
             for (int i = 0; i < baselines.size(); ++i) {
@@ -309,7 +313,7 @@ namespace VieVS{
                 }
 
                 scanValid = removeElement(eraseThis);
-                scanTimes.erase(scanTimes.begin()+eraseThis);
+                minscanTimes.erase(minscanTimes.begin() + eraseThis);
 
                 if (!scanValid){
                     break;
@@ -383,24 +387,25 @@ namespace VieVS{
 
         for (auto &pv:pointingVectors) {
             int thisStaId = pv.getStaid();
-            finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nmaxsta - 1);
+            finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta - 1);
         }
 
         single_scores.averageStations = finalScore;
     }
 
-    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl) {
+    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs) {
+        unsigned long maxBl = (nsta * (nsta - 1)) / 2;
         unsigned long nbl = baselines.size();
-        single_scores.averageSources = asrcs[srcid] * nbl / nmaxbl;
+        single_scores.averageSources = asrcs[srcid] * nbl / maxBl;
     }
 
-    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta) {
+    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) {
         unsigned int thisEndTime = times.maxTime();
         double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
-        single_scores.duration = score * nsta / nmaxsta;
+        single_scores.duration = score;
     }
 
-    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta) {
+    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages) {
 
         vector<int> sta2sky = VLBI_skyCoverage::sta2sky;
 
@@ -421,7 +426,7 @@ namespace VieVS{
         }
 
 
-        single_scores.skyCoverage = accumulate(singleScores.begin(), singleScores.end(), 0.0) / nmaxsta;
+        single_scores.skyCoverage = accumulate(singleScores.begin(), singleScores.end(), 0.0) / nsta;
     }
 
     void VLBI_scan::sumScores() {
@@ -449,9 +454,14 @@ namespace VieVS{
             VLBI_pointingVector new_p(staid, srcid);
             unsigned int oldSlewEnd;
             unsigned int newSlewEnd = slewEnd;
+
+            double oldAz;
+            double newAz = numeric_limits<double>::quiet_NaN();
+
             unsigned int slewtime;
-            bool stationValid = true;
+            bool stationValid;
             do {
+                oldAz = newAz;
                 oldSlewEnd = newSlewEnd;
                 new_p.setTime(newSlewEnd);
 
@@ -462,7 +472,30 @@ namespace VieVS{
                         return false;
                     }
                 }
-                slewtime = stations[staid].unwrapAzGetSlewTime(new_p);
+
+                stations[staid].unwrapAz(new_p);
+                newAz = new_p.getAz();
+                if (oldAz != numeric_limits<double>::quiet_NaN() && abs(oldAz - newAz) > .5 * pi) {
+                    bool secure = stations[staid].unwrapAzNearNeutralPoint(new_p);
+                    if (!secure) {
+                        cout
+                                << "### DEBUG OPPORTUNITY ###\n    axis 1 is close to limit and the ambigurity is not save!\n";
+                        scanValid = removeElement(i);
+                        if (!scanValid) {
+                            return false;
+                        }
+
+                    }
+                }
+                slewtime = stations[staid].slewTime(new_p);
+
+                if (slewtime > stations[staid].getMaxSlewtime()) {
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+
+                }
                 newSlewEnd = slewStart + slewtime;
             } while (abs(newSlewEnd - oldSlewEnd) > 1);
 
@@ -495,6 +528,9 @@ namespace VieVS{
 
             bool stationValid = true;
 
+            double oldAz = pointingVectors[i].getAz();
+            double newAz;
+
             for (unsigned int j = scanStart; j < scanEnd; j += 10) {
                 pv.setTime(j);
                 stationValid = thisSta.isVisible(source, pv);
@@ -505,8 +541,17 @@ namespace VieVS{
                     }
                     break;
                 }
-                if (j == scanStart) {
-                    pointingVectors[i] = pv;
+
+                thisSta.unwrapAzNearAz(pv, oldAz);
+                newAz = pv.getAz();
+                if (abs(newAz - oldAz) > .5 * pi) {
+                    stationValid = false;
+                    cout << "### DEBUG OPPORTUNITY ###\n    change of calbe wrap while observing!\n";
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    break;
                 }
             }
 
@@ -524,6 +569,17 @@ namespace VieVS{
                 continue;
             }
 
+            thisSta.unwrapAzNearAz(pv, oldAz);
+            newAz = pv.getAz();
+            if (abs(newAz - oldAz) > .5 * pi) {
+                scanValid = removeElement(i);
+                if (!scanValid) {
+                    return false;
+                }
+                continue;
+            }
+
+
             pointingVectors_endtime.push_back(pv);
 
             ++i;
@@ -535,9 +591,9 @@ namespace VieVS{
                               unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
         calcScore_nunmberOfObservations(nmaxbl);
         calcScore_averageStations(astas, nmaxsta);
-        calcScore_averageSources(asrcs, nmaxbl);
-        calcScore_duration(minTime, maxTime, nmaxsta);
-        calcScore_skyCoverage(skyCoverages, nmaxsta);
+        calcScore_averageSources(asrcs);
+        calcScore_duration(minTime, maxTime);
+        calcScore_skyCoverage(skyCoverages);
         sumScores();
 
 

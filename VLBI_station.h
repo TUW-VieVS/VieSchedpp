@@ -63,10 +63,10 @@ namespace VieVS{
         struct PARAMETERS{
             vector<string> parameterGroups;
 
-            double axis1_low_offset = 5*deg2rad;
-            double axis1_up_offset = 5*deg2rad;
-            double axis2_low_offset = 5*deg2rad;
-            double axis2_up_offset = 5*deg2rad;
+            double axis1_low_offset = 5;
+            double axis1_up_offset = 5;
+            double axis2_low_offset = 1;
+            double axis2_up_offset = 1;
 
             vector<pair<string, double> > minSNR;
 
@@ -76,6 +76,7 @@ namespace VieVS{
             unsigned int wait_calibration = 10;
             unsigned int wait_corsynch = 3;
             unsigned int maxSlewtime = 9999;
+            double maxSlewDistance = 170;
             unsigned int maxWait = 9999;
             unsigned int maxScan = 600;
             unsigned int minScan = 30;
@@ -192,8 +193,14 @@ namespace VieVS{
         double distance(VLBI_station other);
 
         bool isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation = false);
-        
-        unsigned int unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector);
+
+        void unwrapAz(VLBI_pointingVector &pointingVector);
+
+        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &pointingVector);
+
+        void unwrapAzNearAz(VLBI_pointingVector &pointingVector, double az);
+
+        unsigned int slewTime(VLBI_pointingVector &pointingVector);
 
         void
         getAzEl(VLBI_source source, VLBI_pointingVector &p, unsigned int time, azelModel model = azelModel::simple);
@@ -210,6 +217,8 @@ namespace VieVS{
 
         void update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end, vector<unsigned int> times,
                     string srcName);
+
+        void setCableWrapMinimumOffsets();
 
         unsigned int getWaitSetup() {
             return PARA.wait_setup;

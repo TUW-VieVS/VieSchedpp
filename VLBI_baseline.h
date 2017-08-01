@@ -53,21 +53,25 @@ namespace VieVS{
             return startTime;
         }
 
-        vector<pair<string, double> > getObservedFlux() const {
-            return observedFlux;
-        }
+//        vector<pair<string, double> > getObservedFlux() const {
+//            return observedFlux;
+//        }
 
         unsigned int getScanDuration() const {
             return scanDuration;
         }
 
-        void setObservedFlux(const vector<pair<string, double> > &observedFlux) {
-            VLBI_baseline::observedFlux = observedFlux;
+        void setScanDuration(unsigned int scanDuration) {
+            VLBI_baseline::scanDuration = scanDuration;
         }
 
-        void setScanDuration(vector<pair<string, unsigned int> > &scanDurations);
+//        void setObservedFlux(const vector<pair<string, double> > &observedFlux) {
+//            VLBI_baseline::observedFlux = observedFlux;
+//        }
 
-        string longestScanDurationBand();
+//        void setScanDuration(vector<pair<string, unsigned int> > &scanDurations);
+//
+//        string longestScanDurationBand();
 
     private:
         int staid1;
@@ -75,13 +79,8 @@ namespace VieVS{
         int srcid;
         unsigned int startTime;
 
-        vector<pair<string, double> > observedFlux;
-        vector<string> observedFlux_name;
-        vector<double> observedFlux_value;
-
-        vector<pair<string, unsigned int> > scanDurations;
-        vector<string> scanDurations_name;
-        vector<unsigned int> scanDurations_value;
+//        vector<pair<string, double> > observedFlux;
+//        vector<pair<string, unsigned int> > scanDurations;
 
         unsigned int scanDuration;
     };

@@ -33,9 +33,10 @@ namespace VieVS{
             while(j<subnet1[i].getNSta()){
                 int staid = subnet1[i].getStationId(j);
 
-                unsigned int slewtime = stations[staid].unwrapAzGetSlewTime(subnet1[i].getPointingVector(j));
+                stations[staid].unwrapAz(subnet1[i].getPointingVector(j));
+                unsigned int slewtime = stations[staid].slewTime(subnet1[i].getPointingVector(j));
+
                 if (slewtime > stations[staid].getMaxSlewtime()){
-//                    cout << "scan: " << i << "deleting station" << stations[staid].getName() << "\n";
                     scanValid_slew = subnet1[i].removeElement(j);
                     if(!scanValid_slew){
                         break;
@@ -52,7 +53,6 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-//                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{
@@ -79,13 +79,14 @@ namespace VieVS{
             int j = 0;
             while (j < subnet1[i].getNSta()) {
                 int staid = subnet1[i].getPointingVector(j).getStaid();
-                VLBI_pointingVector thisPointingVector = subnet1[i].getPointingVector(j);
+                VLBI_pointingVector &thisPointingVector = subnet1[i].getPointingVector(j);
                 thisPointingVector.setTime(subnet1[i].getTimes().getEndOfIdleTime(j));
                 bool visible = stations[staid].isVisible(thisSource,thisPointingVector,false);
                 unsigned int slewtime = numeric_limits<unsigned int>::max();
 
                 if (visible){
-                     slewtime = stations[staid].unwrapAzGetSlewTime(thisPointingVector);
+                    stations[staid].unwrapAz(thisPointingVector);
+                    slewtime = stations[staid].slewTime(thisPointingVector);
                 }
 
                 if (!visible || slewtime > stations[staid].getMaxSlewtime()){
@@ -96,7 +97,6 @@ namespace VieVS{
                 } else {
                     maxIdleTimes.push_back(stations[staid].getMaxIdleTime());
                     subnet1[i].updateSlewtime(j, slewtime);
-                    subnet1[i].setPointingVector(j,thisPointingVector);
                     ++j;
                 }
             }
@@ -107,7 +107,6 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-//                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{
@@ -359,8 +358,8 @@ namespace VieVS{
         average_source_score(sources);
     }
 
-    int VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                   vector<VLBI_skyCoverage> &skyCoverages, double mjdStart) {
+    unsigned long VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
+                                             vector<VLBI_skyCoverage> &skyCoverages, double mjdStart) {
 
         vector<double> scores = subnet1_score;
         scores.insert(scores.end(), subnet2_score.begin(), subnet2_score.end());
@@ -389,9 +388,9 @@ namespace VieVS{
 
             } else {
                 int thisIdx = idx - n1scans;
-                auto thisScans = subnet2[thisIdx];
+                auto &thisScans = subnet2[thisIdx];
 
-                VLBI_scan thisScan1 = thisScans.first;
+                VLBI_scan &thisScan1 = thisScans.first;
                 bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], mjdStart);
                 thisScan1.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
                 double newScore1 = thisScan1.getScore();
@@ -399,7 +398,7 @@ namespace VieVS{
                     continue;
                 }
 
-                VLBI_scan thisScan2 = thisScans.second;
+                VLBI_scan &thisScan2 = thisScans.second;
                 bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], mjdStart);
                 thisScan2.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
                 double newScore2 = thisScan2.getScore();
@@ -409,7 +408,6 @@ namespace VieVS{
                 double newScore = newScore1 + newScore2;
 
                 q.push(make_pair(newScore, idx));
-
             }
             int newIdx = q.top().second;
             if (newIdx == idx) {

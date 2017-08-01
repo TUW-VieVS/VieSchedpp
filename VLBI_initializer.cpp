@@ -32,7 +32,7 @@ namespace VieVS{
             if(sec<0){
                 cerr << "ERROR: duration is less than zero seconds!\n";
             }
-            PARA.duration = sec;
+            PARA.duration = (unsigned int) sec;
             cout << "duration: " << PARA.duration << " [s]\n";
             string stastr = PARA_xml.get<string>("general.stations");
             
@@ -610,6 +610,7 @@ namespace VieVS{
                     throw;
                 }
             }
+            any.setCableWrapMinimumOffsets();
             ++c;
 
         }

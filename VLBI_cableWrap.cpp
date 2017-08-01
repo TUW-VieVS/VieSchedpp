@@ -16,10 +16,10 @@ namespace VieVS{
     VLBI_cableWrap::VLBI_cableWrap(){}
     
     VLBI_cableWrap::VLBI_cableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg):
-                         axis1_low{axis1_low_deg*deg2rad}, axis1_up{axis1_up_deg*deg2rad}, axis2_low{axis2_low_deg*deg2rad}, axis2_up{axis2_up_deg*deg2rad}{
-        axis1_range = axis1_up-axis1_low;
+            axis1_low{axis1_low_deg * deg2rad}, axis1_up{axis1_up_deg * deg2rad},
+            axis2_low{axis2_low_deg * deg2rad}, axis2_up{axis2_up_deg * deg2rad} {
 
-        if (axis1_range>twopi){
+        if ((axis1_up - axis1_low) > twopi) {
             double overlapping = axis1_range-twopi;
             if (overlapping>twopi){
                 cerr << "ERROR: cable wrap limits to large!";
@@ -38,7 +38,7 @@ namespace VieVS{
             w_low = axis1_low;
             w_start = axis1_low;
         }
-                                                                                                                                                   }
+    }
 
     VLBI_cableWrap::~VLBI_cableWrap() {
     }
@@ -46,12 +46,13 @@ namespace VieVS{
     bool VLBI_cableWrap::anglesInside(VLBI_pointingVector& p){
         double az = p.getAz();
         double el = p.getEl();
-        if (axis1_range<2*pi){
-            if (az < fmod(axis1_low,twopi) || az > fmod(axis1_up,twopi) || el < axis2_low || el > axis2_up){
+        if ((axis1_up - axis1_up_offset - axis1_low + axis1_low_offset) < 2 * pi) {
+            if (az < fmod(axis1_low + axis1_low_offset, twopi) || az > fmod(axis1_up - axis1_up_offset, twopi) ||
+                el < axis2_low + axis2_low_offset || el > axis2_up - axis2_up_offset) {
                 return false;
             }
         } else {
-            if (el < axis2_low || el > axis2_up){
+            if (el < axis2_low + axis2_low_offset || el > axis2_up - axis2_up_offset) {
                 return false;
             }
         }
@@ -59,31 +60,72 @@ namespace VieVS{
         return true;
     }
 
+    bool VLBI_cableWrap::unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) {
+        double az_old = neutralPoint(1);
+        double az_new = new_pointingVector.getAz();
+
+        double unaz_new;
+
+        while (az_new > axis1_low + axis1_low_offset) {
+            az_new = az_new - 2 * pi;
+        }
+        while (az_new < axis1_low + axis1_low_offset) {
+            az_new = az_new + 2 * pi;
+        }
+
+
+        unaz_new = az_new;
+        int ambigurities = (int) floor((axis1_up - axis1_up_offset - unaz_new) / (2 * pi));
+        double this_unaz = unaz_new;
+
+        for (int i = 1; i <= ambigurities; ++i) {
+            double this_unaz_new = unaz_new + i * 2 * pi;
+            if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
+                break;
+            } else {
+                this_unaz = this_unaz_new;
+            }
+        }
+        new_pointingVector.setAz(this_unaz);
+
+        bool secure;
+        if (this_unaz > axis1_low + axis1_low_offset + 3 * deg2rad &&
+            this_unaz < axis1_up - axis1_up_offset - 3 * deg2rad) {
+            secure = true;
+        } else {
+            secure = false;
+        }
+
+        return secure;
+    }
+
     void VLBI_cableWrap::calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector){
         double az_old = old_pointingVector.getAz();
         double az_new = new_pointingVector.getAz();
         
         double unaz_new;
-        
-        while (az_new > axis1_low){
+
+        while (az_new > axis1_low + axis1_low_offset) {
             az_new = az_new - 2 * pi;
         }
-        while (az_new < axis1_up){
+        while (az_new < axis1_low + axis1_low_offset) {
             az_new = az_new + 2 * pi;
         }
+
+
         unaz_new = az_new;
-        
-        if(az_new+twopi < axis1_up){
-            double unaz_new2 = az_new+twopi;
-            if (abs(unaz_new2-az_old) < abs(unaz_new-az_old)){
-                new_pointingVector.setAz(unaz_new2);
+        int ambigurities = (int) floor((axis1_up - axis1_up_offset - unaz_new) / (2 * pi));
+        double this_unaz = unaz_new;
+
+        for (int i = 1; i <= ambigurities; ++i) {
+            double this_unaz_new = unaz_new + i * 2 * pi;
+            if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
+                break;
             } else {
-                new_pointingVector.setAz(unaz_new);
+                this_unaz = this_unaz_new;
             }
-        } else {
-            new_pointingVector.setAz(unaz_new);
         }
-        
+        new_pointingVector.setAz(this_unaz);
     }
 
     double VLBI_cableWrap::neutralPoint(int axis){
@@ -108,6 +150,42 @@ namespace VieVS{
         cout << boost::format("    axis2: %4.0f [deg] to %4.0f [deg]\n") % axis2_lowdeg % axis2_updeg;
         
         return out;
+    }
+
+    void VLBI_cableWrap::setMinimumOffsets(double axis1_low_offset, double axis1_up_offset,
+                                           double axis2_low_offset, double axis2_up_offset) {
+        this->axis1_low_offset = axis1_low_offset * deg2rad;
+        this->axis1_up_offset = axis1_up_offset * deg2rad;
+        this->axis2_low_offset = axis2_low_offset * deg2rad;
+        this->axis2_up_offset = axis2_up_offset * deg2rad;
+    }
+
+    void VLBI_cableWrap::unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) {
+        double az_new = new_pointingVector.getAz();
+
+        double unaz_new;
+
+        while (az_new > axis1_low + axis1_low_offset) {
+            az_new = az_new - 2 * pi;
+        }
+        while (az_new < axis1_low + axis1_low_offset) {
+            az_new = az_new + 2 * pi;
+        }
+
+
+        unaz_new = az_new;
+        int ambigurities = (int) floor((axis1_up - axis1_up_offset - unaz_new) / (2 * pi));
+        double this_unaz = unaz_new;
+
+        for (int i = 1; i <= ambigurities; ++i) {
+            double this_unaz_new = unaz_new + i * 2 * pi;
+            if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
+                break;
+            } else {
+                this_unaz = this_unaz_new;
+            }
+        }
+        new_pointingVector.setAz(this_unaz);
     }
 
 }

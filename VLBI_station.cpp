@@ -70,13 +70,13 @@ namespace VieVS{
             if ( name == "<xmlattr>")
                 continue;
             else if ( name == "axis1_low_offset")
-                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset")*deg2rad;
+                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset");
             else if ( name == "axis1_up_offset")
-                PARA.axis1_up_offset  = PARA_station.get<double>("axis1_up_offset")*deg2rad;
+                PARA.axis1_up_offset = PARA_station.get<double>("axis1_up_offset");
             else if ( name == "axis2_low_offset")
-                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset")*deg2rad;
+                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset");
             else if ( name == "axis2_up_offset")
-                PARA.axis2_up_offset  = PARA_station.get<double>("axis2_up_offset")*deg2rad;
+                PARA.axis2_up_offset = PARA_station.get<double>("axis2_up_offset");
             else if ( name == "wait_setup")
                 PARA.wait_setup = PARA_station.get<unsigned int>("wait_setup");
             else if ( name == "wait_source")
@@ -115,11 +115,11 @@ namespace VieVS{
     
     bool VLBI_station::isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation){
         if (useTimeFromStation){
-            double time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
-                    PARA.wait_tape;
+            unsigned int time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
+                                PARA.wait_tape;
             getAzEl(source, p, time);
         }else {
-            double time = p.getTime();
+            unsigned int time = p.getTime();
             getAzEl(source, p, time);
         }
         
@@ -259,10 +259,13 @@ namespace VieVS{
     double VLBI_station::distance(VLBI_station other){
         return position.getDistance(other.position);
     }
-    
-    unsigned int  VLBI_station::unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector){
+
+    void VLBI_station::unwrapAz(VLBI_pointingVector &pointingVector) {
         cableWrap.calcUnwrappedAz(current,pointingVector);
-        return antenna.slewTime(current,pointingVector);
+    }
+
+    unsigned int VLBI_station::slewTime(VLBI_pointingVector &pointingVector) {
+        return antenna.slewTime(current, pointingVector);
     }
 
     void VLBI_station::update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end,
@@ -295,6 +298,19 @@ namespace VieVS{
         history_events.push_back("scan " + srcName);
 
 
+    }
+
+    void VLBI_station::setCableWrapMinimumOffsets() {
+        cableWrap.setMinimumOffsets(PARA.axis1_low_offset, PARA.axis1_up_offset, PARA.axis2_low_offset,
+                                    PARA.axis2_up_offset);
+    }
+
+    bool VLBI_station::unwrapAzNearNeutralPoint(VLBI_pointingVector &pointingVector) {
+        return cableWrap.unwrapAzNearNeutralPoint(pointingVector);
+    }
+
+    void VLBI_station::unwrapAzNearAz(VLBI_pointingVector &pointingVector, double az) {
+        cableWrap.unwrapAzNearAz(pointingVector, az);
     }
 
 
