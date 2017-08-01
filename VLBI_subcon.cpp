@@ -16,9 +16,6 @@ namespace VieVS{
     VLBI_subcon::VLBI_subcon(): n1scans{0}, n2scans{0} {
     }
 
-    VLBI_subcon::~VLBI_subcon() {
-    }
-    
     void VLBI_subcon::addScan(VLBI_scan scan){
         subnet1.push_back(scan);
         n1scans++;
@@ -151,7 +148,7 @@ namespace VieVS{
 
         for (int i = 0; i < n1scans; ++i) {
             int firstSrcId = sourceIds[i];
-            VLBI_scan first = subnet1[i];
+            VLBI_scan &first = subnet1[i];
             vector<int> secondSrcIds = subnettingSrcIds[firstSrcId];
             for (int j = 0; j < secondSrcIds.size(); ++j) {
                 vector<int> sta1 = first.getStationIds();
@@ -160,7 +157,7 @@ namespace VieVS{
                 auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
                 if (it != sourceIds.end()) {
                     long idx = distance(sourceIds.begin(), it);
-                    VLBI_scan second = subnet1[idx];
+                    VLBI_scan &second = subnet1[idx];
                     vector<int> sta2 = second.getStationIds();
 
 
@@ -196,9 +193,6 @@ namespace VieVS{
 
 
                         do {
-                            VLBI_scan new_first = first;
-                            VLBI_scan new_second = second;
-
                             vector<int> scan1sta{uniqueSta1};
                             vector<int> scan2sta{uniqueSta2};
                             for (unsigned long ii = 0; ii < nint; ++ii) {
@@ -208,14 +202,27 @@ namespace VieVS{
                                     scan2sta.push_back(intersection[ii]);
                                 }
                             }
-                            if (scan1sta.size() >= new_first.getMinimumNumberOfStations() &&
-                                scan2sta.size() >= new_second.getMinimumNumberOfStations()) {
-                                bool firstValid = new_first.removeAllBut(scan1sta);
-                                bool secondValid = new_second.removeAllBut(scan2sta);
-                                if (firstValid && secondValid) {
-                                    ++n2scans;
-                                    subnet2.push_back(make_pair(new_first, new_second));
+                            if (scan1sta.size() >= first.getMinimumNumberOfStations() &&
+                                scan2sta.size() >= second.getMinimumNumberOfStations()) {
+
+
+                                bool firstValid;
+                                VLBI_scan &&new_first = first.copyScan(scan1sta, firstValid);
+                                if (!firstValid) {
+                                    continue;
                                 }
+
+                                bool secondValid;
+                                VLBI_scan &&new_second = second.copyScan(scan2sta, secondValid);
+                                if (!secondValid) {
+                                    continue;
+                                }
+
+                                ++n2scans;
+                                pair<VLBI_scan, VLBI_scan> tmp;
+                                tmp.first = move(new_first);
+                                tmp.second = move(new_second);
+                                subnet2.push_back(move(tmp));
                             }
                         } while (next_permutation(std::begin(data), std::end(data)));
                     }

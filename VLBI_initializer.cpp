@@ -14,7 +14,7 @@
 #include "VLBI_initializer.h"
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
-        ifstream is("../parameters.xml");
+        ifstream is("/home/mschartn/programming/parameters.xml");
 
         cout << "reading: parameters.xml \n";
         boost::property_tree::read_xml(is, PARA_xml);
@@ -614,47 +614,6 @@ namespace VieVS{
 
         }
 
-        vector<unsigned int> nut_t;
-        vector<double> nut_x;
-        vector<double> nut_y;
-        vector<double> nut_s;
-
-        double date1 = 2400000.5;
-        double date2 = PARA.mjdStart;
-
-        unsigned int counter = 0;
-        unsigned int frequency = 3600;
-        unsigned int refTime;
-
-        do {
-            refTime = counter * frequency;
-            date2 = PARA.mjdStart + (double) refTime / 86400;
-
-            double x, y, s;
-            iauXys06a(date1, date2, &x, &y, &s);
-            nut_t.push_back(refTime);
-            nut_x.push_back(x);
-            nut_y.push_back(y);
-            nut_s.push_back(s);
-            ++counter;
-        } while (refTime < PARA.duration + 3600);
-
-        VieVS_nutation::nut_x = nut_x;
-        VieVS_nutation::nut_y = nut_y;
-        VieVS_nutation::nut_s = nut_s;
-        VieVS_nutation::nut_time = nut_t;
-
-
-        double pvh[2][3];
-        double pvb[2][3];
-        (date1, date2, pvh, pvb);
-        double aud2ms = DAU / DAYSEC;
-        double vearth[3] = {aud2ms * pvb[1][0],
-                            aud2ms * pvb[1][1],
-                            aud2ms * pvb[1][2]};
-        VieVS_earth::velocity = {vearth[0], vearth[1], vearth[2]};
-
-
         unsigned long nsta = stations.size();
         for (int i = 0; i < nsta; ++i) {
             vector<double> distance(nsta);
@@ -756,5 +715,50 @@ namespace VieVS{
         for(auto& any:sources){
             cout << any;
         }
+    }
+
+    void VLBI_initializer::initializeNutation() {
+        vector<unsigned int> nut_t;
+        vector<double> nut_x;
+        vector<double> nut_y;
+        vector<double> nut_s;
+
+        double date1 = 2400000.5;
+        double date2 = PARA.mjdStart;
+
+        unsigned int counter = 0;
+        unsigned int frequency = 3600;
+        unsigned int refTime;
+
+        do {
+            refTime = counter * frequency;
+            date2 = PARA.mjdStart + (double) refTime / 86400;
+
+            double x, y, s;
+            iauXys06a(date1, date2, &x, &y, &s);
+            nut_t.push_back(refTime);
+            nut_x.push_back(x);
+            nut_y.push_back(y);
+            nut_s.push_back(s);
+            ++counter;
+        } while (refTime < PARA.duration + 3600);
+
+        VieVS_nutation::nut_x = nut_x;
+        VieVS_nutation::nut_y = nut_y;
+        VieVS_nutation::nut_s = nut_s;
+        VieVS_nutation::nut_time = nut_t;
+    }
+
+    void VLBI_initializer::initializeEarth() {
+        double date1 = 2400000.5;
+        double date2 = PARA.mjdStart;
+        double pvh[2][3];
+        double pvb[2][3];
+        iauEpv00(date1, date2, pvh, pvb);
+        double aud2ms = DAU / DAYSEC;
+        double vearth[3] = {aud2ms * pvb[1][0],
+                            aud2ms * pvb[1][1],
+                            aud2ms * pvb[1][2]};
+        VieVS_earth::velocity = {vearth[0], vearth[1], vearth[2]};
     }
 }

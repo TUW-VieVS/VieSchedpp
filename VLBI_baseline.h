@@ -26,6 +26,16 @@ namespace VieVS{
 
         VLBI_baseline(int staid1, int staid2, int srcid, unsigned int startTime);
 
+        VLBI_baseline(const VLBI_baseline &other) = default;
+
+        VLBI_baseline(VLBI_baseline &&other) = default;
+
+        VLBI_baseline &operator=(const VLBI_baseline &other) = default;
+
+        VLBI_baseline &operator=(VLBI_baseline &&other) = default;
+
+        virtual ~VLBI_baseline() {}
+
         int getStaid1() const {
             return staid1;
         }
@@ -58,7 +68,6 @@ namespace VieVS{
 
         string longestScanDurationBand();
 
-        virtual ~VLBI_baseline();
     private:
         int staid1;
         int staid2;
@@ -66,7 +75,12 @@ namespace VieVS{
         unsigned int startTime;
 
         unordered_map<string,double> observedFlux;
+        vector<string> observedFlux_name;
+        vector<double> observedFlux_value;
+
         unordered_map<string,unsigned int> scanDurations;
+        vector<string> scanDurations_name;
+        vector<unsigned int> scanDurations_value;
 
         unsigned int scanDuration;
     };

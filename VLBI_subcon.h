@@ -29,8 +29,8 @@ namespace VieVS{
     class VLBI_subcon {
     public:
         VLBI_subcon();
-        
-        virtual ~VLBI_subcon();
+
+        virtual ~VLBI_subcon() {};
         
         void addScan(VLBI_scan scan);
 

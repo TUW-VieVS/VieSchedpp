@@ -9,7 +9,7 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    // createParameterFile();
+    createParameterFile();
     run();
 
     return 0;
@@ -27,6 +27,8 @@ void run(){
     init.createSourcesFromCatalogs(path);
     init.initializeStations();
     init.initializeSources();
+    init.initializeNutation();
+    init.initializeEarth();
     init.createSkyCoverages();
 //    init.displaySummary();
 
@@ -54,7 +56,7 @@ void createParameterFile(){
     pt.add("general.experiment_name","R1XXX");
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
-    pt.add("general.end", time + boost::posix_time::hours(.5));
+    pt.add("general.end", time + boost::posix_time::minutes(30));
     vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
     pt.add("general.stations",boost::algorithm::join(sta, ","));
     pt.add("general.maxDistanceTwinTeleskopes",5000);
@@ -95,7 +97,7 @@ void createParameterFile(){
     source_global.add("group.minRepeat",1800);
     source_global.add("group.maxScan",500);
     source_global.add("group.minScan",42);
-    source_global.add("group.minFlux", 0.05);
+    source_global.add("group.minFlux", 0.5);
     boost::property_tree::ptree flux1_src;
     flux1_src.add("minSNR",20);
     flux1_src.put("minSNR.<xmlattr>.band","X");
@@ -133,7 +135,7 @@ void createParameterFile(){
     pt.add_child("bands",bands);
 
 
-    std::ofstream os("/home/mschartn/programming/VieVS_Scheduler_clion/VLBI_scheduler/parameters.xml");
+    std::ofstream os("/home/mschartn/programming/parameters.xml");
     boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }

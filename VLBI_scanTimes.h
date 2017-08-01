@@ -16,6 +16,16 @@ namespace VieVS {
 
         VLBI_scanTimes(int nsta);
 
+        VLBI_scanTimes(const VLBI_scanTimes &other) = default;
+
+        VLBI_scanTimes(VLBI_scanTimes &&other) = default;
+
+        VLBI_scanTimes &operator=(const VLBI_scanTimes &other) = default;
+
+        VLBI_scanTimes &operator=(VLBI_scanTimes &&other) = default;
+
+        virtual ~VLBI_scanTimes() {}
+
         void setEndOfLastScan(vector<unsigned int> endOfLastScan) {
             VLBI_scanTimes::endOfLastScan = endOfLastScan;
         }

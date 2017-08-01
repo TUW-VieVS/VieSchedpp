@@ -83,6 +83,10 @@ namespace VieVS{
 
         void initializeSources();
 
+        void initializeNutation();
+
+        void initializeEarth();
+
     private:
         boost::property_tree::ptree PARA_xml;
         vector<VLBI_station> stations;

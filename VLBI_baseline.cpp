@@ -21,9 +21,6 @@ namespace VieVS{
             : srcid(srcid), staid1(staid1), staid2(staid2), startTime{startTime}{
     }
 
-    VLBI_baseline::~VLBI_baseline() {
-    }
-
     void VLBI_baseline::setScanDuration(unordered_map<string,unsigned int>& scanDurations) {
         VLBI_baseline::scanDurations = scanDurations;
 

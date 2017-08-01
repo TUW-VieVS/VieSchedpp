@@ -19,16 +19,21 @@ namespace VieVS{
     }
     
     VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations):
-    srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()}, minimumNumberOfStations{minimumNumberOfStations}{
+            srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()},
+            minimumNumberOfStations{minimumNumberOfStations}, score{0} {
         times = VLBI_scanTimes(nsta);
         times.setEndOfLastScan(endOfLastScan);
-
-        pointingVectors.reserve((nsta * (nsta - 1)) / 2);
+        pointingVectors_endtime.reserve(nsta);
+        baselines.reserve((nsta * (nsta - 1)) / 2);
     }
 
-    VLBI_scan::~VLBI_scan() {
+    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl,
+                         int minNumSta) :
+            srcid{pv[0].getSrcid()}, nsta{pv.size()}, pointingVectors{move(pv)}, minimumNumberOfStations{minNumSta},
+            score{0}, times{times}, baselines{move(bl)} {
+        pointingVectors_endtime.reserve(nsta);
     }
-    
+
     void VLBI_scan::constructBaselines(){
         baselines.clear();
         for (int i=0; i<pointingVectors.size(); ++i){
@@ -392,10 +397,10 @@ namespace VieVS{
     }
 
     void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta) {
-        vector<vector<int>> pv2sky(skyCoverages.size());
 
         vector<int> sta2sky = VLBI_skyCoverage::sta2sky;
 
+        vector<vector<int>> pv2sky(skyCoverages.size());
         for (int i = 0; i < nsta; ++i) {
             VLBI_pointingVector &pv = pointingVectors[i];
             int thisStaId = pv.getStaid();
@@ -408,12 +413,7 @@ namespace VieVS{
         vector<double> singleScores(skyCoverages.size(), 0);
         for (int i = 0; i < skyCoverages.size(); ++i) {
             vector<int> pvIds = pv2sky[i];
-
-            vector<VLBI_pointingVector> pvs;
-            for (auto &id:pvIds) {
-                pvs.push_back(pointingVectors[id]);
-            }
-            singleScores[i] = skyCoverages[i].calcScore(pvs);
+            singleScores[i] = skyCoverages[i].calcScore(pointingVectors, pvIds);
         }
 
 
@@ -429,7 +429,6 @@ namespace VieVS{
     }
 
     bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
-        pointingVectors_endtime.reserve(nsta);
         bool flag = true;
         int srcid = source.getId();
 
@@ -635,6 +634,51 @@ namespace VieVS{
         }
         cout << "\n";
     }
+
+    VLBI_scan VLBI_scan::copyScan(vector<int> &scan1sta, bool &valid) {
+
+        vector<VLBI_pointingVector> pv;
+        pv.reserve(nsta);
+        VLBI_scanTimes t = times;
+        vector<VLBI_baseline> bl;
+        bl.reserve(baselines.size());
+
+        int counter = 0;
+        for (auto &any:pointingVectors) {
+            int id = any.getStaid();
+            if (find(scan1sta.begin(), scan1sta.end(), id) != scan1sta.end()) {
+                pv.push_back(pointingVectors[counter]);
+            }
+            ++counter;
+        }
+        if (pv.size() < minimumNumberOfStations) {
+            valid = false;
+            return VLBI_scan();
+        }
+
+        for (int i = (int) nsta - 1; i >= 0; --i) {
+            int thisId = pointingVectors[i].getStaid();
+            if (find(scan1sta.begin(), scan1sta.end(), thisId) == scan1sta.end()) {
+                t.removeElement(i);
+            }
+        }
+
+        for (int j = 0; j < baselines.size(); ++j) {
+            VLBI_baseline &thisBl = baselines[j];
+            int staid1 = thisBl.getStaid1();
+            int staid2 = thisBl.getStaid2();
+
+            if (find(scan1sta.begin(), scan1sta.end(), staid1) != scan1sta.end() &&
+                find(scan1sta.begin(), scan1sta.end(), staid2) != scan1sta.end()) {
+                bl.push_back(baselines[j]);
+            }
+        }
+
+        valid = true;
+        return VLBI_scan(pv, t, bl, minimumNumberOfStations);
+    }
+
+
 
 
 }

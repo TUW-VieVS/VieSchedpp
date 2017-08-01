@@ -19,7 +19,4 @@ namespace VieVS{
     VLBI_pointingVector::VLBI_pointingVector(int staid, int srcid):
     staid{staid}, srcid{srcid}{
     }
-    
-    VLBI_pointingVector::~VLBI_pointingVector() {
-    }
 }

@@ -20,24 +20,21 @@ namespace VieVS{
     }
 
     VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids) : nStations{staids.size()}, staids{staids} {
-        ndistTime = normal{0, 1200};
-        ndistDistance = normal{0, 20};
-
-        preFactorTime = 1 / pdf(ndistTime, 0);
-        preFactorDistance = 1 / pdf(ndistDistance, 0);
+        maxDistTime = 3600;
+        maxDistDistance = 60 * deg2rad;
     }
 
     VLBI_skyCoverage::~VLBI_skyCoverage() {
     }
 
-    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs) {
+    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs, vector<int> pvIds) {
 
-        unsigned long n = pvs.size();
+        unsigned long n = pvIds.size();
 
         vector<double> min_score(n, 1);
 
         for (int idx_newObs = 0; idx_newObs < n; ++idx_newObs) {
-            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            VLBI_pointingVector &pv_new = pvs[pvIds[idx_newObs]];
 
             for (int idx_oldObs = 0; idx_oldObs < pv_end.size(); ++idx_oldObs) {
                 VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
@@ -47,7 +44,7 @@ namespace VieVS{
                 }
             }
             for (int idx_oldObs = 0; idx_oldObs < idx_newObs; ++idx_oldObs) {
-                VLBI_pointingVector &pv_old = pvs[idx_oldObs];
+                VLBI_pointingVector &pv_old = pvs[pvIds[idx_oldObs]];
                 double thisScore = scorePerPointingVector(pv_new, pv_old);
                 if (thisScore < min_score[idx_newObs]) {
                     min_score[idx_newObs] = thisScore;
@@ -64,11 +61,9 @@ namespace VieVS{
 
     double VLBI_skyCoverage::scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old) {
         double deltaTime = (long) pv_new.getTime() - (long) pv_old.getTime();
-        if (deltaTime > 3600) {
+        if (deltaTime > maxDistDistance) {
             return 1;
         }
-
-        double factorTime = preFactorTime * pdf(ndistTime, deltaTime);
 
         double tmp = sin(pv_old.getEl()) * sin(pv_new.getEl()) + cos(pv_old.getEl()) * cos(pv_new.getEl()) *
                                                                  cos(pv_new.getAz() - pv_old.getAz());
@@ -77,7 +72,13 @@ namespace VieVS{
             cout << "numerical problems \n";
             distance = 0;
         }
-        double thisScore = 1 - factorTime * (preFactorDistance * pdf(ndistDistance, distance));
+
+        if (distance > maxDistTime) {
+            return 1;
+        }
+        double scoreDistance = .5 + .5 * (cos(distance * pi / maxDistDistance));
+        double scoreTime = .5 + .5 * (cos(deltaTime * pi / maxDistTime));
+        double thisScore = 1 - (scoreDistance * scoreTime);
 
         return thisScore;
     }
