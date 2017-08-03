@@ -20,11 +20,11 @@ namespace VieVS{
         boost::property_tree::read_xml(is, PARA_xml);
 
         try{
-            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("general.start");
+            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.start");
             cout << "start time:" << PARA.startTime << "\n";
             PARA.mjdStart = PARA.startTime.date().modjulian_day() + PARA.startTime.time_of_day().seconds();
 
-            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("general.end");
+            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.end");
             cout << "end time:" << PARA.startTime << "\n";
 
             boost::posix_time::time_duration a = PARA.endTime - PARA.startTime;
@@ -34,21 +34,26 @@ namespace VieVS{
             }
             PARA.duration = (unsigned int) sec;
             cout << "duration: " << PARA.duration << " [s]\n";
-            string stastr = PARA_xml.get<string>("general.stations");
-            
-            vector<string> splitSta;
-            boost::split( splitSta, stastr, boost::algorithm::is_any_of(","));
-            PARA.selectedStations = splitSta;
+
+            vector<string> sel_stations;
+            boost::property_tree::ptree stations = PARA_xml.get_child("master.general.stations");
+            auto it = stations.begin();
+            while (it != stations.end()) {
+                auto item = it->second.data();
+                sel_stations.push_back(item);
+                ++it;
+            }
+            PARA.selectedStations = sel_stations;
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<< endl;
             throw;
         }
 
-        PARA.experimentName = PARA_xml.get<string>("general.experiment_name","");
-        PARA.experimentDescription = PARA_xml.get<string>("general.experiment_description","");
+        PARA.experimentName = PARA_xml.get<string>("master.general.experiment_name", "");
+        PARA.experimentDescription = PARA_xml.get<string>("master.general.experiment_description", "");
 
         try{
-            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("general.maxDistanceTwinTeleskopes",0);
+            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<< endl;
             throw;
@@ -506,10 +511,10 @@ namespace VieVS{
                 bool flagFlux = srcFlux.addFluxParameters(parameters);
 
                 if(thisBand == "X"){
-                    double wavelength = PARA_xml.get<double>("bands.X.wavelength");
+                    double wavelength = PARA_xml.get<double>("master.bands.X.wavelength");
                     srcFlux.setWavelength(wavelength);
                 }else if(thisBand == "S"){
-                    srcFlux.setWavelength(PARA_xml.get<double>("bands.S.wavelength"));
+                    srcFlux.setWavelength(PARA_xml.get<double>("master.bands.S.wavelength"));
                 }
 
 
@@ -574,7 +579,7 @@ namespace VieVS{
         int c = 0;
         boost::property_tree::ptree PARA_station;
         try{
-            PARA_station = PARA_xml.get_child("station");
+            PARA_station = PARA_xml.get_child("master.station");
         }catch(const boost::property_tree::ptree_error &e){
             cerr << "ERROR: reading parameters.xml file!"<<
                     "    probably missing <station> block?" << endl;
@@ -636,7 +641,7 @@ namespace VieVS{
         
         boost::property_tree::ptree PARA_source;
         try{
-            PARA_source = PARA_xml.get_child("source");
+            PARA_source = PARA_xml.get_child("master.source");
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<<
                     "    probably missing <station> block?" << endl;

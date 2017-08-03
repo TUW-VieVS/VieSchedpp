@@ -10,7 +10,7 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-//    createParameterFile();
+    createParameterFile();
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -64,9 +64,22 @@ void createParameterFile(){
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
     pt.add("general.end", time + boost::posix_time::hours(24));
-    vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
-    pt.add("general.stations",boost::algorithm::join(sta, ","));
+
+    boost::property_tree::ptree station_name_tree;
+    vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
+                                 "KATH12M"};
+    for (auto &any: station_names) {
+        boost::property_tree::ptree tmp;
+        tmp.add("station", any);
+        station_name_tree.add_child("stations.station", tmp.get_child("station"));
+    }
+    pt.add_child("general.stations", station_name_tree.get_child("stations"));
+//    vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
+//    pt.add("general.stations",boost::algorithm::join(sta, ","));
+
     pt.add("general.maxDistanceTwinTeleskopes",5000);
+    pt.add("general.subnetting", true);
+    pt.add("general.fillinmode", true);
 
     boost::property_tree::ptree station;
 
@@ -141,8 +154,15 @@ void createParameterFile(){
     bands.add_child("S",S);
     pt.add_child("bands",bands);
 
+    boost::property_tree::ptree master;
+    master.add_child("master.software", pt.get_child("software"));
+    master.add_child("master.general", pt.get_child("general"));
+    master.add_child("master.station", pt.get_child("station"));
+    master.add_child("master.source", pt.get_child("source"));
+    master.add_child("master.bands", pt.get_child("bands"));
 
     std::ofstream os("/home/mschartn/programming/parameters.xml");
-    boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
+    boost::property_tree::xml_parser::write_xml(os, master,
+                                                boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }
