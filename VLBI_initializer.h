@@ -42,10 +42,14 @@ namespace VieVS{
             boost::posix_time::ptime endTime;
             unsigned int duration;
             double mjdStart;
-            
+            bool subnetting = true;
+            bool fillinmode = true;
+
             double maxDistanceTwinTeleskopes = 0;
             vector<string> selectedStations;
-            
+
+            double skyCoverageDistance = 30 * deg2rad;
+            double skyCoverageInterval = 3600;
         };
         
         enum class catalog {antenna,position,equip,mask,source,flux};

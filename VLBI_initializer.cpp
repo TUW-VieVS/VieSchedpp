@@ -44,6 +44,10 @@ namespace VieVS{
                 ++it;
             }
             PARA.selectedStations = sel_stations;
+
+            PARA.subnetting = PARA_xml.get<bool>("master.general.subnetting");
+            PARA.fillinmode = PARA_xml.get<bool>("master.general.fillinmode");
+
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<< endl;
             throw;
@@ -51,6 +55,9 @@ namespace VieVS{
 
         PARA.experimentName = PARA_xml.get<string>("master.general.experiment_name", "");
         PARA.experimentDescription = PARA_xml.get<string>("master.general.experiment_description", "");
+
+        PARA.skyCoverageDistance = PARA_xml.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
+        PARA.skyCoverageInterval = PARA_xml.get<double>("master.general.skyCoverageInterval", 3600);;
 
         try{
             PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
@@ -557,7 +564,8 @@ namespace VieVS{
         }
         
         for (int i=0; i<skyCoverageId; ++i){
-            skyCoverages.push_back(VLBI_skyCoverage(stationsPerId[i]));
+            skyCoverages.push_back(
+                    VLBI_skyCoverage(stationsPerId[i], PARA.skyCoverageDistance, PARA.skyCoverageInterval));
         }
 
         vector<int> sta2sky_(nsta);

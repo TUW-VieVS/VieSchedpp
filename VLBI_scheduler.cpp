@@ -27,6 +27,9 @@ namespace VieVS{
         PARA.duration = duration.total_seconds();
         PARA.mjdStart = IPARA.mjdStart;
 
+        VLBI_subcon::subnetting = IPARA.subnetting;
+        VLBI_subcon::fillinmode = IPARA.fillinmode;
+
         considered_n1scans = 0;
         considered_n2scans = 0;
     }
@@ -39,8 +42,10 @@ namespace VieVS{
 
         outputHeader(stations);
 
+        VLBI_subcon subcon = allVisibleScans();
+
+
         while (true) {
-//            cout << "############################ new scan ############################\n";
             VLBI_subcon subcon = allVisibleScans();
 
             subcon.calcStartTimes(stations, sources);
@@ -53,7 +58,10 @@ namespace VieVS{
 
             subcon.calcAllScanDurations(stations, sources);
 
-            subcon.createSubcon2(PRE.subnettingSrcIds, stations.size() * 0.66);
+            if (VLBI_subcon::subnetting) {
+                subcon.createSubcon2(PRE.subnettingSrcIds, stations.size() * 0.66);
+            }
+
             subcon.precalcScore(stations, sources);
 
             subcon.generateScore(stations, skyCoverages);
@@ -66,7 +74,6 @@ namespace VieVS{
                 VLBI_scan bestScan = subcon.getSingleSourceScan(bestIdx);
 
                 endOfScheduleReached = update(bestScan);
-                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
 
             } else {
                 unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
@@ -80,14 +87,13 @@ namespace VieVS{
 
                 bool endReached1 = update(bestScan1);
                 bool endReached2 = update(bestScan2);
-                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
 
                 endOfScheduleReached = endReached1 || endReached2;
             }
             if (endOfScheduleReached) {
                 break;
             }
-
+            consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
         }
 
         cout << "TOTAL SUMMARY:\n";

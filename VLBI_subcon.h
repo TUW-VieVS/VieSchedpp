@@ -28,6 +28,9 @@ using namespace std;
 namespace VieVS{
     class VLBI_subcon {
     public:
+        static bool subnetting;
+        static bool fillinmode;
+
         VLBI_subcon();
 
         virtual ~VLBI_subcon() {};

@@ -26,11 +26,8 @@ namespace VieVS{
     class VLBI_scheduler {
     public:
         struct PARAMETERS { 
-            bool subnetting = true;
-            bool fillinmode = true;
             double minAngleBetweenSubnettingSources = 120*deg2rad;
-            double skyCoverageInterval = 3600;
-            
+
             double weightNumberOfObs = 1/3;
             double weightSkyCoverage = 1/3;
             double weightScanEndTime = 1/3;

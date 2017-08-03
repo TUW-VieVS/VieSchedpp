@@ -10,7 +10,7 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    createParameterFile();
+//    createParameterFile();
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -142,14 +142,16 @@ void createParameterFile(){
     pt.add_child("station",station);
     pt.add_child("source",source);
 
-
+    boost::property_tree::ptree skyCoverage;
+    skyCoverage.add("skyCoverageDistance", 30);
+    skyCoverage.add("skyCoverageInterval", 3600);
+    pt.add_child("skyCoverage", skyCoverage);
 
     boost::property_tree::ptree bands;
     boost::property_tree::ptree X;
     X.add("wavelength",0.0349);
     boost::property_tree::ptree S;
     S.add("wavelength",3.8000);
-
     bands.add_child("X",X);
     bands.add_child("S",S);
     pt.add_child("bands",bands);
@@ -159,6 +161,7 @@ void createParameterFile(){
     master.add_child("master.general", pt.get_child("general"));
     master.add_child("master.station", pt.get_child("station"));
     master.add_child("master.source", pt.get_child("source"));
+    master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
     master.add_child("master.bands", pt.get_child("bands"));
 
     std::ofstream os("/home/mschartn/programming/parameters.xml");

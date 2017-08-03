@@ -19,9 +19,9 @@ namespace VieVS{
     VLBI_skyCoverage::VLBI_skyCoverage() {
     }
 
-    VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids) : nStations{staids.size()}, staids{staids} {
-        maxDistTime = 3600;
-        maxDistDistance = 30 * deg2rad;
+    VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval)
+            : nStations{staids.size()}, staids{staids}, maxDistTime{skyCoverageInterval},
+              maxDistDistance{skyCoverageDistance} {
     }
 
     VLBI_skyCoverage::~VLBI_skyCoverage() {

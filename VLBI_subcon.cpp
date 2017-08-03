@@ -12,6 +12,11 @@
  */
 
 #include "VLBI_subcon.h"
+
+bool VieVS::VLBI_subcon::subnetting = true;
+bool VieVS::VLBI_subcon::fillinmode = true;
+
+
 namespace VieVS{
     VLBI_subcon::VLBI_subcon(): n1scans{0}, n2scans{0} {
     }

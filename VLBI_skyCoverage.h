@@ -26,7 +26,7 @@ namespace VieVS{
     public:
         VLBI_skyCoverage();
 
-        VLBI_skyCoverage(vector<int> &staids);
+        VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval);
 
         const vector<int> &getStaids() const {
             return staids;
