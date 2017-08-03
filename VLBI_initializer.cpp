@@ -762,4 +762,43 @@ namespace VieVS{
                             aud2ms * pvb[1][2]};
         VieVS_earth::velocity = {vearth[0], vearth[1], vearth[2]};
     }
+
+    void VLBI_initializer::initializeLookup() {
+
+
+        unordered_map<int, double> sinLookup;
+        double x = 0;
+        int counter = 0;
+        while (x < pi + 0.001) {
+            double val = sin(x);
+            sinLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::sinLookup = sinLookup;
+
+
+        unordered_map<int, double> cosLookup;
+        x = 0;
+        counter = 0;
+        while (x < pi + 0.001) {
+            double val = cos(x);
+            cosLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::cosLookup = cosLookup;
+
+        unordered_map<int, double> acosLookup;
+        x = 0;
+        counter = 0;
+        while (x < 1) {
+            double val = acos(x);
+            acosLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::acosLookup = acosLookup;
+
+    }
 }

@@ -35,6 +35,7 @@ void run(){
     init.initializeSources();
     init.initializeNutation();
     init.initializeEarth();
+    init.initializeLookup();
     init.createSkyCoverages();
 //    init.displaySummary();
 

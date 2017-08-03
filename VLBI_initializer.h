@@ -25,6 +25,7 @@
 #include "VLBI_skyCoverage.h"
 #include "VieVS_nutation.h"
 #include "VieVS_earth.h"
+#include "VieVS_lookup.h"
 
 #include "sofa.h"
 
@@ -84,6 +85,8 @@ namespace VieVS{
         void initializeSources();
 
         void initializeNutation();
+
+        void initializeLookup();
 
         void initializeEarth();
 

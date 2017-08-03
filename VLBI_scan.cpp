@@ -30,7 +30,7 @@ namespace VieVS{
     VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl,
                          int minNumSta) :
             srcid{pv[0].getSrcid()}, nsta{pv.size()}, pointingVectors{move(pv)}, minimumNumberOfStations{minNumSta},
-            score{0}, times{times}, baselines{move(bl)} {
+            score{0}, times{move(times)}, baselines{move(bl)} {
         pointingVectors_endtime.reserve(nsta);
     }
 
@@ -407,26 +407,13 @@ namespace VieVS{
 
     void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages) {
 
-        vector<int> sta2sky = VLBI_skyCoverage::sta2sky;
-
-        vector<vector<int>> pv2sky(skyCoverages.size());
-        for (int i = 0; i < nsta; ++i) {
-            VLBI_pointingVector &pv = pointingVectors[i];
-            int thisStaId = pv.getStaid();
-            int skyCovId = sta2sky[thisStaId];
-
-            pv2sky[skyCovId].push_back(i);
-        }
-
-
-        vector<double> singleScores(skyCoverages.size(), 0);
+        double score = 0;
         for (int i = 0; i < skyCoverages.size(); ++i) {
-            vector<int> pvIds = pv2sky[i];
-            singleScores[i] = skyCoverages[i].calcScore(pointingVectors, pvIds);
+            double thisSore = skyCoverages[i].calcScore(pointingVectors) / nsta;
+            score += thisSore;
         }
 
-
-        single_scores.skyCoverage = accumulate(singleScores.begin(), singleScores.end(), 0.0) / nsta;
+        single_scores.skyCoverage = score;
     }
 
     void VLBI_scan::sumScores() {
