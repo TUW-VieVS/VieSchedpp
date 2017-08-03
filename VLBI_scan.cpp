@@ -19,14 +19,21 @@ namespace VieVS{
     }
     
     VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations):
-    srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()}, minimumNumberOfStations{minimumNumberOfStations}{
+            srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()},
+            minimumNumberOfStations{minimumNumberOfStations}, score{0} {
         times = VLBI_scanTimes(nsta);
         times.setEndOfLastScan(endOfLastScan);
+        pointingVectors_endtime.reserve(nsta);
+        baselines.reserve((nsta * (nsta - 1)) / 2);
     }
 
-    VLBI_scan::~VLBI_scan() {
+    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl,
+                         int minNumSta) :
+            srcid{pv[0].getSrcid()}, nsta{pv.size()}, pointingVectors{move(pv)}, minimumNumberOfStations{minNumSta},
+            score{0}, times{move(times)}, baselines{move(bl)} {
+        pointingVectors_endtime.reserve(nsta);
     }
-    
+
     void VLBI_scan::constructBaselines(){
         baselines.clear();
         for (int i=0; i<pointingVectors.size(); ++i){
@@ -127,8 +134,11 @@ namespace VieVS{
             double date2 = mjdStart + startTime/86400;
             double gmst = iauGmst82(date1, date2);
 
-            unordered_map<string,unsigned int> durations;
-            unordered_map<string,double> flux = source.observedFlux(gmst,stations[staid1].dx(staid2),stations[staid1].dy(staid2),stations[staid1].dz(staid2));
+//            vector<pair<string, unsigned int> > durations;
+            vector<pair<string, double> > flux = source.observedFlux(gmst, stations[staid1].dx(staid2),
+                                                                     stations[staid1].dy(staid2),
+                                                                     stations[staid1].dz(staid2));
+            unsigned int maxScanDuration = 0;
             for(auto& any:flux){
                 string fluxname = any.first;
                 double SEFD_src = any.second;
@@ -141,11 +151,13 @@ namespace VieVS{
                 double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
 
 
-                unordered_map<string,double> minSNRs_src = source.getMinSNR();
+                vector<pair<string, double> > minSNRs_src = source.getMinSNR();
                 double minSNR_src = 0;
-                auto it_src = minSNRs_src.find(fluxname);
-                if (it_src != minSNRs_src.end()){
-                    minSNR_src = it_src->second;
+                for (auto &any_minFlux:minSNRs_src) {
+                    if (any_minFlux.first == fluxname) {
+                        minSNR_src = any_minFlux.second;
+                        break;
+                    }
                 }
 
 
@@ -174,13 +186,18 @@ namespace VieVS{
                     double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
                     new_duration = ceil(new_duration);
                     unsigned int new_duration_uint = (unsigned int) new_duration;
-                    durations.insert(make_pair(fluxname,new_duration_uint));
+                    if (new_duration_uint > maxScanDuration) {
+                        maxScanDuration = new_duration_uint;
+                    }
+
+//                    durations.push_back(make_pair(fluxname, new_duration_uint));
                 }else{
                     cerr << "WARNING: duration of band " << fluxname << " ignored\n";
                 }
             }
-            thisBaseline.setObservedFlux(flux);
-            thisBaseline.setScanDuration(durations);
+//            thisBaseline.setObservedFlux(flux);
+//            thisBaseline.setScanDuration(durations);
+            thisBaseline.setScanDuration(maxScanDuration);
         }
 
 
@@ -206,15 +223,13 @@ namespace VieVS{
             }
         }
 
-        vector<unsigned int> scanTimes(minscanTimes);
+        vector<unsigned int> scanTimes;
         do{
             scanDurationsValid = true;
 
             vector<int> eraseStations1;
             vector<int> eraseStations2;
-            for (int i = 0; i < nsta; ++i) {
-                scanTimes[i] = 0;
-            }
+            scanTimes = minscanTimes;
 
 
             for (int i = 0; i < baselines.size(); ++i) {
@@ -298,7 +313,7 @@ namespace VieVS{
                 }
 
                 scanValid = removeElement(eraseThis);
-                scanTimes.erase(scanTimes.begin()+eraseThis);
+                minscanTimes.erase(minscanTimes.begin() + eraseThis);
 
                 if (!scanValid){
                     break;
@@ -372,50 +387,33 @@ namespace VieVS{
 
         for (auto &pv:pointingVectors) {
             int thisStaId = pv.getStaid();
-            finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nmaxsta - 1);
+            finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta - 1);
         }
 
         single_scores.averageStations = finalScore;
     }
 
-    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl) {
+    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs) {
+        unsigned long maxBl = (nsta * (nsta - 1)) / 2;
         unsigned long nbl = baselines.size();
-        single_scores.averageSources = asrcs[srcid] * nbl / nmaxbl;
+        single_scores.averageSources = asrcs[srcid] * nbl / maxBl;
     }
 
-    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta) {
+    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) {
         unsigned int thisEndTime = times.maxTime();
         double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
-        single_scores.duration = score * nsta / nmaxsta;
+        single_scores.duration = score;
     }
 
-    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta) {
-        vector<vector<int>> pv2sky(skyCoverages.size());
+    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages) {
 
-        vector<int> sta2sky = VLBI_skyCoverage::sta2sky;
-
-        for (int i = 0; i < nsta; ++i) {
-            VLBI_pointingVector &pv = pointingVectors[i];
-            int thisStaId = pv.getStaid();
-            int skyCovId = sta2sky[thisStaId];
-
-            pv2sky[skyCovId].push_back(i);
-        }
-
-
-        vector<double> singleScores(skyCoverages.size(), 0);
+        double score = 0;
         for (int i = 0; i < skyCoverages.size(); ++i) {
-            vector<int> pvIds = pv2sky[i];
-
-            vector<VLBI_pointingVector> pvs;
-            for (auto &id:pvIds) {
-                pvs.push_back(pointingVectors[id]);
-            }
-            singleScores[i] = skyCoverages[i].calcScore(pvs);
+            double thisSore = skyCoverages[i].calcScore(pointingVectors) / nsta;
+            score += thisSore;
         }
 
-
-        single_scores.skyCoverage = accumulate(singleScores.begin(), singleScores.end(), 0.0) / nmaxsta;
+        single_scores.skyCoverage = score;
     }
 
     void VLBI_scan::sumScores() {
@@ -443,9 +441,14 @@ namespace VieVS{
             VLBI_pointingVector new_p(staid, srcid);
             unsigned int oldSlewEnd;
             unsigned int newSlewEnd = slewEnd;
+
+            double oldAz;
+            double newAz = numeric_limits<double>::quiet_NaN();
+
             unsigned int slewtime;
-            bool stationValid = true;
+            bool stationValid;
             do {
+                oldAz = newAz;
                 oldSlewEnd = newSlewEnd;
                 new_p.setTime(newSlewEnd);
 
@@ -456,7 +459,30 @@ namespace VieVS{
                         return false;
                     }
                 }
-                slewtime = stations[staid].unwrapAzGetSlewTime(new_p);
+
+                stations[staid].unwrapAz(new_p);
+                newAz = new_p.getAz();
+                if (oldAz != numeric_limits<double>::quiet_NaN() && abs(oldAz - newAz) > .5 * pi) {
+                    bool secure = stations[staid].unwrapAzNearNeutralPoint(new_p);
+                    if (!secure) {
+                        cout
+                                << "### DEBUG OPPORTUNITY ###\n    axis 1 is close to limit and the ambigurity is not save!\n";
+                        scanValid = removeElement(i);
+                        if (!scanValid) {
+                            return false;
+                        }
+
+                    }
+                }
+                slewtime = stations[staid].slewTime(new_p);
+
+                if (slewtime > stations[staid].getMaxSlewtime()) {
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+
+                }
                 newSlewEnd = slewStart + slewtime;
             } while (abs(newSlewEnd - oldSlewEnd) > 1);
 
@@ -489,6 +515,9 @@ namespace VieVS{
 
             bool stationValid = true;
 
+            double oldAz = pointingVectors[i].getAz();
+            double newAz;
+
             for (unsigned int j = scanStart; j < scanEnd; j += 10) {
                 pv.setTime(j);
                 stationValid = thisSta.isVisible(source, pv);
@@ -499,8 +528,17 @@ namespace VieVS{
                     }
                     break;
                 }
-                if (j == scanStart) {
-                    pointingVectors[i] = pv;
+
+                thisSta.unwrapAzNearAz(pv, oldAz);
+                newAz = pv.getAz();
+                if (abs(newAz - oldAz) > .5 * pi) {
+                    stationValid = false;
+                    cout << "### DEBUG OPPORTUNITY ###\n    change of calbe wrap while observing!\n";
+                    scanValid = removeElement(i);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    break;
                 }
             }
 
@@ -518,6 +556,17 @@ namespace VieVS{
                 continue;
             }
 
+            thisSta.unwrapAzNearAz(pv, oldAz);
+            newAz = pv.getAz();
+            if (abs(newAz - oldAz) > .5 * pi) {
+                scanValid = removeElement(i);
+                if (!scanValid) {
+                    return false;
+                }
+                continue;
+            }
+
+
             pointingVectors_endtime.push_back(pv);
 
             ++i;
@@ -529,13 +578,154 @@ namespace VieVS{
                               unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
         calcScore_nunmberOfObservations(nmaxbl);
         calcScore_averageStations(astas, nmaxsta);
-        calcScore_averageSources(asrcs, nmaxbl);
-        calcScore_duration(minTime, maxTime, nmaxsta);
-        calcScore_skyCoverage(skyCoverages, nmaxsta);
+        calcScore_averageSources(asrcs);
+        calcScore_duration(minTime, maxTime);
+        calcScore_skyCoverage(skyCoverages);
         sumScores();
 
 
     }
+
+    void VLBI_scan::output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
+                           boost::posix_time::ptime sessionStart) {
+        unsigned long nmaxsta = stations.size();
+
+        stringstream buffer1;
+        buffer1 << "|-------------";
+        for (int i = 0; i < nmaxsta - 1; ++i) {
+            buffer1 << "-----------";
+        }
+        buffer1 << "----------| \n";
+        cout << buffer1.str();
+
+        string sname = source.getName();
+        double sra = source.getRa() * rad2deg / 15;
+        double sde = source.getDe() * rad2deg;
+        stringstream buffer2;
+        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) RA: %6.3f DE: %+6.2f   stations: %2d") % nr %
+                   sname % srcid % sra % sde % nsta;
+        while (buffer2.str().size() < buffer1.str().size() - 3) {
+            buffer2 << " ";
+        }
+        buffer2 << "| \n";
+        cout << buffer2.str();
+        unsigned int maxValue = numeric_limits<unsigned int>::max();
+
+        vector<unsigned int> slewStart(nmaxsta, maxValue);
+        vector<unsigned int> slewEnd(nmaxsta, maxValue);
+        vector<unsigned int> ideling(nmaxsta, maxValue);
+        vector<unsigned int> scanStart(nmaxsta, maxValue);
+        vector<unsigned int> scanEnd(nmaxsta, maxValue);
+
+
+        for (int idx = 0; idx < nsta; ++idx) {
+            int staid = pointingVectors[idx].getStaid();
+            slewStart[staid] = times.getEndOfSourceTime(idx);
+            slewEnd[staid] = times.getEndOfSlewTime(idx);
+            ideling[staid] = times.getEndOfIdleTime(idx);
+            scanStart[staid] = times.getEndOfCalibrationTime(idx);
+            scanEnd[staid] = times.getEndOfScanTime(idx);
+        }
+        cout << "| slew start | ";
+        for (auto &t:slewStart) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| slew end   | ";
+        for (auto &t:slewEnd) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| idle end   | ";
+        for (auto &t:ideling) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| scan start | ";
+        for (auto &t:scanStart) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+
+        cout << "| scan end   | ";
+        for (auto &t:scanEnd) {
+            if (t != maxValue) {
+                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                cout << thisTime.time_of_day() << " | ";
+            } else {
+                cout << "         | ";
+            }
+        }
+        cout << "\n";
+    }
+
+    VLBI_scan VLBI_scan::copyScan(vector<int> &scan1sta, bool &valid) {
+
+        vector<VLBI_pointingVector> pv;
+        pv.reserve(nsta);
+        VLBI_scanTimes t = times;
+        vector<VLBI_baseline> bl;
+        bl.reserve(baselines.size());
+
+        int counter = 0;
+        for (auto &any:pointingVectors) {
+            int id = any.getStaid();
+            if (find(scan1sta.begin(), scan1sta.end(), id) != scan1sta.end()) {
+                pv.push_back(pointingVectors[counter]);
+            }
+            ++counter;
+        }
+        if (pv.size() < minimumNumberOfStations) {
+            valid = false;
+            return VLBI_scan();
+        }
+
+        for (int i = (int) nsta - 1; i >= 0; --i) {
+            int thisId = pointingVectors[i].getStaid();
+            if (find(scan1sta.begin(), scan1sta.end(), thisId) == scan1sta.end()) {
+                t.removeElement(i);
+            }
+        }
+
+        for (int j = 0; j < baselines.size(); ++j) {
+            VLBI_baseline &thisBl = baselines[j];
+            int staid1 = thisBl.getStaid1();
+            int staid2 = thisBl.getStaid2();
+
+            if (find(scan1sta.begin(), scan1sta.end(), staid1) != scan1sta.end() &&
+                find(scan1sta.begin(), scan1sta.end(), staid2) != scan1sta.end()) {
+                bl.push_back(baselines[j]);
+            }
+        }
+
+        valid = true;
+        return VLBI_scan(pv, t, bl, minimumNumberOfStations);
+    }
+
+
 
 
 }

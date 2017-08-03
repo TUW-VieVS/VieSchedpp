@@ -25,15 +25,23 @@ namespace VieVS{
     class VLBI_cableWrap {
     public:
         VLBI_cableWrap();
-        
-        VLBI_cableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
-        
+
+        VLBI_cableWrap(double axis1_low_deg, double axis1_up_deg,
+                       double axis2_low_deg, double axis2_up_deg);
+
+        void setMinimumOffsets(double axis1_low_offset, double axis1_up_offset,
+                               double axis2_low_offset, double axis2_up_offset);
+
         double neutralPoint(int axis);
 
         virtual ~VLBI_cableWrap();
                 
         bool anglesInside(VLBI_pointingVector& p);
-        
+
+        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector);
+
+        void unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old);
+
         void calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector);
         
         friend ostream& operator<<(ostream& out, const VLBI_cableWrap& sta);
@@ -43,7 +51,12 @@ namespace VieVS{
         double axis1_up;
         double axis2_low;
         double axis2_up;
-        
+
+        double axis1_low_offset;
+        double axis1_up_offset;
+        double axis2_low_offset;
+        double axis2_up_offset;
+
         double n_low;
         double n_up;
         double c_low;

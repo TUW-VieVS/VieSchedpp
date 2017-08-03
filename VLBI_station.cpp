@@ -70,13 +70,13 @@ namespace VieVS{
             if ( name == "<xmlattr>")
                 continue;
             else if ( name == "axis1_low_offset")
-                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset")*deg2rad;
+                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset");
             else if ( name == "axis1_up_offset")
-                PARA.axis1_up_offset  = PARA_station.get<double>("axis1_up_offset")*deg2rad;
+                PARA.axis1_up_offset = PARA_station.get<double>("axis1_up_offset");
             else if ( name == "axis2_low_offset")
-                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset")*deg2rad;
+                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset");
             else if ( name == "axis2_up_offset")
-                PARA.axis2_up_offset  = PARA_station.get<double>("axis2_up_offset")*deg2rad;
+                PARA.axis2_up_offset = PARA_station.get<double>("axis2_up_offset");
             else if ( name == "wait_setup")
                 PARA.wait_setup = PARA_station.get<unsigned int>("wait_setup");
             else if ( name == "wait_source")
@@ -98,7 +98,7 @@ namespace VieVS{
             else if ( name == "minSNR"){
                 string bandName = it.second.get_child("<xmlattr>.band").data();
                 double value = it.second.get_value<double>();
-                PARA.minSNR.insert(make_pair(bandName,value));
+                PARA.minSNR.push_back(make_pair(bandName, value));
             } else
                 cerr << "Station " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
         }
@@ -115,20 +115,20 @@ namespace VieVS{
     
     bool VLBI_station::isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation){
         if (useTimeFromStation){
-            double time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
-                    PARA.wait_tape;
+            unsigned int time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
+                                PARA.wait_tape;
             getAzEl(source, p, time);
         }else {
-            double time = p.getTime();
+            unsigned int time = p.getTime();
             getAzEl(source, p, time);
         }
         
         return cableWrap.anglesInside(p);
     }
-    
-    void VLBI_station::getAzEl(VLBI_source source, VLBI_pointingVector& p, unsigned int time){
-        
-        
+
+    void VLBI_station::getAzEl(VLBI_source source, VLBI_pointingVector &p, unsigned int time, azelModel model) {
+
+
         double ra = source.getRa();
         double de = source.getDe();
         double lat = position.getLat();
@@ -136,63 +136,53 @@ namespace VieVS{
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
         //  TIME 
-        double date1, date2;
-//        iauCal2jd(time.date().year(), time.date().month(), time.date().day(), &date1, &date2);
-//        
-//        date2 = date2 + 
-//                time.time_of_day().hours()/24 +
-//                time.time_of_day().minutes()/3600 +
-//                time.time_of_day().seconds()/86400;
-        
-        date1 = 2400000.5;
-        date2 = PRECALC.mjdStart + (double) time / 86400;
+        double date1 = 2400000.5;
+        double date2 = PRECALC.mjdStart + (double) time / 86400;
 
-        //  GCRS to Intermediate
-        unsigned int nut_precalc_idx = 0;
-
-        while (PRECALC.nut_time[nut_precalc_idx + 1] < time) {
-            ++nut_precalc_idx;
-        }
-        int delta = PRECALC.nut_time[1] - PRECALC.nut_time[0];
-
-        unsigned int deltaTime = time - PRECALC.nut_time[nut_precalc_idx];
-
-        double x = PRECALC.nut_x[nut_precalc_idx] +
-                   (PRECALC.nut_x[nut_precalc_idx + 1] - PRECALC.nut_x[nut_precalc_idx]) / delta * deltaTime;
-        double y = PRECALC.nut_y[nut_precalc_idx] +
-                   (PRECALC.nut_y[nut_precalc_idx + 1] - PRECALC.nut_y[nut_precalc_idx]) / delta * deltaTime;
-        double s = PRECALC.nut_s[nut_precalc_idx] +
-                   (PRECALC.nut_s[nut_precalc_idx + 1] - PRECALC.nut_s[nut_precalc_idx]) / delta * deltaTime;
-
-//        double x,y,s;
-//        iauXys06a(date1, date2, &x, &y, &s);
-        
-        double C[3][3];
-        iauC2ixys(x, y, s, C);
-
-        //  Earth Rotation 
+        // Earth Rotation
         double ERA = iauEra00(date1, date2);
-        
+
+        // Source vector in CRF
+        double rqu[3] = {cos(de) * cos(ra),
+                         cos(de) * sin(ra),
+                         sin(de)};
+
+        // precession nutation
+        double C[3][3] = {{1, 0, 0},
+                          {0, 1, 0},
+                          {0, 0, 1}};
+        if (model == azelModel::rigorous) {
+            unsigned int nut_precalc_idx = 0;
+            while (VieVS_nutation::nut_time[nut_precalc_idx + 1] < time) {
+                ++nut_precalc_idx;
+            }
+            int delta = VieVS_nutation::nut_time[1] - VieVS_nutation::nut_time[0];
+
+            unsigned int deltaTime = time - VieVS_nutation::nut_time[nut_precalc_idx];
+
+            double x = VieVS_nutation::nut_x[nut_precalc_idx] +
+                       (VieVS_nutation::nut_x[nut_precalc_idx + 1] - VieVS_nutation::nut_x[nut_precalc_idx]) / delta *
+                       deltaTime;
+            double y = VieVS_nutation::nut_y[nut_precalc_idx] +
+                       (VieVS_nutation::nut_y[nut_precalc_idx + 1] - VieVS_nutation::nut_y[nut_precalc_idx]) / delta *
+                       deltaTime;
+            double s = VieVS_nutation::nut_s[nut_precalc_idx] +
+                       (VieVS_nutation::nut_s[nut_precalc_idx + 1] - VieVS_nutation::nut_s[nut_precalc_idx]) / delta *
+                       deltaTime;
+
+
+            iauC2ixys(x, y, s, C);
+        }
         //  Polar Motion 
         double W[3][3] = {{1,0,0},
                           {0,1,0},
                           {0,0,1}};
-
         //  GCRS to ITRS 
-        double t2ct[3][3];
-        iauC2tcio ( C, ERA, W, t2ct );
-
+        double c2t[3][3];
+        iauC2tcio(C, ERA, W, c2t);
         double t2c[3][3] = {};
-        iauTr(t2ct, t2c);
+        iauTr(c2t, t2c);
 
-        //  earth velocity 
-        double pvh[2][3];
-        double pvb[2][3];
-        iauEpv00(date1, date2, pvh, pvb);
-        double aud2ms = DAU/DAYSEC;
-        double vearth[3] = {aud2ms*pvb[1][0], 
-                            aud2ms*pvb[1][1], 
-                            aud2ms*pvb[1][2]};
 
         //  Transformation 
         double v1[3] = {-omega*position.getX(), 
@@ -202,12 +192,13 @@ namespace VieVS{
         double v1R[3] = {};
         iauRxp(t2c, v1, v1R);
 
+
         double k1a[3] = {};
-        double k1a_t1[3] = {(vearth[0] + v1[0])/CMPS, 
-                            (vearth[1] + v1[1])/CMPS,
-                            (vearth[2] + v1[2])/CMPS};
+        double k1a_t1[3] = {(VieVS_earth::velocity[0] + v1[0]) / CMPS,
+                            (VieVS_earth::velocity[1] + v1[1]) / CMPS,
+                            (VieVS_earth::velocity[2] + v1[2]) / CMPS};
         
-        double rqu[3] = {cos(de)*cos(ra), cos(de)*sin(ra), sin(de)};
+
         
         double k1a_t2[3] = {};
         iauSxp(iauPdp(rqu,k1a_t1),rqu,k1a_t2);
@@ -221,7 +212,9 @@ namespace VieVS{
 
         //  source in TRS 
         double rq[3] = {};
-        iauRxp(t2ct,k1a,rq);
+        iauRxp(c2t, k1a, rq);
+
+
 
         //  source in local system 
         double theta = DPI/2-lat;
@@ -254,27 +247,25 @@ namespace VieVS{
     }
 
     void VLBI_station::preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy,
-                               vector<double> dz, vector<unsigned int> nut_t, vector<double> nut_x,
-                               vector<double> nut_y, vector<double> nut_s) {
+                               vector<double> dz) {
         PRECALC.mjdStart = mjd;
         PRECALC.distance = distance;
         PRECALC.dx = dx;
         PRECALC.dy = dy;
         PRECALC.dz = dz;
 
-        PRECALC.nut_time = nut_t;
-        PRECALC.nut_x = nut_x;
-        PRECALC.nut_y = nut_y;
-        PRECALC.nut_s = nut_s;
     }
     
     double VLBI_station::distance(VLBI_station other){
         return position.getDistance(other.position);
     }
-    
-    unsigned int  VLBI_station::unwrapAzGetSlewTime(VLBI_pointingVector &pointingVector){
+
+    void VLBI_station::unwrapAz(VLBI_pointingVector &pointingVector) {
         cableWrap.calcUnwrappedAz(current,pointingVector);
-        return antenna.slewTime(current,pointingVector);
+    }
+
+    unsigned int VLBI_station::slewTime(VLBI_pointingVector &pointingVector) {
+        return antenna.slewTime(current, pointingVector);
     }
 
     void VLBI_station::update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end,
@@ -307,6 +298,19 @@ namespace VieVS{
         history_events.push_back("scan " + srcName);
 
 
+    }
+
+    void VLBI_station::setCableWrapMinimumOffsets() {
+        cableWrap.setMinimumOffsets(PARA.axis1_low_offset, PARA.axis1_up_offset, PARA.axis2_low_offset,
+                                    PARA.axis2_up_offset);
+    }
+
+    bool VLBI_station::unwrapAzNearNeutralPoint(VLBI_pointingVector &pointingVector) {
+        return cableWrap.unwrapAzNearNeutralPoint(pointingVector);
+    }
+
+    void VLBI_station::unwrapAzNearAz(VLBI_pointingVector &pointingVector, double az) {
+        cableWrap.unwrapAzNearAz(pointingVector, az);
     }
 
 

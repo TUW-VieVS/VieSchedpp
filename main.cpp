@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <chrono>
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
 
@@ -9,8 +10,13 @@ void createParameterFile();
 
 int main(int argc, char *argv[])
 {
-    // createParameterFile();
+//    createParameterFile();
+    auto start = std::chrono::high_resolution_clock::now();
     run();
+    auto finish = std::chrono::high_resolution_clock::now();
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
+    std::cout << "execution time: " << (double) microseconds.count() / 1e6 << " [s]\n";
+
 
     return 0;
 }
@@ -27,6 +33,9 @@ void run(){
     init.createSourcesFromCatalogs(path);
     init.initializeStations();
     init.initializeSources();
+    init.initializeNutation();
+    init.initializeEarth();
+    init.initializeLookup();
     init.createSkyCoverages();
 //    init.displaySummary();
 
@@ -54,7 +63,7 @@ void createParameterFile(){
     pt.add("general.experiment_name","R1XXX");
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
-    pt.add("general.end",time+boost::posix_time::hours(24));
+    pt.add("general.end", time + boost::posix_time::hours(24));
     vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
     pt.add("general.stations",boost::algorithm::join(sta, ","));
     pt.add("general.maxDistanceTwinTeleskopes",5000);
@@ -112,7 +121,7 @@ void createParameterFile(){
     source_group1.add("group.minRepeat",3600);
     source_group1.add("group.maxScan",200);
     source_group1.add("group.minScan",20);
-    source_group1.add("group.minFlux", 0.5);
+    source_group1.add("group.minFlux", 0.0);
     source_group1.put("group.<xmlattr>.name","group1");
     source_group1.put("group.<xmlattr>.members","2355-534,2329-384");
     source.add_child("group",source_group1.get_child("group"));
@@ -133,7 +142,7 @@ void createParameterFile(){
     pt.add_child("bands",bands);
 
 
-    std::ofstream os("/home/mschartn/programming/VieVS_Scheduler_clion/VLBI_scheduler/parameters.xml");
+    std::ofstream os("/home/mschartn/programming/parameters.xml");
     boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }

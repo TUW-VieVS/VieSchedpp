@@ -25,8 +25,18 @@ namespace VieVS{
     public:
         VLBI_pointingVector();
         VLBI_pointingVector(int staid, int srcid);
-        virtual ~VLBI_pointingVector();
-        
+
+        VLBI_pointingVector(const VLBI_pointingVector &other) = default;
+
+        VLBI_pointingVector(VLBI_pointingVector &&other) = default;
+
+        VLBI_pointingVector &operator=(const VLBI_pointingVector &other) = default;
+
+        VLBI_pointingVector &operator=(VLBI_pointingVector &&other) = default;
+
+        virtual ~VLBI_pointingVector() {}
+
+
         int getStaid(){return staid;}
         int getSrcid(){return srcid;}
         double getAz(){return az;}

@@ -59,13 +59,21 @@ namespace VieVS{
 
         bool update(VLBI_scan &scan);
 
+        void consideredUpdate(unsigned long n1scans, unsigned long n2scans);
+
+        void outputHeader(vector<VLBI_station> &stations);
+
     private:
         vector<VLBI_station> stations;
         vector<VLBI_source> sources;
         vector<VLBI_skyCoverage> skyCoverages;
+        vector<VLBI_scan> scans;
+
         PARAMETERS PARA;
         PRECALC PRE;
-        vector<VLBI_scan> scans;
+
+        unsigned long considered_n1scans;
+        unsigned long considered_n2scans;
 
     };
 }

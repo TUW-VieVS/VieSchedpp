@@ -51,12 +51,12 @@ namespace VieVS{
         if (delta1<s_acc_1){
             t_1 = 2*sqrt(delta1/acc1);
         } else {
-            t_1 = 2*t_acc_1 + (delta1)/rate1;
+            t_1 = 2 * t_acc_1 + (delta1 - s_acc_1) / rate1;
         }
         if (delta2<s_acc_2){
             t_2 = 2*sqrt(delta2/acc2);
         } else {
-            t_2 = 2*t_acc_2 + (delta2)/rate2;
+            t_2 = 2 * t_acc_2 + (delta2 - s_acc_2) / rate2;
         }
         
         unsigned int slewtime = (unsigned int) ceil(t_1);

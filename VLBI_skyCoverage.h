@@ -17,10 +17,9 @@
 #include <iostream>
 #include <cmath>
 #include <limits>
-#include <boost/math/distributions/normal.hpp>
 #include "VLBI_pointingVector.h"
+#include "VieVS_lookup.h"
 
-using boost::math::normal;
 using namespace std;
 namespace VieVS{
     class VLBI_skyCoverage {
@@ -35,6 +34,8 @@ namespace VieVS{
 
         double calcScore(vector<VLBI_pointingVector> &pvs);
 
+        double scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old);
+
         void update(VLBI_pointingVector &start, VLBI_pointingVector &end);
 
         virtual ~VLBI_skyCoverage();
@@ -46,6 +47,9 @@ namespace VieVS{
 
         vector<VLBI_pointingVector> pv_start;
         vector<VLBI_pointingVector> pv_end;
+
+        double maxDistTime;
+        double maxDistDistance;
     };
 }
 

@@ -14,7 +14,7 @@
 #include "VLBI_initializer.h"
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
-        ifstream is("../parameters.xml");
+        ifstream is("/home/mschartn/programming/parameters.xml");
 
         cout << "reading: parameters.xml \n";
         boost::property_tree::read_xml(is, PARA_xml);
@@ -32,7 +32,7 @@ namespace VieVS{
             if(sec<0){
                 cerr << "ERROR: duration is less than zero seconds!\n";
             }
-            PARA.duration = sec;
+            PARA.duration = (unsigned int) sec;
             cout << "duration: " << PARA.duration << " [s]\n";
             string stastr = PARA_xml.get<string>("general.stations");
             
@@ -450,7 +450,7 @@ namespace VieVS{
 //                continue;
 //            }
 
-            unordered_map<string,VLBI_flux> flux;
+            vector<pair<string, VLBI_flux> > flux;
 
             vector<vector<string> > flux_split;
             for (unsigned int i=0; i<flux_cat.size(); ++i){
@@ -514,7 +514,7 @@ namespace VieVS{
 
 
                 if (flagFlux){
-                    flux.insert(make_pair(thisBand,srcFlux));
+                    flux.push_back(make_pair(thisBand, srcFlux));
                 }else{
                     cerr << "error reading flux info of: "<< name << "\n";
                 }
@@ -610,34 +610,10 @@ namespace VieVS{
                     throw;
                 }
             }
+            any.setCableWrapMinimumOffsets();
             ++c;
 
         }
-
-        vector<unsigned int> nut_t;
-        vector<double> nut_x;
-        vector<double> nut_y;
-        vector<double> nut_s;
-
-        double date1 = 2400000.5;
-        double date2 = PARA.mjdStart;
-
-        unsigned int counter = 0;
-        unsigned int frequency = 3600;
-        unsigned int refTime;
-
-        do {
-            refTime = counter * frequency;
-            date2 = PARA.mjdStart + (double) refTime / 86400;
-
-            double x, y, s;
-            iauXys06a(date1, date2, &x, &y, &s);
-            nut_t.push_back(refTime);
-            nut_x.push_back(x);
-            nut_y.push_back(y);
-            nut_s.push_back(s);
-            ++counter;
-        } while (refTime < PARA.duration + 3600);
 
         unsigned long nsta = stations.size();
         for (int i = 0; i < nsta; ++i) {
@@ -652,7 +628,7 @@ namespace VieVS{
                 dz[j] = stations[j].getZ()-stations[i].getZ();
             }
 
-            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz, nut_t, nut_x, nut_y, nut_s);
+            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
 
         }
     }
@@ -740,5 +716,89 @@ namespace VieVS{
         for(auto& any:sources){
             cout << any;
         }
+    }
+
+    void VLBI_initializer::initializeNutation() {
+        vector<unsigned int> nut_t;
+        vector<double> nut_x;
+        vector<double> nut_y;
+        vector<double> nut_s;
+
+        double date1 = 2400000.5;
+        double date2 = PARA.mjdStart;
+
+        unsigned int counter = 0;
+        unsigned int frequency = 3600;
+        unsigned int refTime;
+
+        do {
+            refTime = counter * frequency;
+            date2 = PARA.mjdStart + (double) refTime / 86400;
+
+            double x, y, s;
+            iauXys06a(date1, date2, &x, &y, &s);
+            nut_t.push_back(refTime);
+            nut_x.push_back(x);
+            nut_y.push_back(y);
+            nut_s.push_back(s);
+            ++counter;
+        } while (refTime < PARA.duration + 3600);
+
+        VieVS_nutation::nut_x = nut_x;
+        VieVS_nutation::nut_y = nut_y;
+        VieVS_nutation::nut_s = nut_s;
+        VieVS_nutation::nut_time = nut_t;
+    }
+
+    void VLBI_initializer::initializeEarth() {
+        double date1 = 2400000.5;
+        double date2 = PARA.mjdStart;
+        double pvh[2][3];
+        double pvb[2][3];
+        iauEpv00(date1, date2, pvh, pvb);
+        double aud2ms = DAU / DAYSEC;
+        double vearth[3] = {aud2ms * pvb[1][0],
+                            aud2ms * pvb[1][1],
+                            aud2ms * pvb[1][2]};
+        VieVS_earth::velocity = {vearth[0], vearth[1], vearth[2]};
+    }
+
+    void VLBI_initializer::initializeLookup() {
+
+
+        unordered_map<int, double> sinLookup;
+        double x = 0;
+        int counter = 0;
+        while (x < pi + 0.001) {
+            double val = sin(x);
+            sinLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::sinLookup = sinLookup;
+
+
+        unordered_map<int, double> cosLookup;
+        x = 0;
+        counter = 0;
+        while (x < pi + 0.001) {
+            double val = cos(x);
+            cosLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::cosLookup = cosLookup;
+
+        unordered_map<int, double> acosLookup;
+        x = 0;
+        counter = 0;
+        while (x < 1) {
+            double val = acos(x);
+            acosLookup.insert(make_pair(counter, val));
+            x += .001;
+            ++counter;
+        }
+        VieVS_lookup::acosLookup = acosLookup;
+
     }
 }

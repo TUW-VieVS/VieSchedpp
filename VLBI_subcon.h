@@ -29,16 +29,16 @@ namespace VieVS{
     class VLBI_subcon {
     public:
         VLBI_subcon();
-        
-        virtual ~VLBI_subcon();
+
+        virtual ~VLBI_subcon() {};
         
         void addScan(VLBI_scan scan);
 
-        int getNumberSingleScans() const {
+        unsigned long getNumberSingleScans() const {
             return n1scans;
         }
 
-        int getNumberSubnettingScans() const {
+        unsigned long getNumberSubnettingScans() const {
             return n2scans;
         }
 
@@ -46,11 +46,11 @@ namespace VieVS{
             return subnet1;
         }
 
-        VLBI_scan getSingleSourceScan(int idx) const {
+        VLBI_scan getSingleSourceScan(unsigned long idx) const {
             return *(subnet1.begin() + idx);
         }
 
-        pair<VLBI_scan, VLBI_scan> getDoubleSourceScan(int idx) const {
+        pair<VLBI_scan, VLBI_scan> getDoubleSourceScan(unsigned long idx) const {
             return *(subnet2.begin() + idx);
         }
 
@@ -79,15 +79,15 @@ namespace VieVS{
 
         void calcScores();
 
-        int rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                          vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
+        unsigned long rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
+                                    vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
 
     private:
-        int n1scans;
+        unsigned long n1scans;
         vector<VLBI_scan> subnet1;
         vector<double> subnet1_score;
 
-        int n2scans;
+        unsigned long n2scans;
         vector<pair<VLBI_scan,VLBI_scan> > subnet2;
         vector<double> subnet2_score;
 

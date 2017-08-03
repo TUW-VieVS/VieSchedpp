@@ -14,7 +14,7 @@
 #ifndef VLBI_INITIALIZER_H
 #define VLBI_INITIALIZER_H
 #include <vector>
-#include <map>
+#include <boost/container/flat_map.hpp>
 #include <boost/date_time.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -23,6 +23,9 @@
 #include "VLBI_station.h"
 #include "VLBI_source.h"
 #include "VLBI_skyCoverage.h"
+#include "VieVS_nutation.h"
+#include "VieVS_earth.h"
+#include "VieVS_lookup.h"
 
 #include "sofa.h"
 
@@ -80,6 +83,12 @@ namespace VieVS{
         void initializeStations();
 
         void initializeSources();
+
+        void initializeNutation();
+
+        void initializeLookup();
+
+        void initializeEarth();
 
     private:
         boost::property_tree::ptree PARA_xml;

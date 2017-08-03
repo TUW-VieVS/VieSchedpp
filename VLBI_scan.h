@@ -17,6 +17,10 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/format.hpp>
+#include <boost/date_time.hpp>
+#include <utility>
+#include <limits>
 
 #include "VLBI_pointingVector.h"
 #include "VLBI_baseline.h"
@@ -41,8 +45,21 @@ namespace VieVS{
         };
 
         VLBI_scan();
+
         VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations);
 
+        VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl, int minNumSta);
+
+        VLBI_scan(const VLBI_scan &other) = default;
+
+        VLBI_scan(VLBI_scan &&other) = default;
+
+        VLBI_scan &operator=(const VLBI_scan &other) = default;
+
+        VLBI_scan &operator=(VLBI_scan &&other) = default;
+
+        virtual ~VLBI_scan() {}
+        
         const VLBI_scanTimes &getTimes() const {
             return times;
         }
@@ -100,8 +117,6 @@ namespace VieVS{
 
         bool scanDuration(vector<VLBI_station> &stations, VLBI_source &source);
 
-        virtual ~VLBI_scan();
-
         vector<int> getStationIds();
 
         bool removeAllBut(vector<int> &station_ids);
@@ -113,11 +128,11 @@ namespace VieVS{
 
         void calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
 
-        void calcScore_averageSources(vector<double> &asrcs, unsigned long nmaxbl);
+        void calcScore_averageSources(vector<double> &asrcs);
 
-        void calcScore_duration(unsigned int minTime, unsigned int maxTime, unsigned long nmaxsta);
+        void calcScore_duration(unsigned int minTime, unsigned int maxTime);
 
-        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, unsigned long nmaxsta);
+        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages);
 
         void sumScores();
 
@@ -125,9 +140,14 @@ namespace VieVS{
 
         bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart);
 
+        VLBI_scan copyScan(vector<int> &scan1sta, bool &valid);
+
         unsigned long getNBl() {
             return baselines.size();
         }
+
+        void output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
+                    boost::posix_time::ptime sessionStart);
 
     private:
         unsigned long nsta;

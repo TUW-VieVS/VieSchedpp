@@ -16,9 +16,6 @@ namespace VieVS{
     VLBI_subcon::VLBI_subcon(): n1scans{0}, n2scans{0} {
     }
 
-    VLBI_subcon::~VLBI_subcon() {
-    }
-    
     void VLBI_subcon::addScan(VLBI_scan scan){
         subnet1.push_back(scan);
         n1scans++;
@@ -36,9 +33,10 @@ namespace VieVS{
             while(j<subnet1[i].getNSta()){
                 int staid = subnet1[i].getStationId(j);
 
-                unsigned int slewtime = stations[staid].unwrapAzGetSlewTime(subnet1[i].getPointingVector(j));
+                stations[staid].unwrapAz(subnet1[i].getPointingVector(j));
+                unsigned int slewtime = stations[staid].slewTime(subnet1[i].getPointingVector(j));
+
                 if (slewtime > stations[staid].getMaxSlewtime()){
-                    cout << "scan: " << i << "deleting station" << stations[staid].getName() << "\n";
                     scanValid_slew = subnet1[i].removeElement(j);
                     if(!scanValid_slew){
                         break;
@@ -55,7 +53,6 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{
@@ -82,13 +79,14 @@ namespace VieVS{
             int j = 0;
             while (j < subnet1[i].getNSta()) {
                 int staid = subnet1[i].getPointingVector(j).getStaid();
-                VLBI_pointingVector thisPointingVector = subnet1[i].getPointingVector(j);
+                VLBI_pointingVector &thisPointingVector = subnet1[i].getPointingVector(j);
                 thisPointingVector.setTime(subnet1[i].getTimes().getEndOfIdleTime(j));
                 bool visible = stations[staid].isVisible(thisSource,thisPointingVector,false);
                 unsigned int slewtime = numeric_limits<unsigned int>::max();
 
                 if (visible){
-                     slewtime = stations[staid].unwrapAzGetSlewTime(thisPointingVector);
+                    stations[staid].unwrapAz(thisPointingVector);
+                    slewtime = stations[staid].slewTime(thisPointingVector);
                 }
 
                 if (!visible || slewtime > stations[staid].getMaxSlewtime()){
@@ -99,7 +97,6 @@ namespace VieVS{
                 } else {
                     maxIdleTimes.push_back(stations[staid].getMaxIdleTime());
                     subnet1[i].updateSlewtime(j, slewtime);
-                    subnet1[i].setPointingVector(j,thisPointingVector);
                     ++j;
                 }
             }
@@ -110,7 +107,6 @@ namespace VieVS{
             }
 
             if (!scanValid_slew || !scanValid_idle){
-                cout << "scan: " << i << " not valid anymore\n";
                 subnet1.erase(subnet1.begin()+i);
                 --n1scans;
             }else{
@@ -151,7 +147,7 @@ namespace VieVS{
 
         for (int i = 0; i < n1scans; ++i) {
             int firstSrcId = sourceIds[i];
-            VLBI_scan first = subnet1[i];
+            VLBI_scan &first = subnet1[i];
             vector<int> secondSrcIds = subnettingSrcIds[firstSrcId];
             for (int j = 0; j < secondSrcIds.size(); ++j) {
                 vector<int> sta1 = first.getStationIds();
@@ -160,7 +156,7 @@ namespace VieVS{
                 auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
                 if (it != sourceIds.end()) {
                     long idx = distance(sourceIds.begin(), it);
-                    VLBI_scan second = subnet1[idx];
+                    VLBI_scan &second = subnet1[idx];
                     vector<int> sta2 = second.getStationIds();
 
 
@@ -196,9 +192,6 @@ namespace VieVS{
 
 
                         do {
-                            VLBI_scan new_first = first;
-                            VLBI_scan new_second = second;
-
                             vector<int> scan1sta{uniqueSta1};
                             vector<int> scan2sta{uniqueSta2};
                             for (unsigned long ii = 0; ii < nint; ++ii) {
@@ -208,14 +201,27 @@ namespace VieVS{
                                     scan2sta.push_back(intersection[ii]);
                                 }
                             }
-                            if (scan1sta.size() >= new_first.getMinimumNumberOfStations() &&
-                                scan2sta.size() >= new_second.getMinimumNumberOfStations()) {
-                                bool firstValid = new_first.removeAllBut(scan1sta);
-                                bool secondValid = new_second.removeAllBut(scan2sta);
-                                if (firstValid && secondValid) {
-                                    ++n2scans;
-                                    subnet2.push_back(make_pair(new_first, new_second));
+                            if (scan1sta.size() >= first.getMinimumNumberOfStations() &&
+                                scan2sta.size() >= second.getMinimumNumberOfStations()) {
+
+
+                                bool firstValid;
+                                VLBI_scan &&new_first = first.copyScan(scan1sta, firstValid);
+                                if (!firstValid) {
+                                    continue;
                                 }
+
+                                bool secondValid;
+                                VLBI_scan &&new_second = second.copyScan(scan2sta, secondValid);
+                                if (!secondValid) {
+                                    continue;
+                                }
+
+                                ++n2scans;
+                                pair<VLBI_scan, VLBI_scan> tmp;
+                                tmp.first = move(new_first);
+                                tmp.second = move(new_second);
+                                subnet2.push_back(move(tmp));
                             }
                         } while (next_permutation(std::begin(data), std::end(data)));
                     }
@@ -352,8 +358,8 @@ namespace VieVS{
         average_source_score(sources);
     }
 
-    int VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                   vector<VLBI_skyCoverage> &skyCoverages, double mjdStart) {
+    unsigned long VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
+                                             vector<VLBI_skyCoverage> &skyCoverages, double mjdStart) {
 
         vector<double> scores = subnet1_score;
         scores.insert(scores.end(), subnet2_score.begin(), subnet2_score.end());
@@ -382,9 +388,9 @@ namespace VieVS{
 
             } else {
                 int thisIdx = idx - n1scans;
-                auto thisScans = subnet2[thisIdx];
+                auto &thisScans = subnet2[thisIdx];
 
-                VLBI_scan thisScan1 = thisScans.first;
+                VLBI_scan &thisScan1 = thisScans.first;
                 bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], mjdStart);
                 thisScan1.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
                 double newScore1 = thisScan1.getScore();
@@ -392,7 +398,7 @@ namespace VieVS{
                     continue;
                 }
 
-                VLBI_scan thisScan2 = thisScans.second;
+                VLBI_scan &thisScan2 = thisScans.second;
                 bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], mjdStart);
                 thisScan2.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
                 double newScore2 = thisScan2.getScore();
@@ -402,7 +408,6 @@ namespace VieVS{
                 double newScore = newScore1 + newScore2;
 
                 q.push(make_pair(newScore, idx));
-
             }
             int newIdx = q.top().second;
             if (newIdx == idx) {

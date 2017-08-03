@@ -26,6 +26,9 @@ namespace VieVS{
 
         PARA.duration = duration.total_seconds();
         PARA.mjdStart = IPARA.mjdStart;
+
+        considered_n1scans = 0;
+        considered_n2scans = 0;
     }
     
     VLBI_scheduler::~VLBI_scheduler() {
@@ -34,59 +37,39 @@ namespace VieVS{
     void VLBI_scheduler::start(){
         bool endOfScheduleReached = false;
 
+        outputHeader(stations);
+
         while (true) {
-            cout << "############################ new scan ############################\n";
-            cout << "start constructing all Visible Scans\n";
+//            cout << "############################ new scan ############################\n";
             VLBI_subcon subcon = allVisibleScans();
-            cout << "subcon created\n";
-            cout << "    1 scan subcons" << subcon.getNumberSingleScans() << "\n\n";
 
-            cout << "calc start times\n";
             subcon.calcStartTimes(stations, sources);
-            cout << "start times calculated\n\n";
 
-            cout << "update az_end el_end times\n";
             subcon.updateAzEl(stations, sources);
-            cout << "az_end el_end updated!\n\n";
 
-            cout << "construct all baselines\n";
             subcon.constructAllBaselines();
-            cout << "baselines constructed\n\n";
 
-            cout << "calc baseline Duration\n";
             subcon.calcAllBaselineDurations(stations, sources, PARA.mjdStart);
-            cout << "baseline Duration calculated\n\n";
 
-            cout << "calc all scan Duration\n";
             subcon.calcAllScanDurations(stations, sources);
-            cout << "scan Durations calculated\n\n";
 
-            // TODO: check if start time is adjusted !!!
-            cout << "create subnetting subcons\n";
             subcon.createSubcon2(PRE.subnettingSrcIds, stations.size() * 0.66);
-            cout << "subcon2 created!\n";
-            cout << "    1 scan subcons " << subcon.getNumberSingleScans() << "\n";
-            cout << "    2 scan subcons " << subcon.getNumberSubnettingScans() << "\n\n";
-
-            cout << "calculate single scores for each subcon\n";
             subcon.precalcScore(stations, sources);
+
             subcon.generateScore(stations, skyCoverages);
-            cout << "scores calculated\n";
 
-            cout << "calc all scores\n";
             subcon.calcScores();
-            cout << "all scores calculated\n";
 
-            cout << "check best with rigorous model\n";
-            int bestIdx = subcon.rigorousScore(stations, sources, skyCoverages, PARA.mjdStart);
-            cout << "best scan found\n";
+            unsigned long bestIdx = subcon.rigorousScore(stations, sources, skyCoverages, PARA.mjdStart);
 
             if (bestIdx < subcon.getNumberSingleScans()) {
                 VLBI_scan bestScan = subcon.getSingleSourceScan(bestIdx);
+
                 endOfScheduleReached = update(bestScan);
+                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
 
             } else {
-                int thisIdx = bestIdx - subcon.getNumberSingleScans();
+                unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
                 pair<VLBI_scan, VLBI_scan> bestScans = subcon.getDoubleSourceScan(thisIdx);
                 VLBI_scan bestScan1 = bestScans.first;
                 VLBI_scan bestScan2 = bestScans.second;
@@ -97,6 +80,8 @@ namespace VieVS{
 
                 bool endReached1 = update(bestScan1);
                 bool endReached2 = update(bestScan2);
+                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
+
                 endOfScheduleReached = endReached1 || endReached2;
             }
             if (endOfScheduleReached) {
@@ -105,6 +90,10 @@ namespace VieVS{
 
         }
 
+        cout << "TOTAL SUMMARY:\n";
+        cout << "considered single:      " << considered_n1scans << "\n";
+        cout << "considered subnetting:  " << considered_n2scans << "\n";
+        cout << "total scans considered: " << considered_n1scans + 2 * considered_n2scans << "\n";
 
     }
 
@@ -178,11 +167,11 @@ namespace VieVS{
         unsigned long nsta = scan.getNSta();
         unsigned long nbl = scan.getNBl();
 
-        cout << "scan of: " << sourceName << " until: " << latestTime << " \n";
+
         for (int i = 0; i < scan.getNSta(); ++i) {
-            VLBI_pointingVector pv = scan.getPointingVector(i);
+            VLBI_pointingVector &pv = scan.getPointingVector(i);
             int staid = pv.getStaid();
-            VLBI_pointingVector pv_end = scan.getPointingVectors_endtime(i);
+            VLBI_pointingVector &pv_end = scan.getPointingVectors_endtime(i);
             vector<unsigned int> times = scan.getTimes().stationTimes(i);
             stations[staid].update(nbl, pv, pv_end, times, sourceName);
 
@@ -196,9 +185,28 @@ namespace VieVS{
         thisSource.update(nbl, latestTime);
 
         scans.push_back(scan);
+        scan.output(scans.size(), stations, thisSource, PARA.startTime);
 
         return false;
+    }
 
+    void VLBI_scheduler::outputHeader(vector<VLBI_station> &stations) {
+        cout << ".------------.";
+        for (auto &t:stations) {
+            cout << "----------.";
+        }
+        cout << "\n";
+        cout << "| stations   | ";
+        for (auto &t:stations) {
+            cout << boost::format("%8s | ") % t.getName();
+        }
+        cout << "\n";
+    }
+
+    void VLBI_scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans) {
+        cout << "| considered single Scans: " << n1scans << " subnetting scans: " << n2scans << "\n";
+        considered_n1scans += n1scans;
+        considered_n2scans += n2scans;
     }
 
 }

@@ -15,7 +15,8 @@
 #define BASELINE_H
 
 #include <string>
-#include <unordered_map>
+#include <vector>
+#include <utility>
 #include <algorithm>
 
 using namespace std;
@@ -25,6 +26,16 @@ namespace VieVS{
         VLBI_baseline();
 
         VLBI_baseline(int staid1, int staid2, int srcid, unsigned int startTime);
+
+        VLBI_baseline(const VLBI_baseline &other) = default;
+
+        VLBI_baseline(VLBI_baseline &&other) = default;
+
+        VLBI_baseline &operator=(const VLBI_baseline &other) = default;
+
+        VLBI_baseline &operator=(VLBI_baseline &&other) = default;
+
+        virtual ~VLBI_baseline() {}
 
         int getStaid1() const {
             return staid1;
@@ -42,31 +53,34 @@ namespace VieVS{
             return startTime;
         }
 
-        unordered_map<string, double> getObservedFlux() const {
-            return observedFlux;
-        }
+//        vector<pair<string, double> > getObservedFlux() const {
+//            return observedFlux;
+//        }
 
         unsigned int getScanDuration() const {
             return scanDuration;
         }
 
-        void setObservedFlux(const unordered_map<string, double> &observedFlux) {
-            VLBI_baseline::observedFlux = observedFlux;
+        void setScanDuration(unsigned int scanDuration) {
+            VLBI_baseline::scanDuration = scanDuration;
         }
 
-        void setScanDuration(unordered_map<string,unsigned int>& scanDurations);
+//        void setObservedFlux(const vector<pair<string, double> > &observedFlux) {
+//            VLBI_baseline::observedFlux = observedFlux;
+//        }
 
-        string longestScanDurationBand();
+//        void setScanDuration(vector<pair<string, unsigned int> > &scanDurations);
+//
+//        string longestScanDurationBand();
 
-        virtual ~VLBI_baseline();
     private:
         int staid1;
         int staid2;
         int srcid;
         unsigned int startTime;
 
-        unordered_map<string,double> observedFlux;
-        unordered_map<string,unsigned int> scanDurations;
+//        vector<pair<string, double> > observedFlux;
+//        vector<pair<string, unsigned int> > scanDurations;
 
         unsigned int scanDuration;
     };

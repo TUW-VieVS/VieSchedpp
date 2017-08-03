@@ -16,8 +16,8 @@ namespace VieVS{
     VLBI_source::VLBI_source() {
     }
 
-    VLBI_source::VLBI_source(string src_name, double src_ra_deg, double src_de_deg, unordered_map<string,
-            VLBI_flux> src_flux) :
+    VLBI_source::VLBI_source(string src_name, double src_ra_deg, double src_de_deg,
+                             vector<pair<string, VLBI_flux> > src_flux) :
             name{src_name}, id{0}, ra{src_ra_deg * deg2rad}, de{src_de_deg * deg2rad}, flux{src_flux}, lastScan{0},
             nscans{0}, nbls{0} {
 
@@ -53,7 +53,7 @@ namespace VieVS{
             else if ( name == "minSNR"){
                 string bandName = it.second.get_child("<xmlattr>.band").data();
                 double value = it.second.get_value<double>();
-                PARA.minSNR.insert(make_pair(bandName,value));
+                PARA.minSNR.push_back(make_pair(bandName, value));
             } else
                 cerr << "Source " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
         }
@@ -86,8 +86,8 @@ namespace VieVS{
         return out;
     }
 
-    unordered_map<string, double> VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) {
-        unordered_map<string, double> fluxes;
+    vector<pair<string, double> > VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) {
+        vector<pair<string, double> > fluxes;
 
         double cosdec = cos(de);
         double ha = gmst - ra;
@@ -98,7 +98,7 @@ namespace VieVS{
         for(auto& thisFlux: flux){
             double observedFlux = thisFlux.second.getFlux(u,v);
 
-            fluxes.insert(make_pair(thisFlux.first,observedFlux));
+            fluxes.push_back(make_pair(thisFlux.first, observedFlux));
         }
 
         return fluxes;
