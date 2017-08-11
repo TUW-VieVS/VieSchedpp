@@ -94,13 +94,13 @@ namespace VieVS{
 //        double tmp = sin_el_old * sin_el_new + cos_el_old * cos_el_new * cos_el_daz;
 //        double distance = acos(tmp);
 
-        double sin_el_old = VieVS_lookup::sinLookup[(int) pv_old.getEl() * 1000];
-        double sin_el_new = VieVS_lookup::sinLookup[(int) pv_new.getEl() * 1000];
-        double cos_el_old = VieVS_lookup::cosLookup[(int) pv_old.getEl() * 1000];
-        double cos_el_new = VieVS_lookup::cosLookup[(int) pv_new.getEl() * 1000];
-        double cos_el_daz = VieVS_lookup::cosLookup[(int) fmod(pv_new.getAz() - pv_old.getAz(), 2 * pi) * 1000];
+        double sin_el_old = VieVS_lookup::sinLookup[(int) (pv_old.getEl() * 1000)];
+        double sin_el_new = VieVS_lookup::sinLookup[(int) (pv_new.getEl() * 1000)];
+        double cos_el_old = VieVS_lookup::cosLookup[(int) (pv_old.getEl() * 1000)];
+        double cos_el_new = VieVS_lookup::cosLookup[(int) (pv_new.getEl() * 1000)];
+        double cos_el_daz = VieVS_lookup::cosLookup[(int) (fmod(pv_new.getAz() - pv_old.getAz(), 2 * pi) * 1000)];
         double tmp = sin_el_old * sin_el_new + cos_el_old * cos_el_new * cos_el_daz;
-        double distance = VieVS_lookup::acosLookup[(int) tmp * 100];
+        double distance = VieVS_lookup::acosLookup[(int) (tmp * 100)];
 
 
 //        double daz_half = (pv_new.getAz() - pv_old.getAz())/2;

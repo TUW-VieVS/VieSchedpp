@@ -1,25 +1,10 @@
-/*
- * Copyright (C) 2017 mschartn
+/**
+ * @file VLBI_position.h
+ * @brief class VLBI_position
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* 
- * File:   pos.h
- * Author: mschartn
- *
- * Created on June 23, 2017, 10:27 AM
+ * @author Matthias Schartner
+ * @date 23.06.2017
  */
 
 #ifndef VLBI_POS_H
@@ -33,44 +18,94 @@ using namespace std;
 namespace VieVS{
     class VLBI_position {
     public:
+        /**
+         * @brief empty default constructor
+         */
         VLBI_position();
-        
+
+        /**
+         * @brief constructor
+         *
+         * @param x_m x coordinate in meters
+         * @param y_m y coordinate in meters
+         * @param z_m z coordinate in meters
+         */
         VLBI_position(double x_m, double y_m, double z_m);
-        
+
+        /**
+         * @brief destructor
+         */
         virtual ~VLBI_position(){};
 
+        /**
+         * @brief getter for x coordinate
+         *
+         * @return x coordinate in meters
+         */
         double getX() const {
             return x;
         }
 
+        /**
+         * @brief getter for y coordinate
+         *
+         * @return y coordinate in meters
+         */
         double getY() const {
             return y;
         }
 
+        /**
+         * @brief getter for z coordinate
+         *
+         * @return z coordinate in meters
+         */
         double getZ() const {
             return z;
         }
 
+        /**
+         * @brief getter for latitude
+         *
+         * @return latitude in radians
+         */
         double getLat() const {
             return lat;
         }
 
+        /**
+         * @brief getter for longitude
+         *
+         * @return longitude in radians
+         */
         double getLon() const {
             return lon;
         }
 
+        /**
+         * @brief calculates distance between two stations
+         *
+         * @param other second station
+         * @return distance between stations
+         */
         double getDistance(VLBI_position other);
 
-
+        /**
+         * @brief overload of the << operator for output to stream
+         *
+         * @param out output stream object
+         * @param position position information that should be printed to stream
+         * @return stream object
+         */
         friend ostream& operator<<(ostream& out, const VLBI_position& position);
 
     private:
-        double x;
-        double y;
-        double z;
-        double lat;
-        double lon;
-        double h;
+        double x; ///< x coordinate in meters
+        double y; ///< y coordinate in meters
+        double z; ///< z coordinate in meters
+        double lat; ///< latitude in radians
+        double lon; ///< longitude in radians
+        double h; ///< height in meters
     };
 }
 #endif /* VLBI_POS_H */

@@ -27,8 +27,8 @@ namespace VieVS{
         PARA.duration = duration.total_seconds();
         PARA.mjdStart = IPARA.mjdStart;
 
-        VLBI_subcon::subnetting = IPARA.subnetting;
-        VLBI_subcon::fillinmode = IPARA.fillinmode;
+        subnetting = IPARA.subnetting;
+        fillinmode = IPARA.fillinmode;
 
         considered_n1scans = 0;
         considered_n2scans = 0;
@@ -41,8 +41,6 @@ namespace VieVS{
         bool endOfScheduleReached = false;
 
         outputHeader(stations);
-
-        VLBI_subcon subcon = allVisibleScans();
 
 
         while (true) {
@@ -58,7 +56,7 @@ namespace VieVS{
 
             subcon.calcAllScanDurations(stations, sources);
 
-            if (VLBI_subcon::subnetting) {
+            if (subnetting) {
                 subcon.createSubcon2(PRE.subnettingSrcIds, stations.size() * 0.66);
             }
 
@@ -70,26 +68,32 @@ namespace VieVS{
 
             unsigned long bestIdx = subcon.rigorousScore(stations, sources, skyCoverages, PARA.mjdStart);
 
+            vector<VLBI_scan> bestScans;
             if (bestIdx < subcon.getNumberSingleScans()) {
-                VLBI_scan bestScan = subcon.getSingleSourceScan(bestIdx);
-
-                endOfScheduleReached = update(bestScan);
-
+                VLBI_scan &bestScan = subcon.getSingleSourceScan(bestIdx);
+                bestScans.push_back(bestScan);
             } else {
                 unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-                pair<VLBI_scan, VLBI_scan> bestScans = subcon.getDoubleSourceScan(thisIdx);
-                VLBI_scan bestScan1 = bestScans.first;
-                VLBI_scan bestScan2 = bestScans.second;
+                pair<VLBI_scan, VLBI_scan> &bestScan_pair = subcon.getDoubleSourceScan(thisIdx);
+                VLBI_scan &bestScan1 = bestScan_pair.first;
+                VLBI_scan &bestScan2 = bestScan_pair.second;
 
                 if (bestScan1.maxTime() > bestScan2.maxTime()) {
                     swap(bestScan1, bestScan2);
                 }
-
-                bool endReached1 = update(bestScan1);
-                bool endReached2 = update(bestScan2);
-
-                endOfScheduleReached = endReached1 || endReached2;
+                bestScans.push_back(bestScan1);
+                bestScans.push_back(bestScan2);
             }
+
+//            vector<VLBI_scan> fillinScans = fillin(subcon,bestScans);
+
+
+            endOfScheduleReached = false;
+            for (int i = 0; i < bestScans.size(); ++i) {
+                bool endReached = update(bestScans[i]);
+                endOfScheduleReached = endOfScheduleReached || endReached;
+            }
+
             if (endOfScheduleReached) {
                 break;
             }
@@ -130,8 +134,13 @@ namespace VieVS{
             vector<VLBI_pointingVector> pointingVectors;
             vector<unsigned int> endOfLastScans;
             for (int ista=0; ista<nsta; ++ista){
+                VLBI_station &thisSta = stations[ista];
+                if (!thisSta.available()) {
+                    continue;
+                }
+
                 VLBI_pointingVector p(ista,isrc);
-                bool flag = stations[ista].isVisible(thisSource, p, true);
+                bool flag = thisSta.isVisible(thisSource, p, true);
                 if (flag){
                     visibleSta++;
                     endOfLastScans.push_back(lastScanLookup[ista]);
@@ -148,7 +157,7 @@ namespace VieVS{
 
     void VLBI_scheduler::precalcSubnettingSrcIds(){
         unsigned long nsrc = sources.size();
-        vector<vector<int>> subnettingSrcIds(nsrc);
+        vector<vector<int> > subnettingSrcIds(nsrc);
         for (int i=0; i<nsrc; ++i){
             for (int j=i+1; j<nsrc; ++j){
                 double dist = sources[i].angleDistance(sources[j]);
@@ -213,6 +222,69 @@ namespace VieVS{
         cout << "| considered single Scans: " << n1scans << " subnetting scans: " << n2scans << "\n";
         considered_n1scans += n1scans;
         considered_n2scans += n2scans;
+    }
+
+    vector<VLBI_scan> VLBI_scheduler::fillin(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans) {
+        vector<VLBI_scan> fillinScans;
+        unsigned long nsta = stations.size();
+
+        vector<bool> stationUnused(nsta, true);
+        vector<bool> stationPossible(nsta, true);
+        vector<VLBI_pointingVector> finalPosition(nsta);
+
+
+        for (auto &any: bestScans) {
+            for (int i = 0; i < any.getNSta(); ++i) {
+                VLBI_pointingVector &pv = any.getPointingVector(i);
+                int staid = pv.getStaid();
+                finalPosition[staid] = pv;
+                stationUnused[staid] = false;
+                unsigned int deltaT = any.getTimes().getEndOfIdleTime(i) - any.getTimes().getEndOfSlewTime(i);
+                VLBI_station &thisSta = stations[staid];
+                int assumedSlewTime = 5;
+                if (deltaT <
+                    thisSta.getWaitSetup() + thisSta.getWaitSource() + assumedSlewTime + thisSta.getWaitCalibration() +
+                    thisSta.getWaitTape() + thisSta.getMinScanTime()) {
+                    stationPossible[staid] = false;
+                }
+            }
+        }
+
+
+        long nsta_possible = count(stationPossible.begin(), stationPossible.end(), true);
+        vector<VLBI_scan> fillin_scans;
+
+        while (true) {
+            VLBI_subcon fillin;
+
+            for (int i = 0; i < subcon.getNumberSingleScans(); ++i) {
+                VLBI_scan &thisScan = subcon.getSingleSourceScan(i);
+
+//                pair<bool,VLBI_scan> successful = thisScan.possibleFillinScan(finalPosition);
+//                if(successful.first){
+//                    VLBI_scan& fillinScan = successful.second;
+//                    fillin.addScan(move(fillinScan));
+//                }
+            }
+            if (fillin.getNumberSingleScans() < 0) {
+                break;
+            } else {
+                unsigned long bestIdx = subcon.rigorousScore(stations, sources, skyCoverages, PARA.mjdStart);
+                VLBI_scan &bestScan = subcon.getSingleSourceScan(bestIdx);
+
+                for (int i = 0; i < bestScan.getNSta(); ++i) {
+                    VLBI_pointingVector &pv = bestScan.getPointingVector(i);
+                    int staid = pv.getStaid();
+                    finalPosition[staid] = pv;
+                    // TODO: schauen ob noch 2 oder mehr verfügbar sind... while schleife ändern mit nsta_possible
+
+
+                }
+                fillin_scans.push_back(bestScan);
+            }
+        }
+
+        return fillinScans;
     }
 
 }

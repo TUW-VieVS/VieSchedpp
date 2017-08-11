@@ -28,8 +28,6 @@ set(SOURCE_FILES
         VLBI_initializer.h
         VLBI_mask.cpp
         VLBI_mask.h
-        VLBI_obs.cpp
-        VLBI_obs.h
         VLBI_pointingVector.cpp
         VLBI_pointingVector.h
         VLBI_position.cpp
@@ -47,10 +45,19 @@ set(SOURCE_FILES
         VLBI_subcon.cpp
         VLBI_subcon.h
         sofa.h
-        sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h VieVS_nutation.cpp VieVS_nutation.h VieVS_earth.cpp VieVS_earth.h VieVS_unordered_flat_map.cpp VieVS_unordered_flat_map.h VieVS_lookup.cpp VieVS_lookup.h)
+        sofam.h
+        VLBI_scanTimes.cpp
+        VLBI_scanTimes.h
+        VieVS_nutation.cpp
+        VieVS_nutation.h
+        VieVS_earth.cpp
+        VieVS_earth.h
+        VieVS_lookup.cpp
+        VieVS_lookup.h)
+
+FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
+#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
-
-# FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
-FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
 TARGET_LINK_LIBRARIES(VieVS_Scheduler_clion ${SOFA})
+

@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   skyCoverage.h
- * Author: mschartn
+/**
+ * @file VLBI_skyCoverage.h
+ * @brief class VLBI_skyCoverage
  *
- * Created on June 29, 2017, 11:28 AM
+ *
+ * @author Matthias Schartner
+ * @date 29.06.2017
  */
 
 #ifndef SKYCOVERAGE_H
@@ -24,32 +20,68 @@ using namespace std;
 namespace VieVS{
     class VLBI_skyCoverage {
     public:
+        /**
+         * @brief empty default constructor
+         */
         VLBI_skyCoverage();
 
+        /**
+         * @brief constructor
+         *
+         * @param staids station ids which belong to this sky coverage
+         * @param skyCoverageDistance maximum angular distance of influence of an scan in radians
+         * @param skyCoverageInterval maximum influence time of a scan in seconds
+         */
         VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval);
 
+        /**
+         * @brief getter for all station ids which belong to this sky coverage
+         *
+         * @return all station ids
+         */
         const vector<int> &getStaids() const {
             return staids;
         }
 
+        /**
+         * @brief calculates the score of pointing vectors on the sky Coverage
+         *
+         * @param pvs pointing vectors
+         * @return score
+         */
         double calcScore(vector<VLBI_pointingVector> &pvs);
 
+        /**
+         * @brief calculates the influence of the score between two pointing vectors
+         *
+         * @param pv_new new observation pointing vector
+         * @param pv_old already observed pointing vector
+         * @return score
+         */
         double scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old);
 
+        /**
+         * @brief updates the pointing vectors
+         *
+         * @param start pointing vector at start of scan
+         * @param end pointing vector at end of scan
+         */
         void update(VLBI_pointingVector &start, VLBI_pointingVector &end);
 
+        /**
+         * @brief destructor
+         */
         virtual ~VLBI_skyCoverage();
 
-        static vector<int> sta2sky;
     private:
-        unsigned long nStations;
-        vector<int> staids;
+        unsigned long nStations; ///< number of stations that belong to this sky coverage
+        vector<int> staids; ///< ids of the stations that belong to this sky coverage
 
-        vector<VLBI_pointingVector> pv_start;
-        vector<VLBI_pointingVector> pv_end;
+        vector<VLBI_pointingVector> pv_start; ///< all pointing vectors at start of a scan
+        vector<VLBI_pointingVector> pv_end; ///< all pointing vectors at end of a scan
 
-        double maxDistTime;
-        double maxDistDistance;
+        double maxDistTime; ///< maximum angular distance of influence on the sky coverage
+        double maxDistDistance; ///< maximum time influence on the sky coverage
     };
 }
 

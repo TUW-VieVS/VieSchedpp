@@ -91,7 +91,7 @@ namespace VieVS{
             vector<unsigned int> eosl = times.getEndOfSlewTime();
             auto it= max_element(eosl.begin(), eosl.end());
             latestSlewTime = *it;
-            int idx = distance(eosl.begin(),it);
+            long idx = distance(eosl.begin(), it);
 
             vector<unsigned int > dt(nsta);
             for (int i = 0; i < nsta; ++i) {
@@ -286,7 +286,7 @@ namespace VieVS{
                     for(int i=0; i<maxIdx.size(); ++i){
                         int thisIdx = maxIdx[i];
                         int id = pointingVectors[thisIdx].getStaid();
-                        double thisMaxFlux = stations[id].getMaxSEFT();
+                        double thisMaxFlux = stations[id].getMaxSEFD();
                         if (thisMaxFlux == maxFlux) {
                             maxFluxIdx.push_back(thisIdx);
                         }
@@ -370,7 +370,7 @@ namespace VieVS{
         return times.maxTime();
     }
 
-    void VLBI_scan::calcScore_nunmberOfObservations(unsigned long maxObs) {
+    void VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
         int nbl = baselines.size();
         double thisScore = (double) nbl / (double) maxObs;
         single_scores.nunmberOfObservations = thisScore;
@@ -576,7 +576,7 @@ namespace VieVS{
 
     void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
                               unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
-        calcScore_nunmberOfObservations(nmaxbl);
+        calcScore_numberOfObservations(nmaxbl);
         calcScore_averageStations(astas, nmaxsta);
         calcScore_averageSources(asrcs);
         calcScore_duration(minTime, maxTime);
@@ -586,8 +586,8 @@ namespace VieVS{
 
     }
 
-    void VLBI_scan::output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
-                           boost::posix_time::ptime sessionStart) {
+    void VLBI_scan::output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source,
+                           boost::posix_time::ptime &sessionStart) {
         unsigned long nmaxsta = stations.size();
 
         stringstream buffer1;
@@ -602,7 +602,8 @@ namespace VieVS{
         double sra = source.getRa() * rad2deg / 15;
         double sde = source.getDe() * rad2deg;
         stringstream buffer2;
-        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) RA: %6.3f DE: %+6.2f   stations: %2d") % nr %
+        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) RA: %6.3f DE: %+6.2f   stations: %2d") %
+                   observed_scan_nr %
                    sname % srcid % sra % sde % nsta;
         while (buffer2.str().size() < buffer1.str().size() - 3) {
             buffer2 << " ";
@@ -682,7 +683,7 @@ namespace VieVS{
         cout << "\n";
     }
 
-    VLBI_scan VLBI_scan::copyScan(vector<int> &scan1sta, bool &valid) {
+    VLBI_scan VLBI_scan::copyScan(vector<int> &ids, bool &valid) {
 
         vector<VLBI_pointingVector> pv;
         pv.reserve(nsta);
@@ -693,7 +694,7 @@ namespace VieVS{
         int counter = 0;
         for (auto &any:pointingVectors) {
             int id = any.getStaid();
-            if (find(scan1sta.begin(), scan1sta.end(), id) != scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), id) != ids.end()) {
                 pv.push_back(pointingVectors[counter]);
             }
             ++counter;
@@ -705,7 +706,7 @@ namespace VieVS{
 
         for (int i = (int) nsta - 1; i >= 0; --i) {
             int thisId = pointingVectors[i].getStaid();
-            if (find(scan1sta.begin(), scan1sta.end(), thisId) == scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), thisId) == ids.end()) {
                 t.removeElement(i);
             }
         }
@@ -715,8 +716,8 @@ namespace VieVS{
             int staid1 = thisBl.getStaid1();
             int staid2 = thisBl.getStaid2();
 
-            if (find(scan1sta.begin(), scan1sta.end(), staid1) != scan1sta.end() &&
-                find(scan1sta.begin(), scan1sta.end(), staid2) != scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), staid1) != ids.end() &&
+                find(ids.begin(), ids.end(), staid2) != ids.end()) {
                 bl.push_back(baselines[j]);
             }
         }

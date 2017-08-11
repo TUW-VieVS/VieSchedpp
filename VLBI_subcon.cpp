@@ -13,10 +13,6 @@
 
 #include "VLBI_subcon.h"
 
-bool VieVS::VLBI_subcon::subnetting = true;
-bool VieVS::VLBI_subcon::fillinmode = true;
-
-
 namespace VieVS{
     VLBI_subcon::VLBI_subcon(): n1scans{0}, n2scans{0} {
     }
@@ -38,17 +34,27 @@ namespace VieVS{
             while(j<subnet1[i].getNSta()){
                 int staid = subnet1[i].getStationId(j);
 
-                stations[staid].unwrapAz(subnet1[i].getPointingVector(j));
-                unsigned int slewtime = stations[staid].slewTime(subnet1[i].getPointingVector(j));
+                VLBI_station &thisSta = stations[staid];
+                if (thisSta.firstScan()) {
+                    subnet1[i].addTimes(j, 0, 0, 0, 0, 0);
+                    ++j;
+                    maxIdleTimes.push_back(thisSta.getMaxIdleTime());
+                    continue;
+                }
 
-                if (slewtime > stations[staid].getMaxSlewtime()){
+
+                thisSta.unwrapAz(subnet1[i].getPointingVector(j));
+                unsigned int slewtime = thisSta.slewTime(subnet1[i].getPointingVector(j));
+
+                if (slewtime > thisSta.getMaxSlewtime()) {
                     scanValid_slew = subnet1[i].removeElement(j);
                     if(!scanValid_slew){
                         break;
                     }
                 } else {
-                    maxIdleTimes.push_back(stations[staid].getMaxIdleTime());
-                    subnet1[i].addTimes(j, stations[staid].getWaitSetup(), stations[staid].getWaitSource(), slewtime, stations[staid].getWaitTape(), stations[staid].getWaitCalibration());
+                    maxIdleTimes.push_back(thisSta.getMaxIdleTime());
+                    subnet1[i].addTimes(j, thisSta.getWaitSetup(), thisSta.getWaitSource(), slewtime,
+                                        thisSta.getWaitTape(), thisSta.getWaitCalibration());
                     ++j;
                 }
             }

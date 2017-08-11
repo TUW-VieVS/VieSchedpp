@@ -265,7 +265,11 @@ namespace VieVS{
     }
 
     unsigned int VLBI_station::slewTime(VLBI_pointingVector &pointingVector) {
-        return antenna.slewTime(current, pointingVector);
+        if (PARA.firstScan) {
+            return 0;
+        } else {
+            return antenna.slewTime(current, pointingVector);
+        }
     }
 
     void VLBI_station::update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end,
@@ -297,7 +301,9 @@ namespace VieVS{
         history_time.push_back(times[6]);
         history_events.push_back("scan " + srcName);
 
-
+        if (PARA.firstScan) {
+            PARA.firstScan = false;
+        }
     }
 
     void VLBI_station::setCableWrapMinimumOffsets() {

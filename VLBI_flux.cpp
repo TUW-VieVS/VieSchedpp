@@ -69,25 +69,7 @@ namespace VieVS{
     
     VLBI_flux::~VLBI_flux() {
     }
-    
-    double VLBI_flux::getMinimumFlux(){
-        double minFlux = 9999;
-        if (this->type == fluxType::B){
-            for(auto flux_Jy: values){
-                if(flux_Jy < minFlux){
-                    minFlux = flux_Jy;
-                }
-            }
-        } else if (this->type == fluxType::M){
-            for(auto flux_Jy: flux){
-                if(flux_Jy < minFlux){
-                    minFlux = flux_Jy;
-                }
-            }
-        } 
-        return minFlux;
-    }
-    
+
     double VLBI_flux::getMaximumFlux(){
         double maxFlux = 0;
         if (this->type == fluxType::B){

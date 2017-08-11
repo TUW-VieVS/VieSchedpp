@@ -14,7 +14,7 @@
 #include "VLBI_initializer.h"
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
-        ifstream is("/home/mschartn/programming/parameters.xml");
+        ifstream is("parameters.xml");
 
         cout << "reading: parameters.xml \n";
         boost::property_tree::read_xml(is, PARA_xml);
@@ -576,9 +576,6 @@ namespace VieVS{
                 sta2sky_[sky2sta[j]] = i;
             }
         }
-
-        VLBI_skyCoverage::sta2sky = sta2sky_;
-
 
 
     }

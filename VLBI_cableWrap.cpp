@@ -20,23 +20,23 @@ namespace VieVS{
             axis2_low{axis2_low_deg * deg2rad}, axis2_up{axis2_up_deg * deg2rad} {
 
         if ((axis1_up - axis1_low) > twopi) {
-            double overlapping = axis1_range-twopi;
+            double overlapping = (axis1_up - axis1_low) - twopi;
             if (overlapping>twopi){
                 cerr << "ERROR: cable wrap limits to large!";
             }
             n_low = axis1_low;
             n_up = axis1_low+overlapping/2;
             c_low = axis1_low+overlapping/2;
-            c_start = axis1_up-overlapping/2;
+            c_up = axis1_up - overlapping / 2;
             w_low = axis1_up-overlapping/2;
-            w_start = axis1_up;
+            w_up = axis1_up;
         }else {
             n_low = axis1_low;
             n_up= axis1_up;
             c_low = axis1_up;
-            c_start = axis1_up;
+            c_up = axis1_up;
             w_low = axis1_low;
-            w_start = axis1_low;
+            w_up = axis1_low;
         }
     }
 
@@ -88,13 +88,8 @@ namespace VieVS{
         }
         new_pointingVector.setAz(this_unaz);
 
-        bool secure;
-        if (this_unaz > axis1_low + axis1_low_offset + 3 * deg2rad &&
-            this_unaz < axis1_up - axis1_up_offset - 3 * deg2rad) {
-            secure = true;
-        } else {
-            secure = false;
-        }
+        bool secure = this_unaz > axis1_low + axis1_low_offset + 3 * deg2rad &&
+                      this_unaz < axis1_up - axis1_up_offset - 3 * deg2rad;
 
         return secure;
     }
