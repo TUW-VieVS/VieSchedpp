@@ -276,7 +276,7 @@ namespace VieVS{
         }
     }
 
-    void VLBI_scheduler::start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans) {
+   void VLBI_scheduler::start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans) {
 
         VLBI_fillin_endpositions fi_endp(bestScans, stations);
         if (fi_endp.getNumberOfPossibleStations() < 2) {
@@ -322,7 +322,7 @@ namespace VieVS{
             bestScans.pop_back();
 
             fi_endp = VLBI_fillin_endpositions(bestScans, stations);
-            if (fi_endp.getNumberOfPossibleStations() > 2) {
+            if (fi_endp.getNumberOfPossibleStations() >= 2) {
 
                 const std::vector<char> &stationPossible = fi_endp.getStationPossible();
                 for (int i = 0; i < stations.size(); ++i) {

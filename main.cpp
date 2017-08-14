@@ -35,7 +35,7 @@ void createParameterFile();
  */
 int main(int argc, char *argv[])
 {
-//    createParameterFile();
+    createParameterFile();
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
  */
 void run(){
 
-    string path = "D:/VieVS/CATALOGS";
+//    string path = "D:/VieVS/CATALOGS";
 
-//    string path = "/data/VieVS/CATALOGS";
+    string path = "/data/VieVS/CATALOGS";
 
     VieVS::VLBI_initializer init;
 
