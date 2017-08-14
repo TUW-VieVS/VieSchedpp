@@ -145,7 +145,6 @@ namespace VieVS{
                 string fluxname = any.first;
                 double SEFD_src = any.second;
 
-                // TODO: check if band is in station and source
                 bool bandsFound = true;
                 double SEFD_sta1 = stations[staid1].getEquip().getSEFD(fluxname);
                 double SEFD_sta2 = stations[staid2].getEquip().getSEFD(fluxname);
@@ -375,7 +374,7 @@ namespace VieVS{
     void VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
         int nbl = baselines.size();
         double thisScore = (double) nbl / (double) maxObs;
-        single_scores.nunmberOfObservations = thisScore;
+        single_scores.numberOfObservations = thisScore;
     }
 
     void VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
@@ -419,11 +418,11 @@ namespace VieVS{
     }
 
     void VLBI_scan::sumScores() {
-        score = single_scores.skyCoverage +
-                single_scores.averageSources +
-                single_scores.averageStations +
-                single_scores.nunmberOfObservations +
-                single_scores.duration;
+        score = VLBI_weightFactors::weight_skyCoverage * single_scores.skyCoverage +
+                VLBI_weightFactors::weight_averageSources * single_scores.averageSources +
+                VLBI_weightFactors::weight_averageStations * single_scores.averageStations +
+                VLBI_weightFactors::weight_numberOfObservations * single_scores.numberOfObservations +
+                VLBI_weightFactors::weight_duration * single_scores.duration;
     }
 
     bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {

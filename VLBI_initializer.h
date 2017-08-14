@@ -22,6 +22,7 @@
 #include "VieVS_nutation.h"
 #include "VieVS_earth.h"
 #include "VieVS_lookup.h"
+#include "VLBI_weightFactors.h"
 
 #include "sofa.h"
 
@@ -160,7 +161,7 @@ namespace VieVS{
 
         /**
          * @brief initializes lookup tables for trigonometric functions to speed up calculation.
-         * @see scorePerPointingVector
+         * @see scorePerPointingVector()
          */
         void initializeLookup();
 
@@ -168,9 +169,16 @@ namespace VieVS{
          * @brief calculates velocity of earth at start time.
          *
          * used in the calculation of azimuth and elevation.
-         * @see getAzEl
+         * @see updateAzEl()
          */
         void initializeEarth();
+
+        /**
+         * @brief initializes the weight factors
+         *
+         */
+        void initializeWeightFactors();
+
 
     private:
         boost::property_tree::ptree PARA_xml; ///< content of parameters.xml file

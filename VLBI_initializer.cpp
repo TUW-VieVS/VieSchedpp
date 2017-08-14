@@ -811,4 +811,12 @@ namespace VieVS{
         VieVS_lookup::acosLookup = acosLookup;
 
     }
+
+    void VLBI_initializer::initializeWeightFactors() {
+        VLBI_weightFactors::weight_skyCoverage = PARA_xml.get<double>("master.weightFactor.skyCoverage", 0);
+        VLBI_weightFactors::weight_numberOfObservations = PARA_xml.get<double>("master.weightFactor.numberOfObservations", 0);
+        VLBI_weightFactors::weight_duration = PARA_xml.get<double>("master.weightFactor.duration", 0);
+        VLBI_weightFactors::weight_averageSources = PARA_xml.get<double>("master.weightFactor.averageSources", 0);
+        VLBI_weightFactors::weight_averageStations = PARA_xml.get<double>("master.weightFactor.averageStations", 0);
+    }
 }

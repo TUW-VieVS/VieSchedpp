@@ -10,7 +10,10 @@
 #ifndef VLBI_MASK_H
 #define VLBI_MASK_H
 #include <vector>
+#include <cmath>
+
 #include "VieVS_constants.h"
+#include "VLBI_pointingVector.h"
 
 using namespace std;
 
@@ -42,10 +45,18 @@ namespace VieVS{
          * @brief destructor
          */
         virtual ~VLBI_mask();
+
+        /**
+         * checks if a pointing vector is visible
+         *
+         * @param pv pointing vector whose azimuth and elevation is to check
+         * @return true if visible, false if not visible
+         */
+        bool visible(const VLBI_pointingVector &pv);
         
     private:
-        vector<double> knots; ///< horizon mask knots in radians
-        vector<double> values; ///< minimum elevation values in radians
+        vector<double> azimuth; ///< horizon mask knots in radians
+        vector<double> elevation; ///< minimum elevation values in radians
         category type; ///< horizon mask type
     };
 }

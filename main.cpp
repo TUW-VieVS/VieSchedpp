@@ -35,7 +35,7 @@ void createParameterFile();
  */
 int main(int argc, char *argv[])
 {
-    createParameterFile();
+//    createParameterFile();
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -74,6 +74,7 @@ void run(){
     init.initializeEarth();
     init.initializeLookup();
     init.createSkyCoverages();
+    init.initializeWeightFactors();
 //    init.displaySummary();
 
     VieVS::VLBI_scheduler scheduler(init);
@@ -187,6 +188,14 @@ void createParameterFile(){
     skyCoverage.add("skyCoverageInterval", 3600);
     pt.add_child("skyCoverage", skyCoverage);
 
+    boost::property_tree::ptree weightFactor;
+    weightFactor.add("skyCoverage", 2);
+    weightFactor.add("numberOfObservations", 1);
+    weightFactor.add("duration", 1);
+    weightFactor.add("averageSources", 0.0);
+    weightFactor.add("averageStations", 0.1);
+    pt.add_child("weightFactor", weightFactor);
+
     boost::property_tree::ptree bands;
     boost::property_tree::ptree X;
     X.add("wavelength",0.0349);
@@ -202,6 +211,7 @@ void createParameterFile(){
     master.add_child("master.station", pt.get_child("station"));
     master.add_child("master.source", pt.get_child("source"));
     master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
+    master.add_child("master.weightFactor", pt.get_child("weightFactor"));
     master.add_child("master.bands", pt.get_child("bands"));
 
     std::ofstream os("parameters.xml");

@@ -102,6 +102,13 @@ namespace VieVS{
         void consideredUpdate(unsigned long n1scans, unsigned long n2scans);
 
         /**
+         * @brief updates number of considered fillin scans
+         *
+         * @param n1scans number of fillin scans
+         */
+        void consideredUpdate(unsigned long n1scans, bool created = false);
+
+        /**
          * @brief prints the header lines of the output table to the console
          * @param stations
          */
@@ -145,6 +152,7 @@ namespace VieVS{
 
         unsigned long considered_n1scans; ///< considered single source scans
         unsigned long considered_n2scans; ///< considered subnetting scans
+        unsigned long considered_fillin; ///< considered fillin scans
 
         bool subnetting; ///< use subnetting
         bool fillinmode; ///< use fillin modes

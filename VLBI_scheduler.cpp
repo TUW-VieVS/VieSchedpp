@@ -32,6 +32,7 @@ namespace VieVS{
 
         considered_n1scans = 0;
         considered_n2scans = 0;
+        considered_fillin = 0;
     }
     
     VLBI_scheduler::~VLBI_scheduler() {
@@ -72,6 +73,7 @@ namespace VieVS{
             if (finished) {
                 break;
             }
+            consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
 
             if (fillinmode) {
                 start_fillinMode(subcon, bestScans);
@@ -80,14 +82,13 @@ namespace VieVS{
                     update(bestScans[i]);
                 }
             }
-
-            consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
         }
 
         cout << "TOTAL SUMMARY:\n";
-        cout << "considered single:      " << considered_n1scans << "\n";
-        cout << "considered subnetting:  " << considered_n2scans << "\n";
-        cout << "total scans considered: " << considered_n1scans + 2 * considered_n2scans << "\n";
+        cout << "created single source scans:      " << considered_n1scans << "\n";
+        cout << "created subnetting scans:  " << considered_n2scans << "\n";
+        cout << "created fillin mode scans:  " << considered_fillin << "\n";
+        cout << "total scans considered: " << considered_n1scans + 2 * considered_n2scans + considered_fillin << "\n";
 
     }
 
@@ -218,8 +219,24 @@ namespace VieVS{
         cout << "\n";
     }
 
+    void VLBI_scheduler::consideredUpdate(unsigned long n1scans, bool created) {
+        if(created){
+            cout << "|     created new fillin Scans " << n1scans <<" \n";
+        }else{
+            cout << "|     considered possible fillin Scans " << n1scans <<": \n";
+        }
+        considered_fillin += n1scans;
+    }
+
     void VLBI_scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans) {
-        cout << "| considered single Scans: " << n1scans << " subnetting scans: " << n2scans << "\n";
+
+        cout << "|-------------";
+        for (int i = 0; i < stations.size() - 1; ++i) {
+            cout << "-----------";
+        }
+        cout << "----------| \n";
+
+        cout << "| considered single Scans " << n1scans << " subnetting scans " << n2scans << ":\n";
         considered_n1scans += n1scans;
         considered_n2scans += n2scans;
     }
@@ -246,9 +263,10 @@ namespace VieVS{
                 fillin_subcon.addScan(move(*this_fillinScan));
             }
         }
-        if (fillin_subcon.getNumberSingleScans() < 0) {
+        if (fillin_subcon.getNumberSingleScans() == 0) {
             return boost::none;
         } else {
+            consideredUpdate(fillin_subcon.getNumberSingleScans());
 
             fillin_subcon.precalcScore(stations, sources);
             fillin_subcon.generateScore(stations, skyCoverages);
@@ -312,8 +330,6 @@ namespace VieVS{
                 fi_endp = VLBI_fillin_endpositions(bestScans, stations);
                 if (fi_endp.getNumberOfPossibleStations() < 2) {
                     break;
-                } else {
-                    cout << "second fillin scan!\n";
                 }
             }
 
@@ -330,6 +346,7 @@ namespace VieVS{
                 }
 
                 subcon = createSubcon(false);
+                consideredUpdate(subcon.getNumberSingleScans(),true);
             }
         }
 

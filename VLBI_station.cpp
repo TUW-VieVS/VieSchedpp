@@ -110,7 +110,7 @@ namespace VieVS{
     }
 
     bool VLBI_station::isVisible(VLBI_pointingVector &p) {
-        return cableWrap.anglesInside(p);
+        return mask.visible(p) && cableWrap.anglesInside(p);
     }
 
     void VLBI_station::updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model) {

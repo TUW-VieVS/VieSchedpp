@@ -25,7 +25,7 @@
 #include "VLBI_station.h"
 #include "VLBI_source.h"
 #include "VLBI_skyCoverage.h"
-
+#include "VLBI_weightFactors.h"
 
 using namespace std;
 namespace VieVS{
@@ -45,7 +45,7 @@ namespace VieVS{
          * @brief storage structure of all individual scores
          */
         struct SCORES {
-            double nunmberOfObservations = 0; ///< score for number of observations
+            double numberOfObservations = 0; ///< score for number of observations
             double averageStations = 0; ///< score for average station observations
             double averageSources = 0; ///< score for average source observations
             double duration = 0; ///< score for scan duration
