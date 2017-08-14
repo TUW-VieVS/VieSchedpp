@@ -54,13 +54,9 @@ namespace VieVS{
         
         history_time.push_back(0);
     }
-        
-    void VLBI_station::pushPointingVector(VLBI_pointingVector pointingVector){
-        current = pointingVector;
-    }
 
-    double VLBI_station::getCableWrapNeutralPoint(int axis){
-        return cableWrap.neutralPoint(axis);
+    void VLBI_station::pushPointingVector(VLBI_pointingVector &pointingVector) {
+        current = pointingVector;
     }
 
     void VLBI_station::setParameters(const string& group, boost::property_tree::ptree& PARA_station){
@@ -112,21 +108,12 @@ namespace VieVS{
         cout << "------------------------------------\n";
         return out;
     }
-    
-    bool VLBI_station::isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation){
-        if (useTimeFromStation){
-            unsigned int time = current.getTime() + PARA.wait_setup + PARA.wait_calibration + PARA.wait_source +
-                                PARA.wait_tape;
-            getAzEl(source, p, time);
-        }else {
-            unsigned int time = p.getTime();
-            getAzEl(source, p, time);
-        }
-        
+
+    bool VLBI_station::isVisible(VLBI_pointingVector &p) {
         return cableWrap.anglesInside(p);
     }
 
-    void VLBI_station::getAzEl(VLBI_source source, VLBI_pointingVector &p, unsigned int time, azelModel model) {
+    void VLBI_station::updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model) {
 
 
         double ra = source.getRa();
@@ -135,6 +122,7 @@ namespace VieVS{
         double lon = position.getLon();
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
+        unsigned int time = p.getTime();
         //  TIME 
         double date1 = 2400000.5;
         double date2 = PRECALC.mjdStart + (double) time / 86400;
@@ -260,10 +248,6 @@ namespace VieVS{
         return position.getDistance(other.position);
     }
 
-    void VLBI_station::unwrapAz(VLBI_pointingVector &pointingVector) {
-        cableWrap.calcUnwrappedAz(current,pointingVector);
-    }
-
     unsigned int VLBI_station::slewTime(VLBI_pointingVector &pointingVector) {
         if (PARA.firstScan) {
             return 0;
@@ -309,14 +293,6 @@ namespace VieVS{
     void VLBI_station::setCableWrapMinimumOffsets() {
         cableWrap.setMinimumOffsets(PARA.axis1_low_offset, PARA.axis1_up_offset, PARA.axis2_low_offset,
                                     PARA.axis2_up_offset);
-    }
-
-    bool VLBI_station::unwrapAzNearNeutralPoint(VLBI_pointingVector &pointingVector) {
-        return cableWrap.unwrapAzNearNeutralPoint(pointingVector);
-    }
-
-    void VLBI_station::unwrapAzNearAz(VLBI_pointingVector &pointingVector, double az) {
-        cableWrap.unwrapAzNearAz(pointingVector, az);
     }
 
 

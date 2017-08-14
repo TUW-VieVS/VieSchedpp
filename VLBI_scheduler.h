@@ -12,10 +12,13 @@
 #include <vector>
 #include <boost/date_time.hpp>
 #include <utility>
+#include <tuple>
+#include <boost/optional.hpp>
 
 #include "VLBI_initializer.h"
 #include "VLBI_subcon.h"
 #include "VieVS_constants.h"
+#include "VLBI_fillin_endpositions.h"
 
 using namespace std;
 namespace VieVS{
@@ -59,6 +62,14 @@ namespace VieVS{
         void start();
 
         /**
+         * @brief this function creates a subcon with all scans, times and scores
+         *
+         * @param subnetting true if subnetting is allowed, false otherwise
+         * @return subcon with all information
+         */
+        VLBI_subcon createSubcon(bool subnetting);
+
+        /**
          * @brief constructs all visible scans
          *
          * @return subcon with all visible single source scans
@@ -76,12 +87,11 @@ namespace VieVS{
         virtual ~VLBI_scheduler();
 
         /**
-         * @brief updates the selected scan to be part of the schedule
+         * @brief updates the selected next scans to the schedule
          *
-         * @param scan best possible scan
-         * @return true if end of session is reached, otherwise false
+         * @param scan best possible next scans
          */
-        bool update(VLBI_scan &scan);
+        void update(VLBI_scan &scan);
 
         /**
          * @brief updates and prints the number of all considered scans
@@ -98,13 +108,31 @@ namespace VieVS{
         void outputHeader(vector<VLBI_station> &stations);
 
         /**
+         * @brief this function starts the fillin mode
+         *
+         * Besides calculating possible fillin scans this function also updates all selected next scans.
+         *
+         * @param subcon current subcon of available scans
+         * @param fi_endp current required fillin endpositions
+         */
+        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans);
+
+        /**
          * @brief calculate fillin scans
          *
          * @param subcon subcon with all scan informations
          * @param scans which will be observed next
          * @return list of all fillin scans
          */
-        vector<VLBI_scan> fillin(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans);
+        boost::optional<VLBI_scan> fillin_scan(VLBI_subcon &subcon, VLBI_fillin_endpositions &fi_endp,
+                                               vector<int> &sourceWillBeScanned);
+
+        /**
+         * @brief checks if the end of the session is reached
+         * @param bestScans best next scans
+         * @return true if end is reached, otherwise false
+         */
+        bool endOfSessionReached(vector<VLBI_scan> bestScans);
 
     private:
         vector<VLBI_station> stations; ///< all stations

@@ -138,12 +138,21 @@ namespace VieVS{
         }
 
         /**
+         * @brief sets the flag if a station is available or not
+         * @param flag true if station is available, otherwise false
+         */
+        void setAvailable(bool flag) {
+            PARA.available = flag;
+        }
+
+        /**
          * @brief first scan check
          * @return true if this is the first scan of the station after a break or session start
          */
         bool firstScan() {
             return PARA.firstScan;
         }
+
 
         /**
          * @brief getter for maximum allowed slew time
@@ -202,23 +211,13 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter for system equivalent flux density for a band
-         *
-         * @param band requested information for this band
-         * @return system equivalend flux density
+         * @brief getter for equipment information
+         * @return equipment objecct
          */
-        double getSEFD(string band){
-            return equip.getSEFD(band);
+        const VLBI_equip &getEquip() const {
+            return equip;
         }
 
-        /**
-         * @brief getter for maximum system equivalent flux density
-         *
-         * @return maximum system equivalent flux density
-         */
-        double getMaxSEFD() {
-            return equip.getMaxSEFD();
-        }
 
         /**
          * @brief getter for minimum signal to noise ration of a band
@@ -245,30 +244,19 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter for x coordinate of this station
-         *
-         * @return x coordinate of this station
+         * @brief getter for antenna
+         * @return antenna object
          */
-        double getX() const{
-            return position.getX();
+        const VLBI_antenna &getAntenna() const {
+            return antenna;
         }
 
         /**
-         * @brief getter for y coordinate of this station
-         *
-         * @return y coordinate of this station
+         * @brief getter for position
+         * @return position object
          */
-        double getY() const{
-            return position.getY();
-        }
-
-        /**
-        * @brief getter for z coordinate of this station
-        *
-        * @return z coordinate of this station
-        */
-        double getZ() const{
-            return position.getZ();
+        const VLBI_position &getPosition() const {
+            return position;
         }
 
         /**
@@ -329,6 +317,14 @@ namespace VieVS{
         }
 
         /**
+         * @brief getter for current pointing vector
+         * @return current pointing vector
+         */
+        const VLBI_pointingVector &getCurrentPointingVector() const {
+            return current;
+        }
+
+        /**
          * @brief distance between two stations
          *
          * @param other other station
@@ -336,7 +332,6 @@ namespace VieVS{
          */
         double distance(VLBI_station other);
 
-        //TODO: split azel calculation and check if visible into two parts
         /**
          * @brief checks if a source is visible for this station
          *
@@ -346,59 +341,12 @@ namespace VieVS{
          * @param useTimeFromStation if true additional times will be added, if false time from parameter p will be taken
          * @return true if station is visible
          */
-        bool isVisible(VLBI_source source, VLBI_pointingVector& p, bool useTimeFromStation = false);
-
-        //TODO: delete this function
-        /**
-         * @brief unwraps the current azimuth and elevation of pointing vector
-         *
-         * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
-         * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
-         * for example if the azimuth axis range is bigger than 360 degrees, the value, which is closest to the old
-         * pointing vector is used.
-         *
-         * @param new_pointingVector
-         * @return
-         */
-        void unwrapAz(VLBI_pointingVector &pointingVector);
-
-        //TODO: delete this function
-        /**
-         * @brief unwraps the current azimuth and elevation of pointing vector
-         *
-         * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
-         * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
-         * for example if the azimuth axis range is bigger than 360 degrees, the value, which is closest to the current
-         * antenna position is used.
-         *
-         * THIS FUNCTION IS ONLY USED FOR INTERNAL CHECKS IN NICHE SCENARIOS. USE
-         * calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector) INSTEAD
-         *
-         * @param new_pointingVector
-         * @return
-         */
-        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &pointingVector);
-
-        //TODO: delete this function
-        /**
-         * @brief unwraps the current azimuth and elevation of pointing vector
-         *
-         * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
-         * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
-         * for example if the azimuth axis range is bigger than 360 degrees, the value, which is closest to the second
-         * parameters value is used.
-         *
-         * THIS FUNCTION IS ONLY USED FOR INTERNAL CHECKS IN NICHE SCENARIOS. USE
-         * calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector) INSTEAD
-         *
-         * @param new_pointingVector
-         * @param az_old
-         * @return
-         */
-        void unwrapAzNearAz(VLBI_pointingVector &pointingVector, double az);
+        bool isVisible(VLBI_pointingVector &p);
 
         /**
          * @brief calculate slew time between current pointing vector and this pointing vector
+         *
+         * If this is the first scan of this station the slew time is zero.
          *
          * @param pointingVector slew end position
          * @return slewtime in seconds
@@ -410,26 +358,17 @@ namespace VieVS{
          *
          * @param source observed source
          * @param p pointing vector where azimuth and elevation is saved
-         * @param time time of observation start in seconds since session start
          * @param model model used for calculation (default is simple model)
          */
         void
-        getAzEl(VLBI_source source, VLBI_pointingVector &p, unsigned int time, azelModel model = azelModel::simple);
+        updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model = azelModel::simple);
 
         /**
          * @brief change current pointing vector
          *
          * @param pointingVector new current pointing vector
          */
-        void pushPointingVector(VLBI_pointingVector pointingVector);
-
-        //TODO: delete this function
-        /** getter for axis limits neutral point
-         *
-         * @param axis index of axis, 1 for first axis, 2 for second axis
-         * @return neutral point of axis limits in radiants
-         */
-        double getCableWrapNeutralPoint(int axis);
+        void pushPointingVector(VLBI_pointingVector &pointingVector);
 
         /**
          * @brief sets all parameters from .xml group

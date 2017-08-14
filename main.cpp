@@ -3,12 +3,19 @@
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
 /**
+ * @file main.cpp
+ * @brief main file
+ *
+ * @author Matthias Schartner
+ * @date 21.06.2017
+ */
+
+/**
  * @namespace VieVS
  * @brief namespace VieVS is used for all "VieVS_*" and "VLBI_*" classes and files.
  */
 
 using namespace std;
-
 /**
  * starts the scheduling software
  */
@@ -111,7 +118,7 @@ void createParameterFile(){
 //    pt.add("general.stations",boost::algorithm::join(sta, ","));
 
     pt.add("general.maxDistanceTwinTeleskopes",5000);
-    pt.add("general.subnetting", true);
+    pt.add("general.subnetting", false);
     pt.add("general.fillinmode", true);
 
     boost::property_tree::ptree station;

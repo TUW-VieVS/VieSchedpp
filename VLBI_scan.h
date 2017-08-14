@@ -15,6 +15,7 @@
 #include <vector>
 #include <boost/format.hpp>
 #include <boost/date_time.hpp>
+#include <boost/optional.hpp>
 #include <utility>
 #include <limits>
 
@@ -31,6 +32,15 @@ namespace VieVS{
 
     class VLBI_scan {
     public:
+        /**
+         * @brief scan type
+         */
+        enum class scanType {
+            single, ///< single source scan
+            subnetting, ///< subnetting scan
+            fillin, ///< fillin mode scan
+        };
+
         /**
          * @brief storage structure of all individual scores
          */
@@ -55,8 +65,10 @@ namespace VieVS{
          * @param pointingVectors all pointing vectors
          * @param endOfLastScan time information for endtime of last scan for each station in seconds since session start
          * @param minimumNumberOfStations minimum number of stations for this scan
+         * @param type scan type
          */
-        VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations);
+        VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan,
+                  int minimumNumberOfStations, scanType type);
 
         /**
          * @brief constructor
@@ -105,6 +117,14 @@ namespace VieVS{
          * @brief destructor
          */
         virtual ~VLBI_scan() {}
+
+        /**
+         * @brief sets the scan type
+         * @param type new scan type
+         */
+        void setType(scanType type) {
+            VLBI_scan::type = type;
+        }
 
         /**
          * @brief getter to get all scan times
@@ -242,7 +262,7 @@ namespace VieVS{
          * @param sources observed source
          * @param mjdStart modified julian date of session start
          */
-        void calcBaselineScanDuration(vector<VLBI_station>& stations, VLBI_source& sources, double mjdStart);
+        void calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources, double mjdStart);
 
         /**
          * @brief calculates the total scan duration per station
@@ -350,13 +370,12 @@ namespace VieVS{
         bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart);
 
         /**
-         * @brief makes a hard copy of a scan with all stations in
+         * @brief makes a hard copy of a scan with all stations from parameter ids
          *
          * @param ids ids of all stations which should be copied
-         * @param valid true if scan is valid, false if scan is not valid
-         * @return copy of scan with the stations from ids parameter
+         * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
          */
-        VLBI_scan copyScan(vector<int> &ids, bool &valid);
+        boost::optional<VLBI_scan> copyScan(vector<int> &ids);
 
         /**
          * @brief getter for number of baselines
@@ -366,6 +385,20 @@ namespace VieVS{
         unsigned long getNBl() {
             return baselines.size();
         }
+
+        /**
+         * @brief checks if parts of this scan can be used as a fillin mode scan
+         *
+         * @param stations list of all stations
+         * @param source list of all sources
+         * @param possible vector of flags for all possible stations (see VLBI_fillin_endpositions)
+         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
+         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
+         * @return possible fillin scan
+         */
+        boost::optional<VLBI_scan>
+        possibleFillinScan(vector<VLBI_station> &stations, VLBI_source &source, const std::vector<char> &possible,
+                           const std::vector<char> &unused, const vector<VLBI_pointingVector> &pv_final_position);
 
         /**
          * @brief outputs information of this scan to the current console
@@ -393,6 +426,7 @@ namespace VieVS{
         vector<VLBI_pointingVector> pointingVectors_endtime; ///< pointing vectors at end of the scan
         vector<VLBI_baseline> baselines; ///< all observed baselines
 
+        scanType type;
     };
 }
 #endif /* VLBI_SCAN_H */

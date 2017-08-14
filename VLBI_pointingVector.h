@@ -90,7 +90,7 @@ namespace VieVS{
          *
          * @return azimth in radians
          */
-        double getAz() {
+        double getAz() const {
             return az;
         }
 
@@ -99,7 +99,7 @@ namespace VieVS{
          *
          * @return elevation in radians
          */
-        double getEl() {
+        double getEl() const {
             return el;
         }
 
@@ -108,7 +108,7 @@ namespace VieVS{
          *
          * @return time in seconds since session start
          */
-        unsigned int getTime() {
+        unsigned int getTime() const {
             return time;
         }
 

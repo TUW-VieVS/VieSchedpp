@@ -53,7 +53,8 @@ namespace VieVS{
          * @param new_pointingVector end azimuth and elevation
          * @return slewtime in seconds
          */
-        unsigned int slewTime(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector);
+        unsigned int
+        slewTime(const VLBI_pointingVector &old_pointingVector, const VLBI_pointingVector &new_pointingVector) const;
 
         /**
          * @brief overload of the << operator for output to stream

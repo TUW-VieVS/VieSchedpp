@@ -159,7 +159,7 @@ namespace VieVS{
          * @return maximum allowed scan time in seconds
          */
         unsigned int getMaxScanTime(){
-            return VLBI_source::PARA.maxScan;
+            return PARA.maxScan;
         }
 
         /**
@@ -176,7 +176,7 @@ namespace VieVS{
          * @return minimum number of stations for a scan
          */
         unsigned int getMinNumberOfStations() {
-            return VLBI_source::PARA.minNumberOfStations;
+            return PARA.minNumberOfStations;
         }
 
         /**

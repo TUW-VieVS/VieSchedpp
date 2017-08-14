@@ -13,11 +13,13 @@
 #include <utility>
 #include <limits>
 #include <queue>
+#include <boost/optional.hpp>
 
 #include "VLBI_station.h"
 #include "VLBI_source.h"
 #include "VLBI_scan.h"
 #include "VLBI_skyCoverage.h"
+
 
 using namespace std;
 
@@ -40,6 +42,15 @@ namespace VieVS{
          * @param scan scan which should be added
          */
         void addScan(VLBI_scan scan);
+
+        /**
+         * @brief removes a scan from the subcon
+         *
+         * The index counts first through all single source scans and continues with all subnetting scans. If the index
+         * is larger than the number of single scans both subnetting scans will be removed.
+         * @param idx index of scan which should be removed
+         */
+        void removeScan(unsigned long idx);
 
         /**
          * @brief getter for number of possible single source scans
@@ -161,11 +172,6 @@ namespace VieVS{
         void average_source_score(vector<VLBI_source> &sources);
 
         /**
-         * @brief calculates the score of all single source and subnetting scans
-         */
-        void calcScores();
-
-        /**
          * @brief rigorousely updates the best scans untill the best one is found
          *
          * @param stations list of all stations
@@ -174,8 +180,8 @@ namespace VieVS{
          * @param mjdStart modified julian date of session start
          * @return index of best scan
          */
-        unsigned long rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                    vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
+        boost::optional<unsigned long> rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
+                                                     vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
 
     private:
         unsigned long n1scans; ///< number of single source scans

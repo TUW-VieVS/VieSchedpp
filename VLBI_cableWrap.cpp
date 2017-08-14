@@ -60,7 +60,7 @@ namespace VieVS{
         return true;
     }
 
-    bool VLBI_cableWrap::unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) {
+    bool VLBI_cableWrap::unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const {
         double az_old = neutralPoint(1);
         double az_new = new_pointingVector.getAz();
 
@@ -94,7 +94,8 @@ namespace VieVS{
         return secure;
     }
 
-    void VLBI_cableWrap::calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector){
+    void VLBI_cableWrap::calcUnwrappedAz(const VLBI_pointingVector &old_pointingVector,
+                                         VLBI_pointingVector &new_pointingVector) const {
         double az_old = old_pointingVector.getAz();
         double az_new = new_pointingVector.getAz();
         
@@ -123,7 +124,7 @@ namespace VieVS{
         new_pointingVector.setAz(this_unaz);
     }
 
-    double VLBI_cableWrap::neutralPoint(int axis){
+    double VLBI_cableWrap::neutralPoint(int axis) const {
         if (axis==1){
             return (axis1_low+axis1_up)/2;
         } else if(axis==2){
@@ -155,7 +156,7 @@ namespace VieVS{
         this->axis2_up_offset = axis2_up_offset * deg2rad;
     }
 
-    void VLBI_cableWrap::unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) {
+    void VLBI_cableWrap::unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const {
         double az_new = new_pointingVector.getAz();
 
         double unaz_new;

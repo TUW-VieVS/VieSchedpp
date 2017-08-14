@@ -33,8 +33,8 @@ namespace VieVS{
     VLBI_antenna::~VLBI_antenna() {
     }
 
-    unsigned int VLBI_antenna::slewTime(VLBI_pointingVector &old_pointingVector,
-                                        VLBI_pointingVector &new_pointingVector) {
+    unsigned int VLBI_antenna::slewTime(const VLBI_pointingVector &old_pointingVector,
+                                        const VLBI_pointingVector &new_pointingVector) const {
         
         double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
         double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());

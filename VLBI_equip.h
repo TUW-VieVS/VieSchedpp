@@ -44,8 +44,8 @@ namespace VieVS{
          * @param band name of band
          * @return SEFD of this band
          */
-        double getSEFD(string band) {
-            return SEFD[band];
+        double getSEFD(string band) const {
+            return SEFD.at(band);
         }
 
         /**
@@ -53,7 +53,7 @@ namespace VieVS{
          *
          * @return maximum SEFD of this antenna
          */
-        double getMaxSEFD();
+        double getMaxSEFD() const;
 
         /**
          * @brief overload of the << operator for output to stream

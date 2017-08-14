@@ -13,8 +13,6 @@
 
 #include "VLBI_skyCoverage.h"
 
-vector<int> VieVS::VLBI_skyCoverage::sta2sky = {};
-
 namespace VieVS{
     VLBI_skyCoverage::VLBI_skyCoverage() {
     }
@@ -30,7 +28,7 @@ namespace VieVS{
     double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs) {
 
         double score = 0;
-        vector<bool> isSky(pvs.size());
+        std::deque<bool> isSky(pvs.size());
 
         for (int i = 0; i < pvs.size(); ++i) {
             VLBI_pointingVector &thisPV = pvs[i];

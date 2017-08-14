@@ -55,7 +55,7 @@ namespace VieVS{
          * @param axis index of axis, 1 for first axis, 2 for second axis
          * @return neutral point of axis limits in radiants
          */
-        double neutralPoint(int axis);
+        double neutralPoint(int axis) const;
 
         /**
          * @brief destructor
@@ -84,7 +84,7 @@ namespace VieVS{
          * @param new_pointingVector
          * @return
          */
-        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector);
+        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const;
 
 
         /**
@@ -102,7 +102,7 @@ namespace VieVS{
          * @param az_old
          * @return
          */
-        void unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old);
+        void unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const;
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
@@ -115,7 +115,8 @@ namespace VieVS{
          * @param new_pointingVector
          * @return
          */
-        void calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector);
+        void
+        calcUnwrappedAz(const VLBI_pointingVector &old_pointingVector, VLBI_pointingVector &new_pointingVector) const;
 
         /**
          * @brief overload of the << operator for output to stream

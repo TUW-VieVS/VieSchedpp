@@ -543,7 +543,7 @@ namespace VieVS{
 
     void VLBI_initializer::createSkyCoverages(){
         unsigned long nsta = stations.size();
-        vector<bool> alreadyConsidered(nsta,false);
+        std::deque<bool> alreadyConsidered(nsta, false);
         int skyCoverageId = 0;
         vector<vector<int> > stationsPerId(nsta);
         
@@ -592,8 +592,8 @@ namespace VieVS{
         }
         for(auto& any: stations){
             VLBI_pointingVector pV(c, 0);
-            pV.setAz(any.getCableWrapNeutralPoint(1));
-            pV.setEl( any.getCableWrapNeutralPoint(2));
+            pV.setAz(any.getCableWrap().neutralPoint(1));
+            pV.setEl(any.getCableWrap().neutralPoint(2));
             pV.setTime(0);
             any.pushPointingVector(pV);
             for (auto &it: PARA_station) {
@@ -633,9 +633,9 @@ namespace VieVS{
             vector<double> dz(nsta);
             for (int j = i+1; j<nsta; ++j) {
                 distance[j] = stations[i].distance(stations[j]);
-                dx[j] = stations[j].getX()-stations[i].getX();
-                dy[j] = stations[j].getY()-stations[i].getY();
-                dz[j] = stations[j].getZ()-stations[i].getZ();
+                dx[j] = stations[j].getPosition().getX() - stations[i].getPosition().getX();
+                dy[j] = stations[j].getPosition().getY() - stations[i].getPosition().getY();
+                dz[j] = stations[j].getPosition().getZ() - stations[i].getPosition().getZ();
             }
 
             stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);

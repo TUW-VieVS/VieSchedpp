@@ -36,7 +36,7 @@ namespace VieVS{
          *
          * Most of this parameters are than passed to other classes like VLBI_scheduler.
          */
-        struct PARAMETERS{
+        struct PARAMETERS {
             string experimentName; ///< experimet Name from .xml file
             string experimentDescription; ///< experiment description form xml file
             boost::posix_time::ptime startTime; ///< start time of the session in datetime format
