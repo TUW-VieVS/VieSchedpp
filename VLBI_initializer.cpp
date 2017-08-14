@@ -14,17 +14,17 @@
 #include "VLBI_initializer.h"
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
-        ifstream is("/home/mschartn/programming/parameters.xml");
+        ifstream is("parameters.xml");
 
         cout << "reading: parameters.xml \n";
         boost::property_tree::read_xml(is, PARA_xml);
 
         try{
-            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("general.start");
+            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.start");
             cout << "start time:" << PARA.startTime << "\n";
             PARA.mjdStart = PARA.startTime.date().modjulian_day() + PARA.startTime.time_of_day().seconds();
 
-            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("general.end");
+            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.end");
             cout << "end time:" << PARA.startTime << "\n";
 
             boost::posix_time::time_duration a = PARA.endTime - PARA.startTime;
@@ -34,21 +34,33 @@ namespace VieVS{
             }
             PARA.duration = (unsigned int) sec;
             cout << "duration: " << PARA.duration << " [s]\n";
-            string stastr = PARA_xml.get<string>("general.stations");
-            
-            vector<string> splitSta;
-            boost::split( splitSta, stastr, boost::algorithm::is_any_of(","));
-            PARA.selectedStations = splitSta;
+
+            vector<string> sel_stations;
+            boost::property_tree::ptree stations = PARA_xml.get_child("master.general.stations");
+            auto it = stations.begin();
+            while (it != stations.end()) {
+                auto item = it->second.data();
+                sel_stations.push_back(item);
+                ++it;
+            }
+            PARA.selectedStations = sel_stations;
+
+            PARA.subnetting = PARA_xml.get<bool>("master.general.subnetting");
+            PARA.fillinmode = PARA_xml.get<bool>("master.general.fillinmode");
+
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<< endl;
             throw;
         }
 
-        PARA.experimentName = PARA_xml.get<string>("general.experiment_name","");
-        PARA.experimentDescription = PARA_xml.get<string>("general.experiment_description","");
+        PARA.experimentName = PARA_xml.get<string>("master.general.experiment_name", "");
+        PARA.experimentDescription = PARA_xml.get<string>("master.general.experiment_description", "");
+
+        PARA.skyCoverageDistance = PARA_xml.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
+        PARA.skyCoverageInterval = PARA_xml.get<double>("master.general.skyCoverageInterval", 3600);;
 
         try{
-            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("general.maxDistanceTwinTeleskopes",0);
+            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<< endl;
             throw;
@@ -506,10 +518,10 @@ namespace VieVS{
                 bool flagFlux = srcFlux.addFluxParameters(parameters);
 
                 if(thisBand == "X"){
-                    double wavelength = PARA_xml.get<double>("bands.X.wavelength");
+                    double wavelength = PARA_xml.get<double>("master.bands.X.wavelength");
                     srcFlux.setWavelength(wavelength);
                 }else if(thisBand == "S"){
-                    srcFlux.setWavelength(PARA_xml.get<double>("bands.S.wavelength"));
+                    srcFlux.setWavelength(PARA_xml.get<double>("master.bands.S.wavelength"));
                 }
 
 
@@ -531,7 +543,7 @@ namespace VieVS{
 
     void VLBI_initializer::createSkyCoverages(){
         unsigned long nsta = stations.size();
-        vector<bool> alreadyConsidered(nsta,false);
+        std::deque<bool> alreadyConsidered(nsta, false);
         int skyCoverageId = 0;
         vector<vector<int> > stationsPerId(nsta);
         
@@ -552,7 +564,8 @@ namespace VieVS{
         }
         
         for (int i=0; i<skyCoverageId; ++i){
-            skyCoverages.push_back(VLBI_skyCoverage(stationsPerId[i]));
+            skyCoverages.push_back(
+                    VLBI_skyCoverage(stationsPerId[i], PARA.skyCoverageDistance, PARA.skyCoverageInterval));
         }
 
         vector<int> sta2sky_(nsta);
@@ -564,9 +577,6 @@ namespace VieVS{
             }
         }
 
-        VLBI_skyCoverage::sta2sky = sta2sky_;
-
-
 
     }
     
@@ -574,7 +584,7 @@ namespace VieVS{
         int c = 0;
         boost::property_tree::ptree PARA_station;
         try{
-            PARA_station = PARA_xml.get_child("station");
+            PARA_station = PARA_xml.get_child("master.station");
         }catch(const boost::property_tree::ptree_error &e){
             cerr << "ERROR: reading parameters.xml file!"<<
                     "    probably missing <station> block?" << endl;
@@ -582,8 +592,8 @@ namespace VieVS{
         }
         for(auto& any: stations){
             VLBI_pointingVector pV(c, 0);
-            pV.setAz(any.getCableWrapNeutralPoint(1));
-            pV.setEl( any.getCableWrapNeutralPoint(2));
+            pV.setAz(any.getCableWrap().neutralPoint(1));
+            pV.setEl(any.getCableWrap().neutralPoint(2));
             pV.setTime(0);
             any.pushPointingVector(pV);
             for (auto &it: PARA_station) {
@@ -623,9 +633,9 @@ namespace VieVS{
             vector<double> dz(nsta);
             for (int j = i+1; j<nsta; ++j) {
                 distance[j] = stations[i].distance(stations[j]);
-                dx[j] = stations[j].getX()-stations[i].getX();
-                dy[j] = stations[j].getY()-stations[i].getY();
-                dz[j] = stations[j].getZ()-stations[i].getZ();
+                dx[j] = stations[j].getPosition().getX() - stations[i].getPosition().getX();
+                dy[j] = stations[j].getPosition().getY() - stations[i].getPosition().getY();
+                dz[j] = stations[j].getPosition().getZ() - stations[i].getPosition().getZ();
             }
 
             stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
@@ -636,7 +646,7 @@ namespace VieVS{
         
         boost::property_tree::ptree PARA_source;
         try{
-            PARA_source = PARA_xml.get_child("source");
+            PARA_source = PARA_xml.get_child("master.source");
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!"<<
                     "    probably missing <station> block?" << endl;
@@ -800,5 +810,13 @@ namespace VieVS{
         }
         VieVS_lookup::acosLookup = acosLookup;
 
+    }
+
+    void VLBI_initializer::initializeWeightFactors() {
+        VLBI_weightFactors::weight_skyCoverage = PARA_xml.get<double>("master.weightFactor.skyCoverage", 0);
+        VLBI_weightFactors::weight_numberOfObservations = PARA_xml.get<double>("master.weightFactor.numberOfObservations", 0);
+        VLBI_weightFactors::weight_duration = PARA_xml.get<double>("master.weightFactor.duration", 0);
+        VLBI_weightFactors::weight_averageSources = PARA_xml.get<double>("master.weightFactor.averageSources", 0);
+        VLBI_weightFactors::weight_averageStations = PARA_xml.get<double>("master.weightFactor.averageStations", 0);
     }
 }

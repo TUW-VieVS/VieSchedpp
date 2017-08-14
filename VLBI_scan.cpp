@@ -17,9 +17,11 @@
 namespace VieVS{
     VLBI_scan::VLBI_scan() {
     }
-    
-    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan, int minimumNumberOfStations):
+
+    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan,
+                         int minimumNumberOfStations, scanType type) :
             srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()},
+            type{type},
             minimumNumberOfStations{minimumNumberOfStations}, score{0} {
         times = VLBI_scanTimes(nsta);
         times.setEndOfLastScan(endOfLastScan);
@@ -91,7 +93,7 @@ namespace VieVS{
             vector<unsigned int> eosl = times.getEndOfSlewTime();
             auto it= max_element(eosl.begin(), eosl.end());
             latestSlewTime = *it;
-            int idx = distance(eosl.begin(),it);
+            long idx = distance(eosl.begin(), it);
 
             vector<unsigned int > dt(nsta);
             for (int i = 0; i < nsta; ++i) {
@@ -143,10 +145,9 @@ namespace VieVS{
                 string fluxname = any.first;
                 double SEFD_src = any.second;
 
-                // TODO: check if band is in station and source
                 bool bandsFound = true;
-                double SEFD_sta1 = stations[staid1].getSEFD(fluxname);
-                double SEFD_sta2 = stations[staid2].getSEFD(fluxname);
+                double SEFD_sta1 = stations[staid1].getEquip().getSEFD(fluxname);
+                double SEFD_sta2 = stations[staid2].getEquip().getSEFD(fluxname);
                 double minSNR_sta1 = stations[staid1].getMinSNR(fluxname);
                 double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
 
@@ -286,7 +287,7 @@ namespace VieVS{
                     for(int i=0; i<maxIdx.size(); ++i){
                         int thisIdx = maxIdx[i];
                         int id = pointingVectors[thisIdx].getStaid();
-                        double thisMaxFlux = stations[id].getMaxSEFT();
+                        double thisMaxFlux = stations[id].getEquip().getMaxSEFD();
                         if (thisMaxFlux == maxFlux) {
                             maxFluxIdx.push_back(thisIdx);
                         }
@@ -370,10 +371,10 @@ namespace VieVS{
         return times.maxTime();
     }
 
-    void VLBI_scan::calcScore_nunmberOfObservations(unsigned long maxObs) {
+    void VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
         int nbl = baselines.size();
         double thisScore = (double) nbl / (double) maxObs;
-        single_scores.nunmberOfObservations = thisScore;
+        single_scores.numberOfObservations = thisScore;
     }
 
     void VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
@@ -417,11 +418,11 @@ namespace VieVS{
     }
 
     void VLBI_scan::sumScores() {
-        score = single_scores.skyCoverage +
-                single_scores.averageSources +
-                single_scores.averageStations +
-                single_scores.nunmberOfObservations +
-                single_scores.duration;
+        score = VLBI_weightFactors::weight_skyCoverage * single_scores.skyCoverage +
+                VLBI_weightFactors::weight_averageSources * single_scores.averageSources +
+                VLBI_weightFactors::weight_averageStations * single_scores.averageStations +
+                VLBI_weightFactors::weight_numberOfObservations * single_scores.numberOfObservations +
+                VLBI_weightFactors::weight_duration * single_scores.duration;
     }
 
     bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
@@ -451,8 +452,8 @@ namespace VieVS{
                 oldAz = newAz;
                 oldSlewEnd = newSlewEnd;
                 new_p.setTime(newSlewEnd);
-
-                stationValid = thisSta.isVisible(source, new_p);
+                thisSta.updateAzEl(source, new_p);
+                stationValid = thisSta.isVisible(new_p);
                 if (!stationValid) {
                     scanValid = removeElement(i);
                     if (!scanValid) {
@@ -460,10 +461,10 @@ namespace VieVS{
                     }
                 }
 
-                stations[staid].unwrapAz(new_p);
+                stations[staid].getCableWrap().calcUnwrappedAz(stations[staid].getCurrentPointingVector(), new_p);
                 newAz = new_p.getAz();
                 if (oldAz != numeric_limits<double>::quiet_NaN() && abs(oldAz - newAz) > .5 * pi) {
-                    bool secure = stations[staid].unwrapAzNearNeutralPoint(new_p);
+                    bool secure = stations[staid].getCableWrap().unwrapAzNearNeutralPoint(new_p);
                     if (!secure) {
                         cout
                                 << "### DEBUG OPPORTUNITY ###\n    axis 1 is close to limit and the ambigurity is not save!\n";
@@ -520,7 +521,8 @@ namespace VieVS{
 
             for (unsigned int j = scanStart; j < scanEnd; j += 10) {
                 pv.setTime(j);
-                stationValid = thisSta.isVisible(source, pv);
+                thisSta.updateAzEl(source, pv);
+                stationValid = thisSta.isVisible(pv);
                 if (!stationValid) {
                     scanValid = removeElement(i);
                     if (!scanValid) {
@@ -529,7 +531,7 @@ namespace VieVS{
                     break;
                 }
 
-                thisSta.unwrapAzNearAz(pv, oldAz);
+                thisSta.getCableWrap().unwrapAzNearAz(pv, oldAz);
                 newAz = pv.getAz();
                 if (abs(newAz - oldAz) > .5 * pi) {
                     stationValid = false;
@@ -540,6 +542,10 @@ namespace VieVS{
                     }
                     break;
                 }
+
+                if (j == scanStart) {
+                    pointingVectors[i] = pv;
+                }
             }
 
             if (!stationValid) {
@@ -547,7 +553,8 @@ namespace VieVS{
             }
 
             pv.setTime(scanEnd);
-            stationValid = thisSta.isVisible(source, pv);
+            thisSta.updateAzEl(source, pv);
+            stationValid = thisSta.isVisible(pv);
             if (!stationValid) {
                 scanValid = removeElement(i);
                 if (!scanValid) {
@@ -556,7 +563,7 @@ namespace VieVS{
                 continue;
             }
 
-            thisSta.unwrapAzNearAz(pv, oldAz);
+            thisSta.getCableWrap().unwrapAzNearAz(pv, oldAz);
             newAz = pv.getAz();
             if (abs(newAz - oldAz) > .5 * pi) {
                 scanValid = removeElement(i);
@@ -576,7 +583,7 @@ namespace VieVS{
 
     void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
                               unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
-        calcScore_nunmberOfObservations(nmaxbl);
+        calcScore_numberOfObservations(nmaxbl);
         calcScore_averageStations(astas, nmaxsta);
         calcScore_averageSources(asrcs);
         calcScore_duration(minTime, maxTime);
@@ -586,8 +593,8 @@ namespace VieVS{
 
     }
 
-    void VLBI_scan::output(unsigned long nr, vector<VLBI_station> &stations, VLBI_source &source,
-                           boost::posix_time::ptime sessionStart) {
+    void VLBI_scan::output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source,
+                           boost::posix_time::ptime &sessionStart) {
         unsigned long nmaxsta = stations.size();
 
         stringstream buffer1;
@@ -602,8 +609,20 @@ namespace VieVS{
         double sra = source.getRa() * rad2deg / 15;
         double sde = source.getDe() * rad2deg;
         stringstream buffer2;
-        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) RA: %6.3f DE: %+6.2f   stations: %2d") % nr %
-                   sname % srcid % sra % sde % nsta;
+        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) ") % observed_scan_nr %
+                   sname % srcid;
+        switch (type) {
+            case VLBI_scan::scanType::single:
+                buffer2 << "(single source scan)";
+                break;
+            case VLBI_scan::scanType::subnetting:
+                buffer2 << "(subnetting scan)";
+                break;
+            case VLBI_scan::scanType::fillin:
+                buffer2 << "(fillin mode scan)";
+                break;
+        }
+
         while (buffer2.str().size() < buffer1.str().size() - 3) {
             buffer2 << " ";
         }
@@ -682,7 +701,7 @@ namespace VieVS{
         cout << "\n";
     }
 
-    VLBI_scan VLBI_scan::copyScan(vector<int> &scan1sta, bool &valid) {
+    boost::optional<VLBI_scan> VLBI_scan::copyScan(vector<int> &ids) {
 
         vector<VLBI_pointingVector> pv;
         pv.reserve(nsta);
@@ -693,19 +712,18 @@ namespace VieVS{
         int counter = 0;
         for (auto &any:pointingVectors) {
             int id = any.getStaid();
-            if (find(scan1sta.begin(), scan1sta.end(), id) != scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), id) != ids.end()) {
                 pv.push_back(pointingVectors[counter]);
             }
             ++counter;
         }
         if (pv.size() < minimumNumberOfStations) {
-            valid = false;
-            return VLBI_scan();
+            return boost::none;
         }
 
         for (int i = (int) nsta - 1; i >= 0; --i) {
             int thisId = pointingVectors[i].getStaid();
-            if (find(scan1sta.begin(), scan1sta.end(), thisId) == scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), thisId) == ids.end()) {
                 t.removeElement(i);
             }
         }
@@ -715,17 +733,94 @@ namespace VieVS{
             int staid1 = thisBl.getStaid1();
             int staid2 = thisBl.getStaid2();
 
-            if (find(scan1sta.begin(), scan1sta.end(), staid1) != scan1sta.end() &&
-                find(scan1sta.begin(), scan1sta.end(), staid2) != scan1sta.end()) {
+            if (find(ids.begin(), ids.end(), staid1) != ids.end() &&
+                find(ids.begin(), ids.end(), staid2) != ids.end()) {
                 bl.push_back(baselines[j]);
             }
         }
-
-        valid = true;
         return VLBI_scan(pv, t, bl, minimumNumberOfStations);
     }
 
+    boost::optional<VLBI_scan>
+    VLBI_scan::possibleFillinScan(vector<VLBI_station> &stations, VLBI_source &source,
+                                  const std::vector<char> &possible,
+                                  const std::vector<char> &unused,
+                                  const vector<VLBI_pointingVector> &pv_final_position) {
 
+        // get all ids of possible stations. This is necessary to call copyScan
+        vector<int> possible_ids;
+        for (int i = 0; i < possible.size(); ++i) {
+            if (possible[i]) {
+                possible_ids.push_back(i);
+            }
+        }
+        // create a copy of the scan with all possible stations
+        boost::optional<VLBI_scan> tmp_fi_scan_opt = copyScan(possible_ids);
+        // if the copy is invalid nothing should be returned
+        if (!tmp_fi_scan_opt) {
+            return boost::none;
+        }
+        // if the copy is valid save it under tmp_fi_scan
+        VLBI_scan tmp_fi_scan = std::move(*tmp_fi_scan_opt);
+
+        // look if all stations have enough time to participate at the next scan
+        int pv_id = 0;
+        while (pv_id < tmp_fi_scan.nsta) {
+            int staid = tmp_fi_scan.getPointingVector(pv_id).getStaid();
+            // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
+            unsigned int endOfFillinScan = tmp_fi_scan.getTimes().getEndOfScanTime(pv_id);
+
+            if (!unused[staid]) { // unused stationd... this means we have an desired end pointing vector
+                int srcid = tmp_fi_scan.getSourceId();
+                // create pointing vector at end of scan
+                VLBI_pointingVector this_pv_scan_end(staid, srcid);
+                VLBI_station &thisStation = stations[staid];
+                this_pv_scan_end.setTime(endOfFillinScan);
+
+                // calculate azimuth and elevation at end of scan
+                thisStation.updateAzEl(source, this_pv_scan_end);
+                bool visible = thisStation.isVisible(this_pv_scan_end);
+                if (!visible) {
+                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    if (!valid) {
+                        return boost::none;
+                    }
+                    continue;
+                }
+
+                // unwrap azimuth and elevation at end of scan
+                thisStation.getCableWrap().calcUnwrappedAz(tmp_fi_scan.getPointingVector(pv_id), this_pv_scan_end);
+
+                // calculate slewtime between end of scan and start of new scan (final position)
+                int slewTime = thisStation.getAntenna().slewTime(this_pv_scan_end, pv_final_position[staid]);
+                // check the available time
+                int availableTime = pv_final_position[staid].getTime() - endOfFillinScan;
+                int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
+                                  thisStation.getWaitSource() + thisStation.getWaitTape();
+                if (time_needed > availableTime) {
+                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    if (!valid) {
+                        return boost::none;
+                    }
+                    continue;
+                }
+
+            } else { // if station is not used in the following scans (this means we have no disred end pointing vector
+                // check if the end of the fillin scan if earlier as the required final position time
+                if (endOfFillinScan > pv_final_position[staid].getTime()) {
+                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    if (!valid) {
+                        return boost::none;
+                    }
+                    continue;
+                }
+            }
+            //station is ok!
+            ++pv_id;
+        }
+
+        return tmp_fi_scan;
+    }
 
 
 }

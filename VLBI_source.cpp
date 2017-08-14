@@ -68,10 +68,7 @@ namespace VieVS{
                 maxFlux = thisFlux;
             }
         }
-        if(maxFlux > PARA.minFlux){
-            return true;
-        }
-        return false;
+        return maxFlux > PARA.minFlux;
     }
 
     ostream& operator<<(ostream& out, const VLBI_source& src){
@@ -89,7 +86,6 @@ namespace VieVS{
     vector<pair<string, double> > VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) {
         vector<pair<string, double> > fluxes;
 
-        double cosdec = cos(de);
         double ha = gmst - ra;
 
         double u = dx * sin(ha) + dy * cos(ha);

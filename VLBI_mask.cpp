@@ -24,12 +24,12 @@ namespace VieVS{
         } else {
             for(int i=0; i<el_mask_deg.size(); ++i){
                 if (i%2==0)
-                    knots.push_back(el_mask_deg[i]*deg2rad);
+                    azimuth.push_back(el_mask_deg[i]*deg2rad);
                 else
-                    values.push_back(el_mask_deg[i]*deg2rad);
+                    elevation.push_back(el_mask_deg[i]*deg2rad);
             }
 
-            if (knots.size()%2==0){
+            if (azimuth.size()%2==0){
                 type = category::line;
             } else {
                 type = category::step;
@@ -39,5 +39,55 @@ namespace VieVS{
 
 
     VLBI_mask::~VLBI_mask() {
+    }
+
+    bool VLBI_mask::visible(const VLBI_pointingVector &pv) {
+        bool visible = true;
+
+        double az = pv.getAz();
+        az = fmod(az,twopi);
+        if(az<0){
+            az+=twopi;
+        }
+
+        double el = pv.getEl();
+
+        switch (type){
+            case category::none:
+                break;
+            case category::line:{
+                int i = 1;
+
+                while(az>azimuth[i]){
+                    ++i;
+                }
+
+                int begin = i-1;
+                int end = i;
+                double delta = az-azimuth[begin];
+                double el_mask = elevation[begin] + (elevation[end]-elevation[begin])/(azimuth[end]-azimuth[begin])*delta;
+                if(el<el_mask){
+                    visible = false;
+                }
+
+
+                break;
+            }
+            case category::step:{
+                int i = 1;
+                while(az>azimuth[i]){
+                    ++i;
+                }
+
+                double el_mask = elevation[i-1];
+                if(el<el_mask){
+                    visible = false;
+                }
+
+                break;
+            }
+        }
+
+        return visible;
     }
 }

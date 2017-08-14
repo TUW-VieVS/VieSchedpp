@@ -1,2 +1,5 @@
-.cmake-build-debug/
-.idea/
+/cmake-build-debug/
+/cmake-build-release/
+/doxygen/
+/Doxyfile
+/.idea/

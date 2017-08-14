@@ -32,7 +32,7 @@ namespace VieVS{
         return out;
     }
 
-    double VLBI_equip::getMaxSEFD() {
+    double VLBI_equip::getMaxSEFD() const {
         double maxSEFD = 0;
         for(auto& any: SEFD){
             if(any.second>maxSEFD){

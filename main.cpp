@@ -2,12 +2,37 @@
 #include <chrono>
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
+/**
+ * @file main.cpp
+ * @brief main file
+ *
+ * @author Matthias Schartner
+ * @date 21.06.2017
+ */
+
+/**
+ * @namespace VieVS
+ * @brief namespace VieVS is used for all "VieVS_*" and "VLBI_*" classes and files.
+ */
 
 using namespace std;
-
+/**
+ * starts the scheduling software
+ */
 void run();
+
+/**
+ * creates the corresponding .xml file (will be replaced later by GUI.
+ */
 void createParameterFile();
 
+/**
+ * Main function.
+ *
+ * @param argc currently unused
+ * @param argv  currently unused
+ * @return 0 if no errors occures
+ */
 int main(int argc, char *argv[])
 {
 //    createParameterFile();
@@ -21,6 +46,18 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/**
+ * First a VLBI_initializer is created, than the following steps are executed:
+ * - stations are created
+ * - sources are creted
+ * - stations are initialized
+ * - sources are initialized
+ * - nutation is calculated
+ * - earth velocity is calculated
+ * - lookup tabels are created
+ * - skyCoverage objects are created
+ * After this, the VLBI Scheduler is created, some a prioiri calculations are done and the scheduler is started.
+ */
 void run(){
 
 //    string path = "D:/VieVS/CATALOGS";
@@ -37,6 +74,7 @@ void run(){
     init.initializeEarth();
     init.initializeLookup();
     init.createSkyCoverages();
+    init.initializeWeightFactors();
 //    init.displaySummary();
 
     VieVS::VLBI_scheduler scheduler(init);
@@ -48,25 +86,41 @@ void run(){
 
 }
 
+/**
+ * This function creates the .xml file. This will be replaced in a GUI in future!
+ */
 void createParameterFile(){
 
     boost::property_tree::ptree pt;
 
-    boost::posix_time::ptime time(boost::gregorian::date(2017,01,01),boost::posix_time::time_duration(12,30,00));
+    boost::posix_time::ptime time(boost::gregorian::date(2017, 01, 01), boost::posix_time::time_duration(12, 30, 00));
     cout << time << "\n";
 
-    pt.add("software.name","VieVS Scheduler");
-    pt.add("software.version","1.0");
+    pt.add("software.name", "VieVS Scheduler");
+    pt.add("software.version", "1.0");
     boost::posix_time::ptime created(boost::gregorian::day_clock::local_day(), boost::posix_time::second_clock::local_time().time_of_day());
-    pt.add("software.created_local_time",created);
+    pt.add("software.created_local_time", created);
 
-    pt.add("general.experiment_name","R1XXX");
+    pt.add("general.experiment_name", "R1XXX");
     pt.add("general.experiment_description","This is this experiment R1XXX");
     pt.add("general.start",time);
     pt.add("general.end", time + boost::posix_time::hours(24));
-    vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
-    pt.add("general.stations",boost::algorithm::join(sta, ","));
+
+    boost::property_tree::ptree station_name_tree;
+    vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
+                                 "KATH12M"};
+    for (auto &any: station_names) {
+        boost::property_tree::ptree tmp;
+        tmp.add("station", any);
+        station_name_tree.add_child("stations.station", tmp.get_child("station"));
+    }
+    pt.add_child("general.stations", station_name_tree.get_child("stations"));
+//    vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
+//    pt.add("general.stations",boost::algorithm::join(sta, ","));
+
     pt.add("general.maxDistanceTwinTeleskopes",5000);
+    pt.add("general.subnetting", false);
+    pt.add("general.fillinmode", true);
 
     boost::property_tree::ptree station;
 
@@ -129,20 +183,39 @@ void createParameterFile(){
     pt.add_child("station",station);
     pt.add_child("source",source);
 
+    boost::property_tree::ptree skyCoverage;
+    skyCoverage.add("skyCoverageDistance", 30);
+    skyCoverage.add("skyCoverageInterval", 3600);
+    pt.add_child("skyCoverage", skyCoverage);
 
+    boost::property_tree::ptree weightFactor;
+    weightFactor.add("skyCoverage", 2);
+    weightFactor.add("numberOfObservations", 1);
+    weightFactor.add("duration", 1);
+    weightFactor.add("averageSources", 0.0);
+    weightFactor.add("averageStations", 0.1);
+    pt.add_child("weightFactor", weightFactor);
 
     boost::property_tree::ptree bands;
     boost::property_tree::ptree X;
     X.add("wavelength",0.0349);
     boost::property_tree::ptree S;
     S.add("wavelength",3.8000);
+    bands.add_child("X", X);
+    bands.add_child("S", S);
+    pt.add_child("bands", bands);
 
-    bands.add_child("X",X);
-    bands.add_child("S",S);
-    pt.add_child("bands",bands);
+    boost::property_tree::ptree master;
+    master.add_child("master.software", pt.get_child("software"));
+    master.add_child("master.general", pt.get_child("general"));
+    master.add_child("master.station", pt.get_child("station"));
+    master.add_child("master.source", pt.get_child("source"));
+    master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
+    master.add_child("master.weightFactor", pt.get_child("weightFactor"));
+    master.add_child("master.bands", pt.get_child("bands"));
 
-
-    std::ofstream os("/home/mschartn/programming/parameters.xml");
-    boost::property_tree::xml_parser::write_xml(os,pt,boost::property_tree::xml_writer_make_settings<string>('\t', 1));
+    std::ofstream os("parameters.xml");
+    boost::property_tree::xml_parser::write_xml(os, master,
+                                                boost::property_tree::xml_writer_make_settings<string>('\t', 1));
 
 }
