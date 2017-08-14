@@ -609,8 +609,7 @@ namespace VieVS{
         double sra = source.getRa() * rad2deg / 15;
         double sde = source.getDe() * rad2deg;
         stringstream buffer2;
-        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) ") % observed_scan_nr %
-                   sname % srcid;
+        buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) ") % observed_scan_nr % sname % srcid;
         switch (type) {
             case VLBI_scan::scanType::single:
                 buffer2 << "(single source scan)";

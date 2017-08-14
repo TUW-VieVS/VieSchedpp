@@ -157,6 +157,15 @@ namespace VieVS{
         bool subnetting; ///< use subnetting
         bool fillinmode; ///< use fillin modes
 
+        /**
+         * @brief checks the schedule with an independend methode
+         */
+        void check(boost::posix_time::ptime &sessionStart);
+
+        /**
+         * @brief displays some basic statistics of the schedule
+         */
+        void displayStatistics();
     };
 }
 #endif /* VLBI_SCHEDULER_H */

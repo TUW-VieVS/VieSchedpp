@@ -260,7 +260,7 @@ namespace VieVS{
                               vector<unsigned int> times, string srcName) {
         ++nscans;
         nbls += nbl;
-        pv_starScan.push_back(start);
+        pv_startScan.push_back(start);
         pv_endScan.push_back(end);
         current = end;
 

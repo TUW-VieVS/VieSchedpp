@@ -90,6 +90,8 @@ namespace VieVS{
         cout << "created fillin mode scans:  " << considered_fillin << "\n";
         cout << "total scans considered: " << considered_n1scans + 2 * considered_n2scans + considered_fillin << "\n";
 
+        check(PARA.startTime);
+        displayStatistics();
     }
 
     VLBI_subcon VLBI_scheduler::createSubcon(bool subnetting) {
@@ -366,6 +368,159 @@ namespace VieVS{
             }
         }
         return finished;
+    }
+
+    void VLBI_scheduler::check(boost::posix_time::ptime &sessionStart) {
+
+        cout << "\n=======================   starting check routine   =======================\n";
+        cout << "starting check routine!\n";
+
+        for (const auto& any:stations){
+            cout << "    checking station " << any.getName() << ":\n";
+            auto tmp = any.getAllScans();
+            const vector<VLBI_pointingVector> & start = tmp.first;
+            const vector<VLBI_pointingVector> & end = tmp.second;
+
+            unsigned int constTimes = any.getWaitSetup() + any.getWaitSource() + any.getWaitCalibration() + any.getWaitTape();
+
+            for (int i = 0; i < end.size()-1; ++i) {
+                const VLBI_pointingVector &thisEnd = end[i];
+                const VLBI_pointingVector &nextStart = start[i+1];
+
+                unsigned int slewtime = any.getAntenna().slewTime(thisEnd,nextStart);
+                unsigned int min_neededTime = slewtime + constTimes;
+
+                unsigned int thisEndTime = thisEnd.getTime();
+                unsigned int nextStartTime = nextStart.getTime();
+
+                if(nextStartTime<thisEndTime){
+                    cout << "    ERROR: somthing went wrong!\n";
+                    cout << "           start time of next scan is before end time of previouse scan!\n";
+                    boost::posix_time::ptime thisEndTime_ = sessionStart + boost::posix_time::seconds(thisEndTime);
+                    boost::posix_time::ptime nextStartTime_ = sessionStart + boost::posix_time::seconds(nextStartTime);
+                    cout << "           end time of previouse scan: " << thisEndTime_.time_of_day() << "(" << thisEndTime << ")\n";
+                    cout << "           start time of next scan:    " << nextStartTime_.time_of_day() << "(" << nextStartTime << "\n)";
+                    continue;
+                }
+                unsigned int availableTime = nextStartTime-thisEndTime;
+
+                if(availableTime<min_neededTime){
+                    cout << "    ERROR: somthing went wrong!\n";
+                    cout << "           not enough available time for slewing!\n";
+                    boost::posix_time::ptime thisEndTime_ = sessionStart + boost::posix_time::seconds(thisEndTime);
+                    boost::posix_time::ptime nextStartTime_ = sessionStart + boost::posix_time::seconds(nextStartTime);
+                    cout << "               end time of previouse scan: " << thisEndTime_.time_of_day() << " (" << thisEndTime << ")\n";
+                    cout << "               start time of next scan:    " << nextStartTime_.time_of_day() << " (" << nextStartTime << ")\n";
+                    cout << "           available time: " << availableTime << "\n";
+                    cout << "               needed slew time:           " << slewtime << "\n";
+                    cout << "               needed constant times:      " << constTimes << "\n";
+                    cout << "           needed time:    " << min_neededTime << "\n";
+                    cout << "           difference:     " << (long)availableTime-(long)min_neededTime << "\n";
+                }
+
+            }
+            cout << "    finished!\n";
+        }
+        cout << "=========================   end check routine    =========================\n";
+    }
+
+    void VLBI_scheduler::displayStatistics() {
+        cout << "\n=======================   starting statistics   =======================\n";
+
+        unsigned long n_scans = scans.size();
+        unsigned long n_single = 0;
+        unsigned long n_subnetting = 0;
+        unsigned long n_fillin = 0;
+        unsigned long n_bl = 0;
+
+        unsigned long nsta = stations.size();
+        vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
+
+        for (const auto&any:scans){
+            VLBI_scan::scanType thisType = any.getType();
+            switch (thisType){
+                case VLBI_scan::scanType::single:{
+                    ++n_single;
+                    break;
+                }
+                case VLBI_scan::scanType::subnetting:{
+                    ++n_subnetting;
+                    break;
+                }
+                case VLBI_scan::scanType::fillin:{
+                    ++n_fillin;
+                    break;
+                }
+            }
+            unsigned long this_n_bl = any.getNBl();
+            n_bl += this_n_bl;
+
+            for (int i = 0; i < this_n_bl; ++i) {
+                int staid1 = any.getBaseline(i).getStaid1();
+                int staid2 = any.getBaseline(i).getStaid2();
+                if(staid1>staid2){
+                    swap(staid1,staid2);
+                }
+                ++bl_storage[staid1][staid2];
+            }
+
+        }
+
+        cout << "number of total scans:         " << n_scans << "\n";
+        cout << "number of single source scans: " << n_single << "\n";
+        cout << "number of subnetting scans:    " << n_subnetting << "\n";
+        cout << "number of fillin mode scans:   " << n_fillin << "\n\n";
+
+        cout << "number of scheduled baselines: " << n_bl << "\n";
+
+        cout << ".-----------";
+        for (int i = 0; i < nsta-1; ++i) {
+            cout << "----------";
+        }
+        cout << "-----------";
+        cout << "----------.\n";
+
+
+        cout << boost::format("| %8s |") % "STATIONS";
+        for (int i = 0; i < nsta; ++i) {
+            cout << boost::format(" %8s ") % stations[i].getName();
+        }
+        cout << "|";
+        cout << boost::format(" %8s ") % "TOTAL";
+        cout << "|\n";
+
+        cout << "|----------|";
+        for (int i = 0; i < nsta-1; ++i) {
+            cout << "----------";
+        }
+        cout << "----------|";
+        cout << "----------|\n";
+
+        for (int i = 0; i < nsta; ++i) {
+            unsigned long counter = 0;
+            cout << boost::format("| %8s |") % stations[i].getName();
+            for (int j = 0; j < nsta; ++j) {
+                if (j<i+1){
+                    cout << "          ";
+                    counter += bl_storage[j][i];
+                }else{
+                    cout << boost::format(" %8d ") % bl_storage[i][j];
+                    counter += bl_storage[i][j];
+                }
+            }
+            cout << "|";
+            cout << boost::format(" %8d ") % counter;
+            cout << "|\n";
+        }
+
+        cout << "'-----------";
+        for (int i = 0; i < nsta-1; ++i) {
+            cout << "----------";
+        }
+        cout << "-----------";
+        cout << "----------'\n";
+
+        cout << "=========================   end statistics    =========================\n";
     }
 
 }

@@ -198,7 +198,7 @@ namespace VieVS{
          * @brief getter for station name
          * @return station name
          */
-        string getName(){
+        string getName()const {
             return name;
         }
 
@@ -420,7 +420,7 @@ namespace VieVS{
          * @brief get required time for setup
          * @return setup time in seconds
          */
-        unsigned int getWaitSetup() {
+        unsigned int getWaitSetup()const {
             return PARA.wait_setup;
         }
 
@@ -428,7 +428,7 @@ namespace VieVS{
         * @brief get required time for source
         * @return source time in seconds
         */
-        unsigned int getWaitSource() {
+        unsigned int getWaitSource()const {
             return PARA.wait_source;
         }
 
@@ -436,7 +436,7 @@ namespace VieVS{
          * @brief get required time for tape
          * @return tape time in seconds
          */
-        unsigned int getWaitTape() {
+        unsigned int getWaitTape()const {
             return PARA.wait_tape;
         }
 
@@ -444,7 +444,7 @@ namespace VieVS{
          * @brief get required time for calibration
          * @return calibration time in seconds
          */
-        unsigned int getWaitCalibration() {
+        unsigned int getWaitCalibration()const {
             return PARA.wait_calibration;
         }
 
@@ -455,6 +455,17 @@ namespace VieVS{
         unsigned int getWaitCorsynch() {
             return PARA.wait_corsynch;
         }
+
+        /**
+         * @brief returns all pointing vectors which were observed
+         *
+         * This function is usually at the end of the schedule to check if everything is right.
+         *
+         * @return first elements are start pointing vectors, second elements are end pointing vectors
+         */
+        pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& > getAllScans()const {
+            return pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& >(pv_startScan,pv_endScan);
+        };
 
     private:
         string name; ///< station name
@@ -474,7 +485,7 @@ namespace VieVS{
 
         vector<unsigned int> history_time; ///< history of all event times
         vector<string> history_events; ///< history of all events
-        vector<VLBI_pointingVector> pv_starScan; ///< all observed pointing vectors at scan start
+        vector<VLBI_pointingVector> pv_startScan; ///< all observed pointing vectors at scan start
         vector<VLBI_pointingVector> pv_endScan; ///< all observed pointing vectors at scan end
 
         int nscans; ///< number of participated scans

@@ -202,6 +202,25 @@ namespace VieVS{
         }
 
         /**
+         * @brief getter for scan type
+         *
+         * @return scan type
+         */
+        scanType getType() const {
+            return type;
+        }
+
+        /**
+         * @brief getter for a single baseline
+         *
+         * @param idx index of baseline
+         * @return baseline
+         */
+        const VLBI_baseline& getBaseline(int idx) const{
+            return baselines[idx];
+        }
+
+        /**
          * @brief delets the pointing vector at position idx and all its corresponding times and baselines
          *
          * @param idx index of element to delete
@@ -382,7 +401,7 @@ namespace VieVS{
          *
          * @return numbe rof baselines
          */
-        unsigned long getNBl() {
+        unsigned long getNBl()const {
             return baselines.size();
         }
 
