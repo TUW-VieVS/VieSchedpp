@@ -1,5 +1,7 @@
 #include <cstdlib>
 #include <chrono>
+#include <vector>
+
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
 /**
@@ -26,6 +28,8 @@ void run();
  */
 void createParameterFile();
 
+void createSkyCoverageLookup();
+
 /**
  * Main function.
  *
@@ -36,6 +40,7 @@ void createParameterFile();
 int main(int argc, char *argv[])
 {
 //    createParameterFile();
+
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -74,7 +79,9 @@ void run(){
     init.initializeEarth();
     init.initializeLookup();
     init.createSkyCoverages();
+    init.initializeSkyCoverages();
     init.initializeWeightFactors();
+    init.initializeBaselines();
 //    init.displaySummary();
 
     VieVS::VLBI_scheduler scheduler(init);
@@ -205,6 +212,24 @@ void createParameterFile(){
     bands.add_child("S", S);
     pt.add_child("bands", bands);
 
+    boost::property_tree::ptree bl;
+    bl.add("WETTZ13N_WETTZ13S.ignore",true);
+    bl.add("WETTZ13N_WETTZELL.ignore",true);
+    bl.add("WETTZ13S_WETTZELL.ignore",true);
+    bl.add("HART15M_YARRA12M.minScan",10);
+    bl.add("HART15M_YARRA12M.maxScan",700);
+    boost::property_tree::ptree minSNR_X;
+    minSNR_X.add("minSNR",10);
+    minSNR_X.put("minSNR.<xmlattr>.band","X");
+    boost::property_tree::ptree minSNR_S;
+    minSNR_S.add("minSNR",12);
+    minSNR_S.put("minSNR.<xmlattr>.band","S");
+    bl.add_child("HART15M_YARRA12M.minSNR",minSNR_X.get_child("minSNR"));
+    bl.add_child("HART15M_YARRA12M.minSNR",minSNR_S.get_child("minSNR"));
+
+    pt.add_child("baseline",bl);
+
+
     boost::property_tree::ptree master;
     master.add_child("master.software", pt.get_child("software"));
     master.add_child("master.general", pt.get_child("general"));
@@ -213,6 +238,7 @@ void createParameterFile(){
     master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
     master.add_child("master.weightFactor", pt.get_child("weightFactor"));
     master.add_child("master.bands", pt.get_child("bands"));
+    master.add_child("master.baseline",pt.get_child("baseline"));
 
     std::ofstream os("parameters.xml");
     boost::property_tree::xml_parser::write_xml(os, master,

@@ -12,6 +12,7 @@
  */
 
 #include "VLBI_baseline.h"
+VieVS::VLBI_baseline::PARAMETERS VieVS::VLBI_baseline::PARA;
 
 namespace VieVS{
     VLBI_baseline::VLBI_baseline(){

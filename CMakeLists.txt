@@ -53,7 +53,11 @@ set(SOURCE_FILES
         VieVS_earth.cpp
         VieVS_earth.h
         VieVS_lookup.cpp
-        VieVS_lookup.h VLBI_fillin_endpositions.cpp VLBI_fillin_endpositions.h VLBI_weightFactors.cpp VLBI_weightFactors.h)
+        VieVS_lookup.h
+        VLBI_fillin_endpositions.cpp
+        VLBI_fillin_endpositions.h
+        VLBI_weightFactors.cpp
+        VLBI_weightFactors.h)
 
 FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
 #FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)

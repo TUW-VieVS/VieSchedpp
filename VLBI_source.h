@@ -40,7 +40,7 @@ namespace VieVS{
         struct PARAMETERS{
             vector<string> parameterGroups; ///< name of .xml groups to which this source belongs
 
-            double weight = 1; ///< weight factor of this source
+            double weight = 1; ///< multiplicative factor of score for scans to this source
 
             vector<pair<string, double> > minSNR; ///< minimum required SNR per band
             unsigned int minNumberOfStations = 2; ///< minimum number of stations for a scan

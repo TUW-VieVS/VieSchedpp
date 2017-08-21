@@ -14,11 +14,28 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 namespace VieVS{
     class VLBI_baseline {
     public:
+        /**
+         * @brief baseline parameters.
+         *
+         * Unlike the parameters for station and source this holds the information for all possible baselines.
+         * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
+         */
+        struct PARAMETERS{
+            unordered_map<string, vector< vector <double> > > minSNR = {}; ///< minimum SNR per band for each baseline
+            vector< vector<char> > ignore = {}; ///< ignore specific baselines
+            vector< vector<double> > weight = {}; ///< multiplicative factor of score for scans with this baseline
+            vector< vector<unsigned int> > minScan = {}; ///< minimum required scan duration of this baseline
+            vector< vector<unsigned int> > maxScan = {}; ///< maximum allowed scan duration of this baseline
+        };
+
+        static PARAMETERS PARA; ///< parameters for all baselines
+
         /**
          * @brief empty default constructor
          */
@@ -144,6 +161,7 @@ namespace VieVS{
 //        vector<pair<string, unsigned int> > scanDurations;
 
         unsigned int scanDuration; ///< required scan duration in seconds
+
     };
 }
 #endif /* BASELINE_H */

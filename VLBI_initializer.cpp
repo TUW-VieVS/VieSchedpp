@@ -12,6 +12,8 @@
  */
 
 #include "VLBI_initializer.h"
+#include "VLBI_baseline.h"
+
 namespace VieVS{
     VLBI_initializer::VLBI_initializer() {
         ifstream is("parameters.xml");
@@ -819,4 +821,116 @@ namespace VieVS{
         VLBI_weightFactors::weight_averageSources = PARA_xml.get<double>("master.weightFactor.averageSources", 0);
         VLBI_weightFactors::weight_averageStations = PARA_xml.get<double>("master.weightFactor.averageStations", 0);
     }
+
+    void VLBI_initializer::initializeSkyCoverages() {
+        unsigned int maxEl = 90;
+        unsigned int sizeAz = 180;
+        vector<vector<vector<float> > > storage;
+
+        for (unsigned int thisEl = 0; thisEl < maxEl; ++thisEl) {
+            unsigned int sizeEl = maxEl-thisEl;
+
+            vector<vector<float> > thisStorage(sizeAz,vector<float>(sizeEl,0));
+
+
+            for (int deltaAz = 0; deltaAz < sizeAz; ++deltaAz) {
+                for (int deltaEl = 0; deltaEl < sizeEl; ++deltaEl) {
+                    float tmp = (float) (sin(thisEl) * sin(thisEl + deltaEl) + cos(thisEl) * cos(thisEl + deltaEl) * cos(deltaAz));
+                    float angle = acos(tmp);
+                    thisStorage[deltaAz][deltaEl] = angle;
+                }
+            }
+//            cout << thisEl << " of " << maxEl << endl;
+            storage.push_back(thisStorage);
+        }
+        VLBI_skyCoverage::angularDistanceLookup = storage;
+    }
+
+
+
+    void VLBI_initializer::initializeBaselines() {
+        unsigned long nsta = stations.size();
+        vector<vector <char> > ignore(nsta, vector< char>(nsta,false));
+
+        vector< vector<unsigned int> > minScan(nsta, vector<unsigned int>(nsta,0));
+
+        vector< vector<unsigned int> > maxScan(nsta, vector<unsigned int>(nsta,numeric_limits<unsigned int>::max()));
+
+        vector< vector<double> > weight(nsta, vector<double>(nsta,1));
+
+        vector< vector<double> > this_minSNR(nsta, vector<double>(nsta,0));
+        unordered_map<string,vector< vector<double> >> minSNR;
+        auto PARA_bands = PARA_xml.get_child("master.bands");
+        for (const auto &it: PARA_bands) {
+            string name = it.first;
+            minSNR[name]=this_minSNR;
+        }
+
+        vector<string> stationNames;
+        for (const auto& any:stations){
+            stationNames.push_back(any.getName());
+        }
+
+        auto PARA_bl = PARA_xml.get_child("master.baseline");
+        for (const auto &it: PARA_bl) {
+            string name = it.first;
+            vector<string> splitVector;
+            boost::split(splitVector,name,boost::is_any_of("-_"));
+
+            string sta1 = splitVector[0];
+            auto its1 = find(stationNames.begin(),stationNames.end(),sta1);
+            if(its1 == stationNames.end()){
+                cerr << "station " << sta1 << " in baseline block not found!\n";
+            }
+            long idx1 = distance(stationNames.begin(), its1);
+
+            string sta2 = splitVector[1];
+            auto its2 = find(stationNames.begin(),stationNames.end(),sta2);
+            if(its2 == stationNames.end()){
+                cerr << "station " << sta2 << " in baseline block not found!\n";
+            }
+            long idx2 = distance(stationNames.begin(), its2);
+
+            for (const auto &itBl:it.second) {
+                string thisName = itBl.first;
+                if (thisName == "ignore"){
+//                    bool value = itBl.second.data().data();
+                    bool value = itBl.second.get_value<bool>();
+                    ignore[idx1][idx2] = value;
+                    ignore[idx2][idx1] = value;
+                }else if (thisName == "minScan"){
+//                    unsigned int value = boost::lexical_cast<unsigned int>(itBl.second.data().data());
+                    unsigned int value = itBl.second.get_value<unsigned int>();
+                    minScan[idx1][idx2] = value;
+                    minScan[idx2][idx1] = value;
+
+                }else if (thisName == "maxScan"){
+//                    unsigned int value = boost::lexical_cast<unsigned int>(itBl.second.data().data());
+                    unsigned int value = itBl.second.get_value<unsigned int>();
+                    maxScan[idx1][idx2] = value;
+                    maxScan[idx2][idx1] = value;
+
+                }else if (thisName == "weight"){
+//                    double value = boost::lexical_cast<double>(itBl.second.data().data());
+                    double value = itBl.second.get_value<double>();
+                    weight[idx1][idx2] = value;
+                    weight[idx2][idx1] = value;
+
+                }else if (thisName == "minSNR"){
+                    string bandName = itBl.second.get_child("<xmlattr>.band").data();
+                    double value = itBl.second.get_value<double>();
+                    minSNR[bandName][idx1][idx2] = value;
+                    minSNR[bandName][idx2][idx1] = value;
+                }
+
+            }
+        }
+
+        VLBI_baseline::PARA.ignore = ignore;
+        VLBI_baseline::PARA.minScan = minScan;
+        VLBI_baseline::PARA.maxScan = maxScan;
+        VLBI_baseline::PARA.weight = weight;
+        VLBI_baseline::PARA.minSNR = minSNR;
+    }
+
 }

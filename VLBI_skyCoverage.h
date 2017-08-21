@@ -16,10 +16,13 @@
 #include "VLBI_pointingVector.h"
 #include "VieVS_lookup.h"
 
+
 using namespace std;
 namespace VieVS{
     class VLBI_skyCoverage {
     public:
+        static vector<vector<vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
+
         /**
          * @brief empty default constructor
          */

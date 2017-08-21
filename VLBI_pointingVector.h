@@ -72,7 +72,7 @@ namespace VieVS{
          *
          * @return id of station
          */
-        int getStaid() {
+        int getStaid()const {
             return staid;
         }
 
@@ -81,7 +81,7 @@ namespace VieVS{
          *
          * @return id of source
          */
-        int getSrcid() {
+        int getSrcid() const {
             return srcid;
         }
 

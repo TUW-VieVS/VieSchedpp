@@ -140,7 +140,7 @@ namespace VieVS{
          *
          * @return number of stations
          */
-        unsigned long getNSta() {
+        unsigned long getNSta()const {
             return nsta;
         }
 
@@ -159,7 +159,7 @@ namespace VieVS{
          *
          * @return source id
          */
-        int getSourceId(){
+        int getSourceId()const {
             return pointingVectors[0].getSrcid();
         }
 
@@ -169,7 +169,7 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector
          */
-        VLBI_pointingVector &getPointingVector(int idx) {
+        VLBI_pointingVector & getPointingVector(int idx) {
             return pointingVectors[idx];
         }
 
@@ -221,12 +221,24 @@ namespace VieVS{
         }
 
         /**
-         * @brief delets the pointing vector at position idx and all its corresponding times and baselines
+         * @brief delete the pointing vector at position idx and all its corresponding times and baselines
+         *
+         * If a scan no longer has enough stations or the number of baselines will get zero, it gets invalid.
          *
          * @param idx index of element to delete
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool removeElement(int idx);
+        bool removeStation(int idx);
+
+        /**
+         * @brief delete the baseline at position idx from scan
+         *
+         * If a station has no longer any baselines it also gets removed
+         *
+         * @param idx_bl
+         * @return
+         */
+        bool removeBaseline(int idx_bl);
 
         //TODO boost::optional
         /**
@@ -280,8 +292,9 @@ namespace VieVS{
          * @param stations all stations
          * @param sources observed source
          * @param mjdStart modified julian date of session start
+         * @return true is scan is still valid, otherwise false
          */
-        void calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources, double mjdStart);
+        bool calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources, double mjdStart);
 
         /**
          * @brief calculates the total scan duration per station

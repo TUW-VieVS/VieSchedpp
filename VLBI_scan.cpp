@@ -40,6 +40,12 @@ namespace VieVS{
         baselines.clear();
         for (int i=0; i<pointingVectors.size(); ++i){
             for (int j=i+1; j<pointingVectors.size(); ++j){
+                int staid1 = pointingVectors[i].getStaid();
+                int staid2 = pointingVectors[j].getStaid();
+
+                if(VLBI_baseline::PARA.ignore[staid1][staid2]){
+                    continue;
+                }
 
                 unsigned int startTime1 = times.getEndOfIdleTime(i);
                 unsigned int startTime2 = times.getEndOfIdleTime(j);
@@ -59,7 +65,7 @@ namespace VieVS{
         times.addTimes(idx, setup, source, slew, tape, calib);
     }
 
-    bool VLBI_scan::removeElement(int idx) {
+    bool VLBI_scan::removeStation(int idx) {
         --nsta;
         if (nsta<minimumNumberOfStations){
             return false;
@@ -70,6 +76,7 @@ namespace VieVS{
         int staid = pointingVectors[idx].getStaid();
         pointingVectors.erase(pointingVectors.begin()+idx);
 
+        int nbl_before =  baselines.size();
         int i=0;
         while (i<baselines.size()){
             if(baselines[i].getStaid1()==staid || baselines[i].getStaid2()==staid){
@@ -78,9 +85,46 @@ namespace VieVS{
                 ++i;
             }
         }
+        return !(nbl_before != 0 && baselines.size() == 0);
 
-        return true;
     }
+
+    bool VLBI_scan::removeBaseline(int idx_bl) {
+
+        int staid1 = baselines[idx_bl].getStaid1();
+        int staid2 = baselines[idx_bl].getStaid2();
+        baselines.erase(baselines.begin()+idx_bl);
+        if (baselines.size()==0){
+            return false;
+        }
+
+        // check if it necessary to remove a pointing vector (a station is no longer part of any baseline)
+        bool scanValid = true;
+        int counterStaid1 = 0;
+        int counterStaid2 = 0;
+        for (const auto& any: baselines) {
+            int thisStaid1 = any.getStaid1();
+            int thisStaid2 = any.getStaid2();
+
+            if(thisStaid1 == staid1 || thisStaid2 == staid1){
+                ++counterStaid1;
+            }
+            if(thisStaid1 == staid2 || thisStaid2 == staid2){
+                ++counterStaid2;
+            }
+        }
+
+        if(counterStaid1==0){
+            int idx_pv = findIdxOfStationId(staid1);
+            scanValid = removeStation(idx_pv);
+        }
+        if(counterStaid2==0){
+            int idx_pv = findIdxOfStationId(staid2);
+            scanValid = removeStation(idx_pv);
+        }
+        return scanValid;
+    }
+
 
     bool VLBI_scan::checkIdleTimes(vector<unsigned int> maxIdle) {
 
@@ -99,7 +143,7 @@ namespace VieVS{
             for (int i = 0; i < nsta; ++i) {
                 dt[i] = latestSlewTime-eosl[i];
                 if (dt[i]>maxIdle[i]){
-                    scan_valid = removeElement(idx);
+                    scan_valid = removeStation(idx);
                     if (scan_valid){
                         maxIdle.erase(maxIdle.begin()+idx);
                         idleTimeValid = false;
@@ -123,10 +167,12 @@ namespace VieVS{
         times.updateSlewtime(idx,new_slewtime);
     }
 
-    void
+    bool
     VLBI_scan::calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source& source, double mjdStart) {
 
-        for (int ibl = 0; ibl < baselines.size(); ++ibl) {
+        bool flag_scanValid = true;
+        int ibl = 0;
+        while (ibl < baselines.size()) {
             VLBI_baseline& thisBaseline = baselines[ibl];
             int staid1 = thisBaseline.getStaid1();
             int staid2 = thisBaseline.getStaid2();
@@ -141,16 +187,18 @@ namespace VieVS{
                                                                      stations[staid1].dy(staid2),
                                                                      stations[staid1].dz(staid2));
             unsigned int maxScanDuration = 0;
+
+            bool flag_baselineRemoved = false;
             for(auto& any:flux){
                 string fluxname = any.first;
                 double SEFD_src = any.second;
 
-                bool bandsFound = true;
                 double SEFD_sta1 = stations[staid1].getEquip().getSEFD(fluxname);
                 double SEFD_sta2 = stations[staid2].getEquip().getSEFD(fluxname);
                 double minSNR_sta1 = stations[staid1].getMinSNR(fluxname);
                 double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
 
+                double minSNR_bl = VLBI_baseline::PARA.minSNR[fluxname][staid1][staid2];
 
                 vector<pair<string, double> > minSNRs_src = source.getMinSNR();
                 double minSNR_src = 0;
@@ -163,12 +211,15 @@ namespace VieVS{
 
 
                 double maxminSNR = minSNR_src;
-                if (minSNR_sta1>minSNR_src){
+                if (minSNR_sta1>maxminSNR){
                     maxminSNR = minSNR_sta1;
-                } if (minSNR_sta2>minSNR_src){
+                }
+                if (minSNR_sta2>maxminSNR){
                     maxminSNR = minSNR_sta2;
                 }
-
+                if (minSNR_bl>maxminSNR){
+                    maxminSNR = minSNR_bl;
+                }
 
                 double maxCorSynch1 = stations[staid1].getWaitCorsynch();
                 double maxCorSynch = maxCorSynch1;
@@ -177,31 +228,45 @@ namespace VieVS{
                     maxCorSynch = maxCorSynch2;
                 }
 
-                if (bandsFound){
+                double anum = (1.75*maxminSNR / SEFD_src);
+                double anu1 = SEFD_sta1*SEFD_sta2;
+                // TODO: do not hardcode observing mode!!!
+                double anu2 = 1024 * 1.0e6 * 16 * 2;
 
-                    double anum = (1.75*maxminSNR / SEFD_src);
-                    double anu1 = SEFD_sta1*SEFD_sta2;
-                    // TODO: do not hardcode observing mode!!!
-                    double anu2 = 1024 * 1.0e6 * 16 * 2;
+                double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
+                new_duration = ceil(new_duration);
+                unsigned int new_duration_uint = (unsigned int) new_duration;
 
-                    double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
-                    new_duration = ceil(new_duration);
-                    unsigned int new_duration_uint = (unsigned int) new_duration;
-                    if (new_duration_uint > maxScanDuration) {
-                        maxScanDuration = new_duration_uint;
-                    }
-
-//                    durations.push_back(make_pair(fluxname, new_duration_uint));
-                }else{
-                    cerr << "WARNING: duration of band " << fluxname << " ignored\n";
+                unsigned int minScanBl = VLBI_baseline::PARA.minScan[staid1][staid2];
+                if(new_duration_uint<minScanBl){
+                    new_duration_uint = minScanBl;
                 }
+                unsigned int maxScanBl = VLBI_baseline::PARA.maxScan[staid1][staid2];
+                if(new_duration_uint>maxScanBl){
+                    flag_scanValid = removeBaseline(ibl);
+                    flag_baselineRemoved = true;
+                    break;
+                }
+
+                if (new_duration_uint > maxScanDuration) {
+                    maxScanDuration = new_duration_uint;
+                }
+//                    durations.push_back(make_pair(fluxname, new_duration_uint));
             }
+
+            if(!flag_baselineRemoved){
+                ++ibl;
+            }
+            if(!flag_scanValid){
+                return false;
+            }
+
 //            thisBaseline.setObservedFlux(flux);
 //            thisBaseline.setScanDuration(durations);
             thisBaseline.setScanDuration(maxScanDuration);
         }
 
-
+        return true;
     }
 
     bool VLBI_scan::scanDuration(vector<VLBI_station> &stations, VLBI_source &source) {
@@ -313,7 +378,7 @@ namespace VieVS{
                     }
                 }
 
-                scanValid = removeElement(eraseThis);
+                scanValid = removeStation(eraseThis);
                 minscanTimes.erase(minscanTimes.begin() + eraseThis);
 
                 if (!scanValid){
@@ -324,8 +389,6 @@ namespace VieVS{
         }while(!scanDurationsValid);
 
         times.addScanTimes(scanTimes);
-
-
         return scanValid;
     }
 
@@ -353,7 +416,7 @@ namespace VieVS{
         while (i < nsta) {
             int thisId = pointingVectors[i].getStaid();
             if (find(station_ids.begin(), station_ids.end(), thisId) == station_ids.end()) {
-                valid = removeElement(i);
+                valid = removeStation(i);
                 if (!valid) {
                     break;
                 }
@@ -455,7 +518,7 @@ namespace VieVS{
                 thisSta.updateAzEl(source, new_p);
                 stationValid = thisSta.isVisible(new_p);
                 if (!stationValid) {
-                    scanValid = removeElement(i);
+                    scanValid = removeStation(i);
                     if (!scanValid) {
                         return false;
                     }
@@ -468,7 +531,7 @@ namespace VieVS{
                     if (!secure) {
                         cout
                                 << "### DEBUG OPPORTUNITY ###\n    axis 1 is close to limit and the ambigurity is not save!\n";
-                        scanValid = removeElement(i);
+                        scanValid = removeStation(i);
                         if (!scanValid) {
                             return false;
                         }
@@ -478,7 +541,7 @@ namespace VieVS{
                 slewtime = stations[staid].slewTime(new_p);
 
                 if (slewtime > stations[staid].getMaxSlewtime()) {
-                    scanValid = removeElement(i);
+                    scanValid = removeStation(i);
                     if (!scanValid) {
                         return false;
                     }
@@ -524,7 +587,7 @@ namespace VieVS{
                 thisSta.updateAzEl(source, pv);
                 stationValid = thisSta.isVisible(pv);
                 if (!stationValid) {
-                    scanValid = removeElement(i);
+                    scanValid = removeStation(i);
                     if (!scanValid) {
                         return false;
                     }
@@ -536,7 +599,7 @@ namespace VieVS{
                 if (abs(newAz - oldAz) > .5 * pi) {
                     stationValid = false;
                     cout << "### DEBUG OPPORTUNITY ###\n    change of calbe wrap while observing!\n";
-                    scanValid = removeElement(i);
+                    scanValid = removeStation(i);
                     if (!scanValid) {
                         return false;
                     }
@@ -556,7 +619,7 @@ namespace VieVS{
             thisSta.updateAzEl(source, pv);
             stationValid = thisSta.isVisible(pv);
             if (!stationValid) {
-                scanValid = removeElement(i);
+                scanValid = removeStation(i);
                 if (!scanValid) {
                     return false;
                 }
@@ -566,7 +629,7 @@ namespace VieVS{
             thisSta.getCableWrap().unwrapAzNearAz(pv, oldAz);
             newAz = pv.getAz();
             if (abs(newAz - oldAz) > .5 * pi) {
-                scanValid = removeElement(i);
+                scanValid = removeStation(i);
                 if (!scanValid) {
                     return false;
                 }
@@ -780,7 +843,7 @@ namespace VieVS{
                 thisStation.updateAzEl(source, this_pv_scan_end);
                 bool visible = thisStation.isVisible(this_pv_scan_end);
                 if (!visible) {
-                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    bool valid = tmp_fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
@@ -797,7 +860,7 @@ namespace VieVS{
                 int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
                                   thisStation.getWaitSource() + thisStation.getWaitTape();
                 if (time_needed > availableTime) {
-                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    bool valid = tmp_fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
@@ -807,7 +870,7 @@ namespace VieVS{
             } else { // if station is not used in the following scans (this means we have no disred end pointing vector
                 // check if the end of the fillin scan if earlier as the required final position time
                 if (endOfFillinScan > pv_final_position[staid].getTime()) {
-                    bool valid = tmp_fi_scan.removeElement(pv_id);
+                    bool valid = tmp_fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
@@ -820,6 +883,5 @@ namespace VieVS{
 
         return tmp_fi_scan;
     }
-
 
 }

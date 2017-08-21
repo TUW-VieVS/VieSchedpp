@@ -48,7 +48,7 @@ namespace VieVS{
                 unsigned int slewtime = thisSta.slewTime(subnet1[i].getPointingVector(j));
 
                 if (slewtime > thisSta.getMaxSlewtime()) {
-                    scanValid_slew = subnet1[i].removeElement(j);
+                    scanValid_slew = subnet1[i].removeStation(j);
                     if(!scanValid_slew){
                         break;
                     }
@@ -104,7 +104,7 @@ namespace VieVS{
                 }
 
                 if (!visible || slewtime > stations[staid].getMaxSlewtime()){
-                    scanValid_slew = subnet1[i].removeElement(j);
+                    scanValid_slew = subnet1[i].removeStation(j);
                     if(!scanValid_slew){
                         break;
                     }
@@ -131,9 +131,16 @@ namespace VieVS{
 
     void
     VLBI_subcon::calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart) {
-        for (int i = 0; i < n1scans; ++i) {
+        int i = 0;
+        while ( i < n1scans ) {
             VLBI_scan& thisScan = subnet1[i];
-            thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()], mjdStart);
+            bool scanValid = thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()], mjdStart);
+            if (scanValid){
+                ++i;
+            } else {
+                --n1scans;
+                subnet1.erase(subnet1.begin()+i);
+            }
         }
     }
 

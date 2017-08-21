@@ -85,6 +85,8 @@ namespace VieVS{
             unsigned int maxWait = 9999; ///< maximum allowed wait time for slow antennas
             unsigned int maxScan = 600; ///< maximum allowed scan time
             unsigned int minScan = 30; ///< minimum required scan time
+
+            double weight = 1; ///< multiplicative factor of score for scans with this station
         };
 
         /**

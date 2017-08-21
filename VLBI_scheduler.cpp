@@ -404,7 +404,7 @@ namespace VieVS{
                 }
                 unsigned int availableTime = nextStartTime-thisEndTime;
 
-                if(availableTime<min_neededTime){
+                if(availableTime+1<min_neededTime){
                     cout << "    ERROR: somthing went wrong!\n";
                     cout << "           not enough available time for slewing!\n";
                     boost::posix_time::ptime thisEndTime_ = sessionStart + boost::posix_time::seconds(thisEndTime);
@@ -472,13 +472,12 @@ namespace VieVS{
         cout << "number of fillin mode scans:   " << n_fillin << "\n\n";
 
         cout << "number of scheduled baselines: " << n_bl << "\n";
-
-        cout << ".-----------";
+        cout << ".–––––––––––";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            cout << "––––––––––";
         }
-        cout << "-----------";
-        cout << "----------.\n";
+        cout << "–––––––––––";
+        cout << "––––––––––.\n";
 
 
         cout << boost::format("| %8s |") % "STATIONS";
@@ -489,13 +488,14 @@ namespace VieVS{
         cout << boost::format(" %8s ") % "TOTAL";
         cout << "|\n";
 
-        cout << "|----------|";
+        cout << "|––––––––––|";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            cout << "––––––––––";
         }
-        cout << "----------|";
-        cout << "----------|\n";
+        cout << "––––––––––|";
+        cout << "––––––––––|\n";
 
+        vector<unsigned long> nbl_sta(nsta);
         for (int i = 0; i < nsta; ++i) {
             unsigned long counter = 0;
             cout << boost::format("| %8s |") % stations[i].getName();
@@ -510,15 +510,85 @@ namespace VieVS{
             }
             cout << "|";
             cout << boost::format(" %8d ") % counter;
+            nbl_sta[i] = counter;
             cout << "|\n";
         }
 
-        cout << "'-----------";
+        cout << "'–––––––––––";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            cout << "––––––––––";
         }
-        cout << "-----------";
-        cout << "----------'\n";
+        cout << "–––––––––––";
+        cout << "––––––––––'\n\n";
+
+        vector<unsigned int> nscan_sta(stations.size());
+        vector< vector<unsigned int> > time_sta(stations.size());
+        for (auto& any:scans){
+            for (int ista = 0; ista < any.getNSta(); ++ista) {
+                VLBI_pointingVector& pv =  any.getPointingVector(ista);
+                int id = pv.getStaid();
+                ++nscan_sta[id];
+                time_sta[id].push_back(any.maxTime());
+            }
+        }
+
+        cout << ".––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––.\n";
+        cout << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
+        cout << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
+        cout << "|–––––––––|––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––|–––––––––––––|\n";
+        for (int i = 0; i<stations.size(); ++i){
+            cout << boost::format("| %8s|") % stations[i].getName();
+            unsigned int timeStart = 0;
+            unsigned int timeEnd = 900;
+            for (int j = 0; j < 96; ++j) {
+                if(any_of(time_sta[i].begin(), time_sta[i].end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
+                    cout << "x";
+                }else{
+                    cout << " ";
+                }
+                timeEnd += 900;
+                timeStart += 900;
+            }
+            cout << boost::format("| %6d %4d |\n") %nscan_sta[i] %nbl_sta[i];
+        }
+
+        cout << "'––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––'\n\n";
+
+
+
+        cout << "number of available sources:   " << sources.size() << "\n";
+        vector<unsigned int> nscan_src(sources.size(),0);
+        vector<unsigned int> nbl_src(sources.size(),0);
+        vector< vector<unsigned int> > time_src(sources.size());
+
+        for (const auto& any:scans){
+            int id = any.getSourceId();
+            ++nscan_src[id];
+            nbl_src[id] += any.getNBl();
+            time_src[id].push_back(any.maxTime());
+        }
+        long number = count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;});
+        cout << "number of scheduled sources:   " << number << "\n";
+        cout << ".––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––.\n";
+        cout << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
+        cout << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
+        cout << "|–––––––––|––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––|–––––––––––––|\n";
+        for (int i = 0; i<sources.size(); ++i){
+            cout << boost::format("| %8s|") % sources[i].getName();
+            unsigned int timeStart = 0;
+            unsigned int timeEnd = 900;
+            for (int j = 0; j < 96; ++j) {
+                if(any_of(time_src[i].begin(), time_src[i].end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
+                    cout << "x";
+                }else{
+                    cout << " ";
+                }
+                timeEnd += 900;
+                timeStart += 900;
+            }
+            cout << boost::format("| %6d %4d |\n") %nscan_src[i] %nbl_src[i];
+        }
+        cout << "'––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––'\n";
 
         cout << "=========================   end statistics    =========================\n";
     }

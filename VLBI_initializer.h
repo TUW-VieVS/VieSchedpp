@@ -180,6 +180,16 @@ namespace VieVS{
         void initializeWeightFactors();
 
 
+        /**
+         * @brief inintializes the sky Coverage lookup table
+         */
+        void initializeSkyCoverages();
+
+        /**
+         * @brief initialzeBaselines
+         */
+        void initializeBaselines();
+
     private:
         boost::property_tree::ptree PARA_xml; ///< content of parameters.xml file
         vector<VLBI_station> stations; ///< all created stations

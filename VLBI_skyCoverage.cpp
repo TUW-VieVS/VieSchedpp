@@ -12,6 +12,7 @@
  */
 
 #include "VLBI_skyCoverage.h"
+vector<vector<vector<float> > > VieVS::VLBI_skyCoverage::angularDistanceLookup = {};
 
 namespace VieVS{
     VLBI_skyCoverage::VLBI_skyCoverage() {
@@ -92,13 +93,14 @@ namespace VieVS{
 //        double tmp = sin_el_old * sin_el_new + cos_el_old * cos_el_new * cos_el_daz;
 //        double distance = acos(tmp);
 
-        double sin_el_old = VieVS_lookup::sinLookup[(int) (pv_old.getEl() * 1000)];
-        double sin_el_new = VieVS_lookup::sinLookup[(int) (pv_new.getEl() * 1000)];
-        double cos_el_old = VieVS_lookup::cosLookup[(int) (pv_old.getEl() * 1000)];
-        double cos_el_new = VieVS_lookup::cosLookup[(int) (pv_new.getEl() * 1000)];
-        double cos_el_daz = VieVS_lookup::cosLookup[(int) (fmod(pv_new.getAz() - pv_old.getAz(), 2 * pi) * 1000)];
-        double tmp = sin_el_old * sin_el_new + cos_el_old * cos_el_new * cos_el_daz;
-        double distance = VieVS_lookup::acosLookup[(int) (tmp * 100)];
+//         **** THIS IS THE SECOND FASTEST VERSION SO FAR ****
+//        double sin_el_old = VieVS_lookup::sinLookup[(int) (pv_old.getEl() * 1000)];
+//        double sin_el_new = VieVS_lookup::sinLookup[(int) (pv_new.getEl() * 1000)];
+//        double cos_el_old = VieVS_lookup::cosLookup[(int) (pv_old.getEl() * 1000)];
+//        double cos_el_new = VieVS_lookup::cosLookup[(int) (pv_new.getEl() * 1000)];
+//        double cos_el_daz = VieVS_lookup::cosLookup[(int) (fmod(pv_new.getAz() - pv_old.getAz(), 2 * pi) * 1000)];
+//        double tmp = sin_el_old * sin_el_new + cos_el_old * cos_el_new * cos_el_daz;
+//        double distance = VieVS_lookup::acosLookup[(int) (tmp * 100)];
 
 
 //        double daz_half = (pv_new.getAz() - pv_old.getAz())/2;
@@ -115,6 +117,16 @@ namespace VieVS{
 //        double a = tel*tel + VieVS_lookup::cosLookup[(int) pv_new.getEl() *1000] * VieVS_lookup::cosLookup[(int) pv_old.getEl()*1000] * taz * taz ;
 //        double distance = 2*atan2(sqrt(a),sqrt(1-a));
 
+        // **** THIS IS THE FASTEST VERSION SO FAR ****
+        double pv_1_el = pv_old.getEl();
+        double pv_2_el = pv_new.getEl();
+        int pv_delta_az = abs((int) round(pv_old.getAz() - pv_new.getAz()));
+        if(pv_1_el>pv_2_el){
+            swap(pv_1_el,pv_2_el);
+        }
+        int thisEl = (int) round(pv_1_el);
+        int pv_delta_el = (int) round(pv_2_el-pv_1_el);
+        float distance = VLBI_skyCoverage::angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
 
         if (distance > maxDistDistance) {
             return 1;
