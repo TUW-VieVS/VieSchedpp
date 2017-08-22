@@ -168,7 +168,7 @@ namespace VieVS{
     }
 
     bool
-    VLBI_scan::calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source& source, double mjdStart) {
+    VLBI_scan::calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &source) {
 
         bool flag_scanValid = true;
         int ibl = 0;
@@ -179,7 +179,7 @@ namespace VieVS{
             unsigned int startTime = thisBaseline.getStartTime();
 
             double date1 = 2400000.5;
-            double date2 = mjdStart + startTime/86400;
+            double date2 = VieVS_timeEvents::mjdStart + startTime / 86400;
             double gmst = iauGmst82(date1, date2);
 
 //            vector<pair<string, unsigned int> > durations;
@@ -500,7 +500,7 @@ namespace VieVS{
     }
 
 
-    bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
+    bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source) {
         bool flag = true;
         int srcid = source.getId();
 
@@ -572,7 +572,7 @@ namespace VieVS{
         times.alignStartTimes();
 
         constructBaselines();
-        calcBaselineScanDuration(stations, source, mjdStart);
+        calcBaselineScanDuration(stations, source);
         scanValid = scanDuration(stations, source);
 
         if (!scanValid) {
@@ -695,8 +695,7 @@ namespace VieVS{
 
     }
 
-    void VLBI_scan::output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source,
-                           boost::posix_time::ptime &sessionStart) {
+    void VLBI_scan::output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source) {
         unsigned long nmaxsta = stations.size();
 
         stringstream buffer1;
@@ -749,7 +748,7 @@ namespace VieVS{
         cout << "| slew start | ";
         for (auto &t:slewStart) {
             if (t != maxValue) {
-                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                boost::posix_time::ptime thisTime = VieVS_timeEvents::startTime + boost::posix_time::seconds(t);
                 cout << thisTime.time_of_day() << " | ";
             } else {
                 cout << "         | ";
@@ -760,7 +759,7 @@ namespace VieVS{
         cout << "| slew end   | ";
         for (auto &t:slewEnd) {
             if (t != maxValue) {
-                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                boost::posix_time::ptime thisTime = VieVS_timeEvents::startTime + boost::posix_time::seconds(t);
                 cout << thisTime.time_of_day() << " | ";
             } else {
                 cout << "         | ";
@@ -771,7 +770,7 @@ namespace VieVS{
         cout << "| idle end   | ";
         for (auto &t:ideling) {
             if (t != maxValue) {
-                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                boost::posix_time::ptime thisTime = VieVS_timeEvents::startTime + boost::posix_time::seconds(t);
                 cout << thisTime.time_of_day() << " | ";
             } else {
                 cout << "         | ";
@@ -782,7 +781,7 @@ namespace VieVS{
         cout << "| scan start | ";
         for (auto &t:scanStart) {
             if (t != maxValue) {
-                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                boost::posix_time::ptime thisTime = VieVS_timeEvents::startTime + boost::posix_time::seconds(t);
                 cout << thisTime.time_of_day() << " | ";
             } else {
                 cout << "         | ";
@@ -793,7 +792,7 @@ namespace VieVS{
         cout << "| scan end   | ";
         for (auto &t:scanEnd) {
             if (t != maxValue) {
-                boost::posix_time::ptime thisTime = sessionStart + boost::posix_time::seconds(t);
+                boost::posix_time::ptime thisTime = VieVS_timeEvents::startTime + boost::posix_time::seconds(t);
                 cout << thisTime.time_of_day() << " | ";
             } else {
                 cout << "         | ";

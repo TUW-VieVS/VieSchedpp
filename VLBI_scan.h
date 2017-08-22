@@ -27,6 +27,7 @@
 #include "VLBI_skyCoverage.h"
 #include "VLBI_weightFactors.h"
 #include "VLBI_obsMode.h"
+#include "VieVS_timeEvents.h"
 
 using namespace std;
 namespace VieVS{
@@ -295,7 +296,7 @@ namespace VieVS{
          * @param mjdStart modified julian date of session start
          * @return true is scan is still valid, otherwise false
          */
-        bool calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources, double mjdStart);
+        bool calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources);
 
         /**
          * @brief calculates the total scan duration per station
@@ -455,7 +456,7 @@ namespace VieVS{
          * @param mjdStart modified juliand date of session start
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart);
+        bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source);
 
         /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
@@ -496,8 +497,7 @@ namespace VieVS{
          * @param source observed source
          * @param sessionStart session start
          */
-        void output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source,
-                    boost::posix_time::ptime &sessionStart);
+        void output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source);
 
     private:
         unsigned long nsta; ///< number of stations in this scan

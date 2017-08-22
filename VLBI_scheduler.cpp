@@ -20,12 +20,6 @@ namespace VieVS{
     stations{init.getStations()}, sources{init.getSources()}, skyCoverages{init.getSkyCoverages()}{
         
         VLBI_initializer::PARAMETERS IPARA = init.getPARA();
-        PARA.endTime = IPARA.endTime;
-        PARA.startTime = IPARA.startTime;
-        auto duration = (PARA.endTime - PARA.startTime);
-
-        PARA.duration = duration.total_seconds();
-        PARA.mjdStart = IPARA.mjdStart;
 
         subnetting = IPARA.subnetting;
         fillinmode = IPARA.fillinmode;
@@ -45,8 +39,7 @@ namespace VieVS{
         while (true) {
             VLBI_subcon subcon = createSubcon(subnetting);
 
-            boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations, sources, skyCoverages,
-                                                                              PARA.mjdStart);
+            boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations, sources, skyCoverages);
             if (!bestIdx_opt) {
                 cout << "ERROR! no valid scan found!\n";
                 continue;
@@ -90,7 +83,7 @@ namespace VieVS{
         cout << "created fillin mode scans:  " << considered_fillin << "\n";
         cout << "total scans considered: " << considered_n1scans + 2 * considered_n2scans + considered_fillin << "\n";
 
-        check(PARA.startTime);
+        check();
     }
 
     VLBI_subcon VLBI_scheduler::createSubcon(bool subnetting) {
@@ -98,7 +91,7 @@ namespace VieVS{
         subcon.calcStartTimes(stations, sources);
         subcon.updateAzEl(stations, sources);
         subcon.constructAllBaselines();
-        subcon.calcAllBaselineDurations(stations, sources, PARA.mjdStart);
+        subcon.calcAllBaselineDurations(stations, sources);
         subcon.calcAllScanDurations(stations, sources);
         if (subnetting) {
             subcon.createSubcon2(PRE.subnettingSrcIds, (int) (stations.size() * 0.66));
@@ -204,7 +197,7 @@ namespace VieVS{
         thisSource.update(nbl, latestTime);
 
         scans.push_back(scan);
-        scan.output(scans.size(), stations, thisSource, PARA.startTime);
+        scan.output(scans.size(), stations, thisSource);
     }
 
     void VLBI_scheduler::outputHeader(vector<VLBI_station> &stations) {
@@ -273,8 +266,7 @@ namespace VieVS{
             fillin_subcon.generateScore(stations, skyCoverages, sources.size());
 
             while (true) {
-                boost::optional<unsigned long> bestIdx = fillin_subcon.rigorousScore(stations, sources, skyCoverages,
-                                                                                     PARA.mjdStart);
+                boost::optional<unsigned long> bestIdx = fillin_subcon.rigorousScore(stations, sources, skyCoverages);
                 if (bestIdx) {
                     VLBI_scan &fillinScan = fillin_subcon.getSingleSourceScan(*bestIdx);
 
@@ -362,14 +354,14 @@ namespace VieVS{
         bool finished = false;
         for (int i = 0; i < bestScans.size(); ++i) {
             VLBI_scan &thisScan = bestScans[i];
-            if (thisScan.maxTime() > PARA.duration) {
+            if (thisScan.maxTime() > VieVS_timeEvents::duration) {
                 finished = true;
             }
         }
         return finished;
     }
 
-    void VLBI_scheduler::check(boost::posix_time::ptime &sessionStart) {
+    void VLBI_scheduler::check() {
 
         cout << "\n=======================   starting check routine   =======================\n";
         cout << "starting check routine!\n";
@@ -395,8 +387,10 @@ namespace VieVS{
                 if(nextStartTime<thisEndTime){
                     cout << "    ERROR: somthing went wrong!\n";
                     cout << "           start time of next scan is before end time of previouse scan!\n";
-                    boost::posix_time::ptime thisEndTime_ = sessionStart + boost::posix_time::seconds(thisEndTime);
-                    boost::posix_time::ptime nextStartTime_ = sessionStart + boost::posix_time::seconds(nextStartTime);
+                    boost::posix_time::ptime thisEndTime_ =
+                            VieVS_timeEvents::startTime + boost::posix_time::seconds(thisEndTime);
+                    boost::posix_time::ptime nextStartTime_ =
+                            VieVS_timeEvents::startTime + boost::posix_time::seconds(nextStartTime);
                     cout << "           end time of previouse scan: " << thisEndTime_.time_of_day() << "(" << thisEndTime << ")\n";
                     cout << "           start time of next scan:    " << nextStartTime_.time_of_day() << "(" << nextStartTime << "\n)";
                     continue;
@@ -406,8 +400,10 @@ namespace VieVS{
                 if(availableTime+1<min_neededTime){
                     cout << "    ERROR: somthing went wrong!\n";
                     cout << "           not enough available time for slewing!\n";
-                    boost::posix_time::ptime thisEndTime_ = sessionStart + boost::posix_time::seconds(thisEndTime);
-                    boost::posix_time::ptime nextStartTime_ = sessionStart + boost::posix_time::seconds(nextStartTime);
+                    boost::posix_time::ptime thisEndTime_ =
+                            VieVS_timeEvents::startTime + boost::posix_time::seconds(thisEndTime);
+                    boost::posix_time::ptime nextStartTime_ =
+                            VieVS_timeEvents::startTime + boost::posix_time::seconds(nextStartTime);
                     cout << "               end time of previouse scan: " << thisEndTime_.time_of_day() << " (" << thisEndTime << ")\n";
                     cout << "               start time of next scan:    " << nextStartTime_.time_of_day() << " (" << nextStartTime << ")\n";
                     cout << "           available time: " << availableTime << "\n";

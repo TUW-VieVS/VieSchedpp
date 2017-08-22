@@ -130,11 +130,11 @@ namespace VieVS{
     }
 
     void
-    VLBI_subcon::calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart) {
+    VLBI_subcon::calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources) {
         int i = 0;
         while ( i < n1scans ) {
             VLBI_scan& thisScan = subnet1[i];
-            bool scanValid = thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()], mjdStart);
+            bool scanValid = thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()]);
             if (scanValid){
                 ++i;
             } else {
@@ -378,7 +378,7 @@ namespace VieVS{
 
     boost::optional<unsigned long>
     VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                               vector<VLBI_skyCoverage> &skyCoverages, double mjdStart) {
+                               vector<VLBI_skyCoverage> &skyCoverages) {
 
         vector<double> scores = subnet1_score;
         scores.insert(scores.end(), subnet2_score.begin(), subnet2_score.end());
@@ -399,7 +399,7 @@ namespace VieVS{
                 unsigned long thisIdx = idx;
                 VLBI_scan &thisScan = subnet1[thisIdx];
 
-                bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()], mjdStart);
+                bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()]);
                 if (!flag) {
                     continue;
                 }
@@ -413,7 +413,7 @@ namespace VieVS{
                 auto &thisScans = subnet2[thisIdx];
 
                 VLBI_scan &thisScan1 = thisScans.first;
-                bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], mjdStart);
+                bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()]);
                 thisScan1.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages,stations);
                 double newScore1 = thisScan1.getScore();
                 if (!flag1) {
@@ -421,7 +421,7 @@ namespace VieVS{
                 }
 
                 VLBI_scan &thisScan2 = thisScans.second;
-                bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], mjdStart);
+                bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()]);
                 thisScan2.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages,stations);
                 double newScore2 = thisScan2.getScore();
                 if (!flag2) {

@@ -93,8 +93,8 @@ void run(){
     scheduler.start();
 
     VieVS::VLBI_output output(scheduler);
-    output.displayStatistics();
-
+    output.displayStatistics(true, true, true, true, true);
+    output.writeNGS();
     cout << "Good Bye!" << endl;
 
 }

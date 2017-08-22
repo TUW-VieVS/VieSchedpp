@@ -125,7 +125,7 @@ namespace VieVS{
         unsigned int time = p.getTime();
         //  TIME 
         double date1 = 2400000.5;
-        double date2 = PRECALC.mjdStart + (double) time / 86400;
+        double date2 = VieVS_timeEvents::mjdStart + (double) time / 86400;
 
         // Earth Rotation
         double ERA = iauEra00(date1, date2);
@@ -234,9 +234,7 @@ namespace VieVS{
         p.setTime(time);
     }
 
-    void VLBI_station::preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy,
-                               vector<double> dz) {
-        PRECALC.mjdStart = mjd;
+    void VLBI_station::preCalc(vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz) {
         PRECALC.distance = distance;
         PRECALC.dx = dx;
         PRECALC.dy = dy;

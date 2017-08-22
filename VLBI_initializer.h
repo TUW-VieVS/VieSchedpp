@@ -24,6 +24,8 @@
 #include "VieVS_lookup.h"
 #include "VLBI_weightFactors.h"
 #include "VLBI_obsMode.h"
+#include "VieVS_timeEvents.h"
+
 
 #include "sofa.h"
 
@@ -41,10 +43,6 @@ namespace VieVS{
         struct PARAMETERS {
             string experimentName; ///< experimet Name from .xml file
             string experimentDescription; ///< experiment description form xml file
-            boost::posix_time::ptime startTime; ///< start time of the session in datetime format
-            boost::posix_time::ptime endTime; ///< end time of the session in datetime format
-            unsigned int duration; ///< duration of the session in seconds
-            double mjdStart; ///< modified julian date of session start
             bool subnetting = true; ///< if set to true subnetting is enabled
             bool fillinmode = true; ///< it set to true fillin scans are calculated
 

@@ -30,11 +30,6 @@ namespace VieVS{
         struct PARAMETERS {
             double minAngleBetweenSubnettingSources =
                     120 * deg2rad; ///< minimum angle between subnetting sources in radians
-
-            boost::posix_time::ptime startTime; ///< start time of the session
-            boost::posix_time::ptime endTime; ///< end time of the session
-            double mjdStart; ///< modified julian date of the session start
-            unsigned int duration; ///< session duration in seconds
         };
 
         /**
@@ -192,7 +187,7 @@ namespace VieVS{
         /**
          * @brief checks the schedule with an independend methode
          */
-        void check(boost::posix_time::ptime &sessionStart);
+        void check();
 
     };
 }

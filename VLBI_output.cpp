@@ -15,14 +15,28 @@ namespace VieVS{
 
     }
 
-    void VLBI_output::displayStatistics() {
+    void VLBI_output::displayStatistics(bool general, bool station, bool source, bool baseline, bool duration) {
         cout << "\n=======================   starting statistics   =======================\n";
 
-        displayGeneralStatistics();
-        displayStationStatistics();
-        displayBaselineStatistics();
-        displaySourceStatistics();
-        displayScanDurationStatistics();
+        if (general) {
+            displayGeneralStatistics();
+        }
+
+        if (station) {
+            displayStationStatistics();
+        }
+
+        if (source) {
+            displaySourceStatistics();
+        }
+
+        if (baseline) {
+            displayBaselineStatistics();
+        }
+
+        if (duration) {
+            displayScanDurationStatistics();
+        }
 
         cout << "=========================   end statistics    =========================\n";
     }
@@ -317,6 +331,66 @@ namespace VieVS{
 
         }
         cout << "'––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––'\n\n";
+    }
+
+    void VLBI_output::writeNGS() {
+        ofstream fid;
+        fid.open("ngs", ios::out | ios::trunc);
+        cout << "writing NGS file... ";
+
+        boost::posix_time::ptime start = VieVS_timeEvents::startTime;
+        unsigned long counter = 1;
+
+        for (const auto &any: scans) {
+            for (int i = 0; i < any.getNBl(); ++i) {
+                const VLBI_baseline &bl = any.getBaseline(i);
+                string sta1 = stations[bl.getStaid1()].getName();
+                string sta2 = stations[bl.getStaid2()].getName();
+                if (sta1 > sta2) {
+                    swap(sta1, sta2);
+                }
+                string src = sources[bl.getSrcid()].getName();
+                unsigned int time = bl.getStartTime();
+
+                boost::posix_time::ptime tmp = start + boost::posix_time::seconds(time);
+                int year = tmp.date().year();
+                int month = tmp.date().month();
+                int day = tmp.date().day();
+                int hour = tmp.time_of_day().hours();
+                int minute = tmp.time_of_day().minutes();
+                double second = tmp.time_of_day().seconds();
+
+                fid << boost::format("%8s  %8s  %8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
+                       year % month % day % hour % minute % second;
+                fid << boost::format("%6d") % counter << "01\n";
+
+                fid << "    0000000.00000000    .00000  -000000.0000000000    .00000 0      I   ";
+                fid << boost::format("%6d") % counter << "02\n";
+
+                fid << "    .00000    .00000    .00000    .00000   0.000000000000000        0.  ";
+                fid << boost::format("%6d") % counter << "03\n";
+
+                fid << "       .00   .0       .00   .0       .00   .0       .00   .0            ";
+                fid << boost::format("%6d") % counter << "04\n";
+
+                fid << "   -.00000   -.00000    .00000    .00000    .00000    .00000            ";
+                fid << boost::format("%6d") % counter << "05\n";
+
+                fid << "     0.000    00.000   000.000   000.000    00.000    00.000 0 0        ";
+                fid << boost::format("%6d") % counter << "06\n";
+
+                fid << "        0.0000000000    .00000        -.0000000000    .00000  0         ";
+                fid << boost::format("%6d") % counter << "08\n";
+
+                fid << "          0.00000000    .00000        0.0000000000    .00000 0      I   ";
+                fid << boost::format("%6d") % counter << "09\n";
+
+                ++counter;
+            }
+        }
+
+        fid.close();
+        cout << "done!\n";
     }
 
 }

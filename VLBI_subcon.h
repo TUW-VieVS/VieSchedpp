@@ -118,7 +118,7 @@ namespace VieVS{
          * @param sources list of all sources
          * @param mjdStart modified julian date of session start
          */
-        void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
+        void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -181,7 +181,7 @@ namespace VieVS{
          * @return index of best scan
          */
         boost::optional<unsigned long> rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                                     vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
+                                                     vector<VLBI_skyCoverage> &skyCoverages);
 
     private:
         unsigned long n1scans; ///< number of single source scans

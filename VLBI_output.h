@@ -1,6 +1,11 @@
-//
-// Created by mschartn on 22.08.17.
-//
+/**
+ * @file VLBI_output.h
+ * @brief class VLBI_output
+ *
+ *
+ * @author Matthias Schartner
+ * @date 22.08.2017
+ */
 
 #ifndef VLBI_OUTPUT_H
 #define VLBI_OUTPUT_H
@@ -24,8 +29,9 @@ namespace VieVS{
        /**
         * @brief displays some basic statistics of the schedule
         */
-        void displayStatistics();
+       void displayStatistics(bool general, bool station, bool source, bool baseline, bool duration);
 
+        void writeNGS();
 
     private:
 

@@ -30,6 +30,7 @@
 #include "VieVS_constants.h"
 #include "VieVS_nutation.h"
 #include "VieVS_earth.h"
+#include "VieVS_timeEvents.h"
 
 #include "sofa.h"
 
@@ -93,7 +94,6 @@ namespace VieVS{
          * @brief pre calculated values
          */
         struct PRECALCULATED{
-            double mjdStart; ///< modified julian date of session start
             vector<double> distance; ///< distance between stations
             vector<double> dx; ///< delta x of station coordinates
             vector<double> dy; ///< delta y of station coordinates
@@ -398,7 +398,7 @@ namespace VieVS{
          * @param dy delta y between stations
          * @param dz delta z between stations
          */
-        void preCalc(double mjd, vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
+        void preCalc(vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
 
         /**
          * @brief update station if used for a scan

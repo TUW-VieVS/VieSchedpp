@@ -22,20 +22,28 @@ namespace VieVS{
         boost::property_tree::read_xml(is, PARA_xml);
 
         try{
-            PARA.startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.start");
-            cout << "start time:" << PARA.startTime << "\n";
-            PARA.mjdStart = PARA.startTime.date().modjulian_day() + PARA.startTime.time_of_day().seconds();
+            boost::posix_time::ptime startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.start");
+            cout << "start time:" << startTime << "\n";
+            int sec_ = startTime.time_of_day().total_seconds();
+            double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
 
-            PARA.endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.end");
-            cout << "end time:" << PARA.startTime << "\n";
 
-            boost::posix_time::time_duration a = PARA.endTime - PARA.startTime;
+            boost::posix_time::ptime endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.end");
+            cout << "end time:" << endTime << "\n";
+
+
+            boost::posix_time::time_duration a = endTime - startTime;
             int sec = a.total_seconds();
             if(sec<0){
                 cerr << "ERROR: duration is less than zero seconds!\n";
             }
-            PARA.duration = (unsigned int) sec;
-            cout << "duration: " << PARA.duration << " [s]\n";
+            unsigned int duration = (unsigned int) sec;
+            cout << "duration: " << duration << " [s]\n";
+
+            VieVS_timeEvents::mjdStart = mjdStart;
+            VieVS_timeEvents::startTime = startTime;
+            VieVS_timeEvents::endTime = endTime;
+            VieVS_timeEvents::duration = duration;
 
             vector<string> sel_stations;
             boost::property_tree::ptree stations = PARA_xml.get_child("master.general.stations");
@@ -303,8 +311,8 @@ namespace VieVS{
             string id_PO = boost::algorithm::to_upper_copy(any.second.at(13));
             string id_EQ = boost::algorithm::to_upper_copy(any.second.at(14));
             string id_MS = boost::algorithm::to_upper_copy(any.second.at(15));
-            
-            // check if corresponding position and equip catalog exists. 
+
+            // check if corresponding position and equip catalog exists.
             if (positionCatalog.find(id_PO) == positionCatalog.end()){
                 cout << "*** ERROR: position catalog not found ***\n";
                 continue;
@@ -333,8 +341,8 @@ namespace VieVS{
                 cout << "*** ERROR: "<< e.what() << " ***\n";
                 continue;
             }
-            
-            // check if position.cat is long enough. Otherwise not all information is available. 
+
+            // check if position.cat is long enough. Otherwise not all information is available.
             vector<string> po_cat = positionCatalog[id_PO];
             if (po_cat.size()<5){
                 cout <<"*** ERROR: "<< any.first << ": positon.cat to small ***\n";
@@ -352,8 +360,8 @@ namespace VieVS{
                 cout <<"*** ERROR: "<< e.what() << " ***\n";
                 continue;
             }
-            
-            // check if equip.cat is long enough. Otherwise not all information is available. 
+
+            // check if equip.cat is long enough. Otherwise not all information is available.
             vector<string> eq_cat = equipCatalog[id_EQ + "|" + name];
             if (eq_cat.size()<9){
                 cout <<"*** ERROR: " << any.first << ": equip.cat to small ***\n";
@@ -641,7 +649,7 @@ namespace VieVS{
                 dz[j] = stations[j].getPosition().getZ() - stations[i].getPosition().getZ();
             }
 
-            stations[i].preCalc(PARA.mjdStart, distance, dx, dy, dz);
+            stations[i].preCalc(distance, dx, dy, dz);
 
         }
     }
@@ -738,7 +746,7 @@ namespace VieVS{
         vector<double> nut_s;
 
         double date1 = 2400000.5;
-        double date2 = PARA.mjdStart;
+        double date2 = VieVS_timeEvents::mjdStart;
 
         unsigned int counter = 0;
         unsigned int frequency = 3600;
@@ -746,7 +754,7 @@ namespace VieVS{
 
         do {
             refTime = counter * frequency;
-            date2 = PARA.mjdStart + (double) refTime / 86400;
+            date2 = VieVS_timeEvents::mjdStart + (double) refTime / 86400;
 
             double x, y, s;
             iauXys06a(date1, date2, &x, &y, &s);
@@ -755,7 +763,7 @@ namespace VieVS{
             nut_y.push_back(y);
             nut_s.push_back(s);
             ++counter;
-        } while (refTime < PARA.duration + 3600);
+        } while (refTime < VieVS_timeEvents::duration + 3600);
 
         VieVS_nutation::nut_x = nut_x;
         VieVS_nutation::nut_y = nut_y;
@@ -765,7 +773,7 @@ namespace VieVS{
 
     void VLBI_initializer::initializeEarth() {
         double date1 = 2400000.5;
-        double date2 = PARA.mjdStart;
+        double date2 = VieVS_timeEvents::mjdStart;
         double pvh[2][3];
         double pvb[2][3];
         iauEpv00(date1, date2, pvh, pvb);
