@@ -26,6 +26,7 @@
 #include "VLBI_source.h"
 #include "VLBI_skyCoverage.h"
 #include "VLBI_weightFactors.h"
+#include "VLBI_obsMode.h"
 
 using namespace std;
 namespace VieVS{
@@ -41,16 +42,16 @@ namespace VieVS{
             fillin, ///< fillin mode scan
         };
 
-        /**
-         * @brief storage structure of all individual scores
-         */
-        struct SCORES {
-            double numberOfObservations = 0; ///< score for number of observations
-            double averageStations = 0; ///< score for average station observations
-            double averageSources = 0; ///< score for average source observations
-            double duration = 0; ///< score for scan duration
-            double skyCoverage = 0; ///< score for sky coverage improvement
-        };
+//        /**
+//         * @brief storage structure of all individual scores
+//         */
+//        struct SCORES {
+//            double numberOfObservations = 0; ///< score for number of observations
+//            double averageStations = 0; ///< score for average station observations
+//            double averageSources = 0; ///< score for average source observations
+//            double duration = 0; ///< score for scan duration
+//            double skyCoverage = 0; ///< score for sky coverage improvement
+//        };
 
         /**
          * @brief empty default constructor
@@ -326,6 +327,8 @@ namespace VieVS{
         /**
          * @brief calculates the score of a scan
          *
+         * usually used for single scan sources
+         *
          * // TODO: links to all parameter fuctions
          * @param nmaxsta maximum number of stations
          * @param nmaxbl maximum number of baselines
@@ -336,14 +339,51 @@ namespace VieVS{
          * @param skyCoverages sky Coverages
          */
         void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages);
+                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations);
+
+        /**
+         * @brief calculates the score of a scan
+         *
+         * usually used for single scan sources
+         *
+         * // TODO: links to all parameter fuctions
+         * @param nmaxsta maximum number of stations
+         * @param nmaxbl maximum number of baselines
+         * @param astas precalculated vector of average station score @see subcon
+         * @param asrcs precalculated vector of average source score @see subcon
+         * @param minTime minimum time required for a scan
+         * @param maxTime maximum time required for a scan
+         * @param skyCoverages sky Coverages
+         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
+         */
+        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPv, vector<VLBI_station> &stations);
+
+        /**
+         * @brief calculates the score of a scan
+         *
+         * usually used for subnetting sources. This is for improved runtime because the skyCoverage score for each
+         * pointing vector already exists.
+         *
+         * // TODO: links to all parameter fuctions
+         * @param nmaxsta maximum number of stations
+         * @param nmaxbl maximum number of baselines
+         * @param astas precalculated vector of average station score @see subcon
+         * @param asrcs precalculated vector of average source score @see subcon
+         * @param minTime minimum time required for a scan
+         * @param maxTime maximum time required for a scan
+         * @param skyCoverages sky Coverages
+         * @param firstScorePerPv stored score for each pointing vector without twin station influences
+         */
+        void calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPv, vector<VLBI_station> &stations);
 
         /**
          * @brief calculates the score for number of observations
          *
          * @param maxObs maximum possible number of observations
          */
-        void calcScore_numberOfObservations(unsigned long maxObs);
+        double calcScore_numberOfObservations(unsigned long maxObs);
 
         /**
          * @brief calculates score for average station observations
@@ -352,7 +392,7 @@ namespace VieVS{
          * @param astas precalculated vector of average station observations @see subcon
          * @param nmaxsta maximum possible number of stations
          */
-        void calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
+        double calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
 
         /**
          * @brief calculates score for average source observations
@@ -360,7 +400,7 @@ namespace VieVS{
          * //TODO link
          * @param asrcs precalculated vector of average source observations @see subcon
          */
-        void calcScore_averageSources(vector<double> &asrcs);
+        double calcScore_averageSources(vector<double> &asrcs);
 
         /**
          * @brief calculates score for duration
@@ -368,19 +408,35 @@ namespace VieVS{
          * @param minTime minimum time required for a scan
          * @param maxTime maximum time required for a scan
          */
-        void calcScore_duration(unsigned int minTime, unsigned int maxTime);
+        double calcScore_duration(unsigned int minTime, unsigned int maxTime);
 
         /**
          * @brief calculates score for improvement in sky coverage
          *
          * @param skyCoverages all sky coverages
          */
-        void calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages);
+        double calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations);
 
         /**
-         * @brief sum up all individual scores for this scan
+         * @brief calculates score for improvement in sky coverage
+         *
+         * @param skyCoverages all sky coverages
+         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
          */
-        void sumScores();
+        double calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
+
+        /**
+         * @brief calculates score for improvement in sky coverage
+         *
+         * @param skyCoverages all sky coverages
+         * @param firstScorePerPv stored score for each pointing vector without twin station influences
+         */
+        double calcScore_skyCoverage_subcon(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
+
+//        /**
+//         * @brief sum up all individual scores for this scan
+//         */
+//        void sumScores();
 
         /**
          * @brief time required for this scan
@@ -449,7 +505,7 @@ namespace VieVS{
 
         int minimumNumberOfStations; ///< minimum number of stations required for this scan
 
-        SCORES single_scores; ///< storage for all individual scores
+//        SCORES single_scores; ///< storage for all individual scores
 
         double score; ///< total score
 

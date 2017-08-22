@@ -18,31 +18,23 @@ namespace VieVS{
     VLBI_skyCoverage::VLBI_skyCoverage() {
     }
 
-    VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval)
+    VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id)
             : nStations{staids.size()}, staids{staids}, maxDistTime{skyCoverageInterval},
-              maxDistDistance{skyCoverageDistance} {
+              maxDistDistance{skyCoverageDistance}, id{id} {
     }
 
     VLBI_skyCoverage::~VLBI_skyCoverage() {
     }
 
-    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs) {
+    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations) {
 
         double score = 0;
-        std::deque<bool> isSky(pvs.size());
-
-        for (int i = 0; i < pvs.size(); ++i) {
-            VLBI_pointingVector &thisPV = pvs[i];
-            int staid = thisPV.getStaid();
-            isSky[i] = find(staids.begin(), staids.end(), staid) != staids.end();
-        }
-
 
         for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-            if (!isSky[idx_newObs]) {
+            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
                 continue;
             }
-            VLBI_pointingVector &pv_new = pvs[idx_newObs];
 
             double min_score = 1;
 
@@ -54,17 +46,90 @@ namespace VieVS{
                     min_score = thisScore;
                 }
             }
-            for (int idx_oldObs = 0; idx_oldObs < idx_newObs; ++idx_oldObs) {
-                if (!isSky[idx_oldObs]) {
-                    continue;
-                }
-                VLBI_pointingVector &pv_old = pvs[idx_newObs];
+            score = min_score;
+
+//            for (int idx_oldObs = 0; idx_oldObs < idx_newObs; ++idx_oldObs) {
+//                VLBI_pointingVector &pv_old = pvs[idx_oldObs];
+//                if (stations[pv_old.getStaid()].getSkyCoverageID() != id) {
+//                    continue;
+//                }
+//                double thisScore = scorePerPointingVector(pv_new, pv_old);
+//                if (thisScore < min_score) {
+//                    min_score = thisScore;
+//                }
+//            }
+//            score += min_score;
+        }
+        return score;
+    }
+
+
+    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+
+        double score = 0;
+
+        for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
+            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
+                continue;
+            }
+
+            double min_score = 1;
+
+            for (int idx_oldObs = 0; idx_oldObs < pv_end.size(); ++idx_oldObs) {
+                VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
+
                 double thisScore = scorePerPointingVector(pv_new, pv_old);
                 if (thisScore < min_score) {
                     min_score = thisScore;
                 }
             }
-            score += min_score;
+
+            firstScorePerPv[idx_newObs] = min_score;
+            score = min_score;
+//            for (int idx_oldObs = 0; idx_oldObs < idx_newObs; ++idx_oldObs) {
+//                VLBI_pointingVector &pv_old = pvs[idx_oldObs];
+//                if (stations[pv_old.getStaid()].getSkyCoverageID() != id) {
+//                    continue;
+//                }
+//                double thisScore = scorePerPointingVector(pv_new, pv_old);
+//                if (thisScore < min_score) {
+//                    min_score = thisScore;
+//                }
+//            }
+//            score += min_score;
+        }
+        return score;
+    }
+
+    double VLBI_skyCoverage::calcScore_subcon(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+
+        double score = 0;
+
+        for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
+            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
+                continue;
+            }
+            score = firstScorePerPv[idx_newObs];
+            break;
+//            double min_score = firstScorePerPv[idx_newObs];
+//
+//            for (int idx_oldObs = 0; idx_oldObs < idx_newObs; ++idx_oldObs) {
+//                VLBI_pointingVector &pv_old = pvs[idx_oldObs];
+//                if (stations[pv_old.getStaid()].getSkyCoverageID() != id) {
+//                    continue;
+//                }
+//                if (pv_old.getSrcid() == pv_new.getSrcid()){
+//                    min_score = 0;
+//                    break;
+//                }
+//                double thisScore = scorePerPointingVector(pv_new, pv_old);
+//                if (thisScore < min_score) {
+//                    min_score = thisScore;
+//                }
+//            }
+//            score += min_score;
         }
         return score;
     }
@@ -120,12 +185,24 @@ namespace VieVS{
         // **** THIS IS THE FASTEST VERSION SO FAR ****
         double pv_1_el = pv_old.getEl();
         double pv_2_el = pv_new.getEl();
-        int pv_delta_az = abs((int) round(pv_old.getAz() - pv_new.getAz()));
+
+        double pv_1_az = pv_old.getAz();
+        double pv_2_az = pv_new.getAz();
+        if(pv_2_az>pv_1_az){
+            swap(pv_1_az,pv_2_az);
+        }
+        double delta_az = (pv_1_az - pv_2_az)*rad2deg;
+        while (delta_az>180){
+            delta_az = delta_az-360;
+        }
+
+
+        int pv_delta_az = abs((int) (delta_az +.5)); // +.5 for rounding
         if(pv_1_el>pv_2_el){
             swap(pv_1_el,pv_2_el);
         }
-        int thisEl = (int) round(pv_1_el);
-        int pv_delta_el = (int) round(pv_2_el-pv_1_el);
+        int thisEl = (int) (pv_1_el*rad2deg+.5); // +.5 for rounding
+        int pv_delta_el = (int) ((pv_2_el-pv_1_el)*rad2deg+.5); // +.5 for rounding
         float distance = VLBI_skyCoverage::angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
 
         if (distance > maxDistDistance) {

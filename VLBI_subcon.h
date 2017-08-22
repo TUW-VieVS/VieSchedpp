@@ -143,7 +143,7 @@ namespace VieVS{
          * @param skyCoverages list of all sky coverages
          */
         void generateScore(vector<VLBI_station> &stations,
-                           vector<VLBI_skyCoverage> &skyCoverages);
+                           vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc);
 
         /**
          * @brief precalculate all necessary parameters to generate scores

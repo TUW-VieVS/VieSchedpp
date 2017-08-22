@@ -13,9 +13,10 @@
 #include <iostream>
 #include <cmath>
 #include <limits>
+
 #include "VLBI_pointingVector.h"
 #include "VieVS_lookup.h"
-
+#include "VLBI_station.h"
 
 using namespace std;
 namespace VieVS{
@@ -34,8 +35,9 @@ namespace VieVS{
          * @param staids station ids which belong to this sky coverage
          * @param skyCoverageDistance maximum angular distance of influence of an scan in radians
          * @param skyCoverageInterval maximum influence time of a scan in seconds
+         * @param id sky coverage id
          */
-        VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval);
+        VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id);
 
         /**
          * @brief getter for all station ids which belong to this sky coverage
@@ -52,7 +54,25 @@ namespace VieVS{
          * @param pvs pointing vectors
          * @return score
          */
-        double calcScore(vector<VLBI_pointingVector> &pvs);
+        double calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations);
+
+        /**
+         * @brief calculates the score of pointing vectors on the sky Coverage
+         *
+         * @param pvs pointing vectors
+         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
+         * @return score
+         */
+        double calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
+
+        /**
+         * @brief calculates the score of pointing vectors on the sky Coverage
+         *
+         * @param pvs pointing vectors
+         * @param firstScorePerPv stored score for each pointing vector without twin station influences
+         * @return score
+         */
+        double calcScore_subcon(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
 
         /**
          * @brief calculates the influence of the score between two pointing vectors
@@ -85,6 +105,8 @@ namespace VieVS{
 
         double maxDistTime; ///< maximum angular distance of influence on the sky coverage
         double maxDistDistance; ///< maximum time influence on the sky coverage
+
+        int id; ///< sky coverage id
     };
 }
 

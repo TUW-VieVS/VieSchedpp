@@ -105,7 +105,7 @@ namespace VieVS{
             subcon.createSubcon2(PRE.subnettingSrcIds, (int) (stations.size() * 0.66));
         }
         subcon.precalcScore(stations, sources);
-        subcon.generateScore(stations, skyCoverages);
+        subcon.generateScore(stations, skyCoverages, sources.size());
         return subcon;
     }
 
@@ -271,7 +271,7 @@ namespace VieVS{
             consideredUpdate(fillin_subcon.getNumberSingleScans());
 
             fillin_subcon.precalcScore(stations, sources);
-            fillin_subcon.generateScore(stations, skyCoverages);
+            fillin_subcon.generateScore(stations, skyCoverages, sources.size());
 
             while (true) {
                 boost::optional<unsigned long> bestIdx = fillin_subcon.rigorousScore(stations, sources, skyCoverages,

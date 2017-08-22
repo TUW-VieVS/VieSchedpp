@@ -190,20 +190,20 @@ namespace VieVS{
 
             bool flag_baselineRemoved = false;
             for(auto& any:flux){
-                string fluxname = any.first;
+                string band = any.first;
                 double SEFD_src = any.second;
 
-                double SEFD_sta1 = stations[staid1].getEquip().getSEFD(fluxname);
-                double SEFD_sta2 = stations[staid2].getEquip().getSEFD(fluxname);
-                double minSNR_sta1 = stations[staid1].getMinSNR(fluxname);
-                double minSNR_sta2 = stations[staid2].getMinSNR(fluxname);
+                double SEFD_sta1 = stations[staid1].getEquip().getSEFD(band);
+                double SEFD_sta2 = stations[staid2].getEquip().getSEFD(band);
+                double minSNR_sta1 = stations[staid1].getMinSNR(band);
+                double minSNR_sta2 = stations[staid2].getMinSNR(band);
 
-                double minSNR_bl = VLBI_baseline::PARA.minSNR[fluxname][staid1][staid2];
+                double minSNR_bl = VLBI_baseline::PARA.minSNR[band][staid1][staid2];
 
                 vector<pair<string, double> > minSNRs_src = source.getMinSNR();
                 double minSNR_src = 0;
                 for (auto &any_minFlux:minSNRs_src) {
-                    if (any_minFlux.first == fluxname) {
+                    if (any_minFlux.first == band) {
                         minSNR_src = any_minFlux.second;
                         break;
                     }
@@ -230,8 +230,7 @@ namespace VieVS{
 
                 double anum = (1.75*maxminSNR / SEFD_src);
                 double anu1 = SEFD_sta1*SEFD_sta2;
-                // TODO: do not hardcode observing mode!!!
-                double anu2 = 1024 * 1.0e6 * 16 * 2;
+                double anu2 = VLBI_obsMode::sampleRate * 1.0e6 * VLBI_obsMode::num_channels[band] * VLBI_obsMode::bits;
 
                 double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
                 new_duration = ceil(new_duration);
@@ -251,7 +250,6 @@ namespace VieVS{
                 if (new_duration_uint > maxScanDuration) {
                     maxScanDuration = new_duration_uint;
                 }
-//                    durations.push_back(make_pair(fluxname, new_duration_uint));
             }
 
             if(!flag_baselineRemoved){
@@ -261,8 +259,6 @@ namespace VieVS{
                 return false;
             }
 
-//            thisBaseline.setObservedFlux(flux);
-//            thisBaseline.setScanDuration(durations);
             thisBaseline.setScanDuration(maxScanDuration);
         }
 
@@ -434,13 +430,13 @@ namespace VieVS{
         return times.maxTime();
     }
 
-    void VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
+    double VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
         int nbl = baselines.size();
         double thisScore = (double) nbl / (double) maxObs;
-        single_scores.numberOfObservations = thisScore;
+        return thisScore;
     }
 
-    void VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
+    double VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
         double finalScore = 0;
 
         vector<unsigned long> bl_counter(nmaxsta);
@@ -454,39 +450,55 @@ namespace VieVS{
             finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta - 1);
         }
 
-        single_scores.averageStations = finalScore;
+        return finalScore;
     }
 
-    void VLBI_scan::calcScore_averageSources(vector<double> &asrcs) {
+    double VLBI_scan::calcScore_averageSources(vector<double> &asrcs) {
         unsigned long maxBl = (nsta * (nsta - 1)) / 2;
         unsigned long nbl = baselines.size();
-        single_scores.averageSources = asrcs[srcid] * nbl / maxBl;
+        return asrcs[srcid] * nbl / maxBl;
     }
 
-    void VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) {
+    double VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) {
         unsigned int thisEndTime = times.maxTime();
         double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
-        single_scores.duration = score;
+        return score;
     }
 
-    void VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages) {
+    double VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations) {
 
         double score = 0;
+
         for (int i = 0; i < skyCoverages.size(); ++i) {
-            double thisSore = skyCoverages[i].calcScore(pointingVectors) / nsta;
+            double thisSore = skyCoverages[i].calcScore(pointingVectors, stations) / nsta;
             score += thisSore;
         }
-
-        single_scores.skyCoverage = score;
+        return score;
     }
 
-    void VLBI_scan::sumScores() {
-        score = VLBI_weightFactors::weight_skyCoverage * single_scores.skyCoverage +
-                VLBI_weightFactors::weight_averageSources * single_scores.averageSources +
-                VLBI_weightFactors::weight_averageStations * single_scores.averageStations +
-                VLBI_weightFactors::weight_numberOfObservations * single_scores.numberOfObservations +
-                VLBI_weightFactors::weight_duration * single_scores.duration;
+
+    double VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+
+        double score = 0;
+
+        for (int i = 0; i < skyCoverages.size(); ++i) {
+            double thisSore = skyCoverages[i].calcScore(pointingVectors, stations, firstScorePerPv) / nsta;
+            score += thisSore;
+        }
+        return score;
     }
+
+    double VLBI_scan::calcScore_skyCoverage_subcon(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+
+        double score = 0;
+
+        for (int i = 0; i < skyCoverages.size(); ++i) {
+            double thisSore = skyCoverages[i].calcScore_subcon(pointingVectors, stations, firstScorePerPv) / nsta;
+            score += thisSore;
+        }
+        return score;
+    }
+
 
     bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source, double mjdStart) {
         bool flag = true;
@@ -645,13 +657,40 @@ namespace VieVS{
     }
 
     void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages) {
-        calcScore_numberOfObservations(nmaxbl);
-        calcScore_averageStations(astas, nmaxsta);
-        calcScore_averageSources(asrcs);
-        calcScore_duration(minTime, maxTime);
-        calcScore_skyCoverage(skyCoverages);
-        sumScores();
+                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations) {
+        double this_score = 0;
+        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        this_score += calcScore_skyCoverage(skyCoverages, stations) * VLBI_weightFactors::weight_skyCoverage;
+
+        score = this_score;
+    }
+
+    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPV, vector<VLBI_station> &stations) {
+        double this_score = 0;
+        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
+
+        score = this_score;
+    }
+
+
+    void VLBI_scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
+                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPV, vector<VLBI_station> &stations) {
+        double this_score = 0;
+        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
+
+        score = this_score;
 
 
     }

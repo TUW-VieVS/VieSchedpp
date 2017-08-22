@@ -121,9 +121,6 @@ namespace VieVS{
             return startTime;
         }
 
-//        vector<pair<string, double> > getObservedFlux() const {
-//            return observedFlux;
-//        }
 
         /**
          * @brief getter function for scan duration
@@ -143,22 +140,12 @@ namespace VieVS{
             VLBI_baseline::scanDuration = scanDuration;
         }
 
-//        void setObservedFlux(const vector<pair<string, double> > &observedFlux) {
-//            VLBI_baseline::observedFlux = observedFlux;
-//        }
-
-//        void setScanDuration(vector<pair<string, unsigned int> > &scanDurations);
-//
-//        string longestScanDurationBand();
 
     private:
         int staid1; ///< id of first antenna
         int staid2; ///< id of second antenna
         int srcid; ///< id of observed source
         unsigned int startTime; ///< start time of observion in seconds since session start
-
-//        vector<pair<string, double> > observedFlux;
-//        vector<pair<string, unsigned int> > scanDurations;
 
         unsigned int scanDuration; ///< required scan duration in seconds
 

@@ -21,30 +21,4 @@ namespace VieVS{
     VLBI_baseline::VLBI_baseline(int srcid, int staid1, int staid2, unsigned int startTime)
             : srcid(srcid), staid1(staid1), staid2(staid2), startTime{startTime}{
     }
-
-
-
-//    void VLBI_baseline::setScanDuration(vector<pair<string, unsigned int>> &scanDurations) {
-//        VLBI_baseline::scanDurations = scanDurations;
-//
-//        auto x = max_element(scanDurations.begin(), scanDurations.end(),
-//                             [](const pair<string,unsigned int>& p1, const pair<string,unsigned int>& p2) {
-//                                 return p1.second < p2.second; });
-//
-//        scanDuration = x->second;
-//
-//    }
-
-//    string VLBI_baseline::longestScanDurationBand() {
-//        string band;
-//        unsigned int max = 0;
-//        for(const auto& any:scanDurations ){
-//            if(any.second>max){
-//                band = any.first;
-//                max = any.second;
-//            }
-//        }
-//        return band;
-//    }
-
 }

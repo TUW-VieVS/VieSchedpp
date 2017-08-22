@@ -520,10 +520,11 @@ namespace VieVS{
                 bool flagFlux = srcFlux.addFluxParameters(parameters);
 
                 if(thisBand == "X"){
-                    double wavelength = PARA_xml.get<double>("master.bands.X.wavelength");
+                    double wavelength = VLBI_obsMode::wavelength["X"];
                     srcFlux.setWavelength(wavelength);
                 }else if(thisBand == "S"){
-                    srcFlux.setWavelength(PARA_xml.get<double>("master.bands.S.wavelength"));
+                    double wavelength = VLBI_obsMode::wavelength["S"];
+                    srcFlux.setWavelength(wavelength);
                 }
 
 
@@ -567,7 +568,7 @@ namespace VieVS{
         
         for (int i=0; i<skyCoverageId; ++i){
             skyCoverages.push_back(
-                    VLBI_skyCoverage(stationsPerId[i], PARA.skyCoverageDistance, PARA.skyCoverageInterval));
+                    VLBI_skyCoverage(stationsPerId[i], PARA.skyCoverageDistance, PARA.skyCoverageInterval, i));
         }
 
         vector<int> sta2sky_(nsta);
@@ -824,7 +825,7 @@ namespace VieVS{
 
     void VLBI_initializer::initializeSkyCoverages() {
         unsigned int maxEl = 90;
-        unsigned int sizeAz = 180;
+        unsigned int sizeAz = 181;
         vector<vector<vector<float> > > storage;
 
         for (unsigned int thisEl = 0; thisEl < maxEl; ++thisEl) {
@@ -835,7 +836,7 @@ namespace VieVS{
 
             for (int deltaAz = 0; deltaAz < sizeAz; ++deltaAz) {
                 for (int deltaEl = 0; deltaEl < sizeEl; ++deltaEl) {
-                    float tmp = (float) (sin(thisEl) * sin(thisEl + deltaEl) + cos(thisEl) * cos(thisEl + deltaEl) * cos(deltaAz));
+                    float tmp = (float) (sin(thisEl*deg2rad) * sin(thisEl*deg2rad + deltaEl*deg2rad) + cos(thisEl*deg2rad) * cos(thisEl*deg2rad + deltaEl*deg2rad) * cos(deltaAz*deg2rad));
                     float angle = acos(tmp);
                     thisStorage[deltaAz][deltaEl] = angle;
                 }
@@ -860,8 +861,8 @@ namespace VieVS{
 
         vector< vector<double> > this_minSNR(nsta, vector<double>(nsta,0));
         unordered_map<string,vector< vector<double> >> minSNR;
-        auto PARA_bands = PARA_xml.get_child("master.bands");
-        for (const auto &it: PARA_bands) {
+
+        for (const auto &it: VLBI_obsMode::wavelength) {
             string name = it.first;
             minSNR[name]=this_minSNR;
         }
@@ -931,6 +932,49 @@ namespace VieVS{
         VLBI_baseline::PARA.maxScan = maxScan;
         VLBI_baseline::PARA.weight = weight;
         VLBI_baseline::PARA.minSNR = minSNR;
+    }
+
+    void VLBI_initializer::initializeObservingMode() {
+        auto PARA_mode = PARA_xml.get_child("master.mode");
+        for (const auto &it: PARA_mode) {
+            if(it.first == "bandwith"){
+                VLBI_obsMode::bandwith = it.second.get_value<unsigned int>();
+            }else if(it.first == "sample_rate"){
+                VLBI_obsMode::sampleRate = it.second.get_value<unsigned int>();
+            }else if(it.first == "fanout"){
+                VLBI_obsMode::fanout = it.second.get_value<unsigned int>();
+            }else if(it.first == "bits"){
+                VLBI_obsMode::bits = it.second.get_value<unsigned int>();
+            }else if(it.first == "band"){
+                double wavelength;
+                unsigned int channels;
+                VLBI_obsMode::PROPERTY property;
+                string name;
+
+                for (const auto &it_band:it.second){
+
+                    if(it_band.first == "<xmlattr>"){
+                        name = it_band.second.get_child("name").data();
+                    }else if(it_band.first == "wavelength"){
+                        wavelength = it_band.second.get_value<double>();
+                    }else if(it_band.first == "property"){
+
+                        if (it_band.second.data() == "required"){
+                            property = VLBI_obsMode::PROPERTY::required;
+                        } else if (it_band.second.data() == "optional"){
+                            property = VLBI_obsMode::PROPERTY::optional;
+                        }
+
+                    }else if(it_band.first == "chanels"){
+                        channels = it_band.second.get_value<unsigned int>();
+                    }
+                }
+                VLBI_obsMode::num_channels[name] = channels;
+                VLBI_obsMode::wavelength[name] = wavelength;
+                VLBI_obsMode::property[name] = property;
+            }
+        }
+
     }
 
 }

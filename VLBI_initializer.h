@@ -23,6 +23,7 @@
 #include "VieVS_earth.h"
 #include "VieVS_lookup.h"
 #include "VLBI_weightFactors.h"
+#include "VLBI_obsMode.h"
 
 #include "sofa.h"
 
@@ -189,6 +190,11 @@ namespace VieVS{
          * @brief initialzeBaselines
          */
         void initializeBaselines();
+
+        /**
+         * @brief reads the observing mode information from xml file
+         */
+        void initializeObservingMode();
 
     private:
         boost::property_tree::ptree PARA_xml; ///< content of parameters.xml file

@@ -238,12 +238,6 @@ namespace VieVS{
                                 }
                                 new_second->setType(VLBI_scan::scanType::subnetting);
 
-//                                bool secondValid;
-//                                VLBI_scan &&new_second = second.copyScan(scan2sta);
-//                                if (!secondValid) {
-//                                    continue;
-//                                }
-
                                 ++n2scans;
                                 pair<VLBI_scan, VLBI_scan> tmp;
                                 tmp.first = move(*new_first);
@@ -258,20 +252,27 @@ namespace VieVS{
     }
 
     void VLBI_subcon::generateScore(vector<VLBI_station> &stations,
-                                    vector<VLBI_skyCoverage> &skyCoverages) {
+                                    vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc) {
+
         unsigned long nmaxsta = stations.size();
+        vector< vector <double> > firstScore(nsrc);
         for (auto &thisScan: subnet1) {
-            thisScan.calcScore(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+            vector<double> firstScorePerPv(thisScan.getNSta(),0);
+            thisScan.calcScore(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages, firstScorePerPv,stations);
             subnet1_score.push_back(thisScan.getScore());
+            firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
         }
+
 
         for (auto &thisScans:subnet2) {
             VLBI_scan &thisScan1 = thisScans.first;
-            thisScan1.calcScore(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+            int srcid1 = thisScan1.getSourceId();
+            thisScan1.calcScore_subcon(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages, firstScore[srcid1],stations);
             double score1 = thisScan1.getScore();
 
             VLBI_scan &thisScan2 = thisScans.second;
-            thisScan2.calcScore(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+            int srcid2 = thisScan2.getSourceId();
+            thisScan2.calcScore_subcon(nmaxsta, nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages, firstScore[srcid2],stations);
             double score2 = thisScan2.getScore();
             subnet2_score.push_back(score1 + score2);
         }
@@ -402,7 +403,7 @@ namespace VieVS{
                 if (!flag) {
                     continue;
                 }
-                thisScan.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+                thisScan.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages,stations);
                 double newScore = thisScan.getScore();
 
                 q.push(make_pair(newScore, idx));
@@ -413,7 +414,7 @@ namespace VieVS{
 
                 VLBI_scan &thisScan1 = thisScans.first;
                 bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], mjdStart);
-                thisScan1.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+                thisScan1.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages,stations);
                 double newScore1 = thisScan1.getScore();
                 if (!flag1) {
                     continue;
@@ -421,7 +422,7 @@ namespace VieVS{
 
                 VLBI_scan &thisScan2 = thisScans.second;
                 bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], mjdStart);
-                thisScan2.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages);
+                thisScan2.calcScore(stations.size(), nmaxbl, astas, asrcs, minTime, maxTime, skyCoverages,stations);
                 double newScore2 = thisScan2.getScore();
                 if (!flag2) {
                     continue;

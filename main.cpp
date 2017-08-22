@@ -28,6 +28,7 @@ void run();
  */
 void createParameterFile();
 
+
 void createSkyCoverageLookup();
 
 /**
@@ -71,6 +72,7 @@ void run(){
 
     VieVS::VLBI_initializer init;
 
+    init.initializeObservingMode();
     init.createStationsFromCatalogs(path);
     init.createSourcesFromCatalogs(path);
     init.initializeStations();
@@ -203,14 +205,30 @@ void createParameterFile(){
     weightFactor.add("averageStations", 0.1);
     pt.add_child("weightFactor", weightFactor);
 
-    boost::property_tree::ptree bands;
+
+
+    boost::property_tree::ptree obs_mode;
+
+    obs_mode.add("bandwith",16);
+    obs_mode.add("sample_rate",32);
+    obs_mode.add("fanout",1);
+    obs_mode.add("bits",2);
+
     boost::property_tree::ptree X;
     X.add("wavelength",0.0349);
+    X.add("property","required");
+    X.add("chanels",10);
+    X.put("<xmlattr>.name","X");
+
     boost::property_tree::ptree S;
     S.add("wavelength",3.8000);
-    bands.add_child("X", X);
-    bands.add_child("S", S);
-    pt.add_child("bands", bands);
+    S.add("property","required");
+    S.add("chanels",6);
+    S.put("<xmlattr>.name","S");
+
+    obs_mode.add_child("band", X);
+    obs_mode.add_child("band", S);
+    pt.add_child("mode", obs_mode);
 
     boost::property_tree::ptree bl;
     bl.add("WETTZ13N_WETTZ13S.ignore",true);
@@ -237,7 +255,7 @@ void createParameterFile(){
     master.add_child("master.source", pt.get_child("source"));
     master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
     master.add_child("master.weightFactor", pt.get_child("weightFactor"));
-    master.add_child("master.bands", pt.get_child("bands"));
+    master.add_child("master.mode", pt.get_child("mode"));
     master.add_child("master.baseline",pt.get_child("baseline"));
 
     std::ofstream os("parameters.xml");
