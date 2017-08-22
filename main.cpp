@@ -4,6 +4,7 @@
 
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
+#include "VLBI_output.h"
 /**
  * @file main.cpp
  * @brief main file
@@ -90,6 +91,9 @@ void run(){
 
     scheduler.precalcSubnettingSrcIds();
     scheduler.start();
+
+    VieVS::VLBI_output output(scheduler);
+    output.displayStatistics();
 
     cout << "Good Bye!" << endl;
 

@@ -824,7 +824,7 @@ namespace VieVS{
     }
 
     void VLBI_initializer::initializeSkyCoverages() {
-        unsigned int maxEl = 90;
+        unsigned int maxEl = 91;
         unsigned int sizeAz = 181;
         vector<vector<vector<float> > > storage;
 

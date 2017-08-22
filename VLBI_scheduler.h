@@ -141,6 +141,38 @@ namespace VieVS{
          */
         bool endOfSessionReached(vector<VLBI_scan> bestScans);
 
+        /**
+         * @brief getter for all stations
+         * @return stations
+         */
+        const vector<VLBI_station> &getStations() const {
+            return stations;
+        }
+
+        /**
+         * @brief getter for all sources
+         * @return sources
+         */
+        const vector<VLBI_source> &getSources() const {
+            return sources;
+        }
+
+        /**
+         * @brief getter for all sky coverages
+         * @return sky coverages
+         */
+        const vector<VLBI_skyCoverage> &getSkyCoverages() const {
+            return skyCoverages;
+        }
+
+        /**
+         * @brief getter for all scans
+         * @return scans
+         */
+        const vector<VLBI_scan> &getScans() const {
+            return scans;
+        }
+
     private:
         vector<VLBI_station> stations; ///< all stations
         vector<VLBI_source> sources; ///< all sources
@@ -162,10 +194,6 @@ namespace VieVS{
          */
         void check(boost::posix_time::ptime &sessionStart);
 
-        /**
-         * @brief displays some basic statistics of the schedule
-         */
-        void displayStatistics();
     };
 }
 #endif /* VLBI_SCHEDULER_H */
