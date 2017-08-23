@@ -18,7 +18,7 @@ namespace VieVS{
     VLBI_scan::VLBI_scan() {
     }
 
-    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan,
+    VLBI_scan::VLBI_scan(const vector<VLBI_pointingVector> &pointingVectors, const vector<unsigned int> &endOfLastScan,
                          int minimumNumberOfStations, scanType type) :
             srcid{pointingVectors.at(0).getSrcid()}, pointingVectors{pointingVectors}, nsta{pointingVectors.size()},
             type{type},
@@ -29,8 +29,8 @@ namespace VieVS{
         baselines.reserve((nsta * (nsta - 1)) / 2);
     }
 
-    VLBI_scan::VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl,
-                         int minNumSta) :
+    VLBI_scan::VLBI_scan(const vector<VLBI_pointingVector> &pv, const VLBI_scanTimes &times,
+                         const vector<VLBI_baseline> &bl, int minNumSta) :
             srcid{pv[0].getSrcid()}, nsta{pv.size()}, pointingVectors{move(pv)}, minimumNumberOfStations{minNumSta},
             score{0}, times{move(times)}, baselines{move(bl)} {
         pointingVectors_endtime.reserve(nsta);
@@ -168,7 +168,7 @@ namespace VieVS{
     }
 
     bool
-    VLBI_scan::calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &source) {
+    VLBI_scan::calcBaselineScanDuration(const vector<VLBI_station> &stations, const VLBI_source &source) {
 
         bool flag_scanValid = true;
         int ibl = 0;
@@ -265,7 +265,7 @@ namespace VieVS{
         return true;
     }
 
-    bool VLBI_scan::scanDuration(vector<VLBI_station> &stations, VLBI_source &source) {
+    bool VLBI_scan::scanDuration(const vector<VLBI_station> &stations, const VLBI_source &source) {
 
         bool scanDurationsValid = false;
         bool scanValid = true;
@@ -388,7 +388,7 @@ namespace VieVS{
         return scanValid;
     }
 
-    int VLBI_scan::findIdxOfStationId(int id) {
+    int VLBI_scan::findIdxOfStationId(int id) const {
         for (int idx = 0; idx < nsta; ++idx) {
             if(pointingVectors[idx].getStaid()==id){
                 return idx;
@@ -397,16 +397,16 @@ namespace VieVS{
         return -1;
     }
 
-    vector<int> VLBI_scan::getStationIds() {
+    vector<int> VLBI_scan::getStationIds() const {
         vector<int> ids;
         for (int i = 0; i < nsta; ++i) {
             ids.push_back(pointingVectors[i].getStaid());
         }
 
-        return ids;
+        return std::move(ids);
     }
 
-    bool VLBI_scan::removeAllBut(vector<int> &station_ids) {
+    bool VLBI_scan::removeAllBut(const vector<int> &station_ids) {
         int i = 0;
         bool valid = true;
         while (i < nsta) {
@@ -430,13 +430,13 @@ namespace VieVS{
         return times.maxTime();
     }
 
-    double VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) {
+    double VLBI_scan::calcScore_numberOfObservations(unsigned long maxObs) const {
         int nbl = baselines.size();
         double thisScore = (double) nbl / (double) maxObs;
         return thisScore;
     }
 
-    double VLBI_scan::calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta) {
+    double VLBI_scan::calcScore_averageStations(const vector<double> &astas, unsigned long nmaxsta) const {
         double finalScore = 0;
 
         vector<unsigned long> bl_counter(nmaxsta);
@@ -453,19 +453,20 @@ namespace VieVS{
         return finalScore;
     }
 
-    double VLBI_scan::calcScore_averageSources(vector<double> &asrcs) {
+    double VLBI_scan::calcScore_averageSources(const vector<double> &asrcs) const {
         unsigned long maxBl = (nsta * (nsta - 1)) / 2;
         unsigned long nbl = baselines.size();
         return asrcs[srcid] * nbl / maxBl;
     }
 
-    double VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) {
+    double VLBI_scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const {
         unsigned int thisEndTime = times.maxTime();
         double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
         return score;
     }
 
-    double VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations) {
+    double VLBI_scan::calcScore_skyCoverage(const vector<VLBI_skyCoverage> &skyCoverages,
+                                            const vector<VLBI_station> &stations) const {
 
         double score = 0;
 
@@ -477,7 +478,9 @@ namespace VieVS{
     }
 
 
-    double VLBI_scan::calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+    double VLBI_scan::calcScore_skyCoverage(const vector<VLBI_skyCoverage> &skyCoverages,
+                                            const vector<VLBI_station> &stations,
+                                            vector<double> &firstScorePerPv) const {
 
         double score = 0;
 
@@ -488,7 +491,9 @@ namespace VieVS{
         return score;
     }
 
-    double VLBI_scan::calcScore_skyCoverage_subcon(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+    double VLBI_scan::calcScore_skyCoverage_subcon(const vector<VLBI_skyCoverage> &skyCoverages,
+                                                   const vector<VLBI_station> &stations,
+                                                   const vector<double> &firstScorePerPv) const {
 
         double score = 0;
 
@@ -500,7 +505,7 @@ namespace VieVS{
     }
 
 
-    bool VLBI_scan::rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source) {
+    bool VLBI_scan::rigorousUpdate(const vector<VLBI_station> &stations, const VLBI_source &source) {
         bool flag = true;
         int srcid = source.getId();
 
@@ -512,7 +517,7 @@ namespace VieVS{
             unsigned int slewStart = times.getEndOfSourceTime(i);
             unsigned int slewEnd = times.getEndOfSlewTime(i);
             int staid = pv.getStaid();
-            VLBI_station &thisSta = stations[staid];
+            const VLBI_station & thisSta = stations[staid];
 
             VLBI_pointingVector new_p(staid, srcid);
             unsigned int oldSlewEnd;
@@ -656,8 +661,9 @@ namespace VieVS{
         return true;
     }
 
-    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations) {
+    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                              const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                              const vector<VLBI_skyCoverage> &skyCoverages, const vector<VLBI_station> &stations) {
         double this_score = 0;
         this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
         this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
@@ -668,8 +674,10 @@ namespace VieVS{
         score = this_score;
     }
 
-    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPV, vector<VLBI_station> &stations) {
+    void VLBI_scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                              const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                              const vector<VLBI_skyCoverage> &skyCoverages,
+                              vector<double> & firstScorePerPV, const vector<VLBI_station> &stations) {
         double this_score = 0;
         this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
         this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
@@ -677,12 +685,14 @@ namespace VieVS{
         this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
         this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
 
-        score = this_score;
+        score =  this_score;
     }
 
 
-    void VLBI_scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                              unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPV, vector<VLBI_station> &stations) {
+    void VLBI_scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                                     const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                                     const vector<VLBI_skyCoverage> &skyCoverages,
+                                     const vector<double> & firstScorePerPV, const vector<VLBI_station> &stations) {
         double this_score = 0;
         this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
         this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
@@ -690,12 +700,13 @@ namespace VieVS{
         this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
         this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
 
-        score = this_score;
+        score =  this_score;
 
 
     }
 
-    void VLBI_scan::output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source) {
+    void VLBI_scan::output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations,
+                           const VLBI_source &source) const {
         unsigned long nmaxsta = stations.size();
 
         stringstream buffer1;
@@ -801,7 +812,7 @@ namespace VieVS{
         cout << "\n";
     }
 
-    boost::optional<VLBI_scan> VLBI_scan::copyScan(vector<int> &ids) {
+    boost::optional<VLBI_scan> VLBI_scan::copyScan(const vector<int> &ids) const{
 
         vector<VLBI_pointingVector> pv;
         pv.reserve(nsta);
@@ -829,7 +840,7 @@ namespace VieVS{
         }
 
         for (int j = 0; j < baselines.size(); ++j) {
-            VLBI_baseline &thisBl = baselines[j];
+            const VLBI_baseline &thisBl = baselines[j];
             int staid1 = thisBl.getStaid1();
             int staid2 = thisBl.getStaid2();
 
@@ -842,10 +853,9 @@ namespace VieVS{
     }
 
     boost::optional<VLBI_scan>
-    VLBI_scan::possibleFillinScan(vector<VLBI_station> &stations, VLBI_source &source,
-                                  const std::vector<char> &possible,
-                                  const std::vector<char> &unused,
-                                  const vector<VLBI_pointingVector> &pv_final_position) {
+    VLBI_scan::possibleFillinScan(const vector<VLBI_station> &stations, const VLBI_source &source,
+                                  const std::vector<char> &possible, const std::vector<char> &unused,
+                                  const vector<VLBI_pointingVector> &pv_final_position) const {
 
         // get all ids of possible stations. This is necessary to call copyScan
         vector<int> possible_ids;
@@ -874,7 +884,7 @@ namespace VieVS{
                 int srcid = tmp_fi_scan.getSourceId();
                 // create pointing vector at end of scan
                 VLBI_pointingVector this_pv_scan_end(staid, srcid);
-                VLBI_station &thisStation = stations[staid];
+                const VLBI_station &thisStation = stations[staid];
                 this_pv_scan_end.setTime(endOfFillinScan);
 
                 // calculate azimuth and elevation at end of scan

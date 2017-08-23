@@ -98,7 +98,7 @@ namespace VieVS{
             vector<double> dx; ///< delta x of station coordinates
             vector<double> dy; ///< delta y of station coordinates
             vector<double> dz; ///< delta z of station coordinates
-            double g2l[3][3] = {}; ///< geocentric to local transformation matrix
+            vector<vector<double> > g2l; ///< geocentric to local transformation matrix
         };
 
         /**
@@ -118,14 +118,14 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        VLBI_station(string sta_name, 
+        VLBI_station(const string &sta_name,
                 int id,
-                VLBI_antenna sta_antenna, 
-                VLBI_cableWrap sta_cableWrap, 
-                VLBI_position sta_position, 
-                VLBI_equip sta_equip, 
-                VLBI_mask sta_mask,
-                string sta_axis);
+                const VLBI_antenna &sta_antenna,
+                const VLBI_cableWrap &sta_cableWrap,
+                const VLBI_position &sta_position,
+                const VLBI_equip &sta_equip,
+                const VLBI_mask &sta_mask,
+                const string &sta_axis);
 
         /**
          * @brief destuctor
@@ -136,7 +136,7 @@ namespace VieVS{
          * @brief station availability
          * @return true if station is available
          */
-        bool available() {
+        bool available() const {
             return PARA.available;
         }
 
@@ -152,7 +152,7 @@ namespace VieVS{
          * @brief first scan check
          * @return true if this is the first scan of the station after a break or session start
          */
-        bool firstScan() {
+        bool firstScan() const {
             return PARA.firstScan;
         }
 
@@ -161,7 +161,7 @@ namespace VieVS{
          * @brief getter for maximum allowed slew time
          * @return maximum allowed slew time
          */
-        unsigned int getMaxSlewtime(){
+        unsigned int getMaxSlewtime() const {
             return PARA.maxSlewtime;
         }
 
@@ -169,7 +169,7 @@ namespace VieVS{
          * @brief getter for maximum allowed idle time
          * @return maximum allowed idle time
          */
-        unsigned int getMaxIdleTime(){
+        unsigned int getMaxIdleTime() const {
             return PARA.maxWait;
         }
 
@@ -177,7 +177,7 @@ namespace VieVS{
          * @brief getter for minimum required scan time
          * @return minimum required scan time
          */
-        unsigned int getMinScanTime(){
+        unsigned int getMinScanTime() const {
             return PARA.minScan;
         }
 
@@ -185,7 +185,7 @@ namespace VieVS{
          * @brief getter for maximum allowed scan time
          * @return maximum required scan time
          */
-        unsigned int getMaxScanTime(){
+        unsigned int getMaxScanTime() const {
             return PARA.maxScan;
         }
 
@@ -201,7 +201,7 @@ namespace VieVS{
          * @brief getter for station name
          * @return station name
          */
-        string getName()const {
+        const string &getName() const {
             return name;
         }
 
@@ -209,7 +209,7 @@ namespace VieVS{
          * @brief getter for last time this antenna was mentioned in scheduling
          * @return last station usage time in seconds since session start
          */
-        unsigned int getCurrentTime(){
+        unsigned int getCurrentTime() const {
             return current.getTime();
         }
 
@@ -228,7 +228,7 @@ namespace VieVS{
          * @param band requested information for this band
          * @return minimum signal to noise ration for this band
          */
-        double getMinSNR(string band){
+        double getMinSNR(string band) const {
             for (auto &any:PARA.minSNR) {
                 if (any.first == band) {
                     return any.second;
@@ -242,7 +242,7 @@ namespace VieVS{
          * @param other_staid other station id
          * @return distance between this two stations
          */
-        double getDistance(int other_staid){
+        double getDistance(int other_staid) const{
             return PRECALC.distance[other_staid];
         }
 
@@ -333,7 +333,7 @@ namespace VieVS{
          * @param other other station
          * @return distance between this two stations
          */
-        double distance(VLBI_station other);
+        double distance(const VLBI_station &other) const;
 
         /**
          * @brief checks if a source is visible for this station
@@ -344,7 +344,7 @@ namespace VieVS{
          * @param useTimeFromStation if true additional times will be added, if false time from parameter p will be taken
          * @return true if station is visible
          */
-        bool isVisible(VLBI_pointingVector &p);
+        bool isVisible(const VLBI_pointingVector &p) const;
 
         /**
          * @brief calculate slew time between current pointing vector and this pointing vector
@@ -354,24 +354,26 @@ namespace VieVS{
          * @param pointingVector slew end position
          * @return slewtime in seconds
          */
-        unsigned int slewTime(VLBI_pointingVector &pointingVector);
+        unsigned int slewTime(const VLBI_pointingVector &pointingVector) const;
 
         /**
          * @brief calculate azimuth and elevation of source at a given time
+         *
+         * !!! This function changes p !!!
          *
          * @param source observed source
          * @param p pointing vector where azimuth and elevation is saved
          * @param model model used for calculation (default is simple model)
          */
         void
-        updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model = azelModel::simple);
+        updateAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model = azelModel::simple) const;
 
         /**
          * @brief change current pointing vector
          *
          * @param pointingVector new current pointing vector
          */
-        void pushPointingVector(VLBI_pointingVector &pointingVector);
+        void pushPointingVector(const VLBI_pointingVector &pointingVector);
 
         /**
          * @brief sets all parameters from .xml group
@@ -379,7 +381,7 @@ namespace VieVS{
          * @param group group name
          * @param PARA_station .xml parameters
          */
-        void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
+        void setParameters(const string& group, const boost::property_tree::ptree& PARA_station);
 
         /**
          * @brief overload of the << operator for output to stream
@@ -399,7 +401,8 @@ namespace VieVS{
          * @param dy delta y between stations
          * @param dz delta z between stations
          */
-        void preCalc(vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz);
+        void preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
+                     const vector<double> &dz);
 
         /**
          * @brief update station if used for a scan
@@ -410,8 +413,8 @@ namespace VieVS{
          * @param times time stamps of scan
          * @param srcName name of observed source
          */
-        void update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end, vector<unsigned int> times,
-                    string srcName);
+        void update(unsigned long nbl, const VLBI_pointingVector &start, const VLBI_pointingVector &end,
+                    const vector<unsigned int> &times, const string &srcName);
 
         //todo: remove this function
         /**
@@ -423,7 +426,7 @@ namespace VieVS{
          * @brief get required time for setup
          * @return setup time in seconds
          */
-        unsigned int getWaitSetup()const {
+        unsigned int getWaitSetup() const {
             return PARA.wait_setup;
         }
 
@@ -431,7 +434,7 @@ namespace VieVS{
         * @brief get required time for source
         * @return source time in seconds
         */
-        unsigned int getWaitSource()const {
+        unsigned int getWaitSource() const {
             return PARA.wait_source;
         }
 
@@ -439,7 +442,7 @@ namespace VieVS{
          * @brief get required time for tape
          * @return tape time in seconds
          */
-        unsigned int getWaitTape()const {
+        unsigned int getWaitTape() const {
             return PARA.wait_tape;
         }
 
@@ -447,7 +450,7 @@ namespace VieVS{
          * @brief get required time for calibration
          * @return calibration time in seconds
          */
-        unsigned int getWaitCalibration()const {
+        unsigned int getWaitCalibration() const {
             return PARA.wait_calibration;
         }
 
@@ -455,7 +458,7 @@ namespace VieVS{
          * @brief get required time for correlator synchronization
          * @return correlator synchronization time in seconds
          */
-        unsigned int getWaitCorsynch() {
+        unsigned int getWaitCorsynch() const {
             return PARA.wait_corsynch;
         }
 
@@ -466,8 +469,8 @@ namespace VieVS{
          *
          * @return first elements are start pointing vectors, second elements are end pointing vectors
          */
-        pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& > getAllScans()const {
-            return pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& >(pv_startScan,pv_endScan);
+        pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& > getAllScans() const {
+            return std::move(pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& >(pv_startScan,pv_endScan));
         };
 
     private:

@@ -50,7 +50,7 @@ namespace VieVS{
             unsigned int minScan = 30; ///< minimum required scan time in seconds
         };
         struct PRECALCULATED{
-            double sourceInCrs[3];
+            vector<double> sourceInCrs;
         };
 
         /**
@@ -66,9 +66,10 @@ namespace VieVS{
          * @param src_de_deg declination in degrees
          * @param src_flux flux information per band
          */
-        VLBI_source(string src_name, double src_ra_deg, double src_de_deg, vector<pair<string, VLBI_flux> > src_flux);
+        VLBI_source(const string &src_name, double src_ra_deg, double src_de_deg,
+                    const vector<pair<string, VLBI_flux> > &src_flux);
 
-        double* getSourceInCrs(){
+        const vector<double> &getSourceInCrs() const {
             return PRECALC.sourceInCrs;
         }
 
@@ -77,7 +78,7 @@ namespace VieVS{
          *
          * @return name of the source
          */
-        string getName() {
+        const string &getName() const {
             return name;
         }
 
@@ -140,7 +141,7 @@ namespace VieVS{
          *
          * @return minimum required SNR for all bands
          */
-        vector<pair<string, double> > getMinSNR() {
+        const vector<pair<string, double> > &getMinSNR() const {
             return PARA.minSNR;
         }
 
@@ -149,7 +150,7 @@ namespace VieVS{
          *
          * @return minimum required scan time in seconds
          */
-        unsigned int getMinScanTime(){
+        unsigned int getMinScanTime() const {
             return PARA.minScan;
         }
 
@@ -158,7 +159,7 @@ namespace VieVS{
          *
          * @return maximum allowed scan time in seconds
          */
-        unsigned int getMaxScanTime(){
+        unsigned int getMaxScanTime() const {
             return PARA.maxScan;
         }
 
@@ -185,15 +186,18 @@ namespace VieVS{
          * @param other other source
          * @return angular distance in radians
          */
-        double angleDistance(VLBI_source other);
+        double angleDistance(const VLBI_source &other) const;
 
         /**
          * checks if source is strong enough
+         *
+         * !!! this function changes maxFlux !!!
+         *
          * //TODO: change this fuction
          * @param maxFlux maximum flux density of this source (will be calculated)
          * @return true if source is strong enough, otherwise false
          */
-        bool isStrongEnough(double& maxFlux);
+        bool isStrongEnough(double& maxFlux) const;
 
         /**
          * @brief sets all parameters from .xml group
@@ -201,7 +205,7 @@ namespace VieVS{
          * @param group group name
          * @param PARA_station .xml parameters
          */
-        void setParameters(const string& group, boost::property_tree::ptree& PARA_station);
+        void setParameters(const string& group, const boost::property_tree::ptree& PARA_station);
 
         /**
          * @brief observed flux density per band
@@ -213,7 +217,7 @@ namespace VieVS{
          * @param dz baseline delta z
          * @return observed flux density per band
          */
-        vector<pair<string, double> > observedFlux(double gmst, double dx, double dy, double dz);
+        vector<pair<string, double> > observedFlux(double gmst, double dx, double dy, double dz) const;
 
         /**
          * @brief destructor

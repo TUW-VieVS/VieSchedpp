@@ -49,7 +49,7 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        VLBI_scheduler(VLBI_initializer &init);
+        VLBI_scheduler(const VLBI_initializer &init);
 
         /**
          * @brief main function that starts the scheduling
@@ -86,7 +86,7 @@ namespace VieVS{
          *
          * @param scan best possible next scans
          */
-        void update(VLBI_scan &scan);
+        void update(const VLBI_scan &scan);
 
         /**
          * @brief updates and prints the number of all considered scans
@@ -107,10 +107,13 @@ namespace VieVS{
          * @brief prints the header lines of the output table to the console
          * @param stations
          */
-        void outputHeader(vector<VLBI_station> &stations);
+        void outputHeader(const vector<VLBI_station> &stations) const;
 
         /**
          * @brief this function starts the fillin mode
+         *
+         * !!! This function changes bestScans (is empty at end) !!!
+         * !!! This function changes subcon (will be new subcon for last fillin scan) !!!
          *
          * Besides calculating possible fillin scans this function also updates all selected next scans.
          *
@@ -126,15 +129,15 @@ namespace VieVS{
          * @param scans which will be observed next
          * @return list of all fillin scans
          */
-        boost::optional<VLBI_scan> fillin_scan(VLBI_subcon &subcon, VLBI_fillin_endpositions &fi_endp,
-                                               vector<int> &sourceWillBeScanned);
+        boost::optional<VLBI_scan> fillin_scan(VLBI_subcon &subcon, const VLBI_fillin_endpositions &fi_endp,
+                                               const vector<int> &sourceWillBeScanned);
 
         /**
          * @brief checks if the end of the session is reached
          * @param bestScans best next scans
          * @return true if end is reached, otherwise false
          */
-        bool endOfSessionReached(vector<VLBI_scan> bestScans);
+        bool endOfSessionReached(const vector<VLBI_scan> &bestScans) const;
 
         /**
          * @brief getter for all stations

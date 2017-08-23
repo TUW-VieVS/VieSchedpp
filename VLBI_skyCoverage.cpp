@@ -18,7 +18,8 @@ namespace VieVS{
     VLBI_skyCoverage::VLBI_skyCoverage() {
     }
 
-    VLBI_skyCoverage::VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id)
+    VLBI_skyCoverage::VLBI_skyCoverage(const vector<int> &staids, double skyCoverageDistance,
+                                       double skyCoverageInterval, int id)
             : nStations{staids.size()}, staids{staids}, maxDistTime{skyCoverageInterval},
               maxDistDistance{skyCoverageDistance}, id{id} {
     }
@@ -26,12 +27,12 @@ namespace VieVS{
     VLBI_skyCoverage::~VLBI_skyCoverage() {
     }
 
-    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations) {
+    double VLBI_skyCoverage::calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations) const {
 
         double score = 0;
 
         for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            const VLBI_pointingVector &pv_new = pvs[idx_newObs];
             if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
                 continue;
             }
@@ -39,7 +40,7 @@ namespace VieVS{
             double min_score = 1;
 
             for (int idx_oldObs = 0; idx_oldObs < pv_end.size(); ++idx_oldObs) {
-                VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
+                const VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
 
                 double thisScore = scorePerPointingVector(pv_new, pv_old);
                 if (thisScore < min_score) {
@@ -64,12 +65,13 @@ namespace VieVS{
     }
 
 
-    double VLBI_skyCoverage::calcScore(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+    double VLBI_skyCoverage::calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations,
+                                       vector<double> &firstScorePerPv) const {
 
         double score = 0;
 
         for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            const VLBI_pointingVector &pv_new = pvs[idx_newObs];
             if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
                 continue;
             }
@@ -77,7 +79,7 @@ namespace VieVS{
             double min_score = 1;
 
             for (int idx_oldObs = 0; idx_oldObs < pv_end.size(); ++idx_oldObs) {
-                VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
+                const VLBI_pointingVector &pv_old = pv_end[idx_oldObs];
 
                 double thisScore = scorePerPointingVector(pv_new, pv_old);
                 if (thisScore < min_score) {
@@ -102,12 +104,14 @@ namespace VieVS{
         return score;
     }
 
-    double VLBI_skyCoverage::calcScore_subcon(vector<VLBI_pointingVector> &pvs, vector<VLBI_station> &stations, vector<double> &firstScorePerPv) {
+    double VLBI_skyCoverage::calcScore_subcon(const vector<VLBI_pointingVector> &pvs,
+                                              const vector<VLBI_station> &stations,
+                                              const vector<double> &firstScorePerPv) const {
 
         double score = 0;
 
         for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-            VLBI_pointingVector &pv_new = pvs[idx_newObs];
+            const VLBI_pointingVector &pv_new = pvs[idx_newObs];
             if (stations[pv_new.getStaid()].getSkyCoverageID() != id) {
                 continue;
             }
@@ -134,13 +138,13 @@ namespace VieVS{
         return score;
     }
 
-    void VLBI_skyCoverage::update(VLBI_pointingVector &start, VLBI_pointingVector &end) {
+    void VLBI_skyCoverage::update(const VLBI_pointingVector &start, const VLBI_pointingVector &end) {
         pv_start.push_back(start);
         pv_end.push_back(end);
     }
 
     double
-    VLBI_skyCoverage::scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old) {
+    VLBI_skyCoverage::scorePerPointingVector(const VLBI_pointingVector &pv_new, const VLBI_pointingVector &pv_old) const {
         long deltaTime = (long) pv_new.getTime() - (long) pv_old.getTime();
         if (deltaTime > maxDistTime) {
             return 1;

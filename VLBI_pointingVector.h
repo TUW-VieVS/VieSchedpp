@@ -72,7 +72,7 @@ namespace VieVS{
          *
          * @return id of station
          */
-        int getStaid()const {
+        int getStaid() const {
             return staid;
         }
 
@@ -135,7 +135,9 @@ namespace VieVS{
          *
          * @param new_time new time
          */
-        void setTime(unsigned int new_time){time = new_time;};
+        void setTime(unsigned int new_time){
+            time = new_time;
+        };
         
     private:
         int staid; ///< station id

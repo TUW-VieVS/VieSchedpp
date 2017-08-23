@@ -27,7 +27,7 @@ namespace VieVS{
         }
     }
         
-    bool VLBI_flux::addFluxParameters(vector<string> parameters){
+    bool VLBI_flux::addFluxParameters(const vector<string> &parameters){
         
         if (this->type == fluxType::B){
             int npara = parameters.size();
@@ -49,7 +49,7 @@ namespace VieVS{
         }else if (this->type == fluxType::M){
             int npara = parameters.size();
             
-            int nmodels = npara/6;
+            int nmodels = npara / 6;
             
             for(int i=0; i<nmodels; ++i){
                 try{
@@ -70,7 +70,7 @@ namespace VieVS{
     VLBI_flux::~VLBI_flux() {
     }
 
-    double VLBI_flux::getMaximumFlux(){
+    double VLBI_flux::getMaximumFlux() const{
         double maxFlux = 0;
         if (this->type == fluxType::B){
             for(auto flux_Jy: values){
@@ -99,7 +99,7 @@ namespace VieVS{
         return out;
     }
 
-    double VLBI_flux::getFlux(double u, double v) {
+    double VLBI_flux::getFlux(double u, double v) const {
         double observedFlux = 0;
 
         if(type == fluxType::B){

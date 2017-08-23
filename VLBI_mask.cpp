@@ -17,7 +17,7 @@ namespace VieVS{
         type = category::none;
     }
     
-    VLBI_mask::VLBI_mask(vector<double> el_mask_deg)
+    VLBI_mask::VLBI_mask(const vector<double> &el_mask_deg)
     {
         if (el_mask_deg.empty()){
             type = category::none;
@@ -41,7 +41,7 @@ namespace VieVS{
     VLBI_mask::~VLBI_mask() {
     }
 
-    bool VLBI_mask::visible(const VLBI_pointingVector &pv) {
+    bool VLBI_mask::visible(const VLBI_pointingVector &pv)const {
         bool visible = true;
 
         double az = pv.getAz();

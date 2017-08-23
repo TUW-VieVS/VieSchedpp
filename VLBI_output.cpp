@@ -150,7 +150,7 @@ namespace VieVS{
 
         for (auto& any:scans){
             for (int ista = 0; ista < any.getNSta(); ++ista) {
-                VLBI_pointingVector& pv =  any.getPointingVector(ista);
+                const VLBI_pointingVector& pv =  any.getPointingVector(ista);
                 int id = pv.getStaid();
                 ++nscan_sta[id];
                 time_sta[id].push_back(any.maxTime());

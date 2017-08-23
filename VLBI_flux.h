@@ -48,7 +48,7 @@ namespace VieVS{
          * @param parameters all parameters spezified in flux.cat line
          * @return true if flux parameters could be used, false if something went wrong
          */
-        bool addFluxParameters(vector<string> parameters);
+        bool addFluxParameters(const vector<string> &parameters);
 
         /**
          * @brief sets the wavelength of the band whose flux information is stored
@@ -67,7 +67,7 @@ namespace VieVS{
          *
          * @return maximum possible flux density
          */
-        double getMaximumFlux();
+        double getMaximumFlux() const;
 
         /**
          * @brief destructor
@@ -83,7 +83,7 @@ namespace VieVS{
          * @param v projected baseline length
          * @return flux density fot this constellation
          */
-        double getFlux(double u, double v);
+        double getFlux(double u, double v) const;
 
     private:
 

@@ -17,12 +17,12 @@ namespace VieVS{
     VLBI_subcon::VLBI_subcon(): n1scans{0}, n2scans{0} {
     }
 
-    void VLBI_subcon::addScan(VLBI_scan scan){
+    void VLBI_subcon::addScan(const VLBI_scan &scan){
         subnet1.push_back(scan);
         n1scans++;
     }
 
-    void VLBI_subcon::calcStartTimes(vector<VLBI_station> &stations, vector<VLBI_source> &sources) {
+    void VLBI_subcon::calcStartTimes(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) {
 
         int i=0;
         while(i<n1scans){
@@ -34,7 +34,7 @@ namespace VieVS{
             while(j<subnet1[i].getNSta()){
                 int staid = subnet1[i].getStationId(j);
 
-                VLBI_station &thisSta = stations[staid];
+                const VLBI_station &thisSta = stations[staid];
                 if (thisSta.firstScan()) {
                     subnet1[i].addTimes(j, 0, 0, 0, 0, 0);
                     ++j;
@@ -44,7 +44,7 @@ namespace VieVS{
 
 
                 thisSta.getCableWrap().calcUnwrappedAz(thisSta.getCurrentPointingVector(),
-                                                       subnet1[i].getPointingVector(j));
+                                                       subnet1[i].referencePointingVector(j));
                 unsigned int slewtime = thisSta.slewTime(subnet1[i].getPointingVector(j));
 
                 if (slewtime > thisSta.getMaxSlewtime()) {
@@ -79,11 +79,11 @@ namespace VieVS{
         }
     }
 
-    void VLBI_subcon::updateAzEl(vector<VLBI_station> &stations, vector<VLBI_source> &sources) {
+    void VLBI_subcon::updateAzEl(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) {
         int i = 0;
         while (i < n1scans) {
 
-            VLBI_source thisSource = sources[subnet1[i].getSourceId()];
+            const VLBI_source thisSource = sources[subnet1[i].getSourceId()];
             bool scanValid_slew = true;
             bool scanValid_idle = true;
             vector<unsigned  int> maxIdleTimes;
@@ -91,7 +91,7 @@ namespace VieVS{
             int j = 0;
             while (j < subnet1[i].getNSta()) {
                 int staid = subnet1[i].getPointingVector(j).getStaid();
-                VLBI_pointingVector &thisPointingVector = subnet1[i].getPointingVector(j);
+                VLBI_pointingVector &thisPointingVector = subnet1[i].referencePointingVector(j);
                 thisPointingVector.setTime(subnet1[i].getTimes().getEndOfIdleTime(j));
                 stations[staid].updateAzEl(thisSource, thisPointingVector);
                 bool visible = stations[staid].isVisible(thisPointingVector);
@@ -130,7 +130,7 @@ namespace VieVS{
     }
 
     void
-    VLBI_subcon::calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources) {
+    VLBI_subcon::calcAllBaselineDurations(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) {
         int i = 0;
         while ( i < n1scans ) {
             VLBI_scan& thisScan = subnet1[i];
@@ -144,7 +144,7 @@ namespace VieVS{
         }
     }
 
-    void VLBI_subcon::calcAllScanDurations(vector<VLBI_station>& stations, vector<VLBI_source>& sources) {
+    void VLBI_subcon::calcAllScanDurations(const vector<VLBI_station>& stations, const vector<VLBI_source>& sources) {
         int i=0;
         while (i<n1scans){
             VLBI_scan& thisScan = subnet1[i];
@@ -160,7 +160,7 @@ namespace VieVS{
         }
     }
 
-    void VLBI_subcon::createSubcon2(vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon) {
+    void VLBI_subcon::createSubcon2(const vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon) {
         vector<int> sourceIds(n1scans);
         for (int i = 0; i < n1scans; ++i) {
             sourceIds[i] = subnet1[i].getSourceId();
@@ -251,8 +251,8 @@ namespace VieVS{
         }
     }
 
-    void VLBI_subcon::generateScore(vector<VLBI_station> &stations,
-                                    vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc) {
+    void VLBI_subcon::generateScore(const vector<VLBI_station> &stations,
+                                    const vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc) {
 
         unsigned long nmaxsta = stations.size();
         vector< vector <double> > firstScore(nsrc);
@@ -339,7 +339,7 @@ namespace VieVS{
         astas = staobs_score;
     }
 
-    void VLBI_subcon::average_source_score(vector<VLBI_source> &sources) {
+    void VLBI_subcon::average_source_score(const vector<VLBI_source> &sources) {
         vector<double> srcobs;
         for (auto &thisSource:sources) {
             srcobs.push_back(thisSource.getNbls());
@@ -367,7 +367,7 @@ namespace VieVS{
         asrcs = srcobs_score;
     }
 
-    void VLBI_subcon::precalcScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources) {
+    void VLBI_subcon::precalcScore(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) {
 
         unsigned long nsta = stations.size();
         nmaxbl = (nsta * (nsta - 1)) / 2;
@@ -377,8 +377,8 @@ namespace VieVS{
     }
 
     boost::optional<unsigned long>
-    VLBI_subcon::rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                               vector<VLBI_skyCoverage> &skyCoverages) {
+    VLBI_subcon::rigorousScore(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources,
+                               const vector<VLBI_skyCoverage> &skyCoverages) {
 
         vector<double> scores = subnet1_score;
         scores.insert(scores.end(), subnet2_score.begin(), subnet2_score.end());

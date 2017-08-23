@@ -70,7 +70,7 @@ namespace VieVS {
          *
          * @param endOfLastScan end time of last scan in seconds since session start
          */
-        void setEndOfLastScan(vector<unsigned int> endOfLastScan) {
+        void setEndOfLastScan(const vector<unsigned int> &endOfLastScan) {
             VLBI_scanTimes::endOfLastScan = endOfLastScan;
         }
 
@@ -168,9 +168,9 @@ namespace VieVS {
          * @return vector of all times for one station
          */
         vector<unsigned int> stationTimes(int idx) const {
-            return vector<unsigned int>{endOfSetupTime[idx], endOfSourceTime[idx], endOfSlewTime[idx],
+            return std::move(vector<unsigned int>{endOfSetupTime[idx], endOfSourceTime[idx], endOfSlewTime[idx],
                                         endOfIdleTime[idx], endOfTapeTime[idx], endOfCalibrationTime[idx],
-                                        endOfScanTime[idx]};
+                                        endOfScanTime[idx]});
         }
 
         /**
@@ -195,7 +195,7 @@ namespace VieVS {
          *
          * @param scanTimes all scan times in seconds
          */
-        void addScanTimes(vector<unsigned int> &scanTimes);
+        void addScanTimes(const vector<unsigned int> &scanTimes);
 
         /**
          * @brief latest time until scan is finished

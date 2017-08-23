@@ -82,7 +82,7 @@ namespace VieVS{
     VLBI_initializer::~VLBI_initializer() {
     }
     
-    map<string,vector<string>> VLBI_initializer::readCatalog(string catalogPath, catalog type){
+    map<string,vector<string>> VLBI_initializer::readCatalog(const string &catalogPath, catalog type){
         map<string,vector<string>> all;
         int indexOfKey;
         string filepath;
@@ -266,10 +266,10 @@ namespace VieVS{
             }
         }
         
-        return all;
+        return std::move(all);
     }
     
-    void VLBI_initializer::createStationsFromCatalogs(string catalogPath) {
+    void VLBI_initializer::createStationsFromCatalogs(const string &catalogPath) {
         cout << "Creating stations from catalog files:\n";
         cout << "  reading antenna.cat:\n";
         map<string,vector<string>> antennaCatalog  =  readCatalog(catalogPath,catalog::antenna);
@@ -418,7 +418,7 @@ namespace VieVS{
         cout <<"Finished! "<< created <<" of " << nant << " stations created\n\n" << endl;
     }
     
-    void VLBI_initializer::createSourcesFromCatalogs(string catalogPath){
+    void VLBI_initializer::createSourcesFromCatalogs(const string &catalogPath){
         cout << "Creating sources from catalog files:\n";
         cout << "  reading source.cat:\n";
         map<string,vector<string>> sourceCatalog  =  readCatalog(catalogPath,catalog::source);

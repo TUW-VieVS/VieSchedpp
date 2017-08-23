@@ -39,7 +39,7 @@ namespace VieVS{
          *
          * @param el_mask_deg horizon mask information in degrees
          */
-        VLBI_mask(vector<double> el_mask_deg);
+        VLBI_mask(const vector<double> &el_mask_deg);
 
         /**
          * @brief destructor
@@ -52,7 +52,7 @@ namespace VieVS{
          * @param pv pointing vector whose azimuth and elevation is to check
          * @return true if visible, false if not visible
          */
-        bool visible(const VLBI_pointingVector &pv);
+        bool visible(const VLBI_pointingVector &pv) const;
         
     private:
         vector<double> azimuth; ///< horizon mask knots in radians

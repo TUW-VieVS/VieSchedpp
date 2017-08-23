@@ -69,7 +69,7 @@ namespace VieVS{
          * @param minimumNumberOfStations minimum number of stations for this scan
          * @param type scan type
          */
-        VLBI_scan(vector<VLBI_pointingVector> pointingVectors, vector<unsigned int> endOfLastScan,
+        VLBI_scan(const vector<VLBI_pointingVector> &pointingVectors,const vector<unsigned int> &endOfLastScan,
                   int minimumNumberOfStations, scanType type);
 
         /**
@@ -83,7 +83,7 @@ namespace VieVS{
          * @param bl all baselines
          * @param minNumSta minimum number of stations for this scan
          */
-        VLBI_scan(vector<VLBI_pointingVector> &pv, VLBI_scanTimes &times, vector<VLBI_baseline> &bl, int minNumSta);
+        VLBI_scan(const vector<VLBI_pointingVector> &pv, const VLBI_scanTimes &times, const vector<VLBI_baseline> &bl, int minNumSta);
 
         /**
          * @brief default copy constructor
@@ -142,7 +142,7 @@ namespace VieVS{
          *
          * @return number of stations
          */
-        unsigned long getNSta()const {
+        unsigned long getNSta() const {
             return nsta;
         }
 
@@ -152,7 +152,7 @@ namespace VieVS{
          * @param idx index of required station id
          * @return id of station
          */
-        int getStationId(int idx) {
+        int getStationId(int idx) const{
             return pointingVectors[idx].getStaid();
         }
 
@@ -161,7 +161,7 @@ namespace VieVS{
          *
          * @return source id
          */
-        int getSourceId()const {
+        int getSourceId() const {
             return pointingVectors[0].getSrcid();
         }
 
@@ -171,7 +171,17 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector
          */
-        VLBI_pointingVector & getPointingVector(int idx) {
+        const VLBI_pointingVector & getPointingVector(int idx) const {
+            return pointingVectors[idx];
+        }
+
+        /**
+         * @brief reference to pointing vector for an index
+         *
+         * @param idx index of required pointing vector
+         * @return pointing vector
+         */
+        VLBI_pointingVector & referencePointingVector(int idx) {
             return pointingVectors[idx];
         }
 
@@ -181,7 +191,7 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector at the end of a scan
          */
-        VLBI_pointingVector &getPointingVectors_endtime(int idx) {
+        const VLBI_pointingVector & getPointingVectors_endtime(int idx) const {
             return pointingVectors_endtime[idx];
         }
 
@@ -249,7 +259,7 @@ namespace VieVS{
          * @param id station id
          * @return index
          */
-        int findIdxOfStationId(int id);
+        int findIdxOfStationId(int id) const;
 
         /**
          * @brief adds scan times
@@ -296,26 +306,26 @@ namespace VieVS{
          * @param mjdStart modified julian date of session start
          * @return true is scan is still valid, otherwise false
          */
-        bool calcBaselineScanDuration(vector<VLBI_station> &stations, VLBI_source &sources);
+        bool calcBaselineScanDuration(const vector<VLBI_station> &stations, const VLBI_source &sources);
 
         /**
          * @brief calculates the total scan duration per station
          *
          * removes stations if the scan duration is longer than the maximum allowed scan duration
-         * //TODO descript how and which stations are removed
+         * //TODO descripe how and which stations are removed
          *
          * @param stations all stations
          * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool scanDuration(vector<VLBI_station> &stations, VLBI_source &source);
+        bool scanDuration(const vector<VLBI_station> &stations, const VLBI_source &source);
 
         /**
          * @brief getter for all station ids
          *
          * @return all station ids
          */
-        vector<int> getStationIds();
+        vector<int> getStationIds() const;
 
         /**
          * @brief removes all stations except the ones in the station_ids parameter
@@ -323,7 +333,7 @@ namespace VieVS{
          * @param station_ids ids of all stations which should not be removed
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool removeAllBut(vector<int> &station_ids);
+        bool removeAllBut(const vector<int> &station_ids);
 
         /**
          * @brief calculates the score of a scan
@@ -338,12 +348,16 @@ namespace VieVS{
          * @param minTime minimum time required for a scan
          * @param maxTime maximum time required for a scan
          * @param skyCoverages sky Coverages
+         * @return score
          */
-        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations);
+        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                       const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                       const vector<VLBI_skyCoverage> &skyCoverages, const vector<VLBI_station> &stations);
 
         /**
          * @brief calculates the score of a scan
+         *
+         * !!! This function changes firstScorePerPv !!!
          *
          * usually used for single scan sources
          *
@@ -356,9 +370,12 @@ namespace VieVS{
          * @param maxTime maximum time required for a scan
          * @param skyCoverages sky Coverages
          * @param firstScorePerPv stores the score of each pointing vector without twin station influences
+         * @return score
          */
-        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPv, vector<VLBI_station> &stations);
+        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                       const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                       const vector<VLBI_skyCoverage> &skyCoverages, vector<double> &firstScorePerPv,
+                       const vector<VLBI_station> &stations);
 
         /**
          * @brief calculates the score of a scan
@@ -376,15 +393,17 @@ namespace VieVS{
          * @param skyCoverages sky Coverages
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
-        void calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, vector<double> &astas, vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime, vector<VLBI_skyCoverage> &skyCoverages, vector<double> & firstScorePerPv, vector<VLBI_station> &stations);
+        void calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
+                              const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                              const vector<VLBI_skyCoverage> &skyCoverages, const vector<double> & firstScorePerPv,
+                              const vector<VLBI_station> &stations);
 
         /**
          * @brief calculates the score for number of observations
          *
          * @param maxObs maximum possible number of observations
          */
-        double calcScore_numberOfObservations(unsigned long maxObs);
+        double calcScore_numberOfObservations(unsigned long maxObs) const;
 
         /**
          * @brief calculates score for average station observations
@@ -393,7 +412,7 @@ namespace VieVS{
          * @param astas precalculated vector of average station observations @see subcon
          * @param nmaxsta maximum possible number of stations
          */
-        double calcScore_averageStations(vector<double> &astas, unsigned long nmaxsta);
+        double calcScore_averageStations(const vector<double> &astas, unsigned long nmaxsta) const;
 
         /**
          * @brief calculates score for average source observations
@@ -401,7 +420,7 @@ namespace VieVS{
          * //TODO link
          * @param asrcs precalculated vector of average source observations @see subcon
          */
-        double calcScore_averageSources(vector<double> &asrcs);
+        double calcScore_averageSources(const vector<double> &asrcs) const;
 
         /**
          * @brief calculates score for duration
@@ -409,22 +428,27 @@ namespace VieVS{
          * @param minTime minimum time required for a scan
          * @param maxTime maximum time required for a scan
          */
-        double calcScore_duration(unsigned int minTime, unsigned int maxTime);
+        double calcScore_duration(unsigned int minTime, unsigned int maxTime) const;
 
         /**
          * @brief calculates score for improvement in sky coverage
          *
          * @param skyCoverages all sky coverages
          */
-        double calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations);
+        double calcScore_skyCoverage(const vector<VLBI_skyCoverage> &skyCoverages,
+                                     const vector<VLBI_station> &stations) const;
 
         /**
          * @brief calculates score for improvement in sky coverage
+         *
+         * !!! This function changes firstScorePerPv !!!
          *
          * @param skyCoverages all sky coverages
          * @param firstScorePerPv stores the score of each pointing vector without twin station influences
          */
-        double calcScore_skyCoverage(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
+        double calcScore_skyCoverage(const vector<VLBI_skyCoverage> &skyCoverages,
+                                     const vector<VLBI_station> &stations,
+                                     vector<double> &firstScorePerPv) const;
 
         /**
          * @brief calculates score for improvement in sky coverage
@@ -432,7 +456,9 @@ namespace VieVS{
          * @param skyCoverages all sky coverages
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
-        double calcScore_skyCoverage_subcon(vector<VLBI_skyCoverage> &skyCoverages, vector<VLBI_station> &stations, vector<double> &firstScorePerPv);
+        double calcScore_skyCoverage_subcon(const vector<VLBI_skyCoverage> &skyCoverages,
+                                            const vector<VLBI_station> &stations,
+                                            const vector<double> &firstScorePerPv) const;
 
 //        /**
 //         * @brief sum up all individual scores for this scan
@@ -456,7 +482,7 @@ namespace VieVS{
          * @param mjdStart modified juliand date of session start
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(vector<VLBI_station> &stations, VLBI_source &source);
+        bool rigorousUpdate(const vector<VLBI_station> &stations, const VLBI_source &source);
 
         /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
@@ -464,14 +490,14 @@ namespace VieVS{
          * @param ids ids of all stations which should be copied
          * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
          */
-        boost::optional<VLBI_scan> copyScan(vector<int> &ids);
+        boost::optional<VLBI_scan> copyScan(const vector<int> &ids) const;
 
         /**
          * @brief getter for number of baselines
          *
          * @return numbe rof baselines
          */
-        unsigned long getNBl()const {
+        unsigned long getNBl() const {
             return baselines.size();
         }
 
@@ -486,8 +512,9 @@ namespace VieVS{
          * @return possible fillin scan
          */
         boost::optional<VLBI_scan>
-        possibleFillinScan(vector<VLBI_station> &stations, VLBI_source &source, const std::vector<char> &possible,
-                           const std::vector<char> &unused, const vector<VLBI_pointingVector> &pv_final_position);
+        possibleFillinScan(const vector<VLBI_station> &stations, const VLBI_source &source,
+                           const std::vector<char> &possible, const std::vector<char> &unused,
+                           const vector<VLBI_pointingVector> &pv_final_position) const;
 
         /**
          * @brief outputs information of this scan to the current console
@@ -497,7 +524,7 @@ namespace VieVS{
          * @param source observed source
          * @param sessionStart session start
          */
-        void output(unsigned long observed_scan_nr, vector<VLBI_station> &stations, VLBI_source &source);
+        void output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations, const VLBI_source &source)const;
 
     private:
         unsigned long nsta; ///< number of stations in this scan

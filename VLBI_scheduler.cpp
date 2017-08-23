@@ -16,7 +16,7 @@ namespace VieVS{
     VLBI_scheduler::VLBI_scheduler() {
     }
 
-    VLBI_scheduler::VLBI_scheduler(VLBI_initializer &init) :
+    VLBI_scheduler::VLBI_scheduler(const VLBI_initializer &init) :
     stations{init.getStations()}, sources{init.getSources()}, skyCoverages{init.getSkyCoverages()}{
         
         VLBI_initializer::PARAMETERS IPARA = init.getPARA();
@@ -47,19 +47,19 @@ namespace VieVS{
             unsigned long bestIdx = *bestIdx_opt;
             vector<VLBI_scan> bestScans;
             if (bestIdx < subcon.getNumberSingleScans()) {
-                VLBI_scan &bestScan = subcon.getSingleSourceScan(bestIdx);
-                bestScans.push_back(bestScan);
+                VLBI_scan& bestScan = subcon.referenceSingleSourceScan(bestIdx);
+                bestScans.push_back(std::move(bestScan));
             } else {
                 unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-                pair<VLBI_scan, VLBI_scan> &bestScan_pair = subcon.getDoubleSourceScan(thisIdx);
+                pair<VLBI_scan, VLBI_scan> &bestScan_pair = subcon.referenceDoubleSourceScan(thisIdx);
                 VLBI_scan &bestScan1 = bestScan_pair.first;
                 VLBI_scan &bestScan2 = bestScan_pair.second;
 
                 if (bestScan1.maxTime() > bestScan2.maxTime()) {
                     swap(bestScan1, bestScan2);
                 }
-                bestScans.push_back(bestScan1);
-                bestScans.push_back(bestScan2);
+                bestScans.push_back(std::move(bestScan1));
+                bestScans.push_back(std::move(bestScan2));
             }
 
             bool finished = endOfSessionReached(bestScans);
@@ -68,7 +68,7 @@ namespace VieVS{
             }
             consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans());
 
-            if (fillinmode) {
+            if (fillinmode && !scans.empty()) {
                 start_fillinMode(subcon, bestScans);
             } else {
                 for (int i = 0; i < bestScans.size(); ++i) {
@@ -172,18 +172,17 @@ namespace VieVS{
         PRE.subnettingSrcIds = subnettingSrcIds;
     }
 
-    void VLBI_scheduler::update(VLBI_scan &scan) {
+    void VLBI_scheduler::update(const VLBI_scan &scan) {
 
         int srcid = scan.getSourceId();
         string sourceName = sources[srcid].getName();
-        unsigned long nsta = scan.getNSta();
         unsigned long nbl = scan.getNBl();
 
 
         for (int i = 0; i < scan.getNSta(); ++i) {
-            VLBI_pointingVector &pv = scan.getPointingVector(i);
+            const VLBI_pointingVector &pv = scan.getPointingVector(i);
             int staid = pv.getStaid();
-            VLBI_pointingVector &pv_end = scan.getPointingVectors_endtime(i);
+            const VLBI_pointingVector &pv_end = scan.getPointingVectors_endtime(i);
             vector<unsigned int> times = scan.getTimes().stationTimes(i);
             stations[staid].update(nbl, pv, pv_end, times, sourceName);
 
@@ -200,7 +199,7 @@ namespace VieVS{
         scan.output(scans.size(), stations, thisSource);
     }
 
-    void VLBI_scheduler::outputHeader(vector<VLBI_station> &stations) {
+    void VLBI_scheduler::outputHeader(const vector<VLBI_station> &stations) const {
         cout << ".------------.";
         for (auto &t:stations) {
             cout << "----------.";
@@ -237,17 +236,18 @@ namespace VieVS{
 
 
     boost::optional<VLBI_scan>
-    VLBI_scheduler::fillin_scan(VLBI_subcon &subcon, VLBI_fillin_endpositions &fi_endp,
-                                vector<int> &sourceWillBeScanned) {
+    VLBI_scheduler::fillin_scan(VLBI_subcon &subcon, const VLBI_fillin_endpositions &fi_endp,
+                                const vector<int> &sourceWillBeScanned) {
         VLBI_subcon fillin_subcon;
 
         for (unsigned long i = 0; i < subcon.getNumberSingleScans(); ++i) {
-            VLBI_scan &thisScan = subcon.getSingleSourceScan(i);
+            const VLBI_scan &thisScan = subcon.referenceSingleSourceScan(i);
+
             int srcid = thisScan.getSourceId();
             if (std::find(sourceWillBeScanned.begin(), sourceWillBeScanned.end(), srcid) != sourceWillBeScanned.end()) {
                 continue;
             }
-            VLBI_source &thisSource = sources[srcid];
+            const VLBI_source &thisSource = sources[srcid];
             boost::optional<VLBI_scan> this_fillinScan = thisScan.possibleFillinScan(stations, thisSource,
                                                                                      fi_endp.getStationPossible(),
                                                                                      fi_endp.getStationUnused(),
@@ -268,9 +268,9 @@ namespace VieVS{
             while (true) {
                 boost::optional<unsigned long> bestIdx = fillin_subcon.rigorousScore(stations, sources, skyCoverages);
                 if (bestIdx) {
-                    VLBI_scan &fillinScan = fillin_subcon.getSingleSourceScan(*bestIdx);
+                    const VLBI_scan &fillinScan = fillin_subcon.referenceSingleSourceScan(*bestIdx);
 
-                    VLBI_source &thisSource = sources[fillinScan.getSourceId()];
+                    const VLBI_source &thisSource = sources[fillinScan.getSourceId()];
                     boost::optional<VLBI_scan> updatedFillinScan = fillinScan.possibleFillinScan(stations, thisSource,
                                                                                                  fi_endp.getStationPossible(),
                                                                                                  fi_endp.getStationUnused(),
@@ -346,14 +346,12 @@ namespace VieVS{
         for (int i = 0; i < stations.size(); ++i) {
             stations[i].setAvailable(stationAvailable[i]);
         }
-
-
     }
 
-    bool VLBI_scheduler::endOfSessionReached(vector<VLBI_scan> bestScans) {
+    bool VLBI_scheduler::endOfSessionReached(const vector<VLBI_scan> &bestScans) const {
         bool finished = false;
         for (int i = 0; i < bestScans.size(); ++i) {
-            VLBI_scan &thisScan = bestScans[i];
+            const VLBI_scan &thisScan = bestScans[i];
             if (thisScan.maxTime() > VieVS_timeEvents::duration) {
                 finished = true;
             }

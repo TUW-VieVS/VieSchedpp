@@ -68,10 +68,12 @@ namespace VieVS{
          * @param p pointing vector
          * @return true if inside, otherwise false
          */
-        bool anglesInside(VLBI_pointingVector& p);
+        bool anglesInside(const VLBI_pointingVector &p) const;
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
@@ -82,13 +84,15 @@ namespace VieVS{
          * calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector) INSTEAD
          *
          * @param new_pointingVector
-         * @return
+         * @return true if it is secure to use the new azimuth (it is far enough away from cable wrap limits)
          */
         bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const;
 
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
@@ -106,6 +110,8 @@ namespace VieVS{
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,

@@ -41,7 +41,7 @@ namespace VieVS{
          *
          * @param scan scan which should be added
          */
-        void addScan(VLBI_scan scan);
+        void addScan(const VLBI_scan &scan);
 
         /**
          * @brief removes a scan from the subcon
@@ -76,8 +76,8 @@ namespace VieVS{
          * @param idx index
          * @return single source scan at this index
          */
-        VLBI_scan &getSingleSourceScan(unsigned long idx) {
-            return *(subnet1.begin() + idx);
+        VLBI_scan &referenceSingleSourceScan(unsigned long idx) {
+            return subnet1[idx];
         }
 
         /**
@@ -86,17 +86,17 @@ namespace VieVS{
          * @param idx index
          * @return subnetting scan at this index
          */
-        pair<VLBI_scan, VLBI_scan> &getDoubleSourceScan(unsigned long idx) {
-            return *(subnet2.begin() + idx);
+        pair<VLBI_scan, VLBI_scan> &referenceDoubleSourceScan(unsigned long idx) {
+            return subnet2[idx];
         }
 
         /**
-         * @brief calculates the earliest possible start time of all single source scans in this subcon
+         * @brief calculates the earliest possible start time for all single source scans in this subcon
          *
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcStartTimes(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void calcStartTimes(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources);
 
         /**
          * @brief constructs all baselines for all single source scans in this subcon
@@ -109,7 +109,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void updateAzEl(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void updateAzEl(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources);
 
         /**
          * @brief calculates all baseline scan duration for all single source scans in this subcon
@@ -118,7 +118,7 @@ namespace VieVS{
          * @param sources list of all sources
          * @param mjdStart modified julian date of session start
          */
-        void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void calcAllBaselineDurations(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources);
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -126,7 +126,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcAllScanDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void calcAllScanDurations(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources);
 
         /**
          * @brief create all subnetting scans from possible single source scans
@@ -134,7 +134,7 @@ namespace VieVS{
          * @param subnettingSrcIds ids between all sources which could be used for subnetting
          * @param minStaPerSubcon  minimum number of stations per subconfiguration
          */
-        void createSubcon2(vector<vector<int> > &subnettingSrcIds, int minStaPerSubcon);
+        void createSubcon2(const vector<vector<int> > &subnettingSrcIds, int minStaPerSubcon);
 
         /**
          * @brief generate scores for all single source and subnetting scans
@@ -142,8 +142,8 @@ namespace VieVS{
          * @param stations list of all stations
          * @param skyCoverages list of all sky coverages
          */
-        void generateScore(vector<VLBI_station> &stations,
-                           vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc);
+        void generateScore(const vector<VLBI_station> &stations,
+                           const vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc);
 
         /**
          * @brief precalculate all necessary parameters to generate scores
@@ -151,7 +151,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void precalcScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void precalcScore(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources);
 
         /**
          * @brief get minimum and maximum time required for a possible scan
@@ -169,7 +169,7 @@ namespace VieVS{
          * @brief calculate the score for averaging out each source
          * @param sources list of all sources
          */
-        void average_source_score(vector<VLBI_source> &sources);
+        void average_source_score(const vector<VLBI_source> &sources);
 
         /**
          * @brief rigorousely updates the best scans untill the best one is found
@@ -180,8 +180,9 @@ namespace VieVS{
          * @param mjdStart modified julian date of session start
          * @return index of best scan
          */
-        boost::optional<unsigned long> rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                                     vector<VLBI_skyCoverage> &skyCoverages);
+        boost::optional<unsigned long> rigorousScore(const vector<VLBI_station> &stations,
+                                                     const vector<VLBI_source> &sources,
+                                                     const vector<VLBI_skyCoverage> &skyCoverages);
 
     private:
         unsigned long n1scans; ///< number of single source scans

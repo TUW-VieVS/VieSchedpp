@@ -54,7 +54,7 @@ namespace VieVS{
         return out;
     }
     
-    double VLBI_position::getDistance(VLBI_position other){
+    double VLBI_position::getDistance(const VLBI_position &other) const{
         double dx = x-other.x;
         double dy = y-other.y;
         double dz = z-other.z;

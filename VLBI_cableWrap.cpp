@@ -43,7 +43,7 @@ namespace VieVS{
     VLBI_cableWrap::~VLBI_cableWrap() {
     }
     
-    bool VLBI_cableWrap::anglesInside(VLBI_pointingVector& p){
+    bool VLBI_cableWrap::anglesInside(const VLBI_pointingVector &p) const{
         double az = p.getAz();
         double el = p.getEl();
         if ((axis1_up - axis1_up_offset - axis1_low + axis1_low_offset) < 2 * pi) {

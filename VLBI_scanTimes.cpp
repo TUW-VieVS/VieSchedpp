@@ -87,7 +87,7 @@ namespace VieVS{
         }
     }
 
-    void VLBI_scanTimes::addScanTimes(vector<unsigned int> &scanTimes) {
+    void VLBI_scanTimes::addScanTimes(const vector<unsigned int> &scanTimes) {
         for (int i = 0; i < endOfSlewTime.size(); ++i) {
             endOfScanTime[i] = endOfCalibrationTime[i]+scanTimes[i];
         }

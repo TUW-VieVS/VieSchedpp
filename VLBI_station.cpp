@@ -30,8 +30,9 @@ namespace VieVS{
         axis = axisType::undefined;
     }
     
-    VLBI_station::VLBI_station(string sta_name, int id, VLBI_antenna sta_antenna, VLBI_cableWrap sta_cableWrap,
-                               VLBI_position sta_position, VLBI_equip sta_equip, VLBI_mask sta_mask, string sta_axis):
+    VLBI_station::VLBI_station(const string &sta_name, int id, const VLBI_antenna &sta_antenna,
+                               const VLBI_cableWrap &sta_cableWrap, const VLBI_position &sta_position,
+                               const VLBI_equip &sta_equip, const VLBI_mask &sta_mask, const string &sta_axis):
             name{sta_name}, id{id}, antenna{sta_antenna}, cableWrap{sta_cableWrap}, position{sta_position},
             equip{sta_equip}, mask{sta_mask}{
         skyCoverageID = -1;
@@ -55,11 +56,11 @@ namespace VieVS{
         history_time.push_back(0);
     }
 
-    void VLBI_station::pushPointingVector(VLBI_pointingVector &pointingVector) {
+    void VLBI_station::pushPointingVector(const VLBI_pointingVector &pointingVector) {
         current = pointingVector;
     }
 
-    void VLBI_station::setParameters(const string& group, boost::property_tree::ptree& PARA_station){
+    void VLBI_station::setParameters(const string& group, const boost::property_tree::ptree& PARA_station){
         PARA.parameterGroups.push_back(group);
         for (auto it: PARA_station){
             string name = it.first;
@@ -109,17 +110,13 @@ namespace VieVS{
         return out;
     }
 
-    bool VLBI_station::isVisible(VLBI_pointingVector &p) {
+    bool VLBI_station::isVisible(const VLBI_pointingVector &p)const {
         return mask.visible(p) && cableWrap.anglesInside(p);
     }
 
-    void VLBI_station::updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model) {
+    void VLBI_station::updateAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model)const {
 
 
-//        double ra = source.getRa();
-//        double de = source.getDe();
-//        double lat = position.getLat();
-//        double lon = position.getLon();
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
         unsigned int time = p.getTime();
@@ -129,11 +126,6 @@ namespace VieVS{
 
         // Earth Rotation
         double ERA = iauEra00(date1, date2);
-
-        // Source vector in CRF
-//        double rqu[3] = {cos(de) * cos(ra),
-//                         cos(de) * sin(ra),
-//                         sin(de)};
 
         // precession nutation
         double C[3][3] = {{1, 0, 0},
@@ -187,17 +179,20 @@ namespace VieVS{
         double k1a_t1[3] = {(VieVS_earth::velocity[0] + v1[0]) / CMPS,
                             (VieVS_earth::velocity[1] + v1[1]) / CMPS,
                             (VieVS_earth::velocity[2] + v1[2]) / CMPS};
-        
 
-        
+
+        // Source vector in CRF
+        const vector<double> & scrs_ = source.getSourceInCrs();
+        double rqu[3] = {scrs_[0],scrs_[1],scrs_[2]};
+
         double k1a_t2[3] = {};
-        iauSxp(iauPdp(source.getSourceInCrs(),k1a_t1),source.getSourceInCrs(),k1a_t2);
+        iauSxp(iauPdp(rqu,k1a_t1),rqu,k1a_t2);
         k1a_t2[0] = -k1a_t2[0];
         k1a_t2[1] = -k1a_t2[1];
         k1a_t2[2] = -k1a_t2[2];
 
         double k1a_temp[3] ={};
-        iauPpp ( source.getSourceInCrs(), k1a_t1, k1a_temp );
+        iauPpp ( rqu, k1a_t1, k1a_temp );
         iauPpp ( k1a_temp,k1a_t2,k1a);
 
         //  source in TRS 
@@ -207,21 +202,12 @@ namespace VieVS{
 
 
         //  source in local system 
-//        double theta = DPI/2-lat;
-//        double roty[3][3] = { {cos(theta),0,-sin(theta)},
-//                              {0, -1, 0},
-//                              {sin(theta), 0, cos(theta)} };
-//
-//        double rotz[3][3] = { {cos(lon), sin(lon), 0},
-//                              {-sin(lon), cos(lon), 0},
-//                              {0, 0, 1}};
-//
-//        double g2l[3][3] = {};
-//        iauRxr(roty,rotz,g2l);
-
+        double g2l[3][3] = {{PRECALC.g2l[0][0],PRECALC.g2l[0][1],PRECALC.g2l[0][2]},
+                            {PRECALC.g2l[1][0],PRECALC.g2l[1][1],PRECALC.g2l[1][2]},
+                            {PRECALC.g2l[2][0],PRECALC.g2l[2][1],PRECALC.g2l[2][2]},};
 
         double lq[3] = {};
-        iauRxp(PRECALC.g2l,rq,lq);
+        iauRxp(g2l,rq,lq);
 
         double zd = acos(lq[2]);
         double el = DPI/2 - zd;
@@ -237,7 +223,8 @@ namespace VieVS{
         p.setTime(time);
     }
 
-    void VLBI_station::preCalc(vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz) {
+    void VLBI_station::preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
+                               const vector<double> &dz) {
 
 
         PRECALC.distance = distance;
@@ -266,20 +253,22 @@ namespace VieVS{
 
         iauRxr(roty,rotz,g2l);
 
+        PRECALC.g2l.resize(3);
+        PRECALC.g2l[0].resize(3);
+        PRECALC.g2l[1].resize(3);
+        PRECALC.g2l[2].resize(3);
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 PRECALC.g2l[i][j] = g2l[i][j];
             }
         }
-
-
     }
     
-    double VLBI_station::distance(VLBI_station other){
+    double VLBI_station::distance(const VLBI_station &other) const{
         return position.getDistance(other.position);
     }
 
-    unsigned int VLBI_station::slewTime(VLBI_pointingVector &pointingVector) {
+    unsigned int VLBI_station::slewTime(const VLBI_pointingVector &pointingVector)const {
         if (PARA.firstScan) {
             return 0;
         } else {
@@ -287,8 +276,8 @@ namespace VieVS{
         }
     }
 
-    void VLBI_station::update(unsigned long nbl, VLBI_pointingVector start, VLBI_pointingVector end,
-                              vector<unsigned int> times, string srcName) {
+    void VLBI_station::update(unsigned long nbl, const VLBI_pointingVector &start, const VLBI_pointingVector &end,
+                              const vector<unsigned int> &times, const string &srcName) {
         ++nscans;
         nbls += nbl;
         pv_startScan.push_back(start);

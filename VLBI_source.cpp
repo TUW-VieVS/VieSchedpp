@@ -16,25 +16,25 @@ namespace VieVS{
     VLBI_source::VLBI_source() {
     }
 
-    VLBI_source::VLBI_source(string src_name, double src_ra_deg, double src_de_deg,
-                             vector<pair<string, VLBI_flux> > src_flux) :
+    VLBI_source::VLBI_source(const string &src_name, double src_ra_deg, double src_de_deg,
+                             const vector<pair<string, VLBI_flux> > &src_flux) :
             name{src_name}, id{0}, ra{src_ra_deg * deg2rad}, de{src_de_deg * deg2rad}, flux{src_flux}, lastScan{0},
             nscans{0}, nbls{0} {
 
+        PRECALC.sourceInCrs.resize(3);
         PRECALC.sourceInCrs[0] = cos(de)*cos(ra);
         PRECALC.sourceInCrs[1] = cos(de)*sin(ra);
         PRECALC.sourceInCrs[2] = sin(de);
-
     }
     
     VLBI_source::~VLBI_source() {
     }
     
-    double VLBI_source::angleDistance(VLBI_source other){
+    double VLBI_source::angleDistance(const VLBI_source &other) const{
         return acos(cos(de)*cos(other.de) * cos(ra-other.ra) + sin(de)*sin(other.de));
     }
     
-    void VLBI_source::setParameters(const string& group, boost::property_tree::ptree& PARA_source){
+    void VLBI_source::setParameters(const string& group, const boost::property_tree::ptree& PARA_source){
         PARA.parameterGroups.push_back(group);
         for (auto& it: PARA_source){
             string name = it.first;
@@ -59,7 +59,7 @@ namespace VieVS{
         }
     }
     
-    bool VLBI_source::isStrongEnough(double& maxFlux){
+    bool VLBI_source::isStrongEnough(double& maxFlux) const{
         maxFlux = 0;
         
         for (auto& any: flux){
@@ -83,7 +83,7 @@ namespace VieVS{
         return out;
     }
 
-    vector<pair<string, double> > VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) {
+    vector<pair<string, double> > VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) const {
         vector<pair<string, double> > fluxes;
 
         double ha = gmst - ra;
@@ -97,7 +97,7 @@ namespace VieVS{
             fluxes.push_back(make_pair(thisFlux.first, observedFlux));
         }
 
-        return fluxes;
+        return std::move(fluxes);
     }
 
     void VLBI_source::update(unsigned long nbl, unsigned int time) {

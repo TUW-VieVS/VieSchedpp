@@ -39,7 +39,7 @@ namespace VieVS {
          * @param bestScans list of all next scheduled scans
          * @param stations list of all stations
          */
-        VLBI_fillin_endpositions(std::vector<VLBI_scan> &bestScans, std::vector<VLBI_station> &stations);
+        VLBI_fillin_endpositions(const std::vector<VLBI_scan> &bestScans, const std::vector<VLBI_station> &stations);
 
         /**
          * @brief getter for a vector of flags which represents if a station is used in the following next scans.

@@ -88,7 +88,7 @@ namespace VieVS{
          * @param other second station
          * @return distance between stations
          */
-        double getDistance(VLBI_position other);
+        double getDistance(const VLBI_position &other) const;
 
         /**
          * @brief overload of the << operator for output to stream

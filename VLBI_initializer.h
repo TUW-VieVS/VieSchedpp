@@ -82,19 +82,19 @@ namespace VieVS{
          * @param type catalog file which should be read
          * @return key is list of all Ids, value is corresponding catalog entry
          */
-        map<string,vector<string> > readCatalog(string path, catalog type);
+        map<string,vector<string> > readCatalog(const string &path, catalog type);
 
         /**
          * @brief creates all selected stations from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createStationsFromCatalogs(string catalogPath);
+        void createStationsFromCatalogs(const string &catalogPath);
 
         /**
          * @brief creates all possible sources from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createSourcesFromCatalogs(string catalogPath);
+        void createSourcesFromCatalogs(const string &catalogPath);
 
         /**
          * @brief creates all sky Coverage objects
@@ -112,7 +112,7 @@ namespace VieVS{
          * @brief getter fuction which returns all stations
          * @return vector of all created station objects
          */
-        vector<VLBI_station> getStations(){
+        const vector<VLBI_station> & getStations()const {
             return stations;
         }
 
@@ -120,7 +120,7 @@ namespace VieVS{
          * @brief getter function which returns all sources
          * @return vector of all created source objects
          */
-        vector<VLBI_source> getSources(){
+        const vector<VLBI_source> & getSources()const {
             return sources;
         }
 
@@ -128,7 +128,7 @@ namespace VieVS{
          * @brief getter function which returns all skyCoverages
          * @return vector of all created sky coverage objects
          */
-        vector<VLBI_skyCoverage> getSkyCoverages(){
+        const vector<VLBI_skyCoverage> & getSkyCoverages()const {
             return skyCoverages;
         }
 
@@ -136,7 +136,7 @@ namespace VieVS{
          * @brief getter function which returns all sources
          * @return all parameters from this VLBI_initializer
          */
-        PARAMETERS getPARA(){
+        const PARAMETERS & getPARA()const {
             return PARA;
         }
 

@@ -31,7 +31,7 @@ namespace VieVS{
          * @param all_channelNames all channel names
          * @param corresponding_SEFDs all corresponding channel SEFDs
          */
-        VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs);
+        VLBI_equip(const vector<string> all_channelNames, const vector<double> corresponding_SEFDs);
 
         /**
          * @brief destructor

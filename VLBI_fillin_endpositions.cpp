@@ -11,8 +11,8 @@ namespace VieVS {
 
     }
 
-    VLBI_fillin_endpositions::VLBI_fillin_endpositions(std::vector<VLBI_scan> &bestScans,
-                                                       vector<VLBI_station> &stations) {
+    VLBI_fillin_endpositions::VLBI_fillin_endpositions(const std::vector<VLBI_scan> &bestScans,
+                                                       const std::vector<VLBI_station> &stations) {
 
         unsigned long nsta = stations.size();
 
@@ -35,7 +35,7 @@ namespace VieVS {
         // first the earliest scan start of each station is searched and stored
         for (auto &any: bestScans) {
             for (int i = 0; i < any.getNSta(); ++i) {
-                VLBI_pointingVector &pv = any.getPointingVector(i);
+                const VLBI_pointingVector &pv = any.getPointingVector(i);
                 int staid = pv.getStaid();
 
                 unsigned int thisEndOfIdleTime = any.getTimes().getEndOfCalibrationTime(i);
@@ -83,7 +83,7 @@ namespace VieVS {
         // checks if it is possible for a station to carry out a fillin scan
         for (int staid = 0; staid < nsta; ++staid) {
             unsigned int deltaT = availableTime[staid];
-            VLBI_station &thisSta = stations[staid];
+            const VLBI_station &thisSta = stations[staid];
             int assumedSlewTime = 5;
             if (deltaT < thisSta.getWaitSetup() + thisSta.getWaitSource() +
                          assumedSlewTime + thisSta.getWaitCalibration() +
@@ -95,7 +95,7 @@ namespace VieVS {
         // checks if a station is not available
         for (int staid = 0; staid < nsta; ++staid) {
             if (stationUnused[staid]) {
-                VLBI_station &thisSta = stations[staid];
+                const VLBI_station &thisSta = stations[staid];
                 if (!thisSta.available()) {
                     stationPossible[staid] = false;
                     availableTime[staid] = 0;

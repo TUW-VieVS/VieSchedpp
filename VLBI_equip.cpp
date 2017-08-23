@@ -15,7 +15,7 @@
 namespace VieVS{
     VLBI_equip::VLBI_equip(){}
     
-    VLBI_equip::VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs){
+    VLBI_equip::VLBI_equip(const vector<string> all_channelNames, const vector<double> corresponding_SEFDs){
         for (int i = 0; i < all_channelNames.size(); ++i) {
             SEFD.insert(make_pair(all_channelNames[i],corresponding_SEFDs[i]));
         }
