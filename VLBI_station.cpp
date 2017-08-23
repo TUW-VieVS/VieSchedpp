@@ -116,10 +116,10 @@ namespace VieVS{
     void VLBI_station::updateAzEl(VLBI_source &source, VLBI_pointingVector &p, azelModel model) {
 
 
-        double ra = source.getRa();
-        double de = source.getDe();
-        double lat = position.getLat();
-        double lon = position.getLon();
+//        double ra = source.getRa();
+//        double de = source.getDe();
+//        double lat = position.getLat();
+//        double lon = position.getLon();
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
         unsigned int time = p.getTime();
@@ -131,14 +131,15 @@ namespace VieVS{
         double ERA = iauEra00(date1, date2);
 
         // Source vector in CRF
-        double rqu[3] = {cos(de) * cos(ra),
-                         cos(de) * sin(ra),
-                         sin(de)};
+//        double rqu[3] = {cos(de) * cos(ra),
+//                         cos(de) * sin(ra),
+//                         sin(de)};
 
         // precession nutation
         double C[3][3] = {{1, 0, 0},
                           {0, 1, 0},
                           {0, 0, 1}};
+
         if (model == azelModel::rigorous) {
             unsigned int nut_precalc_idx = 0;
             while (VieVS_nutation::nut_time[nut_precalc_idx + 1] < time) {
@@ -161,6 +162,7 @@ namespace VieVS{
 
             iauC2ixys(x, y, s, C);
         }
+
         //  Polar Motion 
         double W[3][3] = {{1,0,0},
                           {0,1,0},
@@ -189,13 +191,13 @@ namespace VieVS{
 
         
         double k1a_t2[3] = {};
-        iauSxp(iauPdp(rqu,k1a_t1),rqu,k1a_t2);
+        iauSxp(iauPdp(source.getSourceInCrs(),k1a_t1),source.getSourceInCrs(),k1a_t2);
         k1a_t2[0] = -k1a_t2[0];
         k1a_t2[1] = -k1a_t2[1];
         k1a_t2[2] = -k1a_t2[2];
 
         double k1a_temp[3] ={};
-        iauPpp ( rqu, k1a_t1, k1a_temp );
+        iauPpp ( source.getSourceInCrs(), k1a_t1, k1a_temp );
         iauPpp ( k1a_temp,k1a_t2,k1a);
 
         //  source in TRS 
@@ -205,20 +207,21 @@ namespace VieVS{
 
 
         //  source in local system 
-        double theta = DPI/2-lat;
-        double roty[3][3] = { {cos(theta),0,-sin(theta)}, 
-                              {0, -1, 0}, 
-                              {sin(theta), 0, cos(theta)} };
-        
-        double rotz[3][3] = { {cos(lon), sin(lon), 0}, 
-                              {-sin(lon), cos(lon), 0},
-                              {0, 0, 1}};
+//        double theta = DPI/2-lat;
+//        double roty[3][3] = { {cos(theta),0,-sin(theta)},
+//                              {0, -1, 0},
+//                              {sin(theta), 0, cos(theta)} };
+//
+//        double rotz[3][3] = { {cos(lon), sin(lon), 0},
+//                              {-sin(lon), cos(lon), 0},
+//                              {0, 0, 1}};
+//
+//        double g2l[3][3] = {};
+//        iauRxr(roty,rotz,g2l);
 
-        double g2l[3][3] = {};
-        iauRxr(roty,rotz,g2l);
 
         double lq[3] = {};
-        iauRxp(g2l,rq,lq);
+        iauRxp(PRECALC.g2l,rq,lq);
 
         double zd = acos(lq[2]);
         double el = DPI/2 - zd;
@@ -235,10 +238,40 @@ namespace VieVS{
     }
 
     void VLBI_station::preCalc(vector<double> distance, vector<double> dx, vector<double> dy, vector<double> dz) {
+
+
         PRECALC.distance = distance;
         PRECALC.dx = dx;
         PRECALC.dy = dy;
         PRECALC.dz = dz;
+
+        double lat = position.getLat();
+        double lon = position.getLon();
+
+        double theta = DPI/2-lat;
+
+        const double cosTheta = cos(theta);
+        const double sinTheta = sin(theta);
+        double roty[3][3] = {{cosTheta, 0,  -sinTheta},
+                             {0,        -1, 0},
+                             {sinTheta, 0,  cosTheta} };
+
+        const double cosLon = cos(lon);
+        const double sinLon = sin(lon);
+        double rotz[3][3] = {{cosLon,  sinLon, 0},
+                             {-sinLon, cosLon, 0},
+                             {0,       0,      1}};
+
+        double g2l[3][3] = {};
+
+        iauRxr(roty,rotz,g2l);
+
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                PRECALC.g2l[i][j] = g2l[i][j];
+            }
+        }
+
 
     }
     

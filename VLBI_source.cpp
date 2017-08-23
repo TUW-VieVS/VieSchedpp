@@ -21,9 +21,9 @@ namespace VieVS{
             name{src_name}, id{0}, ra{src_ra_deg * deg2rad}, de{src_de_deg * deg2rad}, flux{src_flux}, lastScan{0},
             nscans{0}, nbls{0} {
 
-//        STORAGE.sourceInCrs[0] = cos(de)*cos(ra);
-//        STORAGE.sourceInCrs[1] = cos(de)*sin(ra);
-//        STORAGE.sourceInCrs[2] = sin(de);
+        PRECALC.sourceInCrs[0] = cos(de)*cos(ra);
+        PRECALC.sourceInCrs[1] = cos(de)*sin(ra);
+        PRECALC.sourceInCrs[2] = sin(de);
 
     }
     

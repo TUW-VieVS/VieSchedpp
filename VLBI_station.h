@@ -98,6 +98,7 @@ namespace VieVS{
             vector<double> dx; ///< delta x of station coordinates
             vector<double> dy; ///< delta y of station coordinates
             vector<double> dz; ///< delta z of station coordinates
+            double g2l[3][3] = {}; ///< geocentric to local transformation matrix
         };
 
         /**

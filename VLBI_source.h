@@ -49,9 +49,9 @@ namespace VieVS{
             unsigned int maxScan = 600; ///< maximum allowed scan time in seconds
             unsigned int minScan = 30; ///< minimum required scan time in seconds
         };
-//        struct PRECALC{
-//            double sourceInCrs[3];
-//        };
+        struct PRECALCULATED{
+            double sourceInCrs[3];
+        };
 
         /**
          * @brief empty default constructor
@@ -68,9 +68,9 @@ namespace VieVS{
          */
         VLBI_source(string src_name, double src_ra_deg, double src_de_deg, vector<pair<string, VLBI_flux> > src_flux);
 
-//        double* getSourceInCrs(){
-//            return STORAGE.sourceInCrs;
-//        }
+        double* getSourceInCrs(){
+            return PRECALC.sourceInCrs;
+        }
 
         /**
          * @brief getter for source name
@@ -245,7 +245,7 @@ namespace VieVS{
         vector<pair<string, VLBI_flux> > flux; ///< source flux information per band
 
         PARAMETERS PARA; ///< parameters
-//        PRECALC STORAGE;
+        PRECALCULATED PRECALC;
 
         unsigned int lastScan; ///< last scan to this source
         int nscans; ///< number of scans to this source

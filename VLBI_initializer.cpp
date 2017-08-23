@@ -651,6 +651,7 @@ namespace VieVS{
 
             stations[i].preCalc(distance, dx, dy, dz);
 
+
         }
     }
     void VLBI_initializer::initializeSources(){
