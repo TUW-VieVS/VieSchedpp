@@ -21,7 +21,7 @@ namespace VieVS{
 
     void
     VLBI_scanTimes::addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
-                             unsigned int calib) {
+                             unsigned int calib) noexcept {
         endOfSetupTime[idx] = endOfLastScan[idx] + setup;
         endOfSourceTime[idx] = endOfSetupTime[idx] + source;
         endOfSlewTime[idx] = endOfSourceTime[idx] + slew;
@@ -30,7 +30,7 @@ namespace VieVS{
         endOfCalibrationTime[idx] = endOfTapeTime[idx] + calib;
     }
 
-    void VLBI_scanTimes::removeElement(int idx) {
+    void VLBI_scanTimes::removeElement(int idx) noexcept {
         endOfLastScan.erase(endOfLastScan.begin()+idx);
         endOfSetupTime.erase(endOfSetupTime.begin()+idx);
         endOfSourceTime.erase(endOfSourceTime.begin()+idx);
@@ -48,7 +48,7 @@ namespace VieVS{
         alignStartTimes();
     }
 
-    void VLBI_scanTimes::updateSlewtime(int idx, unsigned int new_slewtime) {
+    void VLBI_scanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
         unsigned int currentSlewtime = endOfSlewTime[idx] - endOfSourceTime[idx];
         if (currentSlewtime != new_slewtime) {
             unsigned int tapeTime = endOfTapeTime[idx] - endOfIdleTime[idx];
@@ -65,7 +65,7 @@ namespace VieVS{
 
     }
 
-    void VLBI_scanTimes::alignStartTimes() {
+    void VLBI_scanTimes::alignStartTimes() noexcept {
         int nsta = endOfSlewTime.size();
 
         unsigned int latestSlewTime = 0;
@@ -87,13 +87,13 @@ namespace VieVS{
         }
     }
 
-    void VLBI_scanTimes::addScanTimes(vector<unsigned int> &scanTimes) {
+    void VLBI_scanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
         for (int i = 0; i < endOfSlewTime.size(); ++i) {
             endOfScanTime[i] = endOfCalibrationTime[i]+scanTimes[i];
         }
     }
 
-    unsigned int VLBI_scanTimes::maxTime() const {
+    unsigned int VLBI_scanTimes::maxTime() const noexcept {
         unsigned int max = 0;
         for (auto &thisTime: endOfScanTime) {
             if (thisTime > max) {

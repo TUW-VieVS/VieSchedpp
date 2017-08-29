@@ -31,7 +31,38 @@ namespace VieVS{
          * @param all_channelNames all channel names
          * @param corresponding_SEFDs all corresponding channel SEFDs
          */
-        VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs);
+        VLBI_equip(const vector<string> all_channelNames, const vector<double> corresponding_SEFDs);
+
+        /**
+         * @brief default copy constructor
+         *
+         * @param other other equip
+         */
+        VLBI_equip(const VLBI_equip &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other equip
+         */
+        VLBI_equip(VLBI_equip &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other equip
+         * @return copy of other equip
+         */
+        VLBI_equip &operator=(const VLBI_equip &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other equip
+         * @return moved other equip
+         */
+        VLBI_equip &operator=(VLBI_equip &&other) = default;
+
 
         /**
          * @brief destructor
@@ -44,7 +75,7 @@ namespace VieVS{
          * @param band name of band
          * @return SEFD of this band
          */
-        double getSEFD(string band) const {
+        double getSEFD(string band) const noexcept {
             return SEFD.at(band);
         }
 
@@ -53,7 +84,7 @@ namespace VieVS{
          *
          * @return maximum SEFD of this antenna
          */
-        double getMaxSEFD() const;
+        double getMaxSEFD() const noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -62,7 +93,7 @@ namespace VieVS{
          * @param equip equipment information that should be printed to stream
          * @return stream object
          */
-        friend ostream& operator<<(ostream& out, const VLBI_equip& equip);
+        friend ostream &operator<<(ostream &out, const VLBI_equip &equip) noexcept;
         
     private:
         unordered_map<string,double> SEFD;

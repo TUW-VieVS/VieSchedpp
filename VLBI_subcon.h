@@ -32,6 +32,36 @@ namespace VieVS{
         VLBI_subcon();
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other subcon
+         */
+        VLBI_subcon(const VLBI_subcon &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other subcon
+         */
+        VLBI_subcon(VLBI_subcon &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other subcon
+         * @return copy of other subcon
+         */
+        VLBI_subcon &operator=(const VLBI_subcon &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other subcon
+         * @return moved other subcon
+         */
+        VLBI_subcon &operator=(VLBI_subcon &&other) = default;
+
+        /**
          * @brief destructor
          */
         virtual ~VLBI_subcon() {};
@@ -41,7 +71,7 @@ namespace VieVS{
          *
          * @param scan scan which should be added
          */
-        void addScan(VLBI_scan scan);
+        void addScan(const VLBI_scan &scan) noexcept;
 
         /**
          * @brief removes a scan from the subcon
@@ -50,14 +80,14 @@ namespace VieVS{
          * is larger than the number of single scans both subnetting scans will be removed.
          * @param idx index of scan which should be removed
          */
-        void removeScan(unsigned long idx);
+        void removeScan(unsigned long idx) noexcept;
 
         /**
          * @brief getter for number of possible single source scans
          *
          * @return number of possible single source scans
          */
-        unsigned long getNumberSingleScans() const {
+        unsigned long getNumberSingleScans() const noexcept {
             return n1scans;
         }
 
@@ -66,7 +96,7 @@ namespace VieVS{
          *
          * @return number of possible subnetting scans
          */
-        unsigned long getNumberSubnettingScans() const {
+        unsigned long getNumberSubnettingScans() const noexcept {
             return n2scans;
         }
 
@@ -76,8 +106,8 @@ namespace VieVS{
          * @param idx index
          * @return single source scan at this index
          */
-        VLBI_scan &getSingleSourceScan(unsigned long idx) {
-            return *(subnet1.begin() + idx);
+        VLBI_scan &referenceSingleSourceScan(unsigned long idx) noexcept {
+            return subnet1[idx];
         }
 
         /**
@@ -86,22 +116,22 @@ namespace VieVS{
          * @param idx index
          * @return subnetting scan at this index
          */
-        pair<VLBI_scan, VLBI_scan> &getDoubleSourceScan(unsigned long idx) {
-            return *(subnet2.begin() + idx);
+        pair<VLBI_scan, VLBI_scan> &referenceDoubleSourceScan(unsigned long idx) noexcept {
+            return subnet2[idx];
         }
 
         /**
-         * @brief calculates the earliest possible start time of all single source scans in this subcon
+         * @brief calculates the earliest possible start time for all single source scans in this subcon
          *
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcStartTimes(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void calcStartTimes(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief constructs all baselines for all single source scans in this subcon
          */
-        void constructAllBaselines();
+        void constructAllBaselines() noexcept;
 
         /**
          * @brief updates all azimuths and elevations of all pointing vectors for each single source scan in this subcon
@@ -109,7 +139,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void updateAzEl(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void updateAzEl(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief calculates all baseline scan duration for all single source scans in this subcon
@@ -118,7 +148,8 @@ namespace VieVS{
          * @param sources list of all sources
          * @param mjdStart modified julian date of session start
          */
-        void calcAllBaselineDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources, double mjdStart);
+        void
+        calcAllBaselineDurations(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -126,7 +157,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcAllScanDurations(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void calcAllScanDurations(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief create all subnetting scans from possible single source scans
@@ -134,7 +165,7 @@ namespace VieVS{
          * @param subnettingSrcIds ids between all sources which could be used for subnetting
          * @param minStaPerSubcon  minimum number of stations per subconfiguration
          */
-        void createSubcon2(vector<vector<int> > &subnettingSrcIds, int minStaPerSubcon);
+        void createSubcon2(const vector<vector<int> > &subnettingSrcIds, int minStaPerSubcon) noexcept;
 
         /**
          * @brief generate scores for all single source and subnetting scans
@@ -142,8 +173,8 @@ namespace VieVS{
          * @param stations list of all stations
          * @param skyCoverages list of all sky coverages
          */
-        void generateScore(vector<VLBI_station> &stations,
-                           vector<VLBI_skyCoverage> &skyCoverages);
+        void generateScore(const vector<VLBI_station> &stations,
+                           const vector<VLBI_skyCoverage> &skyCoverages, unsigned long nsrc) noexcept;
 
         /**
          * @brief precalculate all necessary parameters to generate scores
@@ -151,25 +182,25 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void precalcScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources);
+        void precalcScore(const vector<VLBI_station> &stations, const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief get minimum and maximum time required for a possible scan
          */
-        void minMaxTime();
+        void minMaxTime() noexcept;
 
         /**
          * @brief calculate the score for averaging out each station
          *
          * @param stations list of all stations
          */
-        void average_station_score(const vector<VLBI_station> &stations);
+        void average_station_score(const vector<VLBI_station> &stations) noexcept;
 
         /**
          * @brief calculate the score for averaging out each source
          * @param sources list of all sources
          */
-        void average_source_score(vector<VLBI_source> &sources);
+        void average_source_score(const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief rigorousely updates the best scans untill the best one is found
@@ -180,8 +211,9 @@ namespace VieVS{
          * @param mjdStart modified julian date of session start
          * @return index of best scan
          */
-        boost::optional<unsigned long> rigorousScore(vector<VLBI_station> &stations, vector<VLBI_source> &sources,
-                                                     vector<VLBI_skyCoverage> &skyCoverages, double mjdStart);
+        boost::optional<unsigned long> rigorousScore(const vector<VLBI_station> &stations,
+                                                     const vector<VLBI_source> &sources,
+                                                     const vector<VLBI_skyCoverage> &skyCoverages) noexcept;
 
     private:
         unsigned long n1scans; ///< number of single source scans

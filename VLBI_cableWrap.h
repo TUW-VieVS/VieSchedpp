@@ -37,6 +37,43 @@ namespace VieVS{
                        double axis2_low_deg, double axis2_up_deg);
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other cable wrap
+         */
+        VLBI_cableWrap(const VLBI_cableWrap &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other cable wrap
+         */
+        VLBI_cableWrap(VLBI_cableWrap &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other cable wrap
+         * @return copy of other cable wrap
+         */
+        VLBI_cableWrap &operator=(const VLBI_cableWrap &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other cable wrap
+         * @return moved other cable wrap
+         */
+        VLBI_cableWrap &operator=(VLBI_cableWrap &&other) = default;
+
+
+        /**
+         * @brief destructor
+         */
+        virtual ~VLBI_cableWrap();
+
+
+        /**
          * @brief sets safety margins for axis limits
          *
          * @param axis1_low_offset safety margin for lower limit for first axis in degrees
@@ -45,7 +82,7 @@ namespace VieVS{
          * @param axis2_up_offset safety margin for upper limit for second axis in degrees
          */
         void setMinimumOffsets(double axis1_low_offset, double axis1_up_offset,
-                               double axis2_low_offset, double axis2_up_offset);
+                               double axis2_low_offset, double axis2_up_offset) noexcept;
 
         /**
          * @brief returns axis limits neutral point
@@ -55,12 +92,7 @@ namespace VieVS{
          * @param axis index of axis, 1 for first axis, 2 for second axis
          * @return neutral point of axis limits in radiants
          */
-        double neutralPoint(int axis) const;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~VLBI_cableWrap();
+        double neutralPoint(int axis) const noexcept;
 
         /**
          * @brief checks if this pointing vectors azimuth and elevation are inside the axis limits
@@ -68,10 +100,12 @@ namespace VieVS{
          * @param p pointing vector
          * @return true if inside, otherwise false
          */
-        bool anglesInside(VLBI_pointingVector& p);
+        bool anglesInside(const VLBI_pointingVector &p) const noexcept;
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
@@ -82,13 +116,15 @@ namespace VieVS{
          * calcUnwrappedAz(VLBI_pointingVector& old_pointingVector, VLBI_pointingVector& new_pointingVector) INSTEAD
          *
          * @param new_pointingVector
-         * @return
+         * @return true if it is secure to use the new azimuth (it is far enough away from cable wrap limits)
          */
-        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const;
+        bool unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const noexcept;
 
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
@@ -102,10 +138,12 @@ namespace VieVS{
          * @param az_old
          * @return
          */
-        void unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const;
+        void unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const noexcept;
 
         /**
          * @brief unwraps the current azimuth and elevation of pointing vector
+         *
+         * !!! This function changes new_pointingVector !!!
          *
          * The azimuth of one pointing vector is first calculated in the range between [-pi,pi]. This function
          * adds an factor of 2*pi so that the azimuth is inside the axis limits. If there are possible ambigurities,
@@ -116,7 +154,8 @@ namespace VieVS{
          * @return
          */
         void
-        calcUnwrappedAz(const VLBI_pointingVector &old_pointingVector, VLBI_pointingVector &new_pointingVector) const;
+        calcUnwrappedAz(const VLBI_pointingVector &old_pointingVector,
+                        VLBI_pointingVector &new_pointingVector) const noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -125,7 +164,7 @@ namespace VieVS{
          * @param cw cable wrap information that should be printed to stream
          * @return stream object
          */
-        friend ostream &operator<<(ostream &out, const VLBI_cableWrap &cw);
+        friend ostream &operator<<(ostream &out, const VLBI_cableWrap &cw) noexcept;
         
     private:
         double axis1_low; ///< lower limit of first axis in radians

@@ -23,14 +23,18 @@
 #include "VieVS_earth.h"
 #include "VieVS_lookup.h"
 #include "VLBI_weightFactors.h"
+#include "VLBI_obsMode.h"
+#include "VieVS_time.h"
+#include "VLBI_baseline.h"
+
 
 #include "sofa.h"
 
 using namespace std;
-namespace VieVS{
-    
+namespace VieVS {
+
     class VLBI_initializer {
-    
+
     public:
         /**
          * @brief Parameters used in VLBI_initializer.
@@ -40,10 +44,6 @@ namespace VieVS{
         struct PARAMETERS {
             string experimentName; ///< experimet Name from .xml file
             string experimentDescription; ///< experiment description form xml file
-            boost::posix_time::ptime startTime; ///< start time of the session in datetime format
-            boost::posix_time::ptime endTime; ///< end time of the session in datetime format
-            unsigned int duration; ///< duration of the session in seconds
-            double mjdStart; ///< modified julian date of session start
             bool subnetting = true; ///< if set to true subnetting is enabled
             bool fillinmode = true; ///< it set to true fillin scans are calculated
 
@@ -83,37 +83,37 @@ namespace VieVS{
          * @param type catalog file which should be read
          * @return key is list of all Ids, value is corresponding catalog entry
          */
-        map<string,vector<string> > readCatalog(string path, catalog type);
+        map<string, vector<string> > readCatalog(const string &path, catalog type) noexcept;
 
         /**
          * @brief creates all selected stations from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createStationsFromCatalogs(string catalogPath);
+        void createStationsFromCatalogs(const string &catalogPath) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createSourcesFromCatalogs(string catalogPath);
+        void createSourcesFromCatalogs(const string &catalogPath) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
          */
-        void createSkyCoverages();
+        void createSkyCoverages() noexcept;
 
         /**
          * @brief displays a short summary of created stations and sources.
          *
          * This is only for debugging purpose and usually unused
          */
-        void displaySummary();
+        void displaySummary() noexcept;
 
         /**
          * @brief getter fuction which returns all stations
          * @return vector of all created station objects
          */
-        vector<VLBI_station> getStations(){
+        const vector<VLBI_station> &getStations() const noexcept {
             return stations;
         }
 
@@ -121,7 +121,7 @@ namespace VieVS{
          * @brief getter function which returns all sources
          * @return vector of all created source objects
          */
-        vector<VLBI_source> getSources(){
+        const vector<VLBI_source> &getSources() const noexcept {
             return sources;
         }
 
@@ -129,7 +129,7 @@ namespace VieVS{
          * @brief getter function which returns all skyCoverages
          * @return vector of all created sky coverage objects
          */
-        vector<VLBI_skyCoverage> getSkyCoverages(){
+        const vector<VLBI_skyCoverage> &getSkyCoverages() const noexcept {
             return skyCoverages;
         }
 
@@ -137,19 +137,19 @@ namespace VieVS{
          * @brief getter function which returns all sources
          * @return all parameters from this VLBI_initializer
          */
-        PARAMETERS getPARA(){
+        const PARAMETERS &getPARA() const noexcept {
             return PARA;
         }
 
         /**
          * @brief initializes all stations with settings from .xml file
          */
-        void initializeStations();
+        void initializeStations() noexcept;
 
         /**
          * @brief initializes all sources with settings from .xml file
          */
-        void initializeSources();
+        void initializeSources() noexcept;
 
         /**
          * @brief calculates the nutation with the IAU2006a model in one hour steps
@@ -157,13 +157,13 @@ namespace VieVS{
          * This values are than used for interpolation of nuation in the calculation of each azimuth and elevation.
          * @see getAzEl
          */
-        void initializeNutation();
+        void initializeNutation() noexcept;
 
         /**
          * @brief initializes lookup tables for trigonometric functions to speed up calculation.
          * @see scorePerPointingVector()
          */
-        void initializeLookup();
+        void initializeLookup() noexcept;
 
         /**
          * @brief calculates velocity of earth at start time.
@@ -171,13 +171,37 @@ namespace VieVS{
          * used in the calculation of azimuth and elevation.
          * @see updateAzEl()
          */
-        void initializeEarth();
+        void initializeEarth() noexcept;
 
         /**
          * @brief initializes the weight factors
          *
          */
-        void initializeWeightFactors();
+        void initializeWeightFactors() noexcept;
+
+
+        /**
+         * @brief inintializes the sky Coverage lookup table
+         */
+        void initializeSkyCoverages() noexcept;
+
+        /**
+         * @brief initialzeBaselines
+         */
+        void initializeBaselines() noexcept;
+
+        /**
+         * @brief reads the observing mode information from xml file
+         */
+        void initializeObservingMode() noexcept;
+
+        /**
+         * @brief reads all groups spezified in the root tree
+         *
+         * @param root tree start point
+         * @return key is group name, value is list of group members
+         */
+        unordered_map<string, vector<string> > readGroups(boost::property_tree::ptree root) noexcept;
 
 
     private:
@@ -186,6 +210,26 @@ namespace VieVS{
         vector<VLBI_source> sources; ///< all created sources
         vector<VLBI_skyCoverage> skyCoverages; ///< all created sky coverage objects
         PARAMETERS PARA; ///< parameters
+
+
+        void stationSetup(vector<vector<VLBI_station::EVENT> > &events,
+                          const boost::property_tree::ptree &tree,
+                          const unordered_map<string, VLBI_station::PARAMETERS> &parameters,
+                          const unordered_map<string, vector<string>> &groups,
+                          const VLBI_station::PARAMETERS &parentPARA) noexcept;
+
+        void sourceSetup(vector<vector<VLBI_source::EVENT> > &events,
+                         const boost::property_tree::ptree &tree,
+                         const unordered_map<std::string, VLBI_source::PARAMETERS> &parameters,
+                         const unordered_map<std::string, std::vector<std::string> > &groups,
+                         const VLBI_source::PARAMETERS &parentPARA) noexcept;
+
+        void baselineSetup(vector<vector<vector<VLBI_baseline::EVENT> > > &events,
+                           const boost::property_tree::ptree &tree,
+                           const unordered_map<std::string, VLBI_baseline::PARAMETERS> &parameters,
+                           const unordered_map<std::string, std::vector<std::string> > &groups,
+                           const VLBI_baseline::PARAMETERS &parentPARA) noexcept;
+
     };
 }
 #endif /* VLBI_INITIALIZER_H */

@@ -15,7 +15,7 @@
 namespace VieVS{
     VLBI_equip::VLBI_equip(){}
     
-    VLBI_equip::VLBI_equip(vector<string> all_channelNames, vector<double> corresponding_SEFDs){
+    VLBI_equip::VLBI_equip(const vector<string> all_channelNames, const vector<double> corresponding_SEFDs){
         for (int i = 0; i < all_channelNames.size(); ++i) {
             SEFD.insert(make_pair(all_channelNames[i],corresponding_SEFDs[i]));
         }
@@ -23,8 +23,8 @@ namespace VieVS{
 
     VLBI_equip::~VLBI_equip() {
     }
-    
-    ostream& operator<<(ostream& out, const VLBI_equip& equip){
+
+    ostream &operator<<(ostream &out, const VLBI_equip &equip) noexcept {
         cout << "SEFD:\n";
         for(auto& any: equip.SEFD){
             cout << "Band: " << any.first << " " << any.second;
@@ -32,7 +32,7 @@ namespace VieVS{
         return out;
     }
 
-    double VLBI_equip::getMaxSEFD() const {
+    double VLBI_equip::getMaxSEFD() const noexcept {
         double maxSEFD = 0;
         for(auto& any: SEFD){
             if(any.second>maxSEFD){

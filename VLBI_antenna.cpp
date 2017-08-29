@@ -34,7 +34,7 @@ namespace VieVS{
     }
 
     unsigned int VLBI_antenna::slewTime(const VLBI_pointingVector &old_pointingVector,
-                                        const VLBI_pointingVector &new_pointingVector) const {
+                                        const VLBI_pointingVector &new_pointingVector) const noexcept {
         
         double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
         double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
@@ -66,8 +66,8 @@ namespace VieVS{
         
         return slewtime;        
     }
-    
-    ostream& operator<<(ostream& out, const VLBI_antenna& antenna){
+
+    ostream &operator<<(ostream &out, const VLBI_antenna &antenna) noexcept {
         double rate1degs = antenna.rate1*rad2deg;
         double rate2degs = antenna.rate2*rad2deg;
         cout << "Antenna: " << antenna.diam << " [m] \n" ;

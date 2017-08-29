@@ -1,7 +1,12 @@
 #include <cstdlib>
 #include <chrono>
+#include <vector>
+
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
+#include "VLBI_output.h"
+#include "VieVS_xmlWriter.h"
+
 /**
  * @file main.cpp
  * @brief main file
@@ -26,6 +31,9 @@ void run();
  */
 void createParameterFile();
 
+
+void createSkyCoverageLookup();
+
 /**
  * Main function.
  *
@@ -36,6 +44,7 @@ void createParameterFile();
 int main(int argc, char *argv[])
 {
 //    createParameterFile();
+
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -66,6 +75,7 @@ void run(){
 
     VieVS::VLBI_initializer init;
 
+    init.initializeObservingMode();
     init.createStationsFromCatalogs(path);
     init.createSourcesFromCatalogs(path);
     init.initializeStations();
@@ -74,7 +84,9 @@ void run(){
     init.initializeEarth();
     init.initializeLookup();
     init.createSkyCoverages();
+    init.initializeSkyCoverages();
     init.initializeWeightFactors();
+    init.initializeBaselines();
 //    init.displaySummary();
 
     VieVS::VLBI_scheduler scheduler(init);
@@ -82,6 +94,9 @@ void run(){
     scheduler.precalcSubnettingSrcIds();
     scheduler.start();
 
+    VieVS::VLBI_output output(scheduler);
+    output.displayStatistics(true, true, true, true, true);
+    output.writeNGS();
     cout << "Good Bye!" << endl;
 
 }
@@ -91,131 +106,136 @@ void run(){
  */
 void createParameterFile(){
 
-    boost::property_tree::ptree pt;
+    VieVS::VieVS_xmlWriter para;
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    para.software("Vie_SCHED2", "0.1", now);
 
-    boost::posix_time::ptime time(boost::gregorian::date(2017, 01, 01), boost::posix_time::time_duration(12, 30, 00));
-    cout << time << "\n";
+    boost::posix_time::ptime start(boost::gregorian::date(2017, 01, 01), boost::posix_time::time_duration(12, 30, 00));
+    boost::posix_time::ptime end = start + boost::posix_time::hours(24);
+    boost::posix_time::time_duration a = end - start;
+    unsigned int duration = a.total_seconds();
 
-    pt.add("software.name", "VieVS Scheduler");
-    pt.add("software.version", "1.0");
-    boost::posix_time::ptime created(boost::gregorian::day_clock::local_day(), boost::posix_time::second_clock::local_time().time_of_day());
-    pt.add("software.created_local_time", created);
-
-    pt.add("general.experiment_name", "R1XXX");
-    pt.add("general.experiment_description","This is this experiment R1XXX");
-    pt.add("general.start",time);
-    pt.add("general.end", time + boost::posix_time::hours(24));
-
-    boost::property_tree::ptree station_name_tree;
     vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
                                  "KATH12M"};
-    for (auto &any: station_names) {
-        boost::property_tree::ptree tmp;
-        tmp.add("station", any);
-        station_name_tree.add_child("stations.station", tmp.get_child("station"));
+    para.general("TEST", "test_description", start, end, 5000, true, true, station_names);
+
+
+    vector<string> group_all;
+    vector<string> group_sta{"WETTZ13N", "WETTZ13S", "WETTZELL"};
+    para.group(VieVS::VieVS_xmlWriter::TYPE::station, "group:siteWettzell", group_sta);
+
+    VieVS::VLBI_station::PARAMETERS sta_para1;
+    sta_para1.minScan = 42;
+    sta_para1.minSNR.insert({"X", 20});
+    sta_para1.minSNR.insert({"S", 15});
+    sta_para1.maxSlewtime = 600;
+    para.parameters("para:general", sta_para1);
+
+    VieVS::VLBI_station::PARAMETERS sta_para2;
+    sta_para2.wait_source = 1;
+    sta_para2.wait_tape = 0;
+    para.parameters("para:wait", sta_para2);
+
+    VieVS::VLBI_station::PARAMETERS sta_para3;
+    sta_para3.minSNR.insert({"X", 22});
+    para.parameters("para:SEJONG", sta_para3);
+
+    VieVS::VLBI_station::PARAMETERS sta_para4;
+    sta_para4.available = false;
+    para.parameters("para:down", sta_para4);
+
+    VieVS::VLBI_setup pp(0, std::numeric_limits<unsigned int>::max());
+    VieVS::VLBI_setup pp1("para:general", "__all__", 0, duration);
+    VieVS::VLBI_setup pp11("para:wait", "group:siteWettzell", group_sta, 0, duration);
+    VieVS::VLBI_setup pp2("para:SEJONG", "SEJONG", 0, duration);
+    VieVS::VLBI_setup pp21("para:down", "SEJONG", 3600, 7200, VieVS::VLBI_setup::TRANSITION::hard);
+    bool valid;
+    valid = pp2.addChild(pp21);
+    if (!valid) {
+        cout << "no valid child!\n";
     }
-    pt.add_child("general.stations", station_name_tree.get_child("stations"));
-//    vector<string> sta = {"HART15M","NYALES20","SEJONG","WETTZ13N","WETTZ13S","WETTZELL","YARRA12M","KATH12M"};
-//    pt.add("general.stations",boost::algorithm::join(sta, ","));
+    valid = pp1.addChild(pp11);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp1.addChild(pp2);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp.addChild(pp1);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    para.setup(VieVS::VieVS_xmlWriter::TYPE::station, pp);
 
-    pt.add("general.maxDistanceTwinTeleskopes",5000);
-    pt.add("general.subnetting", false);
-    pt.add("general.fillinmode", true);
 
-    boost::property_tree::ptree station;
+    vector<string> group_src{"2355-534", "2329-384"};
+    para.group(VieVS::VieVS_xmlWriter::TYPE::source, "group:starSources", group_src);
 
-    boost::property_tree::ptree station_global;
-    boost::property_tree::ptree flux1_sta;
-    flux1_sta.add("minSNR",20);
-    flux1_sta.put("minSNR.<xmlattr>.band","X");
-    station_global.add_child("global.minSNR",flux1_sta.get_child("minSNR"));
-    boost::property_tree::ptree flux2_sta;
-    flux2_sta.add("minSNR",15);
-    flux2_sta.put("minSNR.<xmlattr>.band","S");
-    station_global.add_child("global.minSNR",flux2_sta.get_child("minSNR"));
-    station_global.add("global.wait_setup",0);
-    station_global.add("global.wait_source",5);
-    station_global.add("global.wait_tape",1);
-    station_global.add("global.wait_calibration",10);
-    station_global.add("global.wait_corsynch",3);
-    station_global.add("global.maxSlewtime",9999);
-    station_global.add("global.maxWait",9999);
-    station_global.add("global.maxScan",600);
-    station_global.add("global.minScan",42);
-    station_global.put("global.<xmlattr>.name","global");
-    station_global.put("global.<xmlattr>.members","*");
-    station.add_child("group",station_global.get_child("global"));
+    VieVS::VLBI_source::PARAMETERS src_para1;
+    src_para1.minFlux = .8;
+    src_para1.maxScan = 500;
+    para.parameters("para:general", src_para1);
 
-    boost::property_tree::ptree station_group1;
-    station_group1.add("group1.maxScan",500);
-    station_group1.add("group1.wait_setup",5);
-    station_group1.put("group1.<xmlattr>.name","group1");
-    station_group1.put("group1.<xmlattr>.members","HART15M,NYALES20,SEJONG");
-    station.add_child("group",station_group1.get_child("group1"));
+    VieVS::VLBI_source::PARAMETERS src_para2;
+    src_para2.minFlux = 0;
+    src_para2.minRepeat = 3600;
+    src_para2.minScan = 100;
+    src_para2.maxScan = 700;
+    src_para2.fixedScanDuration = 500;
+    para.parameters("para:star", src_para2);
 
-    boost::property_tree::ptree source;
-    boost::property_tree::ptree source_global;
-    source_global.add("group.minRepeat",1800);
-    source_global.add("group.maxScan",500);
-    source_global.add("group.minScan",42);
-    source_global.add("group.minFlux", 0.5);
-    boost::property_tree::ptree flux1_src;
-    flux1_src.add("minSNR",20);
-    flux1_src.put("minSNR.<xmlattr>.band","X");
-    source_global.add_child("group.minSNR",flux1_src.get_child("minSNR"));
-    boost::property_tree::ptree flux2_src;
-    flux2_src.add("minSNR",15);
-    flux2_src.put("minSNR.<xmlattr>.band","S");
-    source_global.add_child("group.minSNR",flux2_src.get_child("minSNR"));
-    source_global.put("group.<xmlattr>.name","global");
-    source_global.put("group.<xmlattr>.members","*");
-    source.add_child("group",source_global.get_child("group"));
+    VieVS::VLBI_setup pp_src(0, std::numeric_limits<unsigned int>::max());
+    VieVS::VLBI_setup pp_src1("para:general", "__all__", 0, duration);
+    VieVS::VLBI_setup pp_src2("para:star", "group:starSources", group_src, 0, duration);
+    valid = pp_src1.addChild(pp_src2);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp_src.addChild(pp_src1);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    para.setup(VieVS::VieVS_xmlWriter::TYPE::source, pp_src);
 
-    boost::property_tree::ptree source_group1;
-    source_group1.add("group.minRepeat",3600);
-    source_group1.add("group.maxScan",200);
-    source_group1.add("group.minScan",20);
-    source_group1.add("group.minFlux", 0.0);
-    source_group1.put("group.<xmlattr>.name","group1");
-    source_group1.put("group.<xmlattr>.members","2355-534,2329-384");
-    source.add_child("group",source_group1.get_child("group"));
 
-    pt.add_child("station",station);
-    pt.add_child("source",source);
+    vector<string> group_bl{"WETTZ13N-WETTZ13S", "WETTZ13N-WETTZELL", "WETTZ13S-WETTZELL"};
+    para.group(VieVS::VieVS_xmlWriter::TYPE::baseline, "group:siteWettzell", group_bl);
 
-    boost::property_tree::ptree skyCoverage;
-    skyCoverage.add("skyCoverageDistance", 30);
-    skyCoverage.add("skyCoverageInterval", 3600);
-    pt.add_child("skyCoverage", skyCoverage);
+    VieVS::VLBI_baseline::PARAMETERS bl_para1;
+    bl_para1.ignore = true;
+    para.parameters("para:ignore", bl_para1);
 
-    boost::property_tree::ptree weightFactor;
-    weightFactor.add("skyCoverage", 2);
-    weightFactor.add("numberOfObservations", 1);
-    weightFactor.add("duration", 1);
-    weightFactor.add("averageSources", 0.0);
-    weightFactor.add("averageStations", 0.1);
-    pt.add_child("weightFactor", weightFactor);
+    VieVS::VLBI_baseline::PARAMETERS bl_para2;
+    bl_para2.minScan = 10;
+    bl_para2.minSNR.insert({"X", 10});
+    bl_para2.minSNR.insert({"S", 12});
 
-    boost::property_tree::ptree bands;
-    boost::property_tree::ptree X;
-    X.add("wavelength",0.0349);
-    boost::property_tree::ptree S;
-    S.add("wavelength",3.8000);
-    bands.add_child("X", X);
-    bands.add_child("S", S);
-    pt.add_child("bands", bands);
+    para.parameters("para:lessMinSNR", bl_para2);
+    VieVS::VLBI_setup pp_bl(0, std::numeric_limits<unsigned int>::max());
+    VieVS::VLBI_setup pp_bl1("para:ignore", "group:siteWettzell", group_bl, 0, duration);
+    VieVS::VLBI_setup pp_bl2("para:lessMinSNR", "HART15M-YARRA12M", 0, duration);
+    valid = pp_bl.addChild(pp_bl1);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp_bl.addChild(pp_bl2);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    para.setup(VieVS::VieVS_xmlWriter::TYPE::baseline, pp_bl);
 
-    boost::property_tree::ptree master;
-    master.add_child("master.software", pt.get_child("software"));
-    master.add_child("master.general", pt.get_child("general"));
-    master.add_child("master.station", pt.get_child("station"));
-    master.add_child("master.source", pt.get_child("source"));
-    master.add_child("master.skyCoverage", pt.get_child("skyCoverage"));
-    master.add_child("master.weightFactor", pt.get_child("weightFactor"));
-    master.add_child("master.bands", pt.get_child("bands"));
 
-    std::ofstream os("parameters.xml");
-    boost::property_tree::xml_parser::write_xml(os, master,
-                                                boost::property_tree::xml_writer_make_settings<string>('\t', 1));
+    para.skyCoverage(30, 3600);
+
+
+    para.weightFactor(2, 1, 1, 0, 0.1);
+
+
+    para.mode(16, 32, 1, 2);
+    para.mode_band("X", 0.0349, VieVS::VLBI_obsMode::PROPERTY::required, 10);
+    para.mode_band("S", 0.0349, VieVS::VLBI_obsMode::PROPERTY::required, 6);
+
+    para.write("parameters.xml");
 
 }

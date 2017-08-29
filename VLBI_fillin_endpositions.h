@@ -39,7 +39,7 @@ namespace VieVS {
          * @param bestScans list of all next scheduled scans
          * @param stations list of all stations
          */
-        VLBI_fillin_endpositions(std::vector<VLBI_scan> &bestScans, std::vector<VLBI_station> &stations);
+        VLBI_fillin_endpositions(const std::vector<VLBI_scan> &bestScans, const std::vector<VLBI_station> &stations);
 
         /**
          * @brief getter for a vector of flags which represents if a station is used in the following next scans.
@@ -50,7 +50,7 @@ namespace VieVS {
          *
          * @return vector of flags
          */
-        const std::vector<char> &getStationUnused() const {
+        const std::vector<char> &getStationUnused() const noexcept {
             return stationUnused;
         }
 
@@ -63,7 +63,7 @@ namespace VieVS {
          *
          * @return vector of flags
          */
-        const std::vector<char> &getStationPossible() const {
+        const std::vector<char> &getStationPossible() const noexcept {
             return stationPossible;
         }
 
@@ -76,7 +76,7 @@ namespace VieVS {
          *
          * @return vector of desired end positions
          */
-        const vector<VLBI_pointingVector> &getFinalPosition() const {
+        const vector<VLBI_pointingVector> &getFinalPosition() const noexcept {
             return finalPosition;
         }
 
@@ -84,7 +84,7 @@ namespace VieVS {
          * @brief getter for number which can be used for fillin mode
          * @return number of possible stations
          */
-        int getNumberOfPossibleStations() const {
+        int getNumberOfPossibleStations() const noexcept {
             return numberOfPossibleStations;
         }
 

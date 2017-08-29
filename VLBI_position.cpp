@@ -44,8 +44,8 @@ namespace VieVS{
         }
         
     }
-    
-    ostream& operator<<(ostream& out, const VLBI_position& position){
+
+    ostream &operator<<(ostream &out, const VLBI_position &position) noexcept {
         double latDeg = rad2deg*position.lat;
         double lonDeg = rad2deg*position.lon;
         cout << "Location: \n";
@@ -53,8 +53,8 @@ namespace VieVS{
         cout << boost::format("    lon: %6.2f [deg]\n") % lonDeg;
         return out;
     }
-    
-    double VLBI_position::getDistance(VLBI_position other){
+
+    double VLBI_position::getDistance(const VLBI_position &other) const noexcept {
         double dx = x-other.x;
         double dy = y-other.y;
         double dz = z-other.z;

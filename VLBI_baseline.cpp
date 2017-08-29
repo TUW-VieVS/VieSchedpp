@@ -13,6 +13,10 @@
 
 #include "VLBI_baseline.h"
 
+VieVS::VLBI_baseline::PARAMETER_STORAGE VieVS::VLBI_baseline::PARA;
+std::vector<std::vector<std::vector<VieVS::VLBI_baseline::EVENT> > >  VieVS::VLBI_baseline::EVENTS;
+std::vector<std::vector<unsigned int> >  VieVS::VLBI_baseline::nextEvent;
+
 namespace VieVS{
     VLBI_baseline::VLBI_baseline(){
     }
@@ -21,29 +25,35 @@ namespace VieVS{
             : srcid(srcid), staid1(staid1), staid2(staid2), startTime{startTime}{
     }
 
+    void VLBI_baseline::checkForNewEvent(unsigned int time, bool output) noexcept {
+        int nsta = VLBI_baseline::nextEvent.size();
+        for (int i = 0; i < nsta; ++i) {
+            for (int j = i + 1; j < nsta; ++j) {
+
+                unsigned int thisNextEvent = VLBI_baseline::nextEvent[i][j];
+
+                while (EVENTS[i][j][thisNextEvent].time <= time) {
+
+                    VLBI_baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
+                    VLBI_baseline::PARA.ignore[i][j] = *newPARA.ignore;
+                    VLBI_baseline::PARA.maxScan[i][j] = *newPARA.maxScan;
+                    VLBI_baseline::PARA.minScan[i][j] = *newPARA.minScan;
+                    VLBI_baseline::PARA.weight[i][j] = *newPARA.weight;
+                    for (const auto &any:newPARA.minSNR) {
+                        VLBI_baseline::PARA.minSNR[any.first][i][j] = any.second;
+                    }
+                    if (output) {
+                        std::cout << "###############################################\n";
+                        std::cout << "## changing parameters for baseline: " << boost::format("%2d") % i << "-"
+                                  << boost::format("%2d") % j << "   ##\n";
+                        std::cout << "###############################################\n";
+                    }
+                    ++nextEvent[i][j];
+                    ++thisNextEvent;
+                }
 
 
-//    void VLBI_baseline::setScanDuration(vector<pair<string, unsigned int>> &scanDurations) {
-//        VLBI_baseline::scanDurations = scanDurations;
-//
-//        auto x = max_element(scanDurations.begin(), scanDurations.end(),
-//                             [](const pair<string,unsigned int>& p1, const pair<string,unsigned int>& p2) {
-//                                 return p1.second < p2.second; });
-//
-//        scanDuration = x->second;
-//
-//    }
-
-//    string VLBI_baseline::longestScanDurationBand() {
-//        string band;
-//        unsigned int max = 0;
-//        for(const auto& any:scanDurations ){
-//            if(any.second>max){
-//                band = any.first;
-//                max = any.second;
-//            }
-//        }
-//        return band;
-//    }
-
+            }
+        }
+    }
 }

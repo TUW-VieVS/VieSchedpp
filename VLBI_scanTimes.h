@@ -70,7 +70,7 @@ namespace VieVS {
          *
          * @param endOfLastScan end time of last scan in seconds since session start
          */
-        void setEndOfLastScan(vector<unsigned int> endOfLastScan) {
+        void setEndOfLastScan(const vector<unsigned int> &endOfLastScan) noexcept {
             VLBI_scanTimes::endOfLastScan = endOfLastScan;
         }
 
@@ -84,21 +84,22 @@ namespace VieVS {
          * @param tape tape time in seconds
          * @param calib calibration time in seconds
          */
-        void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape, unsigned int calib);
+        void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
+                      unsigned int calib) noexcept;
 
         /**
          * @brief removes an element
          *
          * @param idx index of the element that should be removed
          */
-        void removeElement(int idx);
+        void removeElement(int idx) noexcept;
 
         /**
          * @brief getter for all end of slew times
          *
          * @return all end of slew times in seconds since session start
          */
-        const vector<unsigned int> &getEndOfSlewTime() const {
+        const vector<unsigned int> &getEndOfSlewTime() const noexcept {
             return endOfSlewTime;
         }
 
@@ -108,7 +109,7 @@ namespace VieVS {
          * @param idx index of element
          * @return end of idle time in seconds since start for element at position of idx parameter
          */
-        const unsigned int getEndOfIdleTime(int idx) const {
+        const unsigned int getEndOfIdleTime(int idx) const noexcept {
             return endOfIdleTime[idx];
         }
 
@@ -118,7 +119,7 @@ namespace VieVS {
          * @param idx index of element
          * @return end of slew time in seconds since start for element at position of idx parameter
          */
-        const unsigned int getEndOfSlewTime(int idx) const{
+        const unsigned int getEndOfSlewTime(int idx) const noexcept {
             return endOfSlewTime[idx];
         }
 
@@ -128,7 +129,7 @@ namespace VieVS {
          * @param idx index of element
          * @return end of source time in seconds since start for element at position of idx parameter
          */
-        const unsigned int getEndOfSourceTime(int idx) const {
+        const unsigned int getEndOfSourceTime(int idx) const noexcept {
             return endOfSourceTime[idx];
         }
 
@@ -138,7 +139,7 @@ namespace VieVS {
          * @param idx index of element
          * @return end of scan time in seconds since start for element at position of idx parameter
          */
-        const unsigned int getEndOfScanTime(int idx) const {
+        const unsigned int getEndOfScanTime(int idx) const noexcept {
             return endOfScanTime[idx];
         }
 
@@ -148,7 +149,7 @@ namespace VieVS {
          * @param idx index of element
          * @return end of calibration time in seconds since start for element at position of idx parameter
          */
-        const unsigned int getEndOfCalibrationTime(int idx) const {
+        const unsigned int getEndOfCalibrationTime(int idx) const noexcept {
             return endOfCalibrationTime[idx];
         }
 
@@ -167,7 +168,7 @@ namespace VieVS {
          * @param idx index of element
          * @return vector of all times for one station
          */
-        vector<unsigned int> stationTimes(int idx) const {
+        vector<unsigned int> stationTimes(int idx) const noexcept {
             return vector<unsigned int>{endOfSetupTime[idx], endOfSourceTime[idx], endOfSlewTime[idx],
                                         endOfIdleTime[idx], endOfTapeTime[idx], endOfCalibrationTime[idx],
                                         endOfScanTime[idx]};
@@ -178,7 +179,7 @@ namespace VieVS {
          *
          * Idle times are introduced
          */
-        void alignStartTimes();
+        void alignStartTimes() noexcept;
 
         /**
          * @brief updates the slewtime of one element
@@ -186,7 +187,7 @@ namespace VieVS {
          * @param idx index of the element whichs slewtime is chanded
          * @param new_slewtime new slew time in seconds
          */
-        void updateSlewtime(int idx, unsigned int new_slewtime);
+        void updateSlewtime(int idx, unsigned int new_slewtime) noexcept;
 
         /**
          * @brief adds scan times to each element
@@ -195,14 +196,14 @@ namespace VieVS {
          *
          * @param scanTimes all scan times in seconds
          */
-        void addScanTimes(vector<unsigned int> &scanTimes);
+        void addScanTimes(const vector<unsigned int> &scanTimes) noexcept;
 
         /**
          * @brief latest time until scan is finished
          *
          * @return time until all stations are finished with the observation in seconds since session start
          */
-        unsigned int maxTime() const;
+        unsigned int maxTime() const noexcept;
 
     private:
         vector<unsigned int> endOfLastScan; ///< end of last scan

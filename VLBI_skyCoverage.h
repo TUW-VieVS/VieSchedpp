@@ -13,13 +13,17 @@
 #include <iostream>
 #include <cmath>
 #include <limits>
+
 #include "VLBI_pointingVector.h"
 #include "VieVS_lookup.h"
+#include "VLBI_station.h"
 
 using namespace std;
 namespace VieVS{
     class VLBI_skyCoverage {
     public:
+        static vector<vector<vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
+
         /**
          * @brief empty default constructor
          */
@@ -31,15 +35,52 @@ namespace VieVS{
          * @param staids station ids which belong to this sky coverage
          * @param skyCoverageDistance maximum angular distance of influence of an scan in radians
          * @param skyCoverageInterval maximum influence time of a scan in seconds
+         * @param id sky coverage id
          */
-        VLBI_skyCoverage(vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval);
+        VLBI_skyCoverage(const vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id);
+
+        /**
+         * @brief default copy constructor
+         *
+         * @param other other sky coverage
+         */
+        VLBI_skyCoverage(const VLBI_skyCoverage &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other sky coverage
+         */
+        VLBI_skyCoverage(VLBI_skyCoverage &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other sky coverage
+         * @return copy of other sky coverage
+         */
+        VLBI_skyCoverage &operator=(const VLBI_skyCoverage &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other sky coverage
+         * @return moved other sky coverage
+         */
+        VLBI_skyCoverage &operator=(VLBI_skyCoverage &&other) = default;
+
+        /**
+         * @brief destructor
+         */
+        virtual ~VLBI_skyCoverage();
+
 
         /**
          * @brief getter for all station ids which belong to this sky coverage
          *
          * @return all station ids
          */
-        const vector<int> &getStaids() const {
+        const vector<int> &getStaids() const noexcept {
             return staids;
         }
 
@@ -49,7 +90,30 @@ namespace VieVS{
          * @param pvs pointing vectors
          * @return score
          */
-        double calcScore(vector<VLBI_pointingVector> &pvs);
+        double calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations) const noexcept;
+
+        /**
+         * @brief calculates the score of pointing vectors on the sky Coverage
+         *
+         * !!! This function changes firstScorePerPv !!!
+         *
+         * @param pvs pointing vectors
+         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
+         * @return score
+         */
+        double calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations,
+                         vector<double> &firstScorePerPv) const noexcept;
+
+        /**
+         * @brief calculates the score of pointing vectors on the sky Coverage
+         *
+         * @param pvs pointing vectors
+         * @param firstScorePerPv stored score for each pointing vector without twin station influences
+         * @return score
+         */
+        double calcScore_subcon(const vector<VLBI_pointingVector> &pvs,
+                                const vector<VLBI_station> &stations,
+                                const vector<double> &firstScorePerPv) const noexcept;
 
         /**
          * @brief calculates the influence of the score between two pointing vectors
@@ -58,7 +122,8 @@ namespace VieVS{
          * @param pv_old already observed pointing vector
          * @return score
          */
-        double scorePerPointingVector(VLBI_pointingVector &pv_new, VLBI_pointingVector &pv_old);
+        double
+        scorePerPointingVector(const VLBI_pointingVector &pv_new, const VLBI_pointingVector &pv_old) const noexcept;
 
         /**
          * @brief updates the pointing vectors
@@ -66,12 +131,8 @@ namespace VieVS{
          * @param start pointing vector at start of scan
          * @param end pointing vector at end of scan
          */
-        void update(VLBI_pointingVector &start, VLBI_pointingVector &end);
+        void update(const VLBI_pointingVector &start, const VLBI_pointingVector &end) noexcept;
 
-        /**
-         * @brief destructor
-         */
-        virtual ~VLBI_skyCoverage();
 
     private:
         unsigned long nStations; ///< number of stations that belong to this sky coverage
@@ -82,6 +143,8 @@ namespace VieVS{
 
         double maxDistTime; ///< maximum angular distance of influence on the sky coverage
         double maxDistDistance; ///< maximum time influence on the sky coverage
+
+        int id; ///< sky coverage id
     };
 }
 

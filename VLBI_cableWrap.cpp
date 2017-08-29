@@ -25,10 +25,10 @@ namespace VieVS{
                 cerr << "ERROR: cable wrap limits to large!";
             }
             n_low = axis1_low;
-            n_up = axis1_low+overlapping/2;
-            c_low = axis1_low+overlapping/2;
+            n_up = axis1_low + overlapping / 2;
+            c_low = axis1_low + overlapping / 2;
             c_up = axis1_up - overlapping / 2;
-            w_low = axis1_up-overlapping/2;
+            w_low = axis1_up - overlapping / 2;
             w_up = axis1_up;
         }else {
             n_low = axis1_low;
@@ -42,8 +42,8 @@ namespace VieVS{
 
     VLBI_cableWrap::~VLBI_cableWrap() {
     }
-    
-    bool VLBI_cableWrap::anglesInside(VLBI_pointingVector& p){
+
+    bool VLBI_cableWrap::anglesInside(const VLBI_pointingVector &p) const noexcept {
         double az = p.getAz();
         double el = p.getEl();
         if ((axis1_up - axis1_up_offset - axis1_low + axis1_low_offset) < 2 * pi) {
@@ -60,7 +60,7 @@ namespace VieVS{
         return true;
     }
 
-    bool VLBI_cableWrap::unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const {
+    bool VLBI_cableWrap::unwrapAzNearNeutralPoint(VLBI_pointingVector &new_pointingVector) const noexcept {
         double az_old = neutralPoint(1);
         double az_new = new_pointingVector.getAz();
 
@@ -95,7 +95,7 @@ namespace VieVS{
     }
 
     void VLBI_cableWrap::calcUnwrappedAz(const VLBI_pointingVector &old_pointingVector,
-                                         VLBI_pointingVector &new_pointingVector) const {
+                                         VLBI_pointingVector &new_pointingVector) const noexcept {
         double az_old = old_pointingVector.getAz();
         double az_new = new_pointingVector.getAz();
         
@@ -124,7 +124,7 @@ namespace VieVS{
         new_pointingVector.setAz(this_unaz);
     }
 
-    double VLBI_cableWrap::neutralPoint(int axis) const {
+    double VLBI_cableWrap::neutralPoint(int axis) const noexcept {
         if (axis==1){
             return (axis1_low+axis1_up)/2;
         } else if(axis==2){
@@ -135,7 +135,7 @@ namespace VieVS{
         return 0;
     }
 
-    ostream& operator<<(ostream& out, const VLBI_cableWrap& cable){
+    ostream &operator<<(ostream &out, const VLBI_cableWrap &cable) noexcept {
         cout << "cable wrap: \n";
         double axis1_lowdeg = cable.axis1_low*rad2deg;
         double axis1_updeg  = cable.axis1_up*rad2deg;
@@ -149,14 +149,14 @@ namespace VieVS{
     }
 
     void VLBI_cableWrap::setMinimumOffsets(double axis1_low_offset, double axis1_up_offset,
-                                           double axis2_low_offset, double axis2_up_offset) {
+                                           double axis2_low_offset, double axis2_up_offset) noexcept {
         this->axis1_low_offset = axis1_low_offset * deg2rad;
         this->axis1_up_offset = axis1_up_offset * deg2rad;
         this->axis2_low_offset = axis2_low_offset * deg2rad;
         this->axis2_up_offset = axis2_up_offset * deg2rad;
     }
 
-    void VLBI_cableWrap::unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const {
+    void VLBI_cableWrap::unwrapAzNearAz(VLBI_pointingVector &new_pointingVector, double az_old) const noexcept {
         double az_new = new_pointingVector.getAz();
 
         double unaz_new;
