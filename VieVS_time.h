@@ -13,13 +13,12 @@
 #include <boost/date_time.hpp>
 
 namespace VieVS {
-    class VieVS_timeEvents {
+    class VieVS_time {
     public:
         static double mjdStart; ///< modified julian date of session start
         static boost::posix_time::ptime startTime; ///< session start time
         static boost::posix_time::ptime endTime; ///< session end time
         static unsigned int duration; ///< session duration in seconds
-
     };
 }
 

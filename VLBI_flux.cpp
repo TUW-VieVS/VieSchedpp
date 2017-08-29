@@ -26,8 +26,8 @@ namespace VieVS{
             type = fluxType::undefined;
         }
     }
-        
-    bool VLBI_flux::addFluxParameters(const vector<string> &parameters){
+
+    bool VLBI_flux::addFluxParameters(const vector<string> &parameters) noexcept {
         
         if (this->type == fluxType::B){
             int npara = parameters.size();
@@ -70,7 +70,7 @@ namespace VieVS{
     VLBI_flux::~VLBI_flux() {
     }
 
-    double VLBI_flux::getMaximumFlux() const{
+    double VLBI_flux::getMaximumFlux() const noexcept {
         double maxFlux = 0;
         if (this->type == fluxType::B){
             for(auto flux_Jy: values){
@@ -88,8 +88,8 @@ namespace VieVS{
         return maxFlux;
     }
 
-    
-    ostream& operator<<(ostream& out, const VLBI_flux& src){
+
+    ostream &operator<<(ostream &out, const VLBI_flux &src) noexcept {
         if (src.type == VLBI_flux::fluxType::B){
             cout << "Flux type: B\n";
         } else {
@@ -99,7 +99,7 @@ namespace VieVS{
         return out;
     }
 
-    double VLBI_flux::getFlux(double u, double v) const {
+    double VLBI_flux::getFlux(double u, double v) const noexcept {
         double observedFlux = 0;
 
         if(type == fluxType::B){

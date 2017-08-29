@@ -29,37 +29,12 @@ namespace VieVS{
     
     VLBI_source::~VLBI_source() {
     }
-    
-    double VLBI_source::angleDistance(const VLBI_source &other) const{
+
+    double VLBI_source::angleDistance(const VLBI_source &other) const noexcept {
         return acos(cos(de)*cos(other.de) * cos(ra-other.ra) + sin(de)*sin(other.de));
     }
-    
-    void VLBI_source::setParameters(const string& group, const boost::property_tree::ptree& PARA_source){
-        PARA.parameterGroups.push_back(group);
-        for (auto& it: PARA_source){
-            string name = it.first;
-            if ( name == "<xmlattr>")
-                continue;
-            else if ( name == "weight")
-                PARA.weight = PARA_source.get<double>("weight");
-            else if ( name == "minRepeat")
-                PARA.minRepeat = PARA_source.get<double>("minRepeat");
-            else if ( name == "maxScan")
-                PARA.maxScan = PARA_source.get<unsigned int>("maxScan");
-            else if ( name == "minScan")
-                PARA.minScan = PARA_source.get<unsigned int>("minScan");
-            else if ( name == "minFlux")
-                PARA.minFlux = PARA_source.get<double>("minFlux");
-            else if ( name == "minSNR"){
-                string bandName = it.second.get_child("<xmlattr>.band").data();
-                double value = it.second.get_value<double>();
-                PARA.minSNR.push_back(make_pair(bandName, value));
-            } else
-                cerr << "Source " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
-        }
-    }
-    
-    bool VLBI_source::isStrongEnough(double& maxFlux) const{
+
+    bool VLBI_source::isStrongEnough(double &maxFlux) const noexcept {
         maxFlux = 0;
         
         for (auto& any: flux){
@@ -68,10 +43,10 @@ namespace VieVS{
                 maxFlux = thisFlux;
             }
         }
-        return maxFlux > PARA.minFlux;
+        return maxFlux > *PARA.minFlux;
     }
 
-    ostream& operator<<(ostream& out, const VLBI_source& src){
+    ostream &operator<<(ostream &out, const VLBI_source &src) noexcept {
         cout << boost::format("%=36s\n") %src.name; 
         double ra_deg = src.ra*rad2deg;
         double de_deg = src.de*rad2deg;
@@ -83,7 +58,8 @@ namespace VieVS{
         return out;
     }
 
-    vector<pair<string, double> > VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) const {
+    vector<pair<string, double> >
+    VLBI_source::observedFlux(double gmst, double dx, double dy, double dz) const noexcept {
         vector<pair<string, double> > fluxes;
 
         double ha = gmst - ra;
@@ -100,11 +76,35 @@ namespace VieVS{
         return std::move(fluxes);
     }
 
-    void VLBI_source::update(unsigned long nbl, unsigned int time) {
+    void VLBI_source::update(unsigned long nbl, unsigned int time) noexcept {
         ++nscans;
         nbls += nbl;
         lastScan = time;
     }
 
+    bool VLBI_source::checkForNewEvent(unsigned int time, bool output) noexcept {
+        bool flag = false;
+        while (EVENTS[nextEvent].time <= time) {
+            PARA = EVENTS[nextEvent].PARA;
+            if (output) {
+                cout << "###############################################\n";
+                cout << "## changing parameters for source: " << boost::format("%8s") % name << "  ##\n";
+                cout << "###############################################\n";
+            }
+
+            nextEvent++;
+
+            double maxFlux = 0;
+            bool strongEnough = isStrongEnough(maxFlux);
+            if (!strongEnough) {
+                setAvailable(false);
+                cout << "source: " << boost::format("%8s") % name << " not strong enough! (max flux = "
+                     << boost::format("%4.2f") % maxFlux << " min required flux = "
+                     << boost::format("%4.2f") % *PARA.minFlux << ")\n";;
+            }
+            flag = true;
+        }
+        return flag;
+    }
 
 }

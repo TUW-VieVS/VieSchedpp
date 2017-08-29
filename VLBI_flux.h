@@ -43,19 +43,55 @@ namespace VieVS{
         VLBI_flux(string stype);
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other flux information
+         */
+        VLBI_flux(const VLBI_flux &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other flux information
+         */
+        VLBI_flux(VLBI_flux &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other flux information
+         * @return copy of other flux information
+         */
+        VLBI_flux &operator=(const VLBI_flux &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other flux information
+         * @return moved other flux information
+         */
+        VLBI_flux &operator=(VLBI_flux &&other) = default;
+
+        /**
+         * @brief destructor
+         */
+        virtual ~VLBI_flux();
+
+
+        /**
          * @brief adds flux information to object
          *
          * @param parameters all parameters spezified in flux.cat line
          * @return true if flux parameters could be used, false if something went wrong
          */
-        bool addFluxParameters(const vector<string> &parameters);
+        bool addFluxParameters(const vector<string> &parameters) noexcept;
 
         /**
          * @brief sets the wavelength of the band whose flux information is stored
          *
          * @param wavelength wavelength in meters
          */
-        void setWavelength(double wavelength) {
+        void setWavelength(double wavelength) noexcept {
             VLBI_flux::wavelength = wavelength;
         }
 
@@ -67,14 +103,10 @@ namespace VieVS{
          *
          * @return maximum possible flux density
          */
-        double getMaximumFlux() const;
+        double getMaximumFlux() const noexcept;
 
-        /**
-         * @brief destructor
-         */
-        virtual ~VLBI_flux();
 
-        friend ostream& operator<<(ostream& out, const VLBI_flux& src);
+        friend ostream &operator<<(ostream &out, const VLBI_flux &src) noexcept;
 
         /**
          * @brief calculates the flux density for a constellation
@@ -83,7 +115,7 @@ namespace VieVS{
          * @param v projected baseline length
          * @return flux density fot this constellation
          */
-        double getFlux(double u, double v) const;
+        double getFlux(double u, double v) const noexcept;
 
     private:
 

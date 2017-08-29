@@ -56,52 +56,11 @@ namespace VieVS{
         history_time.push_back(0);
     }
 
-    void VLBI_station::pushPointingVector(const VLBI_pointingVector &pointingVector) {
+    void VLBI_station::setCurrentPointingVector(const VLBI_pointingVector &pointingVector) noexcept {
         current = pointingVector;
     }
 
-    void VLBI_station::setParameters(const string& group, const boost::property_tree::ptree& PARA_station){
-        PARA.parameterGroups.push_back(group);
-        for (auto it: PARA_station){
-            string name = it.first;
-            if ( name == "<xmlattr>")
-                continue;
-            else if ( name == "axis1_low_offset")
-                PARA.axis1_low_offset = PARA_station.get<double>("axis1_low_offset");
-            else if ( name == "axis1_up_offset")
-                PARA.axis1_up_offset = PARA_station.get<double>("axis1_up_offset");
-            else if ( name == "axis2_low_offset")
-                PARA.axis2_low_offset = PARA_station.get<double>("axis2_low_offset");
-            else if ( name == "axis2_up_offset")
-                PARA.axis2_up_offset = PARA_station.get<double>("axis2_up_offset");
-            else if ( name == "wait_setup")
-                PARA.wait_setup = PARA_station.get<unsigned int>("wait_setup");
-            else if ( name == "wait_source")
-                PARA.wait_source = PARA_station.get<unsigned int>("wait_source");
-            else if ( name == "wait_tape")
-                PARA.wait_tape = PARA_station.get<unsigned int>("wait_tape");
-            else if ( name == "wait_calibration")
-                PARA.wait_calibration = PARA_station.get<unsigned int>("wait_calibration");
-            else if ( name == "wait_corsynch")
-                PARA.wait_corsynch = PARA_station.get<unsigned int>("wait_corsynch");
-            else if ( name == "maxSlewtime")
-                PARA.maxSlewtime = PARA_station.get<unsigned int>("maxSlewtime");
-            else if ( name == "maxWait")
-                PARA.maxWait = PARA_station.get<unsigned int>("maxWait");
-            else if ( name == "maxScan")
-                PARA.maxScan = PARA_station.get<unsigned int>("maxScan");
-            else if ( name == "minScan")
-                PARA.minScan = PARA_station.get<unsigned int>("minScan");
-            else if ( name == "minSNR"){
-                string bandName = it.second.get_child("<xmlattr>.band").data();
-                double value = it.second.get_value<double>();
-                PARA.minSNR.push_back(make_pair(bandName, value));
-            } else
-                cerr << "Station " << this->name << ": parameter <" << name << "> not understood! (Ignored)\n";
-        }
-    }
-
-    ostream& operator<<(ostream& out, const VLBI_station& sta){
+    ostream &operator<<(ostream &out, const VLBI_station &sta) noexcept {
         cout << boost::format("%=36s\n") %sta.name; 
         cout << sta.position ;
         cout << "uses sky coverage id: " << sta.skyCoverageID << "\n";
@@ -110,11 +69,11 @@ namespace VieVS{
         return out;
     }
 
-    bool VLBI_station::isVisible(const VLBI_pointingVector &p)const {
+    bool VLBI_station::isVisible(const VLBI_pointingVector &p) const noexcept {
         return mask.visible(p) && cableWrap.anglesInside(p);
     }
 
-    void VLBI_station::updateAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model)const {
+    void VLBI_station::updateAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model) const noexcept {
 
 
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
@@ -122,7 +81,7 @@ namespace VieVS{
         unsigned int time = p.getTime();
         //  TIME 
         double date1 = 2400000.5;
-        double date2 = VieVS_timeEvents::mjdStart + (double) time / 86400;
+        double date2 = VieVS_time::mjdStart + (double) time / 86400;
 
         // Earth Rotation
         double ERA = iauEra00(date1, date2);
@@ -224,7 +183,7 @@ namespace VieVS{
     }
 
     void VLBI_station::preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
-                               const vector<double> &dz) {
+                               const vector<double> &dz) noexcept {
 
 
         PRECALC.distance = distance;
@@ -263,13 +222,13 @@ namespace VieVS{
             }
         }
     }
-    
-    double VLBI_station::distance(const VLBI_station &other) const{
+
+    double VLBI_station::distance(const VLBI_station &other) const noexcept {
         return position.getDistance(other.position);
     }
 
-    unsigned int VLBI_station::slewTime(const VLBI_pointingVector &pointingVector)const {
-        if (PARA.firstScan) {
+    unsigned int VLBI_station::slewTime(const VLBI_pointingVector &pointingVector) const noexcept {
+        if (*PARA.firstScan) {
             return 0;
         } else {
             return antenna.slewTime(current, pointingVector);
@@ -277,7 +236,7 @@ namespace VieVS{
     }
 
     void VLBI_station::update(unsigned long nbl, const VLBI_pointingVector &start, const VLBI_pointingVector &end,
-                              const vector<unsigned int> &times, const string &srcName) {
+                              const vector<unsigned int> &times, const string &srcName) noexcept {
         ++nscans;
         nbls += nbl;
         pv_startScan.push_back(start);
@@ -305,14 +264,34 @@ namespace VieVS{
         history_time.push_back(times[6]);
         history_events.push_back("scan " + srcName);
 
-        if (PARA.firstScan) {
+        if (*PARA.firstScan) {
             PARA.firstScan = false;
         }
     }
 
-    void VLBI_station::setCableWrapMinimumOffsets() {
-        cableWrap.setMinimumOffsets(PARA.axis1_low_offset, PARA.axis1_up_offset, PARA.axis2_low_offset,
-                                    PARA.axis2_up_offset);
+    void VLBI_station::setCableWrapMinimumOffsets() noexcept {
+        cableWrap.setMinimumOffsets(*PARA.axis1_low_offset, *PARA.axis1_up_offset, *PARA.axis2_low_offset,
+                                    *PARA.axis2_up_offset);
+    }
+
+    void VLBI_station::checkForNewEvent(unsigned int time, bool output) noexcept {
+        while (EVENTS[nextEvent].time <= time) {
+            bool oldAvailable = *PARA.available;
+            PARA = EVENTS[nextEvent].PARA;
+            bool newAvailable = *PARA.available;
+
+            if (!oldAvailable && newAvailable) {
+                current.setTime(EVENTS[nextEvent].time);
+                PARA.firstScan = true;
+            }
+
+            if (output) {
+                cout << "###############################################\n";
+                cout << "## changing parameters for station: " << boost::format("%8s") % name << " ##\n";
+                cout << "###############################################\n";
+            }
+            nextEvent++;
+        }
     }
 
 

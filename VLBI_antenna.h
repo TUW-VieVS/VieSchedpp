@@ -43,6 +43,37 @@ namespace VieVS{
                      double constantOverhead2_s);
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other antenna
+         */
+        VLBI_antenna(const VLBI_antenna &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other antenna
+         */
+        VLBI_antenna(VLBI_antenna &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other antenna
+         * @return copy of other antenna
+         */
+        VLBI_antenna &operator=(const VLBI_antenna &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other antenna
+         * @return moved other antenna
+         */
+        VLBI_antenna &operator=(VLBI_antenna &&other) = default;
+
+
+        /**
          * destructor
          */
         virtual ~VLBI_antenna();
@@ -54,7 +85,8 @@ namespace VieVS{
          * @return slewtime in seconds
          */
         unsigned int
-        slewTime(const VLBI_pointingVector &old_pointingVector, const VLBI_pointingVector &new_pointingVector) const;
+        slewTime(const VLBI_pointingVector &old_pointingVector,
+                 const VLBI_pointingVector &new_pointingVector) const noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -63,7 +95,7 @@ namespace VieVS{
          * @param antenna antenna information that should be printed to stream
          * @return stream object
          */
-        friend ostream& operator<<(ostream& out, const VLBI_antenna& antenna);
+        friend ostream &operator<<(ostream &out, const VLBI_antenna &antenna) noexcept;
         
     private:
         double offset; ///< offset of the antenna axis intersection in meters

@@ -23,8 +23,8 @@ namespace VieVS{
 
     VLBI_equip::~VLBI_equip() {
     }
-    
-    ostream& operator<<(ostream& out, const VLBI_equip& equip){
+
+    ostream &operator<<(ostream &out, const VLBI_equip &equip) noexcept {
         cout << "SEFD:\n";
         for(auto& any: equip.SEFD){
             cout << "Band: " << any.first << " " << any.second;
@@ -32,7 +32,7 @@ namespace VieVS{
         return out;
     }
 
-    double VLBI_equip::getMaxSEFD() const {
+    double VLBI_equip::getMaxSEFD() const noexcept {
         double maxSEFD = 0;
         for(auto& any: SEFD){
             if(any.second>maxSEFD){

@@ -27,7 +27,8 @@ namespace VieVS{
     VLBI_skyCoverage::~VLBI_skyCoverage() {
     }
 
-    double VLBI_skyCoverage::calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations) const {
+    double VLBI_skyCoverage::calcScore(const vector<VLBI_pointingVector> &pvs,
+                                       const vector<VLBI_station> &stations) const noexcept {
 
         double score = 0;
 
@@ -66,7 +67,7 @@ namespace VieVS{
 
 
     double VLBI_skyCoverage::calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations,
-                                       vector<double> &firstScorePerPv) const {
+                                       vector<double> &firstScorePerPv) const noexcept {
 
         double score = 0;
 
@@ -106,7 +107,7 @@ namespace VieVS{
 
     double VLBI_skyCoverage::calcScore_subcon(const vector<VLBI_pointingVector> &pvs,
                                               const vector<VLBI_station> &stations,
-                                              const vector<double> &firstScorePerPv) const {
+                                              const vector<double> &firstScorePerPv) const noexcept {
 
         double score = 0;
 
@@ -138,13 +139,14 @@ namespace VieVS{
         return score;
     }
 
-    void VLBI_skyCoverage::update(const VLBI_pointingVector &start, const VLBI_pointingVector &end) {
+    void VLBI_skyCoverage::update(const VLBI_pointingVector &start, const VLBI_pointingVector &end) noexcept {
         pv_start.push_back(start);
         pv_end.push_back(end);
     }
 
     double
-    VLBI_skyCoverage::scorePerPointingVector(const VLBI_pointingVector &pv_new, const VLBI_pointingVector &pv_old) const {
+    VLBI_skyCoverage::scorePerPointingVector(const VLBI_pointingVector &pv_new,
+                                             const VLBI_pointingVector &pv_old) const noexcept {
         long deltaTime = (long) pv_new.getTime() - (long) pv_old.getTime();
         if (deltaTime > maxDistTime) {
             return 1;

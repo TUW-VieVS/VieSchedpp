@@ -57,7 +57,17 @@ set(SOURCE_FILES
         VLBI_fillin_endpositions.cpp
         VLBI_fillin_endpositions.h
         VLBI_weightFactors.cpp
-        VLBI_weightFactors.h VLBI_obsMode.cpp VLBI_obsMode.h VLBI_output.cpp VLBI_output.h VieVS_timeEvents.cpp VieVS_timeEvents.h)
+        VLBI_weightFactors.h
+        VLBI_obsMode.cpp
+        VLBI_obsMode.h
+        VLBI_output.cpp
+        VLBI_output.h
+        VieVS_time.cpp
+        VieVS_time.h
+        VieVS_xmlWriter.cpp
+        VieVS_xmlWriter.h
+        VLBI_setup.cpp
+        VLBI_setup.h)
 
 FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
 #FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)

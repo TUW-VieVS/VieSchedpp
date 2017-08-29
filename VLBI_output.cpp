@@ -206,6 +206,9 @@ namespace VieVS{
         cout << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
         cout << "|–––––––––|––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––|–––––––––––––|\n";
         for (int i = 0; i<sources.size(); ++i){
+            if (sources[i].getNbls() == 0) {
+                continue;
+            }
             cout << boost::format("| %8s|") % sources[i].getName();
             unsigned int timeStart = 0;
             unsigned int timeEnd = 900;
@@ -338,7 +341,7 @@ namespace VieVS{
         fid.open("ngs", ios::out | ios::trunc);
         cout << "writing NGS file... ";
 
-        boost::posix_time::ptime start = VieVS_timeEvents::startTime;
+        boost::posix_time::ptime start = VieVS_time::startTime;
         unsigned long counter = 1;
 
         for (const auto &any: scans) {

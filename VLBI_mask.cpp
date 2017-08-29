@@ -41,7 +41,7 @@ namespace VieVS{
     VLBI_mask::~VLBI_mask() {
     }
 
-    bool VLBI_mask::visible(const VLBI_pointingVector &pv)const {
+    bool VLBI_mask::visible(const VLBI_pointingVector &pv) const noexcept {
         bool visible = true;
 
         double az = pv.getAz();

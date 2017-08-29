@@ -35,30 +35,30 @@ namespace VieVS{
         /**
          * @brief default copy constructor
          *
-         * @param other other baseline
+         * @param other other pointing vector
          */
         VLBI_pointingVector(const VLBI_pointingVector &other) = default;
 
         /**
          * @brief default move constructor
          *
-         * @param other other baseline
+         * @param other other pointing vector
          */
         VLBI_pointingVector(VLBI_pointingVector &&other) = default;
 
         /**
          * @brief default copy assignment operator
          *
-         * @param other other baseline
-         * @return copy of other baseline
+         * @param other other pointing vector
+         * @return copy of other pointing vector
          */
         VLBI_pointingVector &operator=(const VLBI_pointingVector &other) = default;
 
         /**
          * @brief default move assignment operator
          *
-         * @param other other baseline
-         * @return moved other baseline
+         * @param other other pointing vector
+         * @return moved other pointing vector
          */
         VLBI_pointingVector &operator=(VLBI_pointingVector &&other) = default;
 
@@ -72,7 +72,7 @@ namespace VieVS{
          *
          * @return id of station
          */
-        int getStaid() const {
+        int getStaid() const noexcept {
             return staid;
         }
 
@@ -81,7 +81,7 @@ namespace VieVS{
          *
          * @return id of source
          */
-        int getSrcid() const {
+        int getSrcid() const noexcept {
             return srcid;
         }
 
@@ -90,7 +90,7 @@ namespace VieVS{
          *
          * @return azimth in radians
          */
-        double getAz() const {
+        double getAz() const noexcept {
             return az;
         }
 
@@ -99,7 +99,7 @@ namespace VieVS{
          *
          * @return elevation in radians
          */
-        double getEl() const {
+        double getEl() const noexcept {
             return el;
         }
 
@@ -108,7 +108,7 @@ namespace VieVS{
          *
          * @return time in seconds since session start
          */
-        unsigned int getTime() const {
+        unsigned int getTime() const noexcept {
             return time;
         }
 
@@ -117,7 +117,7 @@ namespace VieVS{
          *
          * @param new_az new azimuth
          */
-        void setAz(double new_az) {
+        void setAz(double new_az) noexcept {
             az = new_az;
         };
 
@@ -126,7 +126,7 @@ namespace VieVS{
          *
          * @param new_el new elevation
          */
-        void setEl(double new_el) {
+        void setEl(double new_el) noexcept {
             el = new_el;
         };
 
@@ -135,7 +135,7 @@ namespace VieVS{
          *
          * @param new_time new time
          */
-        void setTime(unsigned int new_time){
+        void setTime(unsigned int new_time) noexcept {
             time = new_time;
         };
         

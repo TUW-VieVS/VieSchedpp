@@ -33,6 +33,36 @@ namespace VieVS{
         VLBI_position(double x_m, double y_m, double z_m);
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other positon
+         */
+        VLBI_position(const VLBI_position &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other positon
+         */
+        VLBI_position(VLBI_position &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other positon
+         * @return copy of other positon
+         */
+        VLBI_position &operator=(const VLBI_position &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other positon
+         * @return moved other positon
+         */
+        VLBI_position &operator=(VLBI_position &&other) = default;
+
+        /**
          * @brief destructor
          */
         virtual ~VLBI_position(){};
@@ -42,7 +72,7 @@ namespace VieVS{
          *
          * @return x coordinate in meters
          */
-        double getX() const {
+        double getX() const noexcept {
             return x;
         }
 
@@ -51,7 +81,7 @@ namespace VieVS{
          *
          * @return y coordinate in meters
          */
-        double getY() const {
+        double getY() const noexcept {
             return y;
         }
 
@@ -60,7 +90,7 @@ namespace VieVS{
          *
          * @return z coordinate in meters
          */
-        double getZ() const {
+        double getZ() const noexcept {
             return z;
         }
 
@@ -69,7 +99,7 @@ namespace VieVS{
          *
          * @return latitude in radians
          */
-        double getLat() const {
+        double getLat() const noexcept {
             return lat;
         }
 
@@ -78,7 +108,7 @@ namespace VieVS{
          *
          * @return longitude in radians
          */
-        double getLon() const {
+        double getLon() const noexcept {
             return lon;
         }
 
@@ -88,7 +118,7 @@ namespace VieVS{
          * @param other second station
          * @return distance between stations
          */
-        double getDistance(const VLBI_position &other) const;
+        double getDistance(const VLBI_position &other) const noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -97,7 +127,7 @@ namespace VieVS{
          * @param position position information that should be printed to stream
          * @return stream object
          */
-        friend ostream& operator<<(ostream& out, const VLBI_position& position);
+        friend ostream &operator<<(ostream &out, const VLBI_position &position) noexcept;
 
     private:
         double x; ///< x coordinate in meters

@@ -54,7 +54,7 @@ namespace VieVS{
         /**
          * @brief main function that starts the scheduling
          */
-        void start();
+        void start() noexcept;
 
         /**
          * @brief this function creates a subcon with all scans, times and scores
@@ -62,31 +62,31 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        VLBI_subcon createSubcon(bool subnetting);
+        VLBI_subcon createSubcon(bool subnetting) noexcept;
 
         /**
          * @brief constructs all visible scans
          *
          * @return subcon with all visible single source scans
          */
-        VLBI_subcon allVisibleScans();
+        VLBI_subcon allVisibleScans() noexcept;
 
         /**
          *  @brief pre calculates all possible second scans used for subnetting
          */
-        void precalcSubnettingSrcIds();
+        void precalcSubnettingSrcIds() noexcept;
 
         /**
          * @brief destructor
          */
-        virtual ~VLBI_scheduler();
+        virtual ~VLBI_scheduler() noexcept;
 
         /**
          * @brief updates the selected next scans to the schedule
          *
          * @param scan best possible next scans
          */
-        void update(const VLBI_scan &scan);
+        void update(const VLBI_scan &scan) noexcept;
 
         /**
          * @brief updates and prints the number of all considered scans
@@ -94,20 +94,20 @@ namespace VieVS{
          * @param n1scans number of single source scans
          * @param n2scans number of subnetting scans
          */
-        void consideredUpdate(unsigned long n1scans, unsigned long n2scans);
+        void consideredUpdate(unsigned long n1scans, unsigned long n2scans) noexcept;
 
         /**
          * @brief updates number of considered fillin scans
          *
          * @param n1scans number of fillin scans
          */
-        void consideredUpdate(unsigned long n1scans, bool created = false);
+        void consideredUpdate(unsigned long n1scans, bool created = false) noexcept;
 
         /**
          * @brief prints the header lines of the output table to the console
          * @param stations
          */
-        void outputHeader(const vector<VLBI_station> &stations) const;
+        void outputHeader(const vector<VLBI_station> &stations) const noexcept;
 
         /**
          * @brief this function starts the fillin mode
@@ -120,7 +120,7 @@ namespace VieVS{
          * @param subcon current subcon of available scans
          * @param fi_endp current required fillin endpositions
          */
-        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans);
+        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans) noexcept;
 
         /**
          * @brief calculate fillin scans
@@ -130,20 +130,20 @@ namespace VieVS{
          * @return list of all fillin scans
          */
         boost::optional<VLBI_scan> fillin_scan(VLBI_subcon &subcon, const VLBI_fillin_endpositions &fi_endp,
-                                               const vector<int> &sourceWillBeScanned);
+                                               const vector<int> &sourceWillBeScanned) noexcept;
 
         /**
          * @brief checks if the end of the session is reached
          * @param bestScans best next scans
          * @return true if end is reached, otherwise false
          */
-        bool endOfSessionReached(const vector<VLBI_scan> &bestScans) const;
+        bool endOfSessionReached(const vector<VLBI_scan> &bestScans) const noexcept;
 
         /**
          * @brief getter for all stations
          * @return stations
          */
-        const vector<VLBI_station> &getStations() const {
+        const vector<VLBI_station> &getStations() const noexcept {
             return stations;
         }
 
@@ -151,7 +151,7 @@ namespace VieVS{
          * @brief getter for all sources
          * @return sources
          */
-        const vector<VLBI_source> &getSources() const {
+        const vector<VLBI_source> &getSources() const noexcept {
             return sources;
         }
 
@@ -159,7 +159,7 @@ namespace VieVS{
          * @brief getter for all sky coverages
          * @return sky coverages
          */
-        const vector<VLBI_skyCoverage> &getSkyCoverages() const {
+        const vector<VLBI_skyCoverage> &getSkyCoverages() const noexcept {
             return skyCoverages;
         }
 
@@ -167,7 +167,7 @@ namespace VieVS{
          * @brief getter for all scans
          * @return scans
          */
-        const vector<VLBI_scan> &getScans() const {
+        const vector<VLBI_scan> &getScans() const noexcept {
             return scans;
         }
 
@@ -190,8 +190,11 @@ namespace VieVS{
         /**
          * @brief checks the schedule with an independend methode
          */
-        void check();
+        void check() noexcept;
 
+        void checkForNewEvent(unsigned int time, bool output = false) noexcept;
+
+        unsigned int countAvailableSources() noexcept;
     };
 }
 #endif /* VLBI_SCHEDULER_H */

@@ -40,11 +40,47 @@ namespace VieVS{
         VLBI_skyCoverage(const vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id);
 
         /**
+         * @brief default copy constructor
+         *
+         * @param other other sky coverage
+         */
+        VLBI_skyCoverage(const VLBI_skyCoverage &other) = default;
+
+        /**
+         * @brief default move constructor
+         *
+         * @param other other sky coverage
+         */
+        VLBI_skyCoverage(VLBI_skyCoverage &&other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other sky coverage
+         * @return copy of other sky coverage
+         */
+        VLBI_skyCoverage &operator=(const VLBI_skyCoverage &other) = default;
+
+        /**
+         * @brief default move assignment operator
+         *
+         * @param other other sky coverage
+         * @return moved other sky coverage
+         */
+        VLBI_skyCoverage &operator=(VLBI_skyCoverage &&other) = default;
+
+        /**
+         * @brief destructor
+         */
+        virtual ~VLBI_skyCoverage();
+
+
+        /**
          * @brief getter for all station ids which belong to this sky coverage
          *
          * @return all station ids
          */
-        const vector<int> &getStaids() const {
+        const vector<int> &getStaids() const noexcept {
             return staids;
         }
 
@@ -54,7 +90,7 @@ namespace VieVS{
          * @param pvs pointing vectors
          * @return score
          */
-        double calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations) const;
+        double calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations) const noexcept;
 
         /**
          * @brief calculates the score of pointing vectors on the sky Coverage
@@ -66,7 +102,7 @@ namespace VieVS{
          * @return score
          */
         double calcScore(const vector<VLBI_pointingVector> &pvs, const vector<VLBI_station> &stations,
-                         vector<double> &firstScorePerPv) const;
+                         vector<double> &firstScorePerPv) const noexcept;
 
         /**
          * @brief calculates the score of pointing vectors on the sky Coverage
@@ -77,7 +113,7 @@ namespace VieVS{
          */
         double calcScore_subcon(const vector<VLBI_pointingVector> &pvs,
                                 const vector<VLBI_station> &stations,
-                                const vector<double> &firstScorePerPv) const;
+                                const vector<double> &firstScorePerPv) const noexcept;
 
         /**
          * @brief calculates the influence of the score between two pointing vectors
@@ -86,7 +122,8 @@ namespace VieVS{
          * @param pv_old already observed pointing vector
          * @return score
          */
-        double scorePerPointingVector(const VLBI_pointingVector &pv_new, const VLBI_pointingVector &pv_old) const;
+        double
+        scorePerPointingVector(const VLBI_pointingVector &pv_new, const VLBI_pointingVector &pv_old) const noexcept;
 
         /**
          * @brief updates the pointing vectors
@@ -94,12 +131,8 @@ namespace VieVS{
          * @param start pointing vector at start of scan
          * @param end pointing vector at end of scan
          */
-        void update(const VLBI_pointingVector &start, const VLBI_pointingVector &end);
+        void update(const VLBI_pointingVector &start, const VLBI_pointingVector &end) noexcept;
 
-        /**
-         * @brief destructor
-         */
-        virtual ~VLBI_skyCoverage();
 
     private:
         unsigned long nStations; ///< number of stations that belong to this sky coverage

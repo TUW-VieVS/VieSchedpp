@@ -10,23 +10,45 @@
 #ifndef BASELINE_H
 #define BASELINE_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <utility>
 #include <algorithm>
 #include <unordered_map>
+#include <boost/optional.hpp>
+#include <boost/format.hpp>
 
 using namespace std;
 namespace VieVS{
     class VLBI_baseline {
     public:
+
+        struct PARAMETERS {
+            unordered_map<string, double> minSNR; ///< minimum SNR per band for each baseline
+            boost::optional<bool> ignore; ///< ignore specific baselines
+            boost::optional<double> weight; ///< multiplicative factor of score for scans with this baseline
+            boost::optional<unsigned int> minScan; ///< minimum required scan duration of this baseline
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan duration of this baseline
+        };
+
+        /**
+         * @brief changes in parameters
+         */
+        struct EVENT {
+            unsigned int time;
+            bool softTransition;
+            PARAMETERS PARA;
+        };
+
+
         /**
          * @brief baseline parameters.
          *
          * Unlike the parameters for station and source this holds the information for all possible baselines.
          * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
          */
-        struct PARAMETERS{
+        struct PARAMETER_STORAGE {
             unordered_map<string, vector< vector <double> > > minSNR = {}; ///< minimum SNR per band for each baseline
             vector< vector<char> > ignore = {}; ///< ignore specific baselines
             vector< vector<double> > weight = {}; ///< multiplicative factor of score for scans with this baseline
@@ -34,7 +56,10 @@ namespace VieVS{
             vector< vector<unsigned int> > maxScan = {}; ///< maximum allowed scan duration of this baseline
         };
 
-        static PARAMETERS PARA; ///< parameters for all baselines
+        static PARAMETER_STORAGE PARA; ///< parameters for all baselines
+
+        static vector<vector<vector<VLBI_baseline::EVENT> > > EVENTS;
+        static vector<vector<unsigned int> > nextEvent;
 
         /**
          * @brief empty default constructor
@@ -91,7 +116,7 @@ namespace VieVS{
          *
          * @return first station id
          */
-        int getStaid1() const {
+        int getStaid1() const noexcept {
             return staid1;
         }
 
@@ -100,7 +125,7 @@ namespace VieVS{
          *
          * @return second station id
          */
-        int getStaid2() const {
+        int getStaid2() const noexcept {
             return staid2;
         }
 
@@ -109,7 +134,7 @@ namespace VieVS{
          *
          * @return source id
          */
-        int getSrcid() const {
+        int getSrcid() const noexcept {
             return srcid;
         }
 
@@ -117,7 +142,7 @@ namespace VieVS{
          * @brief getter function for scan start time
          * @return start time in seconds from session start
          */
-        unsigned int getStartTime() const {
+        unsigned int getStartTime() const noexcept {
             return startTime;
         }
 
@@ -127,7 +152,7 @@ namespace VieVS{
          *
          * @return scan duration in seconds
          */
-        unsigned int getScanDuration() const {
+        unsigned int getScanDuration() const noexcept {
             return scanDuration;
         }
 
@@ -136,10 +161,11 @@ namespace VieVS{
          *
          * @param scanDuration scan duration in seconds
          */
-        void setScanDuration(unsigned int scanDuration) {
+        void setScanDuration(unsigned int scanDuration) noexcept {
             VLBI_baseline::scanDuration = scanDuration;
         }
 
+        static void checkForNewEvent(unsigned int time, bool output = false) noexcept;
 
     private:
         int staid1; ///< id of first antenna
