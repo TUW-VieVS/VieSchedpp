@@ -195,6 +195,10 @@ namespace VieVS{
         void checkForNewEvent(unsigned int time, bool output = false) noexcept;
 
         unsigned int countAvailableSources() noexcept;
+        
+        void saveSkyCoverageData(unsigned int time) noexcept;
+
+        void prepareSkyCoverageData();
     };
 }
 #endif /* VLBI_SCHEDULER_H */

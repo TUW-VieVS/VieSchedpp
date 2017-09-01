@@ -10,7 +10,6 @@
 #ifndef VLBI_INITIALIZER_H
 #define VLBI_INITIALIZER_H
 #include <vector>
-#include <boost/container/flat_map.hpp>
 #include <boost/date_time.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>

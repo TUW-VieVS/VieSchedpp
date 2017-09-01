@@ -739,6 +739,7 @@ namespace VieVS{
             }
 
             thisStation.preCalc(distance, dx, dy, dz);
+            thisStation.setFirstScan(true);
         }
 
     }

@@ -193,6 +193,14 @@ namespace VieVS{
             return *PARA.firstScan;
         }
 
+        /**
+         * @brief sets the flag if this is the first scan
+         * @param flag true if this is first scan, otherwise false
+         */
+        void setFirstScan(bool flag) noexcept {
+            PARA.firstScan = flag;
+        }
+
 
         /**
          * @brief getter for maximum allowed slew time

@@ -217,8 +217,8 @@ namespace VieVS{
 
 //        double scoreDistance = .5 + .5 * cos(distance * pi / maxDistDistance);
 //        double scoreTime = .5 + .5 * cos(deltaTime * pi / maxDistTime );
-        double scoreDistance = .5 + .5 * (VieVS_lookup::cosLookup[(int) distance * pi / maxDistDistance * 1000]);
-        double scoreTime = .5 + .5 * (VieVS_lookup::cosLookup[(int) deltaTime * pi / maxDistTime * 1000]);
+        double scoreDistance = .5 + .5 * (VieVS_lookup::cosLookup[(int) (distance * pi / maxDistDistance * 1000)]);
+        double scoreTime = .5 + .5 * (VieVS_lookup::cosLookup[(int) (deltaTime * pi / maxDistTime * 1000)]);
         double thisScore = 1 - (scoreDistance * scoreTime);
 
         return thisScore;

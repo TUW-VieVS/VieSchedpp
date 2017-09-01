@@ -39,7 +39,6 @@ namespace VieVS{
 
         outputHeader(stations);
 
-
         while (true) {
             VLBI_subcon subcon = createSubcon(subnetting);
 
@@ -93,6 +92,10 @@ namespace VieVS{
                     update(bestScans[i]);
                 }
             }
+
+
+//            saveSkyCoverageData(maxTime);
+
         }
 
         cout << "TOTAL SUMMARY:\n";
@@ -468,5 +471,47 @@ namespace VieVS{
         return counter;
     }
 
+    void VLBI_scheduler::saveSkyCoverageData(unsigned int time) noexcept {
+
+        std::ofstream az_file("skyCoverageData/az.bin", std::ofstream::out);
+        std::ofstream el_file("skyCoverageData/el.bin", std::ofstream::out);
+
+        std::ofstream time_file("skyCoverageData/time.bin", std::ofstream::app | std::ofstream::out);
+
+        for (double el = 0; el < 90; el+=5) {
+            double deltaAz = 5/cos(el*deg2rad);
+            for (int az = 0; az < 360; az+=deltaAz) {
+                az_file << az << endl;
+                el_file << el << endl;
+            }
+        }
+        time_file << time << endl;
+
+
+        for (int i = 0; i < stations.size(); ++i) {
+            VLBI_station &thisStation = stations[i];
+            VLBI_pointingVector pv(i,0);
+            std::ofstream log("skyCoverageData/"+thisStation.getName()+".bin", std::ofstream::app | std::ofstream::out);
+//            std::ofstream log(stations[i].getName()+".bin", std::ofstream::binary | std::ofstream::app | std::ofstream::out);
+            unsigned int c=0;
+            for (double el = 0; el < 90; el+=5) {
+                double deltaAz = 5/cos(el*deg2rad);
+                for (int az = 0; az < 360; az+=deltaAz) {
+                    pv.setAz(az*deg2rad);
+                    pv.setEl(el*deg2rad);
+                    pv.setTime(thisStation.getCurrentTime());
+
+                    int skyCoverageId = thisStation.getSkyCoverageID();
+                    VLBI_skyCoverage &thisSkyCoverage = skyCoverages[skyCoverageId];
+                    double score = thisSkyCoverage.calcScore(vector<VLBI_pointingVector>{pv},stations);
+                    log << score << endl;
+                    ++c;
+                }
+            }
+            log.close();
+        }
+
+
+    }
 
 }
