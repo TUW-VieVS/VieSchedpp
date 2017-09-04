@@ -13,7 +13,7 @@
 
 #include "VLBI_baseline.h"
 
-VieVS::VLBI_baseline::PARAMETER_STORAGE VieVS::VLBI_baseline::PARA;
+thread_local VieVS::VLBI_baseline::PARAMETER_STORAGE VieVS::VLBI_baseline::PARA;
 std::vector<std::vector<std::vector<VieVS::VLBI_baseline::EVENT> > >  VieVS::VLBI_baseline::EVENTS;
 std::vector<std::vector<unsigned int> >  VieVS::VLBI_baseline::nextEvent;
 
@@ -25,7 +25,8 @@ namespace VieVS{
             : srcid(srcid), staid1(staid1), staid2(staid2), startTime{startTime}{
     }
 
-    void VLBI_baseline::checkForNewEvent(unsigned int time, bool output) noexcept {
+    void
+    VLBI_baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept {
         int nsta = VLBI_baseline::nextEvent.size();
         for (int i = 0; i < nsta; ++i) {
             for (int j = i + 1; j < nsta; ++j) {
@@ -35,6 +36,8 @@ namespace VieVS{
                 while (EVENTS[i][j][thisNextEvent].time <= time) {
 
                     VLBI_baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
+                    hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
+
                     VLBI_baseline::PARA.ignore[i][j] = *newPARA.ignore;
                     VLBI_baseline::PARA.maxScan[i][j] = *newPARA.maxScan;
                     VLBI_baseline::PARA.minScan[i][j] = *newPARA.minScan;
@@ -43,10 +46,10 @@ namespace VieVS{
                         VLBI_baseline::PARA.minSNR[any.first][i][j] = any.second;
                     }
                     if (output) {
-                        std::cout << "###############################################\n";
-                        std::cout << "## changing parameters for baseline: " << boost::format("%2d") % i << "-"
+                        bodyLog << "###############################################\n";
+                        bodyLog << "## changing parameters for baseline: " << boost::format("%2d") % i << "-"
                                   << boost::format("%2d") % j << "   ##\n";
-                        std::cout << "###############################################\n";
+                        bodyLog << "###############################################\n";
                     }
                     ++nextEvent[i][j];
                     ++thisNextEvent;

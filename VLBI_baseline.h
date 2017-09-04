@@ -11,6 +11,8 @@
 #define BASELINE_H
 
 #include <iostream>
+#include <fstream>
+
 #include <string>
 #include <vector>
 #include <utility>
@@ -27,6 +29,7 @@ namespace VieVS{
         struct PARAMETERS {
             unordered_map<string, double> minSNR; ///< minimum SNR per band for each baseline
             boost::optional<bool> ignore; ///< ignore specific baselines
+
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this baseline
             boost::optional<unsigned int> minScan; ///< minimum required scan duration of this baseline
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan duration of this baseline
@@ -56,7 +59,7 @@ namespace VieVS{
             vector< vector<unsigned int> > maxScan = {}; ///< maximum allowed scan duration of this baseline
         };
 
-        static PARAMETER_STORAGE PARA; ///< parameters for all baselines
+        static thread_local PARAMETER_STORAGE PARA; ///< parameters for all baselines
 
         static vector<vector<vector<VLBI_baseline::EVENT> > > EVENTS;
         static vector<vector<unsigned int> > nextEvent;
@@ -165,7 +168,7 @@ namespace VieVS{
             VLBI_baseline::scanDuration = scanDuration;
         }
 
-        static void checkForNewEvent(unsigned int time, bool output = false) noexcept;
+        static void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
 
     private:
         int staid1; ///< id of first antenna

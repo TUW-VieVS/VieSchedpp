@@ -281,7 +281,7 @@ namespace VieVS{
         /**
          * @brief constructs all possible baselines with the pointing vectors
          */
-        void constructBaselines() noexcept;
+        bool constructBaselines(const VLBI_source &source) noexcept;
 
         /**
          * @brief updates the slewtime of an element
@@ -528,8 +528,8 @@ namespace VieVS{
          * @param source observed source
          * @param sessionStart session start
          */
-        void output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations,
-                    const VLBI_source &source) const noexcept;
+        void output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations, const VLBI_source &source,
+                    ofstream &of) const noexcept;
 
     private:
         unsigned long nsta; ///< number of stations in this scan

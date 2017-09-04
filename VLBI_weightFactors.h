@@ -14,11 +14,11 @@
 namespace VieVS{
     class VLBI_weightFactors {
     public:
-        static double weight_skyCoverage; ///< weight factor for sky Coverage
-        static double weight_numberOfObservations; ///< weight factor for number of observations
-        static double weight_duration; ///< weight factor for duration
-        static double weight_averageSources; ///< weight factor for average out sources
-        static double weight_averageStations; ///< weight factor for average out stations
+        static thread_local double weight_skyCoverage; ///< weight factor for sky Coverage
+        static thread_local double weight_numberOfObservations; ///< weight factor for number of observations
+        static thread_local double weight_duration; ///< weight factor for duration
+        static thread_local double weight_averageSources; ///< weight factor for average out sources
+        static thread_local double weight_averageStations; ///< weight factor for average out stations
     };
 }
 #endif //VLBI_WEIGHTFACTORS_H

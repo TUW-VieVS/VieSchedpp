@@ -61,6 +61,16 @@ namespace VieVS {
 
         void mode_band(const std::string &name, double wavelength, VLBI_obsMode::PROPERTY flag, unsigned int chanels);
 
+        void multisched_general();
+
+        void multisched_weightFactor();
+
+        void multisched_stations();
+
+        void multisched_sources();
+
+        void multisched_baselines();
+
         void write(const std::string &name);
 
     private:

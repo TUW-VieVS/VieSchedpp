@@ -10,8 +10,10 @@
 #ifndef VLBI_SOURCE_H
 #define VLBI_SOURCE_H
 #include <iostream>
+#include <fstream>
+
 #include <boost/format.hpp>
-#include <math.h>
+#include <cmath>
 #include <utility>
 #include <boost/optional.hpp>
 #include <unordered_map>
@@ -51,7 +53,10 @@ namespace VieVS{
 
             boost::optional<unsigned int> fixedScanDuration;
 
-
+            vector<int> ignoreStations;
+            vector<string> ignoreStations_str;
+            vector<pair<int, int>> ignoreBaselines;
+            vector<pair<string, string>> ignoreBaselines_str;
         };
 
         struct PRECALCULATED{
@@ -114,6 +119,15 @@ namespace VieVS{
          * @return moved other source
          */
         VLBI_source &operator=(VLBI_source &&other) = default;
+
+        const PARAMETERS &getPARA() const {
+            return PARA;
+        }
+
+        PARAMETERS &referencePARA() {
+            return PARA;
+        }
+
 
         /**
          * @brief get source position in CRS
@@ -281,7 +295,7 @@ namespace VieVS{
          *
          * !!! this function changes maxFlux !!!
          *
-         * //TODO: change this fuction
+         * // TODO: change this fuction
          * @param maxFlux maximum flux density of this source (will be calculated)
          * @return true if source is strong enough, otherwise false
          */
@@ -310,7 +324,7 @@ namespace VieVS{
          * @param output displays output (default is false)
          * @return true if a new event was found
          */
-        bool checkForNewEvent(unsigned int time, bool output = false) noexcept;
+        bool checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept;
 
 
         /**

@@ -74,9 +74,18 @@ namespace VieVS{
         }
     }
 
-    void VLBI_subcon::constructAllBaselines() noexcept {
-        for (auto& any: subnet1){
-            any.constructBaselines();
+    void VLBI_subcon::constructAllBaselines(const vector<VLBI_source> &sources) noexcept {
+        int i = 0;
+        while (i < n1scans) {
+            VLBI_scan &thisScan = subnet1[i];
+            const VLBI_source &thisSource = sources[thisScan.getSourceId()];
+            bool scanValid = thisScan.constructBaselines(thisSource);
+            if (scanValid) {
+                ++i;
+            } else {
+                --n1scans;
+                subnet1.erase(subnet1.begin() + i);
+            }
         }
     }
 

@@ -14,6 +14,7 @@
 #include <limits>
 #include <queue>
 #include <boost/optional.hpp>
+#include <numeric>
 
 #include "VLBI_station.h"
 #include "VLBI_source.h"
@@ -131,7 +132,7 @@ namespace VieVS{
         /**
          * @brief constructs all baselines for all single source scans in this subcon
          */
-        void constructAllBaselines() noexcept;
+        void constructAllBaselines(const vector<VLBI_source> &sources) noexcept;
 
         /**
          * @brief updates all azimuths and elevations of all pointing vectors for each single source scan in this subcon

@@ -14,74 +14,31 @@
 #include "VLBI_initializer.h"
 
 namespace VieVS{
-    VLBI_initializer::VLBI_initializer() {
-        ifstream is("parameters.xml");
-
-        cout << "reading: parameters.xml \n";
+    VLBI_initializer::VLBI_initializer(const std::string &path) {
+        ifstream is(path);
         boost::property_tree::read_xml(is, PARA_xml);
-
-        try{
-            boost::posix_time::ptime startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.startTime");
-            cout << "start time:" << startTime << "\n";
-            int sec_ = startTime.time_of_day().total_seconds();
-            double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
-
-
-            boost::posix_time::ptime endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.endTime");
-            cout << "end time:" << endTime << "\n";
-
-
-            boost::posix_time::time_duration a = endTime - startTime;
-            int sec = a.total_seconds();
-            if(sec<0){
-                cerr << "ERROR: duration is less than zero seconds!\n";
-            }
-            unsigned int duration = (unsigned int) sec;
-            cout << "duration: " << duration << " [s]\n";
-
-            VieVS_time::mjdStart = mjdStart;
-            VieVS_time::startTime = startTime;
-            VieVS_time::endTime = endTime;
-            VieVS_time::duration = duration;
-
-            vector<string> sel_stations;
-            boost::property_tree::ptree stations = PARA_xml.get_child("master.general.stations");
-            auto it = stations.begin();
-            while (it != stations.end()) {
-                auto item = it->second.data();
-                sel_stations.push_back(item);
-                ++it;
-            }
-            PARA.selectedStations = sel_stations;
-
-            PARA.subnetting = PARA_xml.get<bool>("master.general.subnetting");
-            PARA.fillinmode = PARA_xml.get<bool>("master.general.fillinmode");
-
-        }catch(const boost::property_tree::ptree_error &e){
-            cout << "ERROR: reading parameters.xml file!"<< endl;
-            throw;
-        }
-
-        PARA.experimentName = PARA_xml.get<string>("master.general.experiment_name", "");
-        PARA.experimentDescription = PARA_xml.get<string>("master.general.experiment_description", "");
-
-        PARA.skyCoverageDistance = PARA_xml.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
-        PARA.skyCoverageInterval = PARA_xml.get<double>("master.general.skyCoverageInterval", 3600);;
-
-        try{
-            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
-        }catch(const boost::property_tree::ptree_error &e){
-            cout << "ERROR: reading parameters.xml file!"<< endl;
-            throw;
-        }
-
-        cout << "finished\n";
     }
 
     VLBI_initializer::~VLBI_initializer() {
     }
 
-    map<string, vector<string>> VLBI_initializer::readCatalog(const string &catalogPath, catalog type) noexcept {
+    void VLBI_initializer::precalcSubnettingSrcIds() noexcept {
+        unsigned long nsrc = sources.size();
+        vector<vector<int> > subnettingSrcIds(nsrc);
+        for (int i = 0; i < nsrc; ++i) {
+            for (int j = i + 1; j < nsrc; ++j) {
+                double dist = sources[i].angleDistance(sources[j]);
+                if (dist > PARA.minAngleBetweenSubnettingSources) {
+                    subnettingSrcIds[i].push_back(j);
+                }
+            }
+        }
+        PRE.subnettingSrcIds = subnettingSrcIds;
+    }
+
+
+    map<string, vector<string>>
+    VLBI_initializer::readCatalog(const string &catalogPath, catalog type, ofstream &headerLog) noexcept {
         map<string,vector<string>> all;
         int indexOfKey;
         string filepath;
@@ -156,7 +113,7 @@ namespace VieVS{
                             if(all.find(key) == all.end()){
                                 all.insert( pair<string,vector<string>>(key,splitVector) );
                             } else {
-                                cout << "    Duplicated element of '" << key << "' in " << filepath << "\n";
+                                headerLog << "    Duplicated element of '" << key << "' in " << filepath << "\n";
                             }
                         }
                     }
@@ -267,16 +224,16 @@ namespace VieVS{
         return std::move(all);
     }
 
-    void VLBI_initializer::createStationsFromCatalogs(const string &catalogPath) noexcept {
-        cout << "Creating stations from catalog files:\n";
-        cout << "  reading antenna.cat:\n";
-        map<string,vector<string>> antennaCatalog  =  readCatalog(catalogPath,catalog::antenna);
-        cout << "  reading position.cat:\n";
-        map<string,vector<string>> positionCatalog =  readCatalog(catalogPath,catalog::position);
-        cout << "  reading equip.cat:\n";
-        map<string,vector<string>> equipCatalog    =  readCatalog(catalogPath,catalog::equip);
-        cout << "  reading mask.cat:\n";
-        map<string,vector<string>> maskCatalog     =  readCatalog(catalogPath,catalog::mask);
+    void VLBI_initializer::createStationsFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept {
+        headerLog << "Creating stations from catalog files:\n";
+        headerLog << "  reading antenna.cat:\n";
+        map<string, vector<string>> antennaCatalog = readCatalog(catalogPath, catalog::antenna, headerLog);
+        headerLog << "  reading position.cat:\n";
+        map<string, vector<string>> positionCatalog = readCatalog(catalogPath, catalog::position, headerLog);
+        headerLog << "  reading equip.cat:\n";
+        map<string, vector<string>> equipCatalog = readCatalog(catalogPath, catalog::equip, headerLog);
+        headerLog << "  reading mask.cat:\n";
+        map<string, vector<string>> maskCatalog = readCatalog(catalogPath, catalog::mask, headerLog);
 
         unsigned long nant;
         int counter = 0;
@@ -301,7 +258,7 @@ namespace VieVS{
                         
             // look if vector in antenna.cat is long enough. Otherwise not all information is available!
             if (any.second.size() < 16){
-                cout <<"*** ERROR: "<< any.first << ": antenna.cat to small ***\n";
+                headerLog << "*** ERROR: " << any.first << ": antenna.cat to small ***\n";
                 continue;
             }
             
@@ -312,11 +269,11 @@ namespace VieVS{
 
             // check if corresponding position and equip catalog exists.
             if (positionCatalog.find(id_PO) == positionCatalog.end()){
-                cout << "*** ERROR: position catalog not found ***\n";
+                headerLog << "*** ERROR: position catalog not found ***\n";
                 continue;
             }
             if (equipCatalog.find(id_EQ+"|"+name) == equipCatalog.end()){
-                cout << "*** ERROR: equip catalog not found ***\n";
+                headerLog << "*** ERROR: equip catalog not found ***\n";
                 continue;
             }
             
@@ -336,14 +293,14 @@ namespace VieVS{
                 diam = boost::lexical_cast<double>(any.second.at(12));
             }
             catch(const std::exception& e){
-                cout << "*** ERROR: "<< e.what() << " ***\n";
+                headerLog << "*** ERROR: " << e.what() << " ***\n";
                 continue;
             }
 
             // check if position.cat is long enough. Otherwise not all information is available.
             vector<string> po_cat = positionCatalog[id_PO];
             if (po_cat.size()<5){
-                cout <<"*** ERROR: "<< any.first << ": positon.cat to small ***\n";
+                headerLog << "*** ERROR: " << any.first << ": positon.cat to small ***\n";
                 continue;
             }
             
@@ -355,19 +312,19 @@ namespace VieVS{
                 z = boost::lexical_cast<double>(po_cat.at(4));
             }
             catch(const std::exception& e){
-                cout <<"*** ERROR: "<< e.what() << " ***\n";
+                headerLog << "*** ERROR: " << e.what() << " ***\n";
                 continue;
             }
 
             // check if equip.cat is long enough. Otherwise not all information is available.
             vector<string> eq_cat = equipCatalog[id_EQ + "|" + name];
             if (eq_cat.size()<9){
-                cout <<"*** ERROR: " << any.first << ": equip.cat to small ***\n";
+                headerLog << "*** ERROR: " << any.first << ": equip.cat to small ***\n";
                 continue;
             }
             // check if SEFD information is in X and S band
             if (eq_cat[5].compare("X") != 0 || eq_cat[7].compare("S") != 0){
-                cout <<"*** ERROR: "<< any.first << ": we only support SX equipment ***\n";
+                headerLog << "*** ERROR: " << any.first << ": we only support SX equipment ***\n";
                 continue;
             }
             // convert all items from equip.cat
@@ -377,7 +334,7 @@ namespace VieVS{
                 SEFD_S = boost::lexical_cast<double>(eq_cat.at(8));
             }
             catch(const std::exception& e){
-                cout << "*** ERROR: "<< e.what() << "\n";
+                headerLog << "*** ERROR: " << e.what() << "\n";
                 continue;
             }
             
@@ -392,13 +349,13 @@ namespace VieVS{
                         hmask.push_back(boost::lexical_cast<double>(mask_cat.at(i)));
                     }
                     catch(const std::exception& e){
-                        cout << "*** ERROR: "<< e.what() << " ***\n";
-                        cout << mask_cat.at(i) << "\n";
+                        headerLog << "*** ERROR: " << e.what() << " ***\n";
+                        headerLog << mask_cat.at(i) << "\n";
                     }
                 }
             } else {
                 if (!id_MS.compare("--")==0){
-                    cout << "*** ERROR: mask catalog not found ***\n";
+                    headerLog << "*** ERROR: mask catalog not found ***\n";
                 }
             }
             stations.push_back(VLBI_station(name,
@@ -410,18 +367,18 @@ namespace VieVS{
                                             VLBI_mask(hmask),
                                             type));
             created++;
-            cout << boost::format("  %-8s added\n") %name;
+            headerLog << boost::format("  %-8s added\n") % name;
             
         }
-        cout <<"Finished! "<< created <<" of " << nant << " stations created\n\n" << endl;
+        headerLog << "Finished! " << created << " of " << nant << " stations created\n\n" << endl;
     }
 
-    void VLBI_initializer::createSourcesFromCatalogs(const string &catalogPath) noexcept {
-        cout << "Creating sources from catalog files:\n";
-        cout << "  reading source.cat:\n";
-        map<string,vector<string>> sourceCatalog  =  readCatalog(catalogPath,catalog::source);
-        cout << "  reading flux.cat:\n";
-        map<string,vector<string>> fluxCatalog =  readCatalog(catalogPath,catalog::flux);
+    void VLBI_initializer::createSourcesFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept {
+        headerLog << "Creating sources from catalog files:\n";
+        headerLog << "  reading source.cat:\n";
+        map<string, vector<string>> sourceCatalog = readCatalog(catalogPath, catalog::source, headerLog);
+        headerLog << "  reading flux.cat:\n";
+        map<string, vector<string>> fluxCatalog = readCatalog(catalogPath, catalog::flux, headerLog);
         
         int counter = 0;
         unsigned long nsrc = sourceCatalog.size();
@@ -432,7 +389,7 @@ namespace VieVS{
             string name = any.first;
             
             if (any.second.size() < 8){
-                cout <<"*** ERROR: "<< any.first << ": source.cat to small ***\n";
+                headerLog << "*** ERROR: " << any.first << ": source.cat to small ***\n";
                 continue;
             }
             if (!any.second.at(1).compare("$")==0){
@@ -440,7 +397,7 @@ namespace VieVS{
             }
             
             if (fluxCatalog.find(name) == fluxCatalog.end()){
-                cout << "*** ERROR: source " << name << ": flux information not found ***\n";
+                headerLog << "*** ERROR: source " << name << ": flux information not found ***\n";
                 continue;
             }
 
@@ -455,7 +412,7 @@ namespace VieVS{
                 de_s   = boost::lexical_cast<double>(any.second.at(7));
             }
             catch(const std::exception& e){
-                cout << "*** ERROR: "<< e.what() << " ***\n";
+                headerLog << "*** ERROR: " << e.what() << " ***\n";
                 continue;
             }
             double ra = 15*(ra_h + ra_m/60 + ra_s/3600);
@@ -466,7 +423,7 @@ namespace VieVS{
 
             vector<string> flux_cat = fluxCatalog[name];
 //            if (flux_cat.size() < 6){
-//                cout <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
+//                headerLog <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
 //                continue;
 //            }
 
@@ -505,7 +462,7 @@ namespace VieVS{
                         flagAdd = true;
                     }
                     if (flagAdd){
-                        cout << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
+                        headerLog << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
                     }
                 }
                 
@@ -544,10 +501,10 @@ namespace VieVS{
             if (!flux.empty()){
                 sources.push_back(VLBI_source(name, ra, de, flux));
                 created++;
-                cout << boost::format("  %-8s added\n") %name;
+                headerLog << boost::format("  %-8s added\n") % name;
             }
         }
-        cout <<"Finished! "<< created <<" of " << nsrc << " sources created\n\n" << endl;
+        headerLog << "Finished! " << created << " of " << nsrc << " sources created\n\n" << endl;
     }
 
     void VLBI_initializer::createSkyCoverages() noexcept {
@@ -589,14 +546,70 @@ namespace VieVS{
 
     }
 
+    void VLBI_initializer::initializeGeneral(ofstream &headerLog) noexcept {
+        try {
+            boost::posix_time::ptime startTime = PARA_xml.get<boost::posix_time::ptime>("master.general.startTime");
+            headerLog << "start time:" << startTime << "\n";
+            int sec_ = startTime.time_of_day().total_seconds();
+            double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
+
+
+            boost::posix_time::ptime endTime = PARA_xml.get<boost::posix_time::ptime>("master.general.endTime");
+            headerLog << "end time:" << endTime << "\n";
+
+
+            boost::posix_time::time_duration a = endTime - startTime;
+            int sec = a.total_seconds();
+            if (sec < 0) {
+                cerr << "ERROR: duration is less than zero seconds!\n";
+            }
+            unsigned int duration = (unsigned int) sec;
+            headerLog << "duration: " << duration << " [s]\n";
+
+            VieVS_time::mjdStart = mjdStart;
+            VieVS_time::startTime = startTime;
+            VieVS_time::endTime = endTime;
+            VieVS_time::duration = duration;
+
+            vector<string> sel_stations;
+            boost::property_tree::ptree stations = PARA_xml.get_child("master.general.stations");
+            auto it = stations.begin();
+            while (it != stations.end()) {
+                auto item = it->second.data();
+                sel_stations.push_back(item);
+                ++it;
+            }
+            PARA.selectedStations = sel_stations;
+
+            PARA.subnetting = PARA_xml.get<bool>("master.general.subnetting");
+            PARA.fillinmode = PARA_xml.get<bool>("master.general.fillinmode");
+
+        } catch (const boost::property_tree::ptree_error &e) {
+            headerLog << "ERROR: reading parameters.xml file!" << endl;
+        }
+
+        PARA.experimentName = PARA_xml.get<string>("master.general.experiment_name", "");
+        PARA.experimentDescription = PARA_xml.get<string>("master.general.experiment_description", "");
+
+        PARA.skyCoverageDistance = PARA_xml.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
+        PARA.skyCoverageInterval = PARA_xml.get<double>("master.general.skyCoverageInterval", 3600);;
+
+        try {
+            PARA.maxDistanceTwinTeleskopes = PARA_xml.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
+        } catch (const boost::property_tree::ptree_error &e) {
+            headerLog << "ERROR: reading parameters.xml file!" << endl;
+        }
+
+    }
+
+
     void VLBI_initializer::initializeStations() noexcept {
         boost::property_tree::ptree PARA_station;
         try{
             PARA_station = PARA_xml.get_child("master.station");
         }catch(const boost::property_tree::ptree_error &e){
-            cerr << "ERROR: reading parameters.xml file!"<<
-                    "    probably missing <station> block?" << endl;
-            throw;
+            cout << "ERROR: reading parameters.xml file!" <<
+                 "    probably missing <station> block?" << endl;
         }
 
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station);
@@ -651,6 +664,16 @@ namespace VieVS{
                         string bandName = it2.second.get_child("<xmlattr>.band").data();
                         double value = it2.second.get_value<double>();
                         PARA.minSNR[bandName] = value;
+                    } else if (paraName == "ignoreSources") {
+                        for (auto &it3: it2.second) {
+                            string srcName = it3.second.data();
+                            for (int i = 0; i < sources.size(); ++i) {
+                                if (srcName == sources[i].getName()) {
+                                    PARA.ignoreSources.push_back(i);
+                                    break;
+                                }
+                            }
+                        }
                     } else {
                         cerr << "<station> <parameter>: " << parameterName << ": parameter <" << name
                              << "> not understood! (Ignored)\n";
@@ -722,7 +745,9 @@ namespace VieVS{
 
             thisStation.setCurrentPointingVector(pV);
             thisStation.setEVENTS(events[i]);
-            thisStation.checkForNewEvent(0);
+            bool hardBreak = false;
+            ofstream dummy;
+            thisStation.checkForNewEvent(0, hardBreak, false, dummy);
             thisStation.setCableWrapMinimumOffsets();
 
             vector<double> distance(nsta);
@@ -739,6 +764,7 @@ namespace VieVS{
             }
 
             thisStation.preCalc(distance, dx, dy, dz);
+            thisStation.setFirstScan(true);
         }
 
     }
@@ -751,8 +777,8 @@ namespace VieVS{
 
         vector<string> members;
         VLBI_station::PARAMETERS combinedPARA = parentPARA;
-        unsigned int start;
-        unsigned int end;
+        unsigned int start = 0;
+        unsigned int end = VieVS_time::duration;
         bool softTransition = true;
 
         for (auto &it: tree) {
@@ -831,13 +857,20 @@ namespace VieVS{
                         combinedPARA.minSNR[name] = value;
                     }
                 }
+                if (!newPARA.ignoreSources.empty()) {
+                    combinedPARA.ignoreSources = newPARA.ignoreSources;
+                }
 
             } else if (paraName == "start") {
-                start = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisStartTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                start = (unsigned int) sec;
             } else if (paraName == "end") {
-                end = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisEndTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                end = (unsigned int) sec;
             } else if (paraName == "transition") {
                 string tmp = it.second.data();
                 if (tmp == "hard") {
@@ -902,7 +935,6 @@ namespace VieVS{
         }catch(const boost::property_tree::ptree_error &e){
             cout << "ERROR: reading parameters.xml file!" <<
                  "    probably missing <source> block?" << endl;
-            throw;
         }
 
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source);
@@ -944,6 +976,42 @@ namespace VieVS{
                         string bandName = it2.second.get_child("<xmlattr>.band").data();
                         double value = it2.second.get_value<double>();
                         PARA.minSNR[bandName] = value;
+                    } else if (paraName == "ignoreStations") {
+                        for (auto &it3: it2.second) {
+                            string staName = it3.second.data();
+                            for (int i = 0; i < stations.size(); ++i) {
+                                if (staName == stations[i].getName()) {
+                                    PARA.ignoreStations.push_back(i);
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (paraName == "ignoreBaselines") {
+                        for (auto &it3: it2.second) {
+                            string baselineName = it3.second.data();
+                            vector<string> splitVec;
+                            boost::split(splitVec, baselineName, boost::is_any_of("-"));
+                            string station1 = splitVec[0];
+                            int staid1;
+                            for (int i = 0; i < stations.size(); ++i) {
+                                if (station1 == stations[i].getName()) {
+                                    staid1 = i;
+                                    break;
+                                }
+                            }
+                            string station2 = splitVec[1];
+                            int staid2;
+                            for (int i = 0; i < stations.size(); ++i) {
+                                if (station2 == stations[i].getName()) {
+                                    staid2 = i;
+                                    break;
+                                }
+                            }
+                            if (staid1 > staid2) {
+                                swap(staid1, staid2);
+                            }
+                            PARA.ignoreBaselines.push_back({staid1, staid2});
+                        }
                     } else {
                         cerr << "<source> <parameter>: " << parameterName << ": parameter <" << name
                              << "> not understood! (Ignored)\n";
@@ -999,7 +1067,9 @@ namespace VieVS{
         }
 
         for (auto &any:sources) {
-            any.checkForNewEvent(0);
+            bool hardBreak = false;
+            ofstream dummy;
+            any.checkForNewEvent(0, hardBreak, false, dummy);
         }
 
 
@@ -1014,8 +1084,8 @@ namespace VieVS{
 
         vector<string> members;
         VLBI_source::PARAMETERS combinedPARA = parentPARA;
-        unsigned int start;
-        unsigned int end;
+        unsigned int start = 0;
+        unsigned int end = VieVS_time::duration;
         bool softTransition = true;
 
         for (auto &it: tree) {
@@ -1062,7 +1132,12 @@ namespace VieVS{
                 if (newPARA.fixedScanDuration.is_initialized()) {
                     combinedPARA.fixedScanDuration = *newPARA.fixedScanDuration;
                 }
-
+                if (!newPARA.ignoreStations.empty()) {
+                    combinedPARA.ignoreStations = newPARA.ignoreStations;
+                }
+                if (!newPARA.ignoreBaselines.empty()) {
+                    combinedPARA.ignoreBaselines = newPARA.ignoreBaselines;
+                }
 
                 if (!newPARA.minSNR.empty()) {
                     for (const auto &any:newPARA.minSNR) {
@@ -1073,11 +1148,15 @@ namespace VieVS{
                 }
 
             } else if (paraName == "start") {
-                start = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisStartTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                start = (unsigned int) sec;
             } else if (paraName == "end") {
-                end = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisEndTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                end = (unsigned int) sec;
             } else if (paraName == "transition") {
                 string tmp = it.second.data();
                 if (tmp == "hard") {
@@ -1139,17 +1218,17 @@ namespace VieVS{
     }
 
 
-    void VLBI_initializer::displaySummary() noexcept {
-        
-        cout << "List of all sources:\n";
-        cout << "------------------------------------\n";
+    void VLBI_initializer::displaySummary(ofstream &headerLog) noexcept {
+
+        headerLog << "List of all sources:\n";
+        headerLog << "------------------------------------\n";
         for(auto& any:stations){
-            cout << any;
+            headerLog << any;
         }
-        cout << "List of all sources:\n";
-        cout << "------------------------------------\n";
+        headerLog << "List of all sources:\n";
+        headerLog << "------------------------------------\n";
         for(auto& any:sources){
-            cout << any;
+            headerLog << any;
         }
     }
 
@@ -1277,7 +1356,6 @@ namespace VieVS{
         } catch (const boost::property_tree::ptree_error &e) {
             cout << "ERROR: reading parameters.xml file!" <<
                  "    probably missing <baseline> block?" << endl;
-            throw;
         }
 
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline);
@@ -1377,8 +1455,9 @@ namespace VieVS{
 
         VLBI_baseline::EVENTS = events;
         VLBI_baseline::nextEvent = nextEvent;
-
-        VLBI_baseline::checkForNewEvent(0);
+        bool hardBreak = false;
+        ofstream dummy;
+        VLBI_baseline::checkForNewEvent(0, hardBreak, false, dummy);
 
     }
 
@@ -1390,8 +1469,8 @@ namespace VieVS{
 
         vector<string> members;
         VLBI_baseline::PARAMETERS combinedPARA = parentPARA;
-        unsigned int start;
-        unsigned int end;
+        unsigned int start = 0;
+        unsigned int end = VieVS_time::duration;
         bool softTransition = true;
 
         for (auto &it: tree) {
@@ -1434,11 +1513,15 @@ namespace VieVS{
                 }
 
             } else if (paraName == "start") {
-                start = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisStartTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                start = (unsigned int) sec;
             } else if (paraName == "end") {
-                end = it.second.get_value < unsigned
-                int > ();
+                boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+                boost::posix_time::time_duration a = thisEndTime - VieVS_time::startTime;
+                int sec = a.total_seconds();
+                end = (unsigned int) sec;
             } else if (paraName == "transition") {
                 string tmp = it.second.data();
                 if (tmp == "hard") {
@@ -1563,6 +1646,150 @@ namespace VieVS{
             }
         }
         return groups;
+    }
+
+    void VLBI_initializer::applyMultiSchedParameters(const VieVS::VLBI_multiSched::PARAMETERS &parameters,
+                                                     ofstream &bodyLog) {
+        parameters.output(bodyLog);
+
+        unsigned long nsta = stations.size();
+
+        if (parameters.start.is_initialized()) {
+            boost::posix_time::ptime startTime = *parameters.start;
+            int sec_ = startTime.time_of_day().total_seconds();
+            double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
+
+            boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(VieVS_time::duration);
+
+            VieVS_time::mjdStart = mjdStart;
+            VieVS_time::startTime = startTime;
+            VieVS_time::endTime = endTime;
+        }
+        if (parameters.multiSched_subnetting.is_initialized()) {
+            PARA.subnetting = *parameters.multiSched_subnetting;
+        }
+        if (parameters.multisched_fillinmode.is_initialized()) {
+            PARA.fillinmode = *parameters.multisched_fillinmode;
+        }
+
+        if (parameters.weight_skyCoverage.is_initialized()) {
+            VLBI_weightFactors::weight_skyCoverage = *parameters.weight_skyCoverage;
+        }
+        if (parameters.weight_numberOfObservations.is_initialized()) {
+            VLBI_weightFactors::weight_numberOfObservations = *parameters.weight_numberOfObservations;
+        }
+        if (parameters.weight_duration.is_initialized()) {
+            VLBI_weightFactors::weight_duration = *parameters.weight_duration;
+        }
+        if (parameters.weight_averageSources.is_initialized()) {
+            VLBI_weightFactors::weight_averageSources = *parameters.weight_averageSources;
+        }
+        if (parameters.weight_averageStations.is_initialized()) {
+            VLBI_weightFactors::weight_averageStations = *parameters.weight_averageStations;
+        }
+
+        int c;
+        c = 0;
+        for (const auto &any: parameters.station_maxSlewtime) {
+            if (any.is_initialized()) {
+                stations[c].referencePARA().maxSlewtime = *parameters.station_maxSlewtime[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.station_maxWait) {
+            if (any.is_initialized()) {
+                stations[c].referencePARA().maxWait = *parameters.station_maxWait[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.station_maxScan) {
+            if (any.is_initialized()) {
+                stations[c].referencePARA().maxScan = *parameters.station_maxScan[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.station_minScan) {
+            if (any.is_initialized()) {
+                stations[c].referencePARA().minScan = *parameters.station_minScan[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.station_weight) {
+            if (any.is_initialized()) {
+                stations[c].referencePARA().weight = *parameters.station_weight[c];
+            }
+            ++c;
+        }
+
+        c = 0;
+        for (const auto &any: parameters.source_minNumberOfStations) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().minNumberOfStations = *parameters.source_minNumberOfStations[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.source_minFlux) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().minFlux = *parameters.source_minFlux[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.source_minRepeat) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().minRepeat = *parameters.source_minRepeat[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.source_maxScan) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().maxScan = *parameters.source_maxScan[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.source_minScan) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().minScan = *parameters.source_minScan[c];
+            }
+            ++c;
+        }
+        c = 0;
+        for (const auto &any: parameters.source_weight) {
+            if (any.is_initialized()) {
+                sources[c].referencePARA().weight = *parameters.source_weight[c];
+            }
+            ++c;
+        }
+
+        for (int i = 0; i < nsta; ++i) {
+            for (int j = i + 1; j < nsta; ++j) {
+                if (parameters.baseline_maxScan[i][j].is_initialized()) {
+                    VLBI_baseline::PARA.maxScan[i][j] = *parameters.baseline_maxScan[i][j];
+                }
+            }
+        }
+        for (int i = 0; i < nsta; ++i) {
+            for (int j = i + 1; j < nsta; ++j) {
+                if (parameters.baseline_minScan[i][j].is_initialized()) {
+                    VLBI_baseline::PARA.minScan[i][j] = *parameters.baseline_minScan[i][j];
+                }
+            }
+        }
+        for (int i = 0; i < nsta; ++i) {
+            for (int j = i + 1; j < nsta; ++j) {
+                if (parameters.baseline_weight[i][j].is_initialized()) {
+                    VLBI_baseline::PARA.weight[i][j] = *parameters.baseline_weight[i][j];
+                }
+            }
+        }
+
     }
 
 }

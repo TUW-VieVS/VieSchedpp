@@ -15,7 +15,7 @@
 namespace VieVS {
     class VieVS_earth {
     public:
-        static std::vector<double> velocity; ///< velocity of the earth, is calculated in VLBI_initializer::initializeEarth()
+        static thread_local std::vector<double> velocity; ///< velocity of the earth, is calculated in VLBI_initializer::initializeEarth()
     };
 }
 

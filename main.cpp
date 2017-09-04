@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <chrono>
 #include <vector>
+#include <boost/format.hpp>
+//#include <boost/filesystem.hpp>
 
 #include "VLBI_initializer.h"
 #include "VLBI_scheduler.h"
@@ -30,9 +32,6 @@ void run();
  * creates the corresponding .xml file (will be replaced later by GUI.
  */
 void createParameterFile();
-
-
-void createSkyCoverageLookup();
 
 /**
  * Main function.
@@ -73,31 +72,87 @@ void run(){
 
     string path = "/data/VieVS/CATALOGS";
 
-    VieVS::VLBI_initializer init;
+
+    VieVS::VLBI_initializer init("parameters.xml");
+    cout << "log file is written in this file: header.txt\n";
+    ofstream headerLog("header.txt");
 
     init.initializeObservingMode();
-    init.createStationsFromCatalogs(path);
-    init.createSourcesFromCatalogs(path);
-    init.initializeStations();
-    init.initializeSources();
-    init.initializeNutation();
-    init.initializeEarth();
     init.initializeLookup();
-    init.createSkyCoverages();
     init.initializeSkyCoverages();
-    init.initializeWeightFactors();
+
+    init.initializeGeneral(headerLog);
+
+    init.createStationsFromCatalogs(path, headerLog);
+    init.initializeStations();
+    init.createSkyCoverages();
+
+    init.createSourcesFromCatalogs(path, headerLog);
+    init.initializeSources();
+    init.precalcSubnettingSrcIds();
+
     init.initializeBaselines();
-//    init.displaySummary();
 
-    VieVS::VLBI_scheduler scheduler(init);
+    init.initializeWeightFactors();
 
-    scheduler.precalcSubnettingSrcIds();
-    scheduler.start();
+    bool flag_multiSched = false;
+    unsigned int nsched = 1;
 
-    VieVS::VLBI_output output(scheduler);
-    output.displayStatistics(true, true, true, true, true);
-    output.writeNGS();
-    cout << "Good Bye!" << endl;
+
+    VieVS::VLBI_multiSched multiSched(init.getStations().size(), init.getSources().size());
+    multiSched.setWeight_skyCoverage(vector<double>{1, 2, 3, 4, 5});
+    multiSched.setWeight_duration(vector<double>{10, 20, 30});
+    multiSched.setWeight_numberOfObservations(vector<double>{100, 200, 300});
+    multiSched.setStation_maxScan(vector<unsigned int>{0, 1}, vector<unsigned int>{1000, 2000});
+    multiSched.setStation_maxScan(vector<unsigned int>{2, 3}, vector<unsigned int>{10000, 20000, 30000});
+    vector<VieVS::VLBI_multiSched::PARAMETERS> all_multiSched_PARA = multiSched.createMultiScheduleParameters();
+    flag_multiSched = true;
+    nsched = all_multiSched_PARA.size();
+
+//    boost::optional<vector<VieVS::VLBI_multiSched::PARAMETERS> > all_multiSched_PARA = init.readMultiSched();
+//    if (all_multiSched_PARA.is_initialized()){
+//        flag_multiSched = true;
+//        nsched = all_multiSched_PARA->size();
+//    }
+
+    headerLog.close();
+
+
+    for (int i = 0; i < nsched; ++i) {
+
+        VieVS::VLBI_scheduler scheduler;
+
+        ofstream bodyLog;
+        if (flag_multiSched) {
+            cout << "########## multiSched number: " << i << " of " << nsched << " ##########" << endl;
+            VieVS::VLBI_initializer newinit = init;
+            string fname = (boost::format("body_%04d.txt") % i).str();
+            bodyLog.open(fname);
+            cout << "log file is written in this file: " << fname << "\n";
+
+            newinit.applyMultiSchedParameters(all_multiSched_PARA[i], bodyLog);
+            newinit.initializeNutation();
+            newinit.initializeEarth();
+            scheduler = VieVS::VLBI_scheduler(newinit);
+        } else {
+            cout << "log file is written in this file: body.txt\n";
+            bodyLog.open("body.txt");
+            init.initializeNutation();
+            init.initializeEarth();
+
+            scheduler = VieVS::VLBI_scheduler(init);
+        }
+
+        scheduler.start(bodyLog);
+        bodyLog.close();
+
+        VieVS::VLBI_output output(scheduler);
+        output.displayStatistics(true, true, true, true, true);
+        output.writeNGS();
+        cout << "Good Bye!" << endl;
+
+    }
+
 
 }
 
@@ -138,6 +193,8 @@ void createParameterFile(){
 
     VieVS::VLBI_station::PARAMETERS sta_para3;
     sta_para3.minSNR.insert({"X", 22});
+    sta_para3.ignoreSources_str.push_back("0104-408");
+    sta_para3.ignoreSources_str.push_back("0111+021");
     para.parameters("para:SEJONG", sta_para3);
 
     VieVS::VLBI_station::PARAMETERS sta_para4;
@@ -183,6 +240,11 @@ void createParameterFile(){
     src_para2.minScan = 100;
     src_para2.maxScan = 700;
     src_para2.fixedScanDuration = 500;
+    src_para2.ignoreStations_str.push_back("WETTZ13N");
+    src_para2.ignoreStations_str.push_back("WETTZ13S");
+    src_para2.ignoreBaselines_str.push_back({"WETTZ13S", "WETTZ13N"});
+    src_para2.ignoreBaselines_str.push_back({"WETTZELL", "WETTZ13N"});
+    src_para2.ignoreBaselines_str.push_back({"WETTZELL", "WETTZ13S"});
     para.parameters("para:star", src_para2);
 
     VieVS::VLBI_setup pp_src(0, std::numeric_limits<unsigned int>::max());

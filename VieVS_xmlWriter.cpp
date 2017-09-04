@@ -115,6 +115,16 @@ namespace VieVS {
             }
         }
 
+        if (!PARA.ignoreSources_str.empty()) {
+            boost::property_tree::ptree ignoreSources;
+            for (const auto &any:PARA.ignoreSources_str) {
+                boost::property_tree::ptree sourceName;
+                sourceName.add("source", any);
+                ignoreSources.add_child("ignoreSources.source", sourceName.get_child("source"));
+            }
+            parameters.add_child("parameters.ignoreSources", ignoreSources.get_child("ignoreSources"));
+        }
+
         parameters.add("parameters.<xmlattr>.name", name);
 
         master.add_child("master.station.parameters", parameters.get_child("parameters"));
@@ -158,6 +168,28 @@ namespace VieVS {
             minSNR.put("minSNR.<xmlattr>.band", any.first);
             parameters.add_child("parameters.minSNR", minSNR.get_child("minSNR"));
         }
+
+        if (!PARA.ignoreStations_str.empty()) {
+            boost::property_tree::ptree ignoreStations;
+            for (const auto &any:PARA.ignoreStations_str) {
+                boost::property_tree::ptree stationName;
+                stationName.add("station", any);
+                ignoreStations.add_child("ignoreStations.station", stationName.get_child("station"));
+            }
+            parameters.add_child("parameters.ignoreStations", ignoreStations.get_child("ignoreStations"));
+        }
+
+        if (!PARA.ignoreBaselines_str.empty()) {
+            boost::property_tree::ptree ignoreBaselines;
+            for (const auto &any:PARA.ignoreBaselines_str) {
+                boost::property_tree::ptree baselineName;
+                string bname = any.first + "-" + any.second;
+                baselineName.add("baseline", bname);
+                ignoreBaselines.add_child("ignoreBaselines.baseline", baselineName.get_child("baseline"));
+            }
+            parameters.add_child("parameters.ignoreBaselines", ignoreBaselines.get_child("ignoreBaselines"));
+        }
+
 
         parameters.add("parameters.<xmlattr>.name", name);
 
@@ -222,6 +254,12 @@ namespace VieVS {
 
     boost::property_tree::ptree VieVS_xmlWriter::getChildTree(const VLBI_setup &setup) {
         boost::property_tree::ptree root;
+        boost::posix_time::ptime start = master.get<boost::posix_time::ptime>("master.general.startTime");
+        boost::posix_time::ptime end = master.get<boost::posix_time::ptime>("master.general.endTime");
+
+        boost::posix_time::time_duration a = end - start;
+        int sec = a.total_seconds();
+        unsigned int duration = (unsigned int) sec;
 
         if (setup.getChildren().size() > 0) {
             const std::vector<string> &members = setup.getMembers();
@@ -232,8 +270,17 @@ namespace VieVS {
                 root.add("root.group", setup.getMemberName());
             }
             root.add("root.parameter", setup.getParameterName());
-            root.add("root.start", setup.getStart());
-            root.add("root.end", setup.getEnd());
+
+            unsigned int thisStart = setup.getStart();
+            if (thisStart != 0) {
+                root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            }
+
+            unsigned int thisEnd = setup.getEnd();
+            if (thisEnd < duration) {
+                root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            }
+
             if (setup.getTransition() != VLBI_setup::TRANSITION::soft) {
                 root.add("root.transition", "hard");
             }
@@ -252,8 +299,15 @@ namespace VieVS {
                 root.add("root.group", setup.getMemberName());
             }
             root.add("root.parameter", setup.getParameterName());
-            root.add("root.start", setup.getStart());
-            root.add("root.end", setup.getEnd());
+            unsigned int thisStart = setup.getStart();
+            if (thisStart != 0) {
+                root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            }
+
+            unsigned int thisEnd = setup.getEnd();
+            if (thisEnd < duration) {
+                root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            }
             if (setup.getTransition() != VLBI_setup::TRANSITION::soft) {
                 root.add("root.transition", "hard");
             }

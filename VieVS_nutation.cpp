@@ -4,7 +4,7 @@
 
 #include "VieVS_nutation.h"
 
-vector<double> VieVS::VieVS_nutation::nut_x = {};
-vector<double> VieVS::VieVS_nutation::nut_y = {};
-vector<double> VieVS::VieVS_nutation::nut_s = {};
-vector<unsigned int> VieVS::VieVS_nutation::nut_time = {};
+thread_local vector<double> VieVS::VieVS_nutation::nut_x = {};
+thread_local vector<double> VieVS::VieVS_nutation::nut_y = {};
+thread_local vector<double> VieVS::VieVS_nutation::nut_s = {};
+thread_local vector<unsigned int> VieVS::VieVS_nutation::nut_time = {};
