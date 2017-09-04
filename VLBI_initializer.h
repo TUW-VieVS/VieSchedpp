@@ -28,6 +28,7 @@
 
 
 #include "sofa.h"
+#include "VLBI_multiSched.h"
 
 using namespace std;
 namespace VieVS {
@@ -51,7 +52,18 @@ namespace VieVS {
 
             double skyCoverageDistance = 30 * deg2rad; ///< maximum influence distance on sphere for sky Coverage
             double skyCoverageInterval = 3600; ///< maximum temporal distance of impact of scans in sky Coverage
+
+            double minAngleBetweenSubnettingSources =
+                    120 * deg2rad; ///< minimum angle between subnetting sources in radians
         };
+
+        /**
+         * @brief pre calculated values
+         */
+        struct PRECALC {
+            vector<vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
+        };
+
 
         /**
          * @brief All available and read sked catalog files which can be read.
@@ -68,12 +80,33 @@ namespace VieVS {
         /** @brief empty default constructor.
          *
          */
-        VLBI_initializer();
+        VLBI_initializer(const std::string &path);
+
+        /**
+         * @brief default copy constructor
+         *
+         * @param other other scan
+         */
+        VLBI_initializer(const VLBI_initializer &other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other scan
+         * @return copy of other scan
+         */
+        VLBI_initializer &operator=(const VLBI_initializer &other) = default;
 
         /**
          * @brief destructor
          */
         virtual ~VLBI_initializer();
+
+
+        /**
+         *  @brief pre calculates all possible second scans used for subnetting
+         */
+        void precalcSubnettingSrcIds() noexcept;
 
         /**
          * @brief This function reads a specific sked catalog file and stores the data in a map.
@@ -82,19 +115,19 @@ namespace VieVS {
          * @param type catalog file which should be read
          * @return key is list of all Ids, value is corresponding catalog entry
          */
-        map<string, vector<string> > readCatalog(const string &path, catalog type) noexcept;
+        map<string, vector<string>> readCatalog(const string &path, catalog type, ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all selected stations from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createStationsFromCatalogs(const string &catalogPath) noexcept;
+        void createStationsFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
          * @param catalogPath path to catalog files
          */
-        void createSourcesFromCatalogs(const string &catalogPath) noexcept;
+        void createSourcesFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
@@ -106,7 +139,7 @@ namespace VieVS {
          *
          * This is only for debugging purpose and usually unused
          */
-        void displaySummary() noexcept;
+        void displaySummary(ofstream &headerLog) noexcept;
 
         /**
          * @brief getter fuction which returns all stations
@@ -139,6 +172,12 @@ namespace VieVS {
         const PARAMETERS &getPARA() const noexcept {
             return PARA;
         }
+
+        const PRECALC &getPRE() const {
+            return PRE;
+        }
+
+        void initializeGeneral(ofstream &headerLog) noexcept;
 
         /**
          * @brief initializes all stations with settings from .xml file
@@ -203,12 +242,17 @@ namespace VieVS {
         unordered_map<string, vector<string> > readGroups(boost::property_tree::ptree root) noexcept;
 
 
+        void applyMultiSchedParameters(const VieVS::VLBI_multiSched::PARAMETERS &parameters, ofstream &bodyLog);
+
     private:
+
         boost::property_tree::ptree PARA_xml; ///< content of parameters.xml file
         vector<VLBI_station> stations; ///< all created stations
         vector<VLBI_source> sources; ///< all created sources
         vector<VLBI_skyCoverage> skyCoverages; ///< all created sky coverage objects
+
         PARAMETERS PARA; ///< parameters
+        PRECALC PRE; ///< pre calculated values
 
 
         void stationSetup(vector<vector<VLBI_station::EVENT> > &events,

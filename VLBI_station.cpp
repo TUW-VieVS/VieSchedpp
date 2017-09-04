@@ -274,10 +274,12 @@ namespace VieVS{
                                     *PARA.axis2_up_offset);
     }
 
-    void VLBI_station::checkForNewEvent(unsigned int time, bool output) noexcept {
+    void VLBI_station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
+
         while (EVENTS[nextEvent].time <= time) {
             bool oldAvailable = *PARA.available;
             PARA = EVENTS[nextEvent].PARA;
+            hardBreak = hardBreak || !EVENTS[nextEvent].softTransition;
             bool newAvailable = *PARA.available;
 
             if (!oldAvailable && newAvailable) {
@@ -286,9 +288,9 @@ namespace VieVS{
             }
 
             if (output) {
-                cout << "###############################################\n";
-                cout << "## changing parameters for station: " << boost::format("%8s") % name << " ##\n";
-                cout << "###############################################\n";
+                bodyLog << "###############################################\n";
+                bodyLog << "## changing parameters for station: " << boost::format("%8s") % name << " ##\n";
+                bodyLog << "###############################################\n";
             }
             nextEvent++;
         }

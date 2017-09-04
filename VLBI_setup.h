@@ -26,13 +26,8 @@ namespace VieVS {
 
         VLBI_setup(unsigned int start, unsigned int end);
 
-//        VLBI_setup(const std::string &parameterName, const std::string &memberName);
-
         VLBI_setup(const std::string &parameterName, const std::string &memberName,
                    unsigned int start, unsigned int end, TRANSITION transition = TRANSITION::soft);
-
-//        VLBI_setup(const std::string &parameterName, const std::string &groupName,
-//                   const std::vector<std::string> &groupMembers);
 
         VLBI_setup(const std::string &parameterName, const std::string &groupName,
                    const std::vector<std::string> &groupMembers, unsigned int start, unsigned int end,

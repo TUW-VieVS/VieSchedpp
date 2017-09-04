@@ -38,15 +38,28 @@ namespace VieVS{
         pointingVectors_endtime.reserve(nsta);
     }
 
-    void VLBI_scan::constructBaselines() noexcept {
+    bool VLBI_scan::constructBaselines(const VLBI_source &source) noexcept {
         baselines.clear();
+        bool valid = false;
         for (int i=0; i<pointingVectors.size(); ++i){
             for (int j=i+1; j<pointingVectors.size(); ++j){
+
                 int staid1 = pointingVectors[i].getStaid();
                 int staid2 = pointingVectors[j].getStaid();
 
                 if(VLBI_baseline::PARA.ignore[staid1][staid2]){
                     continue;
+                }
+                if (!source.getPARA().ignoreBaselines.empty()) {
+                    auto &PARA = source.getPARA();
+                    if (staid1 > staid2) {
+                        swap(staid1, staid2);
+                    }
+                    if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), make_pair(staid1, staid2)) !=
+                        PARA.ignoreBaselines.end()) {
+                        continue;
+                    }
+
                 }
 
                 unsigned int startTime1 = times.getEndOfIdleTime(i);
@@ -54,12 +67,15 @@ namespace VieVS{
                 if (startTime1> startTime2){
                     baselines.push_back(VLBI_baseline(pointingVectors[i].getSrcid(), pointingVectors[i].getStaid(),
                                                       pointingVectors[j].getStaid(), startTime1));
+                    valid = true;
                 } else {
                     baselines.push_back(VLBI_baseline(pointingVectors[i].getSrcid(), pointingVectors[i].getStaid(),
                                                       pointingVectors[j].getStaid(), startTime2));
+                    valid = true;
                 }
             }
         }
+        return valid;
     }
 
     void VLBI_scan::addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
@@ -422,9 +438,6 @@ namespace VieVS{
                 ++i;
             }
         }
-        if (!valid) {
-            cout << "HERE!";
-        }
         return valid;
     }
 
@@ -578,10 +591,15 @@ namespace VieVS{
 
         times.alignStartTimes();
 
-        constructBaselines();
-        calcBaselineScanDuration(stations, source);
+        scanValid = constructBaselines(source);
+        if (!scanValid) {
+            return false;
+        }
+        scanValid = calcBaselineScanDuration(stations, source);
+        if (!scanValid) {
+            return false;
+        }
         scanValid = scanDuration(stations, source);
-
         if (!scanValid) {
             return false;
         }
@@ -709,8 +727,9 @@ namespace VieVS{
 
     }
 
-    void VLBI_scan::output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations,
-                           const VLBI_source &source) const noexcept {
+    void
+    VLBI_scan::output(unsigned long observed_scan_nr, const vector<VLBI_station> &stations, const VLBI_source &source,
+                      ofstream &of) const noexcept {
         unsigned long nmaxsta = stations.size();
 
         stringstream buffer1;
@@ -719,7 +738,7 @@ namespace VieVS{
             buffer1 << "-----------";
         }
         buffer1 << "----------| \n";
-        cout << buffer1.str();
+        of << buffer1.str();
 
         string sname = source.getName();
         double sra = source.getRa() * rad2deg / 15;
@@ -742,7 +761,7 @@ namespace VieVS{
             buffer2 << " ";
         }
         buffer2 << "| \n";
-        cout << buffer2.str();
+        of << buffer2.str();
         unsigned int maxValue = numeric_limits<unsigned int>::max();
 
         vector<unsigned int> slewStart(nmaxsta, maxValue);
@@ -760,60 +779,60 @@ namespace VieVS{
             scanStart[staid] = times.getEndOfCalibrationTime(idx);
             scanEnd[staid] = times.getEndOfScanTime(idx);
         }
-        cout << "| slew start | ";
+        of << "| slew start | ";
         for (auto &t:slewStart) {
             if (t != maxValue) {
                 boost::posix_time::ptime thisTime = VieVS_time::startTime + boost::posix_time::seconds(t);
-                cout << thisTime.time_of_day() << " | ";
+                of << thisTime.time_of_day() << " | ";
             } else {
-                cout << "         | ";
+                of << "         | ";
             }
         }
-        cout << "\n";
+        of << "\n";
 
-        cout << "| slew end   | ";
+        of << "| slew end   | ";
         for (auto &t:slewEnd) {
             if (t != maxValue) {
                 boost::posix_time::ptime thisTime = VieVS_time::startTime + boost::posix_time::seconds(t);
-                cout << thisTime.time_of_day() << " | ";
+                of << thisTime.time_of_day() << " | ";
             } else {
-                cout << "         | ";
+                of << "         | ";
             }
         }
-        cout << "\n";
+        of << "\n";
 
-        cout << "| idle end   | ";
+        of << "| idle end   | ";
         for (auto &t:ideling) {
             if (t != maxValue) {
                 boost::posix_time::ptime thisTime = VieVS_time::startTime + boost::posix_time::seconds(t);
-                cout << thisTime.time_of_day() << " | ";
+                of << thisTime.time_of_day() << " | ";
             } else {
-                cout << "         | ";
+                of << "         | ";
             }
         }
-        cout << "\n";
+        of << "\n";
 
-        cout << "| scan start | ";
+        of << "| scan start | ";
         for (auto &t:scanStart) {
             if (t != maxValue) {
                 boost::posix_time::ptime thisTime = VieVS_time::startTime + boost::posix_time::seconds(t);
-                cout << thisTime.time_of_day() << " | ";
+                of << thisTime.time_of_day() << " | ";
             } else {
-                cout << "         | ";
+                of << "         | ";
             }
         }
-        cout << "\n";
+        of << "\n";
 
-        cout << "| scan end   | ";
+        of << "| scan end   | ";
         for (auto &t:scanEnd) {
             if (t != maxValue) {
                 boost::posix_time::ptime thisTime = VieVS_time::startTime + boost::posix_time::seconds(t);
-                cout << thisTime.time_of_day() << " | ";
+                of << thisTime.time_of_day() << " | ";
             } else {
-                cout << "         | ";
+                of << "         | ";
             }
         }
-        cout << "\n";
+        of << "\n";
     }
 
     boost::optional<VLBI_scan> VLBI_scan::copyScan(const vector<int> &ids) const noexcept {

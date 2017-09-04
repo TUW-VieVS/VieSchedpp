@@ -24,13 +24,11 @@ using namespace std;
 namespace VieVS{
     class VLBI_scheduler {
     public:
-        /**
-         * @brief general parameters used for scheduling
-         */
-        struct PARAMETERS {
-            double minAngleBetweenSubnettingSources =
-                    120 * deg2rad; ///< minimum angle between subnetting sources in radians
-        };
+//        /**
+//        * @brief general parameters used for scheduling
+//        */
+//        struct PARAMETERS {
+//        };
 
         /**
          * @brief pre calculated values
@@ -49,12 +47,12 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        VLBI_scheduler(const VLBI_initializer &init);
+        explicit VLBI_scheduler(VLBI_initializer &init);
 
         /**
          * @brief main function that starts the scheduling
          */
-        void start() noexcept;
+        void start(ofstream &bodyLog) noexcept;
 
         /**
          * @brief this function creates a subcon with all scans, times and scores
@@ -71,10 +69,6 @@ namespace VieVS{
          */
         VLBI_subcon allVisibleScans() noexcept;
 
-        /**
-         *  @brief pre calculates all possible second scans used for subnetting
-         */
-        void precalcSubnettingSrcIds() noexcept;
 
         /**
          * @brief destructor
@@ -86,7 +80,7 @@ namespace VieVS{
          *
          * @param scan best possible next scans
          */
-        void update(const VLBI_scan &scan) noexcept;
+        void update(const VLBI_scan &scan, ofstream &bodyLog) noexcept;
 
         /**
          * @brief updates and prints the number of all considered scans
@@ -94,20 +88,20 @@ namespace VieVS{
          * @param n1scans number of single source scans
          * @param n2scans number of subnetting scans
          */
-        void consideredUpdate(unsigned long n1scans, unsigned long n2scans) noexcept;
+        void consideredUpdate(unsigned long n1scans, unsigned long n2scans, ofstream &bodyLog) noexcept;
 
         /**
          * @brief updates number of considered fillin scans
          *
          * @param n1scans number of fillin scans
          */
-        void consideredUpdate(unsigned long n1scans, bool created = false) noexcept;
+        void consideredUpdate(unsigned long n1scans, bool created, ofstream &bodyLog) noexcept;
 
         /**
          * @brief prints the header lines of the output table to the console
          * @param stations
          */
-        void outputHeader(const vector<VLBI_station> &stations) const noexcept;
+        void outputHeader(const vector<VLBI_station> &stations, ofstream &bodyLog) noexcept;
 
         /**
          * @brief this function starts the fillin mode
@@ -120,7 +114,7 @@ namespace VieVS{
          * @param subcon current subcon of available scans
          * @param fi_endp current required fillin endpositions
          */
-        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans) noexcept;
+        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans, ofstream &bodyLog) noexcept;
 
         /**
          * @brief calculate fillin scans
@@ -130,7 +124,7 @@ namespace VieVS{
          * @return list of all fillin scans
          */
         boost::optional<VLBI_scan> fillin_scan(VLBI_subcon &subcon, const VLBI_fillin_endpositions &fi_endp,
-                                               const vector<int> &sourceWillBeScanned) noexcept;
+                                               const vector<int> &sourceWillBeScanned, ofstream &bodyLog) noexcept;
 
         /**
          * @brief checks if the end of the session is reached
@@ -177,7 +171,7 @@ namespace VieVS{
         vector<VLBI_skyCoverage> skyCoverages; ///< all sky coverages
         vector<VLBI_scan> scans; ///< all scans in schedule
 
-        PARAMETERS PARA; ///< general scheduling parameters
+//        PARAMETERS PARA; ///< general scheduling parameters
         PRECALC PRE; ///< pre calculated values
 
         unsigned long considered_n1scans; ///< considered single source scans
@@ -190,15 +184,14 @@ namespace VieVS{
         /**
          * @brief checks the schedule with an independend methode
          */
-        void check() noexcept;
+        void check(ofstream &bodyLog) noexcept;
 
-        void checkForNewEvent(unsigned int time, bool output = false) noexcept;
+        bool checkForNewEvent(unsigned int time, bool output, ofstream &bodyLog) noexcept;
 
         unsigned int countAvailableSources() noexcept;
         
         void saveSkyCoverageData(unsigned int time) noexcept;
 
-        void prepareSkyCoverageData();
     };
 }
 #endif /* VLBI_SCHEDULER_H */

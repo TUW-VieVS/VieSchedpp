@@ -78,12 +78,16 @@ namespace VieVS{
             boost::optional<unsigned int> wait_tape; ///< time required for tape
             boost::optional<unsigned int> wait_calibration; ///< calibration time
             boost::optional<unsigned int> wait_corsynch; ///< additional scan time vor correlator synchronization
+
             boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
             boost::optional<unsigned int> minScan; ///< minimum required scan time
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
+
+            vector<int> ignoreSources;
+            vector<string> ignoreSources_str;
         };
 
 
@@ -168,6 +172,14 @@ namespace VieVS{
          * @brief destuctor
          */
         virtual ~VLBI_station(){};
+
+        const PARAMETERS &getPARA() const {
+            return PARA;
+        }
+
+        PARAMETERS &referencePARA() {
+            return PARA;
+        }
 
         /**
          * @brief station availability
@@ -451,7 +463,7 @@ namespace VieVS{
          * @brief this function checks if it is time to change the parameters
          * @param output displays output (default is false)
          */
-        void checkForNewEvent(unsigned int time, bool output = false) noexcept;
+        void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept;
 
         /**
          * @brief update station if used for a scan
@@ -519,7 +531,8 @@ namespace VieVS{
          * @return first elements are start pointing vectors, second elements are end pointing vectors
          */
         pair<const vector<VLBI_pointingVector> &, const vector<VLBI_pointingVector> &> getAllScans() const noexcept {
-            return std::move(pair<const vector<VLBI_pointingVector>&, const vector<VLBI_pointingVector>& >(pv_startScan,pv_endScan));
+            return pair<const vector<VLBI_pointingVector> &, const vector<VLBI_pointingVector> &>(pv_startScan,
+                                                                                                  pv_endScan);
         };
 
     private:

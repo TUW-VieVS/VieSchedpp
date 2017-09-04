@@ -4,4 +4,4 @@
 
 #include "VieVS_earth.h"
 
-std::vector<double> VieVS::VieVS_earth::velocity = {0, 0, 0};
+thread_local std::vector<double> VieVS::VieVS_earth::velocity = {0, 0, 0};

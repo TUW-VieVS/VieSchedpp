@@ -18,10 +18,10 @@ namespace VieVS {
 
     class VieVS_nutation {
     public:
-        static vector<double> nut_x; ///< nutation x in one hour steps from IAU2006a model
-        static vector<double> nut_y; ///< nutation y in one hour steps from IAU2006a model
-        static vector<double> nut_s; ///< nutation s in one hour steps from IAU2006a model
-        static vector<unsigned int> nut_time; ///< corresponding times of nut_x nut_y nut_s entries
+        static thread_local vector<double> nut_x; ///< nutation x in one hour steps from IAU2006a model
+        static thread_local vector<double> nut_y; ///< nutation y in one hour steps from IAU2006a model
+        static thread_local vector<double> nut_s; ///< nutation s in one hour steps from IAU2006a model
+        static thread_local vector<unsigned int> nut_time; ///< corresponding times of nut_x nut_y nut_s entries
     };
 }
 

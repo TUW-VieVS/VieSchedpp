@@ -47,7 +47,7 @@ namespace VieVS{
     }
 
     ostream &operator<<(ostream &out, const VLBI_source &src) noexcept {
-        cout << boost::format("%=36s\n") %src.name; 
+        cout << boost::format("%=36s\n") % src.name;
         double ra_deg = src.ra*rad2deg;
         double de_deg = src.de*rad2deg;
         cout << "position:\n";
@@ -82,27 +82,32 @@ namespace VieVS{
         lastScan = time;
     }
 
-    bool VLBI_source::checkForNewEvent(unsigned int time, bool output) noexcept {
+    bool VLBI_source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
         bool flag = false;
         while (EVENTS[nextEvent].time <= time) {
+            double oldMinFlux = *PARA.minFlux;
             PARA = EVENTS[nextEvent].PARA;
+            double newMinFlux = *PARA.minFlux;
+            hardBreak = hardBreak || !EVENTS[nextEvent].softTransition;
+
             if (output) {
-                cout << "###############################################\n";
-                cout << "## changing parameters for source: " << boost::format("%8s") % name << "  ##\n";
-                cout << "###############################################\n";
+                bodyLog << "###############################################\n";
+                bodyLog << "## changing parameters for source: " << boost::format("%8s") % name << "  ##\n";
+                bodyLog << "###############################################\n";
             }
 
             nextEvent++;
-
-            double maxFlux = 0;
-            bool strongEnough = isStrongEnough(maxFlux);
-            if (!strongEnough) {
-                setAvailable(false);
-                cout << "source: " << boost::format("%8s") % name << " not strong enough! (max flux = "
-                     << boost::format("%4.2f") % maxFlux << " min required flux = "
-                     << boost::format("%4.2f") % *PARA.minFlux << ")\n";;
+            if (oldMinFlux != newMinFlux) {
+                double maxFlux = 0;
+                bool strongEnough = isStrongEnough(maxFlux);
+                if (!strongEnough) {
+                    setAvailable(false);
+                    bodyLog << "source: " << boost::format("%8s") % name << " not strong enough! (max flux = "
+                            << boost::format("%4.2f") % maxFlux << " min required flux = "
+                            << boost::format("%4.2f") % *PARA.minFlux << ")\n";;
+                }
+                flag = true;
             }
-            flag = true;
         }
         return flag;
     }
