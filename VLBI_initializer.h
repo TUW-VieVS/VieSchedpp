@@ -13,6 +13,7 @@
 #include <boost/date_time.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <algorithm>
 
 #include "VieVS_constants.h"
 #include "VLBI_station.h"
@@ -111,23 +112,21 @@ namespace VieVS {
         /**
          * @brief This function reads a specific sked catalog file and stores the data in a map.
          *
-         * @param path path to catalog files
+         * @param root path to catalog files
          * @param type catalog file which should be read
          * @return key is list of all Ids, value is corresponding catalog entry
          */
-        map<string, vector<string>> readCatalog(const string &path, catalog type, ofstream &headerLog) noexcept;
+        map<string, vector<string>> readCatalog(const string &root, const string &fname, catalog type, ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all selected stations from sked catalogs
-         * @param catalogPath path to catalog files
          */
-        void createStationsFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept;
+        void createStations(ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
-         * @param catalogPath path to catalog files
          */
-        void createSourcesFromCatalogs(const string &catalogPath, ofstream &headerLog) noexcept;
+        void createSources(ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
@@ -243,6 +242,8 @@ namespace VieVS {
 
 
         void applyMultiSchedParameters(const VieVS::VLBI_multiSched::PARAMETERS &parameters, ofstream &bodyLog);
+
+        vector<VLBI_multiSched::PARAMETERS> readMultiSched();
 
     private:
 

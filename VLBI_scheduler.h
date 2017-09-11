@@ -24,11 +24,14 @@ using namespace std;
 namespace VieVS{
     class VLBI_scheduler {
     public:
-//        /**
-//        * @brief general parameters used for scheduling
-//        */
-//        struct PARAMETERS {
-//        };
+        /**
+        * @brief general parameters used for scheduling
+        */
+        struct PARAMETERS {
+            bool subnetting = 1;
+            bool fillinmode = 1;
+            bool writeSkyCoverageData = 0;
+        };
 
         /**
          * @brief pre calculated values
@@ -114,7 +117,7 @@ namespace VieVS{
          * @param subcon current subcon of available scans
          * @param fi_endp current required fillin endpositions
          */
-        void start_fillinMode(VLBI_subcon &subcon, vector<VLBI_scan> &bestScans, ofstream &bodyLog) noexcept;
+        void start_fillinMode(vector<VLBI_scan> &bestScans, ofstream &bodyLog) noexcept;
 
         /**
          * @brief calculate fillin scans
@@ -165,33 +168,40 @@ namespace VieVS{
             return scans;
         }
 
+        unsigned long numberOfCreatedScans() {
+            return considered_n1scans + 2 * considered_n2scans + considered_fillin;
+        }
+
     private:
         vector<VLBI_station> stations; ///< all stations
         vector<VLBI_source> sources; ///< all sources
         vector<VLBI_skyCoverage> skyCoverages; ///< all sky coverages
         vector<VLBI_scan> scans; ///< all scans in schedule
 
-//        PARAMETERS PARA; ///< general scheduling parameters
+        PARAMETERS PARA; ///< general scheduling parameters
         PRECALC PRE; ///< pre calculated values
 
         unsigned long considered_n1scans; ///< considered single source scans
         unsigned long considered_n2scans; ///< considered subnetting scans
         unsigned long considered_fillin; ///< considered fillin scans
 
-        bool subnetting; ///< use subnetting
-        bool fillinmode; ///< use fillin modes
 
         /**
          * @brief checks the schedule with an independend methode
          */
-        void check(ofstream &bodyLog) noexcept;
+        bool check(ofstream &bodyLog) noexcept;
 
         bool checkForNewEvent(unsigned int time, bool output, ofstream &bodyLog) noexcept;
 
         unsigned int countAvailableSources() noexcept;
-        
+
         void saveSkyCoverageData(unsigned int time) noexcept;
 
+        void saveSkyCoverageMain() noexcept;
+
+        void displaySummaryOfStaticMembersForDebugging(ofstream &log);
+
+        void printHorizonMasksForDebugging();
     };
 }
 #endif /* VLBI_SCHEDULER_H */

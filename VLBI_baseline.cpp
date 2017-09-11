@@ -12,6 +12,7 @@
  */
 
 #include "VLBI_baseline.h"
+#include "VieVS_time.h"
 
 thread_local VieVS::VLBI_baseline::PARAMETER_STORAGE VieVS::VLBI_baseline::PARA;
 std::vector<std::vector<std::vector<VieVS::VLBI_baseline::EVENT> > >  VieVS::VLBI_baseline::EVENTS;
@@ -33,7 +34,7 @@ namespace VieVS{
 
                 unsigned int thisNextEvent = VLBI_baseline::nextEvent[i][j];
 
-                while (EVENTS[i][j][thisNextEvent].time <= time) {
+                while (EVENTS[i][j][thisNextEvent].time <= time && time != VieVS_time::duration) {
 
                     VLBI_baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
                     hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
@@ -59,4 +60,29 @@ namespace VieVS{
             }
         }
     }
+
+    void VLBI_baseline::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
+        unsigned long nsta = PARA.ignore.size();
+        log << "############################### BASELINES ###############################\n";
+        for (int i = 0; i < nsta; ++i) {
+            for (int j = i + 1; j < nsta; ++j) {
+                log << "baseline " << i << "-" << j << ":\n";
+                if (PARA.ignore[i][j]) {
+                    log << "    ignore: " << "TRUE\n";
+                } else {
+                    log << "    ignore: " << "FALSE\n";
+                }
+
+                log << "    minScan: " << PARA.minScan[i][j] << "\n";
+                log << "    maxScan: " << PARA.maxScan[i][j] << "\n";
+
+                for (const auto it:PARA.minSNR) {
+                    log << "    minSNR: " << it.first << " " << it.second[i][j] << "\n";
+                }
+
+            }
+        }
+
+    }
+
 }

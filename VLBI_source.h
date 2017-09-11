@@ -20,6 +20,7 @@
 
 #include "VLBI_flux.h"
 #include "VieVS_constants.h"
+#include "VieVS_time.h"
 
 using namespace std;
 namespace VieVS{
@@ -50,6 +51,8 @@ namespace VieVS{
             boost::optional<unsigned int> minRepeat = 1800; ///< minimum time between two observations of this source in seconds
             boost::optional<unsigned int> maxScan = 600; ///< maximum allowed scan time in seconds
             boost::optional<unsigned int> minScan = 30; ///< minimum required scan time in seconds
+            boost::optional<unsigned int> maxNumberOfScans = 9999;
+            boost::optional<bool> tryToFocusIfObservedOnce = false;
 
             boost::optional<unsigned int> fixedScanDuration;
 
@@ -57,6 +60,59 @@ namespace VieVS{
             vector<string> ignoreStations_str;
             vector<pair<int, int>> ignoreBaselines;
             vector<pair<string, string>> ignoreBaselines_str;
+            vector<int> requiredStations;
+            vector<string> requiredStations_str;
+
+
+            void output(std::ofstream &of) const {
+                if (*available) {
+                    of << "    available: TRUE\n";
+                } else {
+                    of << "    available: FALSE\n";
+                }
+
+                of << "    minNumOfSta:      " << *minNumberOfStations << "\n";
+                of << "    minFlux:          " << *minFlux << "\n";
+                of << "    minRepeat:        " << *minRepeat << "\n";
+                of << "    maxScan:          " << *maxScan << "\n";
+                of << "    minScan:          " << *minScan << "\n";
+                of << "    weight:           " << *weight << "\n";
+                of << "    maxNumberOfScans: " << *maxNumberOfScans << "\n";
+                if (*tryToFocusIfObservedOnce) {
+                    of << "    tryToFocusIfObservedOnce: TRUE\n";
+                } else {
+                    of << "    tryToFocusIfObservedOnce: FALSE\n";
+                }
+
+
+                for (const auto it:minSNR) {
+                    of << "    minSNR: " << it.first << " " << it.second << "\n";
+                }
+
+                if (!ignoreStations.empty()) {
+                    of << "    ignoreStations:";
+                    for (int i = 0; i < ignoreStations.size(); ++i) {
+                        of << " " << ignoreStations[i];
+                    }
+                    of << "\n";
+                }
+                if (!requiredStations.empty()) {
+                    of << "    requiredStations:";
+                    for (int i = 0; i < requiredStations.size(); ++i) {
+                        of << " " << requiredStations[i];
+                    }
+                    of << "\n";
+                }
+                if (!ignoreBaselines.empty()) {
+                    of << "    ignoreBaselines:";
+                    for (int i = 0; i < ignoreBaselines.size(); ++i) {
+                        of << " " << ignoreBaselines[i].first << "-" << ignoreBaselines[i].second;
+                    }
+                    of << "\n";
+                }
+            }
+
+
         };
 
         struct PRECALCULATED{
@@ -183,6 +239,10 @@ namespace VieVS{
             return nbls;
         }
 
+        unsigned int getNscans() const {
+            return nscans;
+        }
+
         /**
          * @brief looks for last scan time
          *
@@ -238,6 +298,10 @@ namespace VieVS{
             return *PARA.available;
         }
 
+        unsigned int getMaxNumberOfScans() const noexcept {
+            return *PARA.maxNumberOfScans;
+        };
+
         /**
          * @brief getter for fixed scan duration time
          *
@@ -278,7 +342,7 @@ namespace VieVS{
          * @brief getter for minimum number of stations for a scan
          * @return minimum number of stations for a scan
          */
-        unsigned int getMinNumberOfStations() noexcept {
+        unsigned int getMinNumberOfStations() const noexcept {
             return *PARA.minNumberOfStations;
         }
 
@@ -358,7 +422,7 @@ namespace VieVS{
         unsigned int nextEvent;
 
         unsigned int lastScan; ///< last scan to this source
-        int nscans; ///< number of scans to this source
+        unsigned int nscans; ///< number of scans to this source
         unsigned long nbls; ///< number of observed baselines to this source
     };
     

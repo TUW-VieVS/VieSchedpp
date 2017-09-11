@@ -53,7 +53,6 @@ namespace VieVS{
         else 
             axis = axisType::undefined;
         
-        history_time.push_back(0);
     }
 
     void VLBI_station::setCurrentPointingVector(const VLBI_pointingVector &pointingVector) noexcept {
@@ -70,10 +69,13 @@ namespace VieVS{
     }
 
     bool VLBI_station::isVisible(const VLBI_pointingVector &p) const noexcept {
-        return mask.visible(p) && cableWrap.anglesInside(p);
+        bool flag1 = mask.visible(p);
+        bool flag2 = cableWrap.anglesInside(p);
+
+        return flag1 && flag2;
     }
 
-    void VLBI_station::updateAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model) const noexcept {
+    void VLBI_station::calcAzEl(const VLBI_source &source, VLBI_pointingVector &p, azelModel model) const noexcept {
 
 
         double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
@@ -243,27 +245,6 @@ namespace VieVS{
         pv_endScan.push_back(end);
         current = end;
 
-        history_time.push_back(times[0]);
-        history_events.push_back("setup");
-
-        history_time.push_back(times[1]);
-        history_events.push_back("source");
-
-        history_time.push_back(times[2]);
-        history_events.push_back("slew to " + srcName);
-
-        history_time.push_back(times[3]);
-        history_events.push_back("idle");
-
-        history_time.push_back(times[4]);
-        history_events.push_back("tape");
-
-        history_time.push_back(times[5]);
-        history_events.push_back("calibration");
-
-        history_time.push_back(times[6]);
-        history_events.push_back("scan " + srcName);
-
         if (*PARA.firstScan) {
             PARA.firstScan = false;
         }
@@ -276,7 +257,7 @@ namespace VieVS{
 
     void VLBI_station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
 
-        while (EVENTS[nextEvent].time <= time) {
+        while (EVENTS[nextEvent].time <= time && time != VieVS_time::duration) {
             bool oldAvailable = *PARA.available;
             PARA = EVENTS[nextEvent].PARA;
             hardBreak = hardBreak || !EVENTS[nextEvent].softTransition;

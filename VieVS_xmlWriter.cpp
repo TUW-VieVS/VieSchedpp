@@ -44,11 +44,34 @@ namespace VieVS {
         master.add_child("master.general", general.get_child("general"));
     }
 
-    void VieVS_xmlWriter::group(VieVS_xmlWriter::TYPE type, const string &name, const vector<string> &members) {
-        boost::property_tree::ptree pt_group;
-        pt_group.add("group.<xmlattr>.name", name);
+    void VieVS_xmlWriter::catalogs(const std::string &root, const std::string &antenna, const std::string &equip,
+                                   const std::string &flux, const std::string &freq, const std::string &hdpos,
+                                   const std::string &loif, const std::string &mask, const std::string &modes,
+                                   const std::string &position, const std::string &rec, const std::string &rx,
+                                   const std::string &source) {
+        boost::property_tree::ptree catalogs;
+        catalogs.add("catalogs.root", root);
+        catalogs.add("catalogs.antenna", antenna);
+        catalogs.add("catalogs.equip", equip);
+        catalogs.add("catalogs.flux", flux);
+        catalogs.add("catalogs.freq", freq);
+        catalogs.add("catalogs.hdpos", hdpos);
+        catalogs.add("catalogs.loif", loif);
+        catalogs.add("catalogs.mask", mask);
+        catalogs.add("catalogs.modes", modes);
+        catalogs.add("catalogs.position", position);
+        catalogs.add("catalogs.rec", rec);
+        catalogs.add("catalogs.rx", rx);
+        catalogs.add("catalogs.source", source);
 
-        for (const auto &any:members) {
+        master.add_child("master.catalogs", catalogs.get_child("catalogs"));
+    }
+
+    void VieVS_xmlWriter::group(VieVS_xmlWriter::TYPE type, VieVS_parameterGroup group) {
+        boost::property_tree::ptree pt_group;
+        pt_group.add("group.<xmlattr>.name", group.name);
+
+        for (const auto &any:group.members) {
             boost::property_tree::ptree tmp;
             tmp.add("member", any);
             pt_group.add_child("group.member", tmp.get_child("member"));
@@ -56,14 +79,28 @@ namespace VieVS {
 
         if (type == VieVS_xmlWriter::TYPE::station) {
             master.add_child("master.station.group", pt_group.get_child("group"));
+            group_station[group.name] = group.members;
         } else if (type == VieVS_xmlWriter::TYPE::source) {
             master.add_child("master.source.group", pt_group.get_child("group"));
+            group_source[group.name] = group.members;
         } else if (type == VieVS_xmlWriter::TYPE::baseline) {
             master.add_child("master.baseline.group", pt_group.get_child("group"));
+            group_baseline[group.name] = group.members;
+        }
+    }
+
+    const std::vector<std::string> &
+    VieVS_xmlWriter::getGroupMembers(VieVS_xmlWriter::TYPE type, std::string groupName) {
+
+        if (type == VieVS_xmlWriter::TYPE::station) {
+            return group_station[groupName];
+        } else if (type == VieVS_xmlWriter::TYPE::source) {
+            return group_source[groupName];
+        } else if (type == VieVS_xmlWriter::TYPE::baseline) {
+            return group_baseline[groupName];
         }
 
     }
-
 
     void VieVS_xmlWriter::parameters(const std::string &name, VLBI_station::PARAMETERS PARA) {
         boost::property_tree::ptree parameters;
@@ -161,6 +198,12 @@ namespace VieVS {
         if (PARA.fixedScanDuration.is_initialized()) {
             parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
         }
+        if (PARA.minNumberOfStations.is_initialized()) {
+            parameters.add("parameters.minNumberOfStations", *PARA.minNumberOfStations);
+        }
+        if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
+            parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
+        }
 
         for (const auto &any:PARA.minSNR) {
             boost::property_tree::ptree minSNR;
@@ -177,6 +220,16 @@ namespace VieVS {
                 ignoreStations.add_child("ignoreStations.station", stationName.get_child("station"));
             }
             parameters.add_child("parameters.ignoreStations", ignoreStations.get_child("ignoreStations"));
+        }
+
+        if (!PARA.requiredStations_str.empty()) {
+            boost::property_tree::ptree requiredStations;
+            for (const auto &any:PARA.requiredStations_str) {
+                boost::property_tree::ptree stationName;
+                stationName.add("station", any);
+                requiredStations.add_child("requiredStations.station", stationName.get_child("station"));
+            }
+            parameters.add_child("parameters.requiredStations", requiredStations.get_child("requiredStations"));
         }
 
         if (!PARA.ignoreBaselines_str.empty()) {
@@ -370,6 +423,13 @@ namespace VieVS {
         boost::property_tree::xml_parser::write_xml(os, master,
                                                     boost::property_tree::xml_writer_make_settings<string>('\t', 1));
         os.close();
+    }
+
+    void VieVS_xmlWriter::multisched(const VLBI_multiSched &ms) {
+        boost::property_tree::ptree ms_tree = ms.createPropertyTree();
+
+        master.add_child("master.multisched", ms_tree.get_child("multisched"));
+
     }
 
 

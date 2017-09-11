@@ -40,10 +40,6 @@ namespace VieVS{
         endOfCalibrationTime.erase(endOfCalibrationTime.begin()+idx);
         endOfScanTime.erase(endOfScanTime.begin()+idx);
 
-        unsigned int maxEndOfSlewTime;
-        for (int i = 0; i < endOfSlewTime.size(); ++i) {
-
-        }
 
         alignStartTimes();
     }
@@ -101,6 +97,12 @@ namespace VieVS{
             }
         }
         return max;
+    }
+
+    unsigned int VLBI_scanTimes::slowestStation() {
+
+
+        return 0;
     }
 
 
