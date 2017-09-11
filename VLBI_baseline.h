@@ -52,11 +52,11 @@ namespace VieVS{
          * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
          */
         struct PARAMETER_STORAGE {
-            unordered_map<string, vector< vector <double> > > minSNR = {}; ///< minimum SNR per band for each baseline
-            vector< vector<char> > ignore = {}; ///< ignore specific baselines
-            vector< vector<double> > weight = {}; ///< multiplicative factor of score for scans with this baseline
-            vector< vector<unsigned int> > minScan = {}; ///< minimum required scan duration of this baseline
-            vector< vector<unsigned int> > maxScan = {}; ///< maximum allowed scan duration of this baseline
+            unordered_map<string, vector<vector<double> > > minSNR; ///< minimum SNR per band for each baseline
+            vector<vector<char> > ignore; ///< ignore specific baselines
+            vector<vector<double> > weight; ///< multiplicative factor of score for scans with this baseline
+            vector<vector<unsigned int> > minScan; ///< minimum required scan duration of this baseline
+            vector<vector<unsigned int> > maxScan; ///< maximum allowed scan duration of this baseline
         };
 
         static thread_local PARAMETER_STORAGE PARA; ///< parameters for all baselines
@@ -169,6 +169,8 @@ namespace VieVS{
         }
 
         static void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
+
+        static void displaySummaryOfStaticMembersForDebugging(ofstream &log);
 
     private:
         int staid1; ///< id of first antenna

@@ -29,10 +29,21 @@ namespace VieVS{
                     elevation.push_back(el_mask_deg[i]*deg2rad);
             }
 
+
             if (azimuth.size()%2==0){
                 type = category::line;
+                if (*azimuth.end() != twopi) {
+                    azimuth.push_back(twopi);
+                    elevation.push_back(elevation[elevation.size() - 1]);
+                }
+
+
             } else {
                 type = category::step;
+                if (*azimuth.end() != twopi) {
+                    azimuth.push_back(twopi);
+                    elevation.push_back(elevation[elevation.size() - 1]);
+                }
             }
         }
     }

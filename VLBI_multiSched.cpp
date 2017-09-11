@@ -6,72 +6,132 @@
 
 namespace VieVS {
 
-    VLBI_multiSched::VLBI_multiSched(unsigned int nsta, unsigned int nsrc) : nsta{nsta}, nsrc{nsrc} {
+    VLBI_multiSched::VLBI_multiSched() {
 
     }
 
-    void VLBI_multiSched::setStation_maxSlewtime(const std::vector<unsigned int> &new_id,
-                                                 const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setStation_maxSlewtime(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: station_maxSlewtime) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                auto tmp = group_station[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << thisId << std::endl;
+
+        if (group_station.find(new_id) != group_station.end()) {
+            auto tmp = group_station[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         station_maxSlewtime.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setStation_maxWait(const std::vector<unsigned int> &new_id,
-                                             const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setStation_maxWait(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: station_maxWait) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                auto tmp = group_station[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_maxWait: double use of ID " << thisId << std::endl;
+
+        if (group_station.find(new_id) != group_station.end()) {
+            auto tmp = group_station[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched station_maxWait: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched station_maxWait: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         station_maxWait.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setStation_maxScan(const std::vector<unsigned int> &new_id,
-                                             const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setStation_maxScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: station_maxScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                auto tmp = group_station[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_maxScan: double use of ID " << thisId << std::endl;
+
+        if (group_station.find(new_id) != group_station.end()) {
+            auto tmp = group_station[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched station_maxScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched station_maxScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         station_maxScan.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setStation_minScan(const std::vector<unsigned int> &new_id,
-                                             const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setStation_minScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: station_minScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                auto tmp = group_station[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_minScan: double use of ID " << thisId << std::endl;
+
+        if (group_station.find(new_id) != group_station.end()) {
+            auto tmp = group_station[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched station_minScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched station_minScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
@@ -79,16 +139,32 @@ namespace VieVS {
     }
 
     void
-    VLBI_multiSched::setStation_weight(const std::vector<unsigned int> &new_id, const std::vector<double> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    VLBI_multiSched::setStation_weight(const std::string &new_id, const std::vector<double> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: station_weight) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                auto tmp = group_station[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_station.find(new_id) != group_station.end()) {
+            auto tmp = group_station[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched station_weight: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched station_weight: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
@@ -96,17 +172,33 @@ namespace VieVS {
     }
 
     void
-    VLBI_multiSched::setSource_minNumberOfStations(const std::vector<unsigned int> &new_id,
-                                                   const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    VLBI_multiSched::setSource_minNumberOfStations(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_minNumberOfStations) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << member
+                              << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
@@ -114,140 +206,256 @@ namespace VieVS {
     }
 
     void
-    VLBI_multiSched::setSource_minFlux(const std::vector<unsigned int> &new_id, const std::vector<double> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    VLBI_multiSched::setSource_minFlux(const std::string &new_id, const std::vector<double> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_minFlux) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_minFlux: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_minFlux: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         source_minFlux.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setSource_minRepeat(const std::vector<unsigned int> &new_id,
-                                              const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setSource_minRepeat(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_minRepeat) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_minRepeat: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_minRepeat: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         source_minRepeat.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setSource_maxScan(const std::vector<unsigned int> &new_id,
-                                            const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setSource_maxScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_maxScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_maxScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_maxScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         source_maxScan.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setSource_minScan(const std::vector<unsigned int> &new_id,
-                                            const std::vector<unsigned int> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setSource_minScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_minScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_minScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_minScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         source_minScan.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setSource_weight(const std::vector<unsigned int> &new_id, const std::vector<double> &values) {
-        std::vector<char> alreadyFound(nsta, false);
+    void VLBI_multiSched::setSource_weight(const std::string &new_id, const std::vector<double> &values) {
+        std::vector<std::string> alreadyFound;
+
         for (const auto &any: source_weight) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id] = true;
+            std::string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                auto tmp = group_source[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId << std::endl;
+
+        if (group_source.find(new_id) != group_source.end()) {
+            auto tmp = group_source[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched source_weight: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched source_weight: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         source_weight.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setBaseline_maxScan(const std::vector<std::pair<unsigned int, unsigned int> > &new_id,
-                                              const std::vector<unsigned int> &values) {
+    void VLBI_multiSched::setBaseline_maxScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
 
-        std::vector<std::vector<char> > alreadyFound(nsta, std::vector<char>(nsta, false));
         for (const auto &any: baseline_maxScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id.first][old_id.second] = true;
+            std::string name = any.first;
+            if (group_baseline.find(name) != group_baseline.end()) {
+                auto tmp = group_baseline[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId.first][thisId.second] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId.first << "-"
-                          << thisId.second << std::endl;
+
+        if (group_baseline.find(new_id) != group_baseline.end()) {
+            auto tmp = group_baseline[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         baseline_maxScan.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setBaseline_minScan(const std::vector<std::pair<unsigned int, unsigned int> > &new_id,
-                                              const std::vector<unsigned int> &values) {
+    void VLBI_multiSched::setBaseline_minScan(const std::string &new_id, const std::vector<unsigned int> &values) {
+        std::vector<std::string> alreadyFound;
 
-        std::vector<std::vector<char> > alreadyFound(nsta, std::vector<char>(nsta, false));
         for (const auto &any: baseline_minScan) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id.first][old_id.second] = true;
+            std::string name = any.first;
+            if (group_baseline.find(name) != group_baseline.end()) {
+                auto tmp = group_baseline[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId.first][thisId.second] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId.first << "-"
-                          << thisId.second << std::endl;
+
+        if (group_baseline.find(new_id) != group_baseline.end()) {
+            auto tmp = group_baseline[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched baseline_minScan: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched baseline_minScan: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
         baseline_minScan.emplace_back(new_id, values);
     }
 
-    void VLBI_multiSched::setBaseline_weight(const std::vector<std::pair<unsigned int, unsigned int> > &new_id,
-                                             const std::vector<double> &values) {
+    void VLBI_multiSched::setBaseline_weight(const std::string &new_id, const std::vector<double> &values) {
+        std::vector<std::string> alreadyFound;
 
-        std::vector<std::vector<char> > alreadyFound(nsta, std::vector<char>(nsta, false));
         for (const auto &any: baseline_weight) {
-            for (const auto &old_id: any.first) {
-                alreadyFound[old_id.first][old_id.second] = true;
+            std::string name = any.first;
+            if (group_baseline.find(name) != group_baseline.end()) {
+                auto tmp = group_baseline[name];
+                for (const auto &member:tmp) {
+                    alreadyFound.push_back(member);
+                }
+            } else {
+                alreadyFound.push_back(name);
             }
         }
-        for (const auto &thisId: new_id) {
-            if (alreadyFound[thisId.first][thisId.second] == true) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << thisId.first << "-"
-                          << thisId.second << std::endl;
+
+        if (group_baseline.find(new_id) != group_baseline.end()) {
+            auto tmp = group_baseline[new_id];
+            for (const auto &member:tmp) {
+                if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
+                    std::cout << "ERROR: multisched baseline_weight: double use of ID " << member << std::endl;
+                    std::terminate();
+                }
+            }
+        } else {
+            if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
+                std::cout << "ERROR: multisched baseline_weight: double use of ID " << new_id << std::endl;
                 std::terminate();
             }
         }
@@ -260,7 +468,7 @@ namespace VieVS {
         if (!start.empty()) {
             counter.push_back(start.size());
         }
-        if (multiSched_subnetting) {
+        if (multisched_subnetting) {
             counter.push_back(2);
         }
         if (multisched_fillinmode) {
@@ -363,28 +571,6 @@ namespace VieVS {
         }
 
         PARAMETERS thisPARA;
-        thisPARA.station_minScan.resize(nsta);
-        thisPARA.station_weight.resize(nsta);
-        thisPARA.station_maxScan.resize(nsta);
-        thisPARA.station_maxWait.resize(nsta);
-        thisPARA.station_maxSlewtime.resize(nsta);
-
-        thisPARA.source_maxScan.resize(nsrc);
-        thisPARA.source_minScan.resize(nsrc);
-        thisPARA.source_minNumberOfStations.resize(nsrc);
-        thisPARA.source_minRepeat.resize(nsrc);
-        thisPARA.source_weight.resize(nsrc);
-        thisPARA.source_minFlux.resize(nsrc);
-
-        thisPARA.baseline_weight.resize(nsta);
-        thisPARA.baseline_minScan.resize(nsta);
-        thisPARA.baseline_maxScan.resize(nsta);
-        for (int i = 0; i < nsta; ++i) {
-            thisPARA.baseline_weight[i].resize(nsta);
-            thisPARA.baseline_minScan[i].resize(nsta);
-            thisPARA.baseline_maxScan[i].resize(nsta);
-        }
-
         std::vector<PARAMETERS> allPARA(n_total, thisPARA);
 
         unsigned int n_before = 1;
@@ -404,7 +590,7 @@ namespace VieVS {
             n_before = n_block;
         }
 
-        if (multiSched_subnetting) {
+        if (multisched_subnetting) {
             unsigned long n_block = n_before * 2;
             unsigned int n_items = n_total / n_block;
             unsigned int c = 0;
@@ -512,7 +698,7 @@ namespace VieVS {
 
         if (!station_maxSlewtime.empty()) {
             for (const auto &any: station_maxSlewtime) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -523,8 +709,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].station_maxSlewtime[thisId] = thisValue;
+                        if (group_station.find(ids) != group_station.end()) {
+                            for (const auto &thisId: group_station[ids]) {
+                                allPARA[c].station_maxSlewtime[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].station_maxSlewtime[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -534,7 +724,7 @@ namespace VieVS {
         }
         if (!station_maxWait.empty()) {
             for (const auto &any: station_maxWait) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -545,8 +735,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].station_maxWait[thisId] = thisValue;
+                        if (group_station.find(ids) != group_station.end()) {
+                            for (const auto &thisId: group_station[ids]) {
+                                allPARA[c].station_maxWait[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].station_maxWait[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -556,7 +750,7 @@ namespace VieVS {
         }
         if (!station_maxScan.empty()) {
             for (const auto &any: station_maxScan) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -567,8 +761,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].station_maxScan[thisId] = thisValue;
+                        if (group_station.find(ids) != group_station.end()) {
+                            for (const auto &thisId: group_station[ids]) {
+                                allPARA[c].station_maxScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].station_maxScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -578,7 +776,7 @@ namespace VieVS {
         }
         if (!station_minScan.empty()) {
             for (const auto &any: station_minScan) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -589,8 +787,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].station_minScan[thisId] = thisValue;
+                        if (group_station.find(ids) != group_station.end()) {
+                            for (const auto &thisId: group_station[ids]) {
+                                allPARA[c].station_minScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].station_minScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -600,7 +802,7 @@ namespace VieVS {
         }
         if (!station_weight.empty()) {
             for (const auto &any: station_weight) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -611,8 +813,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].station_weight[thisId] = thisValue;
+                        if (group_station.find(ids) != group_station.end()) {
+                            for (const auto &thisId: group_station[ids]) {
+                                allPARA[c].station_weight[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].station_weight[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -624,7 +830,7 @@ namespace VieVS {
 
         if (!source_minNumberOfStations.empty()) {
             for (const auto &any: source_minNumberOfStations) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -635,8 +841,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_minNumberOfStations[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_minNumberOfStations[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_minNumberOfStations[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -646,7 +856,7 @@ namespace VieVS {
         }
         if (!source_minFlux.empty()) {
             for (const auto &any: source_minFlux) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -657,8 +867,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_minFlux[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_minFlux[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_minFlux[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -668,7 +882,7 @@ namespace VieVS {
         }
         if (!source_minRepeat.empty()) {
             for (const auto &any: source_minRepeat) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -679,8 +893,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_minRepeat[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_minRepeat[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_minRepeat[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -690,7 +908,7 @@ namespace VieVS {
         }
         if (!source_maxScan.empty()) {
             for (const auto &any: source_maxScan) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -701,8 +919,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_maxScan[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_maxScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_maxScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -712,7 +934,7 @@ namespace VieVS {
         }
         if (!source_minScan.empty()) {
             for (const auto &any: source_minScan) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -723,8 +945,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_minScan[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_minScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_minScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -734,7 +960,7 @@ namespace VieVS {
         }
         if (!source_weight.empty()) {
             for (const auto &any: source_weight) {
-                const std::vector<unsigned int> &ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -745,8 +971,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (unsigned int thisId:ids) {
-                            allPARA[c].source_weight[thisId] = thisValue;
+                        if (group_source.find(ids) != group_source.end()) {
+                            for (const auto &thisId: group_source[ids]) {
+                                allPARA[c].source_weight[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].source_weight[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -757,7 +987,7 @@ namespace VieVS {
 
         if (!baseline_maxScan.empty()) {
             for (const auto &any: baseline_maxScan) {
-                std::vector<std::pair<unsigned int, unsigned int>> ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -768,8 +998,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (auto thisId:ids) {
-                            allPARA[c].baseline_maxScan[thisId.first][thisId.second] = thisValue;
+                        if (group_baseline.find(ids) != group_baseline.end()) {
+                            for (const auto &thisId: group_baseline[ids]) {
+                                allPARA[c].baseline_maxScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].baseline_maxScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -779,7 +1013,7 @@ namespace VieVS {
         }
         if (!baseline_minScan.empty()) {
             for (const auto &any: baseline_minScan) {
-                std::vector<std::pair<unsigned int, unsigned int>> ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -790,8 +1024,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (auto thisId:ids) {
-                            allPARA[c].baseline_minScan[thisId.first][thisId.second] = thisValue;
+                        if (group_baseline.find(ids) != group_baseline.end()) {
+                            for (const auto &thisId: group_baseline[ids]) {
+                                allPARA[c].baseline_minScan[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].baseline_minScan[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -801,7 +1039,7 @@ namespace VieVS {
         }
         if (!baseline_weight.empty()) {
             for (const auto &any: baseline_weight) {
-                std::vector<std::pair<unsigned int, unsigned int>> ids = any.first;
+                const std::string &ids = any.first;
                 const auto &values = any.second;
 
                 unsigned long n_this = values.size();
@@ -812,8 +1050,12 @@ namespace VieVS {
                     auto thisValue = values[i_block % n_this];
 
                     for (int i_item = 0; i_item < n_items; ++i_item) {
-                        for (auto thisId:ids) {
-                            allPARA[c].baseline_weight[thisId.first][thisId.second] = thisValue;
+                        if (group_baseline.find(ids) != group_baseline.end()) {
+                            for (const auto &thisId: group_baseline[ids]) {
+                                allPARA[c].baseline_weight[thisId] = thisValue;
+                            }
+                        } else {
+                            allPARA[c].baseline_weight[ids] = thisValue;
                         }
                         ++c;
                     }
@@ -821,9 +1063,277 @@ namespace VieVS {
                 n_before = n_block;
             }
         }
-
-
         return allPARA;
+    }
+
+    boost::property_tree::ptree VLBI_multiSched::createPropertyTree() const {
+        boost::property_tree::ptree pt;
+
+        if (!start.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:start) {
+                boost::property_tree::ptree value;
+                value.add("start.value", any);
+                pt_tmp.add_child("start.value", value.get_child("start"));
+            }
+            pt.add_child("multisched.start", pt_tmp.get_child("start"));
+        }
+
+        if (multisched_subnetting) {
+            boost::property_tree::ptree pt_tmp;
+            std::vector<bool> tmp{true, false};
+            for (const auto &any:tmp) {
+                boost::property_tree::ptree value;
+                value.add("subnetting.value", "true");
+                pt_tmp.add_child("subnetting.value", value.get_child("subnetting"));
+            }
+            pt.add_child("multisched.subnetting", pt_tmp.get_child("subnetting"));
+        }
+
+        if (multisched_fillinmode) {
+            boost::property_tree::ptree pt_tmp;
+            std::vector<bool> tmp{true, false};
+            for (const auto &any:tmp) {
+                boost::property_tree::ptree value;
+                value.add("fillinmode.value", "true");
+                pt_tmp.add_child("fillinmode.value", value.get_child("fillinmode"));
+            }
+            pt.add_child("multisched.fillinmode", pt_tmp.get_child("fillinmode"));
+        }
+
+        if (!weight_skyCoverage.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:weight_skyCoverage) {
+                boost::property_tree::ptree value;
+                value.add("weight_skyCoverage.value", any);
+                pt_tmp.add_child("weight_skyCoverage.value", value.get_child("weight_skyCoverage.value"));
+            }
+            pt.add_child("multisched.weight_skyCoverage", pt_tmp.get_child("weight_skyCoverage"));
+        }
+        if (!weight_averageSources.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:weight_averageSources) {
+                boost::property_tree::ptree value;
+                value.add("weight_averageSources.value", any);
+                pt_tmp.add_child("weight_averageSources.value", value.get_child("weight_averageSources.value"));
+            }
+            pt.add_child("multisched.weight_averageSources", pt_tmp.get_child("weight_averageSources"));
+        }
+        if (!weight_averageStations.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:weight_averageStations) {
+                boost::property_tree::ptree value;
+                value.add("weight_averageStations.value", any);
+                pt_tmp.add_child("weight_averageStations.value", value.get_child("weight_averageStations.value"));
+            }
+            pt.add_child("multisched.weight_averageStations", pt_tmp.get_child("weight_averageStations"));
+        }
+        if (!weight_duration.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:weight_duration) {
+                boost::property_tree::ptree value;
+                value.add("weight_duration.value", any);
+                pt_tmp.add_child("weight_duration.value", value.get_child("weight_duration.value"));
+            }
+            pt.add_child("multisched.weight_duration", pt_tmp.get_child("weight_duration"));
+        }
+        if (!weight_numberOfObservations.empty()) {
+            boost::property_tree::ptree pt_tmp;
+            for (const auto &any:weight_numberOfObservations) {
+                boost::property_tree::ptree value;
+                value.add("weight_numberOfObservations.value", any);
+                pt_tmp.add_child("weight_numberOfObservations.value",
+                                 value.get_child("weight_numberOfObservations.value"));
+            }
+            pt.add_child("multisched.weight_numberOfObservations", pt_tmp.get_child("weight_numberOfObservations"));
+        }
+
+        if (!station_maxSlewtime.empty()) {
+            for (const auto &any:station_maxSlewtime) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("station_maxSlewtime.value", values);
+                    pt_tmp.add_child("station_maxSlewtime.value", value.get_child("station_maxSlewtime.value"));
+                }
+                pt_tmp.add("station_maxSlewtime.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.station_maxSlewtime", pt_tmp.get_child("station_maxSlewtime"));
+            }
+        }
+        if (!station_maxWait.empty()) {
+            for (const auto &any:station_maxWait) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("station_maxWait.value", values);
+                    pt_tmp.add_child("station_maxWait.value", value.get_child("station_maxWait.value"));
+                }
+                pt_tmp.add("station_maxWait.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.station_maxWait", pt_tmp.get_child("station_maxWait"));
+            }
+        }
+        if (!station_maxScan.empty()) {
+            for (const auto &any:station_maxScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("station_maxScan.value", values);
+                    pt_tmp.add_child("station_maxScan.value", value.get_child("station_maxScan.value"));
+                }
+                pt_tmp.add("station_maxScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.station_maxScan", pt_tmp.get_child("station_maxScan"));
+            }
+        }
+        if (!station_minScan.empty()) {
+            for (const auto &any:station_minScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("station_minScan.value", values);
+                    pt_tmp.add_child("station_minScan.value", value.get_child("station_minScan.value"));
+                }
+                pt_tmp.add("station_minScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.station_minScan", pt_tmp.get_child("station_minScan"));
+            }
+        }
+        if (!station_weight.empty()) {
+            for (const auto &any:station_weight) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("station_weight.value", values);
+                    pt_tmp.add_child("station_weight.value", value.get_child("station_weight.value"));
+                }
+                pt_tmp.add("station_weight.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.station_weight", pt_tmp.get_child("station_weight"));
+            }
+        }
+
+        if (!source_minNumberOfStations.empty()) {
+            for (const auto &any:source_minNumberOfStations) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_minNumberOfStations.value", values);
+                    pt_tmp.add_child("source_minNumberOfStations.value",
+                                     value.get_child("source_minNumberOfStations.value"));
+                }
+                pt_tmp.add("source_minNumberOfStations.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_minNumberOfStations", pt_tmp.get_child("source_minNumberOfStations"));
+            }
+        }
+        if (!source_minFlux.empty()) {
+            for (const auto &any:source_minFlux) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_minFlux.value", values);
+                    pt_tmp.add_child("source_minFlux.value", value.get_child("source_minFlux.value"));
+                }
+                pt_tmp.add("source_minFlux.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_minFlux", pt_tmp.get_child("source_minFlux"));
+            }
+        }
+        if (!source_weight.empty()) {
+            for (const auto &any:source_weight) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_weight.value", values);
+                    pt_tmp.add_child("source_weight.value", value.get_child("source_weight.value"));
+                }
+                pt_tmp.add("source_weight.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_weight", pt_tmp.get_child("source_weight"));
+            }
+        }
+        if (!source_minRepeat.empty()) {
+            for (const auto &any:source_minRepeat) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_minRepeat.value", values);
+                    pt_tmp.add_child("source_minRepeat.value", value.get_child("source_minRepeat.value"));
+                }
+                pt_tmp.add("source_minRepeat.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_minRepeat", pt_tmp.get_child("source_minRepeat"));
+            }
+        }
+        if (!source_minScan.empty()) {
+            for (const auto &any:source_minScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_minScan.value", values);
+                    pt_tmp.add_child("source_minScan.value", value.get_child("source_minScan.value"));
+                }
+                pt_tmp.add("source_minScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_minScan", pt_tmp.get_child("source_minScan"));
+            }
+        }
+        if (!source_maxScan.empty()) {
+            for (const auto &any:source_maxScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("source_maxScan.value", values);
+                    pt_tmp.add_child("source_maxScan.value", value.get_child("source_maxScan.value"));
+                }
+                pt_tmp.add("source_maxScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.source_maxScan", pt_tmp.get_child("source_maxScan"));
+            }
+        }
+
+        if (!baseline_maxScan.empty()) {
+            for (const auto &any:baseline_maxScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("baseline_maxScan.value", values);
+                    pt_tmp.add_child("baseline_maxScan.value", value.get_child("baseline_maxScan.value"));
+                }
+                pt_tmp.add("baseline_maxScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.baseline_maxScan", pt_tmp.get_child("baseline_maxScan"));
+            }
+        }
+        if (!baseline_minScan.empty()) {
+            for (const auto &any:baseline_minScan) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("baseline_minScan.value", values);
+                    pt_tmp.add_child("baseline_minScan.value", value.get_child("baseline_minScan.value"));
+                }
+                pt_tmp.add("baseline_minScan.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.baseline_minScan", pt_tmp.get_child("baseline_minScan"));
+            }
+        }
+        if (!baseline_weight.empty()) {
+            for (const auto &any:baseline_weight) {
+                boost::property_tree::ptree pt_tmp;
+                for (const auto &values:any.second) {
+                    boost::property_tree::ptree value;
+                    value.add("baseline_weight.value", values);
+                    pt_tmp.add_child("baseline_weight.value", value.get_child("baseline_weight.value"));
+                }
+                pt_tmp.add("baseline_weight.<xmlattr>.member", any.first);
+
+                pt.add_child("multisched.baseline_weight", pt_tmp.get_child("baseline_weight"));
+            }
+        }
+        return pt;
     }
 
 

@@ -16,32 +16,42 @@ namespace VieVS{
     }
 
     void VLBI_output::displayStatistics(bool general, bool station, bool source, bool baseline, bool duration) {
-        cout << "\n=======================   starting statistics   =======================\n";
+
+        string fname;
+        if (isched == 0) {
+            fname = "statistics.txt";
+        } else {
+            fname = (boost::format("statistics_%04d.txt") % (isched)).str();
+        }
+        ofstream out(fname);
+
+        string txt = (boost::format("writing statistics to %s\n") % fname).str();
+        cout << txt;
 
         if (general) {
-            displayGeneralStatistics();
+            displayGeneralStatistics(out);
         }
 
         if (station) {
-            displayStationStatistics();
+            displayStationStatistics(out);
         }
 
         if (source) {
-            displaySourceStatistics();
+            displaySourceStatistics(out);
         }
 
         if (baseline) {
-            displayBaselineStatistics();
+            displayBaselineStatistics(out);
         }
 
         if (duration) {
-            displayScanDurationStatistics();
+            displayScanDurationStatistics(out);
         }
+        out.close();
 
-        cout << "=========================   end statistics    =========================\n";
     }
 
-    void VLBI_output::displayGeneralStatistics() {
+    void VLBI_output::displayGeneralStatistics(ofstream &out) {
         unsigned long n_scans = scans.size();
         unsigned long n_single = 0;
         unsigned long n_subnetting = 0;
@@ -67,14 +77,14 @@ namespace VieVS{
             }
         }
 
-        cout << "number of total scans:         " << n_scans << "\n";
-        cout << "number of single source scans: " << n_single << "\n";
-        cout << "number of subnetting scans:    " << n_subnetting << "\n";
-        cout << "number of fillin mode scans:   " << n_fillin << "\n\n";
+        out << "number of total scans:         " << n_scans << "\n";
+        out << "number of single source scans: " << n_single << "\n";
+        out << "number of subnetting scans:    " << n_subnetting << "\n";
+        out << "number of fillin mode scans:   " << n_fillin << "\n\n";
 
     }
 
-    void VLBI_output::displayBaselineStatistics() {
+    void VLBI_output::displayBaselineStatistics(ofstream &out) {
         unsigned long nsta = stations.size();
         unsigned long n_bl = 0;
         vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
@@ -93,57 +103,57 @@ namespace VieVS{
 
         }
 
-        cout << "number of scheduled baselines: " << n_bl << "\n";
-        cout << ".-----------";
+        out << "number of scheduled baselines: " << n_bl << "\n";
+        out << ".-----------";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            out << "----------";
         }
-        cout << "-----------";
-        cout << "----------.\n";
+        out << "-----------";
+        out << "----------.\n";
 
 
-        cout << boost::format("| %8s |") % "STATIONS";
+        out << boost::format("| %8s |") % "STATIONS";
         for (int i = 0; i < nsta; ++i) {
-            cout << boost::format(" %8s ") % stations[i].getName();
+            out << boost::format(" %8s ") % stations[i].getName();
         }
-        cout << "|";
-        cout << boost::format(" %8s ") % "TOTAL";
-        cout << "|\n";
+        out << "|";
+        out << boost::format(" %8s ") % "TOTAL";
+        out << "|\n";
 
-        cout << "|----------|";
+        out << "|----------|";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            out << "----------";
         }
-        cout << "----------|";
-        cout << "----------|\n";
+        out << "----------|";
+        out << "----------|\n";
 
         for (int i = 0; i < nsta; ++i) {
             unsigned long counter = 0;
-            cout << boost::format("| %8s |") % stations[i].getName();
+            out << boost::format("| %8s |") % stations[i].getName();
             for (int j = 0; j < nsta; ++j) {
                 if (j<i+1){
-                    cout << "          ";
+                    out << "          ";
                     counter += bl_storage[j][i];
                 }else{
-                    cout << boost::format(" %8d ") % bl_storage[i][j];
+                    out << boost::format(" %8d ") % bl_storage[i][j];
                     counter += bl_storage[i][j];
                 }
             }
-            cout << "|";
-            cout << boost::format(" %8d ") % counter;
-            cout << "|\n";
+            out << "|";
+            out << boost::format(" %8d ") % counter;
+            out << "|\n";
         }
 
-        cout << "'-----------";
+        out << "'-----------";
         for (int i = 0; i < nsta-1; ++i) {
-            cout << "----------";
+            out << "----------";
         }
-        cout << "-----------";
-        cout << "----------'\n\n";
+        out << "-----------";
+        out << "----------'\n\n";
 
     }
 
-    void VLBI_output::displayStationStatistics() {
+    void VLBI_output::displayStationStatistics(ofstream &out) {
         vector<unsigned int> nscan_sta(stations.size());
         vector< vector<unsigned int> > time_sta(stations.size());
         vector< unsigned int> nbl_sta(stations.size(),0);
@@ -163,35 +173,37 @@ namespace VieVS{
 
         }
 
-        cout
+        out
                 << ".------------------------------------------------------------------------------------------------------------------------.\n";
-        cout << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
-        cout << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
-        cout
+        out
+                << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
+        out
+                << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
+        out
                 << "|---------|------------------------------------------------------------------------------------------------|-------------|\n";
         for (int i = 0; i<stations.size(); ++i){
-            cout << boost::format("| %8s|") % stations[i].getName();
+            out << boost::format("| %8s|") % stations[i].getName();
             unsigned int timeStart = 0;
             unsigned int timeEnd = 900;
             for (int j = 0; j < 96; ++j) {
                 if(any_of(time_sta[i].begin(), time_sta[i].end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
-                    cout << "x";
+                    out << "x";
                 }else{
-                    cout << " ";
+                    out << " ";
                 }
                 timeEnd += 900;
                 timeStart += 900;
             }
-            cout << boost::format("| %6d %4d |\n") %nscan_sta[i] %nbl_sta[i];
+            out << boost::format("| %6d %4d |\n") % nscan_sta[i] % nbl_sta[i];
         }
 
-        cout
+        out
                 << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
 
     }
 
-    void VLBI_output::displaySourceStatistics() {
-        cout << "number of available sources:   " << sources.size() << "\n";
+    void VLBI_output::displaySourceStatistics(ofstream &out) {
+        out << "number of available sources:   " << sources.size() << "\n";
         vector<unsigned int> nscan_src(sources.size(),0);
         vector<unsigned int> nbl_src(sources.size(),0);
         vector< vector<unsigned int> > time_src(sources.size());
@@ -203,39 +215,41 @@ namespace VieVS{
             time_src[id].push_back(any.maxTime());
         }
         long number = count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;});
-        cout << "number of scheduled sources:   " << number << "\n";
-        cout
+        out << "number of scheduled sources:   " << number << "\n";
+        out
                 << ".------------------------------------------------------------------------------------------------------------------------.\n";
-        cout << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
-        cout << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
-        cout
+        out
+                << "|          time since session start (1 char equals 15 minutes)                                                           |\n";
+        out
+                << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  | #SCANS #OBS |\n";
+        out
                 << "|---------|------------------------------------------------------------------------------------------------|-------------|\n";
         for (int i = 0; i<sources.size(); ++i){
             if (sources[i].getNbls() == 0) {
                 continue;
             }
-            cout << boost::format("| %8s|") % sources[i].getName();
+            out << boost::format("| %8s|") % sources[i].getName();
             unsigned int timeStart = 0;
             unsigned int timeEnd = 900;
             for (int j = 0; j < 96; ++j) {
                 if(any_of(time_src[i].begin(), time_src[i].end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
-                    cout << "x";
+                    out << "x";
                 }else{
-                    cout << " ";
+                    out << " ";
                 }
                 timeEnd += 900;
                 timeStart += 900;
             }
-            cout << boost::format("| %6d %4d |\n") %nscan_src[i] %nbl_src[i];
+            out << boost::format("| %6d %4d |\n") % nscan_src[i] % nbl_src[i];
         }
-        cout
+        out
                 << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
 
     }
 
-    void VLBI_output::displayScanDurationStatistics() {
+    void VLBI_output::displayScanDurationStatistics(ofstream &out) {
         unsigned long nsta = stations.size();
-        cout << "required scan durations:\n";
+        out << "required scan durations:\n";
         vector< vector< vector< unsigned int > > > bl_durations(nsta,vector<vector<unsigned int> >(nsta));
         vector< unsigned int> maxScanDurations;
 
@@ -286,38 +300,38 @@ namespace VieVS{
             ++hist[i-1];
         }
 
-        cout << "scan duration (without corsynch):\n";
+        out << "scan duration (without corsynch):\n";
         for (int i = 0; i < hist.size(); ++i) {
-            cout << boost::format("%3d-%3d | ") %bins[i] % (bins[i+1]-1);
+            out << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
             double percent = 100*(double)hist[i]/double(maxScanDurations.size());
             percent = round(percent);
             for (int j = 0; j < percent; ++j) {
-                cout << "+";
+                out << "+";
             }
-            cout << "\n";
+            out << "\n";
         }
-        cout << "\n";
+        out << "\n";
 
-        cout << "scan length:\n";
-        cout << ".----------------------------------------------------------------.\n";
-        cout << "| STATION1-STATION2 |  min    10%    50%    90%    max   average |\n";
-        cout << "|----------------------------------------------------------------|\n";
+        out << "scan length:\n";
+        out << ".----------------------------------------------------------------.\n";
+        out << "| STATION1-STATION2 |  min    10%    50%    90%    max   average |\n";
+        out << "|----------------------------------------------------------------|\n";
 
         {
             int n = (int) maxScanDurations.size()-1;
             sort(maxScanDurations.begin(),maxScanDurations.end());
-            cout << boost::format("|       SCANS       | ") ;
-            cout << boost::format("%4d   ") % maxScanDurations[0];
-            cout << boost::format("%4d   ") % maxScanDurations[n*0.1];
-            cout << boost::format("%4d   ") % maxScanDurations[n/2];
-            cout << boost::format("%4d   ") % maxScanDurations[n*0.9];
-            cout << boost::format("%4d   ") % maxScanDurations[n];
-            double average = (double)accumulate(maxScanDurations.begin(),maxScanDurations.end(),0)/(double)(n+1);
-            cout << boost::format("%7.2f |") %average;
-            cout << "\n";
+            out << boost::format("|       SCANS       | ");
+            out << boost::format("%4d   ") % maxScanDurations[0];
+            out << boost::format("%4d   ") % maxScanDurations[n * 0.1];
+            out << boost::format("%4d   ") % maxScanDurations[n / 2];
+            out << boost::format("%4d   ") % maxScanDurations[n * 0.9];
+            out << boost::format("%4d   ") % maxScanDurations[n];
+            double average = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0.0) / (n + 1);
+            out << boost::format("%7.2f |") % average;
+            out << "\n";
         }
 
-        cout << "|----------------------------------------------------------------|\n";
+        out << "|----------------------------------------------------------------|\n";
 
         for (int i = 1; i < nsta; ++i) {
             for (int j = 0; j < i; ++j) {
@@ -327,25 +341,34 @@ namespace VieVS{
                 }
                 int n = (int) this_duration.size()-1;
                 sort(this_duration.begin(),this_duration.end());
-                cout << boost::format("| %8s-%8s | ") % stations[i].getName() % stations[j].getName();
-                cout << boost::format("%4d   ") % this_duration[0];
-                cout << boost::format("%4d   ") % this_duration[n*0.1];
-                cout << boost::format("%4d   ") % this_duration[n/2];
-                cout << boost::format("%4d   ") % this_duration[n*0.9];
-                cout << boost::format("%4d   ") % this_duration[n];
-                double average = (double)accumulate(this_duration.begin(),this_duration.end(),0)/(double)(n+1);
-                cout << boost::format("%7.2f |") %average;
-                cout << "\n";
+                out << boost::format("| %8s-%8s | ") % stations[i].getName() % stations[j].getName();
+                out << boost::format("%4d   ") % this_duration[0];
+                out << boost::format("%4d   ") % this_duration[n * 0.1];
+                out << boost::format("%4d   ") % this_duration[n / 2];
+                out << boost::format("%4d   ") % this_duration[n * 0.9];
+                out << boost::format("%4d   ") % this_duration[n];
+                double average =
+                        (double) accumulate(this_duration.begin(), this_duration.end(), 0.0) / (double) (n + 1);
+                out << boost::format("%7.2f |") % average;
+                out << "\n";
             }
 
         }
-        cout << "'----------------------------------------------------------------'\n\n";
+        out << "'----------------------------------------------------------------'\n\n";
     }
 
     void VLBI_output::writeNGS() {
-        ofstream fid;
-        fid.open("ngs", ios::out | ios::trunc);
-        cout << "writing NGS file... ";
+
+        string fname;
+        if (isched == 0) {
+            fname = "ngs.txt";
+        } else {
+            fname = (boost::format("ngs_%04d.txt") % (isched)).str();
+        }
+        ofstream out(fname);
+
+        string txt = (boost::format("writing NGS file %s\n") % fname).str();
+        cout << txt;
 
         boost::posix_time::ptime start = VieVS_time::startTime;
         unsigned long counter = 1;
@@ -369,37 +392,36 @@ namespace VieVS{
                 int minute = tmp.time_of_day().minutes();
                 double second = tmp.time_of_day().seconds();
 
-                fid << boost::format("%8s  %8s  %8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
+                out << boost::format("%8s  %8s  %8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
                        year % month % day % hour % minute % second;
-                fid << boost::format("%6d") % counter << "01\n";
+                out << boost::format("%6d") % counter << "01\n";
 
-                fid << "    0000000.00000000    .00000  -000000.0000000000    .00000 0      I   ";
-                fid << boost::format("%6d") % counter << "02\n";
+                out << "    0000000.00000000    .00000  -000000.0000000000    .00000 0      I   ";
+                out << boost::format("%6d") % counter << "02\n";
 
-                fid << "    .00000    .00000    .00000    .00000   0.000000000000000        0.  ";
-                fid << boost::format("%6d") % counter << "03\n";
+                out << "    .00000    .00000    .00000    .00000   0.000000000000000        0.  ";
+                out << boost::format("%6d") % counter << "03\n";
 
-                fid << "       .00   .0       .00   .0       .00   .0       .00   .0            ";
-                fid << boost::format("%6d") % counter << "04\n";
+                out << "       .00   .0       .00   .0       .00   .0       .00   .0            ";
+                out << boost::format("%6d") % counter << "04\n";
 
-                fid << "   -.00000   -.00000    .00000    .00000    .00000    .00000            ";
-                fid << boost::format("%6d") % counter << "05\n";
+                out << "   -.00000   -.00000    .00000    .00000    .00000    .00000            ";
+                out << boost::format("%6d") % counter << "05\n";
 
-                fid << "     0.000    00.000   000.000   000.000    00.000    00.000 0 0        ";
-                fid << boost::format("%6d") % counter << "06\n";
+                out << "     0.000    00.000   000.000   000.000    00.000    00.000 0 0        ";
+                out << boost::format("%6d") % counter << "06\n";
 
-                fid << "        0.0000000000    .00000        -.0000000000    .00000  0         ";
-                fid << boost::format("%6d") % counter << "08\n";
+                out << "        0.0000000000    .00000        -.0000000000    .00000  0         ";
+                out << boost::format("%6d") % counter << "08\n";
 
-                fid << "          0.00000000    .00000        0.0000000000    .00000 0      I   ";
-                fid << boost::format("%6d") % counter << "09\n";
+                out << "          0.00000000    .00000        0.0000000000    .00000 0      I   ";
+                out << boost::format("%6d") % counter << "09\n";
 
                 ++counter;
             }
         }
 
-        fid.close();
-        cout << "done!\n";
+        out.close();
     }
 
 }
