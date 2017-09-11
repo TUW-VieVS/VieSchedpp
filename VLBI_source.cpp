@@ -84,7 +84,7 @@ namespace VieVS{
 
     bool VLBI_source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
         bool flag = false;
-        while (EVENTS[nextEvent].time <= time) {
+        while (EVENTS[nextEvent].time <= time && time != VieVS_time::duration) {
             double oldMinFlux = *PARA.minFlux;
             PARA = EVENTS[nextEvent].PARA;
             double newMinFlux = *PARA.minFlux;

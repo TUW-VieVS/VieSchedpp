@@ -237,9 +237,20 @@ namespace VieVS{
 
         unsigned long nant;
         int counter = 0;
-        
-        if (!PARA.selectedStations.empty()){
-            nant = PARA.selectedStations.size();
+
+        vector<string> sel_stations;
+        boost::property_tree::ptree ptree_stations = PARA_xml.get_child("master.general.stations");
+        auto it = ptree_stations.begin();
+        while (it != ptree_stations.end()) {
+            auto item = it->second.data();
+            sel_stations.push_back(item);
+            ++it;
+        }
+        vector<string> selectedStations = sel_stations;
+
+
+        if (!selectedStations.empty()) {
+            nant = selectedStations.size();
         } else {
             nant = antennaCatalog.size();
         }
@@ -252,7 +263,8 @@ namespace VieVS{
             string name = any.first;
             
             // check if station is in PARA.selectedStations or if PARA.selectedStations is not empty
-            if (!PARA.selectedStations.empty() && (find(PARA.selectedStations.begin(), PARA.selectedStations.end(), name) == PARA.selectedStations.end())){
+            if (!selectedStations.empty() &&
+                (find(selectedStations.begin(), selectedStations.end(), name) == selectedStations.end())) {
                 continue;
             }
                         
@@ -972,6 +984,11 @@ namespace VieVS{
                     } else if (paraName == "fixedScanDuration") {
                         PARA.fixedScanDuration = it2.second.get_value < unsigned
                         int > ();
+                    } else if (paraName == "maxNumberOfScans") {
+                        PARA.maxNumberOfScans = it2.second.get_value < unsigned
+                        int > ();
+                    } else if (paraName == "tryToFocusIfObservedOnce") {
+                        PARA.tryToFocusIfObservedOnce = it2.second.get_value<bool>();
                     } else if (paraName == "minSNR") {
                         string bandName = it2.second.get_child("<xmlattr>.band").data();
                         double value = it2.second.get_value<double>();
@@ -982,6 +999,16 @@ namespace VieVS{
                             for (int i = 0; i < stations.size(); ++i) {
                                 if (staName == stations[i].getName()) {
                                     PARA.ignoreStations.push_back(i);
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (paraName == "requiredStations") {
+                        for (auto &it3: it2.second) {
+                            string staName = it3.second.data();
+                            for (int i = 0; i < stations.size(); ++i) {
+                                if (staName == stations[i].getName()) {
+                                    PARA.requiredStations.push_back(i);
                                     break;
                                 }
                             }
@@ -1014,7 +1041,7 @@ namespace VieVS{
                         }
                     } else {
                         cerr << "<source> <parameter>: " << parameterName << ": parameter <" << name
-                             << "> not understood! (Ignored)\n";
+                                << "> not understood! (Ignored)\n";
                     }
                 }
                 parameters[parameterName] = PARA;
@@ -1128,12 +1155,22 @@ namespace VieVS{
                 if (newPARA.maxScan.is_initialized()) {
                     combinedPARA.maxScan = *newPARA.maxScan;
                 }
+                if (newPARA.maxNumberOfScans.is_initialized()) {
+                    combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
+                }
+                if (newPARA.tryToFocusIfObservedOnce.is_initialized()) {
+                    combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
+                }
 
                 if (newPARA.fixedScanDuration.is_initialized()) {
                     combinedPARA.fixedScanDuration = *newPARA.fixedScanDuration;
                 }
+
                 if (!newPARA.ignoreStations.empty()) {
                     combinedPARA.ignoreStations = newPARA.ignoreStations;
+                }
+                if (!newPARA.requiredStations.empty()) {
+                    combinedPARA.requiredStations = newPARA.requiredStations;
                 }
                 if (!newPARA.ignoreBaselines.empty()) {
                     combinedPARA.ignoreBaselines = newPARA.ignoreBaselines;
@@ -1652,6 +1689,15 @@ namespace VieVS{
                                                      ofstream &bodyLog) {
         parameters.output(bodyLog);
 
+        boost::property_tree::ptree PARA_station = PARA_xml.get_child("master.station");
+        unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station);
+        boost::property_tree::ptree PARA_source = PARA_xml.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source);
+        boost::property_tree::ptree PARA_baseline = PARA_xml.get_child("master.baseline");
+        unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline);
+
+
+
         unsigned long nsta = stations.size();
 
         if (parameters.start.is_initialized()) {
@@ -1688,108 +1734,805 @@ namespace VieVS{
             VLBI_weightFactors::weight_averageStations = *parameters.weight_averageStations;
         }
 
-        int c;
-        c = 0;
-        for (const auto &any: parameters.station_maxSlewtime) {
-            if (any.is_initialized()) {
-                stations[c].referencePARA().maxSlewtime = *parameters.station_maxSlewtime[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.station_maxWait) {
-            if (any.is_initialized()) {
-                stations[c].referencePARA().maxWait = *parameters.station_maxWait[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.station_maxScan) {
-            if (any.is_initialized()) {
-                stations[c].referencePARA().maxScan = *parameters.station_maxScan[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.station_minScan) {
-            if (any.is_initialized()) {
-                stations[c].referencePARA().minScan = *parameters.station_minScan[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.station_weight) {
-            if (any.is_initialized()) {
-                stations[c].referencePARA().weight = *parameters.station_weight[c];
-            }
-            ++c;
-        }
-
-        c = 0;
-        for (const auto &any: parameters.source_minNumberOfStations) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().minNumberOfStations = *parameters.source_minNumberOfStations[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.source_minFlux) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().minFlux = *parameters.source_minFlux[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.source_minRepeat) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().minRepeat = *parameters.source_minRepeat[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.source_maxScan) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().maxScan = *parameters.source_maxScan[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.source_minScan) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().minScan = *parameters.source_minScan[c];
-            }
-            ++c;
-        }
-        c = 0;
-        for (const auto &any: parameters.source_weight) {
-            if (any.is_initialized()) {
-                sources[c].referencePARA().weight = *parameters.source_weight[c];
-            }
-            ++c;
-        }
-
-        for (int i = 0; i < nsta; ++i) {
-            for (int j = i + 1; j < nsta; ++j) {
-                if (parameters.baseline_maxScan[i][j].is_initialized()) {
-                    VLBI_baseline::PARA.maxScan[i][j] = *parameters.baseline_maxScan[i][j];
+        if (!parameters.station_maxSlewtime.empty()) {
+            for (const auto &any:parameters.station_maxSlewtime) {
+                string name = any.first;
+                if (group_station.find(name) != group_station.end()) {
+                    vector<string> members = group_station[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisStation:stations) {
+                            if (thisStation.getName() == thisName) {
+                                thisStation.referencePARA().maxSlewtime = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisStation:stations) {
+                        if (thisStation.getName() == name) {
+                            thisStation.referencePARA().maxSlewtime = any.second;
+                        }
+                    }
                 }
             }
         }
-        for (int i = 0; i < nsta; ++i) {
-            for (int j = i + 1; j < nsta; ++j) {
-                if (parameters.baseline_minScan[i][j].is_initialized()) {
-                    VLBI_baseline::PARA.minScan[i][j] = *parameters.baseline_minScan[i][j];
+        if (!parameters.station_weight.empty()) {
+            for (const auto &any:parameters.station_weight) {
+                string name = any.first;
+                if (group_station.find(name) != group_station.end()) {
+                    vector<string> members = group_station[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisStation:stations) {
+                            if (thisStation.getName() == thisName) {
+                                thisStation.referencePARA().weight = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisStation:stations) {
+                        if (thisStation.getName() == name) {
+                            thisStation.referencePARA().weight = any.second;
+                        }
+                    }
                 }
             }
         }
-        for (int i = 0; i < nsta; ++i) {
-            for (int j = i + 1; j < nsta; ++j) {
-                if (parameters.baseline_weight[i][j].is_initialized()) {
-                    VLBI_baseline::PARA.weight[i][j] = *parameters.baseline_weight[i][j];
+        if (!parameters.station_maxWait.empty()) {
+            for (const auto &any:parameters.station_maxWait) {
+                string name = any.first;
+                if (group_station.find(name) != group_station.end()) {
+                    vector<string> members = group_station[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisStation:stations) {
+                            if (thisStation.getName() == thisName) {
+                                thisStation.referencePARA().maxWait = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisStation:stations) {
+                        if (thisStation.getName() == name) {
+                            thisStation.referencePARA().maxWait = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.station_minScan.empty()) {
+            for (const auto &any:parameters.station_minScan) {
+                string name = any.first;
+                if (group_station.find(name) != group_station.end()) {
+                    vector<string> members = group_station[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisStation:stations) {
+                            if (thisStation.getName() == thisName) {
+                                thisStation.referencePARA().minScan = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisStation:stations) {
+                        if (thisStation.getName() == name) {
+                            thisStation.referencePARA().minScan = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.station_maxScan.empty()) {
+            for (const auto &any:parameters.station_maxScan) {
+                string name = any.first;
+                if (group_station.find(name) != group_station.end()) {
+                    vector<string> members = group_station[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisStation:stations) {
+                            if (thisStation.getName() == thisName) {
+                                thisStation.referencePARA().maxScan = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisStation:stations) {
+                        if (thisStation.getName() == name) {
+                            thisStation.referencePARA().maxScan = any.second;
+                        }
+                    }
                 }
             }
         }
 
+        if (!parameters.source_minNumberOfStations.empty()) {
+            for (const auto &any:parameters.source_minNumberOfStations) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().minNumberOfStations = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().minNumberOfStations = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.source_minFlux.empty()) {
+            for (const auto &any:parameters.source_minFlux) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().minFlux = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().minFlux = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.source_minRepeat.empty()) {
+            for (const auto &any:parameters.source_minRepeat) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().minRepeat = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().minRepeat = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.source_weight.empty()) {
+            for (const auto &any:parameters.source_weight) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().weight = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().weight = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.source_minScan.empty()) {
+            for (const auto &any:parameters.source_minScan) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().minScan = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().minScan = any.second;
+                        }
+                    }
+                }
+            }
+        }
+        if (!parameters.source_maxScan.empty()) {
+            for (const auto &any:parameters.source_maxScan) {
+                string name = any.first;
+                if (group_source.find(name) != group_source.end()) {
+                    vector<string> members = group_source[name];
+                    for (const auto &thisName:members) {
+                        for (auto &thisSource:sources) {
+                            if (thisSource.getName() == thisName) {
+                                thisSource.referencePARA().maxScan = any.second;
+                            }
+                        }
+                    }
+                } else {
+                    for (auto &thisSource:sources) {
+                        if (thisSource.getName() == name) {
+                            thisSource.referencePARA().maxScan = any.second;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!parameters.baseline_weight.empty()) {
+            for (const auto &any:parameters.baseline_weight) {
+                string name = any.first;
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    vector<string> members = group_baseline[name];
+                    for (const auto &thisName:members) {
+                        vector<string> baseline_stations;
+                        boost::split(baseline_stations, thisName, boost::is_any_of("-"));
+                        string sta0 = baseline_stations[0];
+                        string sta1 = baseline_stations[1];
+                        int staid0;
+                        int staid1;
+                        for (int i = 0; i < nsta; ++i) {
+                            if (stations[i].getName() == sta0) {
+                                staid0 = i;
+                            } else if (stations[i].getName() == sta1) {
+                                staid1 = i;
+                            }
+                        }
+                        if (staid0 > staid1) {
+                            std::swap(staid0, staid1);
+                        }
+
+                        VLBI_baseline::PARA.weight[staid0][staid1] = any.second;
+                    }
+                } else {
+                    vector<string> baseline_stations;
+                    boost::split(baseline_stations, name, boost::is_any_of("-"));
+                    string sta0 = baseline_stations[0];
+                    string sta1 = baseline_stations[1];
+                    int staid0;
+                    int staid1;
+                    for (int i = 0; i < nsta; ++i) {
+                        if (stations[i].getName() == sta0) {
+                            staid0 = i;
+                        } else if (stations[i].getName() == sta1) {
+                            staid1 = i;
+                        }
+                    }
+                    if (staid0 > staid1) {
+                        std::swap(staid0, staid1);
+                    }
+
+                    VLBI_baseline::PARA.weight[staid0][staid1] = any.second;
+                }
+            }
+        }
+        if (!parameters.baseline_minScan.empty()) {
+            for (const auto &any:parameters.baseline_minScan) {
+                string name = any.first;
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    vector<string> members = group_baseline[name];
+                    for (const auto &thisName:members) {
+                        vector<string> baseline_stations;
+                        boost::split(baseline_stations, thisName, boost::is_any_of("-"));
+                        string sta0 = baseline_stations[0];
+                        string sta1 = baseline_stations[1];
+                        int staid0;
+                        int staid1;
+                        for (int i = 0; i < nsta; ++i) {
+                            if (stations[i].getName() == sta0) {
+                                staid0 = i;
+                            } else if (stations[i].getName() == sta1) {
+                                staid1 = i;
+                            }
+                        }
+                        if (staid0 > staid1) {
+                            std::swap(staid0, staid1);
+                        }
+
+                        VLBI_baseline::PARA.minScan[staid0][staid1] = any.second;
+                    }
+                } else {
+                    vector<string> baseline_stations;
+                    boost::split(baseline_stations, name, boost::is_any_of("-"));
+                    string sta0 = baseline_stations[0];
+                    string sta1 = baseline_stations[1];
+                    int staid0;
+                    int staid1;
+                    for (int i = 0; i < nsta; ++i) {
+                        if (stations[i].getName() == sta0) {
+                            staid0 = i;
+                        } else if (stations[i].getName() == sta1) {
+                            staid1 = i;
+                        }
+                    }
+                    if (staid0 > staid1) {
+                        std::swap(staid0, staid1);
+                    }
+
+                    VLBI_baseline::PARA.minScan[staid0][staid1] = any.second;
+                }
+            }
+        }
+        if (!parameters.baseline_maxScan.empty()) {
+            for (const auto &any:parameters.baseline_maxScan) {
+                string name = any.first;
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    vector<string> members = group_baseline[name];
+                    for (const auto &thisName:members) {
+                        vector<string> baseline_stations;
+                        boost::split(baseline_stations, thisName, boost::is_any_of("-"));
+                        string sta0 = baseline_stations[0];
+                        string sta1 = baseline_stations[1];
+                        int staid0;
+                        int staid1;
+                        for (int i = 0; i < nsta; ++i) {
+                            if (stations[i].getName() == sta0) {
+                                staid0 = i;
+                            } else if (stations[i].getName() == sta1) {
+                                staid1 = i;
+                            }
+                        }
+                        if (staid0 > staid1) {
+                            std::swap(staid0, staid1);
+                        }
+
+                        VLBI_baseline::PARA.maxScan[staid0][staid1] = any.second;
+                    }
+                } else {
+                    vector<string> baseline_stations;
+                    boost::split(baseline_stations, name, boost::is_any_of("-"));
+                    string sta0 = baseline_stations[0];
+                    string sta1 = baseline_stations[1];
+                    int staid0;
+                    int staid1;
+                    for (int i = 0; i < nsta; ++i) {
+                        if (stations[i].getName() == sta0) {
+                            staid0 = i;
+                        } else if (stations[i].getName() == sta1) {
+                            staid1 = i;
+                        }
+                    }
+                    if (staid0 > staid1) {
+                        std::swap(staid0, staid1);
+                    }
+
+                    VLBI_baseline::PARA.maxScan[staid0][staid1] = any.second;
+                }
+            }
+        }
+    }
+
+    vector<VLBI_multiSched::PARAMETERS> VLBI_initializer::readMultiSched() {
+        vector<VLBI_multiSched::PARAMETERS> para;
+
+        VLBI_multiSched ms;
+        boost::property_tree::ptree mstree = PARA_xml.get_child("master.multisched");
+
+        boost::property_tree::ptree PARA_station = PARA_xml.get_child("master.station");
+        unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station);
+        boost::property_tree::ptree PARA_source = PARA_xml.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source);
+        boost::property_tree::ptree PARA_baseline = PARA_xml.get_child("master.baseline");
+        unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline);
+
+
+        for (const auto &any:mstree) {
+            std::string name = any.first;
+            if (name == "start") {
+                vector<boost::posix_time::ptime> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<boost::posix_time::ptime>());
+                }
+                ms.setStart(data);
+            } else if (name == "multisched_subnetting") {
+                ms.setMultiSched_subnetting(true);
+            } else if (name == "multisched_fillinmode") {
+                ms.setMultiSched_fillinmode(true);
+            } else if (name == "weight_skyCoverage") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_skyCoverage(data);
+            } else if (name == "weight_numberOfObservations") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_numberOfObservations(data);
+            } else if (name == "weight_duration") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_duration(data);
+            } else if (name == "weight_averageSources") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_averageSources(data);
+            } else if (name == "weight_averageStations") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_averageStations(data);
+            } else if (name == "station_maxSlewtime") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxSlewtime(VieVS_parameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_maxSlewtime(name, data);
+                }
+            } else if (name == "station_maxWait") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxWait(VieVS_parameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_maxWait(name, data);
+                }
+            } else if (name == "station_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxScan(VieVS_parameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_maxScan(name, data);
+                }
+            } else if (name == "station_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_minScan(VieVS_parameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_minScan(name, data);
+                }
+            } else if (name == "station_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_weight(VieVS_parameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_weight(name, data);
+                }
+            } else if (name == "source_minNumberOfStations") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minNumberOfStations(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minNumberOfStations(name, data);
+                }
+            } else if (name == "source_minFlux") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minFlux(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minFlux(name, data);
+                }
+            } else if (name == "source_minRepeat") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minRepeat(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minRepeat(name, data);
+                }
+            } else if (name == "source_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_maxScan(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_maxScan(name, data);
+                }
+            } else if (name == "source_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minScan(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minScan(name, data);
+                }
+            } else if (name == "source_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_weight(VieVS_parameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_weight(name, data);
+                }
+            } else if (name == "baseline_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_maxScan(VieVS_parameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_maxScan(name, data);
+                }
+            } else if (name == "baseline_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_minScan(VieVS_parameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_minScan(name, data);
+                }
+            } else if (name == "baseline_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_weight(VieVS_parameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_weight(name, data);
+                }
+            }
+
+
+        }
+
+
+        return ms.createMultiScheduleParameters();
     }
 
 }

@@ -27,7 +27,6 @@ namespace VieVS{
         srcid = VLBI_scan::pointingVectors.at(0).getSrcid();
         times = VLBI_scanTimes(nsta);
         times.setEndOfLastScan(endOfLastScan);
-        pointingVectors_endtime.reserve(nsta);
         baselines.reserve((nsta * (nsta - 1)) / 2);
     }
 
@@ -35,7 +34,6 @@ namespace VieVS{
                          const vector<VLBI_baseline> &bl, int minNumSta) :
             srcid{pv[0].getSrcid()}, nsta{pv.size()}, pointingVectors{move(pv)}, minimumNumberOfStations{minNumSta},
             score{0}, times{move(times)}, baselines{move(bl)} {
-        pointingVectors_endtime.reserve(nsta);
     }
 
     bool VLBI_scan::constructBaselines(const VLBI_source &source) noexcept {
@@ -93,8 +91,12 @@ namespace VieVS{
 
         int staid = pointingVectors[idx].getStaid();
         pointingVectors.erase(pointingVectors.begin()+idx);
+        if (pointingVectors_endtime.size() > 0) {
+            pointingVectors_endtime.erase(pointingVectors_endtime.begin() + idx);
+        }
 
-        int nbl_before =  baselines.size();
+
+        unsigned long nbl_before = baselines.size();
         int i=0;
         while (i<baselines.size()){
             if(baselines[i].getStaid1()==staid || baselines[i].getStaid2()==staid){
@@ -104,7 +106,6 @@ namespace VieVS{
             }
         }
         return !(nbl_before != 0 && baselines.size() == 0);
-
     }
 
     bool VLBI_scan::removeBaseline(int idx_bl) noexcept {
@@ -521,11 +522,156 @@ namespace VieVS{
 
 
     bool VLBI_scan::rigorousUpdate(const vector<VLBI_station> &stations, const VLBI_source &source) noexcept {
-        bool flag = true;
         int srcid = source.getId();
-
         bool scanValid = true;
+        pointingVectors_endtime.resize(nsta);
+        // FIRST STEP: calc earliest possible slew end times for each station:
+        int ista = 0;
+        while (ista < nsta) {
+            VLBI_pointingVector &pv = pointingVectors[ista];
+            unsigned int slewStart = times.getEndOfSourceTime(ista);
+            unsigned int slewEnd = times.getEndOfSlewTime(ista);
+            const VLBI_station &thisStation = stations[pv.getStaid()];
+
+            unsigned int oldSlewEnd = 0;
+            unsigned int newSlewEnd = slewEnd;
+
+            bool bigSlew = false;
+
+            unsigned int timeDiff = newSlewEnd - oldSlewEnd;
+            while (timeDiff > 1) {
+                oldSlewEnd = newSlewEnd;
+                pv.setTime(oldSlewEnd);
+
+                double oldAz = pv.getAz();
+                if (bigSlew) {
+                    thisStation.getCableWrap().unwrapAzNearAz(pv, oldAz);
+                } else {
+                    thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), pv);
+                }
+                double newAz = pv.getAz();
+
+                // big slew detected... this means you are somewhere close to the cable wrap limit...
+                // from this point on you calc your unwrapped Az near the azimuth, which is further away from this limit
+                if (std::abs(oldAz - newAz) > .5 * pi) {
+                    // if there was already a bigSlew flag you know that both azimuth are unsafe...
+                    if (bigSlew) {
+                        scanValid = removeStation(ista);
+                        if (!scanValid) {
+                            return false;
+                        }
+                        continue;
+                    }
+                    // otherwise set the big slew flag
+                    bigSlew = true;
+                }
+
+                unsigned int thisSlewtime = thisStation.slewTime(pv);
+                if (thisSlewtime > thisStation.getMaxSlewtime()) {
+                    scanValid = removeStation(ista);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                newSlewEnd = slewStart + thisSlewtime;
+                if (newSlewEnd > oldSlewEnd) {
+                    timeDiff = newSlewEnd - oldSlewEnd;
+                } else {
+                    timeDiff = oldSlewEnd - newSlewEnd;
+                }
+            }
+            times.updateSlewtime(ista, newSlewEnd - slewStart);
+            ++ista;
+        }
+
+
+        // SECOND STEP: check if source is available during whole scan
+        bool stationRemoved;
+        do {
+            stationRemoved = false;
+
+            // SECOND.FIRST STEP: align start times to earliest possible one:
+            unsigned long nsta_beginning;
+            do {
+                nsta_beginning = nsta;
+
+                times.alignStartTimes();
+                scanValid = constructBaselines(source);
+                if (!scanValid) {
+                    return false;
+                }
+                scanValid = calcBaselineScanDuration(stations, source);
+                if (!scanValid) {
+                    return false;
+                }
+                scanValid = scanDuration(stations, source);
+                if (!scanValid) {
+                    return false;
+                }
+
+            } while (nsta != nsta_beginning);
+
+
+            // SECOND STEP: check if source is available during whole scan
+            ista = 0;
+            while (ista < nsta && !stationRemoved) {
+                unsigned int scanStart = times.getEndOfCalibrationTime(ista);
+                unsigned int scanEnd = times.getEndOfScanTime(ista);
+                VLBI_pointingVector &pv = pointingVectors[ista];
+                const VLBI_station &thisStation = stations[pv.getStaid()];
+
+                VLBI_pointingVector moving_pv(pv.getStaid(), pv.getSrcid());
+                moving_pv.setAz(pv.getAz());
+                moving_pv.setEl(pv.getEl());
+
+                for (unsigned int time = scanStart; scanStart < scanEnd; scanStart += 30) {
+                    moving_pv.setTime(scanStart);
+                    double oldAz = moving_pv.getAz();
+                    thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), moving_pv);
+                    double newAz = moving_pv.getAz();
+
+                    if (std::abs(oldAz - newAz) > .5 * pi) {
+                        scanValid = removeStation(ista);
+                        if (!scanValid) {
+                            return false;
+                        }
+                        stationRemoved = true;
+                        continue;
+                    }
+
+                    if (time == scanStart) {
+                        pointingVectors[ista] = moving_pv;
+                    }
+                }
+                moving_pv.setTime(scanEnd);
+                double oldAz = moving_pv.getAz();
+                thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), moving_pv);
+                double newAz = moving_pv.getAz();
+
+                if (std::abs(oldAz - newAz) > .5 * pi) {
+                    scanValid = removeStation(ista);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    stationRemoved = true;
+                    continue;
+                }
+                pointingVectors_endtime[ista] = move(moving_pv);
+                ++ista;
+            }
+        } while (stationRemoved);
+        return true;
+    }
+
+
+    bool VLBI_scan::rigorousUpdate2(const vector<VLBI_station> &stations, const VLBI_source &source) noexcept {
+        int srcid = source.getId();
+        bool scanValid;
+
         int i = 0;
+
         while (i < nsta) {
 
             VLBI_pointingVector &pv = pointingVectors[i];
@@ -543,11 +689,13 @@ namespace VieVS{
 
             unsigned int slewtime;
             bool stationValid;
+
+            unsigned int timeDiff;
             do {
                 oldAz = newAz;
                 oldSlewEnd = newSlewEnd;
                 new_p.setTime(newSlewEnd);
-                thisSta.updateAzEl(source, new_p);
+                thisSta.calcAzEl(source, new_p);
                 stationValid = thisSta.isVisible(new_p);
                 if (!stationValid) {
                     scanValid = removeStation(i);
@@ -580,7 +728,14 @@ namespace VieVS{
 
                 }
                 newSlewEnd = slewStart + slewtime;
-            } while (abs(newSlewEnd - oldSlewEnd) > 1);
+
+                if (oldSlewEnd > newSlewEnd) {
+                    timeDiff = oldSlewEnd - newSlewEnd;
+                } else {
+                    timeDiff = newSlewEnd - oldSlewEnd;
+                }
+
+            } while (timeDiff > 1);
 
             if (stationValid) {
                 pointingVectors[i] = new_p;
@@ -621,7 +776,7 @@ namespace VieVS{
 
             for (unsigned int j = scanStart; j < scanEnd; j += 10) {
                 pv.setTime(j);
-                thisSta.updateAzEl(source, pv);
+                thisSta.calcAzEl(source, pv);
                 stationValid = thisSta.isVisible(pv);
                 if (!stationValid) {
                     scanValid = removeStation(i);
@@ -653,7 +808,7 @@ namespace VieVS{
             }
 
             pv.setTime(scanEnd);
-            thisSta.updateAzEl(source, pv);
+            thisSta.calcAzEl(source, pv);
             stationValid = thisSta.isVisible(pv);
             if (!stationValid) {
                 scanValid = removeStation(i);
@@ -686,11 +841,27 @@ namespace VieVS{
                               const vector<VLBI_skyCoverage> &skyCoverages,
                               const vector<VLBI_station> &stations) noexcept {
         double this_score = 0;
-        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
-        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
-        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
-        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
-        this_score += calcScore_skyCoverage(skyCoverages, stations) * VLBI_weightFactors::weight_skyCoverage;
+
+        double weight_numberOfObservations = VLBI_weightFactors::weight_numberOfObservations;
+        if (weight_numberOfObservations != 0) {
+            this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        }
+        double weight_averageSources = VLBI_weightFactors::weight_averageSources;
+        if (weight_averageSources != 0) {
+            this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        }
+        double weight_averageStations = VLBI_weightFactors::weight_averageStations;
+        if (weight_averageStations != 0) {
+            this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        }
+        double weight_duration = VLBI_weightFactors::weight_duration;
+        if (weight_duration != 0) {
+            this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        }
+        double weight_skyCoverage = VLBI_weightFactors::weight_skyCoverage;
+        if (weight_skyCoverage != 0) {
+            this_score += calcScore_skyCoverage(skyCoverages, stations) * VLBI_weightFactors::weight_skyCoverage;
+        }
 
         score = this_score;
     }
@@ -700,11 +871,28 @@ namespace VieVS{
                               const vector<VLBI_skyCoverage> &skyCoverages,
                               vector<double> &firstScorePerPV, const vector<VLBI_station> &stations) noexcept {
         double this_score = 0;
-        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
-        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
-        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
-        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
-        this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
+
+        double weight_numberOfObservations = VLBI_weightFactors::weight_numberOfObservations;
+        if (weight_numberOfObservations != 0) {
+            this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        }
+        double weight_averageSources = VLBI_weightFactors::weight_averageSources;
+        if (weight_averageSources != 0) {
+            this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        }
+        double weight_averageStations = VLBI_weightFactors::weight_averageStations;
+        if (weight_averageStations != 0) {
+            this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        }
+        double weight_duration = VLBI_weightFactors::weight_duration;
+        if (weight_duration != 0) {
+            this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        }
+        double weight_skyCoverage = VLBI_weightFactors::weight_skyCoverage;
+        if (weight_skyCoverage != 0) {
+            this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) *
+                          VLBI_weightFactors::weight_skyCoverage;
+        }
 
         score =  this_score;
     }
@@ -716,15 +904,30 @@ namespace VieVS{
                                      const vector<double> &firstScorePerPV,
                                      const vector<VLBI_station> &stations) noexcept {
         double this_score = 0;
-        this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
-        this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
-        this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
-        this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
-        this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * VLBI_weightFactors::weight_skyCoverage;
+
+        double weight_numberOfObservations = VLBI_weightFactors::weight_numberOfObservations;
+        if (weight_numberOfObservations != 0) {
+            this_score += calcScore_numberOfObservations(nmaxbl) * VLBI_weightFactors::weight_numberOfObservations;
+        }
+        double weight_averageSources = VLBI_weightFactors::weight_averageSources;
+        if (weight_averageSources != 0) {
+            this_score += calcScore_averageSources(asrcs) * VLBI_weightFactors::weight_averageSources;
+        }
+        double weight_averageStations = VLBI_weightFactors::weight_averageStations;
+        if (weight_averageStations != 0) {
+            this_score += calcScore_averageStations(astas, nmaxsta) * VLBI_weightFactors::weight_averageStations;
+        }
+        double weight_duration = VLBI_weightFactors::weight_duration;
+        if (weight_duration != 0) {
+            this_score += calcScore_duration(minTime, maxTime) * VLBI_weightFactors::weight_duration;
+        }
+        double weight_skyCoverage = VLBI_weightFactors::weight_skyCoverage;
+        if (weight_skyCoverage != 0) {
+            this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) *
+                          VLBI_weightFactors::weight_skyCoverage;
+        }
 
         score =  this_score;
-
-
     }
 
     void
@@ -833,15 +1036,38 @@ namespace VieVS{
             }
         }
         of << "\n";
+
+
+        // TODO: EVERYTHING UNTER THIS LINE IS JUST FOR DEBUGGING!!!
+        if (pointingVectors.size() != nsta || pointingVectors_endtime.size() != nsta ||
+            times.getEndOfSlewTime().size() != nsta) {
+            of << "ERROR #1\n";
+        }
+
+        for (int i = 0; i < nsta; ++i) {
+            unsigned int pTime = pointingVectors[i].getTime();
+            unsigned int tTime = times.getEndOfCalibrationTime(i);
+            if (pTime != tTime) {
+                of << "ERROR #2\n";
+            }
+
+            unsigned int pTime2 = pointingVectors_endtime[i].getTime();
+            unsigned int tTime2 = times.getEndOfScanTime(i);
+            if (pTime != tTime) {
+                of << "ERROR #3\n";
+            }
+
+        }
+
     }
 
     boost::optional<VLBI_scan> VLBI_scan::copyScan(const vector<int> &ids) const noexcept {
 
+
         vector<VLBI_pointingVector> pv;
-        pv.reserve(nsta);
+        pv.reserve(ids.size());
         VLBI_scanTimes t = times;
         vector<VLBI_baseline> bl;
-        bl.reserve(baselines.size());
 
         int counter = 0;
         for (auto &any:pointingVectors) {
@@ -872,7 +1098,90 @@ namespace VieVS{
                 bl.push_back(baselines[j]);
             }
         }
+        if (bl.size() == 0) {
+            return boost::none;
+        }
+
         return VLBI_scan(pv, t, bl, minimumNumberOfStations);
+    }
+
+
+    bool VLBI_scan::possibleFillinScan(const vector<VLBI_station> &stations, const VLBI_source &source,
+                                       const std::vector<char> &unused,
+                                       const vector<VLBI_pointingVector> &pv_final_position) {
+        int pv_id = 0;
+        while (pv_id < nsta) {
+            const VLBI_pointingVector fillinScanStart = pointingVectors[pv_id];
+            int staid = fillinScanStart.getStaid();
+
+            // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
+            unsigned int endOfFillinScan = times.getEndOfScanTime(pv_id);
+            const VLBI_pointingVector &finalPosition = pv_final_position[staid];
+
+            if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
+
+                const VLBI_station &thisStation = stations[staid];
+
+                VLBI_pointingVector fillinScanEnd;
+                if (pointingVectors_endtime.size() == 0) {
+                    // create pointing vector at end of scan
+                    fillinScanEnd = VLBI_pointingVector(staid, srcid);
+                    fillinScanEnd.setTime(endOfFillinScan);
+
+                    // calculate azimuth and elevation at end of scan
+                    thisStation.calcAzEl(source, fillinScanEnd);
+
+                    bool visible = thisStation.isVisible(fillinScanEnd);
+                    if (!visible) {
+                        bool valid = removeStation(pv_id);
+                        if (!valid) {
+                            return false;
+                        }
+                        continue;
+                    }
+
+                    // unwrap azimuth and elevation at end of scan
+                    thisStation.getCableWrap().calcUnwrappedAz(fillinScanStart, fillinScanEnd);
+                } else {
+                    fillinScanEnd = pointingVectors_endtime[pv_id];
+                }
+
+                // calculate slewtime between end of scan and start of new scan (final position)
+                int slewTime = thisStation.getAntenna().slewTime(fillinScanEnd, finalPosition);
+
+                // check the available time
+                unsigned int pv_finalTime = finalPosition.getTime();
+                unsigned int availableTime;
+                if (pv_finalTime > endOfFillinScan) {
+                    availableTime = pv_finalTime - endOfFillinScan;
+                } else {
+                    availableTime = 0;
+                }
+
+                int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
+                                  thisStation.getWaitSource() + thisStation.getWaitTape();
+                if (time_needed > availableTime) {
+                    bool valid = removeStation(pv_id);
+                    if (!valid) {
+                        return false;
+                    }
+                    continue;
+                }
+
+            } else { // if station is not used in the following scans (this means we have no desired end pointing vector
+                // check if the end of the fillin scan if earlier as the required final position time
+                if (endOfFillinScan > finalPosition.getTime()) {
+                    bool valid = removeStation(pv_id);
+                    if (!valid) {
+                        return false;
+                    }
+                    continue;
+                }
+            }
+            //station is ok!
+            ++pv_id;
+        }
+        return true;
     }
 
     boost::optional<VLBI_scan>
@@ -889,32 +1198,36 @@ namespace VieVS{
         }
         // create a copy of the scan with all possible stations
         boost::optional<VLBI_scan> tmp_fi_scan_opt = copyScan(possible_ids);
+
         // if the copy is invalid nothing should be returned
         if (!tmp_fi_scan_opt) {
             return boost::none;
         }
-        // if the copy is valid save it under tmp_fi_scan
-        VLBI_scan tmp_fi_scan = std::move(*tmp_fi_scan_opt);
+
+        // if the copy is valid save it under fi_scan
+        VLBI_scan fi_scan = std::move(*tmp_fi_scan_opt);
 
         // look if all stations have enough time to participate at the next scan
         int pv_id = 0;
-        while (pv_id < tmp_fi_scan.nsta) {
-            int staid = tmp_fi_scan.getPointingVector(pv_id).getStaid();
-            // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
-            unsigned int endOfFillinScan = tmp_fi_scan.getTimes().getEndOfScanTime(pv_id);
+        while (pv_id < fi_scan.nsta) {
+            int staid = fi_scan.getPointingVector(pv_id).getStaid();
 
-            if (!unused[staid]) { // unused stationd... this means we have an desired end pointing vector
-                int srcid = tmp_fi_scan.getSourceId();
+            // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
+            unsigned int endOfFillinScan = fi_scan.getTimes().getEndOfScanTime(pv_id);
+
+            if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
+                int srcid = fi_scan.getSourceId();
+
                 // create pointing vector at end of scan
                 VLBI_pointingVector this_pv_scan_end(staid, srcid);
                 const VLBI_station &thisStation = stations[staid];
                 this_pv_scan_end.setTime(endOfFillinScan);
 
                 // calculate azimuth and elevation at end of scan
-                thisStation.updateAzEl(source, this_pv_scan_end);
+                thisStation.calcAzEl(source, this_pv_scan_end);
                 bool visible = thisStation.isVisible(this_pv_scan_end);
                 if (!visible) {
-                    bool valid = tmp_fi_scan.removeStation(pv_id);
+                    bool valid = fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
@@ -922,26 +1235,34 @@ namespace VieVS{
                 }
 
                 // unwrap azimuth and elevation at end of scan
-                thisStation.getCableWrap().calcUnwrappedAz(tmp_fi_scan.getPointingVector(pv_id), this_pv_scan_end);
+                thisStation.getCableWrap().calcUnwrappedAz(fi_scan.getPointingVector(pv_id), this_pv_scan_end);
 
                 // calculate slewtime between end of scan and start of new scan (final position)
                 int slewTime = thisStation.getAntenna().slewTime(this_pv_scan_end, pv_final_position[staid]);
+
                 // check the available time
-                int availableTime = pv_final_position[staid].getTime() - endOfFillinScan;
+                unsigned int pv_finalTime = pv_final_position[staid].getTime();
+                unsigned int availableTime;
+                if (pv_finalTime > endOfFillinScan) {
+                    availableTime = pv_finalTime - endOfFillinScan;
+                } else {
+                    availableTime = 0;
+                }
+
                 int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
                                   thisStation.getWaitSource() + thisStation.getWaitTape();
                 if (time_needed > availableTime) {
-                    bool valid = tmp_fi_scan.removeStation(pv_id);
+                    bool valid = fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
                     continue;
                 }
 
-            } else { // if station is not used in the following scans (this means we have no disred end pointing vector
+            } else { // if station is not used in the following scans (this means we have no desired end pointing vector
                 // check if the end of the fillin scan if earlier as the required final position time
                 if (endOfFillinScan > pv_final_position[staid].getTime()) {
-                    bool valid = tmp_fi_scan.removeStation(pv_id);
+                    bool valid = fi_scan.removeStation(pv_id);
                     if (!valid) {
                         return boost::none;
                     }
@@ -952,7 +1273,7 @@ namespace VieVS{
             ++pv_id;
         }
 
-        return tmp_fi_scan;
+        return fi_scan;
     }
 
 }

@@ -13,6 +13,7 @@
 #include <boost/date_time.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <algorithm>
 
 #include "VieVS_constants.h"
 #include "VLBI_station.h"
@@ -243,6 +244,8 @@ namespace VieVS {
 
 
         void applyMultiSchedParameters(const VieVS::VLBI_multiSched::PARAMETERS &parameters, ofstream &bodyLog);
+
+        vector<VLBI_multiSched::PARAMETERS> readMultiSched();
 
     private:
 

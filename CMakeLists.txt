@@ -10,9 +10,21 @@ set(SOURCE_FILES main.cpp VieVS_constants.h VLBI_antenna.cpp VLBI_antenna.h VLBI
         sofa.h sofam.h VLBI_scanTimes.cpp VLBI_scanTimes.h VieVS_nutation.cpp VieVS_nutation.h VieVS_earth.cpp
         VieVS_earth.h VieVS_lookup.cpp VieVS_lookup.h VLBI_fillin_endpositions.cpp VLBI_fillin_endpositions.h
         VLBI_weightFactors.cpp VLBI_weightFactors.h VLBI_obsMode.cpp VLBI_obsMode.h VLBI_output.cpp VLBI_output.h
-        VieVS_time.cpp VieVS_time.h VieVS_xmlWriter.cpp VieVS_xmlWriter.h VLBI_setup.cpp VLBI_setup.h VLBI_multiSched.cpp VLBI_multiSched.h)
+        VieVS_time.cpp VieVS_time.h VieVS_xmlWriter.cpp VieVS_xmlWriter.h VLBI_setup.cpp VLBI_setup.h
+        VLBI_multiSched.cpp VLBI_multiSched.h VieVS_parameterGroup.cpp VieVS_parameterGroup.h)
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
+
+############################## OpenMP ###################################
+
+#find_package(OpenMP REQUIRED)
+#if (OPENMP_FOUND)
+#    message("OpenMP found")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
+
 
 ############################## BOOST ###################################
 
@@ -22,8 +34,8 @@ add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 SET(BOOST_ROOT "/home/mschartn/boost_1_64_0")
 #SET(BOOST_ROOT "C:/boost")
 
-SET(Boost_DEBUG ON)
-SET(Boost_DETAILED_FAILURE_MSG ON)
+#SET(Boost_DEBUG ON)
+#SET(Boost_DETAILED_FAILURE_MSG ON)
 
 #SET(Boost_NO_SYSTEM_PATHS OFF)
 #SET(Boost_USE_MULTITHREADED ON)
@@ -36,12 +48,12 @@ find_package(Boost 1.64.0 REQUIRED)
 
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    TARGET_LINK_LIBRARIES(VieVS_Scheduler_clion ${Boost_LIBRARIES})
 
     message("Boost VERSION: ${Boost_VERSION}")
     message("Boost INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
     message("Boost Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
     message("Boost LIBRARIES: ${Boost_LIBRARIES}")
+    TARGET_LINK_LIBRARIES(VieVS_Scheduler_clion ${Boost_LIBRARIES})
 endif ()
 
 

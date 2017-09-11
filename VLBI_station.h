@@ -88,6 +88,32 @@ namespace VieVS{
 
             vector<int> ignoreSources;
             vector<string> ignoreSources_str;
+
+            void output(std::ofstream &of) const {
+                if (*available) {
+                    of << "    available: TRUE\n";
+                } else {
+                    of << "    available: FALSE\n";
+                }
+
+                of << "    maxSlewtime: " << *maxSlewtime << "\n";
+                of << "    maxWait:     " << *maxWait << "\n";
+                of << "    maxScan:     " << *maxScan << "\n";
+                of << "    minScan:     " << *minScan << "\n";
+                of << "    weight:      " << *weight << "\n";
+
+                for (const auto it:minSNR) {
+                    of << "    minSNR: " << it.first << " " << it.second << "\n";
+                }
+
+                if (!ignoreSources.empty()) {
+                    of << "    ignoreSources:";
+                    for (int i = 0; i < ignoreSources.size(); ++i) {
+                        of << " " << ignoreSources[i];
+                    }
+                    of << "\n";
+                }
+            }
         };
 
 
@@ -299,6 +325,11 @@ namespace VieVS{
             return PRECALC.distance[other_staid];
         }
 
+        const VLBI_mask &getMask() const {
+            return mask;
+        }
+
+
         /**
          * @brief getter for antenna
          * @return antenna object
@@ -419,8 +450,8 @@ namespace VieVS{
          * @param model model used for calculation (default is simple model)
          */
         void
-        updateAzEl(const VLBI_source &source, VLBI_pointingVector &p,
-                   azelModel model = azelModel::simple) const noexcept;
+        calcAzEl(const VLBI_source &source, VLBI_pointingVector &p,
+                 azelModel model = azelModel::simple) const noexcept;
 
         /**
          * @brief change current pointing vector
@@ -554,8 +585,6 @@ namespace VieVS{
 
         VLBI_pointingVector current; ///< current pointing vector
 
-        vector<unsigned int> history_time; ///< history of all event times
-        vector<string> history_events; ///< history of all events
         vector<VLBI_pointingVector> pv_startScan; ///< all observed pointing vectors at scan start
         vector<VLBI_pointingVector> pv_endScan; ///< all observed pointing vectors at scan end
 

@@ -216,6 +216,8 @@ namespace VieVS{
                                                      const vector<VLBI_source> &sources,
                                                      const vector<VLBI_skyCoverage> &skyCoverages) noexcept;
 
+        void clearSubnettingScans();
+
     private:
         unsigned long n1scans; ///< number of single source scans
         vector<VLBI_scan> subnet1; ///< all single source scans
