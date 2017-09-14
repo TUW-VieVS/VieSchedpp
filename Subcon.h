@@ -220,22 +220,9 @@ namespace VieVS{
          * @param skyCoverages list of all sky coverages
          * @return index of best scan
          */
-<<<<<<< HEAD:VLBI_subcon.h
-        boost::optional<unsigned long> rigorousScore(const vector<VLBI_station> &stations,
-                                                     const vector<VLBI_source> &sources,
-                                                     const vector<VLBI_skyCoverage> &skyCoverages) noexcept;
-
-        void clearSubnettingScans();
-
-    private:
-        unsigned long n1scans; ///< number of single source scans
-        vector<VLBI_scan> subnet1; ///< all single source scans
-        vector<double> subnet1_score; ///< score for each single source scan
-=======
         boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations,
                                                      const std::vector<Source> &sources,
                                                      const std::vector<SkyCoverage> &skyCoverages) noexcept;
->>>>>>> sandbox:Subcon.h
 
         /**
          * @brief clear all subnetting scans

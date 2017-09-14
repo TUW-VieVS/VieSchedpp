@@ -62,19 +62,11 @@ namespace VieVS{
          * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
          */
         struct PARAMETER_STORAGE {
-<<<<<<< HEAD:VLBI_baseline.h
-            unordered_map<string, vector<vector<double> > > minSNR; ///< minimum SNR per band for each baseline
-            vector<vector<char> > ignore; ///< ignore specific baselines
-            vector<vector<double> > weight; ///< multiplicative factor of score for scans with this baseline
-            vector<vector<unsigned int> > minScan; ///< minimum required scan duration of this baseline
-            vector<vector<unsigned int> > maxScan; ///< maximum allowed scan duration of this baseline
-=======
             std::unordered_map<std::string, std::vector<std::vector<double> > > minSNR; ///< minimum SNR per band for each baseline
             std::vector<std::vector<char> > ignore; ///< ignore specific baselines
             std::vector<std::vector<double> > weight; ///< multiplicative factor of score for scans with this baseline
             std::vector<std::vector<unsigned int> > minScan; ///< minimum required scan duration of this baseline
             std::vector<std::vector<unsigned int> > maxScan; ///< maximum allowed scan duration of this baseline
->>>>>>> sandbox:Baseline.h
         };
 
         static thread_local PARAMETER_STORAGE PARA; ///< parameters for all baselines
@@ -196,9 +188,6 @@ namespace VieVS{
          */
         static void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
 
-<<<<<<< HEAD:VLBI_baseline.h
-        static void displaySummaryOfStaticMembersForDebugging(ofstream &log);
-=======
         /**
          * @brief internal function for debugging
          * Usually unused
@@ -206,7 +195,6 @@ namespace VieVS{
          * @param log log file stream
          */
         static void displaySummaryOfStaticMembersForDebugging(std::ofstream &log);
->>>>>>> sandbox:Baseline.h
 
     private:
         int staid1_{}; ///< id of first antenna

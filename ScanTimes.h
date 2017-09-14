@@ -213,8 +213,6 @@ namespace VieVS {
          */
         unsigned int maxTime() const noexcept;
 
-        unsigned int slowestStation();
-
     private:
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan
         std::vector<unsigned int> endOfSetupTime_; ///< end of setup time

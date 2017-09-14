@@ -503,10 +503,6 @@ namespace VieVS{
         bool rigorousUpdate2(const std::vector<Station> &stations, const Source &source) noexcept;
 
 
-
-        bool rigorousUpdate2(const vector<VLBI_station> &stations, const VLBI_source &source) noexcept;
-
-
         /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
          *
@@ -552,10 +548,6 @@ namespace VieVS{
          */
         bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
                                 const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
-
-
-        bool possibleFillinScan(const vector<VLBI_station> &stations, const VLBI_source &source,
-                                const std::vector<char> &unused, const vector<VLBI_pointingVector> &pv_final_position);
 
 
         /**

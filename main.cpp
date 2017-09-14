@@ -80,17 +80,10 @@ void run(){
     init.initializeSkyCoverages();
 
 
-<<<<<<< HEAD
-    init.createStationsFromCatalogs(path, headerLog);
-    init.createSkyCoverages();
-
-    init.createSourcesFromCatalogs(path, headerLog);
-=======
     init.createStations(headerLog);
     init.createSkyCoverages();
 
     init.createSources(headerLog);
->>>>>>> sandbox
     init.precalcSubnettingSrcIds();
 
 
@@ -99,11 +92,7 @@ void run(){
     unsigned long nsched = 1;
 
 
-<<<<<<< HEAD
-    vector<VieVS::VLBI_multiSched::PARAMETERS> all_multiSched_PARA = init.readMultiSched();
-=======
     vector<VieVS::MultiScheduling::Parameters> all_multiSched_PARA = init.readMultiSched();
->>>>>>> sandbox
     if (!all_multiSched_PARA.empty()) {
         flag_multiSched = true;
         nsched = all_multiSched_PARA.size();
@@ -125,11 +114,7 @@ void run(){
 
         ofstream bodyLog;
         if (flag_multiSched) {
-<<<<<<< HEAD
-            VieVS::VLBI_initializer newinit = init;
-=======
             VieVS::Initializer newinit = init;
->>>>>>> sandbox
             string fname = (boost::format("body_%04d.txt") % (i + 1)).str();
             bodyLog.open(fname);
 
@@ -152,11 +137,7 @@ void run(){
             newinit.initializeNutation();
             newinit.initializeEarth();
 
-<<<<<<< HEAD
-            scheduler = VieVS::VLBI_scheduler(newinit);
-=======
             scheduler = VieVS::Scheduler(newinit);
->>>>>>> sandbox
         } else {
             cout << "log file is written in this file: body.txt\n";
             bodyLog.open("body.txt");
@@ -184,11 +165,7 @@ void run(){
 
         bodyLog.close();
 
-<<<<<<< HEAD
-        VieVS::VLBI_output output(scheduler);
-=======
         VieVS::Output output(scheduler);
->>>>>>> sandbox
         if (flag_multiSched) {
             output.setIsched(i + 1);
         } else {
@@ -225,12 +202,6 @@ void createParameterFile(){
     para.general("TEST", "test_description", start, end, 5000, true, true, station_names);
 
 
-<<<<<<< HEAD
-    VieVS::VieVS_parameterGroup group_sta("group:siteWettzell",
-                                          std::vector<std::string>{"WETTZ13N", "WETTZ13S", "WETTZELL"});
-    para.group(VieVS::VieVS_xmlWriter::TYPE::station, group_sta);
-=======
->>>>>>> sandbox
 
 //    std::string root = "D:\\VieVS\\CATALOGS";
     std::string root = "/data/VieVS/CATALOGS";
@@ -276,15 +247,6 @@ void createParameterFile(){
     sta_para4.available = false;
     para.parameters("para:down", sta_para4);
 
-<<<<<<< HEAD
-    VieVS::VLBI_setup pp(0, std::numeric_limits<unsigned int>::max());
-    VieVS::VLBI_setup pp1("para:general", "__all__", 0, duration);
-    VieVS::VLBI_setup pp11("para:wait", "group:siteWettzell",
-                           para.getGroupMembers(VieVS::VieVS_xmlWriter::TYPE::station, "group:siteWettzell"), 0,
-                           duration);
-    VieVS::VLBI_setup pp2("para:SEJONG", "SEJONG", 0, duration);
-    VieVS::VLBI_setup pp21("para:down", "SEJONG", 3600, 7200, VieVS::VLBI_setup::TRANSITION::hard);
-=======
     VieVS::ParameterSetup pp(0, std::numeric_limits<unsigned int>::max());
     VieVS::ParameterSetup pp1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp11("para:wait", "group:siteWettzell",
@@ -292,7 +254,6 @@ void createParameterFile(){
                            duration);
     VieVS::ParameterSetup pp2("para:SEJONG", "SEJONG", 0, duration);
     VieVS::ParameterSetup pp21("para:down", "SEJONG", 3600, 7200, VieVS::ParameterSetup::Transition::hard);
->>>>>>> sandbox
     bool valid;
     valid = pp2.addChild(pp21);
     if (!valid) {
@@ -313,17 +274,10 @@ void createParameterFile(){
     para.setup(VieVS::ParameterSettings::Type::station, pp);
 
 
-<<<<<<< HEAD
-    VieVS::VieVS_parameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384"});
-    para.group(VieVS::VieVS_xmlWriter::TYPE::source, group_src);
-
-    VieVS::VLBI_source::PARAMETERS src_para1;
-=======
     VieVS::ParameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384"});
     para.group(VieVS::ParameterSettings::Type::source, group_src);
 
     VieVS::Source::Parameters src_para1;
->>>>>>> sandbox
     src_para1.minFlux = .5;
     src_para1.maxScan = 500;
     para.parameters("para:general", src_para1);
@@ -334,19 +288,6 @@ void createParameterFile(){
     src_para2.minScan = 100;
     src_para2.maxScan = 700;
     src_para2.fixedScanDuration = 500;
-<<<<<<< HEAD
-    src_para2.ignoreStations_str.emplace_back("WETTZ13N");
-    src_para2.ignoreStations_str.emplace_back("WETTZ13S");
-    src_para2.ignoreBaselines_str.emplace_back("WETTZ13S", "WETTZ13N");
-    src_para2.ignoreBaselines_str.emplace_back("WETTZELL", "WETTZ13N");
-    src_para2.ignoreBaselines_str.emplace_back("WETTZELL", "WETTZ13S");
-    para.parameters("para:star", src_para2);
-
-    VieVS::VLBI_setup pp_src(0, std::numeric_limits<unsigned int>::max());
-    VieVS::VLBI_setup pp_src1("para:general", "__all__", 0, duration);
-    VieVS::VLBI_setup pp_src2("para:star", "group:starSources",
-                              para.getGroupMembers(VieVS::VieVS_xmlWriter::TYPE::source, "group:starSources"), 0,
-=======
     src_para2.ignoreStationsString.emplace_back("WETTZ13N");
     src_para2.ignoreStationsString.emplace_back("WETTZ13S");
     src_para2.ignoreBaselinesString.emplace_back("WETTZ13S", "WETTZ13N");
@@ -358,7 +299,6 @@ void createParameterFile(){
     VieVS::ParameterSetup pp_src1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp_src2("para:star", "group:starSources",
                               para.getGroupMembers(VieVS::ParameterSettings::Type::source, "group:starSources"), 0,
->>>>>>> sandbox
                               duration);
 
     valid = pp_src1.addChild(pp_src2);
@@ -372,17 +312,10 @@ void createParameterFile(){
     para.setup(VieVS::ParameterSettings::Type::source, pp_src);
 
 
-<<<<<<< HEAD
-    VieVS::VieVS_parameterGroup group_bl("group:siteWettzell",
-                                         std::vector<std::string>{"WETTZ13N-WETTZ13S", "WETTZ13N-WETTZELL",
-                                                                  "WETTZ13S-WETTZELL"});
-    para.group(VieVS::VieVS_xmlWriter::TYPE::baseline, group_bl);
-=======
     VieVS::ParameterGroup group_bl("group:siteWettzell",
                                          std::vector<std::string>{"WETTZ13N-WETTZ13S", "WETTZ13N-WETTZELL",
                                                                   "WETTZ13S-WETTZELL"});
     para.group(VieVS::ParameterSettings::Type::baseline, group_bl);
->>>>>>> sandbox
 
     VieVS::Baseline::PARAMETERS bl_para1;
     bl_para1.ignore = true;
@@ -394,19 +327,11 @@ void createParameterFile(){
     bl_para2.minSNR.insert({"S", 12});
 
     para.parameters("para:lessMinSNR", bl_para2);
-<<<<<<< HEAD
-    VieVS::VLBI_setup pp_bl(0, std::numeric_limits<unsigned int>::max());
-    VieVS::VLBI_setup pp_bl1("para:ignore", "group:siteWettzell",
-                             para.getGroupMembers(VieVS::VieVS_xmlWriter::TYPE::baseline, "group:siteWettzell"), 0,
-                             duration);
-    VieVS::VLBI_setup pp_bl2("para:lessMinSNR", "HART15M-YARRA12M", 0, duration);
-=======
     VieVS::ParameterSetup pp_bl(0, std::numeric_limits<unsigned int>::max());
     VieVS::ParameterSetup pp_bl1("para:ignore", "group:siteWettzell",
                              para.getGroupMembers(VieVS::ParameterSettings::Type::baseline, "group:siteWettzell"), 0,
                              duration);
     VieVS::ParameterSetup pp_bl2("para:lessMinSNR", "HART15M-YARRA12M", 0, duration);
->>>>>>> sandbox
     valid = pp_bl.addChild(pp_bl1);
     if (!valid) {
         cout << "no valid child!\n";
@@ -425,13 +350,6 @@ void createParameterFile(){
 
 
     para.mode(16, 32, 1, 2);
-<<<<<<< HEAD
-    para.mode_band("X", 0.0349, VieVS::VLBI_obsMode::PROPERTY::required, 10);
-    para.mode_band("S", 3.8000, VieVS::VLBI_obsMode::PROPERTY::required, 6);
-
-
-    VieVS::VLBI_multiSched multiSched;
-=======
     para.mode_band("X", 0.0349, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
                    VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 10);
     para.mode_band("S", 3.8000, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
@@ -439,7 +357,6 @@ void createParameterFile(){
 
 
     VieVS::MultiScheduling multiSched;
->>>>>>> sandbox
     multiSched.setWeight_skyCoverage(vector<double>{1, 2});
     multiSched.setStation_maxSlewtime(group_sta, vector<unsigned int>{100, 200, 300});
     multiSched.setStation_maxSlewtime("HART15M", vector<unsigned int>{100, 200});
