@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(VieVS_Scheduler_clion)
 set(CMAKE_CXX_STANDARD 14)
 
+<<<<<<< HEAD
 set(SOURCE_FILES main.cpp VieVS_constants.h VLBI_antenna.cpp VLBI_antenna.h VLBI_baseline.cpp VLBI_baseline.h
         VLBI_cableWrap.cpp VLBI_cableWrap.h VLBI_equip.cpp VLBI_equip.h VLBI_flux.cpp VLBI_flux.h VLBI_initializer.cpp
         VLBI_initializer.h VLBI_mask.cpp VLBI_mask.h VLBI_pointingVector.cpp VLBI_pointingVector.h VLBI_position.cpp
@@ -12,6 +13,18 @@ set(SOURCE_FILES main.cpp VieVS_constants.h VLBI_antenna.cpp VLBI_antenna.h VLBI
         VLBI_weightFactors.cpp VLBI_weightFactors.h VLBI_obsMode.cpp VLBI_obsMode.h VLBI_output.cpp VLBI_output.h
         VieVS_time.cpp VieVS_time.h VieVS_xmlWriter.cpp VieVS_xmlWriter.h VLBI_setup.cpp VLBI_setup.h
         VLBI_multiSched.cpp VLBI_multiSched.h VieVS_parameterGroup.cpp VieVS_parameterGroup.h)
+=======
+set(SOURCE_FILES main.cpp Constants.h Antenna.cpp Antenna.h Baseline.cpp Baseline.h
+        CableWrap.cpp CableWrap.h Equipment.cpp Equipment.h Flux.cpp Flux.h Initializer.cpp
+        Initializer.h HorizonMask.cpp HorizonMask.h PointingVector.cpp PointingVector.h Position.cpp
+        Position.h Scan.cpp Scan.h Scheduler.cpp Scheduler.h SkyCoverage.cpp
+        SkyCoverage.h Source.cpp Source.h Station.cpp Station.h Subcon.cpp Subcon.h
+        sofa.h sofam.h ScanTimes.cpp ScanTimes.h Nutation.cpp Nutation.h Earth.cpp
+        Earth.h LookupTable.cpp LookupTable.h FillinmodeEndposition.cpp FillinmodeEndposition.h
+        WeightFactors.cpp WeightFactors.h ObservationMode.cpp ObservationMode.h Output.cpp Output.h
+        TimeSystem.cpp TimeSystem.h ParameterSettings.cpp ParameterSettings.h ParameterSetup.cpp ParameterSetup.h
+        MultiScheduling.cpp MultiScheduling.h ParameterGroup.cpp ParameterGroup.h)
+>>>>>>> sandbox
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 

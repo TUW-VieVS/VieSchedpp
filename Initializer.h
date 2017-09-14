@@ -1,0 +1,351 @@
+/**
+ * @file Initializer.h
+ * @brief class Initializer
+ *
+ *
+ * @author Matthias Schartner
+ * @date 28.06.2017
+ */
+
+#ifndef INITIALIZER_H
+#define INITIALIZER_H
+#include <vector>
+#include <boost/date_time.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include <algorithm>
+
+#include "Constants.h"
+#include "Station.h"
+#include "Source.h"
+#include "SkyCoverage.h"
+#include "Nutation.h"
+#include "Earth.h"
+#include "LookupTable.h"
+#include "WeightFactors.h"
+#include "ObservationMode.h"
+#include "TimeSystem.h"
+#include "Baseline.h"
+
+
+#include "sofa.h"
+#include "MultiScheduling.h"
+
+namespace VieVS {
+    /**
+     * @class Initializer
+     * @brief this is the VLBI initializer that creats every objects and passes them to the VLBI_scheduler
+     *
+     * @author Matthias Schartner
+     * @date 28.06.2017
+     */
+    class Initializer {
+
+    public:
+        /**
+         * @brief Parameters used in VLBI_initializer.
+         *
+         * Most of this parameters are than passed to other classes like VLBI_scheduler.
+         */
+        struct Parameters {
+            std::string experimentName; ///< experimet Name from .xml file
+            std::string experimentDescription; ///< experiment description form xml file
+            bool subnetting = true; ///< if set to true subnetting is enabled
+            bool fillinmode = true; ///< it set to true fillin scans are calculated
+
+            double maxDistanceTwinTeleskopes = 0; ///< maximum distance between corresponding teleskopes
+            std::vector<std::string> selectedStations; ///< list of all selected station for this session from .xml file
+
+            double skyCoverageDistance = 30 * deg2rad; ///< maximum influence distance on sphere for sky Coverage
+            double skyCoverageInterval = 3600; ///< maximum temporal distance of impact of scans in sky Coverage
+
+            double minAngleBetweenSubnettingSources =
+                    120 * deg2rad; ///< minimum angle between subnetting sources in radians
+        };
+
+        /**
+         * @brief pre calculated values
+         */
+        struct PRECALC {
+            std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
+        };
+
+
+        /**
+         * @brief All available and read sked catalog files which can be read.
+         */
+        enum class CATALOG {
+            antenna, ///< antenna.cat file
+            position, ///< position.cat file
+            equip, ///< equip.cat file
+            mask, ///< mask.cat file
+            source, ///< source.cat file
+            flux ///< flux.cat file
+        };
+
+        /**
+         * @brief empty default constructor.
+         */
+        explicit Initializer(const std::string &path);
+
+        /**
+         * @brief default copy constructor
+         *
+         * @param other other scan
+         */
+        Initializer(const Initializer &other) = default;
+
+        /**
+         * @brief default copy assignment operator
+         *
+         * @param other other scan
+         * @return copy of other scan
+         */
+        Initializer &operator=(const Initializer &other) = default;
+
+        /**
+         * @brief destructor
+         */
+        virtual ~Initializer();
+
+
+        /**
+         *  @brief pre calculates all possible second scans used for subnetting
+         */
+        void precalcSubnettingSrcIds() noexcept;
+
+        /**
+         * @brief This function reads a specific sked catalog file and stores the data in a map.
+         *
+         * @param root path to catalog file
+         * @param fname catalog name
+         * @param type catalog file which should be read
+         * @param headerLog outstream to log file
+         * @return key is list of all Ids, value is corresponding catalog entry
+         */
+        std::map<std::string, std::vector<std::string>> readCatalog(const std::string &root, const std::string &fname, CATALOG type, std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief creates all selected stations from sked catalogs
+         *
+         * @param headerLog outstream to log file
+         */
+        void createStations(std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief creates all possible sources from sked catalogs
+         *
+         * @param headerLog outstream to log file
+         */
+        void createSources(std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief creates all sky Coverage objects
+         */
+        void createSkyCoverages() noexcept;
+
+        /**
+         * @brief displays a short summary of created stations and sources.
+         *
+         * This is only for debugging purpose and usually unused
+         *
+         * @param headerLog outstream to log file
+         */
+        void displaySummary(std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief getter fuction which returns all stations
+         * @return vector of all created station objects
+         */
+        const std::vector<Station> &getStations() const noexcept {
+            return stations_;
+        }
+
+        /**
+         * @brief getter function which returns all sources
+         * @return vector of all created source objects
+         */
+        const std::vector<Source> &getSources() const noexcept {
+            return sources_;
+        }
+
+        /**
+         * @brief getter function which returns all skyCoverages
+         * @return vector of all created sky coverage objects
+         */
+        const std::vector<SkyCoverage> &getSkyCoverages() const noexcept {
+            return skyCoverages_;
+        }
+
+        /**
+         * @brief getter function which returns all parameters
+         * @return all parameters from this VLBI_initializer
+         */
+        const Parameters &getPARA() const noexcept {
+            return parameters_;
+        }
+
+        /**
+         * @brief getter function which returns precalculated values
+         * @return precalculated parameters
+         */
+        const PRECALC &getPRE() const {
+            return preCalculated_;
+        }
+
+        /**
+         * @brief initializes general block in .xml file
+         *
+         * @param headerLog outstream to log file
+         */
+        void initializeGeneral(std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief initializes all stations with settings from .xml file
+         */
+        void initializeStations() noexcept;
+
+        /**
+         * @brief initializes all sources with settings from .xml file
+         */
+        void initializeSources() noexcept;
+
+        /**
+         * @brief calculates the nutation with the IAU2006a model in one hour steps
+         *
+         * This values are than used for interpolation of nuation in the calculation of each azimuth and elevation.
+         * @see getAzEl
+         */
+        void initializeNutation() noexcept;
+
+        /**
+         * @brief initializes lookup tables for trigonometric functions to speed up calculation.
+         * @see scorePerPointingVector()
+         */
+        void initializeLookup() noexcept;
+
+        /**
+         * @brief calculates velocity of earth at start time.
+         *
+         * used in the calculation of azimuth and elevation.
+         * @see updateAzEl()
+         */
+        void initializeEarth() noexcept;
+
+        /**
+         * @brief initializes the weight factors
+         *
+         */
+        void initializeWeightFactors() noexcept;
+
+
+        /**
+         * @brief inintializes the sky Coverage lookup table
+         */
+        void initializeSkyCoverages() noexcept;
+
+        /**
+         * @brief initialzeBaselines
+         */
+        void initializeBaselines() noexcept;
+
+        /**
+         * @brief reads the observing mode information from xml file
+         */
+        void initializeObservingMode() noexcept;
+
+        /**
+         * @brief reads all groups spezified in the root tree
+         *
+         * @param root tree start point
+         * @return key is group name, value is list of group members
+         */
+        std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root) noexcept;
+
+        /**
+         * @brief applies all multi scheduling parameters to the initializer
+         *
+         * @param parameters multi scheduling parameters
+         * @param bodyLog outstream to log file
+         */
+        void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters, std::ofstream &bodyLog);
+
+        /**
+         * @brief reads multiSched block in .xml file
+         *
+         * @return vector of all possible multisched parameter combination
+         */
+        std::vector<MultiScheduling::Parameters> readMultiSched();
+
+    private:
+
+        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        std::vector<Station> stations_; ///< all created stations
+        std::vector<Source> sources_; ///< all created sources
+        std::vector<SkyCoverage> skyCoverages_; ///< all created sky coverage objects
+
+        Parameters parameters_; ///< parameters
+        PRECALC preCalculated_; ///< pre calculated values
+
+
+        /**
+         * @brief station setup function
+         *
+         * As a start all parameter form parentPARA are used.
+         * If different parameter values are defined in the event these parameters are used instead of the parentPARA
+         * parameters.
+         *
+         * @param events list of all events for stations
+         * @param tree property tree that holds station setup information
+         * @param parameters all defined parameters
+         * @param groups all defined groups
+         * @param parentPARA previously used parameters which are are use as template
+         */
+        void stationSetup(std::vector<std::vector<Station::EVENT> > &events,
+                          const boost::property_tree::ptree &tree,
+                          const std::unordered_map<std::string, Station::PARAMETERS> &parameters,
+                          const std::unordered_map<std::string, std::vector<std::string>> &groups,
+                          const Station::PARAMETERS &parentPARA) noexcept;
+
+        /**
+         * @brief source setup function
+         *
+         * As a start all parameter form parentPARA are used.
+         * If different parameter values are defined in the event these parameters are used instead of the parentPARA
+         * parameters.
+         *
+         * @param events list of all events for sources
+         * @param tree property tree that holds source setup information
+         * @param parameters all defined parameters
+         * @param groups all defined groups
+         * @param parentPARA previously used parameters which are are use as template
+         */
+        void sourceSetup(std::vector<std::vector<Source::EVENT> > &events,
+                         const boost::property_tree::ptree &tree,
+                         const std::unordered_map<std::string, Source::Parameters> &parameters,
+                         const std::unordered_map<std::string, std::vector<std::string> > &groups,
+                         const Source::Parameters &parentPARA) noexcept;
+
+        /**
+         * @brief baseline setup function
+         *
+         * As a start all parameter form parentPARA are used.
+         * If different parameter values are defined in the event these parameters are used instead of the parentPARA
+         * parameters.
+         *
+         * @param events list of all events for baseline
+         * @param tree property tree that holds baseline setup information
+         * @param parameters all defined parameters
+         * @param groups all defined groups
+         * @param parentPARA previously used parameters which are are use as template
+         */
+        void baselineSetup(std::vector<std::vector<std::vector<Baseline::EVENT> > > &events,
+                           const boost::property_tree::ptree &tree,
+                           const std::unordered_map<std::string, Baseline::PARAMETERS> &parameters,
+                           const std::unordered_map<std::string, std::vector<std::string> > &groups,
+                           const Baseline::PARAMETERS &parentPARA) noexcept;
+
+    };
+}
+#endif /* INITIALIZER_H */
+
