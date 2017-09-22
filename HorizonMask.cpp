@@ -15,6 +15,8 @@
 using namespace std;
 using namespace VieVS;
 
+double HorizonMask::minElevation = 0;
+
 HorizonMask::HorizonMask(){
     type_ = Category::none;
 }
@@ -54,7 +56,6 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
 HorizonMask::~HorizonMask() = default;
 
 bool HorizonMask::visible(const PointingVector &pv) const noexcept {
-    bool visible = true;
 
     double az = pv.getAz();
     az = fmod(az,twopi);
@@ -63,6 +64,9 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
     }
 
     double el = pv.getEl();
+    if (el < minElevation) {
+        return false;
+    }
 
     switch (type_){
         case Category::none:
@@ -79,7 +83,7 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
             double delta = az-azimuth_[begin];
             double el_mask = elevation_[begin] + (elevation_[end]-elevation_[begin])/(azimuth_[end]-azimuth_[begin])*delta;
             if(el<el_mask){
-                visible = false;
+                return false;
             }
 
 
@@ -93,12 +97,12 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
 
             double el_mask = elevation_[i-1];
             if(el<el_mask){
-                visible = false;
+                return false;
             }
 
             break;
         }
     }
 
-    return visible;
+    return true;
 }

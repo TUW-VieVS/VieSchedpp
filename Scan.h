@@ -73,8 +73,7 @@ namespace VieVS{
          * @param minimumNumberOfStations minimum number of stations for this scan
          * @param type scan type
          */
-        Scan(const std::vector<PointingVector> &pointingVectors, const std::vector<unsigned int> &endOfLastScan,
-                  int minimumNumberOfStations, ScanType type);
+        Scan(std::vector<PointingVector> &pointingVectors, std::vector<unsigned int> &endOfLastScan, ScanType type);
 
         /**
          * @brief constructor
@@ -87,7 +86,7 @@ namespace VieVS{
          * @param bl all baselines
          * @param minNumSta minimum number of stations for this scan
          */
-        Scan(const std::vector<PointingVector> &pv, const ScanTimes &times, const std::vector<Baseline> &bl, int minNumSta);
+        Scan(std::vector<PointingVector> &pv, ScanTimes &times, std::vector<Baseline> &bl);
 
         /**
          * @brief default copy constructor
@@ -122,7 +121,7 @@ namespace VieVS{
         /**
          * @brief destructor
          */
-        virtual ~Scan() {}
+        virtual ~Scan() = default;
 
         /**
          * @brief sets the scan type
@@ -200,15 +199,6 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter for minimum number of required stations for this scan
-         *
-         * @return minimum number of required stations for this scan
-         */
-        int getMinimumNumberOfStations() const noexcept {
-            return minNumberOfStations_;
-        }
-
-        /**
          * @brief getter for the total score of this scan
          *
          * @return score of this scan
@@ -244,7 +234,7 @@ namespace VieVS{
          * @param idx index of element to delete
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool removeStation(int idx) noexcept;
+        bool removeStation(int idx, const Source &source) noexcept;
 
         /**
          * @brief delete the baseline at position idx from scan
@@ -254,16 +244,15 @@ namespace VieVS{
          * @param idx_bl
          * @return
          */
-        bool removeBaseline(int idx_bl) noexcept;
+        bool removeBaseline(int idx_bl, const Source &source) noexcept;
 
-        //TODO boost::optional
         /**
          * @brief finds the index of an station id
          *
          * @param id station id
          * @return index
          */
-        int findIdxOfStationId(int id) const noexcept;
+        boost::optional<int> findIdxOfStationId(int id) const noexcept;
 
         /**
          * @brief adds scan times
@@ -302,7 +291,7 @@ namespace VieVS{
          * @param maxIdle maximum allowed idle time
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool checkIdleTimes(std::vector<unsigned int> maxIdle) noexcept;
+        bool checkIdleTimes(std::vector<unsigned int> maxIdle, const Source &source) noexcept;
 
         /**
          * @brief calculates the scan durations per baseline
@@ -332,16 +321,6 @@ namespace VieVS{
         std::vector<int> getStationIds() const noexcept;
 
         /**
-         * @brief removes all stations except the ones in the station_ids parameter
-         *
-         * Currently unused
-         *
-         * @param station_ids ids of all stations which should not be removed
-         * @return true if scan is still valid, false if scan is no longer valid
-         */
-        bool removeAllBut(const std::vector<int> &station_ids) noexcept;
-
-        /**
          * @brief calculates the score of a scan
          *
          * usually used for single scan sources
@@ -357,7 +336,8 @@ namespace VieVS{
          */
         void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
                        const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                       const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations) noexcept;
+                       const std::vector<Station> &stations, const Source &source,
+                       const std::vector<SkyCoverage> &skyCoverages) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -373,13 +353,15 @@ namespace VieVS{
          * @param minTime minimum time required for a scan
          * @param maxTime maximum time required for a scan
          * @param skyCoverages sky Coverages
-         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
          * @param stations list of all VLBI stations
+         * @param source observed source
+         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
         */
         void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
                        const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                       const std::vector<SkyCoverage> &skyCoverages, std::vector<double> &firstScorePerPv,
-                       const std::vector<Station> &stations) noexcept;
+                       const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                       const Source &source,
+                       std::vector<double> &firstScorePerPv) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -394,13 +376,83 @@ namespace VieVS{
          * @param minTime minimum time required for a scan
          * @param maxTime maximum time required for a scan
          * @param skyCoverages sky Coverages
-         * @param firstScorePerPv stored score for each pointing vector without twin station influences
          * @param stations list of all VLBI stations
+         * @param source observed source
+         * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
         void calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
                               const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                              const std::vector<SkyCoverage> &skyCoverages, const std::vector<double> & firstScorePerPv,
-                              const std::vector<Station> &stations) noexcept;
+                              const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                              const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
+
+        /**
+         * @brief time required for this scan
+         *
+         * @return time in seconds since session start until all stations finish scan
+         */
+        unsigned int maxTime() const noexcept;
+
+        /**
+         * @brief checks a scan with rigorous models
+         *
+         * @param stations all stations
+         * @param source observed source
+         * @return true if scan is still valid, false if scan is no longer valid
+         */
+        bool rigorousUpdate(const std::vector<Station> &stations, const Source &source) noexcept;
+
+        /**
+         * @brief makes a hard copy of a scan with all stations from parameter ids
+         *
+         * @param ids ids of all stations which should be copied
+         * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
+         */
+        boost::optional<Scan> copyScan(const std::vector<int> &ids, const Source &source) const noexcept;
+
+        /**
+         * @brief getter for number of baselines
+         *
+         * @return number of baselines
+         */
+        unsigned long getNBl() const noexcept {
+            return baselines_.size();
+        }
+
+        /**
+         * @brief checks if parts of this scan can be used as a fillin mode scan
+         *
+         * @param stations list of all stations
+         * @param source list of all sources
+         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
+         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
+         * @return possible fillin scan
+         */
+        bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
+                                const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
+
+        /**
+         * @brief outputs information of this scan to the current console
+         *
+         * @param observed_scan_nr scan number
+         * @param stations all stations
+         * @param source observed source
+         * @param of outstream file object
+         */
+        void output(unsigned long observed_scan_nr, const std::vector<Station> &stations, const Source &source,
+                    std::ofstream &of) const noexcept;
+
+    private:
+        unsigned long nsta_; ///< number of stations in this scan
+        int srcid_; ///< observed source id
+
+        double score_; ///< total score
+
+        ScanTimes times_; ///< time informations
+        std::vector<PointingVector> pointingVectors_; ///< pointing vectors at start of the scan
+        std::vector<PointingVector> pointingVectorsEndtime_; ///< pointing vectors at end of the scan
+        std::vector<Baseline> baselines_; ///< all observed baselines
+
+        ScanType type_; ///< type of the scan
 
         /**
          * @brief calculates the score for number of observations
@@ -469,112 +521,26 @@ namespace VieVS{
                                             const std::vector<Station> &stations,
                                             const std::vector<double> &firstScorePerPv) const noexcept;
 
-//        /**
-//         * @brief sum up all individual scores for this scan
-//         */
-//        void sumScores();
-
         /**
-         * @brief time required for this scan
-         *
-         * @return time in seconds since session start until all stations finish scan
-         */
-        unsigned int maxTime() const noexcept;
-
-        /**
-         * @brief checks a scan with rigorous models
-         *
-         * @param stations all stations
-         * @param source observed source
-         * @return true if scan is still valid, false if scan is no longer valid
-         */
-        bool rigorousUpdate(const std::vector<Station> &stations, const Source &source) noexcept;
-
-
-        /**
-         * @brief checks a scan with rigorous models !!!UNUSED!!!
-         *
-         * This function is replaced by rigorousUpdate
-         *
-         * @param stations all stations
-         * @param source observed source
-         * @return true if scan is still valid, false if scan is no longer valid
-         */
-        bool rigorousUpdate2(const std::vector<Station> &stations, const Source &source) noexcept;
-
-
-        /**
-         * @brief makes a hard copy of a scan with all stations from parameter ids
-         *
-         * @param ids ids of all stations which should be copied
-         * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
-         */
-        boost::optional<Scan> copyScan(const std::vector<int> &ids) const noexcept;
-
-        /**
-         * @brief getter for number of baselines
-         *
-         * @return number of baselines
-         */
-        unsigned long getNBl() const noexcept {
-            return baselines_.size();
-        }
-
-        /**
-         * @brief checks if parts of this scan can be used as a fillin mode scan UNUSED
-         *
-         * This implementation is replaced by the other possibleFillinScan()
+         * @brief mean of the weight factors for each participating station
          *
          * @param stations list of all stations
-         * @param source list of all sources
-         * @param possible vector of flags for all possible stations (see VLBI_fillin_endpositions)
-         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
-         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
-         * @return possible fillin scan
+         * @return mean of weight factors
          */
-        boost::optional<Scan>
-        possibleFillinScan(const std::vector<Station> &stations, const Source &source,
-                           const std::vector<char> &possible, const std::vector<char> &unused,
-                           const std::vector<PointingVector> &pv_final_position) const noexcept;
+        double weight_stations(const std::vector<Station> &stations);
 
         /**
-         * @brief checks if parts of this scan can be used as a fillin mode scan
+         * @brief mean of the weight factors for each participating baselines
          *
-         * @param stations list of all stations
-         * @param source list of all sources
-         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
-         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
-         * @return possible fillin scan
+         * @return mean of the weight factors
          */
-        bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
-                                const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
-
+        double weight_baselines();
 
         /**
-         * @brief outputs information of this scan to the current console
-         *
-         * @param observed_scan_nr scan number
-         * @param stations all stations
-         * @param source observed source
-         * @param of outstream file object
+         * @brief calculate score for low elevation scans
+         * @return score for low elevation scans
          */
-        void output(unsigned long observed_scan_nr, const std::vector<Station> &stations, const Source &source,
-                    std::ofstream &of) const noexcept;
-
-    private:
-        unsigned long nsta_; ///< number of stations in this scan
-        int srcid_; ///< observed source id
-
-        int minNumberOfStations_; ///< minimum number of stations required for this scan
-
-        double score_; ///< total score
-
-        ScanTimes times_; ///< time informations
-        std::vector<PointingVector> pointingVectors_; ///< pointing vectors at start of the scan
-        std::vector<PointingVector> pointingVectorsEndtime_; ///< pointing vectors at end of the scan
-        std::vector<Baseline> baselines_; ///< all observed baselines
-
-        ScanType type_; ///< type of the scan
+        double calcScore_lowElevation();
     };
 }
 #endif /* SCAN_H */

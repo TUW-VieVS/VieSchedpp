@@ -162,6 +162,9 @@ namespace VieVS{
         calcUnwrappedAz(const PointingVector &old_pointingVector,
                         PointingVector &new_pointingVector) const noexcept;
 
+
+        std::string cableWrapFlag(const PointingVector &pointingVector) const noexcept;
+
         /**
          * @brief overload of the << operator for output to stream
          *
@@ -177,10 +180,10 @@ namespace VieVS{
         double axis2Low_; ///< lower limit of second axis in radians
         double axis2Up_; ///< upper limit of second axis in radians
 
-        double axis1LowOffset_; ///< safety margin for lower limit for first axis in radians
-        double axis1UpOffset_; ///< safety margin for upper limit for first axis in radians
-        double axis2LowOffset_; ///< safety margin for lower limit for second axis in radians
-        double axis2UpOffset_; ///< safety margin for upper limit for second axis in radians
+        double axis1LowOffset_ = 1 * deg2rad; ///< safety margin for lower limit for first axis in radians
+        double axis1UpOffset_ = 1 * deg2rad; ///< safety margin for upper limit for first axis in radians
+        double axis2LowOffset_ = 1 * deg2rad; ///< safety margin for lower limit for second axis in radians
+        double axis2UpOffset_ = 1 * deg2rad; ///< safety margin for upper limit for second axis in radians
 
         double nLow_; ///< lower limit for neutral cable wrap range
         double nUp_; ///< upper limit for neutral cable wrap range

@@ -54,9 +54,9 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
         t_2 = 2 * t_acc_2 + (delta2 - s_acc_2) / rate2_;
     }
 
-    auto slewtime = (unsigned int) ceil(t_1);
+    auto slewtime = static_cast<unsigned int>(ceil(t_1));
     if(t_2>t_1){
-        slewtime = (unsigned int) ceil(t_2);
+        slewtime = static_cast<unsigned int>((t_2));
     }
 
     return slewtime;

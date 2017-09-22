@@ -30,6 +30,8 @@ namespace VieVS{
      * @date 28.06.2017
      */
     class Scheduler {
+        friend class Output;
+
     public:
         /**
         * @brief general parameters used for scheduling
@@ -148,38 +150,6 @@ namespace VieVS{
         bool endOfSessionReached(const std::vector<Scan> &bestScans) const noexcept;
 
         /**
-         * @brief getter for all stations
-         * @return stations
-         */
-        const std::vector<Station> &getStations() const noexcept {
-            return stations_;
-        }
-
-        /**
-         * @brief getter for all sources
-         * @return sources
-         */
-        const std::vector<Source> &getSources() const noexcept {
-            return sources_;
-        }
-
-        /**
-         * @brief getter for all sky coverages
-         * @return sky coverages
-         */
-        const std::vector<SkyCoverage> &getSkyCoverages() const noexcept {
-            return skyCoverages_;
-        }
-
-        /**
-         * @brief getter for all scans
-         * @return scans
-         */
-        const std::vector<Scan> &getScans() const noexcept {
-            return scans_;
-        }
-
-        /**
          * @brief total number of created scans
          *
          * @return total number of created scans
@@ -189,6 +159,8 @@ namespace VieVS{
         }
 
     private:
+        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
         std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages

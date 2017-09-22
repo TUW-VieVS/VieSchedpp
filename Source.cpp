@@ -62,22 +62,15 @@ namespace VieVS {
     }
 }
 
-std::vector<pair<string, double> >
-Source::observedFlux(double gmst, double dx, double dy, double dz) const noexcept {
-    vector<pair<string, double> > fluxes;
+double Source::observedFlux(const string &band, double gmst, double dx, double dy, double dz) const noexcept {
 
     double ha = gmst - ra_;
 
     double u = dx * sin(ha) + dy * cos(ha);
     double v = dz*cos(de_) + sin(de_) * (-dx * cos(ha) + dy * sin(ha));
 
-    for(auto& thisFlux: flux_){
-        double observedFlux = thisFlux.second.getFlux(u,v);
-
-        fluxes.push_back(make_pair(thisFlux.first, observedFlux));
-    }
-
-    return fluxes;
+    double flux = flux_.at(band).getFlux(u, v);
+    return flux;
 }
 
 void Source::update(unsigned long nbl, unsigned int time) noexcept {
@@ -105,7 +98,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
             double maxFlux = 0;
             bool strongEnough = isStrongEnough(maxFlux);
             if (!strongEnough) {
-                setAvailable(false);
+                referencePARA().setAvailable(false);
                 bodyLog << "source: " << boost::format("%8s") % name_ << " not strong enough! (max flux = "
                         << boost::format("%4.2f") % maxFlux << " min required flux = "
                         << boost::format("%4.2f") % *parameters_.minFlux << ")\n";;

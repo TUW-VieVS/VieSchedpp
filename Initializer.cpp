@@ -20,8 +20,7 @@ Initializer::Initializer(const std::string &path) {
     boost::property_tree::read_xml(is, xml_);
 }
 
-Initializer::~Initializer() {
-}
+Initializer::~Initializer() = default;
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
     unsigned long nsrc = sources_.size();
@@ -37,205 +36,11 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
-
-map<string, vector<string>>
-Initializer::readCatalog(const string &root, const string &fname, CATALOG type, ofstream &headerLog) noexcept {
-    map<string,vector<string>> all;
-    int indexOfKey;
-    string filepath = root + "/" + fname;
-
-   // switch between four available catalogs
-    switch (type) {
-        case CATALOG::antenna:{
-            indexOfKey = 1;
-            break;
-        }
-        case CATALOG::position:{
-            indexOfKey = 0;
-            break;
-        }
-        case CATALOG::equip:{
-            indexOfKey = 1;
-            break;
-        }
-        case CATALOG::mask:{
-            indexOfKey = 2;
-            break;
-        }
-        case CATALOG::source:{
-            indexOfKey = 0;
-            break;
-        }
-        case CATALOG::flux:{
-            indexOfKey = 0;
-        }
-    }
-
-    // read in CATALOG. antenna, position and equip use the same routine
-    switch (type) {
-        case CATALOG::antenna:
-        case CATALOG::position:
-        case CATALOG::equip:
-        case CATALOG::source:{
-
-            // open file
-            ifstream fid (filepath);
-            if (!fid.is_open()){
-                cerr << "    Unable to open " << filepath << " file!\n";
-            } else {
-                string line;
-
-                // loop through file
-                while ( getline (fid,line) ){
-                    if(line.length()>0 && line.at(0)!='*'){
-
-                        // trim leading and trailing blanks
-                        boost::trim(line);
-
-                        // split vector
-                        vector<string> splitVector;
-                        boost::split( splitVector, line, boost::is_space(),boost::token_compress_on);
-
-                        // get key and convert it to upper case for case insensitivity
-                        string key =  boost::algorithm::to_upper_copy(splitVector[indexOfKey]);
-
-                        // add station name to key if you look at equip.cat because id alone is not unique in catalogs
-                        if (type == CATALOG::equip){
-                            key = boost::algorithm::to_upper_copy(key + "|" + splitVector[indexOfKey-1]);
-                        }
-
-                        // look if a key already exists, if not add it.
-                        if(all.find(key) == all.end()){
-                            all.insert( pair<string,vector<string>>(key,splitVector) );
-                        } else {
-                            headerLog << "    Duplicated element of '" << key << "' in " << filepath << "\n";
-                        }
-                    }
-                }
-            }
-            // close file
-            fid.close();
-            break;
-        }
-
-        case CATALOG::mask:{
-
-            // open file
-            ifstream fid (filepath);
-            if (!fid.is_open()){
-                cerr << "    Unable to open " << filepath << " file!\n";
-            }
-            else{
-                string line;
-                vector<string> splitVector_total;
-
-                // loop through CATALOG
-                while ( getline (fid,line) ){
-                    if(line.length()>0 && line.at(0)!='*'){
-
-                        // trim leading and trailing blanks
-                        boost::trim(line);
-
-                        // if first element is not an '-' this line belongs to new station mask
-                        if (line.at(0) != '-' && splitVector_total.size()>0){
-
-                            // get key and convert it to upper case for case insensitivity
-                            string key = boost::algorithm::to_upper_copy(splitVector_total[indexOfKey]);
-
-                            // previous mask is finished, add it to map
-                            all.insert( pair<string,vector<string>>(key,splitVector_total) );
-                            splitVector_total.clear();
-                        }
-
-                        // split vector
-                        vector<string> splitVector;
-                        boost::split( splitVector, line, boost::is_space(),boost::token_compress_on);
-
-                        // if it is a new mask add all elements to vector, if not start at the 2nd element (ignore '-')
-                        if(splitVector_total.size() == 0){
-                            splitVector_total.insert(splitVector_total.end(), splitVector.begin(), splitVector.end());
-                        } else {
-                            splitVector_total.insert(splitVector_total.end(), splitVector.begin()+1, splitVector.end());
-                        }
-                    }
-                }
-            }
-            break;
-        }
-
-        case CATALOG::flux:{
-            // open file
-            ifstream fid (filepath);
-            if (!fid.is_open()){
-                cerr << "    Unable to open " << filepath << " file!\n";
-            }
-            else{
-                string line;
-                vector<string> lines;
-                vector<string> splitVector_total;
-                string station;
-
-                // get first entry
-                while (true){
-                    getline (fid,line);
-                    boost::trim(line);
-                    if(line.length()>0 && line.at(0)!='*'){
-                        boost::split( splitVector_total, line, boost::is_space(),boost::token_compress_on);
-                        station = splitVector_total[indexOfKey];
-                        lines.push_back(line);
-                        break;
-                    }
-                }
-
-                // loop through CATALOG
-                while (getline (fid,line)){
-                    // trim leading and trailing blanks
-                    boost::trim(line);
-
-                    if(line.length()>0 && line.at(0)!='*'){
-                        vector<string> splitVector;
-                        boost::split( splitVector, line, boost::is_space(),boost::token_compress_on);
-                        string newStation = splitVector[indexOfKey];
-
-                        if(newStation.compare(station) == 0){
-                            lines.push_back(line);
-                            splitVector_total.insert(splitVector_total.end(), splitVector.begin(), splitVector.end());
-                        } else {
-                            all.insert( pair<string,vector<string>>(station,lines) );
-                            lines.clear();
-                            lines.push_back(line);
-                            station = newStation;
-                            splitVector_total = splitVector;
-                        }
-
-                    }
-                }
-                all.insert( pair<string,vector<string>>(station,splitVector_total) );
-            }
-            break;
-        }
-    }
-
-    return std::move(all);
-}
-
-void Initializer::createStations(ofstream &headerLog) noexcept {
-    std::string root = xml_.get<string>("master.catalogs.root");
-    std::string antenna = xml_.get<string>("master.catalogs.antenna");
-    std::string position = xml_.get<string>("master.catalogs.position");
-    std::string equip = xml_.get<string>("master.catalogs.equip");
-    std::string mask = xml_.get<string>("master.catalogs.mask");
-
-
-    headerLog << "Creating stations from CATALOG files:\n";
-    headerLog << "  reading antenna.cat:\n";
-    map<string, vector<string>> antennaCatalog = readCatalog(root, antenna, CATALOG::antenna, headerLog);
-    headerLog << "  reading position.cat:\n";
-    map<string, vector<string>> positionCatalog = readCatalog(root, position, CATALOG::position, headerLog);
-    headerLog << "  reading equip.cat:\n";
-    map<string, vector<string>> equipCatalog = readCatalog(root, equip, CATALOG::equip, headerLog);
-    headerLog << "  reading mask.cat:\n";
-    map<string, vector<string>> maskCatalog = readCatalog(root, mask, CATALOG::mask, headerLog);
+void Initializer::createStations(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+    const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
+    const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
+    const map<string, vector<string> > &equipCatalog = reader.getEquipCatalog();
+    const map<string, vector<string> > &maskCatalog = reader.getMaskCatalog();
 
     unsigned long nant;
     int counter = 0;
@@ -312,7 +117,7 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
         }
 
         // check if position.cat is long enough. Otherwise not all information is available.
-        vector<string> po_cat = positionCatalog[id_PO];
+        vector<string> po_cat = positionCatalog.at(id_PO);
         if (po_cat.size()<5){
             headerLog << "*** ERROR: " << any.first << ": positon.cat to small ***\n";
             continue;
@@ -331,13 +136,13 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
         }
 
         // check if equip.cat is long enough. Otherwise not all information is available.
-        vector<string> eq_cat = equipCatalog[id_EQ + "|" + name];
+        vector<string> eq_cat = equipCatalog.at(id_EQ + "|" + name);
         if (eq_cat.size()<9){
             headerLog << "*** ERROR: " << any.first << ": equip.cat to small ***\n";
             continue;
         }
         // check if SEFD_ information is in X and S band
-        if (eq_cat[5].compare("X") != 0 || eq_cat[7].compare("S") != 0){
+        if (eq_cat[5] != "X" || eq_cat[7] != "S") {
             headerLog << "*** ERROR: " << any.first << ": we only support SX equipment ***\n";
             continue;
         }
@@ -346,8 +151,8 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
         // convert all items from equip.cat
         unordered_map<std::string,double> SEFD_found;
         try{
-            SEFD_found["X"] = boost::lexical_cast<double>(eq_cat.at(6));
-            SEFD_found["S"] = boost::lexical_cast<double>(eq_cat.at(8));
+            SEFD_found[eq_cat.at(5)] = boost::lexical_cast<double>(eq_cat.at(6));
+            SEFD_found[eq_cat.at(7)] = boost::lexical_cast<double>(eq_cat.at(8));
         }
         catch(const std::exception& e){
             headerLog << "*** ERROR: " << e.what() << "\n";
@@ -401,7 +206,7 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
         // check if an horizontal mask exists
         vector<double> hmask;
         if (maskCatalog.find(id_MS) != maskCatalog.end()){
-            vector<string> mask_cat = maskCatalog[id_MS];
+            vector<string> mask_cat = maskCatalog.at(id_MS);
 
             // loop through all element and convert them
             for(size_t i=3; i<mask_cat.size(); ++i){
@@ -418,14 +223,14 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
                 headerLog << "*** ERROR: mask CATALOG not found ***\n";
             }
         }
-        stations_.push_back(Station(name,
-                                        created,
-                                        Antenna(offset,diam,rate1,con1,rate2,con2),
-                                        CableWrap(axis1_low,axis1_up,axis2_low,axis2_up),
-                                        Position(x,y,z),
-                                        Equipment(SEFDs),
-                                        HorizonMask(hmask),
-                                        type));
+        stations_.emplace_back(name,
+                               created,
+                               Antenna(offset,diam,rate1,con1,rate2,con2),
+                               CableWrap(axis1_low,axis1_up,axis2_low,axis2_up),
+                               Position(x,y,z),
+                               Equipment(SEFDs),
+                               HorizonMask(hmask),
+                               type);
         created++;
         headerLog << boost::format("  %-8s added\n") % name;
 
@@ -433,18 +238,9 @@ void Initializer::createStations(ofstream &headerLog) noexcept {
     headerLog << "Finished! " << created << " of " << nant << " stations created\n\n" << endl;
 }
 
-void Initializer::createSources(ofstream &headerLog) noexcept {
-    std::string root = xml_.get<string>("master.catalogs.root");
-    std::string source = xml_.get<string>("master.catalogs.source");
-    std::string flux = xml_.get<string>("master.catalogs.flux");
-
-
-
-    headerLog << "Creating sources from CATALOG files:\n";
-    headerLog << "  reading source.cat:\n";
-    map<string, vector<string>> sourceCatalog = readCatalog(root, source, CATALOG::source, headerLog);
-    headerLog << "  reading flux.cat:\n";
-    map<string, vector<string>> fluxCatalog = readCatalog(root, flux, CATALOG::flux, headerLog);
+void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+    const map<string, vector<string> > &sourceCatalog = reader.getSourceCatalog();
+    const map<string, vector<string> > &fluxCatalog = reader.getFluxCatalog();
 
     int counter = 0;
     unsigned long nsrc = sourceCatalog.size();
@@ -458,9 +254,9 @@ void Initializer::createSources(ofstream &headerLog) noexcept {
             headerLog << "*** ERROR: " << any.first << ": source.cat to small ***\n";
             continue;
         }
-        if (!any.second.at(1).compare("$")==0){
-            name = any.second.at(1);
-        }
+//        if (any.second.at(1) != "$"){
+//            name = any.second.at(1);
+//        }
 
         if (fluxCatalog.find(name) == fluxCatalog.end()){
             headerLog << "*** ERROR: source " << name << ": flux information not found ***\n";
@@ -487,7 +283,7 @@ void Initializer::createSources(ofstream &headerLog) noexcept {
             de = -1*de;
         }
 
-        vector<string> flux_cat = fluxCatalog[name];
+        vector<string> flux_cat = fluxCatalog.at(name);
 //            if (flux_cat.size() < 6){
 //                headerLog <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
 //                continue;
@@ -496,9 +292,9 @@ void Initializer::createSources(ofstream &headerLog) noexcept {
         unordered_map<string,Flux> flux;
 
         vector<vector<string> > flux_split;
-        for (unsigned int i=0; i<flux_cat.size(); ++i){
+        for (auto &i : flux_cat) {
             vector<string> splitVector;
-            boost::split( splitVector, flux_cat[i], boost::is_space(),boost::token_compress_on);
+            boost::split(splitVector, i, boost::is_space(), boost::token_compress_on);
             if(splitVector.size()>3){
                 flux_split.push_back(splitVector);
             }
@@ -523,12 +319,12 @@ void Initializer::createSources(ofstream &headerLog) noexcept {
             if (thisType == "M"){
                 bool flagAdd = false;
                 if (flux_split[cflux].size() == 5){
-                    flux_split[cflux].push_back("0");
+                    flux_split[cflux].emplace_back("0");
                     flagAdd = true;
                 }
                 if (flux_split[cflux].size() == 4){
-                    flux_split[cflux].push_back("0");
-                    flux_split[cflux].push_back("0");
+                    flux_split[cflux].emplace_back("0");
+                    flux_split[cflux].emplace_back("0");
                     flagAdd = true;
                 }
                 if (flagAdd){
@@ -620,7 +416,7 @@ void Initializer::createSources(ofstream &headerLog) noexcept {
 
 
         if (!flux.empty()){
-            sources_.push_back(Source(name, ra, de, flux));
+            sources_.emplace_back(name, ra, de, flux);
             created++;
             headerLog << boost::format("  %-8s added\n") % name;
         }
@@ -651,16 +447,16 @@ void Initializer::createSkyCoverages() noexcept {
     }
 
     for (int i=0; i<skyCoverageId; ++i){
-        skyCoverages_.push_back(
-                SkyCoverage(stationsPerId[i], parameters_.skyCoverageDistance, parameters_.skyCoverageInterval, i));
+        skyCoverages_.emplace_back(stationsPerId[i], parameters_.skyCoverageDistance, parameters_.skyCoverageInterval,
+                                   i);
     }
 
     vector<int> sta2sky_(nsta);
 
     for (int i = 0; i < skyCoverages_.size(); ++i) {
         vector<int> sky2sta = skyCoverages_[i].getStaids();
-        for (int j = 0; j < sky2sta.size(); ++j) {
-            sta2sky_[sky2sta[j]] = i;
+        for (int j : sky2sta) {
+            sta2sky_[j] = i;
         }
     }
 
@@ -672,7 +468,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         boost::posix_time::ptime startTime = xml_.get<boost::posix_time::ptime>("master.general.startTime");
         headerLog << "start time:" << startTime << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
-        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
+        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
         boost::posix_time::ptime endTime = xml_.get<boost::posix_time::ptime>("master.general.endTime");
@@ -684,7 +480,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         if (sec < 0) {
             cerr << "ERROR: duration is less than zero seconds!\n";
         }
-        unsigned int duration = (unsigned int) sec;
+        auto duration = static_cast<unsigned int>(sec);
         headerLog << "duration: " << duration << " [s]\n";
 
         TimeSystem::mjdStart = mjdStart;
@@ -705,12 +501,11 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
         parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
 
+        HorizonMask::minElevation = xml_.get<double>("master.general.minElevation") * deg2rad;
+
     } catch (const boost::property_tree::ptree_error &e) {
         headerLog << "ERROR: reading parameters.xml file!" << endl;
     }
-
-    parameters_.experimentName = xml_.get<string>("master.general.experiment_name", "");
-    parameters_.experimentDescription = xml_.get<string>("master.general.experiment_description", "");
 
     parameters_.skyCoverageDistance = xml_.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
     parameters_.skyCoverageInterval = xml_.get<double>("master.general.skyCoverageInterval", 3600);;
@@ -766,21 +561,6 @@ void Initializer::initializeStations() noexcept {
                 } else if (name == "maxWait") {
                     PARA.maxWait = it2.second.get_value < unsigned
                     int > ();
-                } else if (paraName == "wait_calibration") {
-                    PARA.wait_calibration = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "wait_corsynch") {
-                    PARA.wait_corsynch = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "wait_setup") {
-                    PARA.wait_setup = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "wait_source") {
-                    PARA.wait_source = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "wait_tape") {
-                    PARA.wait_tape = it2.second.get_value < unsigned
-                    int > ();
                 } else if (paraName == "minSNR") {
                     string bandName = it2.second.get_child("<xmlattr>.band").data();
                     double value = it2.second.get_value<double>();
@@ -809,23 +589,12 @@ void Initializer::initializeStations() noexcept {
     Station::PARAMETERS parentPARA;
     parentPARA.firstScan = false;
     parentPARA.available = true;
-
-    parentPARA.axis1_low_offset = 5;
-    parentPARA.axis1_up_offset = 5;
-    parentPARA.axis2_low_offset = 1;
-    parentPARA.axis2_up_offset = 1;
-
-    parentPARA.wait_setup = 0;
-    parentPARA.wait_source = 5;
-    parentPARA.wait_tape = 1;
-    parentPARA.wait_calibration = 10;
-    parentPARA.wait_corsynch = 3;
     parentPARA.maxSlewtime = 9999;
     parentPARA.maxWait = 9999;
     parentPARA.maxScan = 600;
     parentPARA.minScan = 30;
     for (const auto &any:ObservationMode::bands) {
-        string name = any;
+        const string &name = any;
         parentPARA.minSNR[name] = 0;
     }
 
@@ -869,7 +638,6 @@ void Initializer::initializeStations() noexcept {
         bool hardBreak = false;
         ofstream dummy;
         thisStation.checkForNewEvent(0, hardBreak, false, dummy);
-        thisStation.setCableWrapMinimumOffsets();
 
         vector<double> distance(nsta);
         vector<double> dx(nsta);
@@ -885,8 +653,101 @@ void Initializer::initializeStations() noexcept {
         }
 
         thisStation.preCalc(distance, dx, dy, dz);
-        thisStation.setFirstScan(true);
+        thisStation.referencePARA().setFirstScan(true);
     }
+
+    vector<string> waitTimesInitialized;
+    for (auto &it: PARA_station) {
+        string name = it.first;
+        if (name == "waitTimes") {
+            vector<string> waitTimesNow;
+            string memberName = it.second.get_child("<xmlattr>.member").data();
+            if (groups.find(memberName) != groups.end()) {
+                waitTimesNow.insert(waitTimesNow.end(), groups[memberName].begin(), groups[memberName].end());
+            } else if (memberName == "__all__") {
+                for (const auto &sta:stations_) {
+                    waitTimesNow.push_back(sta.getName());
+                }
+            } else {
+                waitTimesNow.push_back(memberName);
+            }
+
+            bool errorFlagWaitTime = false;
+            for (const auto &any:waitTimesNow) {
+                if (find(waitTimesInitialized.begin(), waitTimesInitialized.end(), any) != waitTimesInitialized.end()) {
+                    cerr << "ERROR: double use of station/group " << name
+                         << " in wait times block! This whole block is ignored!";
+                    errorFlagWaitTime = true;
+                }
+            }
+            if (errorFlagWaitTime) {
+                continue;
+            }
+
+
+            for (const auto &any: waitTimesNow) {
+                for (auto &sta:stations_) {
+                    if (any == sta.getName()) {
+                        Station::WAITTIMES wtimes;
+                        wtimes.setup = it.second.get<double>("setup");
+                        wtimes.source = it.second.get<double>("source");
+                        wtimes.tape = it.second.get<double>("tape");
+                        wtimes.calibration = it.second.get<double>("calibration");
+                        wtimes.corsynch = it.second.get<double>("corsynch");
+                        sta.setWaitTimes(wtimes);
+                        break;
+                    }
+                }
+            }
+            waitTimesInitialized.insert(waitTimesInitialized.end(), waitTimesNow.begin(), waitTimesNow.end());
+        }
+    }
+
+    vector<string> cableInitialized;
+    for (auto &it: PARA_station) {
+        string name = it.first;
+        if (name == "cableWrapBuffer") {
+            vector<string> cableNow;
+            string memberName = it.second.get_child("<xmlattr>.member").data();
+            if (groups.find(memberName) != groups.end()) {
+                cableNow.insert(cableNow.end(), groups[memberName].begin(), groups[memberName].end());
+            } else if (memberName == "__all__") {
+                for (const auto &sta:stations_) {
+                    cableNow.push_back(sta.getName());
+                }
+            } else {
+                cableNow.push_back(memberName);
+            }
+
+            bool errorFlagWaitTime = false;
+            for (const auto &any:cableNow) {
+                if (find(cableInitialized.begin(), cableInitialized.end(), any) != cableInitialized.end()) {
+                    cerr << "ERROR: double use of station/group " << name
+                         << " in wait times block! This whole block is ignored!";
+                    errorFlagWaitTime = true;
+                }
+            }
+            if (errorFlagWaitTime) {
+                continue;
+            }
+
+
+            for (const auto &any: cableNow) {
+                for (auto &sta:stations_) {
+                    if (any == sta.getName()) {
+                        double axis1Low = it.second.get<double>("axis1LowOffset");
+                        double axis1Up = it.second.get<double>("axis1UpOffset");
+                        double axis2Low = it.second.get<double>("axis2LowOffset");
+                        double axis2Up = it.second.get<double>("axis2UpOffset");
+                        sta.referenceCableWrap().setMinimumOffsets(axis1Low, axis1Up, axis2Low, axis2Up);
+                        break;
+                    }
+                }
+            }
+            cableInitialized.insert(cableInitialized.end(), cableNow.begin(), cableNow.end());
+        }
+    }
+
 
 }
 
@@ -930,19 +791,6 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
                 combinedPARA.weight = *newPARA.weight;
             }
 
-            if (newPARA.axis1_up_offset.is_initialized()) {
-                combinedPARA.axis1_up_offset = *newPARA.axis1_up_offset;
-            }
-            if (newPARA.axis1_low_offset.is_initialized()) {
-                combinedPARA.axis1_low_offset = *newPARA.axis1_low_offset;
-            }
-            if (newPARA.axis2_up_offset.is_initialized()) {
-                combinedPARA.axis2_up_offset = *newPARA.axis2_up_offset;
-            }
-            if (newPARA.axis2_low_offset.is_initialized()) {
-                combinedPARA.axis2_low_offset = *newPARA.axis2_low_offset;
-            }
-
             if (newPARA.minScan.is_initialized()) {
                 combinedPARA.minScan = *newPARA.minScan;
             }
@@ -956,21 +804,6 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
                 combinedPARA.maxWait = *newPARA.maxWait;
             }
 
-            if (newPARA.wait_calibration.is_initialized()) {
-                combinedPARA.wait_calibration = *newPARA.wait_calibration;
-            }
-            if (newPARA.wait_corsynch.is_initialized()) {
-                combinedPARA.wait_corsynch = *newPARA.wait_corsynch;
-            }
-            if (newPARA.wait_setup.is_initialized()) {
-                combinedPARA.wait_setup = *newPARA.wait_setup;
-            }
-            if (newPARA.wait_source.is_initialized()) {
-                combinedPARA.wait_source = *newPARA.wait_source;
-            }
-            if (newPARA.wait_tape.is_initialized()) {
-                combinedPARA.wait_tape = *newPARA.wait_tape;
-            }
             if (!newPARA.minSNR.empty()) {
                 for (const auto &any:newPARA.minSNR) {
                     string name = any.first;
@@ -986,12 +819,12 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            start = (unsigned int) sec;
+            start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
             boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            end = (unsigned int) sec;
+            end = static_cast<unsigned int>(sec);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
@@ -1060,13 +893,13 @@ void Initializer::initializeSources() noexcept {
 
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source);
 
-    unordered_map<std::string, Source::Parameters> parameters;
+    unordered_map<std::string, Source::PARAMETERS> parameters;
     for (auto &it: PARA_source) {
         string name = it.first;
         if (name == "parameters") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
-            Source::Parameters PARA;
+            Source::PARAMETERS PARA;
 
             for (auto &it2: it.second) {
                 string paraName = it2.first;
@@ -1157,7 +990,7 @@ void Initializer::initializeSources() noexcept {
         }
     }
 
-    Source::Parameters parentPARA;
+    Source::PARAMETERS parentPARA;
     parentPARA.available = true;
 
     parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
@@ -1169,7 +1002,7 @@ void Initializer::initializeSources() noexcept {
     parentPARA.minScan = 30; ///< minimum required scan time in seconds
 
     for (const auto &any:ObservationMode::bands) {
-        string name = any;
+        const string &name = any;
         parentPARA.minSNR[name] = 0;
     }
 
@@ -1213,13 +1046,13 @@ void Initializer::initializeSources() noexcept {
 
 
 void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
-                                   const boost::property_tree::ptree &tree,
-                                   const unordered_map<std::string, Source::Parameters> &parameters,
-                                   const unordered_map<std::string, std::vector<std::string> > &groups,
-                                   const Source::Parameters &parentPARA) noexcept {
+                              const boost::property_tree::ptree &tree,
+                              const unordered_map<std::string, Source::PARAMETERS> &parameters,
+                              const unordered_map<std::string, std::vector<std::string> > &groups,
+                              const Source::PARAMETERS &parentPARA) noexcept {
 
     vector<string> members;
-    Source::Parameters combinedPARA = parentPARA;
+    Source::PARAMETERS combinedPARA = parentPARA;
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -1240,7 +1073,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
-            Source::Parameters newPARA = parameters.at(tmp);
+            Source::PARAMETERS newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
             }
@@ -1297,12 +1130,12 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            start = (unsigned int) sec;
+            start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
             boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            end = (unsigned int) sec;
+            end = static_cast<unsigned int>(sec);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
@@ -1393,7 +1226,7 @@ void Initializer::initializeNutation() noexcept {
 
     do {
         refTime = counter * frequency;
-        date2 = TimeSystem::mjdStart + (double) refTime / 86400;
+        date2 = TimeSystem::mjdStart + static_cast<double>(refTime) / 86400;
 
         double x, y, s;
         iauXys06a(date1, date2, &x, &y, &s);
@@ -1468,6 +1301,14 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightDuration = xml_.get<double>("master.weightFactor.duration", 0);
     WeightFactors::weightAverageSources = xml_.get<double>("master.weightFactor.averageSources", 0);
     WeightFactors::weightAverageStations = xml_.get<double>("master.weightFactor.averageStations", 0);
+
+    WeightFactors::weightDeclination = xml_.get<double>("master.weightFactor.weightDeclination", 0);
+    WeightFactors::declinationSlopeStart = xml_.get<double>("master.weightFactor.declinationSlopeStart", 0) * deg2rad;
+    WeightFactors::declinationSlopeEnd = xml_.get<double>("master.weightFactor.declinationSlopeEnd", 0) * deg2rad;
+
+    WeightFactors::weightLowElevation = xml_.get<double>("master.weightFactor.weightLowElevation", 0);
+    WeightFactors::lowElevationSlopeStart = xml_.get<double>("master.weightFactor.lowElevationSlopeStart", 0) * deg2rad;
+    WeightFactors::lowElevationSlopeEnd = xml_.get<double>("master.weightFactor.lowElevationSlopeEnd", 0) * deg2rad;
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
@@ -1483,7 +1324,9 @@ void Initializer::initializeSkyCoverages() noexcept {
 
         for (int deltaAz = 0; deltaAz < sizeAz; ++deltaAz) {
             for (int deltaEl = 0; deltaEl < sizeEl; ++deltaEl) {
-                float tmp = (float) (sin(thisEl*deg2rad) * sin(thisEl*deg2rad + deltaEl*deg2rad) + cos(thisEl*deg2rad) * cos(thisEl*deg2rad + deltaEl*deg2rad) * cos(deltaAz*deg2rad));
+                auto tmp = static_cast<float>(sin(thisEl * deg2rad) * sin(thisEl * deg2rad + deltaEl * deg2rad) +
+                                              cos(thisEl * deg2rad) * cos(thisEl * deg2rad + deltaEl * deg2rad) *
+                                              cos(deltaAz * deg2rad));
                 float angle = acos(tmp);
                 thisStorage[deltaAz][deltaEl] = angle;
             }
@@ -1549,7 +1392,7 @@ void Initializer::initializeBaselines() noexcept {
     unordered_map<string,vector< vector<double> >> minSNR;
 
     for (const auto &any:ObservationMode::bands) {
-        string name = any;
+        const string &name = any;
         vector<vector<double> > tmp(nsta, vector<double>(nsta, 0));
         minSNR[name] = tmp;
     }
@@ -1566,7 +1409,7 @@ void Initializer::initializeBaselines() noexcept {
     parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
     parentPARA.minScan = 0; ///< minimum required scan time in seconds
     for (const auto &any:ObservationMode::bands) {
-        string name = any;
+        const string &name = any;
         parentPARA.minSNR[name] = 0;
     }
 
@@ -1662,12 +1505,12 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            start = (unsigned int) sec;
+            start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
             boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
-            end = (unsigned int) sec;
+            end = static_cast<unsigned int>(sec);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
@@ -1864,7 +1707,8 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
 
-        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(TimeSystem::duration);
+        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(
+                static_cast<long>(TimeSystem::duration));
 
         TimeSystem::mjdStart = mjdStart;
         TimeSystem::startTime = startTime;
@@ -2692,6 +2536,23 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
 
 
     return ms.createMultiScheduleParameters();
+}
+
+SkdCatalogReader Initializer::createSkdCatalogReader() const noexcept {
+    SkdCatalogReader reader;
+
+    vector<string> staNames;
+    boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
+    auto it = ptree_stations.begin();
+    while (it != ptree_stations.end()) {
+        auto item = it->second.data();
+        staNames.push_back(item);
+        ++it;
+    }
+    reader.setStationNames(staNames);
+    reader.setCatalogFilePathes(xml_.get_child("master.catalogs"));
+
+    return reader;
 }
 
 

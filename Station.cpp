@@ -85,7 +85,7 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     unsigned int time = p.getTime();
     //  TIME
     double date1 = 2400000.5;
-    double date2 = TimeSystem::mjdStart + (double) time / 86400;
+    double date2 = TimeSystem::mjdStart + static_cast<double>(time) / 86400;
 
     // Earth Rotation
     double ERA = iauEra00(date1, date2);
@@ -183,6 +183,7 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
     p.setAz(az);
     p.setEl(el);
+//    cout << cout.precision(18) << " mjd=" << date2 << "; lat=" << position_.getLat() << "; lon=" << position_.getLon() << "; ra=" << source.getRa() << "; de=" << source.getDe() << "; az_=" << az << "; el_=" << el <<";\n";
     p.setTime(time);
 }
 
@@ -250,11 +251,6 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
     if (*parameters_.firstScan) {
         parameters_.firstScan = false;
     }
-}
-
-void Station::setCableWrapMinimumOffsets() noexcept {
-    cableWrap_.setMinimumOffsets(*parameters_.axis1_low_offset, *parameters_.axis1_up_offset, *parameters_.axis2_low_offset,
-                                *parameters_.axis2_up_offset);
 }
 
 void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
