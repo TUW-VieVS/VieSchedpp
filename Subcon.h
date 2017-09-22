@@ -174,7 +174,8 @@ namespace VieVS{
          * @param subnettingSrcIds ids between all sources which could be used for subnetting
          * @param minStaPerSubcon  minimum number of stations per subconfiguration
          */
-        void createSubcon2(const std::vector<std::vector<int> > &subnettingSrcIds, int minStaPerSubcon) noexcept;
+        void createSubnettingScans(const std::vector<std::vector<int>> &subnettingSrcIds, int minStaPerSubcon,
+                                   const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief generate scores for all single source and subnetting scans
@@ -183,7 +184,7 @@ namespace VieVS{
          * @param skyCoverages list of all sky coverages
          * @param nsrc number of sources
          */
-        void generateScore(const std::vector<Station> &stations,
+        void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                            const std::vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept;
 
         /**

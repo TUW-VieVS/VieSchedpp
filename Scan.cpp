@@ -17,14 +17,11 @@
 using namespace std;
 using namespace VieVS;
 
-Scan::Scan() {
-}
+Scan::Scan() = default;
 
-Scan::Scan(const vector<PointingVector> &pointingVectors, const vector<unsigned int> &endOfLastScan,
-                     int minimumNumberOfStations, ScanType type) :
-        pointingVectors_{std::move(pointingVectors)},
-        type_{type},
-        minNumberOfStations_{minimumNumberOfStations}, score_{0} {
+Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type) :
+        pointingVectors_{move(pointingVectors)},
+        type_{type}, score_{0} {
     nsta_ = Scan::pointingVectors_.size();
     srcid_ = Scan::pointingVectors_.at(0).getSrcid();
     times_ = ScanTimes(nsta_);
@@ -32,10 +29,9 @@ Scan::Scan(const vector<PointingVector> &pointingVectors, const vector<unsigned 
     baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
-Scan::Scan(const vector<PointingVector> &pv, const ScanTimes &times,
-                     const vector<Baseline> &bl, int minNumSta) :
-        srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)}, minNumberOfStations_{minNumSta},
-        score_{0}, times_{move(times)}, baselines_{move(bl)} {
+Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl) :
+        srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
+        score_{0}, times_{move(times)}, baselines_{move(bl)}, type_{ScanType::subnetting} {
 }
 
 bool Scan::constructBaselines(const Source &source) noexcept {
@@ -65,12 +61,12 @@ bool Scan::constructBaselines(const Source &source) noexcept {
             unsigned int startTime1 = times_.getEndOfIdleTime(i);
             unsigned int startTime2 = times_.getEndOfIdleTime(j);
             if (startTime1> startTime2){
-                baselines_.push_back(Baseline(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
-                                                  pointingVectors_[j].getStaid(), startTime1));
+                baselines_.emplace_back(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
+                                        pointingVectors_[j].getStaid(), startTime1);
                 valid = true;
             } else {
-                baselines_.push_back(Baseline(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
-                                                  pointingVectors_[j].getStaid(), startTime2));
+                baselines_.emplace_back(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
+                                        pointingVectors_[j].getStaid(), startTime2);
                 valid = true;
             }
         }
@@ -83,17 +79,24 @@ void Scan::addTimes(int idx, unsigned int setup, unsigned int source, unsigned i
     times_.addTimes(idx, setup, source, slew, tape, calib);
 }
 
-bool Scan::removeStation(int idx) noexcept {
+bool Scan::removeStation(int idx, const Source &source) noexcept {
     --nsta_;
-    if (nsta_<minNumberOfStations_){
+    if (nsta_ < *source.getPARA().minNumberOfStations) {
         return false;
+    }
+
+    int staid = pointingVectors_[idx].getStaid();
+    if (!source.getPARA().requiredStations.empty()) {
+        const vector<int> &rsta = source.getPARA().requiredStations;
+        if (find(rsta.begin(), rsta.end(), staid) != rsta.end()) {
+            return false;
+        }
     }
 
     times_.removeElement(idx);
 
-    int staid = pointingVectors_[idx].getStaid();
     pointingVectors_.erase(pointingVectors_.begin()+idx);
-    if (pointingVectorsEndtime_.size() > 0) {
+    if (!pointingVectorsEndtime_.empty()) {
         pointingVectorsEndtime_.erase(pointingVectorsEndtime_.begin() + idx);
     }
 
@@ -107,15 +110,15 @@ bool Scan::removeStation(int idx) noexcept {
             ++i;
         }
     }
-    return !(nbl_before != 0 && baselines_.size() == 0);
+    return !(nbl_before != 0 && baselines_.empty());
 }
 
-bool Scan::removeBaseline(int idx_bl) noexcept {
+bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
 
     int staid1 = baselines_[idx_bl].getStaid1();
     int staid2 = baselines_[idx_bl].getStaid2();
     baselines_.erase(baselines_.begin()+idx_bl);
-    if (baselines_.size()==0){
+    if (baselines_.empty()) {
         return false;
     }
 
@@ -136,18 +139,18 @@ bool Scan::removeBaseline(int idx_bl) noexcept {
     }
 
     if(counterStaid1==0){
-        int idx_pv = findIdxOfStationId(staid1);
-        scanValid = removeStation(idx_pv);
+        boost::optional<int> idx_pv = findIdxOfStationId(staid1);
+        scanValid = removeStation(*idx_pv, source);
     }
     if(counterStaid2==0){
-        int idx_pv = findIdxOfStationId(staid2);
-        scanValid = removeStation(idx_pv);
+        boost::optional<int> idx_pv = findIdxOfStationId(staid2);
+        scanValid = removeStation(*idx_pv, source);
     }
     return scanValid;
 }
 
 
-bool Scan::checkIdleTimes(vector<unsigned int> maxIdle) noexcept {
+bool Scan::checkIdleTimes(std::vector<unsigned int> maxIdle, const Source &source) noexcept {
 
     bool scan_valid = true;
     bool idleTimeValid;
@@ -164,7 +167,7 @@ bool Scan::checkIdleTimes(vector<unsigned int> maxIdle) noexcept {
         for (int i = 0; i < nsta_; ++i) {
             dt[i] = latestSlewTime-eosl[i];
             if (dt[i]>maxIdle[i]){
-                scan_valid = removeStation(idx);
+                scan_valid = removeStation(idx, source);
                 if (scan_valid){
                     maxIdle.erase(maxIdle.begin()+idx);
                     idleTimeValid = false;
@@ -188,8 +191,7 @@ void Scan::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
     times_.updateSlewtime(idx,new_slewtime);
 }
 
-bool
-Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &source) noexcept {
+bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &source) noexcept {
 
     bool flag_scanValid = true;
     int ibl = 0;
@@ -203,25 +205,22 @@ Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &so
         double date2 = TimeSystem::mjdStart + startTime / 86400;
         double gmst = iauGmst82(date1, date2);
 
-//            vector<pair<string, unsigned int> > durations;
-        vector<pair<string, double> > flux = source.observedFlux(gmst, stations[staid1].dx(staid2),
-                                                                 stations[staid1].dy(staid2),
-                                                                 stations[staid1].dz(staid2));
         unsigned int maxScanDuration = 0;
 
         bool flag_baselineRemoved = false;
-        for(auto& any:flux){
-            string band = any.first;
-            double SEFD_src = any.second;
+        for (auto &band:ObservationMode::bands) {
+
+            double SEFD_src = source.observedFlux(band, gmst, stations[staid1].dx(staid2), stations[staid1].dy(staid2),
+                                                  stations[staid1].dz(staid2));
 
             double SEFD_sta1 = stations[staid1].getEquip().getSEFD(band);
             double SEFD_sta2 = stations[staid2].getEquip().getSEFD(band);
-            double minSNR_sta1 = stations[staid1].getMinSNR(band);
-            double minSNR_sta2 = stations[staid2].getMinSNR(band);
+            double minSNR_sta1 = stations[staid1].getPARA().minSNR.at(band);
+            double minSNR_sta2 = stations[staid2].getPARA().minSNR.at(band);
 
             double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
 
-            double minSNR_src = source.getMinSNR(band);
+            double minSNR_src = source.getPARA().minSNR.at(band);
 
             double maxminSNR = minSNR_src;
             if (minSNR_sta1>maxminSNR){
@@ -234,9 +233,9 @@ Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &so
                 maxminSNR = minSNR_bl;
             }
 
-            double maxCorSynch1 = stations[staid1].getWaitCorsynch();
+            double maxCorSynch1 = stations[staid1].getWaittimes().corsynch;
             double maxCorSynch = maxCorSynch1;
-            double maxCorSynch2 = stations[staid2].getWaitCorsynch();
+            double maxCorSynch2 = stations[staid2].getWaittimes().corsynch;
             if (maxCorSynch2 > maxCorSynch){
                 maxCorSynch = maxCorSynch2;
             }
@@ -247,7 +246,7 @@ Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &so
 
             double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
             new_duration = ceil(new_duration);
-            unsigned int new_duration_uint = (unsigned int) new_duration;
+            auto new_duration_uint = static_cast<unsigned int>(new_duration);
 
             unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
             if(new_duration_uint<minScanBl){
@@ -255,7 +254,7 @@ Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &so
             }
             unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
             if(new_duration_uint>maxScanBl){
-                flag_scanValid = removeBaseline(ibl);
+                flag_scanValid = removeBaseline(ibl, source);
                 flag_baselineRemoved = true;
                 break;
             }
@@ -283,7 +282,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
     bool scanDurationsValid;
     bool scanValid = true;
 
-    boost::optional<unsigned int> fixedScanDuration = source.getFixedScanDuration();
+    boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
     if (fixedScanDuration.is_initialized()) {
         vector<unsigned int> scanTimes(nsta_, *fixedScanDuration);
         times_.addScanTimes(scanTimes);
@@ -291,13 +290,12 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
     }
 
 
-
-    vector<unsigned int> minscanTimes(nsta_,source.getMinScanTime());
-    vector<unsigned int> maxScanTimes(nsta_,source.getMaxScanTime());
+    vector<unsigned int> minscanTimes(nsta_, *source.getPARA().minScan);
+    vector<unsigned int> maxScanTimes(nsta_, *source.getPARA().maxScan);
 
     for (int i = 0; i < nsta_; ++i) {
-        unsigned int stationMinScanTime = stations[pointingVectors_[i].getStaid()].getMinScanTime();
-        unsigned int stationMaxScanTime = stations[pointingVectors_[i].getStaid()].getMaxScanTime();
+        unsigned int stationMinScanTime = *stations[pointingVectors_[i].getStaid()].getPARA().minScan;
+        unsigned int stationMaxScanTime = *stations[pointingVectors_[i].getStaid()].getPARA().maxScan;
 
         if(minscanTimes[i]<stationMinScanTime){
             minscanTimes[i] = stationMinScanTime;
@@ -315,12 +313,13 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
         scanTimes = minscanTimes;
 
 
-        for (int i = 0; i < baselines_.size(); ++i) {
-            Baseline& thisBaseline = baselines_[i];
+        for (auto &thisBaseline : baselines_) {
             int staid1 = thisBaseline.getStaid1();
-            int staidx1 = findIdxOfStationId(staid1);
+            boost::optional<int> staidx1o = findIdxOfStationId(staid1);
+            int staidx1 = *staidx1o;
             int staid2 = thisBaseline.getStaid2();
-            int staidx2 = findIdxOfStationId(staid2);
+            boost::optional<int> staidx2o = findIdxOfStationId(staid2);
+            int staidx2 = *staidx2o;
 
             unsigned int duration = thisBaseline.getScanDuration();
             if(scanTimes[staidx1]<duration){
@@ -338,7 +337,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
         }
 
 
-        if(eraseStations1.size()>0){
+        if (!eraseStations1.empty()) {
             int eraseThis;
 
             vector<int> counter(nsta_);
@@ -384,8 +383,8 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
                     eraseThis = maxFluxIdx[0];
                 } else {
                     vector<unsigned int> thisScanStartTimes(maxFluxIdx.size());
-                    for(int i=0; i<maxFluxIdx.size(); ++i){
-                        thisScanStartTimes[(times_.getEndOfSlewTime(maxFluxIdx[i]))];
+                    for (int i : maxFluxIdx) {
+                        thisScanStartTimes[(times_.getEndOfSlewTime(i))];
                     }
 
                     long maxmaxFluxIdx = distance(thisScanStartTimes.begin(),
@@ -395,7 +394,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
                 }
             }
 
-            scanValid = removeStation(eraseThis);
+            scanValid = removeStation(eraseThis, source);
             minscanTimes.erase(minscanTimes.begin() + eraseThis);
 
             if (!scanValid){
@@ -409,13 +408,13 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
     return scanValid;
 }
 
-int Scan::findIdxOfStationId(int id) const noexcept {
+boost::optional<int> Scan::findIdxOfStationId(int id) const noexcept {
     for (int idx = 0; idx < nsta_; ++idx) {
         if(pointingVectors_[idx].getStaid()==id){
             return idx;
         }
     }
-    return -1;
+    return boost::none;
 }
 
 vector<int> Scan::getStationIds() const noexcept {
@@ -427,30 +426,13 @@ vector<int> Scan::getStationIds() const noexcept {
     return std::move(ids);
 }
 
-bool Scan::removeAllBut(const vector<int> &station_ids) noexcept {
-    int i = 0;
-    bool valid = true;
-    while (i < nsta_) {
-        int thisId = pointingVectors_[i].getStaid();
-        if (find(station_ids.begin(), station_ids.end(), thisId) == station_ids.end()) {
-            valid = removeStation(i);
-            if (!valid) {
-                break;
-            }
-        } else {
-            ++i;
-        }
-    }
-    return valid;
-}
-
 unsigned int Scan::maxTime() const noexcept {
     return times_.maxTime();
 }
 
 double Scan::calcScore_numberOfObservations(unsigned long maxObs) const noexcept {
     int nbl = baselines_.size();
-    double thisScore = (double) nbl / (double) maxObs;
+    double thisScore = static_cast<double>(nbl) / static_cast<double>(maxObs);
     return thisScore;
 }
 
@@ -479,7 +461,7 @@ double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcep
 
 double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
     unsigned int thisEndTime = times_.maxTime();
-    double score = 1 - ((double) thisEndTime - (double) minTime) / (maxTime - minTime);
+    double score = 1 - (static_cast<double>(thisEndTime) - static_cast<double>(minTime)) / (maxTime - minTime);
     return score;
 }
 
@@ -488,8 +470,8 @@ double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
 
     double score = 0;
 
-    for (int i = 0; i < skyCoverages.size(); ++i) {
-        double thisSore = skyCoverages[i].calcScore(pointingVectors_, stations) / nsta_;
+    for (const auto &skyCoverage : skyCoverages) {
+        double thisSore = skyCoverage.calcScore(pointingVectors_, stations) / nsta_;
         score += thisSore;
     }
     return score;
@@ -502,8 +484,8 @@ double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
 
     double score = 0;
 
-    for (int i = 0; i < skyCoverages.size(); ++i) {
-        double thisSore = skyCoverages[i].calcScore(pointingVectors_, stations, firstScorePerPv) / nsta_;
+    for (const auto &skyCoverage : skyCoverages) {
+        double thisSore = skyCoverage.calcScore(pointingVectors_, stations, firstScorePerPv) / nsta_;
         score += thisSore;
     }
     return score;
@@ -515,8 +497,8 @@ double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverage
 
     double score = 0;
 
-    for (int i = 0; i < skyCoverages.size(); ++i) {
-        double thisSore = skyCoverages[i].calcScore_subcon(pointingVectors_, stations, firstScorePerPv) / nsta_;
+    for (const auto &skyCoverage : skyCoverages) {
+        double thisSore = skyCoverage.calcScore_subcon(pointingVectors_, stations, firstScorePerPv) / nsta_;
         score += thisSore;
     }
     return score;
@@ -524,8 +506,7 @@ double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverage
 
 
 bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source) noexcept {
-    int srcid = source.getId();
-    bool scanValid = true;
+    bool scanValid;
     pointingVectorsEndtime_.resize(nsta_);
     // FIRST STEP: calc earliest possible slew end times for each station:
     int ista = 0;
@@ -558,7 +539,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
             if (std::abs(oldAz - newAz) > .5 * pi) {
                 // if there was already a bigSlew flag you know that both azimuth are unsafe...
                 if (bigSlew) {
-                    scanValid = removeStation(ista);
+                    scanValid = removeStation(ista, source);
                     if (!scanValid) {
                         return false;
                     }
@@ -569,8 +550,8 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
             }
 
             unsigned int thisSlewtime = thisStation.slewTime(pv);
-            if (thisSlewtime > thisStation.getMaxSlewtime()) {
-                scanValid = removeStation(ista);
+            if (thisSlewtime > *thisStation.getPARA().maxSlewtime) {
+                scanValid = removeStation(ista, source);
                 if (!scanValid) {
                     return false;
                 }
@@ -635,7 +616,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 double newAz = moving_pv.getAz();
 
                 if (std::abs(oldAz - newAz) > .5 * pi) {
-                    scanValid = removeStation(ista);
+                    scanValid = removeStation(ista, source);
                     if (!scanValid) {
                         return false;
                     }
@@ -653,7 +634,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
             double newAz = moving_pv.getAz();
 
             if (std::abs(oldAz - newAz) > .5 * pi) {
-                scanValid = removeStation(ista);
+                scanValid = removeStation(ista, source);
                 if (!scanValid) {
                     return false;
                 }
@@ -667,181 +648,10 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
     return true;
 }
 
-
-bool Scan::rigorousUpdate2(const vector<Station> &stations, const Source &source) noexcept {
-    int srcid = source.getId();
-    bool scanValid;
-
-    int i = 0;
-
-    while (i < nsta_) {
-
-        PointingVector &pv = pointingVectors_[i];
-        unsigned int slewStart = times_.getEndOfSourceTime(i);
-        unsigned int slewEnd = times_.getEndOfSlewTime(i);
-        int staid = pv.getStaid();
-        const Station & thisSta = stations[staid];
-
-        PointingVector new_p(staid, srcid);
-        unsigned int oldSlewEnd;
-        unsigned int newSlewEnd = slewEnd;
-
-        double oldAz;
-        double newAz = numeric_limits<double>::quiet_NaN();
-
-        unsigned int slewtime;
-        bool stationValid;
-
-        unsigned int timeDiff;
-        do {
-            oldAz = newAz;
-            oldSlewEnd = newSlewEnd;
-            new_p.setTime(newSlewEnd);
-            thisSta.calcAzEl(source, new_p);
-            stationValid = thisSta.isVisible(new_p);
-            if (!stationValid) {
-                scanValid = removeStation(i);
-                if (!scanValid) {
-                    return false;
-                }
-            }
-
-            stations[staid].getCableWrap().calcUnwrappedAz(stations[staid].getCurrentPointingVector(), new_p);
-            newAz = new_p.getAz();
-            if (oldAz != numeric_limits<double>::quiet_NaN() && abs(oldAz - newAz) > .5 * pi) {
-                bool secure = stations[staid].getCableWrap().unwrapAzNearNeutralPoint(new_p);
-                if (!secure) {
-                    cout
-                            << "### DEBUG OPPORTUNITY ###\n    axis 1 is close to limit and the ambigurity is not save!\n";
-                    scanValid = removeStation(i);
-                    if (!scanValid) {
-                        return false;
-                    }
-
-                }
-            }
-            slewtime = stations[staid].slewTime(new_p);
-
-            if (slewtime > stations[staid].getMaxSlewtime()) {
-                scanValid = removeStation(i);
-                if (!scanValid) {
-                    return false;
-                }
-
-            }
-            newSlewEnd = slewStart + slewtime;
-
-            if (oldSlewEnd > newSlewEnd) {
-                timeDiff = oldSlewEnd - newSlewEnd;
-            } else {
-                timeDiff = newSlewEnd - oldSlewEnd;
-            }
-
-        } while (timeDiff > 1);
-
-        if (stationValid) {
-            pointingVectors_[i] = new_p;
-            times_.updateSlewtime(i, slewtime);
-            ++i;
-        }
-    }
-
-    times_.alignStartTimes();
-
-    scanValid = constructBaselines(source);
-    if (!scanValid) {
-        return false;
-    }
-    scanValid = calcBaselineScanDuration(stations, source);
-    if (!scanValid) {
-        return false;
-    }
-    scanValid = scanDuration(stations, source);
-    if (!scanValid) {
-        return false;
-    }
-
-    i = 0;
-    while (i < nsta_) {
-
-        unsigned int scanStart = times_.getEndOfCalibrationTime(i);
-        unsigned int scanEnd = times_.getEndOfScanTime(i);
-        int thisStaId = pointingVectors_[i].getStaid();
-
-        PointingVector pv(thisStaId, srcid);
-        const Station &thisSta = stations[thisStaId];
-
-        bool stationValid = true;
-
-        double oldAz = pointingVectors_[i].getAz();
-        double newAz;
-
-        for (unsigned int j = scanStart; j < scanEnd; j += 10) {
-            pv.setTime(j);
-            thisSta.calcAzEl(source, pv);
-            stationValid = thisSta.isVisible(pv);
-            if (!stationValid) {
-                scanValid = removeStation(i);
-                if (!scanValid) {
-                    return false;
-                }
-                break;
-            }
-
-            thisSta.getCableWrap().unwrapAzNearAz(pv, oldAz);
-            newAz = pv.getAz();
-            if (abs(newAz - oldAz) > .5 * pi) {
-                stationValid = false;
-                cout << "### DEBUG OPPORTUNITY ###\n    change of calbe wrap while observing!\n";
-                scanValid = removeStation(i);
-                if (!scanValid) {
-                    return false;
-                }
-                break;
-            }
-
-            if (j == scanStart) {
-                pointingVectors_[i] = pv;
-            }
-        }
-
-        if (!stationValid) {
-            continue;
-        }
-
-        pv.setTime(scanEnd);
-        thisSta.calcAzEl(source, pv);
-        stationValid = thisSta.isVisible(pv);
-        if (!stationValid) {
-            scanValid = removeStation(i);
-            if (!scanValid) {
-                return false;
-            }
-            continue;
-        }
-
-        thisSta.getCableWrap().unwrapAzNearAz(pv, oldAz);
-        newAz = pv.getAz();
-        if (abs(newAz - oldAz) > .5 * pi) {
-            scanValid = removeStation(i);
-            if (!scanValid) {
-                return false;
-            }
-            continue;
-        }
-
-
-        pointingVectorsEndtime_.push_back(pv);
-
-        ++i;
-    }
-    return true;
-}
-
-void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
-                          const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                          const vector<SkyCoverage> &skyCoverages,
-                          const vector<Station> &stations) noexcept {
+void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+                     const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                     const std::vector<Station> &stations, const Source &source,
+                     const std::vector<SkyCoverage> &skyCoverages) noexcept {
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
@@ -865,13 +675,43 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<d
         this_score += calcScore_skyCoverage(skyCoverages, stations) * WeightFactors::weightSkyCoverage;
     }
 
+    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+
+    if (*source.getPARA().tryToFocusIfObservedOnce) {
+        unsigned int nscans = source.getNscans();
+        if (nscans > 0) {
+            this_score *= 10 * nscans;
+        }
+    }
+
+    double weightDeclination = WeightFactors::weightDeclination;
+    if (weightDeclination != 0) {
+        double dec = source.getDe();
+        double f = 0;
+        if (dec < WeightFactors::declinationSlopeStart) {
+            f = 0;
+        } else if (dec > WeightFactors::declinationSlopeEnd) {
+            f = 1;
+        } else {
+            f = (dec - WeightFactors::declinationSlopeStart) /
+                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+        }
+        this_score += f * WeightFactors::weightDeclination;
+    }
+
+    double weightLowElevation = WeightFactors::weightLowElevation;
+    if (weightLowElevation != 0) {
+        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+    }
+
     score_ = this_score;
 }
 
-void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
-                          const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                          const vector<SkyCoverage> &skyCoverages,
-                          vector<double> &firstScorePerPV, const vector<Station> &stations) noexcept {
+void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+                     const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                     const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                     const Source &source,
+                     std::vector<double> &firstScorePerPV) noexcept {
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
@@ -896,15 +736,43 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const vector<d
                       WeightFactors::weightSkyCoverage;
     }
 
+    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+
+    if (*source.getPARA().tryToFocusIfObservedOnce) {
+        unsigned int nscans = source.getNscans();
+        if (nscans > 0) {
+            this_score *= 10 * nscans;
+        }
+    }
+
+    double weightDeclination = WeightFactors::weightDeclination;
+    if (weightDeclination != 0) {
+        double dec = source.getDe();
+        double f = 0;
+        if (dec < WeightFactors::declinationSlopeStart) {
+            f = 0;
+        } else if (dec > WeightFactors::declinationSlopeEnd) {
+            f = 1;
+        } else {
+            f = (dec - WeightFactors::declinationSlopeStart) /
+                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+        }
+        this_score += f * WeightFactors::weightDeclination;
+    }
+
+    double weightLowElevation = WeightFactors::weightLowElevation;
+    if (weightLowElevation != 0) {
+        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+    }
+
     score_ =  this_score;
 }
 
 
-void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const vector<double> &astas,
-                                 const vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                                 const vector<SkyCoverage> &skyCoverages,
-                                 const vector<double> &firstScorePerPV,
-                                 const vector<Station> &stations) noexcept {
+void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+                            const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                            const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                            const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
@@ -929,6 +797,35 @@ void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const v
                       WeightFactors::weightSkyCoverage;
     }
 
+    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+
+    if (*source.getPARA().tryToFocusIfObservedOnce) {
+        unsigned int nscans = source.getNscans();
+        if (nscans > 0) {
+            this_score *= 10 * nscans;
+        }
+    }
+
+    double weightDeclination = WeightFactors::weightDeclination;
+    if (weightDeclination != 0) {
+        double dec = source.getDe();
+        double f = 0;
+        if (dec < WeightFactors::declinationSlopeStart) {
+            f = 0;
+        } else if (dec > WeightFactors::declinationSlopeEnd) {
+            f = 1;
+        } else {
+            f = (dec - WeightFactors::declinationSlopeStart) /
+                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+        }
+        this_score += f * WeightFactors::weightDeclination;
+    }
+
+    double weightLowElevation = WeightFactors::weightLowElevation;
+    if (weightLowElevation != 0) {
+        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+    }
+
     score_ =  this_score;
 }
 
@@ -946,8 +843,6 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << buffer1.str();
 
     string sname = source.getName();
-    double sra = source.getRa() * rad2deg / 15;
-    double sde = source.getDe() * rad2deg;
     stringstream buffer2;
     buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) ") % observed_scan_nr % sname % srcid_;
     switch (type_) {
@@ -987,7 +882,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| slew start | ";
     for (auto &t:slewStart) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::startTime + boost::posix_time::seconds(t);
+            boost::posix_time::ptime thisTime =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
             of << thisTime.time_of_day() << " | ";
         } else {
             of << "         | ";
@@ -998,7 +894,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| slew end   | ";
     for (auto &t:slewEnd) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::startTime + boost::posix_time::seconds(t);
+            boost::posix_time::ptime thisTime =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
             of << thisTime.time_of_day() << " | ";
         } else {
             of << "         | ";
@@ -1009,7 +906,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| idle end   | ";
     for (auto &t:ideling) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::startTime + boost::posix_time::seconds(t);
+            boost::posix_time::ptime thisTime =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
             of << thisTime.time_of_day() << " | ";
         } else {
             of << "         | ";
@@ -1020,7 +918,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| scan start | ";
     for (auto &t:scanStart) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::startTime + boost::posix_time::seconds(t);
+            boost::posix_time::ptime thisTime =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
             of << thisTime.time_of_day() << " | ";
         } else {
             of << "         | ";
@@ -1031,7 +930,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| scan end   | ";
     for (auto &t:scanEnd) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::startTime + boost::posix_time::seconds(t);
+            boost::posix_time::ptime thisTime =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
             of << thisTime.time_of_day() << " | ";
         } else {
             of << "         | ";
@@ -1040,30 +940,30 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "\n";
 
 
-    // TODO: EVERYTHING UNTER THIS LINE IS JUST FOR DEBUGGING!!!
-    if (pointingVectors_.size() != nsta_ || pointingVectorsEndtime_.size() != nsta_ ||
-        times_.getEndOfSlewTime().size() != nsta_) {
-        of << "ERROR #1\n";
-    }
-
-    for (int i = 0; i < nsta_; ++i) {
-        unsigned int pTime = pointingVectors_[i].getTime();
-        unsigned int tTime = times_.getEndOfCalibrationTime(i);
-        if (pTime != tTime) {
-            of << "ERROR #2\n";
-        }
-
-        unsigned int pTime2 = pointingVectorsEndtime_[i].getTime();
-        unsigned int tTime2 = times_.getEndOfScanTime(i);
-        if (pTime != tTime) {
-            of << "ERROR #3\n";
-        }
-
-    }
+//    // TODO: EVERYTHING UNTER THIS LINE IS JUST FOR DEBUGGING!!!
+//    if (pointingVectors_.size() != nsta_ || pointingVectorsEndtime_.size() != nsta_ ||
+//        times_.getEndOfSlewTime().size() != nsta_) {
+//        of << "ERROR #1\n";
+//    }
+//
+//    for (int i = 0; i < nsta_; ++i) {
+//        unsigned int pTime = pointingVectors_[i].getTime();
+//        unsigned int tTime = times_.getEndOfCalibrationTime(i);
+//        if (pTime != tTime) {
+//            of << "ERROR #2\n";
+//        }
+//
+//        unsigned int pTime2 = pointingVectorsEndtime_[i].getTime();
+//        unsigned int tTime2 = times_.getEndOfScanTime(i);
+//        if (pTime2 != tTime2) {
+//            of << "ERROR #3\n";
+//        }
+//
+//    }
 
 }
 
-boost::optional<Scan> Scan::copyScan(const vector<int> &ids) const noexcept {
+boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &source) const noexcept {
 
 
     vector<PointingVector> pv;
@@ -1079,9 +979,19 @@ boost::optional<Scan> Scan::copyScan(const vector<int> &ids) const noexcept {
         }
         ++counter;
     }
-    if (pv.size() < minNumberOfStations_) {
+    if (pv.size() < *source.getPARA().minNumberOfStations) {
         return boost::none;
     }
+
+    if (!source.getPARA().requiredStations.empty()) {
+        const vector<int> &rsta = source.getPARA().requiredStations;
+        for (auto &thisRequiredStationId:rsta) {
+            if (find(ids.begin(), ids.end(), thisRequiredStationId) == ids.end()) {
+                return boost::none;
+            }
+        }
+    }
+
 
     for (int i = (int) nsta_ - 1; i >= 0; --i) {
         int thisId = pointingVectors_[i].getStaid();
@@ -1090,21 +1000,21 @@ boost::optional<Scan> Scan::copyScan(const vector<int> &ids) const noexcept {
         }
     }
 
-    for (int j = 0; j < baselines_.size(); ++j) {
-        const Baseline &thisBl = baselines_[j];
+    for (const auto &baseline : baselines_) {
+        const Baseline &thisBl = baseline;
         int staid1 = thisBl.getStaid1();
         int staid2 = thisBl.getStaid2();
 
         if (find(ids.begin(), ids.end(), staid1) != ids.end() &&
             find(ids.begin(), ids.end(), staid2) != ids.end()) {
-            bl.push_back(baselines_[j]);
+            bl.push_back(baseline);
         }
     }
-    if (bl.size() == 0) {
+    if (bl.empty()) {
         return boost::none;
     }
 
-    return Scan(pv, t, bl, minNumberOfStations_);
+    return Scan(pv, t, bl);
 }
 
 
@@ -1125,7 +1035,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
             const Station &thisStation = stations[staid];
 
             PointingVector fillinScanEnd;
-            if (pointingVectorsEndtime_.size() == 0) {
+            if (pointingVectorsEndtime_.empty()) {
                 // create pointing vector at end of scan
                 fillinScanEnd = PointingVector(staid, srcid_);
                 fillinScanEnd.setTime(endOfFillinScan);
@@ -1135,7 +1045,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
 
                 bool visible = thisStation.isVisible(fillinScanEnd);
                 if (!visible) {
-                    bool valid = removeStation(pv_id);
+                    bool valid = removeStation(pv_id, source);
                     if (!valid) {
                         return false;
                     }
@@ -1160,10 +1070,10 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
                 availableTime = 0;
             }
 
-            int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
-                              thisStation.getWaitSource() + thisStation.getWaitTape();
+            const Station::WAITTIMES &wtimes = thisStation.getWaittimes();
+            int time_needed = slewTime + wtimes.calibration + wtimes.setup + wtimes.source + wtimes.tape;
             if (time_needed > availableTime) {
-                bool valid = removeStation(pv_id);
+                bool valid = removeStation(pv_id, source);
                 if (!valid) {
                     return false;
                 }
@@ -1173,7 +1083,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
         } else { // if station is not used in the following scans (this means we have no desired end pointing vector
             // check if the end of the fillin scan if earlier as the required final position time
             if (endOfFillinScan > finalPosition.getTime()) {
-                bool valid = removeStation(pv_id);
+                bool valid = removeStation(pv_id, source);
                 if (!valid) {
                     return false;
                 }
@@ -1186,95 +1096,41 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
     return true;
 }
 
-boost::optional<Scan>
-Scan::possibleFillinScan(const vector<Station> &stations, const Source &source,
-                              const std::vector<char> &possible, const std::vector<char> &unused,
-                              const vector<PointingVector> &pv_final_position) const noexcept {
+double Scan::weight_stations(const std::vector<Station> &stations) {
+    double weight = 0;
+    for (const auto &any:pointingVectors_) {
+        weight += *stations[any.getStaid()].getPARA().weight;
+    }
+    weight /= pointingVectors_.size();
 
-    // get all ids of possible stations. This is necessary to call copyScan
-    vector<int> possible_ids;
-    for (int i = 0; i < possible.size(); ++i) {
-        if (possible[i]) {
-            possible_ids.push_back(i);
+    return weight;
+}
+
+double Scan::weight_baselines() {
+    double weight = 0;
+    for (const auto &any:baselines_) {
+        weight += Baseline::PARA.weight[any.getStaid1()][any.getStaid2()];
+    }
+    weight /= baselines_.size();
+
+    return weight;
+}
+
+double Scan::calcScore_lowElevation() {
+    double score = 0;
+    for (const auto &pv:pointingVectors_) {
+        double el = pv.getEl();
+        double f = 0;
+        if (el < WeightFactors::lowElevationSlopeStart) {
+            f = 0;
+        } else if (el > WeightFactors::lowElevationSlopeEnd) {
+            f = 1;
+        } else {
+            f = (el - WeightFactors::lowElevationSlopeStart) /
+                (WeightFactors::lowElevationSlopeEnd - WeightFactors::lowElevationSlopeStart);
         }
+        score += f;
     }
-    // create a copy of the scan with all possible stations
-    boost::optional<Scan> tmp_fi_scan_opt = copyScan(possible_ids);
-
-    // if the copy is invalid nothing should be returned
-    if (!tmp_fi_scan_opt) {
-        return boost::none;
-    }
-
-    // if the copy is valid save it under fi_scan
-    Scan fi_scan = std::move(*tmp_fi_scan_opt);
-
-    // look if all stations have enough time to participate at the next scan
-    int pv_id = 0;
-    while (pv_id < fi_scan.nsta_) {
-        int staid = fi_scan.getPointingVector(pv_id).getStaid();
-
-        // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
-        unsigned int endOfFillinScan = fi_scan.getTimes().getEndOfScanTime(pv_id);
-
-        if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
-            int srcid = fi_scan.getSourceId();
-
-            // create pointing vector at end of scan
-            PointingVector this_pv_scan_end(staid, srcid);
-            const Station &thisStation = stations[staid];
-            this_pv_scan_end.setTime(endOfFillinScan);
-
-            // calculate azimuth and elevation at end of scan
-            thisStation.calcAzEl(source, this_pv_scan_end);
-            bool visible = thisStation.isVisible(this_pv_scan_end);
-            if (!visible) {
-                bool valid = fi_scan.removeStation(pv_id);
-                if (!valid) {
-                    return boost::none;
-                }
-                continue;
-            }
-
-            // unwrap azimuth and elevation at end of scan
-            thisStation.getCableWrap().calcUnwrappedAz(fi_scan.getPointingVector(pv_id), this_pv_scan_end);
-
-            // calculate slewtime between end of scan and start of new scan (final position)
-            int slewTime = thisStation.getAntenna().slewTime(this_pv_scan_end, pv_final_position[staid]);
-
-            // check the available time
-            unsigned int pv_finalTime = pv_final_position[staid].getTime();
-            unsigned int availableTime;
-            if (pv_finalTime > endOfFillinScan) {
-                availableTime = pv_finalTime - endOfFillinScan;
-            } else {
-                availableTime = 0;
-            }
-
-            int time_needed = slewTime + thisStation.getWaitCalibration() + thisStation.getWaitSetup() +
-                              thisStation.getWaitSource() + thisStation.getWaitTape();
-            if (time_needed > availableTime) {
-                bool valid = fi_scan.removeStation(pv_id);
-                if (!valid) {
-                    return boost::none;
-                }
-                continue;
-            }
-
-        } else { // if station is not used in the following scans (this means we have no desired end pointing vector
-            // check if the end of the fillin scan if earlier as the required final position time
-            if (endOfFillinScan > pv_final_position[staid].getTime()) {
-                bool valid = fi_scan.removeStation(pv_id);
-                if (!valid) {
-                    return boost::none;
-                }
-                continue;
-            }
-        }
-        //station is ok!
-        ++pv_id;
-    }
-
-    return fi_scan;
+    return score / nsta_;
 }
 

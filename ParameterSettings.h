@@ -62,8 +62,6 @@ namespace VieVS {
         /**
          * @brief general block in parameter.xml
          *
-         * @param experimentName experiment name
-         * @param experimentDescription experiment description
          * @param startTime session start time
          * @param endTime session end time
          * @param maxDistanceTwinTeleskopes maximum distance between corresponding telescopes
@@ -71,9 +69,8 @@ namespace VieVS {
          * @param fillinmode flag if fillin modes are allowed
          * @param stations list of all stations
          */
-        void general(const std::string &experimentName, const std::string &experimentDescription,
-                     const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode,
+        void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
+                     int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode, double minElevation,
                      const std::vector<std::string> &stations);
 
         /**
@@ -93,11 +90,11 @@ namespace VieVS {
          * @param rx rx catlog name
          * @param source source catalog name
          */
-        void catalogs(const std::string &root, const std::string &antenna, const std::string &equip,
-                      const std::string &flux, const std::string &freq, const std::string &hdpos,
-                      const std::string &loif, const std::string &mask, const std::string &modes,
-                      const std::string &position, const std::string &rec, const std::string &rx,
-                      const std::string &source);
+        void
+        catalogs(const std::string &root, const std::string &antenna, const std::string &equip, const std::string &flux,
+                 const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
+                 const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
+                 const std::string &source, const std::string &tracks);
 
         /**
          * @brief group defined in parameters.xml
@@ -130,7 +127,7 @@ namespace VieVS {
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, Source::Parameters PARA);
+        void parameters(const std::string &name, Source::PARAMETERS PARA);
 
         /**
          * @brief defined baseline parameters in baseline block in parameters.xml
@@ -149,6 +146,23 @@ namespace VieVS {
         void setup(Type type, const ParameterSetup &setup);
 
         /**
+         * @brief station wait times block
+         *
+         * @param name group, station name or "__all__"
+         * @param setup time for setup in seconds
+         * @param source time for source command in seconds
+         * @param tape time for tape command in seconds
+         * @param calibration time for preobservation in seconds
+         * @param corsynch time for correlator synchronization
+         */
+        void stationWaitTimes(const std::string &name, unsigned int setup, unsigned int source, unsigned int tape,
+                              unsigned int calibration, unsigned int corsynch);
+
+
+        void stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,
+                                    double axis2LowOffset, double axis2UpOffset);
+
+        /**
          * @brief skyCoverage block in parameter.xml
          *
          * @param influenceDistance maximum angular influence distance in degrees
@@ -164,9 +178,17 @@ namespace VieVS {
          * @param weight_duration weight of duration of the scan
          * @param weight_averageSources weight of an average source observation distribution
          * @param weight_averageStations weight of an average station usage distribution
+         * @param weightDeclination weight factor for declination
+         * @param declinationSlopeStart start declination of additional weight (everything above has factor 0)
+         * @param declinationSlopeEnd end declination of additional declination weight slope (everything below has factor 1)
+         * @param weightLowElevation weight factor for low elevation scans
+         * @param lowElevationSlopeStart start elevation of additional weight (everything above has factor 0)
+         * @param lowElevationSlopeEnd end elevation of additional declination weight slope (everything below has factor 1)
          */
         void weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                          double weight_averageSources, double weight_averageStations);
+                          double weight_averageSources, double weight_averageStations, double weightDeclination,
+                          double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
+                          double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
         /**
          * @brief mode block in parameter.xml
@@ -208,6 +230,23 @@ namespace VieVS {
          * @param name output file name (usually "parameter")
          */
         void write(const std::string &name);
+
+        /**
+         * @brief output block in parameter.xml
+         *
+         * @param experimentName experiment name
+         * @param experimentDescription experiment description
+         * @param scheduler scheduler
+         * @param correlator correlator
+         * @param createSummary create summary file
+         * @param createNGS create NGS file
+         * @param createSKD create SKD file
+         * @param createSkyCoverage create sky coverage file
+         */
+        void output(const std::string &experimentName, const std::string &experimentDescription,
+                    const std::string &scheduler,
+                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD,
+                    bool createSkyCoverage);
 
     private:
         boost::property_tree::ptree master_; ///< master property tree

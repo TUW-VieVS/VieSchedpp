@@ -26,19 +26,19 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
         if (overlapping>twopi){
             cerr << "ERROR: cable wrap limits to large!";
         }
-        nLow_ = axis1Low_;
-        nUp_ = axis1Low_ + overlapping / 2;
-        cLow_ = axis1Low_ + overlapping / 2;
-        cUp_ = axis1Up_ - overlapping / 2;
-        wLow_ = axis1Up_ - overlapping / 2;
-        wUp_ = axis1Up_;
-    }else {
-        nLow_ = axis1Low_;
-        nUp_= axis1Up_;
-        cLow_ = axis1Up_;
+        wLow_ = axis1Low_;
+        wUp_ = axis1Low_ + overlapping / 2;
+        nLow_ = axis1Low_ + overlapping / 2;
+        nUp_ = axis1Up_ - overlapping / 2;
+        cLow_ = axis1Up_ - overlapping / 2;
         cUp_ = axis1Up_;
+    }else {
         wLow_ = axis1Low_;
         wUp_ = axis1Low_;
+        nLow_ = axis1Low_;
+        nUp_ = axis1Up_;
+        cLow_ = axis1Up_;
+        cUp_ = axis1Up_;
     }
 }
 
@@ -77,7 +77,7 @@ bool CableWrap::unwrapAzNearNeutralPoint(PointingVector &new_pointingVector) con
 
 
     unaz_new = az_new;
-    int ambigurities = (int) floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi));
+    auto ambigurities = static_cast<int>(floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi)));
     double this_unaz = unaz_new;
 
     for (int i = 1; i <= ambigurities; ++i) {
@@ -112,7 +112,7 @@ void CableWrap::calcUnwrappedAz(const PointingVector &old_pointingVector,
 
 
     unaz_new = az_new;
-    int ambigurities = (int) floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi));
+    auto ambigurities = static_cast<int>(floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi)));
     double this_unaz = unaz_new;
 
     for (int i = 1; i <= ambigurities; ++i) {
@@ -154,10 +154,10 @@ namespace VieVS {
 
 void CableWrap::setMinimumOffsets(double axis1_low_offset, double axis1_up_offset,
                                        double axis2_low_offset, double axis2_up_offset) noexcept {
-    this->axis1LowOffset_ = axis1_low_offset * deg2rad;
-    this->axis1UpOffset_ = axis1_up_offset * deg2rad;
-    this->axis2LowOffset_ = axis2_low_offset * deg2rad;
-    this->axis2UpOffset_ = axis2_up_offset * deg2rad;
+    axis1LowOffset_ = axis1_low_offset * deg2rad;
+    axis1UpOffset_ = axis1_up_offset * deg2rad;
+    axis2LowOffset_ = axis2_low_offset * deg2rad;
+    axis2UpOffset_ = axis2_up_offset * deg2rad;
 }
 
 void CableWrap::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old) const noexcept {
@@ -174,7 +174,7 @@ void CableWrap::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old
 
 
     unaz_new = az_new;
-    int ambigurities = (int) floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi));
+    auto ambigurities = static_cast<int>(floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi)));
     double this_unaz = unaz_new;
 
     for (int i = 1; i <= ambigurities; ++i) {
@@ -186,5 +186,20 @@ void CableWrap::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old
         }
     }
     new_pointingVector.setAz(this_unaz);
+}
+
+std::string CableWrap::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
+    double az = pointingVector.getAz();
+
+    if (az <= nUp_ && az >= nLow_) {
+        return "-";
+    }
+    if (az <= cUp_ && az >= cLow_) {
+        return "C";
+    }
+    if (az <= wUp_ && az >= wLow_) {
+        return "W";
+    }
+    return "?";
 }
 

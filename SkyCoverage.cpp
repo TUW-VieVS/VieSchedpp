@@ -125,12 +125,12 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
     }
 
 
-    int pv_delta_az = abs((int) (delta_az +.5)); // +.5 for rounding
+    int pv_delta_az = abs(static_cast<int>(delta_az + .5)); // +.5 for rounding
     if(pv_1_el>pv_2_el){
         swap(pv_1_el,pv_2_el);
     }
-    int thisEl = (int) (pv_1_el*rad2deg+.5); // +.5 for rounding
-    int pv_delta_el = (int) ((pv_2_el-pv_1_el)*rad2deg+.5); // +.5 for rounding
+    int thisEl = static_cast<int>(pv_1_el * rad2deg + .5); // +.5 for rounding
+    int pv_delta_el = static_cast<int>((pv_2_el - pv_1_el) * rad2deg + .5); // +.5 for rounding
     float distance = SkyCoverage::angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
 
     if (distance > maxInfluenceDistance_) {
@@ -139,8 +139,9 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
 
 //        double scoreDistance = .5 + .5 * cos(distance * pi / maxDistDistance);
 //        double scoreTime = .5 + .5 * cos(deltaTime * pi / maxDistTime );
-    double scoreDistance = .5 + .5 * (LookupTable::cosLookup[(int) (distance * pi / maxInfluenceDistance_ * 1000)]);
-    double scoreTime = .5 + .5 * (LookupTable::cosLookup[(int) (deltaTime * pi / maxInfluenceTime_ * 1000)]);
+    double scoreDistance =
+            .5 + .5 * (LookupTable::cosLookup[static_cast<int>(distance * pi / maxInfluenceDistance_ * 1000)]);
+    double scoreTime = .5 + .5 * (LookupTable::cosLookup[static_cast<int>(deltaTime * pi / maxInfluenceTime_ * 1000)]);
     double thisScore = 1 - (scoreDistance * scoreTime);
 
     return thisScore;

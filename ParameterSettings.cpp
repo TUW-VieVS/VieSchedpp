@@ -21,18 +21,16 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 
 }
 
-void ParameterSettings::general(const std::string &experimentName, const std::string &experimentDescription,
-                              const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                              int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode,
-                              const std::vector<std::string> &stations) {
+void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
+                                int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode, double minElevation,
+                                const std::vector<std::string> &stations) {
     boost::property_tree::ptree general;
-    general.add("general.experimentName", experimentName);
-    general.add("general.experimentDescription", experimentDescription);
     general.add("general.startTime", startTime);
     general.add("general.endTime", endTime);
     general.add("general.maxDistanceTwinTeleskopes", maxDistanceTwinTeleskopes);
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
+    general.add("general.minElevation", minElevation);
 
     boost::property_tree::ptree all_stations;
     for (const auto &any: stations) {
@@ -46,10 +44,12 @@ void ParameterSettings::general(const std::string &experimentName, const std::st
 }
 
 void ParameterSettings::catalogs(const std::string &root, const std::string &antenna, const std::string &equip,
-                               const std::string &flux, const std::string &freq, const std::string &hdpos,
-                               const std::string &loif, const std::string &mask, const std::string &modes,
-                               const std::string &position, const std::string &rec, const std::string &rx,
-                               const std::string &source) {
+                                 const std::string &flux,
+                                 const std::string &freq, const std::string &hdpos, const std::string &loif,
+                                 const std::string &mask,
+                                 const std::string &modes, const std::string &position, const std::string &rec,
+                                 const std::string &rx,
+                                 const std::string &source, const std::string &tracks) {
     boost::property_tree::ptree catalogs;
     catalogs.add("catalogs.root", root);
     catalogs.add("catalogs.antenna", antenna);
@@ -64,6 +64,7 @@ void ParameterSettings::catalogs(const std::string &root, const std::string &ant
     catalogs.add("catalogs.rec", rec);
     catalogs.add("catalogs.rx", rx);
     catalogs.add("catalogs.source", source);
+    catalogs.add("catalogs.tracks", tracks);
 
     master_.add_child("master.catalogs", catalogs.get_child("catalogs"));
 }
@@ -129,21 +130,6 @@ void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS 
         parameters.add("parameters.maxWait", PARA.maxWait);
     }
 
-    if (PARA.wait_calibration.is_initialized()) {
-        parameters.add("parameters.wait_calibration", PARA.wait_calibration);
-    }
-    if (PARA.wait_corsynch.is_initialized()) {
-        parameters.add("parameters.wait_corsynch", PARA.wait_corsynch);
-    }
-    if (PARA.wait_setup.is_initialized()) {
-        parameters.add("parameters.wait_setup", PARA.wait_setup);
-    }
-    if (PARA.wait_source.is_initialized()) {
-        parameters.add("parameters.wait_source", PARA.wait_source);
-    }
-    if (PARA.wait_tape.is_initialized()) {
-        parameters.add("parameters.wait_tape", PARA.wait_tape);
-    }
     if (!PARA.minSNR.empty()) {
         for (const auto &any:PARA.minSNR) {
             boost::property_tree::ptree minSNR;
@@ -168,7 +154,7 @@ void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS 
     master_.add_child("master.station.parameters", parameters.get_child("parameters"));
 }
 
-void ParameterSettings::parameters(const std::string &name, Source::Parameters PARA) {
+void ParameterSettings::parameters(const std::string &name, Source::PARAMETERS PARA) {
     boost::property_tree::ptree parameters;
 
     if (!PARA.available) {
@@ -284,7 +270,7 @@ void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup
 
     boost::property_tree::ptree root;
 
-    if (setup.getChildren().size() > 0) {
+    if (!setup.getChildren().empty()) {
         for (const auto &any:setup.getChildren()) {
             boost::property_tree::ptree thisChildTree = getChildTree(any);
             root.add_child("setup", thisChildTree.get_child("root"));
@@ -306,6 +292,109 @@ void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup
     }
 }
 
+void
+ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup, unsigned int source, unsigned int tape,
+                                    unsigned int calibration, unsigned int corsynch) {
+
+    vector<string> members;
+    if (groupStations_.find(name) != groupStations_.end()) {
+        members.insert(members.end(), groupStations_[name].begin(), groupStations_[name].end());
+    } else {
+        members.push_back(name);
+    }
+
+    vector<string> membersAlreadyUsed;
+    boost::property_tree::ptree PARA_station = master_.get_child("master.station");
+    for (const auto &any:PARA_station) {
+        if (any.first == "waitTimes") {
+            if (name == "__all__") {
+                cerr << "ERROR: double use of station/group " << name
+                     << " in cable wrap buffer block! This whole block is ignored!";
+                return;
+            }
+            string memberName = any.second.get_child("<xmlattr>.member").data();
+            if (groupStations_.find(memberName) != groupStations_.end()) {
+                membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
+                                          groupStations_[memberName].end());
+            } else if (memberName == "__all__") {
+                cerr << "ERROR: double use of station/group " << name
+                     << " in wait time block! This whole block is ignored!";
+                return;
+            } else {
+                membersAlreadyUsed.push_back(memberName);
+            }
+        }
+    }
+    for (const auto &any:members) {
+        if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
+            cerr << "ERROR: double use of station/group " << name
+                 << " in wait times block! This whole block is ignored!";
+            return;
+        }
+    }
+
+    boost::property_tree::ptree wtimes;
+    wtimes.add("waitTimes.setup", setup);
+    wtimes.add("waitTimes.source", source);
+    wtimes.add("waitTimes.tape", tape);
+    wtimes.add("waitTimes.calibration", calibration);
+    wtimes.add("waitTimes.corsynch", corsynch);
+    wtimes.add("waitTimes.<xmlattr>.member", name);
+
+    master_.add_child("master.station.waitTimes", wtimes.get_child("waitTimes"));
+}
+
+void ParameterSettings::stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,
+                                               double axis2LowOffset, double axis2UpOffset) {
+    vector<string> members;
+    if (groupStations_.find(name) != groupStations_.end()) {
+        members.insert(members.end(), groupStations_[name].begin(), groupStations_[name].end());
+    } else {
+        members.push_back(name);
+    }
+
+    vector<string> membersAlreadyUsed;
+    boost::property_tree::ptree PARA_station = master_.get_child("master.station");
+    for (const auto &any:PARA_station) {
+        if (any.first == "cableWrapBuffer") {
+            if (name == "__all__") {
+                cerr << "ERROR: double use of station/group " << name
+                     << " in cable wrap buffer block! This whole block is ignored!";
+                return;
+            }
+            string memberName = any.second.get_child("<xmlattr>.member").data();
+            if (groupStations_.find(memberName) != groupStations_.end()) {
+                membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
+                                          groupStations_[memberName].end());
+            } else if (memberName == "__all__") {
+                cerr << "ERROR: double use of station/group " << name
+                     << " in cable wrap buffer block! This whole block is ignored!";
+                return;
+            } else {
+                membersAlreadyUsed.push_back(memberName);
+            }
+        }
+    }
+
+    for (const auto &any:members) {
+        if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
+            cerr << "ERROR: double use of station/group " << name
+                 << " in cable wrap buffer block! This whole block is ignored!";
+            return;
+        }
+    }
+
+    boost::property_tree::ptree cable;
+    cable.add("cableWrapBuffer.axis1LowOffset", axis1LowOffset);
+    cable.add("cableWrapBuffer.axis1UpOffset", axis1UpOffset);
+    cable.add("cableWrapBuffer.axis2LowOffset", axis2LowOffset);
+    cable.add("cableWrapBuffer.axis2UpOffset", axis2UpOffset);
+    cable.add("cableWrapBuffer.<xmlattr>.member", name);
+
+    master_.add_child("master.station.cableWrapBuffer", cable.get_child("cableWrapBuffer"));
+}
+
+
 boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup &setup) {
     boost::property_tree::ptree root;
     boost::posix_time::ptime start = master_.get<boost::posix_time::ptime>("master.general.startTime");
@@ -313,9 +402,9 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 
     boost::posix_time::time_duration a = end - start;
     int sec = a.total_seconds();
-    unsigned int duration = (unsigned int) sec;
+    auto duration = static_cast<unsigned int>(sec);
 
-    if (setup.getChildren().size() > 0) {
+    if (!setup.getChildren().empty()) {
         const std::vector<string> &members = setup.getMembers();
         const string &memberName = setup.getMemberName();
         if (members.size() == 1 && members[0] == memberName) {
@@ -381,13 +470,23 @@ void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influ
 
 void
 ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                              double weight_averageSources, double weight_averageStations) {
+                                double weight_averageSources, double weight_averageStations, double weightDeclination,
+                                double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
+                                double lowElevationSlopeStart, double lowElevationSlopeEnd) {
     boost::property_tree::ptree weightFactor;
     weightFactor.add("weightFactor.skyCoverage", weight_skyCoverage);
     weightFactor.add("weightFactor.numberOfObservations", weight_numberOfObservations);
     weightFactor.add("weightFactor.duration", weight_duration);
     weightFactor.add("weightFactor.averageSources", weight_averageSources);
     weightFactor.add("weightFactor.averageStations", weight_averageStations);
+
+    weightFactor.add("weightFactor.weightDeclination", weightDeclination);
+    weightFactor.add("weightFactor.declinationSlopeStart", declinationSlopeStart);
+    weightFactor.add("weightFactor.declinationSlopeEnd", declinationSlopeEnd);
+
+    weightFactor.add("weightFactor.weightLowElevation", weightLowElevation);
+    weightFactor.add("weightFactor.lowElevationSlopeStart", lowElevationSlopeStart);
+    weightFactor.add("weightFactor.lowElevationSlopeEnd", lowElevationSlopeEnd);
 
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
@@ -459,4 +558,24 @@ void ParameterSettings::multisched(const MultiScheduling &ms) {
     master_.add_child("master.multisched", ms_tree.get_child("multisched"));
 
 }
+
+void
+ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD,
+                          bool createSkyCoverage) {
+    boost::property_tree::ptree output;
+    output.add("output.experimentName", experimentName);
+    output.add("output.experimentDescription", experimentDescription);
+    output.add("output.scheduler", scheduler);
+    output.add("output.correlator", correlator);
+    output.add("output.createSummary", createSummary);
+    output.add("output.createNGS", createNGS);
+    output.add("output.createSKD", createSKD);
+    output.add("output.createSkyCoverage", createSkyCoverage);
+
+    master_.add_child("master.output", output.get_child("output"));
+
+}
+
+
 

@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     run();
     auto finish = std::chrono::high_resolution_clock::now();
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
-    std::cout << "execution time: " << (double) microseconds.count() / 1e6 << " [s]\n";
+    std::cout << "execution time: " << static_cast<double>(microseconds.count()) / 1e6 << " [s]\n";
 
 
     return 0;
@@ -75,18 +75,20 @@ void run(){
 
     ofstream headerLog("header.txt");
 
+    VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
+    skdCatalogReader.initializeStationCatalogs();
+    skdCatalogReader.initializeSourceCatalogs();
+    skdCatalogReader.initializeModesCatalogs("1024-16(AU)");
+
     init.initializeObservingMode();
     init.initializeLookup();
     init.initializeSkyCoverages();
 
-
-    init.createStations(headerLog);
+    init.createStations(skdCatalogReader, headerLog);
     init.createSkyCoverages();
 
-    init.createSources(headerLog);
+    init.createSources(skdCatalogReader, headerLog);
     init.precalcSubnettingSrcIds();
-
-
 
     bool flag_multiSched = false;
     unsigned long nsched = 1;
@@ -172,8 +174,11 @@ void run(){
             output.setIsched(0);
         }
 
-        output.displayStatistics(true, true, true, true, true);
+        output.writeStatistics(true, true, true, true, true);
+
         output.writeNGS();
+
+        output.writeSkd(skdCatalogReader);
 
         string txt3 = (boost::format("thread %4d finished\n") % (i + 1)).str();
         cout << txt3;
@@ -199,11 +204,12 @@ void createParameterFile(){
 
     vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
                                  "KATH12M"};
-    para.general("TEST", "test_description", start, end, 5000, true, true, station_names);
+    para.general(start, end, 5000, true, true, 5.0, station_names);
 
 
+    para.output("TEST", "test_description", "VIEN", "SHAO", true, true, true, true);
 
-//    std::string root = "D:\\VieVS\\CATALOGS";
+//    std::string root = "D:/VieVS/CATALOGS";
     std::string root = "/data/VieVS/CATALOGS";
     std::string antenna = "antenna.cat";
     std::string equip = "equip.cat";
@@ -217,8 +223,11 @@ void createParameterFile(){
     std::string rec = "rec.cat";
     std::string rx = "rx.cat";
     std::string source = "source.cat";
+    std::string tracks = "tracks.cat";
 
-    para.catalogs(root,antenna,equip,flux,freq,hdpos,loif,mask,modes,position,rec,rx,source);
+    para.catalogs(root, antenna, equip, flux, freq, hdpos,
+                  loif, mask, modes, position, rec, rx,
+                  source, tracks);
 
 
     VieVS::ParameterGroup group_sta("group:siteWettzell",
@@ -233,9 +242,9 @@ void createParameterFile(){
     para.parameters("para:general", sta_para1);
 
     VieVS::Station::PARAMETERS sta_para2;
-    sta_para2.wait_source = 1;
-    sta_para2.wait_tape = 0;
-    para.parameters("para:wait", sta_para2);
+    sta_para2.maxSlewtime = 400;
+    sta_para2.maxScan = 400;
+    para.parameters("para:wettzell", sta_para2);
 
     VieVS::Station::PARAMETERS sta_para3;
     sta_para3.minSNR.insert({"X", 22});
@@ -249,9 +258,9 @@ void createParameterFile(){
 
     VieVS::ParameterSetup pp(0, std::numeric_limits<unsigned int>::max());
     VieVS::ParameterSetup pp1("para:general", "__all__", 0, duration);
-    VieVS::ParameterSetup pp11("para:wait", "group:siteWettzell",
-                           para.getGroupMembers(VieVS::ParameterSettings::Type::station, "group:siteWettzell"), 0,
-                           duration);
+    VieVS::ParameterSetup pp11("para:wettzell", "group:siteWettzell",
+                               para.getGroupMembers(VieVS::ParameterSettings::Type::station, "group:siteWettzell"), 0,
+                               duration);
     VieVS::ParameterSetup pp2("para:SEJONG", "SEJONG", 0, duration);
     VieVS::ParameterSetup pp21("para:down", "SEJONG", 3600, 7200, VieVS::ParameterSetup::Transition::hard);
     bool valid;
@@ -273,16 +282,21 @@ void createParameterFile(){
     }
     para.setup(VieVS::ParameterSettings::Type::station, pp);
 
+    para.stationWaitTimes("group:siteWettzell", 0, 2, 0, 5, 3);
+    para.stationWaitTimes("SEJONG", 0, 5, 1, 10, 3);
+
+    para.stationCableWrapBuffer("group:siteWettzell", 0, 0, 0, 0);
+    para.stationCableWrapBuffer("SEJONG", 5, 5, 5, 5);
 
     VieVS::ParameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384"});
     para.group(VieVS::ParameterSettings::Type::source, group_src);
 
-    VieVS::Source::Parameters src_para1;
+    VieVS::Source::PARAMETERS src_para1;
     src_para1.minFlux = .5;
     src_para1.maxScan = 500;
     para.parameters("para:general", src_para1);
 
-    VieVS::Source::Parameters src_para2;
+    VieVS::Source::PARAMETERS src_para2;
     src_para2.minFlux = 0;
     src_para2.minRepeat = 3600;
     src_para2.minScan = 100;
@@ -346,7 +360,7 @@ void createParameterFile(){
     para.skyCoverage(30, 3600);
 
 
-    para.weightFactor(2, 1, 1, 0, 0.1);
+    para.weightFactor(2, 1, 1, 0, 0.1, 0, -20, -50, 0, 20, 10);
 
 
     para.mode(16, 32, 1, 2);

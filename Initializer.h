@@ -26,6 +26,7 @@
 #include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "Baseline.h"
+#include "SkdCatalogReader.h"
 
 
 #include "sofa.h"
@@ -40,7 +41,7 @@ namespace VieVS {
      * @date 28.06.2017
      */
     class Initializer {
-
+        friend class Scheduler;
     public:
         /**
          * @brief Parameters used in VLBI_initializer.
@@ -70,19 +71,6 @@ namespace VieVS {
             std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
         };
 
-
-        /**
-         * @brief All available and read sked catalog files which can be read.
-         */
-        enum class CATALOG {
-            antenna, ///< antenna.cat file
-            position, ///< position.cat file
-            equip, ///< equip.cat file
-            mask, ///< mask.cat file
-            source, ///< source.cat file
-            flux ///< flux.cat file
-        };
-
         /**
          * @brief empty default constructor.
          */
@@ -108,6 +96,7 @@ namespace VieVS {
          */
         virtual ~Initializer();
 
+        SkdCatalogReader createSkdCatalogReader() const noexcept;
 
         /**
          *  @brief pre calculates all possible second scans used for subnetting
@@ -115,29 +104,18 @@ namespace VieVS {
         void precalcSubnettingSrcIds() noexcept;
 
         /**
-         * @brief This function reads a specific sked catalog file and stores the data in a map.
-         *
-         * @param root path to catalog file
-         * @param fname catalog name
-         * @param type catalog file which should be read
-         * @param headerLog outstream to log file
-         * @return key is list of all Ids, value is corresponding catalog entry
-         */
-        std::map<std::string, std::vector<std::string>> readCatalog(const std::string &root, const std::string &fname, CATALOG type, std::ofstream &headerLog) noexcept;
-
-        /**
          * @brief creates all selected stations from sked catalogs
          *
          * @param headerLog outstream to log file
          */
-        void createStations(std::ofstream &headerLog) noexcept;
+        void createStations(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
          *
          * @param headerLog outstream to log file
          */
-        void createSources(std::ofstream &headerLog) noexcept;
+        void createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
@@ -152,46 +130,6 @@ namespace VieVS {
          * @param headerLog outstream to log file
          */
         void displaySummary(std::ofstream &headerLog) noexcept;
-
-        /**
-         * @brief getter fuction which returns all stations
-         * @return vector of all created station objects
-         */
-        const std::vector<Station> &getStations() const noexcept {
-            return stations_;
-        }
-
-        /**
-         * @brief getter function which returns all sources
-         * @return vector of all created source objects
-         */
-        const std::vector<Source> &getSources() const noexcept {
-            return sources_;
-        }
-
-        /**
-         * @brief getter function which returns all skyCoverages
-         * @return vector of all created sky coverage objects
-         */
-        const std::vector<SkyCoverage> &getSkyCoverages() const noexcept {
-            return skyCoverages_;
-        }
-
-        /**
-         * @brief getter function which returns all parameters
-         * @return all parameters from this VLBI_initializer
-         */
-        const Parameters &getPARA() const noexcept {
-            return parameters_;
-        }
-
-        /**
-         * @brief getter function which returns precalculated values
-         * @return precalculated parameters
-         */
-        const PRECALC &getPRE() const {
-            return preCalculated_;
-        }
 
         /**
          * @brief initializes general block in .xml file
@@ -278,7 +216,6 @@ namespace VieVS {
         std::vector<MultiScheduling::Parameters> readMultiSched();
 
     private:
-
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
         std::vector<Station> stations_; ///< all created stations
         std::vector<Source> sources_; ///< all created sources
@@ -322,9 +259,9 @@ namespace VieVS {
          */
         void sourceSetup(std::vector<std::vector<Source::EVENT> > &events,
                          const boost::property_tree::ptree &tree,
-                         const std::unordered_map<std::string, Source::Parameters> &parameters,
+                         const std::unordered_map<std::string, Source::PARAMETERS> &parameters,
                          const std::unordered_map<std::string, std::vector<std::string> > &groups,
-                         const Source::Parameters &parentPARA) noexcept;
+                         const Source::PARAMETERS &parentPARA) noexcept;
 
         /**
          * @brief baseline setup function

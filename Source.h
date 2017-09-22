@@ -38,7 +38,7 @@ namespace VieVS{
         /**
          * @brief source parameters
          */
-        struct Parameters{
+        struct PARAMETERS {
             boost::optional<bool> available = true; ///< flag is source is available
 
             boost::optional<double> weight = 1; ///< multiplicative factor of score for scans to this source
@@ -61,6 +61,15 @@ namespace VieVS{
             std::vector<std::pair<std::string, std::string>> ignoreBaselinesString; ///< list of all baseline names which should be ignore
             std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
+
+            /**
+             * @brief setter for available
+             *
+             * @param flag true if source is available
+             */
+            void setAvailable(bool flag) {
+                PARAMETERS::available = flag;
+            }
 
             /**
              * @brief output of the curren parameters to out stream
@@ -88,28 +97,28 @@ namespace VieVS{
                 }
 
 
-                for (const auto it:minSNR) {
+                for (const auto &it:minSNR) {
                     of << "    minSNR: " << it.first << " " << it.second << "\n";
                 }
 
                 if (!ignoreStations.empty()) {
                     of << "    ignoreStations:";
-                    for (int i = 0; i < ignoreStations.size(); ++i) {
-                        of << " " << ignoreStations[i];
+                    for (int ignoreStation : ignoreStations) {
+                        of << " " << ignoreStation;
                     }
                     of << "\n";
                 }
                 if (!requiredStations.empty()) {
                     of << "    requiredStations:";
-                    for (int i = 0; i < requiredStations.size(); ++i) {
-                        of << " " << requiredStations[i];
+                    for (int requiredStation : requiredStations) {
+                        of << " " << requiredStation;
                     }
                     of << "\n";
                 }
                 if (!ignoreBaselines.empty()) {
                     of << "    ignoreBaselines:";
-                    for (int i = 0; i < ignoreBaselines.size(); ++i) {
-                        of << " " << ignoreBaselines[i].first << "-" << ignoreBaselines[i].second;
+                    for (const auto &ignoreBaseline : ignoreBaselines) {
+                        of << " " << ignoreBaseline.first << "-" << ignoreBaseline.second;
                     }
                     of << "\n";
                 }
@@ -132,7 +141,7 @@ namespace VieVS{
         struct EVENT {
             unsigned int time; ///< time when new parameters should be used in seconds since start
             bool softTransition; ///< transition type
-            Parameters PARA; ///< new parameters
+            PARAMETERS PARA; ///< new parameters
         };
 
 
@@ -185,7 +194,7 @@ namespace VieVS{
          * @brief getter of parameter object
          * @return parameter object
          */
-        const Parameters &getPARA() const {
+        const PARAMETERS &getPARA() const {
             return parameters_;
         }
 
@@ -193,7 +202,7 @@ namespace VieVS{
          * @brief reference of parameter object
          * @return reference to parameter object
          */
-        Parameters &referencePARA() {
+        PARAMETERS &referencePARA() {
             return parameters_;
         }
 
@@ -270,91 +279,12 @@ namespace VieVS{
         }
 
         /**
-         * @brief minimum time between two scans
-         *
-         * @return minimum time between two scans in seconds
-         */
-        unsigned int minRepeatTime() const noexcept {
-            return *parameters_.minRepeat;
-        }
-
-        /**
-         * @brief getter for minimum required SNR per band
-         * @param band band name
-         *
-         * @return minimum required SNR for all bands
-         */
-        double getMinSNR(std::string band) const noexcept {
-            return parameters_.minSNR.at(band);
-        }
-
-        /**
-         * @brief getter for minimum required scan time
-         *
-         * @return minimum required scan time in seconds
-         */
-        unsigned int getMinScanTime() const noexcept {
-            return *parameters_.minScan;
-        }
-
-        /**
-         * @brief getter for maximum allowed scan time
-         *
-         * @return maximum allowed scan time in seconds
-         */
-        unsigned int getMaxScanTime() const noexcept {
-            return *parameters_.maxScan;
-        }
-
-        /**
-         * @brief checks if a source is available
-         *
-         * @return true if source is available, otherwise false
-         */
-        bool isAvailable() const noexcept {
-            return *parameters_.available;
-        }
-
-        /**
-         * @brief getter for maximum number of allowed scans to this source
-         *
-         * @return maximum number of allowed scans to this source
-         */
-        unsigned int getMaxNumberOfScans() const noexcept {
-            return *parameters_.maxNumberOfScans;
-        };
-
-        /**
-         * @brief getter for fixed scan duration time
-         *
-         * returns an uninitialized value if no fixed scan duration is set.
-         *
-         * @return fixed scan duration or uninitilized object
-         */
-        boost::optional<unsigned int> getFixedScanDuration() const noexcept {
-            if (parameters_.fixedScanDuration.is_initialized()) {
-                return *parameters_.fixedScanDuration;
-            } else {
-                return boost::none;
-            }
-        }
-
-        /**
          * @brief sets source id
          *
          * @param id new id
          */
         void setId(int id) noexcept {
             Source::id_ = id;
-        }
-
-        /**
-         * @brief sets the source available flag
-         *
-         * @param flag true if souce should be available
-         */
-        void setAvailable(bool flag) noexcept {
-            parameters_.available = flag;
         }
 
         /**
@@ -365,14 +295,6 @@ namespace VieVS{
         void setEVENTS(const std::vector<EVENT> &EVENTS) noexcept {
             Source::events_ = EVENTS;
             Source::nextEvent_ = EVENTS[0].time;
-        }
-
-        /**
-         * @brief getter for minimum number of stations for a scan
-         * @return minimum number of stations for a scan
-         */
-        unsigned int getMinNumberOfStations() const noexcept {
-            return *parameters_.minNumberOfStations;
         }
 
         /**
@@ -404,7 +326,7 @@ namespace VieVS{
          * @param dz baseline delta z
          * @return observed flux density per band
          */
-        std::vector<std::pair<std::string, double> > observedFlux(double gmst, double dx, double dy, double dz) const noexcept;
+        double observedFlux(const std::string &band, double gmst, double dx, double dy, double dz) const noexcept;
 
         /**
          * @brief destructor
@@ -449,7 +371,7 @@ namespace VieVS{
         double de_; ///< source declination
         std::unordered_map<std::string, Flux> flux_; ///< source flux information per band
 
-        Parameters parameters_; ///< parameters
+        PARAMETERS parameters_; ///< parameters
         PRECALCULATED preCalculated_; ///< pre calculated values
 
         std::vector<EVENT> events_; ///< list of all events

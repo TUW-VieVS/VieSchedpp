@@ -142,6 +142,14 @@ namespace VieVS{
          */
         void update(const PointingVector &start, const PointingVector &end) noexcept;
 
+        /**
+         * @brief getter for maximum influence time
+         *
+         * @return maximum influence time in seconds
+         */
+        double getMaxInfluenceTime_() const {
+            return maxInfluenceTime_;
+        }
 
     private:
         unsigned long nStations_; ///< number of stations that belong to this sky coverage

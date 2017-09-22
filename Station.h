@@ -74,18 +74,7 @@ namespace VieVS{
             boost::optional<bool> firstScan = false; ///< if true no time is spend for setup, source, tape, calibration, and slewing
             boost::optional<bool> available = true; ///< if true this station is available for a scan
 
-            boost::optional<double> axis1_low_offset; ///< safety margin for lower limit for first axis in degrees
-            boost::optional<double> axis1_up_offset; ///< safety margin for upper limit for first axis in degrees
-            boost::optional<double> axis2_low_offset; ///< safety margin for lower limit for second axis in degrees
-            boost::optional<double> axis2_up_offset; ///< safety margin for upper limit for second axis in degrees
-
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
-
-            boost::optional<unsigned int> wait_setup; ///< time required for setup
-            boost::optional<unsigned int> wait_source; ///< time required for source
-            boost::optional<unsigned int> wait_tape; ///< time required for tape
-            boost::optional<unsigned int> wait_calibration; ///< calibration time
-            boost::optional<unsigned int> wait_corsynch; ///< additional scan time vor correlator synchronization
 
             boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
@@ -96,6 +85,24 @@ namespace VieVS{
 
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
             std::vector<std::string> ignoreSources_str; ///< list of all source names which should be ignored
+
+            /**
+             * @brief setter for available
+             *
+             * @param flag true if station is available
+             */
+            void setAvailable(bool flag) {
+                PARAMETERS::available = flag;
+            }
+
+            /**
+             * @brief setter for first scan
+             *
+             * @param flag true if this is the first scan for a station after down time or at beginning of schedule
+             */
+            void setFirstScan(bool flag) {
+                PARAMETERS::firstScan = flag;
+            }
 
             /**
              * @brief output of the curren parameters to out stream
@@ -115,20 +122,38 @@ namespace VieVS{
                 of << "    minScan:     " << *minScan << "\n";
                 of << "    weight:      " << *weight << "\n";
 
-                for (const auto it:minSNR) {
+                for (const auto &it:minSNR) {
                     of << "    minSNR: " << it.first << " " << it.second << "\n";
                 }
 
                 if (!ignoreSources.empty()) {
                     of << "    ignoreSources:";
-                    for (int i = 0; i < ignoreSources.size(); ++i) {
-                        of << " " << ignoreSources[i];
+                    for (int ignoreSource : ignoreSources) {
+                        of << " " << ignoreSource;
                     }
                     of << "\n";
                 }
             }
         };
 
+        /**
+         * @brief wait times for field system and correlator synchronization
+         */
+        struct WAITTIMES {
+            unsigned int setup = 0; ///< time required for setup
+            unsigned int source = 5; ///< time required for source
+            unsigned int tape = 1; ///< time required for tape
+            unsigned int calibration = 10; ///< calibration time
+            unsigned int corsynch = 3; ///< additional scan time vor correlator synchronization
+        };
+
+        /**
+         * @brief setter for wait times
+         * @param waittimes new wait times
+         */
+        void setWaitTimes(const WAITTIMES &waittimes) {
+            Station::waitTimes_ = waittimes;
+        }
 
         /**
          * @brief changes in parameters
@@ -210,7 +235,7 @@ namespace VieVS{
         /**
          * @brief destuctor
          */
-        virtual ~Station(){};
+        virtual ~Station() = default;;
 
         /**
          * @brief getter for parameters
@@ -219,6 +244,15 @@ namespace VieVS{
          */
         const PARAMETERS &getPARA() const {
             return parameters_;
+        }
+
+        /**
+         * @brief getter for wait times
+         *
+         * @return station wait times
+         */
+        const WAITTIMES &getWaittimes() const {
+            return waitTimes_;
         }
 
         /**
@@ -231,75 +265,18 @@ namespace VieVS{
         }
 
         /**
-         * @brief station availability
-         * @return true if station is available
-         */
-        bool available() const noexcept {
-            return *parameters_.available;
-        }
-
-        /**
-         * @brief sets the flag if a station is available or not
-         * @param flag true if station is available, otherwise false
-         */
-        void setAvailable(bool flag) noexcept {
-            parameters_.available = flag;
-        }
-
-        /**
-         * @brief first scan check
-         * @return true if this is the first scan of the station after a break or session start
-         */
-        bool firstScan() const noexcept {
-            return *parameters_.firstScan;
-        }
-
-        /**
-         * @brief sets the flag if this is the first scan
-         * @param flag true if this is first scan, otherwise false
-         */
-        void setFirstScan(bool flag) noexcept {
-            parameters_.firstScan = flag;
-        }
-
-
-        /**
-         * @brief getter for maximum allowed slew time
-         * @return maximum allowed slew time
-         */
-        unsigned int getMaxSlewtime() const noexcept {
-            return *parameters_.maxSlewtime;
-        }
-
-        /**
-         * @brief getter for maximum allowed idle time
-         * @return maximum allowed idle time
-         */
-        unsigned int getMaxIdleTime() const noexcept {
-            return *parameters_.maxWait;
-        }
-
-        /**
-         * @brief getter for minimum required scan time
-         * @return minimum required scan time
-         */
-        unsigned int getMinScanTime() const noexcept {
-            return *parameters_.minScan;
-        }
-
-        /**
-         * @brief getter for maximum allowed scan time
-         * @return maximum required scan time
-         */
-        unsigned int getMaxScanTime() const noexcept {
-            return *parameters_.maxScan;
-        }
-
-        /**
          * @brief getter for cable wrap
          * @return cable wrap of this station
          */
         const CableWrap &getCableWrap() const noexcept {
+            return cableWrap_;
+        }
+
+        /**
+         * @brief reference to cable wrap
+         * @return cable wrap of this station
+         */
+        CableWrap &referenceCableWrap() noexcept {
             return cableWrap_;
         }
 
@@ -325,27 +302,6 @@ namespace VieVS{
          */
         const Equipment &getEquip() const noexcept {
             return equip_;
-        }
-
-
-        /**
-         * @brief getter for minimum signal to noise ration of a band
-         *
-         * @param band requested information for this band
-         * @return minimum signal to noise ration for this band
-         */
-        double getMinSNR(const std::string &band) const noexcept {
-            return parameters_.minSNR.at(band);
-        }
-
-        /**
-         * @brief getter for distance between two stations
-         *
-         * @param other_staid other station id
-         * @return distance between this two stations
-         */
-        double getDistance(int other_staid) const noexcept {
-            return preCalculated_.distance[other_staid];
         }
 
         /**
@@ -537,56 +493,6 @@ namespace VieVS{
         void update(unsigned long nbl, const PointingVector &start, const PointingVector &end,
                     const std::vector<unsigned int> &times, const std::string &srcName) noexcept;
 
-        //todo: remove this function
-        /**
-         * @brief sets offsets of cable wrap axis limits
-         */
-        void setCableWrapMinimumOffsets() noexcept;
-
-        /**
-         * @brief get required time for setup
-         *
-         * @return setup time in seconds
-         */
-        unsigned int getWaitSetup() const noexcept {
-            return *parameters_.wait_setup;
-        }
-
-        /**
-        * @brief get required time for source
-         *
-        * @return source time in seconds
-        */
-        unsigned int getWaitSource() const noexcept {
-            return *parameters_.wait_source;
-        }
-
-        /**
-         * @brief get required time for tape
-         *
-         * @return tape time in seconds
-         */
-        unsigned int getWaitTape() const noexcept {
-            return *parameters_.wait_tape;
-        }
-
-        /**
-         * @brief get required time for calibration
-         *
-         * @return calibration time in seconds
-         */
-        unsigned int getWaitCalibration() const noexcept {
-            return *parameters_.wait_calibration;
-        }
-
-        /**
-         * @brief get required time for correlator synchronization
-         *
-         * @return correlator synchronization time in seconds
-         */
-        unsigned int getWaitCorsynch() const noexcept {
-            return *parameters_.wait_corsynch;
-        }
 
         /**
          * @brief returns all pointing vectors which were observed
@@ -611,6 +517,7 @@ namespace VieVS{
         int skyCoverageId_; ///< station sky coverage id
 
         PARAMETERS parameters_; ///< station parameters
+        WAITTIMES waitTimes_; ///< station wait times
         PRECALCULATED preCalculated_; ///< precalculated values
 
         std::vector<EVENT> events_; ///< list of all events

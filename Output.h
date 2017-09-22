@@ -10,6 +10,7 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 #include "Scheduler.h"
+#include "boost/format.hpp"
 
 namespace VieVS{
 
@@ -32,7 +33,7 @@ namespace VieVS{
          *
          * @param sched scheduler
          */
-        explicit Output(const Scheduler &sched);
+        explicit Output(Scheduler &sched);
 
         /**
          * @brief sets the number of this schedule
@@ -54,14 +55,23 @@ namespace VieVS{
          * @param baseline write baseline based block
          * @param duration write duration based block
          */
-        void displayStatistics(bool general, bool station, bool source, bool baseline, bool duration);
+        void writeStatistics(bool general, bool station, bool source, bool baseline, bool duration);
 
         /**
-         * @brief write a ngs file
+         * @brief create a ngs file
          */
         void writeNGS();
 
+
+        /**
+         * @brief create a skd file
+         */
+        void writeSkd(const SkdCatalogReader &skdCatalogReader);
+
+
     private:
+        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+
         int iSched_; ///< number of this schedule
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
@@ -102,6 +112,117 @@ namespace VieVS{
          * @param out outsteam file object
          */
         void displayScanDurationStatistics(std::ofstream &out);
+
+        /**
+         * @brief write skd $PARAM block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param ofstream out stream
+         */
+        void skd_PARAM(const SkdCatalogReader &skdCatalogReader, std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $OP block
+         *
+         * @param ofstream out stream
+         */
+        void skd_OP(std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $DOWNTIME block
+         *
+         * @param ofstream out stream
+         */
+        void skd_DOWNTIME(std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $MAJOR block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param ofstream out stream
+         */
+        void skd_MAJOR(const SkdCatalogReader &skdCatalogReader, std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $MINOR block
+         *
+         * @param ofstream out stream
+         */
+        void skd_MINOR(std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $ASTROMETRIC block
+         *
+         * @param ofstream out stream
+         */
+        void skd_ASTROMETRIC(std::ofstream &ofstream);
+
+        /**
+         * @brief write skd %STATWT block
+         *
+         * @param of out stream
+         */
+        void skd_STATWT(std::ofstream &of);
+
+        /**
+         * @brief write skd $SRCWT block
+         *
+         * @param of out stream
+         */
+        void skd_SRCWT(std::ofstream &of);
+
+        /**
+         * @brief write skd $CATALOG_USED block
+         *
+         * @param of out stream
+         */
+        void skd_CATALOG_USED(std::ofstream &of);
+
+        /**
+         * @brief write skd $BROADBAND block
+         *
+         * @param ofstream out stream
+         */
+        void skd_BROADBAND(std::ofstream &ofstream);
+
+        /**
+         * @brief write skd $SOURCES block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param of out stream
+         */
+        void skd_SOURCES(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
+
+        /**
+         * @brief write skd $STATIONS block
+         * @param skdCatalogReader catalog reader
+         * @param of out stream
+         */
+        void skd_STATIONS(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
+
+        /**
+         * @brief write skd $FLUX block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param of out stream
+         */
+        void skd_FLUX(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
+
+        /**
+         * @brief write skd $SKED block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param of out stream
+         */
+        void skd_SKED(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
+
+        /**
+         * @brief write skd $CODES block
+         *
+         * @param skdCatalogReader catalog reader
+         * @param of out stream
+         */
+        void skd_CODES(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
     };
 }
 

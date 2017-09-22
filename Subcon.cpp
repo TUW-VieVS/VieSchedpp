@@ -37,10 +37,10 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
             int staid = singleScans_[i].getStationId(j);
 
             const Station &thisSta = stations[staid];
-            if (thisSta.firstScan()) {
+            if (*thisSta.getPARA().firstScan) {
                 singleScans_[i].addTimes(j, 0, 0, 0, 0, 0);
                 ++j;
-                maxIdleTimes.push_back(thisSta.getMaxIdleTime());
+                maxIdleTimes.push_back(*thisSta.getPARA().maxWait);
                 continue;
             }
 
@@ -49,21 +49,21 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
                                                    singleScans_[i].referencePointingVector(j));
             unsigned int slewtime = thisSta.slewTime(singleScans_[i].getPointingVector(j));
 
-            if (slewtime > thisSta.getMaxSlewtime()) {
-                scanValid_slew = singleScans_[i].removeStation(j);
+            if (slewtime > *thisSta.getPARA().maxSlewtime) {
+                scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
-                maxIdleTimes.push_back(thisSta.getMaxIdleTime());
-                singleScans_[i].addTimes(j, thisSta.getWaitSetup(), thisSta.getWaitSource(), slewtime,
-                                    thisSta.getWaitTape(), thisSta.getWaitCalibration());
+                maxIdleTimes.push_back(*thisSta.getPARA().maxWait);
+                const Station::WAITTIMES wtimes = thisSta.getWaittimes();
+                singleScans_[i].addTimes(j, wtimes.setup, wtimes.source, slewtime, wtimes.tape, wtimes.calibration);
                 ++j;
             }
         }
 
         if (scanValid_slew) {
-            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes);
+            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes, sources[singleScans_[i].getSourceId()]);
         }
 
         if (!scanValid_slew || !scanValid_idle){
@@ -114,13 +114,13 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
                 slewtime = stations[staid].slewTime(thisPointingVector);
             }
 
-            if (!visible || slewtime > stations[staid].getMaxSlewtime()){
-                scanValid_slew = singleScans_[i].removeStation(j);
+            if (!visible || slewtime > *stations[staid].getPARA().maxSlewtime) {
+                scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
-                maxIdleTimes.push_back(stations[staid].getMaxIdleTime());
+                maxIdleTimes.push_back(*stations[staid].getPARA().maxWait);
                 singleScans_[i].updateSlewtime(j, slewtime);
                 ++j;
             }
@@ -128,7 +128,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
 
 
         if (scanValid_slew) {
-            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes);
+            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes, sources[singleScans_[i].getSourceId()]);
         }
 
         if (!scanValid_slew || !scanValid_idle){
@@ -173,7 +173,8 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations,
     }
 }
 
-void Subcon::createSubcon2(const vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon) noexcept {
+void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon,
+                                   const vector<Source> &sources) noexcept {
     vector<int> sourceIds(nSingleScans_);
     for (int i = 0; i < nSingleScans_; ++i) {
         sourceIds[i] = singleScans_[i].getSourceId();
@@ -234,8 +235,8 @@ void Subcon::createSubcon2(const vector<vector<int>> &subnettingSrcIds, int minS
                                 scan2sta.push_back(intersection[ii]);
                             }
                         }
-                        if (scan1sta.size() >= first.getMinimumNumberOfStations() &&
-                            scan2sta.size() >= second.getMinimumNumberOfStations()) {
+                        if (scan1sta.size() >= *sources[firstSrcId].getPARA().minNumberOfStations &&
+                            scan2sta.size() >= *sources[secondSrcId].getPARA().minNumberOfStations) {
 
                             unsigned int firstTime = first.maxTime();
                             unsigned int secondTime = second.maxTime();
@@ -248,13 +249,13 @@ void Subcon::createSubcon2(const vector<vector<int>> &subnettingSrcIds, int minS
                             }
 
 
-                            boost::optional<Scan> new_first = first.copyScan(scan1sta);
+                            boost::optional<Scan> new_first = first.copyScan(scan1sta, sources[firstSrcId]);
                             if (!new_first) {
                                 continue;
                             }
                             new_first->setType(Scan::ScanType::subnetting);
 
-                            boost::optional<Scan> new_second = second.copyScan(scan2sta);
+                            boost::optional<Scan> new_second = second.copyScan(scan2sta, sources[secondSrcId]);
                             if (!new_second) {
                                 continue;
                             }
@@ -273,14 +274,17 @@ void Subcon::createSubcon2(const vector<vector<int>> &subnettingSrcIds, int minS
     }
 }
 
-void Subcon::generateScore(const vector<Station> &stations,
-                                const vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept {
+void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
+                           const vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept {
 
     unsigned long nmaxsta = stations.size();
     vector< vector <double> > firstScore(nsrc);
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
-        thisScan.calcScore(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages, firstScorePerPv,stations);
+        const Source &thisSource = sources[thisScan.getSourceId()];
+        thisScan.calcScore(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
+                           stations, thisSource,
+                           firstScorePerPv);
         singleScanScores_.push_back(thisScan.getScore());
         firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
     }
@@ -289,12 +293,18 @@ void Subcon::generateScore(const vector<Station> &stations,
     for (auto &thisScans:subnettingScans_) {
         Scan &thisScan1 = thisScans.first;
         int srcid1 = thisScan1.getSourceId();
-        thisScan1.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages, firstScore[srcid1],stations);
+        const Source &thisSource1 = sources[thisScan1.getSourceId()];
+        thisScan1.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                   skyCoverages, stations, thisSource1,
+                                   firstScore[srcid1]);
         double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
         int srcid2 = thisScan2.getSourceId();
-        thisScan2.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages, firstScore[srcid2],stations);
+        const Source &thisSource2 = sources[thisScan2.getSourceId()];
+        thisScan2.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                   skyCoverages, stations, thisSource2,
+                                   firstScore[srcid2]);
         double score2 = thisScan2.getScore();
         subnettingScanScores_.push_back(score1 + score2);
     }
@@ -430,12 +440,13 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
         if (idx < nSingleScans_) {
             unsigned long thisIdx = idx;
             Scan &thisScan = singleScans_[thisIdx];
-
+            const Source &thisSource = sources[thisScan.getSourceId()];
             bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()]);
             if (!flag) {
                 continue;
             }
-            thisScan.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,stations);
+            thisScan.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                               stations, thisSource, skyCoverages);
             double newScore = thisScan.getScore();
 
             q.push(make_pair(newScore, idx));
@@ -445,14 +456,17 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
             auto &thisScans = subnettingScans_[thisIdx];
 
             Scan &thisScan1 = thisScans.first;
+            const Source &thisSource1 = sources[thisScan1.getSourceId()];
             bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()]);
             if (!flag1) {
                 continue;
             }
-            thisScan1.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages, stations);
+            thisScan1.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                stations, thisSource1, skyCoverages);
             double newScore1 = thisScan1.getScore();
 
             Scan &thisScan2 = thisScans.second;
+            const Source &thisSource2 = sources[thisScan2.getSourceId()];
             bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()]);
             if (!flag2) {
                 continue;
@@ -470,7 +484,8 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
                 continue;
             }
 
-            thisScan2.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages, stations);
+            thisScan2.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                stations, thisSource2, skyCoverages);
             double newScore2 = thisScan2.getScore();
             double newScore = newScore1 + newScore2;
 

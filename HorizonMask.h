@@ -34,6 +34,8 @@ namespace VieVS{
             none ///< no mask
         };
 
+        static double minElevation; ///< minimum required elevation
+
         /**
          * @brief empty default constructor
          */
