@@ -43,9 +43,14 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 //        displaySummaryOfStaticMembersForDebugging(bodyLog);
 //        printHorizonMasksForDebugging();
 
+//    VieVS::Scan::nScanSelections = 0;
+
     while (true) {
         Subcon subcon = createSubcon(parameters_.subnetting);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
+        subcon.precalcScore(stations_, sources_);
+        subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_, sources_, skyCoverages_);
         if (!bestIdx_opt) {
@@ -59,7 +64,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             bestScans.push_back(bestScan);
         } else {
             unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-            pair<Scan, Scan> &bestScan_pair = subcon.referenceDoubleSourceScan(thisIdx);
+            pair<Scan, Scan>& bestScan_pair = subcon.referenceSubnettingScans(thisIdx);
             Scan &bestScan1 = bestScan_pair.first;
             Scan &bestScan2 = bestScan_pair.second;
 
@@ -80,10 +85,6 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 //        cout << setprecision(18) << "el_=" << bestScans[0].getPointingVector(0).getEl() << "\n";
 
 
-        bool finished = endOfSessionReached(bestScans);
-        if (finished) {
-            break;
-        }
 
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
@@ -91,12 +92,15 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
                 all_maxTime = any.maxTime();
             }
         }
-
+        if( all_maxTime > TimeSystem::duration){
+            break;
+        }
 
         bool hardBreak = checkForNewEvent(all_maxTime, true, bodyLog);
         if (hardBreak) {
             continue;
         }
+
 
         if (parameters_.fillinmode && !scans_.empty()) {
             start_fillinMode(bestScans, bodyLog);
@@ -106,15 +110,38 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             }
         }
 
+        ++Scan::nScanSelections;
+        if(Scan::scanSequence.customScanSequence){
+            Scan::scanSequence.newScan();
+        }
+        if(CalibratorBlock::scheduleCalibrationBlocks){
+            switch(CalibratorBlock::cadenceUnit){
+                case CalibratorBlock::CadenceUnit::scans:{
+                    if(Scan::nScanSelections == CalibratorBlock::nextBlock){
+                        startCalibrationBlock(bodyLog);
+                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                    }
+                    break;
+                }
+                case CalibratorBlock::CadenceUnit::seconds:{
+                    if(all_maxTime >= CalibratorBlock::nextBlock){
+                        startCalibrationBlock(bodyLog);
+                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                    }
+                    break;
+                }
+            }
+        }
+
 //            bool flag = check(bodyLog);
     }
 
 
     bodyLog << "TOTAL SUMMARY:\n";
-    bodyLog << "created single source scans:      " << nSingleScansConsidered << "\n";
-    bodyLog << "created subnetting scans:  " << nSubnettingScansConsidered << "\n";
-    bodyLog << "created fillin mode scans:  " << nFillinScansConsidered << "\n";
-    bodyLog << "total scans considered: " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered
+    bodyLog << "created single source scans: " << nSingleScansConsidered << "\n";
+    bodyLog << "created subnetting scans:    " << nSubnettingScansConsidered << "\n";
+    bodyLog << "created fillin mode scans:   " << nFillinScansConsidered << "\n";
+    bodyLog << "total scans considered:      " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered
             << "\n";
 
 //        if(PARA.writeSkyCoverageData){
@@ -126,25 +153,28 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     bool everythingOk = check(bodyLog);
     if (!everythingOk) {
-        cout
-                << "########################################################### ERROR ######################################################\n";
+        cout << "########################################################### ERROR ######################################################\n";
     }
 
 }
 
-Subcon Scheduler::createSubcon(bool subnetting) noexcept {
+Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
     Subcon subcon = allVisibleScans();
     subcon.calcStartTimes(stations_, sources_);
     subcon.updateAzEl(stations_, sources_);
     subcon.constructAllBaselines(sources_);
     subcon.calcAllBaselineDurations(stations_, sources_);
     subcon.calcAllScanDurations(stations_, sources_);
+
     if (subnetting) {
         subcon.createSubnettingScans(preCalculated_.subnettingSrcIds, static_cast<int>(stations_.size() * 0.66),
                                      sources_);
     }
-    subcon.precalcScore(stations_, sources_);
-    subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+
+    if(calibrator){
+        subcon.changeScanTypes(Scan::ScanType::calibrator);
+    }
+
     return subcon;
 }
 
@@ -271,12 +301,8 @@ void Scheduler::outputHeader(const vector<Station> &stations, ofstream &bodyLog)
     bodyLog << "\n";
 }
 
-void Scheduler::consideredUpdate(unsigned long n1scans, bool created, ofstream &bodyLog) noexcept {
-    if(created){
-        bodyLog << "|     created new fillin Scans " << n1scans << " \n";
-    }else{
-        bodyLog << "|     considered possible fillin Scans " << n1scans << ": \n";
-    }
+void Scheduler::consideredUpdate(unsigned long n1scans, ofstream &bodyLog) noexcept {
+    bodyLog << "|     created new fillin Scans " << n1scans << " \n";
     nFillinScansConsidered += n1scans;
 }
 
@@ -333,7 +359,6 @@ Scheduler::fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
     if (fillin_subcon.getNumberSingleScans() == 0) {
         return boost::none;
     } else {
-        consideredUpdate(fillin_subcon.getNumberSingleScans(), false, bodyLog);
 
         fillin_subcon.precalcScore(stations_, sources_);
         fillin_subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
@@ -345,7 +370,7 @@ Scheduler::fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
 
                 const Source &thisSource = sources_[fillinScan.getSourceId()];
 
-                unsigned int nstaBefore = fillinScan.getNSta();
+                unsigned long nstaBefore = fillinScan.getNSta();
                 bool flag = fillinScan.possibleFillinScan(stations_, thisSource, fi_endp.getStationUnused(),
                                                           fi_endp.getFinalPosition());
 
@@ -400,7 +425,10 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
         stations_[i].referencePARA().setAvailable(stationPossible[i]);
     }
     Subcon subcon = createSubcon(false);
-    consideredUpdate(subcon.getNumberSingleScans(), true, bodyLog);
+    consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
+    subcon.precalcScore(stations_, sources_);
+    subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+
 
     while (!bestScans.empty()) {
         if (fi_endp.getNumberOfPossibleStations() >= 2) {
@@ -432,22 +460,14 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
             stations_[i].referencePARA().setAvailable(stationPossible[i]);
         }
         subcon = createSubcon(false);
-        consideredUpdate(subcon.getNumberSingleScans(), true, bodyLog);
+        consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
+        subcon.precalcScore(stations_, sources_);
+        subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
     }
 
     for (int i = 0; i < stations_.size(); ++i) {
         stations_[i].referencePARA().setAvailable(stationAvailable[i]);
     }
-}
-
-bool Scheduler::endOfSessionReached(const vector<Scan> &bestScans) const noexcept {
-    bool finished = false;
-    for (const auto &thisScan : bestScans) {
-        if (thisScan.maxTime() > TimeSystem::duration) {
-            finished = true;
-        }
-    }
-    return finished;
 }
 
 bool Scheduler::check(ofstream &bodyLog) noexcept {
@@ -632,4 +652,183 @@ void Scheduler::printHorizonMasksForDebugging() {
         }
         o.close();
     }
+}
+
+void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
+    unsigned long nsta = stations_.size();
+    vector<double> prevLowElevationScores(nsta,0);
+    vector<double> prevHighElevationScores(nsta,0);
+
+    vector<double> highestElevations(nsta,numeric_limits<double>::min());
+    vector<double> lowestElevations(nsta,numeric_limits<double>::max());
+
+
+
+    for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
+
+        Subcon subcon = createSubcon(parameters_.subnetting, true);
+        consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
+        subcon.generateScore(prevLowElevationScores,prevHighElevationScores);
+
+        boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
+        if (!bestIdx_opt) {
+            bodyLog << "ERROR! no valid scan found!\n";
+            continue;
+        }
+        unsigned long bestIdx = *bestIdx_opt;
+        vector<Scan> bestScans;
+        if (bestIdx < subcon.getNumberSingleScans()) {
+            Scan& bestScan = subcon.referenceSingleSourceScan(bestIdx);
+            bestScans.push_back(bestScan);
+        } else {
+            unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
+            pair<Scan, Scan> &bestScan_pair = subcon.referenceSubnettingScans(thisIdx);
+            Scan &bestScan1 = bestScan_pair.first;
+            Scan &bestScan2 = bestScan_pair.second;
+
+            if (bestScan1.maxTime() > bestScan2.maxTime()) {
+                swap(bestScan1, bestScan2);
+            }
+            bestScans.push_back(bestScan1);
+            bestScans.push_back(bestScan2);
+        }
+
+        // update prev low elevation scores
+        for(const auto &scan:bestScans){
+            double lowElevationSlopeStart = CalibratorBlock::lowElevationSlopeStart;
+            double lowElevationSlopeEnd = CalibratorBlock::lowElevationSlopeEnd;
+
+            double highElevationSlopeStart = CalibratorBlock::highElevationSlopeStart;
+            double highElevationSlopeEnd = CalibratorBlock::highElevationSlopeEnd;
+
+//            cout << "new Scan\n";
+            for(int j = 0; j<scan.getNSta(); ++j){
+                const PointingVector &pv = scan.getPointingVector(j);
+                int staid = pv.getStaid();
+
+                double el = pv.getEl();
+//                cout << "el: " << el << "\n";
+                double lowElScore;
+                if(el>lowElevationSlopeStart) {
+                    lowElScore = 0;
+                }else if(el<lowElevationSlopeEnd) {
+                    lowElScore = 1;
+                } else {
+                    lowElScore = (lowElevationSlopeStart-el)/(lowElevationSlopeStart-lowElevationSlopeEnd);
+                }
+//                cout << "lowElScore: " << lowElScore << " before " << prevLowElevationScores[staid] <<"\n";
+                if(lowElScore>prevLowElevationScores[staid]){
+                    prevLowElevationScores[staid] = lowElScore;
+                }
+                if(el<lowestElevations[staid]){
+                    lowestElevations[staid] = el;
+                }
+
+                double highElScore;
+                if(el<highElevationSlopeStart) {
+                    highElScore = 0;
+                }else if(el>highElevationSlopeEnd) {
+                    highElScore = 1;
+                } else {
+                    highElScore = (el-highElevationSlopeStart)/(highElevationSlopeEnd-lowElevationSlopeStart);
+                }
+//                cout << "highElScore: " << highElScore << " before " << prevHighElevationScores[staid] << "\n";
+                if(highElScore>prevHighElevationScores[staid]){
+                    prevHighElevationScores[staid] = highElScore;
+                }
+                if(el>highestElevations[staid]){
+                    highestElevations[staid] = el;
+                }
+
+            }
+
+        }
+
+        unsigned int all_maxTime = 0;
+        for (const auto &any:bestScans) {
+            if (any.maxTime() > all_maxTime) {
+                all_maxTime = any.maxTime();
+            }
+        }
+
+        if( all_maxTime > TimeSystem::duration){
+            break;
+        }
+
+        bool hardBreak = checkForNewEvent(all_maxTime, true, bodyLog);
+        if (hardBreak) {
+            i -=1;
+            continue;
+        }
+
+
+        if (parameters_.fillinmode && !scans_.empty()) {
+            start_fillinMode(bestScans, bodyLog);
+        } else {
+            for (const auto &bestScan : bestScans) {
+                update(bestScan, bodyLog);
+            }
+        }
+
+
+        bool moreScansNecessary = false;
+        for(const auto &any:prevLowElevationScores){
+            if(any<.5){
+                moreScansNecessary = true;
+                break;
+            }
+        }
+        if(!moreScansNecessary){
+            for(const auto &any:prevHighElevationScores){
+                if(any<.5){
+                    moreScansNecessary = true;
+                    break;
+                }
+            }
+        }
+
+        if(!moreScansNecessary){
+            break;
+        }
+    }
+
+    bodyLog << "|-------------";
+    for (int i = 0; i < stations_.size() - 1; ++i) {
+        bodyLog << "-----------";
+    }
+    bodyLog << "----------| \n";
+    bodyLog << "CALIBRATOR BLOCK SUMMARY:\n";
+    bodyLog << "|-------------";
+    for (int i = 0; i < stations_.size() - 1; ++i) {
+        bodyLog << "-----------";
+    }
+    bodyLog << "----------| \n";
+
+    bodyLog << "| low el     |";
+    for (const auto &any:lowestElevations) {
+        if(any != numeric_limits<double>::max()){
+            bodyLog << boost::format(" %8.2f |")% (any*rad2deg);
+        }else {
+            bodyLog << boost::format(" %8s |")% "";
+        }
+    }
+    bodyLog << "\n";
+    bodyLog << "| high el    |";
+    for (const auto &any:highestElevations) {
+        if(any != numeric_limits<double>::min()){
+            bodyLog << boost::format(" %8.2f |")% (any*rad2deg);
+        }else {
+            bodyLog << boost::format(" %8s |")% "";
+        }
+    }
+    bodyLog << "\n";
+
+    bodyLog << "|-------------";
+    for (int i = 0; i < stations_.size() - 1; ++i) {
+        bodyLog << "-----------";
+    }
+    bodyLog << "----------| \n";
+
+
+
 }

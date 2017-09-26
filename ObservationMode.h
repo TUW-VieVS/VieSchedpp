@@ -41,9 +41,7 @@ namespace VieVS{
             none, ///< no backup model
         };
 
-        static unsigned int bandwith; ///< bandwith of one channel
         static unsigned int sampleRate; ///< sample rate of one channel
-        static unsigned int fanout; ///< fanout
         static unsigned int bits; ///< number of recorded bits
 
         static std::vector<std::string> bands; ///< list of all bands

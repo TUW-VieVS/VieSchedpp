@@ -27,6 +27,7 @@
 #include "WeightFactors.h"
 #include "ObservationMode.h"
 #include "TimeSystem.h"
+#include "CalibratorBlock.h"
 
 namespace VieVS{
     /**
@@ -38,6 +39,8 @@ namespace VieVS{
      */
     class Scan {
     public:
+        static thread_local unsigned int nScanSelections; ///< number of selected main scans
+
         /**
          * @brief scan type
          */
@@ -45,7 +48,31 @@ namespace VieVS{
             single, ///< single source scan
             subnetting, ///< subnetting scan
             fillin, ///< fillin mode scan
+            calibrator, ///< calibrator scan
         };
+
+        /**
+         * @brief specify custom scan sequence rules
+         */
+        struct ScanSequence{
+            bool customScanSequence = false; ///< true if you have a custom scan sequence
+            unsigned int cadence = 0; ///< cadence of source sequence rule
+            unsigned int moduloScanSelctions = 0; ///< modulo of scan selection cadence
+            std::map<unsigned int, std::vector<int> > targetSources; ///< map with modulo number as key and list of target source ids as value
+
+            /**
+             * @brief increases the modulo value for this ScanSequence
+             */
+            void newScan(){
+                if(moduloScanSelctions == cadence-1){
+                    moduloScanSelctions = 0;
+                }else{
+                    ++moduloScanSelctions;
+                }
+            }
+        };
+
+        static thread_local ScanSequence scanSequence; ///< scan sequence rules
 
         /**
          * @brief internal debugging function that checks if the number of pointing vectors is equal to nsta
@@ -386,6 +413,18 @@ namespace VieVS{
                               const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
 
         /**
+         * @brief calculates the score for a calibrator block scan
+         *
+         * @param prevLowElevationScores score for previouse low elevation scans
+         * @param prevHighElevationScores score for previouse high elevation scans
+         * @param minRequiredTime minimum time required for a scan
+         * @param maxRequiredTime maximum time required for a scan
+         */
+        void calcScore(const std::vector<double> &prevLowElevationScores,
+                       const std::vector<double> &prevHighElevationScores, unsigned int minRequiredTime,
+                       unsigned int maxRequiredTime);
+
+        /**
          * @brief time required for this scan
          *
          * @return time in seconds since session start until all stations finish scan
@@ -429,6 +468,8 @@ namespace VieVS{
          */
         bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
                                 const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
+
+        void setFixedScanDuration(unsigned int scanDuration) noexcept;
 
         /**
          * @brief outputs information of this scan to the current console

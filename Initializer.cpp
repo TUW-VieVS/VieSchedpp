@@ -1,10 +1,4 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
  * File:   Initializer.cpp
  * Author: mschartn
  * 
@@ -12,6 +6,7 @@
  */
 
 #include "Initializer.h"
+
 using namespace std;
 using namespace VieVS;
 
@@ -42,6 +37,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
     const map<string, vector<string> > &equipCatalog = reader.getEquipCatalog();
     const map<string, vector<string> > &maskCatalog = reader.getMaskCatalog();
 
+    headerLog << "Create Stations:\n";
     unsigned long nant;
     int counter = 0;
 
@@ -235,7 +231,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
         headerLog << boost::format("  %-8s added\n") % name;
 
     }
-    headerLog << "Finished! " << created << " of " << nant << " stations created\n\n" << endl;
+    headerLog << "Finished! " << created << " of " << nant << " stations created\n\n";
 }
 
 void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
@@ -245,6 +241,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
     int counter = 0;
     unsigned long nsrc = sourceCatalog.size();
     int created = 0;
+    headerLog << "Create Sources:\n";
 
     for (auto any: sourceCatalog){
         counter ++;
@@ -259,7 +256,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
 //        }
 
         if (fluxCatalog.find(name) == fluxCatalog.end()){
-            headerLog << "*** ERROR: source " << name << ": flux information not found ***\n";
+            headerLog << "*** WARNING: source " << name << ": flux information not found ***\n";
             continue;
         }
 
@@ -416,28 +413,33 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
 
 
         if (!flux.empty()){
-            sources_.emplace_back(name, ra, de, flux);
+            sources_.emplace_back(name, ra, de, flux, created);
             created++;
             headerLog << boost::format("  %-8s added\n") % name;
         }
     }
-    headerLog << "Finished! " << created << " of " << nsrc << " sources created\n\n" << endl;
+    headerLog << "Finished! " << created << " of " << nsrc << " sources created\n\n";
 }
 
-void Initializer::createSkyCoverages() noexcept {
+void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
     unsigned long nsta = stations_.size();
-    std::deque<bool> alreadyConsidered(nsta, false);
+    std::vector<char> alreadyConsidered(nsta, false);
     int skyCoverageId = 0;
     vector<vector<int> > stationsPerId(nsta);
 
+    headerLog << "Create Sky Coverage Objects:\n";
     for(int i=0; i<nsta; ++i){
         if(!alreadyConsidered[i]){
             stations_[i].setSkyCoverageId(skyCoverageId);
+            headerLog << boost::format("  station: %-8s belongs to sky coverage object %2d\n") %stations_[i].getName() %skyCoverageId;
             stationsPerId[skyCoverageId].push_back(i);
             alreadyConsidered[i] = true;
             for(int j=i+1; j<nsta; ++j){
-                if(!alreadyConsidered[j] && (stations_[i].distance(stations_[j])<parameters_.maxDistanceTwinTeleskopes)){
+                double dist = stations_[i].distance(stations_[j]);
+
+                if(!alreadyConsidered[j] && dist<SkyCoverage::maxTwinTelecopeDistance){
                     stations_[j].setSkyCoverageId(skyCoverageId);
+                    headerLog << boost::format("  station: %8s belongs to sky coverage object %2d\n") %stations_[j].getName() %skyCoverageId;
                     stationsPerId[skyCoverageId].push_back(i);
                     alreadyConsidered[j] = true;
                 }
@@ -447,8 +449,7 @@ void Initializer::createSkyCoverages() noexcept {
     }
 
     for (int i=0; i<skyCoverageId; ++i){
-        skyCoverages_.emplace_back(stationsPerId[i], parameters_.skyCoverageDistance, parameters_.skyCoverageInterval,
-                                   i);
+        skyCoverages_.emplace_back(stationsPerId[i],i);
     }
 
     vector<int> sta2sky_(nsta);
@@ -459,7 +460,7 @@ void Initializer::createSkyCoverages() noexcept {
             sta2sky_[j] = i;
         }
     }
-
+    headerLog << "Finished! "<< skyCoverages_.size() << " sky coverage objects were created\n\n";
 
 }
 
@@ -507,15 +508,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         headerLog << "ERROR: reading parameters.xml file!" << endl;
     }
 
-    parameters_.skyCoverageDistance = xml_.get<double>("master.general.skyCoverageDistance", 30) * deg2rad;
-    parameters_.skyCoverageInterval = xml_.get<double>("master.general.skyCoverageInterval", 3600);;
-
-    try {
-        parameters_.maxDistanceTwinTeleskopes = xml_.get<double>("master.general.maxDistanceTwinTeleskopes", 0);
-    } catch (const boost::property_tree::ptree_error &e) {
-        headerLog << "ERROR: reading parameters.xml file!" << endl;
-    }
-
+    headerLog << "\n";
 }
 
 
@@ -528,7 +521,7 @@ void Initializer::initializeStations() noexcept {
              "    probably missing <station> block?" << endl;
     }
 
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station);
+    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
     unordered_map<std::string, Station::PARAMETERS> parameters;
     for (auto &it: PARA_station) {
@@ -891,7 +884,7 @@ void Initializer::initializeSources() noexcept {
              "    probably missing <source> block?" << endl;
     }
 
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source);
+    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
     unordered_map<std::string, Source::PARAMETERS> parameters;
     for (auto &it: PARA_source) {
@@ -1032,7 +1025,6 @@ void Initializer::initializeSources() noexcept {
     }
     for (int i = 0; i < sources_.size(); ++i) {
         sources_[i].setEVENTS(events[i]);
-        sources_[i].setId(i);
     }
 
     for (auto &any:sources_) {
@@ -1334,6 +1326,11 @@ void Initializer::initializeSkyCoverages() noexcept {
         storage.push_back(thisStorage);
     }
     SkyCoverage::angularDistanceLookup = storage;
+
+    SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
+    SkyCoverage::maxInfluenceTime = xml_.get<double>("master.skyCoverage.skyCoverageInterval", 3600);
+    SkyCoverage::maxTwinTelecopeDistance = xml_.get<double>("master.skyCoverage.maxTwinTelecopeDistance", 0);
+
 }
 
 
@@ -1347,7 +1344,7 @@ void Initializer::initializeBaselines() noexcept {
              "    probably missing <baseline> block?" << endl;
     }
 
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline);
+    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline, GroupType::baseline);
 
     unordered_map<std::string, Baseline::PARAMETERS> parameters;
     for (auto &it: PARA_baseline) {
@@ -1576,15 +1573,11 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
 }
 
 
-void Initializer::initializeObservingMode() noexcept {
+void Initializer::initializeObservingMode(ofstream &headerLog) noexcept {
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
-        if(it.first == "bandwith"){
-            ObservationMode::bandwith = it.second.get_value<unsigned int>();
-        } else if (it.first == "sampleRate") {
+        if (it.first == "sampleRate") {
             ObservationMode::sampleRate = it.second.get_value<unsigned int>();
-        }else if(it.first == "fanout"){
-            ObservationMode::fanout = it.second.get_value<unsigned int>();
         }else if(it.first == "bits"){
             ObservationMode::bits = it.second.get_value<unsigned int>();
         }else if(it.first == "band"){
@@ -1669,7 +1662,7 @@ void Initializer::initializeObservingMode() noexcept {
 
 }
 
-unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root) noexcept {
+unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
     unordered_map<std::string, std::vector<std::string> > groups;
     for (auto &it: root) {
         string name = it.first;
@@ -1684,6 +1677,36 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
             groups[groupName] = members;
         }
     }
+
+    switch(type){
+        case GroupType::source:{
+            std::vector<std::string> members;
+            for(const auto&any:sources_){
+                members.push_back(any.getName());
+            }
+            groups["__all__"] = members;
+            break;
+        }
+        case GroupType::station:{
+            std::vector<std::string> members;
+            for(const auto&any:stations_){
+                members.push_back(any.getName());
+            }
+            groups["__all__"] = members;
+            break;
+        }
+        case GroupType::baseline:{
+            std::vector<std::string> members;
+            for(int i = 0; i<stations_.size(); ++i){
+                for (int j = i+1; j<stations_.size(); ++j){
+                    members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
+                }
+            }
+            groups["__all__"] = members;
+            break;
+        }
+    }
+
     return groups;
 }
 
@@ -1692,11 +1715,11 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     parameters.output(bodyLog);
 
     boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
-    unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station);
+    unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station, GroupType::station);
     boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
-    unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source);
+    unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
     boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
-    unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline);
+    unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline, GroupType::baseline);
 
 
 
@@ -2117,425 +2140,430 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms;
-    boost::property_tree::ptree mstree = xml_.get_child("master.multisched");
+    boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("master.multisched");
+    if(mstree_o.is_initialized()) {
+        boost::property_tree::ptree mstree = *mstree_o;
 
-    boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
-    unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station);
-    boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
-    unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source);
-    boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
-    unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline);
+        boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
+        unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station,
+                                                                                         GroupType::station);
+        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
+        boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
+        unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline,
+                                                                                          GroupType::baseline);
 
 
-    for (const auto &any:mstree) {
-        std::string name = any.first;
-        if (name == "start") {
-            vector<boost::posix_time::ptime> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<boost::posix_time::ptime>());
-            }
-            ms.setStart(data);
-        } else if (name == "multisched_subnetting") {
-            ms.setMultiSched_subnetting(true);
-        } else if (name == "multisched_fillinmode") {
-            ms.setMultiSched_fillinmode(true);
-        } else if (name == "weight_skyCoverage") {
-            vector<double> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<double>());
-            }
-            ms.setWeight_skyCoverage(data);
-        } else if (name == "weight_numberOfObservations") {
-            vector<double> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<double>());
-            }
-            ms.setWeight_numberOfObservations(data);
-        } else if (name == "weight_duration") {
-            vector<double> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<double>());
-            }
-            ms.setWeight_duration(data);
-        } else if (name == "weight_averageSources") {
-            vector<double> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<double>());
-            }
-            ms.setWeight_averageSources(data);
-        } else if (name == "weight_averageStations") {
-            vector<double> data;
-            for (const auto &any2:any.second) {
-                data.push_back(any2.second.get_value<double>());
-            }
-            ms.setWeight_averageStations(data);
-        } else if (name == "station_maxSlewtime") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
+        for (const auto &any:mstree) {
+            std::string name = any.first;
+            if (name == "start") {
+                vector<boost::posix_time::ptime> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<boost::posix_time::ptime>());
                 }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_station.find(name) != group_station.end()) {
-                ms.setStation_maxSlewtime(ParameterGroup(name, group_station[name]), data);
-
-            } else {
-                ms.setStation_maxSlewtime(name, data);
-            }
-        } else if (name == "stationMaxWait_") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_station.find(name) != group_station.end()) {
-                ms.setStation_maxWait(ParameterGroup(name, group_station[name]), data);
-
-            } else {
-                ms.setStation_maxWait(name, data);
-            }
-        } else if (name == "station_maxScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_station.find(name) != group_station.end()) {
-                ms.setStation_maxScan(ParameterGroup(name, group_station[name]), data);
-
-            } else {
-                ms.setStation_maxScan(name, data);
-            }
-        } else if (name == "station_minScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_station.find(name) != group_station.end()) {
-                ms.setStation_minScan(ParameterGroup(name, group_station[name]), data);
-
-            } else {
-                ms.setStation_minScan(name, data);
-            }
-        } else if (name == "station_weight") {
-            vector<double> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
+                ms.setStart(data);
+            } else if (name == "multisched_subnetting") {
+                ms.setMultiSched_subnetting(true);
+            } else if (name == "multisched_fillinmode") {
+                ms.setMultiSched_fillinmode(true);
+            } else if (name == "weight_skyCoverage") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
                     data.push_back(any2.second.get_value<double>());
                 }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_station.find(name) != group_station.end()) {
-                ms.setStation_weight(ParameterGroup(name, group_station[name]), data);
-
-            } else {
-                ms.setStation_weight(name, data);
-            }
-        } else if (name == "source_minNumberOfStations") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_minNumberOfStations(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_minNumberOfStations(name, data);
-            }
-        } else if (name == "source_minFlux") {
-            vector<double> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
+                ms.setWeight_skyCoverage(data);
+            } else if (name == "weight_numberOfObservations") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
                     data.push_back(any2.second.get_value<double>());
                 }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_minFlux(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_minFlux(name, data);
-            }
-        } else if (name == "source_minRepeat") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_minRepeat(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_minRepeat(name, data);
-            }
-        } else if (name == "source_maxScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_maxScan(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_maxScan(name, data);
-            }
-        } else if (name == "source_minScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_minScan(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_minScan(name, data);
-            }
-        } else if (name == "source_weight") {
-            vector<double> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
+                ms.setWeight_numberOfObservations(data);
+            } else if (name == "weight_duration") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
                     data.push_back(any2.second.get_value<double>());
                 }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_source.find(name) != group_source.end()) {
-                ms.setSource_weight(ParameterGroup(name, group_source[name]), data);
-
-            } else {
-                ms.setSource_weight(name, data);
-            }
-        } else if (name == "baseline_maxScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_baseline.find(name) != group_baseline.end()) {
-                ms.setBaseline_maxScan(ParameterGroup(name, group_baseline[name]), data);
-
-            } else {
-                ms.setBaseline_maxScan(name, data);
-            }
-        } else if (name == "baseline_minScan") {
-            vector<unsigned int> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
-                    data.push_back(any2.second.get_value < unsigned
-                    int > ());
-                }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_baseline.find(name) != group_baseline.end()) {
-                ms.setBaseline_minScan(ParameterGroup(name, group_baseline[name]), data);
-
-            } else {
-                ms.setBaseline_minScan(name, data);
-            }
-        } else if (name == "baseline_weight") {
-            vector<double> data;
-            string name;
-            for (const auto &any2:any.second) {
-                if (any2.first == "<xmlattr>") {
-                    for (const auto &any3:any2.second) {
-                        if (any3.first == "member") {
-                            name = any3.second.get_value<std::string>();
-                        }
-                    }
-                }
-                if (any2.first == "value") {
+                ms.setWeight_duration(data);
+            } else if (name == "weight_averageSources") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
                     data.push_back(any2.second.get_value<double>());
                 }
-            }
-            if (name.empty()) {
-                cerr << "missing member attribute in parameter file!\n";
-                terminate();
-            }
-            if (group_baseline.find(name) != group_baseline.end()) {
-                ms.setBaseline_weight(ParameterGroup(name, group_baseline[name]), data);
+                ms.setWeight_averageSources(data);
+            } else if (name == "weight_averageStations") {
+                vector<double> data;
+                for (const auto &any2:any.second) {
+                    data.push_back(any2.second.get_value<double>());
+                }
+                ms.setWeight_averageStations(data);
+            } else if (name == "station_maxSlewtime") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxSlewtime(ParameterGroup(name, group_station[name]), data);
 
-            } else {
-                ms.setBaseline_weight(name, data);
+                } else {
+                    ms.setStation_maxSlewtime(name, data);
+                }
+            } else if (name == "stationMaxWait_") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxWait(ParameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_maxWait(name, data);
+                }
+            } else if (name == "station_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_maxScan(ParameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_maxScan(name, data);
+                }
+            } else if (name == "station_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_minScan(ParameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_minScan(name, data);
+                }
+            } else if (name == "station_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_station.find(name) != group_station.end()) {
+                    ms.setStation_weight(ParameterGroup(name, group_station[name]), data);
+
+                } else {
+                    ms.setStation_weight(name, data);
+                }
+            } else if (name == "source_minNumberOfStations") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minNumberOfStations(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minNumberOfStations(name, data);
+                }
+            } else if (name == "source_minFlux") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minFlux(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minFlux(name, data);
+                }
+            } else if (name == "source_minRepeat") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minRepeat(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minRepeat(name, data);
+                }
+            } else if (name == "source_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_maxScan(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_maxScan(name, data);
+                }
+            } else if (name == "source_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_minScan(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_minScan(name, data);
+                }
+            } else if (name == "source_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_source.find(name) != group_source.end()) {
+                    ms.setSource_weight(ParameterGroup(name, group_source[name]), data);
+
+                } else {
+                    ms.setSource_weight(name, data);
+                }
+            } else if (name == "baseline_maxScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_maxScan(ParameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_maxScan(name, data);
+                }
+            } else if (name == "baseline_minScan") {
+                vector<unsigned int> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value < unsigned
+                        int > ());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_minScan(ParameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_minScan(name, data);
+                }
+            } else if (name == "baseline_weight") {
+                vector<double> data;
+                string name;
+                for (const auto &any2:any.second) {
+                    if (any2.first == "<xmlattr>") {
+                        for (const auto &any3:any2.second) {
+                            if (any3.first == "member") {
+                                name = any3.second.get_value<std::string>();
+                            }
+                        }
+                    }
+                    if (any2.first == "value") {
+                        data.push_back(any2.second.get_value<double>());
+                    }
+                }
+                if (name.empty()) {
+                    cerr << "missing member attribute in parameter file!\n";
+                    terminate();
+                }
+                if (group_baseline.find(name) != group_baseline.end()) {
+                    ms.setBaseline_weight(ParameterGroup(name, group_baseline[name]), data);
+
+                } else {
+                    ms.setBaseline_weight(name, data);
+                }
             }
+
+
         }
 
-
+        return ms.createMultiScheduleParameters();
     }
-
-
-    return ms.createMultiScheduleParameters();
+    return std::vector<MultiScheduling::Parameters>{};
 }
 
 SkdCatalogReader Initializer::createSkdCatalogReader() const noexcept {
@@ -2555,4 +2583,126 @@ SkdCatalogReader Initializer::createSkdCatalogReader() const noexcept {
     return reader;
 }
 
+void Initializer::initializeSourceSequence() noexcept{
+    boost::optional< boost::property_tree::ptree& > sq = xml_.get_child_optional( "master.rules.sourceSequence" );
+    if( sq.is_initialized() )
+    {
+        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
+
+        Scan::scanSequence.customScanSequence = true;
+        for(const auto &any:*sq){
+            if(any.first == "cadence"){
+                Scan::scanSequence.cadence = any.second.get_value<unsigned int>();
+            }
+            if(any.first == "sequence"){
+                auto tmp = any.second;
+                unsigned int modulo;
+                vector<int> targetIds;
+
+                for(const auto &any2:tmp){
+                    if(any2.first == "modulo"){
+                        modulo = any2.second.get_value<unsigned int>();
+                    }
+                    if(any2.first == "member"){
+                        string member = any2.second.get_value<string>();
+                        vector<string> targetSources;
+
+                        if(groups.find(member) != groups.end()){
+                            targetSources = groups[member];
+                        } else if(member == "__all__"){
+                            for(const auto &source:sources_){
+                                const string &name = source.getName();
+                                targetSources.push_back(name);
+                            }
+                        } else{
+                            targetSources.push_back(member);
+                        }
+
+
+
+
+                        for(const auto &source:sources_){
+                            const string &name = source.getName();
+                            if(find(targetSources.begin(),targetSources.end(),name) != targetSources.end()){
+                                targetIds.push_back(source.getId());
+                            }
+                        }
+
+                    }
+                }
+                Scan::scanSequence.targetSources[modulo] = targetIds;
+            }
+        }
+    }
+}
+
+void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
+    boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("master.rules.calibratorBlock");
+    if (cb.is_initialized()) {
+        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
+
+        CalibratorBlock::scheduleCalibrationBlocks = true;
+
+        headerLog << "Calibration Block found!\n";
+
+        for(const auto &any:*cb) {
+            if (any.first == "cadence_nScanSelections") {
+                CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::scans;
+                CalibratorBlock::cadence = any.second.get_value<unsigned int>();
+                CalibratorBlock::nextBlock = CalibratorBlock::cadence;
+                headerLog << "  calibration block every "<< CalibratorBlock::cadence <<" scan selections\n";
+            } else if (any.first == "cadence_seconds") {
+                CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds;
+                CalibratorBlock::cadence = any.second.get_value<unsigned int>();
+                CalibratorBlock::nextBlock = CalibratorBlock::cadence;
+                headerLog << "  calibration block every "<< CalibratorBlock::cadence <<" seconds\n";
+            } else if (any.first == "member") {
+                string member = any.second.get_value<string>();
+                vector<string> targetSources;
+
+                if (groups.find(member) != groups.end()) {
+                    targetSources = groups[member];
+                } else if(member == "__all__"){
+                    for(const auto &source:sources_){
+                        const string &name = source.getName();
+                        targetSources.push_back(name);
+                    }
+                }  else {
+                    targetSources.push_back(member);
+                }
+
+                headerLog << "  allowed calibratior sources: \n    ";
+                vector<int> targetIds;
+                int c = 0;
+                for (const auto &source:sources_) {
+                    if(c==9){
+                        headerLog << "\n    ";
+                        c = 0;
+                    }
+                    const string &name = source.getName();
+                    headerLog << boost::format("%-8s ") % name;
+                    if (find(targetSources.begin(), targetSources.end(), name) != targetSources.end()) {
+                        targetIds.push_back(source.getId());
+                    }
+                    ++c;
+                }
+                headerLog << "\n";
+                CalibratorBlock::calibratorSourceIds = std::move(targetIds);
+            } else if (any.first == "nMaxScans") {
+                CalibratorBlock::nmaxScans = any.second.get_value<unsigned int>();
+                headerLog << "  maximum number of calibration block scans: "<< CalibratorBlock::nmaxScans <<"\n";
+
+            } else if (any.first == "fixedScanTime") {
+                CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::seconds;
+                CalibratorBlock::scanLength = any.second.get_value<unsigned int>();
+
+                headerLog << "  fixed scan length for calibrator scans: "<< CalibratorBlock::scanLength <<" seconds\n";
+
+            }
+
+        }
+    }
+}
 

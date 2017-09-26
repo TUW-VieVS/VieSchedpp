@@ -206,6 +206,9 @@ namespace VieVS {
          */
         void addScanTimes(const std::vector<unsigned int> &scanTimes) noexcept;
 
+
+        void addScanTimes(unsigned int scanTimes) noexcept;
+
         /**
          * @brief latest time until scan is finished
          *

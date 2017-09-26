@@ -282,6 +282,15 @@ namespace VieVS {
             return loifId2loifInfo_;
         }
 
+        /**
+         * @brief getter for channel bbc number
+         *
+         * @return map with channel number as key and bbc number as value
+         */
+        const std::map<int, std::string> &getChannelNumber2BBC() const {
+            return channelNumber2BBC_;
+        }
+
     private:
         std::vector<std::string> staNames_; ///< list of all station
 

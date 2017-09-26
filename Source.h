@@ -158,7 +158,8 @@ namespace VieVS{
          * @param src_de_deg declination in degrees
          * @param src_flux flux information per band
          */
-        Source(const std::string &src_name, double src_ra_deg, double src_de_deg, const std::unordered_map<std::string, Flux> &src_flux);
+        Source(const std::string &src_name, double src_ra_deg, double src_de_deg,
+               const std::unordered_map<std::string, Flux> &src_flux, int id);
 
         /**
          * @brief default copy constructor

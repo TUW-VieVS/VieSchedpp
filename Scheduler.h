@@ -72,7 +72,7 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        Subcon createSubcon(bool subnetting) noexcept;
+        Subcon createSubcon(bool subnetting, bool calibrator = false) noexcept;
 
         /**
          * @brief constructs all visible scans
@@ -108,10 +108,9 @@ namespace VieVS{
          * @brief updates number of considered fillin scans
          *
          * @param n1scans number of fillin scans
-         * @param created flag if these scans were created
          * @param bodyLog outstream file object
          */
-        void consideredUpdate(unsigned long n1scans, bool created, std::ofstream &bodyLog) noexcept;
+        void consideredUpdate(unsigned long n1scans, std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief prints the header lines of the output table to the console
@@ -141,13 +140,6 @@ namespace VieVS{
          */
         boost::optional<Scan> fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
                                                const std::vector<int> &sourceWillBeScanned, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief checks if the end of the session is reached
-         * @param bestScans best next scans
-         * @return true if end is reached, otherwise false
-         */
-        bool endOfSessionReached(const std::vector<Scan> &bestScans) const noexcept;
 
         /**
          * @brief total number of created scans
@@ -226,6 +218,8 @@ namespace VieVS{
          *
          */
         void printHorizonMasksForDebugging();
+
+        void startCalibrationBlock(std::ofstream &bodyLog);
     };
 }
 #endif /* SCHEDULER_H */

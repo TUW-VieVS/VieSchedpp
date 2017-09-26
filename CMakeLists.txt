@@ -11,7 +11,8 @@ set(SOURCE_FILES main.cpp Constants.h Antenna.cpp Antenna.h Baseline.cpp Baselin
         Earth.h LookupTable.cpp LookupTable.h FillinmodeEndposition.cpp FillinmodeEndposition.h
         WeightFactors.cpp WeightFactors.h ObservationMode.cpp ObservationMode.h Output.cpp Output.h
         TimeSystem.cpp TimeSystem.h ParameterSettings.cpp ParameterSettings.h ParameterSetup.cpp ParameterSetup.h
-        MultiScheduling.cpp MultiScheduling.h ParameterGroup.cpp ParameterGroup.h SkdCatalogReader.cpp SkdCatalogReader.h)
+        MultiScheduling.cpp MultiScheduling.h ParameterGroup.cpp ParameterGroup.h SkdCatalogReader.cpp
+        SkdCatalogReader.h CalibratorBlock.cpp CalibratorBlock.h)
 
 add_executable(VieVS_Scheduler_clion ${SOURCE_FILES})
 

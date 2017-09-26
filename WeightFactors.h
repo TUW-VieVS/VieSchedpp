@@ -56,7 +56,6 @@ namespace VieVS{
                << " = 0; from "
                << lowElevationSlopeStart * rad2deg << " to " << lowElevationSlopeEnd * rad2deg << " = linear; from "
                << lowElevationSlopeEnd * rad2deg << " to -90" << " = 1;\n";
-
         }
     };
 }
