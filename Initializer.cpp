@@ -31,7 +31,9 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
-void Initializer::createStations(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+    reader.initializeStationCatalogs();
+
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
     const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
     const map<string, vector<string> > &equipCatalog = reader.getEquipCatalog();
@@ -234,7 +236,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
     headerLog << "Finished! " << created << " of " << nant << " stations created\n\n";
 }
 
-void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+    reader.initializeSourceCatalogs();
     const map<string, vector<string> > &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string> > &fluxCatalog = reader.getFluxCatalog();
 
@@ -1573,14 +1576,89 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
 }
 
 
-void Initializer::initializeObservingMode(ofstream &headerLog) noexcept {
+void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
-        if (it.first == "sampleRate") {
-            ObservationMode::sampleRate = it.second.get_value<unsigned int>();
-        }else if(it.first == "bits"){
+        if (it.first == "skdMode"){
+            const string &name = it.second.get_value<string>();
+            reader.initializeModesCatalogs(name);
+            ObservationMode::sampleRate = reader.getSampleRate();
+            ObservationMode::bits = reader.getBits();
+
+            const auto &chan2band = reader.getChannelNumber2band();
+            vector<string> bands;
+            unordered_map<string,unsigned int> band2nchan;
+            for(const auto &any:chan2band){
+                if(find(bands.begin(), bands.end(), any.second) == bands.end()){
+                    bands.push_back(any.second);
+                    // TODO: count lower and upper sideband somehow... (remove this if-else)
+                    if(any.second == "X"){
+                        band2nchan.insert(make_pair(any.second,3));
+                    }else{
+                        band2nchan.insert(make_pair(any.second,1));
+                    }
+
+                }else{
+                    ++band2nchan[any.second];
+                }
+            }
+            ObservationMode::bands = bands;
+            ObservationMode::nChannels = band2nchan;
+
+
+            unordered_map<string,vector<double> > band2skyFreqs;
+            for(const auto &any:bands){
+                band2skyFreqs.insert(make_pair(any,vector<double>{}));
+            }
+
+            for(const auto&any:reader.getChannelNumber2skyFreq()){
+                int chanNr = any.first;
+                string band = chan2band.at(chanNr);
+                double freq = boost::lexical_cast<double>(any.second);
+                band2skyFreqs.at(band).push_back(freq);
+            }
+
+            unordered_map<string,double> band2wavelength;
+            for(const auto &any:band2skyFreqs){
+                const string &band = any.first;
+                const auto & tmp = any.second;
+                double meanFreq = accumulate(tmp.begin(),tmp.end(),0.0)/tmp.size();
+                double wl = speedOfLight/(meanFreq*1e6);
+                band2wavelength[band] = wl;
+            }
+            ObservationMode::wavelength = band2wavelength;
+
+            unordered_map<string, ObservationMode::Property> stationProperty;
+            unordered_map<string, ObservationMode::Backup> stationBackup;
+            unordered_map<string, double> stationBackupValue;
+
+            unordered_map<string, ObservationMode::Property> sourceProperty;
+            unordered_map<string, ObservationMode::Backup> sourceBackup;
+            unordered_map<string, double> sourceBackupValue;
+
+            for(const auto &any:bands){
+                stationProperty[any] = ObservationMode::Property::required;
+                sourceProperty[any] = ObservationMode::Property::required;
+                stationBackup[any] = ObservationMode::Backup::none;
+                sourceBackup[any] = ObservationMode::Backup::none;
+                stationBackupValue[any] = 0;
+                sourceBackupValue[any] = 0;
+            }
+
+            ObservationMode::stationProperty = stationProperty;
+            ObservationMode::stationBackup = stationBackup;
+            ObservationMode::stationBackupValue = stationBackupValue;
+
+            ObservationMode::sourceProperty = sourceProperty;
+            ObservationMode::sourceBackup = sourceBackup;
+            ObservationMode::sourceBackupValue = sourceBackupValue;
+
+
+        } else if (it.first == "sampleRate") {
+            ObservationMode::sampleRate = it.second.get_value<double>();
+        } else if(it.first == "bits"){
             ObservationMode::bits = it.second.get_value<unsigned int>();
-        }else if(it.first == "band"){
+        } else if(it.first == "band"){
             double wavelength;
             unsigned int channels;
             ObservationMode::Property station_property;
@@ -1660,6 +1738,28 @@ void Initializer::initializeObservingMode(ofstream &headerLog) noexcept {
         }
     }
 
+    headerLog << "Observing Mode:\n";
+    headerLog << "  sample rate:    " << ObservationMode::sampleRate << "\n";
+    headerLog << "  recording bits: " << ObservationMode::bits << "\n";
+    headerLog << "  Bands: \n";
+    for(const auto &any:ObservationMode::bands){
+//        string staReq;
+//        if(ObservationMode::stationProperty.at(any) == ObservationMode::Property::required){
+//            staReq = "required";
+//        } else {
+//            staReq = "optional";
+//        }
+//        string srcReq;
+//        if(ObservationMode::sourceProperty.at(any) == ObservationMode::Property::required){
+//            srcReq = "required";
+//        } else {
+//            srcReq = "optional";
+//        }
+        unsigned int channels = ObservationMode::nChannels.at(any);
+        double wavelength = ObservationMode::wavelength.at(any);
+        headerLog << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
+    }
+    headerLog << "\n";
 }
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {

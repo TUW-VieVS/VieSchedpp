@@ -76,11 +76,8 @@ void run(){
     ofstream headerLog("header.txt");
 
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
-    skdCatalogReader.initializeStationCatalogs();
-    skdCatalogReader.initializeSourceCatalogs();
-    skdCatalogReader.initializeModesCatalogs("1024-16(AU)");
 
-    init.initializeObservingMode(headerLog);
+    init.initializeObservingMode(skdCatalogReader, headerLog);
     init.initializeLookup();
     init.initializeSkyCoverages();
 
@@ -370,11 +367,12 @@ void createParameterFile(){
 
     para.ruleCalibratorBlockNScanSelections(10,"__all__",3,120);
 
-    para.mode(32, 2);
-    para.mode_band("X", 0.0349, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
-                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 10);
-    para.mode_band("S", 3.8000, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
-                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 6);
+    para.mode("1024-16(AU)");
+//    para.mode(32, 2);
+//    para.mode_band("X", 0.0349, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
+//                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 10);
+//    para.mode_band("S", 3.8000, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
+//                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 6);
 
 
 //    VieVS::MultiScheduling multiSched;

@@ -191,12 +191,18 @@ namespace VieVS {
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
         /**
-         * @brief mode block in parameter.xml
+         * @brief custom mode block in parameter.xml
          *
          * @param sampleRate sample rate
          * @param bits bits
          */
-        void mode(unsigned int sampleRate, unsigned int bits);
+        void mode(double sampleRate, unsigned int bits);
+
+        /**
+         * @brief mode block in parameter.xml
+         * @param skdMode name of observing mode in skd catalogs
+         */
+        void mode(const std::string & skdMode);
 
         /**
          * @brief band sub-block in mode block in parameter.xml

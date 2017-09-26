@@ -39,6 +39,7 @@ namespace VieVS {
         SkdCatalogReader() {
             bandWidth_ = 0;
             sampleRate_ = 0;
+            bits_ = 0;
         };
 
         /**
@@ -291,6 +292,15 @@ namespace VieVS {
             return channelNumber2BBC_;
         }
 
+        /**
+         * @brief getter for recoreded bits
+         *
+         * @return number of recorded bits
+         */
+        unsigned int getBits() const {
+            return bits_;
+        }
+
     private:
         std::vector<std::string> staNames_; ///< list of all station
 
@@ -327,6 +337,7 @@ namespace VieVS {
         std::string recName_; ///< rec name
         double bandWidth_; ///< bandwith
         double sampleRate_; ///< sample rate
+        unsigned int bits_;
 
         std::map<std::string, std::string> staName2hdposMap_; ///< map with station name as key and hdpos name as value
         std::map<std::string, std::string> staName2tracksMap_; ///< map with station name as key and tracks name as value

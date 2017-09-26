@@ -492,7 +492,15 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
-void ParameterSettings::mode(unsigned int sampleRate, unsigned int bits) {
+void ParameterSettings::mode(const std::string &skdMode) {
+    boost::property_tree::ptree mode;
+    mode.add("mode.skdMode", skdMode);
+
+    master_.add_child("master.mode", mode.get_child("mode"));
+}
+
+
+void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     boost::property_tree::ptree mode;
     mode.add("mode.sampleRate", sampleRate);
     mode.add("mode.bits", bits);
@@ -634,6 +642,7 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 
 }
+
 
 
 

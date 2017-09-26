@@ -60,8 +60,6 @@ namespace VieVS {
          * Most of this parameters are than passed to other classes like VLBI_scheduler.
          */
         struct Parameters {
-            std::string experimentName; ///< experimet Name from .xml file
-            std::string experimentDescription; ///< experiment description form xml file
             bool subnetting = true; ///< if set to true subnetting is enabled
             bool fillinmode = true; ///< it set to true fillin scans are calculated
 
@@ -115,14 +113,14 @@ namespace VieVS {
          *
          * @param headerLog outstream to log file
          */
-        void createStations(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createStations(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
          *
          * @param headerLog outstream to log file
          */
-        void createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
@@ -197,7 +195,7 @@ namespace VieVS {
         /**
          * @brief reads the observing mode information from xml file
          */
-        void initializeObservingMode(std::ofstream &headerLog) noexcept;
+        void initializeObservingMode(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the .xml file

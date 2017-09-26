@@ -21,5 +21,7 @@ const double deg2rad = pi / 180; ///< transforms degrees to radians
 
 const double omega = 1.00273781191135448 * twopi / 86400; ///< earth rotation velocity [rad/s]
 
+const double speedOfLight = 299792458.0;
+
 #endif /* CONSTANTS_H */
 

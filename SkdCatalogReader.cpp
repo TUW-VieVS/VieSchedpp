@@ -315,7 +315,13 @@ void SkdCatalogReader::readTracksCatalog() {
 
                 if (splitVector[0] == tracksId) {
                     tracksId2fanoutMap_[tracksId] = boost::lexical_cast<int>(splitVector[1]);
-                    tracksId2bitsMap_[tracksId] = boost::lexical_cast<int>(splitVector[2]);
+                    unsigned int bits = boost::lexical_cast<unsigned int>(splitVector[2]);
+                    if(bits_ == 0){
+                        bits_ = bits;
+                    } else if(bits_ != bits){
+                        cerr << "Number of recorded bits is different for different track ids\n";
+                    }
+                    tracksId2bitsMap_[tracksId] = bits;
 
                     while (getline(ftracks, line)) {
                         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
