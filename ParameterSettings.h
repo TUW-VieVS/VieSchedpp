@@ -66,10 +66,11 @@ namespace VieVS {
          * @param endTime session end time
          * @param subnetting flag if subnetting is allowed
          * @param fillinmode flag if fillin modes are allowed
+         * @param fillinmodeInfluence flag if fillin mode scans should have an influence on the schedule
          * @param stations list of all stations
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     bool subnetting, bool fillinmode, double minElevation,
+                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
                      const std::vector<std::string> &stations);
 
         /**

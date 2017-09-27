@@ -204,7 +204,7 @@ void createParameterFile(){
 
     vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
                                  "KATH12M"};
-    para.general(start, end, true, true, 5.0, station_names);
+    para.general(start, end, true, true, true, 5.0, station_names);
 
 
     para.output("TEST", "test_description", "VIEN", "SHAO", true, true, true, false);

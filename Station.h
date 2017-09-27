@@ -487,11 +487,9 @@ namespace VieVS{
          * @param nbl number of observed baselines
          * @param start pointing vector at start time
          * @param end pointing vector at end time
-         * @param times time stamps of scan
-         * @param srcName name of observed source
+         * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
-        void update(unsigned long nbl, const PointingVector &start, const PointingVector &end,
-                    const std::vector<unsigned int> &times, const std::string &srcName) noexcept;
+        void update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept;
 
 
         /**

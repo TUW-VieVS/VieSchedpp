@@ -39,6 +39,8 @@ namespace VieVS{
         struct Parameters {
             bool subnetting = true; ///< flag if subnetting is allowed
             bool fillinmode = true; ///< flag if fillin modes are allowed
+            bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
+
             bool writeSkyCoverageData = false; ///< flag if sky coverage data should be printed to file
         };
 

@@ -264,10 +264,19 @@ namespace VieVS{
         /**
          * @brief geter for number of already scheduled scans to this source
          *
-         * @return number of already scheduled scans
+         * @return number of already scheduled scans that influence schedule
          */
         unsigned int getNscans() const {
             return nScans_;
+        }
+
+        /**
+         * @brief geter for number of already scheduled scans to this source
+         *
+         * @return number of already scheduled scans in total
+         */
+        unsigned int getNTotalScans() const {
+            return nTotalScans_;
         }
 
         /**
@@ -353,8 +362,9 @@ namespace VieVS{
          *
          * @param nbl number of baselines observed in scan to this source
          * @param time scan end time in seconds since start
+         * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
-        void update(unsigned long nbl, unsigned int time) noexcept;
+        void update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -379,7 +389,8 @@ namespace VieVS{
         unsigned int nextEvent_; ///< index of next event
 
         unsigned int lastScan_; ///< last scan to this source
-        unsigned int nScans_; ///< number of scans to this source
+        unsigned int nScans_; ///< number of scans to this source that have influence on scheduling algorithms
+        unsigned int nTotalScans_; ///< number of total scans
         unsigned long nBaselines_; ///< number of observed baselines to this source
     };
     

@@ -22,13 +22,14 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                bool subnetting, bool fillinmode, double minElevation,
+                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
                                 const std::vector<std::string> &stations) {
     boost::property_tree::ptree general;
     general.add("general.startTime", startTime);
     general.add("general.endTime", endTime);
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
+    general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
     general.add("general.minElevation", minElevation);
 
     boost::property_tree::ptree all_stations;

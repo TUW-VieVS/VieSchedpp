@@ -73,10 +73,13 @@ double Source::observedFlux(const string &band, double gmst, double dx, double d
     return flux;
 }
 
-void Source::update(unsigned long nbl, unsigned int time) noexcept {
-    ++nScans_;
-    nBaselines_ += nbl;
-    lastScan_ = time;
+void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept {
+    if(addToStatistics){
+        ++nScans_;
+        nBaselines_ += nbl;
+        lastScan_ = time;
+    }
+    ++nTotalScans_;
 }
 
 bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {

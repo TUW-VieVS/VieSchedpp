@@ -673,7 +673,7 @@ void Output::skd_STATWT(std::ofstream &of) {
 void Output::skd_SRCWT(std::ofstream &of) {
     of << "$SRCWT\n";
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
         }
     }
@@ -726,7 +726,7 @@ void Output::skd_SOURCES(const SkdCatalogReader &skdCatalogReader, std::ofstream
     const map<string, vector<string> > &src = skdCatalogReader.getSourceCatalog();
 
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             vector<string> tmp = src.at(any.getName());
             of << boost::format(" %-8s %-8s   %2s %2s %9s    %3s %2s %9s %6s %3s ")
                   % tmp[0] % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8] % tmp[9];
@@ -812,7 +812,7 @@ void Output::skd_FLUX(const SkdCatalogReader &skdCatalogReader, std::ofstream &o
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             const string &name = any.getName();
             vector<string> tmp = flu.at(name);
 

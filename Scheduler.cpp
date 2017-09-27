@@ -22,6 +22,7 @@ Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, 
 
     parameters_.subnetting = init.parameters_.subnetting;
     parameters_.fillinmode = init.parameters_.fillinmode;
+    parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.writeSkyCoverageData = false;
 
     preCalculated_.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
@@ -263,26 +264,32 @@ Subcon Scheduler::allVisibleScans() noexcept {
 
 void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
 
-    int srcid = scan.getSourceId();
-    string sourceName = sources_[srcid].getName();
-    unsigned long nbl = scan.getNBl();
+    bool scanHasInfluence;
+    if( scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule ){
+        scanHasInfluence = false;
+    } else {
+        scanHasInfluence = true;
+    }
 
+
+    int srcid = scan.getSourceId();
+    unsigned long nbl = scan.getNBl();
 
     for (int i = 0; i < scan.getNSta(); ++i) {
         const PointingVector &pv = scan.getPointingVector(i);
         int staid = pv.getStaid();
         const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
-        vector<unsigned int> times = scan.getTimes().stationTimes(i);
-        stations_[staid].update(nbl, pv, pv_end, times, sourceName);
+        stations_[staid].update(nbl, pv, pv_end, scanHasInfluence);
 
-
-        int skyCoverageId = stations_[staid].getSkyCoverageID();
-        skyCoverages_[skyCoverageId].update(pv, pv_end);
+        if(scanHasInfluence){
+            int skyCoverageId = stations_[staid].getSkyCoverageID();
+            skyCoverages_[skyCoverageId].update(pv, pv_end);
+        }
     }
 
     unsigned int latestTime = scan.maxTime();
     Source &thisSource = sources_[srcid];
-    thisSource.update(nbl, latestTime);
+    thisSource.update(nbl, latestTime, scanHasInfluence);
 
     scans_.push_back(scan);
     scan.output(scans_.size(), stations_, thisSource, bodyLog);

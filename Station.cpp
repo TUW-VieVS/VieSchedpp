@@ -240,10 +240,11 @@ unsigned int Station::slewTime(const PointingVector &pointingVector) const noexc
     }
 }
 
-void Station::update(unsigned long nbl, const PointingVector &start, const PointingVector &end,
-                          const vector<unsigned int> &times, const string &srcName) noexcept {
-    ++nScans_;
-    nBaselines_ += nbl;
+void Station::update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept {
+    if(addToStatistics){
+        ++nScans_;
+        nBaselines_ += nbl;
+    }
     pointingVectorsStart_.push_back(start);
     pointingVectorsEnd_.push_back(end);
     currentPositionVector_ = end;

@@ -504,6 +504,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
 
         parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
         parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
+        parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule");
 
         HorizonMask::minElevation = xml_.get<double>("master.general.minElevation") * deg2rad;
 
