@@ -109,6 +109,24 @@ namespace VieVS{
         }
 
         /**
+         * @brief getter for local hour angle
+         *
+         * @return local hour angle
+         */
+        double getHa_() const {
+            return ha_;
+        }
+
+        /**
+         * @brief getter for declination
+         *
+         * @return declination
+         */
+        double getDc_() const {
+            return dc_;
+        }
+
+        /**
          * @brief getter for time for which azimuth and elevation is calculated
          *
          * @return time in seconds since session start
@@ -136,6 +154,24 @@ namespace VieVS{
         };
 
         /**
+         * @brief sets local hour angle
+         *
+         * @param ha new local hour angle
+         */
+        void setHa(double ha) {
+            PointingVector::ha_ = ha;
+        }
+
+        /**
+         * @brief sets declination
+         *
+         * @param dc new declination
+         */
+        void setDc(double dc) {
+            PointingVector::dc_ = dc;
+        }
+
+        /**
          * @brief sets time for which azimth and elevation is calculated
          *
          * @param new_time new time
@@ -149,6 +185,8 @@ namespace VieVS{
         int srcid_; ///< source id
         double az_; ///< azimth
         double el_; ///< elevation
+        double ha_; ///< declination
+        double dc_; ///< local hour angle
         unsigned int time_; ///< time in seconds since session start for which azimth and elevation is calculated
     };
 }

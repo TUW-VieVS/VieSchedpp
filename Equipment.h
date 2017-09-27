@@ -142,7 +142,6 @@ namespace VieVS{
         std::unordered_map<std::string,double> c0_; ///< elevation dependent SEFD parameter "c0"
         std::unordered_map<std::string,double> c1_; ///< elevation dependent SEFD parameter "c1"
 
-
     };
 }
 #endif /* EQUIPMENT_H */

@@ -9,6 +9,8 @@
 #ifndef VIEVS_TIMEEVENTS_H
 #define VIEVS_TIMEEVENTS_H
 
+#include "Constants.h"
+
 #include <boost/date_time.hpp>
 
 namespace VieVS {
@@ -25,6 +27,15 @@ namespace VieVS {
         static thread_local boost::posix_time::ptime startTime; ///< session start time
         static thread_local boost::posix_time::ptime endTime; ///< session end time
         static unsigned int duration; ///< session duration in seconds
+
+        /**
+         * @brief transforms modified julian date to Greenwich mean sidereal time
+         *
+         * @param mjd modified julian date
+         * @return Greenwich mean sidereal time
+         */
+        static double mjd2gmst(double mjd);
+
     };
 }
 

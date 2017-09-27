@@ -250,7 +250,7 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
                 double el = pointingVectors_[*findIdxOfStationId(staid2)].getEl();
                 SEFD_sta2 = stations[staid2].getEquip().getSEFD(band, el);
             }else{
-                SEFD_sta1 = stations[staid1].getEquip().getSEFD(band);
+                SEFD_sta2 = stations[staid2].getEquip().getSEFD(band);
             }
 
             double minSNR_sta1 = stations[staid1].getPARA().minSNR.at(band);
@@ -1194,7 +1194,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
             }
 
             // calculate slewtime between end of scan and start of new scan (final position)
-            int slewTime = thisStation.getAntenna().slewTime(fillinScanEnd, finalPosition);
+            unsigned int slewTime = thisStation.getAntenna().slewTime(fillinScanEnd, finalPosition);
 
             // check the available time
             unsigned int pv_finalTime = finalPosition.getTime();

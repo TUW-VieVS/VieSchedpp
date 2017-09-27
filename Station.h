@@ -45,19 +45,6 @@ namespace VieVS{
     */
     class Station {
     public:
-        /**
-         * @brief antenna type
-         */
-        enum class AxisType {
-            AZEL, ///< azimuth elevation antenna
-            HADC, ///< hour angle declination antenna
-            XYNS, ///< x-y north south antenna
-            XYEW, ///< x-y east west antenna
-            RICH, ///< keine ahnung
-            SEST, ///< keine ahnung
-            ALGO, ///< keine ahnung
-            undefined ///< undefined antenna type
-        };
 
         /**
          * @brief azimuth elevation calculation model
@@ -179,7 +166,7 @@ namespace VieVS{
         /**
          * @brief empty default constructor
          */
-        Station();
+        Station() = default;
 
         /**
          * @brief constructor
@@ -193,14 +180,8 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(const std::string &sta_name,
-                int id,
-                const Antenna &sta_antenna,
-                const CableWrap &sta_cableWrap,
-                const Position &sta_position,
-                const Equipment &sta_equip,
-                const HorizonMask &sta_mask,
-                const std::string &sta_axis);
+        Station(const std::string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
+                const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
 
         /**
          * @brief default copy constructor
@@ -511,7 +492,6 @@ namespace VieVS{
         Position position_; ///< station position
         Equipment equip_; ///< station equipment
         HorizonMask mask_; ///< station horizon mask
-        AxisType axis_; ///< station axis type
         int skyCoverageId_; ///< station sky coverage id
 
         PARAMETERS parameters_; ///< station parameters
@@ -522,6 +502,8 @@ namespace VieVS{
         unsigned int nextEvent_; ///< index of next evend
 
         PointingVector currentPositionVector_; ///< current pointing vector
+        double currentHA_; ///< current hour angle to improve computation speed (only used for HADC antennas)
+        double currentDE_; ///< current right ascension to improve computation speed (only used for HADC antennas)
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
