@@ -12,14 +12,23 @@
  */
 
 #include "Equipment.h"
+
 using namespace std;
 using namespace VieVS;
 
 Equipment::Equipment(){}
 
-Equipment::Equipment(const unordered_map<string, double> SEFDs): SEFD_{SEFDs}{
+Equipment::Equipment(const unordered_map<string, double> &SEFDs): SEFD_{SEFDs}, elevationDependentSEFD_{false}{
 
 }
+
+Equipment::Equipment(const std::unordered_map<std::string, double> SEFDs,
+                     const std::unordered_map<std::string, double> y, const std::unordered_map<std::string, double> c0,
+                     const std::unordered_map<std::string, double> c1):
+        SEFD_{SEFDs}, elevationDependentSEFD_{true}, y_{y}, c0_{c0}, c1_{c1}{
+
+}
+
 
 Equipment::~Equipment() {
 }
@@ -45,4 +54,20 @@ double Equipment::getMaxSEFD() const noexcept {
     return maxSEFD;
 
 }
+
+double Equipment::getSEFD(const std::string &band, double el) const noexcept {
+    double y = y_.at(band);
+    double c0 = c0_.at(band);
+    double c1 = c1_.at(band);
+
+    double tmp = pow(sin(el),y);
+    double tmp2 = c0 + c1/tmp;
+
+    if(tmp2<1){
+        return SEFD_.at(band);
+    }else{
+        return SEFD_.at(band)*tmp2;
+    }
+}
+
 

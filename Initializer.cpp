@@ -201,7 +201,53 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         }
 
 
-        // check if an horizontal mask exists
+        bool elSEFD = false;
+        unordered_map<std::string,double> SEFD_y;
+        unordered_map<std::string,double> SEFD_c0;
+        unordered_map<std::string,double> SEFD_c1;
+
+        if(eq_cat.size()>=16){
+            if (eq_cat[9] == "X" || eq_cat[9] == "S"){
+                elSEFD = true;
+                try{
+                    string band = eq_cat[9];
+                    double elSEFD_y = boost::lexical_cast<double>(eq_cat.at(10));
+                    double elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(11));
+                    double elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(12));
+
+                    SEFD_y[band] = elSEFD_y;
+                    SEFD_c0[band] = elSEFD_c0;
+                    SEFD_c1[band] = elSEFD_c1;
+
+
+                }catch (const std::exception& e){
+                    cerr << "*** ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!\n";
+                    elSEFD = false;
+                }
+            }
+            if (eq_cat[13] == "X" || eq_cat[13] == "S"){
+                try{
+                    string band = eq_cat[13];
+                    double elSEFD_y = boost::lexical_cast<double>(eq_cat.at(14));
+                    double elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(15));
+                    double elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(16));
+
+                    SEFD_y[band] = elSEFD_y;
+                    SEFD_c0[band] = elSEFD_c0;
+                    SEFD_c1[band] = elSEFD_c1;
+
+
+                }catch (const std::exception& e){
+                    cerr << "*** ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!\n";
+                    elSEFD = false;
+                }
+            }
+        }
+
+
+
+
+            // check if an horizontal mask exists
         vector<double> hmask;
         if (maskCatalog.find(id_MS) != maskCatalog.end()){
             vector<string> mask_cat = maskCatalog.at(id_MS);
@@ -221,12 +267,20 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
                 headerLog << "*** ERROR: mask CATALOG not found ***\n";
             }
         }
+
+        Equipment thisEquip;
+        if(elSEFD){
+            thisEquip = Equipment(SEFDs, SEFD_y, SEFD_c0, SEFD_c1);
+        }else{
+            thisEquip = Equipment(SEFDs);
+        }
+
         stations_.emplace_back(name,
                                created,
                                Antenna(offset,diam,rate1,con1,rate2,con2),
                                CableWrap(axis1_low,axis1_up,axis2_low,axis2_up),
                                Position(x,y,z),
-                               Equipment(SEFDs),
+                               std::move(thisEquip),
                                HorizonMask(hmask),
                                type);
         created++;
