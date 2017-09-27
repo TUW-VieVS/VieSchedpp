@@ -60,42 +60,6 @@ namespace VieVS{
                 double constantOverhead1_s, double rate2_deg_per_min, double constantOverhead2_s);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other antenna
-         */
-        Antenna(const Antenna &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other antenna
-         */
-        Antenna(Antenna &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other antenna
-         * @return copy of other antenna
-         */
-        Antenna &operator=(const Antenna &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other antenna
-         * @return moved other antenna
-         */
-        Antenna &operator=(Antenna &&other) = default;
-
-
-        /**
-         * destructor
-         */
-        virtual ~Antenna() = default;
-
-        /**
          * @brief getter for axis type
          *
          * @return axis type

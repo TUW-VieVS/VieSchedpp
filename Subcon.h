@@ -39,41 +39,6 @@ namespace VieVS{
         Subcon();
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other subcon
-         */
-        Subcon(const Subcon &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other subcon
-         */
-        Subcon(Subcon &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other subcon
-         * @return copy of other subcon
-         */
-        Subcon &operator=(const Subcon &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other subcon
-         * @return moved other subcon
-         */
-        Subcon &operator=(Subcon &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Subcon() {};
-
-        /**
          * @brief add a single source scan to subcon
          *
          * @param scan scan which should be added

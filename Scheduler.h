@@ -85,11 +85,6 @@ namespace VieVS{
 
 
         /**
-         * @brief destructor
-         */
-        virtual ~Scheduler() noexcept;
-
-        /**
          * @brief updates the selected next scans to the schedule
          *
          * @param scan best possible next scans

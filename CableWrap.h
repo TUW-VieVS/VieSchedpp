@@ -42,42 +42,6 @@ namespace VieVS{
         CableWrap(double axis1_low_deg, double axis1_up_deg,
                        double axis2_low_deg, double axis2_up_deg);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other cable wrap
-         */
-        CableWrap(const CableWrap &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other cable wrap
-         */
-        CableWrap(CableWrap &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other cable wrap
-         * @return copy of other cable wrap
-         */
-        CableWrap &operator=(const CableWrap &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other cable wrap
-         * @return moved other cable wrap
-         */
-        CableWrap &operator=(CableWrap &&other) = default;
-
-
-        /**
-         * @brief destructor
-         */
-        virtual ~CableWrap();
-
 
         /**
          * @brief sets safety margins for axis limits

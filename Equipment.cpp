@@ -30,8 +30,6 @@ Equipment::Equipment(const std::unordered_map<std::string, double> SEFDs,
 }
 
 
-Equipment::~Equipment() {
-}
 
 namespace VieVS{
     ostream &operator<<(ostream &out, const Equipment &equip) noexcept {

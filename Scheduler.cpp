@@ -32,7 +32,6 @@ Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, 
     nFillinScansConsidered = 0;
 }
 
-Scheduler::~Scheduler() = default;
 
 void Scheduler::start(ofstream &bodyLog) noexcept {
 

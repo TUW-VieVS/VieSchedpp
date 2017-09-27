@@ -81,25 +81,6 @@ namespace VieVS {
          */
         explicit Initializer(const std::string &path);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other scan
-         */
-        Initializer(const Initializer &other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other scan
-         * @return copy of other scan
-         */
-        Initializer &operator=(const Initializer &other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Initializer();
 
         SkdCatalogReader createSkdCatalogReader() const noexcept;
 

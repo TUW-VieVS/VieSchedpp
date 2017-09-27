@@ -37,41 +37,6 @@ namespace VieVS {
         explicit ScanTimes(unsigned int nsta);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other scan times object
-         */
-        ScanTimes(const ScanTimes &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other scan times object
-         */
-        ScanTimes(ScanTimes &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other scan times object
-         * @return copy of other scan times object
-         */
-        ScanTimes &operator=(const ScanTimes &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other scan times object
-         * @return copy of other scan times object
-         */
-        ScanTimes &operator=(ScanTimes &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~ScanTimes() = default;
-
-        /**
          * @brief sets the endtime of the last scan
          *
          * this is simulaneouly the start time of this new scan

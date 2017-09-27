@@ -54,41 +54,6 @@ namespace VieVS{
                   const std::unordered_map<std::string, double> c1);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other equip
-         */
-        Equipment(const Equipment &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other equip
-         */
-        Equipment(Equipment &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other equip
-         * @return copy of other equip
-         */
-        Equipment &operator=(const Equipment &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other equip
-         * @return moved other equip
-         */
-        Equipment &operator=(Equipment &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Equipment();
-
-        /**
          * @brief getter function for antenna elevation dependent SEFD information
          *
          * if the elevation dependent SEFD is smaller than the zenith SEFD, the zenith SEFD is returned.

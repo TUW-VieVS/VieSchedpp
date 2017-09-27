@@ -116,41 +116,6 @@ namespace VieVS{
         Scan(std::vector<PointingVector> &pv, ScanTimes &times, std::vector<Baseline> &bl);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other scan
-         */
-        Scan(const Scan &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other scan
-         */
-        Scan(Scan &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other scan
-         * @return copy of other scan
-         */
-        Scan &operator=(const Scan &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other scan
-         * @return moved other scan
-         */
-        Scan &operator=(Scan &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Scan() = default;
-
-        /**
          * @brief sets the scan type
          * @param type new scan type
          */

@@ -29,9 +29,6 @@ Source::Source(const string &src_name, double src_ra_deg, double src_de_deg,
     preCalculated_.sourceInCrs[2] = sin(de_);
 }
 
-Source::~Source() {
-}
-
 double Source::angleDistance(const Source &other) const noexcept {
     return acos(cos(de_)*cos(other.de_) * cos(ra_-other.ra_) + sin(de_)*sin(other.de_));
 }

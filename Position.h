@@ -38,40 +38,6 @@ namespace VieVS{
          */
         Position(double x_m, double y_m, double z_m);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other positon
-         */
-        Position(const Position &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other positon
-         */
-        Position(Position &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other positon
-         * @return copy of other positon
-         */
-        Position &operator=(const Position &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other positon
-         * @return moved other positon
-         */
-        Position &operator=(Position &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Position(){};
 
         /**
          * @brief getter for x coordinate

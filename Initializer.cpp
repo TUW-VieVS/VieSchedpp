@@ -15,7 +15,6 @@ Initializer::Initializer(const std::string &path) {
     boost::property_tree::read_xml(is, xml_);
 }
 
-Initializer::~Initializer() = default;
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
     unsigned long nsrc = sources_.size();

@@ -26,8 +26,6 @@ SkyCoverage::SkyCoverage(const vector<int> &staids, int id)
         : nStations_{staids.size()}, staids_{staids}, id_{id} {
 }
 
-SkyCoverage::~SkyCoverage() = default;
-
 double SkyCoverage::calcScore(const vector<PointingVector> &pvs,
                                    const vector<Station> &stations) const noexcept {
 

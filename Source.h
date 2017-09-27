@@ -161,35 +161,6 @@ namespace VieVS{
         Source(const std::string &src_name, double src_ra_deg, double src_de_deg,
                const std::unordered_map<std::string, Flux> &src_flux, int id);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other source
-         */
-        Source(const Source &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other source
-         */
-        Source(Source &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other source
-         * @return copy of other source
-         */
-        Source &operator=(const Source &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other source
-         * @return moved other source
-         */
-        Source &operator=(Source &&other) = default;
 
         /**
          * @brief getter of parameter object
@@ -337,11 +308,6 @@ namespace VieVS{
          * @return observed flux density per band
          */
         double observedFlux(const std::string &band, double gmst, double dx, double dy, double dz) const noexcept;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Source();
 
         /**
          * @brief this function checks if it is time to change the parameters

@@ -38,41 +38,6 @@ namespace VieVS{
         PointingVector(int staid, int srcid);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other pointing vector
-         */
-        PointingVector(const PointingVector &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other pointing vector
-         */
-        PointingVector(PointingVector &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other pointing vector
-         * @return copy of other pointing vector
-         */
-        PointingVector &operator=(const PointingVector &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other pointing vector
-         * @return moved other pointing vector
-         */
-        PointingVector &operator=(PointingVector &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~PointingVector() {}
-
-        /**
          * @brief getter for station id
          *
          * @return id of station

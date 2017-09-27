@@ -184,41 +184,6 @@ namespace VieVS{
                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other station
-         */
-        Station(const Station &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other station
-         */
-        Station(Station &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other station
-         * @return copy of other station
-         */
-        Station &operator=(const Station &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other station
-         * @return moved other station
-         */
-        Station &operator=(Station &&other) = default;
-
-        /**
-         * @brief destuctor
-         */
-        virtual ~Station() = default;;
-
-        /**
          * @brief getter for parameters
          *
          * @return currently used parameters

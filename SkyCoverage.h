@@ -49,42 +49,6 @@ namespace VieVS{
         SkyCoverage(const std::vector<int> &staids, int id);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other sky coverage
-         */
-        SkyCoverage(const SkyCoverage &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other sky coverage
-         */
-        SkyCoverage(SkyCoverage &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other sky coverage
-         * @return copy of other sky coverage
-         */
-        SkyCoverage &operator=(const SkyCoverage &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other sky coverage
-         * @return moved other sky coverage
-         */
-        SkyCoverage &operator=(SkyCoverage &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~SkyCoverage();
-
-
-        /**
          * @brief getter for all station ids which belong to this sky coverage
          *
          * @return all station ids
