@@ -593,23 +593,20 @@ void Initializer::initializeStations() noexcept {
                     continue;
                 } else if (paraName == "available") {
                     PARA.available = it2.second.get_value<bool>();
+                } else if (paraName == "tagalong") {
+                    PARA.tagalong = it2.second.get_value<bool>();
                 } else if (paraName == "firstScan") {
-                    PARA.firstScan = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.firstScan = it2.second.get_value < bool > ();
                 } else if (paraName == "weight") {
                     PARA.weight = it2.second.get_value<double>();
                 } else if (paraName == "minScan") {
-                    PARA.minScan = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.minScan = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "maxScan") {
-                    PARA.maxScan = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.maxScan = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "maxSlewtime") {
-                    PARA.maxSlewtime = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.maxSlewtime = it2.second.get_value < unsigned int > ();
                 } else if (name == "maxWait") {
-                    PARA.maxWait = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.maxWait = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "minSNR") {
                     string bandName = it2.second.get_child("<xmlattr>.band").data();
                     double value = it2.second.get_value<double>();
@@ -638,6 +635,7 @@ void Initializer::initializeStations() noexcept {
     Station::PARAMETERS parentPARA;
     parentPARA.firstScan = false;
     parentPARA.available = true;
+    parentPARA.tagalong = false;
     parentPARA.maxSlewtime = 9999;
     parentPARA.maxWait = 9999;
     parentPARA.maxScan = 600;
@@ -678,15 +676,14 @@ void Initializer::initializeStations() noexcept {
         Station &thisStation = stations_[i];
 
         PointingVector pV(i, 0);
-        pV.setAz(thisStation.getCableWrap().neutralPoint(1));
-        pV.setEl(thisStation.getCableWrap().neutralPoint(2));
+        pV.setAz(0);
+        pV.setEl(0);
         pV.setTime(0);
 
         thisStation.setCurrentPointingVector(pV);
         thisStation.setEVENTS(events[i]);
         bool hardBreak = false;
-        ofstream dummy;
-        thisStation.checkForNewEvent(0, hardBreak, false, dummy);
+        thisStation.checkForNewEvent();
 
         vector<double> distance(nsta);
         vector<double> dx(nsta);
@@ -797,7 +794,9 @@ void Initializer::initializeStations() noexcept {
         }
     }
 
-
+    for(auto & any:stations_){
+        any.referencePARA().firstScan = true;
+    }
 }
 
 void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
@@ -831,6 +830,9 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             Station::PARAMETERS newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
+            }
+            if (newPARA.tagalong.is_initialized()) {
+                combinedPARA.tagalong = *newPARA.tagalong;
             }
             if (newPARA.firstScan.is_initialized()) {
                 combinedPARA.firstScan = *newPARA.firstScan;
@@ -894,7 +896,7 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
     for (const auto &any:members) {
 
         auto it = find(staNames.begin(), staNames.end(), any);
-        int id = it - staNames.begin();
+        long id = distance(staNames.begin(), it);
         auto &thisEvents = events[id];
 
 

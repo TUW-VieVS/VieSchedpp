@@ -105,4 +105,14 @@ unsigned int ScanTimes::maxTime() const noexcept {
     return max;
 }
 
+unsigned int ScanTimes::scanStart() const noexcept {
+    unsigned int min = numeric_limits<unsigned int>::max();
+    for (auto &thisTime: endOfCalibrationTime_) {
+        if (thisTime < min) {
+            min = thisTime;
+        }
+    }
+    return min;
+}
+
 

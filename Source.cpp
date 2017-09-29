@@ -81,13 +81,13 @@ void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) 
 
 bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
     bool flag = false;
-    while (events_[nextEvent_].time <= time && time != TimeSystem::duration) {
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
         double oldMinFlux = *parameters_.minFlux;
         parameters_ = events_[nextEvent_].PARA;
         double newMinFlux = *parameters_.minFlux;
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
 
-        if (output) {
+        if (output && time < TimeSystem::duration) {
             bodyLog << "###############################################\n";
             bodyLog << "## changing parameters for source: " << boost::format("%8s") % name_ << "  ##\n";
             bodyLog << "###############################################\n";

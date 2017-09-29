@@ -58,8 +58,9 @@ namespace VieVS{
          * @brief station parameters
          */
         struct PARAMETERS{
-            boost::optional<bool> firstScan = false; ///< if true no time is spend for setup, source, tape, calibration, and slewing
-            boost::optional<bool> available = true; ///< if true this station is available for a scan
+            boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
+            boost::optional<bool> available;  ///< if set to true: this station is available for a scan
+            boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
@@ -182,6 +183,15 @@ namespace VieVS{
          */
         Station(const std::string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
+
+        /**
+         * @brief getter for station id
+         *
+         * @return station id
+         */
+        int getId() const {
+            return id_;
+        }
 
         /**
          * @brief getter for parameters
@@ -415,17 +425,33 @@ namespace VieVS{
             Station::nextEvent_ = EVENTS[0].time;
         }
 
+
+        /**
+         * @brief this function applies all changes of parameters at the start of session
+         *
+         */
+        void checkForNewEvent() noexcept;
+
+
         /**
          * @brief this function checks if it is time to change the parameters
          *
-         * !!! This function changes hardBreak !!!
+         * !!! This function changes hardBreak and tagalong !!!
          *
          * @param time current time in seconds since start
          * @param hardBreak flag if a hard break was found
-         * @param output displays output (default is false)
-         * @param bodyLog out stream object
+         * @param bodyLog output stream object
+         * @param tagalong flag if station should be scheduled in tagalong mode
          */
-        void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
+        void checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept;
+
+        /**
+         * @brief changes parameters to next setup
+         *
+         * @param out output stream object
+         */
+        void applyNextEvent(std::ofstream & out) noexcept;
+
 
         /**
          * @brief update station if used for a scan
@@ -448,6 +474,15 @@ namespace VieVS{
         std::pair<const std::vector<PointingVector> &, const std::vector<PointingVector> &> getAllScans() const noexcept {
             return {pointingVectorsStart_,pointingVectorsEnd_};
         };
+
+        void addPointingVectorStart(const PointingVector &pv){
+            pointingVectorsStart_.push_back(pv);
+        }
+
+        void addPointingVectorEnd(const PointingVector &pv){
+            pointingVectorsEnd_.push_back(pv);
+        }
+
 
     private:
         std::string name_; ///< station name

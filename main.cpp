@@ -256,6 +256,10 @@ void createParameterFile(){
     sta_para4.available = false;
     para.parameters("para:down", sta_para4);
 
+    VieVS::Station::PARAMETERS sta_para5;
+    sta_para5.tagalong = true;
+    para.parameters("para:tagalong", sta_para5);
+
     VieVS::ParameterSetup pp(0, std::numeric_limits<unsigned int>::max());
     VieVS::ParameterSetup pp1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp11("para:wettzell", "group:siteWettzell",
@@ -263,6 +267,8 @@ void createParameterFile(){
                                duration);
     VieVS::ParameterSetup pp2("para:SEJONG", "SEJONG", 0, duration);
     VieVS::ParameterSetup pp21("para:down", "SEJONG", 3600, 7200, VieVS::ParameterSetup::Transition::hard);
+    VieVS::ParameterSetup pp3("para:tagalong", "HART15M", 3600, 7200);
+
     bool valid;
     valid = pp2.addChild(pp21);
     if (!valid) {
@@ -273,6 +279,10 @@ void createParameterFile(){
         cout << "no valid child!\n";
     }
     valid = pp1.addChild(pp2);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp1.addChild(pp3);
     if (!valid) {
         cout << "no valid child!\n";
     }

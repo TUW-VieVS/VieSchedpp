@@ -226,7 +226,7 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
         unsigned int startTime = thisBaseline.getStartTime();
 
         double date1 = 2400000.5;
-        double date2 = TimeSystem::mjdStart + startTime / 86400;
+        double date2 = TimeSystem::mjdStart + static_cast<double>(startTime) / 86400.0;
         double gmst = iauGmst82(date1, date2);
 
         unsigned int maxScanDuration = 0;
@@ -692,6 +692,17 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
     } while (stationRemoved);
     return true;
 }
+
+void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
+                              const vector<Baseline> &baselines) {
+    pointingVectors_.push_back(pv_start);
+    pointingVectorsEndtime_.push_back(pv_end);
+    for(auto &any:baselines){
+        baselines_.push_back(any);
+    }
+}
+
+
 
 void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
                      const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,

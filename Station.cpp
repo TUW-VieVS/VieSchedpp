@@ -247,11 +247,27 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
     }
 }
 
-void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
+void Station::checkForNewEvent() noexcept {
 
-    while (events_[nextEvent_].time <= time && time != TimeSystem::duration) {
-        bool oldAvailable = *parameters_.available;
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time == 0) {
         parameters_ = events_[nextEvent_].PARA;
+        nextEvent_++;
+    }
+}
+
+void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept {
+
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
+        bool oldAvailable = *parameters_.available;
+        bool oldTagalong = *parameters_.tagalong;
+        if(!oldTagalong){
+            parameters_ = events_[nextEvent_].PARA;
+
+        } else {
+            out << "TAGALONG for station " << name_ << " required!\n";
+            tagalong = true;
+            return;
+        }
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
         bool newAvailable = *parameters_.available;
 
@@ -260,11 +276,25 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, 
             parameters_.firstScan = true;
         }
 
-        if (output) {
-            bodyLog << "###############################################\n";
-            bodyLog << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
-            bodyLog << "###############################################\n";
+        if(time < TimeSystem::duration){
+            out << "###############################################\n";
+            out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+            out << "###############################################\n";
         }
         nextEvent_++;
     }
 }
+
+void Station::applyNextEvent(std::ofstream &out) noexcept{
+    unsigned int nextEventTimes = events_[nextEvent_].time;
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= nextEventTimes) {
+        parameters_ = events_[nextEvent_].PARA;
+
+        out << "###############################################\n";
+        out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+        out << "###############################################\n";
+        nextEvent_++;
+    }
+
+}
+

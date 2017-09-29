@@ -406,6 +406,16 @@ namespace VieVS{
         bool rigorousUpdate(const std::vector<Station> &stations, const Source &source) noexcept;
 
         /**
+         * @brief adds observation to scan in tagalong mode
+         *
+         * @param pv_start pointing vector at start time
+         * @param pv_end pointing vector at end time
+         * @param baselines all baselines
+         */
+        void addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
+                                const std::vector<Baseline> &baselines);
+
+        /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
          *
          * @param ids ids of all stations which should be copied

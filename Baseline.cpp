@@ -26,13 +26,13 @@ Baseline::Baseline(int srcid, int staid1, int staid2, unsigned int startTime)
 
 void
 Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept {
-    int nsta = Baseline::nextEvent.size();
+    unsigned long nsta = Baseline::nextEvent.size();
     for (int i = 0; i < nsta; ++i) {
         for (int j = i + 1; j < nsta; ++j) {
 
             unsigned int thisNextEvent = Baseline::nextEvent[i][j];
 
-            while (EVENTS[i][j][thisNextEvent].time <= time && time != TimeSystem::duration) {
+            while (thisNextEvent < EVENTS[i][j].size() && EVENTS[i][j][thisNextEvent].time <= time) {
 
                 Baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
                 hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
@@ -44,7 +44,7 @@ Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std:
                 for (const auto &any:newPARA.minSNR) {
                     Baseline::PARA.minSNR[any.first][i][j] = any.second;
                 }
-                if (output) {
+                if (output && time < TimeSystem::duration) {
                     bodyLog << "###############################################\n";
                     bodyLog << "## changing parameters for baseline: " << boost::format("%2d") % i << "-"
                               << boost::format("%2d") % j << "   ##\n";
@@ -74,7 +74,7 @@ void Baseline::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
             log << "    minScan: " << PARA.minScan[i][j] << "\n";
             log << "    maxScan: " << PARA.maxScan[i][j] << "\n";
 
-            for (const auto it:PARA.minSNR) {
+            for (const auto &it:PARA.minSNR) {
                 log << "    minSNR: " << it.first << " " << it.second[i][j] << "\n";
             }
 
@@ -82,5 +82,3 @@ void Baseline::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
     }
 
 }
-
-

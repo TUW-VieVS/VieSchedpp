@@ -11,6 +11,7 @@
 #define SCANTIMES_H
 
 #include <vector>
+#include <limits>
 
 namespace VieVS {
 
@@ -180,6 +181,13 @@ namespace VieVS {
          * @return time until all stations are finished with the observation in seconds since session start
          */
         unsigned int maxTime() const noexcept;
+
+        /**
+         * @brief earliest start time of a scan
+         *
+         * @return scan start time
+         */
+        unsigned int scanStart() const noexcept;
 
     private:
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan

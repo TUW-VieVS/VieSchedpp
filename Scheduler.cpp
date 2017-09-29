@@ -92,13 +92,14 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
                 all_maxTime = any.maxTime();
             }
         }
-        if( all_maxTime > TimeSystem::duration){
-            break;
-        }
 
         bool hardBreak = checkForNewEvent(all_maxTime, true, bodyLog);
         if (hardBreak) {
             continue;
+        }
+
+        if( all_maxTime > TimeSystem::duration){
+            break;
         }
 
 
@@ -217,7 +218,7 @@ Subcon Scheduler::allVisibleScans() noexcept {
         for (int ista=0; ista<nsta; ++ista){
             Station &thisSta = stations_[ista];
 
-            if (!*thisSta.getPARA().available) {
+            if (!*thisSta.getPARA().available || *thisSta.getPARA().tagalong) {
                 continue;
             }
 
@@ -264,11 +265,7 @@ Subcon Scheduler::allVisibleScans() noexcept {
 void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
 
     bool scanHasInfluence;
-    if( scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule ){
-        scanHasInfluence = false;
-    } else {
-        scanHasInfluence = true;
-    }
+    scanHasInfluence = !(scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule);
 
 
     int srcid = scan.getSourceId();
@@ -552,7 +549,11 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
     bool hard_break = false;
 
     for (auto &any:stations_) {
-        any.checkForNewEvent(time, hard_break, output, bodyLog);
+        bool tagalong = false;
+        any.checkForNewEvent(time, hard_break, bodyLog, tagalong);
+        if(tagalong){
+            startTagelongMode(any, bodyLog);
+        }
     }
 
     bool flag = false;
@@ -757,14 +758,15 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
             }
         }
 
-        if( all_maxTime > TimeSystem::duration){
-            break;
-        }
 
         bool hardBreak = checkForNewEvent(all_maxTime, true, bodyLog);
         if (hardBreak) {
             i -=1;
             continue;
+        }
+
+        if( all_maxTime > TimeSystem::duration){
+            break;
         }
 
 
@@ -837,4 +839,220 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
 
 
+}
+
+void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
+
+    int staid = station.getId();
+
+    bodyLog << "Start tagalong mode for station " << station.getName() << ": \n";
+
+    // get wait times
+    unsigned int stationConstTimes = station.getWaittimes().setup +
+            station.getWaittimes().calibration +
+            station.getWaittimes().source +
+            station.getWaittimes().tape;
+
+    // loop through all scans
+    unsigned long counter = 0;
+    for(auto & scan:scans_){
+        ++counter;
+        unsigned int scanStartTime = scan.getTimes().scanStart();
+        unsigned int currentStationTime = station.getCurrentTime();
+
+        if(scan.getType() == Scan::ScanType::fillin){
+            continue;
+        }
+
+        // look if this scan is possible for tagalong mode
+        if (scanStartTime > currentStationTime){
+            int srcid = scan.getSourceId();
+            Source &source = sources_[scan.getSourceId()];
+
+            PointingVector pv_new_start(staid,srcid);
+
+            pv_new_start.setTime(scanStartTime);
+
+            station.calcAzEl(source, pv_new_start);
+
+            // check if source is up from station
+            bool flag = station.isVisible(pv_new_start);
+            if(!flag){
+                continue;
+            }
+
+            station.getCableWrap().calcUnwrappedAz(station.getCurrentPointingVector(),pv_new_start);
+
+            unsigned int slewtime = station.slewTime(pv_new_start);
+//            cout << "scan: " << counter << " slew time: " << slewtime <<"\n";
+            // check if there is enough time to slew to source before scan starts
+            if (scanStartTime < currentStationTime + slewtime + stationConstTimes){
+                continue;
+            }
+
+
+            // loop through all other participating stations and prepare baselines
+            vector<Baseline> bls;
+            for (int i = 0; i < scan.getNSta(); ++i) {
+                // create baseline
+                const PointingVector & otherPv = scan.getPointingVector(i);
+
+                int staid1 = staid;
+                int staid2 = otherPv.getStaid();
+
+                bool swapped = false;
+                if(staid1>staid2){
+                    swap(staid1,staid2);
+                    swapped = true;
+                }
+
+                if(Baseline::PARA.ignore[staid1][staid2]){
+                    continue;
+                }
+                if (!source.getPARA().ignoreBaselines.empty()) {
+                    auto &PARA = source.getPARA();
+                    if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), make_pair(staid1, staid2)) !=
+                        PARA.ignoreBaselines.end()) {
+                        continue;
+                    }
+
+                }
+                Baseline bl(srcid, staid1, staid2, scanStartTime);
+
+                // calc baseline scan length
+                double date1 = 2400000.5;
+                double date2 = TimeSystem::mjdStart + static_cast<double>(scanStartTime) / 86400.0;
+                double gmst = iauGmst82(date1, date2);
+
+                unsigned int maxScanDuration = 0;
+
+                for (auto &band:ObservationMode::bands) {
+
+                    double SEFD_src = source.observedFlux(band, gmst, stations_[staid1].dx(staid2), stations_[staid1].dy(staid2),
+                                                          stations_[staid1].dz(staid2));
+
+                    double SEFD_sta1;
+                    double SEFD_sta2;
+                    if(stations_[staid1].getEquip().hasElevationDependentSEFD()){
+                        double el;
+                        if(!swapped){
+                            el = pv_new_start.getEl();
+                        }else{
+                            el = otherPv.getEl();
+                        }
+                        SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el);
+                    }else{
+                        SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band);
+                    }
+
+                    if(stations_[staid2].getEquip().hasElevationDependentSEFD()){
+                        double el;
+                        if(!swapped){
+                            el = otherPv.getEl();
+                        }else{
+                            el = pv_new_start.getEl();
+                        }
+                        SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el);
+                    }else{
+                        SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band);
+                    }
+
+                    double minSNR_sta1 = stations_[staid1].getPARA().minSNR.at(band);
+                    double minSNR_sta2 = stations_[staid2].getPARA().minSNR.at(band);
+
+                    double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
+
+                    double minSNR_src = source.getPARA().minSNR.at(band);
+
+                    double maxminSNR = minSNR_src;
+                    if (minSNR_sta1>maxminSNR){
+                        maxminSNR = minSNR_sta1;
+                    }
+                    if (minSNR_sta2>maxminSNR){
+                        maxminSNR = minSNR_sta2;
+                    }
+                    if (minSNR_bl>maxminSNR){
+                        maxminSNR = minSNR_bl;
+                    }
+
+                    double maxCorSynch1 = stations_[staid1].getWaittimes().corsynch;
+                    double maxCorSynch = maxCorSynch1;
+                    double maxCorSynch2 = stations_[staid2].getWaittimes().corsynch;
+                    if (maxCorSynch2 > maxCorSynch){
+                        maxCorSynch = maxCorSynch2;
+                    }
+
+                    double anum = (1.75*maxminSNR / SEFD_src);
+                    double anu1 = SEFD_sta1*SEFD_sta2;
+                    double anu2 = ObservationMode::sampleRate * 1.0e6 * ObservationMode::nChannels[band] * ObservationMode::bits;
+
+                    double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
+                    new_duration = ceil(new_duration);
+                    auto new_duration_uint = static_cast<unsigned int>(new_duration);
+
+                    unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
+                    if(new_duration_uint<minScanBl){
+                        new_duration_uint = minScanBl;
+                    }
+                    unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
+
+                    if(new_duration_uint>maxScanBl){
+                        continue;
+                    }
+
+                    if (new_duration_uint > maxScanDuration) {
+                        maxScanDuration = new_duration_uint;
+                    }
+
+                    unsigned int maxScanTime = scan.getPointingVectors_endtime(i).getTime() - scan.getPointingVector(i).getTime();
+
+                    if (maxScanDuration > maxScanTime){
+                        maxScanDuration = maxScanTime;
+                    }
+                }
+                bl.setScanDuration(maxScanDuration);
+                bls.push_back(bl);
+            }
+            if(bls.empty()){
+                continue;
+            }
+
+            unsigned int maxBl = 0;
+            for (const auto &any:bls){
+                if(any.getScanDuration()>maxBl){
+                    maxBl = any.getScanDuration();
+                }
+            }
+
+            // check if source is still visible at end of scan... with same cable wrap
+            PointingVector pv_new_end(staid,srcid);
+
+            pv_new_end.setTime(scanStartTime+maxBl);
+
+            station.calcAzEl(source, pv_new_end);
+
+            // check if source is up from station
+            flag = station.isVisible(pv_new_end);
+            if(!flag){
+                continue;
+            }
+
+            station.getCableWrap().calcUnwrappedAz(pv_new_start,pv_new_end);
+            if(abs(pv_new_end.getAz() - pv_new_start.getAz()) > halfpi){
+                continue;
+            }
+
+            scan.addTagalongStation(pv_new_start,pv_new_end,bls);
+            bodyLog << boost::format("possible to observe source: %-8s (scan: %4d) scan start: %5d scan end: %5d \n")
+                       %source.getName() %counter %pv_new_start.getTime() %pv_new_end.getTime();
+            if(*station.referencePARA().firstScan){
+                station.referencePARA().firstScan = false;
+            }
+            station.setCurrentPointingVector(pv_new_end);
+            station.addPointingVectorStart(pv_new_start);
+            station.addPointingVectorEnd(pv_new_end);
+        }
+    }
+
+    station.applyNextEvent(bodyLog);
 }

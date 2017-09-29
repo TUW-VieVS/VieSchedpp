@@ -217,6 +217,9 @@ namespace VieVS{
         void printHorizonMasksForDebugging();
 
         void startCalibrationBlock(std::ofstream &bodyLog);
+
+        void startTagelongMode(Station &station, std::ofstream &bodyLog);
+
     };
 }
 #endif /* SCHEDULER_H */

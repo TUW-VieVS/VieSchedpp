@@ -112,6 +112,9 @@ void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS 
     if (PARA.firstScan.is_initialized()) {
         parameters.add("parameters.firstScan", PARA.firstScan);
     }
+    if (PARA.tagalong.is_initialized()) {
+        parameters.add("parameters.tagalong", PARA.tagalong);
+    }
 
     if (PARA.weight.is_initialized()) {
         parameters.add("parameters.weight", PARA.weight);
