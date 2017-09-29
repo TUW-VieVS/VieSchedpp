@@ -116,11 +116,18 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     iauRxp(t2c, v1, v1R);
 
 
-    double k1a[3] = {};
-    double k1a_t1[3] = {(Earth::velocity[0] + v1[0]) / CMPS,
-                        (Earth::velocity[1] + v1[1]) / CMPS,
-                        (Earth::velocity[2] + v1[2]) / CMPS};
 
+    double k1a[3] = {};
+    double k1a_t1[3];
+    if (model == AzelModel::rigorous) {
+        k1a_t1[0] = (Earth::velocity[0] + v1[0]) / CMPS;
+        k1a_t1[1] = (Earth::velocity[1] + v1[1]) / CMPS;
+        k1a_t1[2] = (Earth::velocity[2] + v1[2]) / CMPS;
+    }else{
+        k1a_t1[0] = 0;
+        k1a_t1[1] = 0;
+        k1a_t1[2] = 0;
+    }
 
     // Source vector in CRF
     const vector<double> & scrs_ = source.getSourceInCrs();

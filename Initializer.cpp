@@ -967,19 +967,17 @@ void Initializer::initializeSources() noexcept {
                     PARA.maxScan = it2.second.get_value < unsigned
                     int > ();
                 } else if (paraName == "minNumberOfStations") {
-                    PARA.minNumberOfStations = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.minNumberOfStations = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "minRepeat") {
-                    PARA.minRepeat = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.minRepeat = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "minFlux") {
                     PARA.minFlux = it2.second.get_value<double>();
+                } else if (paraName == "tryToObserveXTimesEvenlyDistributed") {
+                    PARA.tryToObserveXTimesEvenlyDistributed = it2.second.get_value<unsigned int>();
                 } else if (paraName == "fixedScanDuration") {
-                    PARA.fixedScanDuration = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.fixedScanDuration = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "maxNumberOfScans") {
-                    PARA.maxNumberOfScans = it2.second.get_value < unsigned
-                    int > ();
+                    PARA.maxNumberOfScans = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "tryToFocusIfObservedOnce") {
                     PARA.tryToFocusIfObservedOnce = it2.second.get_value<bool>();
                 } else if (paraName == "minSNR") {
@@ -1147,13 +1145,15 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             if (newPARA.maxScan.is_initialized()) {
                 combinedPARA.maxScan = *newPARA.maxScan;
             }
-            if (newPARA.maxNumberOfScans.is_initialized()) {
+            if (newPARA.maxNumberOfScans.is_initialized() && !newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
-            if (newPARA.tryToFocusIfObservedOnce.is_initialized()) {
+            if (newPARA.tryToFocusIfObservedOnce.is_initialized() && !newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
                 combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
             }
-
+            if (newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
+                combinedPARA.tryToObserveXTimesEvenlyDistributed = *newPARA.tryToObserveXTimesEvenlyDistributed;
+            }
             if (newPARA.fixedScanDuration.is_initialized()) {
                 combinedPARA.fixedScanDuration = *newPARA.fixedScanDuration;
             }
@@ -1198,18 +1198,30 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
         }
     }
 
-    vector<string> staNames;
+
+    vector<string> srcNames;
     for (const auto &any:sources_) {
-        staNames.push_back(any.getName());
+        srcNames.push_back(any.getName());
     }
 
     for (const auto &any:members) {
 
-        auto it = find(staNames.begin(), staNames.end(), any);
-        if (it == staNames.end()) {
+        auto it = find(srcNames.begin(), srcNames.end(), any);
+        if (it == srcNames.end()) {
             continue;
         }
-        int id = it - staNames.begin();
+
+
+        long id = distance(srcNames.begin(), it);
+        if(combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+            const Source &thisSource = sources_[id];
+            combinedPARA.tryToFocusIfObservedOnce = true;
+            combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
+
+
+            unsigned int minutes = minutesVisible(thisSource,combinedPARA,start,end);
+            combinedPARA.minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans+1);
+        }
         auto &thisEvents = events[id];
 
 
@@ -2859,5 +2871,57 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
 
         }
     }
+}
+
+unsigned int Initializer::minutesVisible(const Source &source, const Source::PARAMETERS &parameters, unsigned int start,
+                                         unsigned int end) {
+    unsigned int minutes = 0;
+    unsigned int minVisible;
+    if(parameters.minNumberOfStations.is_initialized()){
+        minVisible = *parameters.minNumberOfStations;
+    }else{
+        minVisible = 2;
+    }
+
+
+    vector<int> reqSta = parameters.requiredStations;
+    vector<int> ignSta = parameters.ignoreStations;
+    int srcid = source.getId();
+
+    for(unsigned int t = start; t<end; t+=60){
+        unsigned int visible = 0;
+
+        bool requiredStationNotVisible = false;
+        for(int staid = 0; staid<stations_.size(); ++staid){
+
+            if(find(ignSta.begin(),ignSta.end(),staid) != ignSta.end()){
+                continue;
+            }
+
+            PointingVector p(staid,srcid);
+            p.setTime(t);
+
+            stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
+
+            // check if source is up from station
+            bool flag = stations_[staid].isVisible(p);
+            if(flag){
+                ++visible;
+            }else{
+                if(find(reqSta.begin(),reqSta.end(),staid) != reqSta.end()){
+                    requiredStationNotVisible = true;
+                    break;
+                }
+            }
+        }
+        if(requiredStationNotVisible){
+            continue;
+        }
+        if(visible>minVisible){
+            ++minutes;
+        }
+
+    }
+    return minutes;
 }
 

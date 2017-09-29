@@ -312,6 +312,10 @@ void createParameterFile(){
     src_para2.minScan = 100;
     src_para2.maxScan = 700;
     src_para2.fixedScanDuration = 500;
+    src_para2.tryToObserveXTimesEvenlyDistributed = 3;
+    src_para2.weight = 10;
+    src_para2.minNumberOfStations = 3;
+    src_para2.requiredStationsString.emplace_back("WETTZELL");
     src_para2.ignoreStationsString.emplace_back("WETTZ13N");
     src_para2.ignoreStationsString.emplace_back("WETTZ13S");
     src_para2.ignoreBaselinesString.emplace_back("WETTZ13S", "WETTZ13N");

@@ -185,6 +185,9 @@ void ParameterSettings::parameters(const std::string &name, Source::PARAMETERS P
         parameters.add("parameters.minFlux", PARA.minFlux);
     }
 
+    if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+        parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
+    }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
     }

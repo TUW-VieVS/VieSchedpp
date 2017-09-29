@@ -53,6 +53,7 @@ namespace VieVS{
             boost::optional<unsigned int> maxNumberOfScans = 9999; ///< maximum number of scans
             boost::optional<bool> tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
 
+            boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
@@ -94,6 +95,9 @@ namespace VieVS{
                     of << "    tryToFocusIfObservedOnce: TRUE\n";
                 } else {
                     of << "    tryToFocusIfObservedOnce: FALSE\n";
+                }
+                if (tryToObserveXTimesEvenlyDistributed.is_initialized()) {
+                    of << "    tryToObserveXTimesEvenlyDistributed: "<< *tryToObserveXTimesEvenlyDistributed <<"\n";
                 }
 
 

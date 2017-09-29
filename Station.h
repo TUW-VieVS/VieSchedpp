@@ -387,7 +387,7 @@ namespace VieVS{
          */
         void
         calcAzEl(const Source &source, PointingVector &p,
-                 AzelModel model = AzelModel::simple) const noexcept;
+                 AzelModel model = AzelModel::rigorous) const noexcept;
 
         /**
          * @brief change current pointing vector
