@@ -4,7 +4,9 @@
 #include <boost/format.hpp>
 #include <iostream>
 #include <thread>
+//#include <experimental/filesystem>
 //#include <boost/filesystem.hpp>
+
 
 #include "Initializer.h"
 #include "Scheduler.h"
@@ -45,7 +47,6 @@ void createParameterFile();
 int main(int argc, char *argv[])
 {
     createParameterFile();
-
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -209,23 +210,21 @@ void createParameterFile(){
 
     para.output("TEST", "test_description", "VIEN", "SHAO", true, true, true, false);
 
-//    std::string root = "D:/VieVS/CATALOGS";
-    std::string root = "/data/VieVS/CATALOGS";
-    std::string antenna = "antenna.cat";
-    std::string equip = "equip.cat";
-    std::string flux = "flux.cat";
-    std::string freq = "freq.cat";
-    std::string hdpos = "hdpos.cat";
-    std::string loif = "loif.cat";
-    std::string mask = "mask.cat";
-    std::string modes = "modes.cat";
-    std::string position = "position.cat";
-    std::string rec = "rec.cat";
-    std::string rx = "rx.cat";
-    std::string source = "source_geod.cat";
-    std::string tracks = "tracks.cat";
+    std::string antenna = "/data/VieVS/CATALOGS/antenna.cat";
+    std::string equip = "/data/VieVS/CATALOGS/equip.cat";
+    std::string flux = "/data/VieVS/CATALOGS/flux.cat";
+    std::string freq = "/data/VieVS/CATALOGS/freq.cat";
+    std::string hdpos = "/data/VieVS/CATALOGS/hdpos.cat";
+    std::string loif = "/data/VieVS/CATALOGS/loif.cat";
+    std::string mask = "/data/VieVS/CATALOGS/mask.cat";
+    std::string modes = "/data/VieVS/CATALOGS/modes.cat";
+    std::string position = "/data/VieVS/CATALOGS/position.cat";
+    std::string rec = "/data/VieVS/CATALOGS/rec.cat";
+    std::string rx = "/data/VieVS/CATALOGS/rx.cat";
+    std::string source = "/data/VieVS/CATALOGS/source_geod.cat";
+    std::string tracks = "/data/VieVS/CATALOGS/tracks.cat";
 
-    para.catalogs(root, antenna, equip, flux, freq, hdpos,
+    para.catalogs(antenna, equip, flux, freq, hdpos,
                   loif, mask, modes, position, rec, rx,
                   source, tracks);
 

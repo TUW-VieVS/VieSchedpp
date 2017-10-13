@@ -14,6 +14,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <algorithm>
+#include <numeric>
 
 #include "Constants.h"
 #include "Station.h"

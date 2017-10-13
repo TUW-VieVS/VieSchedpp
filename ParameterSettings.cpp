@@ -43,15 +43,12 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     master_.add_child("master.general", general.get_child("general"));
 }
 
-void ParameterSettings::catalogs(const std::string &root, const std::string &antenna, const std::string &equip,
-                                 const std::string &flux,
+void ParameterSettings::catalogs(const std::string &antenna, const std::string &equip, const std::string &flux,
                                  const std::string &freq, const std::string &hdpos, const std::string &loif,
-                                 const std::string &mask,
-                                 const std::string &modes, const std::string &position, const std::string &rec,
-                                 const std::string &rx,
-                                 const std::string &source, const std::string &tracks) {
+                                 const std::string &mask, const std::string &modes, const std::string &position,
+                                 const std::string &rec, const std::string &rx, const std::string &source,
+                                 const std::string &tracks) {
     boost::property_tree::ptree catalogs;
-    catalogs.add("catalogs.root", root);
     catalogs.add("catalogs.antenna", antenna);
     catalogs.add("catalogs.equip", equip);
     catalogs.add("catalogs.flux", flux);

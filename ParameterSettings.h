@@ -76,7 +76,6 @@ namespace VieVS {
         /**
          * @brief catalogs block in parameters.xml
          *
-         * @param root root directory path
          * @param antenna antenna catalog name
          * @param equip equip catalog name
          * @param flux flux catalog name
@@ -91,10 +90,10 @@ namespace VieVS {
          * @param source source catalog name
          */
         void
-        catalogs(const std::string &root, const std::string &antenna, const std::string &equip, const std::string &flux,
-                 const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
-                 const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
-                 const std::string &source, const std::string &tracks);
+        catalogs(const std::string &antenna, const std::string &equip, const std::string &flux, const std::string &freq,
+                 const std::string &hdpos, const std::string &loif, const std::string &mask, const std::string &modes,
+                 const std::string &position, const std::string &rec, const std::string &rx, const std::string &source,
+                 const std::string &tracks);
 
         /**
          * @brief group defined in parameters.xml

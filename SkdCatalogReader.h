@@ -49,6 +49,12 @@ namespace VieVS {
          */
         void setCatalogFilePathes(const boost::property_tree::ptree &ptreeWithPathes);
 
+        void setCatalogFilePathes(const std::string &antenna, const std::string &equip, const std::string &flux,
+                                  const std::string &freq, const std::string &hdpos, const std::string &loif,
+                                  const std::string &mask, const std::string &modes, const std::string &position,
+                                  const std::string &rec, const std::string &rx, const std::string &source,
+                                  const std::string &tracks);
+
         /**
          * @brief reads all source specific catalogs
          */
@@ -304,7 +310,6 @@ namespace VieVS {
     private:
         std::vector<std::string> staNames_; ///< list of all station
 
-        std::string rootPath_; ///< catalogs main directory path
 
         std::string sourcePath_; ///< source catalog name
         std::string fluxPath_; ///< flux catalog name

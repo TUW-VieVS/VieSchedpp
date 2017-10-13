@@ -1689,7 +1689,7 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
             for(const auto &any:band2skyFreqs){
                 const string &band = any.first;
                 const auto & tmp = any.second;
-                double meanFreq = accumulate(tmp.begin(),tmp.end(),0.0)/tmp.size();
+                double meanFreq = std::accumulate(tmp.begin(),tmp.end(),0.0)/tmp.size();
                 double wl = speedOfLight/(meanFreq*1e6);
                 band2wavelength[band] = wl;
             }
