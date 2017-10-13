@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plotting">
+        <file>coast.txt</file>
+    </qresource>
+</RCC>
