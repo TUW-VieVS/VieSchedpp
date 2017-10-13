@@ -39,6 +39,7 @@ namespace VieVS {
         SkdCatalogReader() {
             bandWidth_ = 0;
             sampleRate_ = 0;
+            bits_ = 0;
         };
 
         /**
@@ -47,6 +48,12 @@ namespace VieVS {
          * @param ptreeWithPathes property tree with catalog pathes from .xml file
          */
         void setCatalogFilePathes(const boost::property_tree::ptree &ptreeWithPathes);
+
+        void setCatalogFilePathes(const std::string &antenna, const std::string &equip, const std::string &flux,
+                                  const std::string &freq, const std::string &hdpos, const std::string &loif,
+                                  const std::string &mask, const std::string &modes, const std::string &position,
+                                  const std::string &rec, const std::string &rx, const std::string &source,
+                                  const std::string &tracks);
 
         /**
          * @brief reads all source specific catalogs
@@ -282,10 +289,27 @@ namespace VieVS {
             return loifId2loifInfo_;
         }
 
+        /**
+         * @brief getter for channel bbc number
+         *
+         * @return map with channel number as key and bbc number as value
+         */
+        const std::map<int, std::string> &getChannelNumber2BBC() const {
+            return channelNumber2BBC_;
+        }
+
+        /**
+         * @brief getter for recoreded bits
+         *
+         * @return number of recorded bits
+         */
+        unsigned int getBits() const {
+            return bits_;
+        }
+
     private:
         std::vector<std::string> staNames_; ///< list of all station
 
-        std::string rootPath_; ///< catalogs main directory path
 
         std::string sourcePath_; ///< source catalog name
         std::string fluxPath_; ///< flux catalog name
@@ -318,6 +342,7 @@ namespace VieVS {
         std::string recName_; ///< rec name
         double bandWidth_; ///< bandwith
         double sampleRate_; ///< sample rate
+        unsigned int bits_;
 
         std::map<std::string, std::string> staName2hdposMap_; ///< map with station name as key and hdpos name as value
         std::map<std::string, std::string> staName2tracksMap_; ///< map with station name as key and tracks name as value

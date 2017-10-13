@@ -89,6 +89,12 @@ void ScanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
     }
 }
 
+void ScanTimes::addScanTimes(unsigned int scanTimes) noexcept {
+    for (int i = 0; i < endOfSlewTime_.size(); ++i) {
+        endOfScanTime_[i] = endOfCalibrationTime_[i]+scanTimes;
+    }
+}
+
 unsigned int ScanTimes::maxTime() const noexcept {
     unsigned int max = 0;
     for (auto &thisTime: endOfScanTime_) {
@@ -97,6 +103,16 @@ unsigned int ScanTimes::maxTime() const noexcept {
         }
     }
     return max;
+}
+
+unsigned int ScanTimes::scanStart() const noexcept {
+    unsigned int min = numeric_limits<unsigned int>::max();
+    for (auto &thisTime: endOfCalibrationTime_) {
+        if (thisTime < min) {
+            min = thisTime;
+        }
+    }
+    return min;
 }
 
 

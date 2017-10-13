@@ -67,8 +67,6 @@ bool Flux::addFluxParameters(const vector<string> &parameters) noexcept {
     return true;
 }
 
-Flux::~Flux() = default;
-
 double Flux::getMaximumFlux() const noexcept {
     double maxFlux = 0;
     if (this->type_ == FluxType::B){

@@ -4,9 +4,7 @@
 
 #include "ObservationMode.h"
 
-unsigned int VieVS::ObservationMode::bandwith = 0;
-unsigned int VieVS::ObservationMode::sampleRate = 0;
-unsigned int VieVS::ObservationMode::fanout = 0;
+double VieVS::ObservationMode::sampleRate = 0;
 unsigned int VieVS::ObservationMode::bits = 0;
 std::unordered_map<std::string,unsigned int> VieVS::ObservationMode::nChannels {};
 std::unordered_map<std::string,double> VieVS::ObservationMode::wavelength {};

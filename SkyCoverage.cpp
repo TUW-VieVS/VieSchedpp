@@ -16,16 +16,15 @@ using namespace std;
 using namespace VieVS;
 
 vector<vector<vector<float> > > VieVS::SkyCoverage::angularDistanceLookup = {};
+double SkyCoverage::maxInfluenceTime = 3600;
+double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
+double SkyCoverage::maxTwinTelecopeDistance = 0;
 
 SkyCoverage::SkyCoverage() = default;
 
-SkyCoverage::SkyCoverage(const vector<int> &staids, double skyCoverageDistance,
-                                   double skyCoverageInterval, int id)
-        : nStations_{staids.size()}, staids_{staids}, maxInfluenceTime_{skyCoverageInterval},
-          maxInfluenceDistance_{skyCoverageDistance}, id_{id} {
+SkyCoverage::SkyCoverage(const vector<int> &staids, int id)
+        : nStations_{staids.size()}, staids_{staids}, id_{id} {
 }
-
-SkyCoverage::~SkyCoverage() = default;
 
 double SkyCoverage::calcScore(const vector<PointingVector> &pvs,
                                    const vector<Station> &stations) const noexcept {
@@ -103,11 +102,11 @@ double
 SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
                                          const PointingVector &pv_old) const noexcept {
     long deltaTime = (long) pv_new.getTime() - (long) pv_old.getTime();
-    if (deltaTime > maxInfluenceTime_) {
+    if (deltaTime > SkyCoverage::maxInfluenceTime) {
         return 1;
     }
 
-    if (abs(pv_new.getEl() - pv_old.getEl()) > maxInfluenceDistance_) {
+    if (abs(pv_new.getEl() - pv_old.getEl()) > SkyCoverage::maxInfluenceDistance) {
         return 1;
     }
 
@@ -133,15 +132,15 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
     int pv_delta_el = static_cast<int>((pv_2_el - pv_1_el) * rad2deg + .5); // +.5 for rounding
     float distance = SkyCoverage::angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
 
-    if (distance > maxInfluenceDistance_) {
+    if (distance > SkyCoverage::maxInfluenceDistance) {
         return 1;
     }
 
 //        double scoreDistance = .5 + .5 * cos(distance * pi / maxDistDistance);
 //        double scoreTime = .5 + .5 * cos(deltaTime * pi / maxDistTime );
     double scoreDistance =
-            .5 + .5 * (LookupTable::cosLookup[static_cast<int>(distance * pi / maxInfluenceDistance_ * 1000)]);
-    double scoreTime = .5 + .5 * (LookupTable::cosLookup[static_cast<int>(deltaTime * pi / maxInfluenceTime_ * 1000)]);
+            .5 + .5 * (LookupTable::cosLookup[static_cast<int>(distance * pi / SkyCoverage::maxInfluenceDistance * 1000)]);
+    double scoreTime = .5 + .5 * (LookupTable::cosLookup[static_cast<int>(deltaTime * pi / SkyCoverage::maxInfluenceTime * 1000)]);
     double thisScore = 1 - (scoreDistance * scoreTime);
 
     return thisScore;

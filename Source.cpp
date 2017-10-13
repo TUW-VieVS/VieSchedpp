@@ -19,17 +19,14 @@ Source::Source() {
 }
 
 Source::Source(const string &src_name, double src_ra_deg, double src_de_deg,
-                         const unordered_map<string, Flux> &src_flux) :
-        name_{src_name}, id_{0}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{src_flux}, lastScan_{0},
+                         const unordered_map<string, Flux> &src_flux, int id) :
+        name_{src_name}, id_{id}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{src_flux}, lastScan_{0},
         nScans_{0}, nBaselines_{0} {
 
     preCalculated_.sourceInCrs.resize(3);
     preCalculated_.sourceInCrs[0] = cos(de_)*cos(ra_);
     preCalculated_.sourceInCrs[1] = cos(de_)*sin(ra_);
     preCalculated_.sourceInCrs[2] = sin(de_);
-}
-
-Source::~Source() {
 }
 
 double Source::angleDistance(const Source &other) const noexcept {
@@ -73,21 +70,24 @@ double Source::observedFlux(const string &band, double gmst, double dx, double d
     return flux;
 }
 
-void Source::update(unsigned long nbl, unsigned int time) noexcept {
-    ++nScans_;
-    nBaselines_ += nbl;
-    lastScan_ = time;
+void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept {
+    if(addToStatistics){
+        ++nScans_;
+        nBaselines_ += nbl;
+        lastScan_ = time;
+    }
+    ++nTotalScans_;
 }
 
 bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
     bool flag = false;
-    while (events_[nextEvent_].time <= time && time != TimeSystem::duration) {
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
         double oldMinFlux = *parameters_.minFlux;
         parameters_ = events_[nextEvent_].PARA;
         double newMinFlux = *parameters_.minFlux;
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
 
-        if (output) {
+        if (output && time < TimeSystem::duration) {
             bodyLog << "###############################################\n";
             bodyLog << "## changing parameters for source: " << boost::format("%8s") % name_ << "  ##\n";
             bodyLog << "###############################################\n";

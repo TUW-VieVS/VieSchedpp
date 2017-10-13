@@ -12,6 +12,7 @@
  */
 
 #include "Subcon.h"
+
 using namespace std;
 using namespace VieVS;
 
@@ -173,6 +174,13 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations,
     }
 }
 
+void Subcon::calcCalibratorScanDuration(const vector<Station> &stations, const vector<Source> &sources) {
+    for(auto &thisScan:singleScans_) {
+        thisScan.setFixedScanDuration(CalibratorBlock::scanLength);
+    }
+}
+
+
 void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon,
                                    const vector<Source> &sources) noexcept {
     vector<int> sourceIds(nSingleScans_);
@@ -283,8 +291,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
         thisScan.calcScore(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
-                           stations, thisSource,
-                           firstScorePerPv);
+                           stations, thisSource, firstScorePerPv);
         singleScanScores_.push_back(thisScan.getScore());
         firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
     }
@@ -309,6 +316,29 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         subnettingScanScores_.push_back(score1 + score2);
     }
 }
+
+void Subcon::generateScore(const vector<double> &lowElevatrionScore, const vector<double> &highElevationScore) {
+
+    minMaxTime();
+
+    for (auto &thisScan: singleScans_) {
+        thisScan.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
+        singleScanScores_.push_back(thisScan.getScore());
+    }
+
+    for (auto &thisScans:subnettingScans_) {
+        Scan &thisScan1 = thisScans.first;
+        thisScan1.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
+        double score1 = thisScan1.getScore();
+
+        Scan &thisScan2 = thisScans.second;
+        thisScan2.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
+        double score2 = thisScan2.getScore();
+        subnettingScanScores_.push_back(score1 + score2);
+    }
+
+}
+
 
 void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
@@ -425,7 +455,7 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
     vector<double> scores = singleScanScores_;
     scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
 
-    std::priority_queue<std::pair<double, unsigned long>> q;
+    std::priority_queue<std::pair<double, unsigned long> > q;
     for (unsigned long i = 0; i < scores.size(); ++i) {
         q.push(std::pair<double, unsigned long>(scores[i], i));
     }
@@ -498,6 +528,86 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
     }
 }
 
+boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sources,
+                                                     const vector<SkyCoverage> &skyCoverages,
+                                                     const vector<double> &prevLowElevationScores,
+                                                     const vector<double> &prevHighElevationScores) {
+
+    vector<double> scores = singleScanScores_;
+    scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
+
+    std::priority_queue<std::pair<double, unsigned long> > q;
+    for (unsigned long i = 0; i < scores.size(); ++i) {
+        q.push(std::pair<double, unsigned long>(scores[i], i));
+    }
+
+    while (true) {
+        if (q.empty()) {
+            return boost::none;
+        }
+        unsigned long idx = q.top().second;
+        q.pop();
+
+        if (idx < nSingleScans_) {
+            unsigned long thisIdx = idx;
+            Scan &thisScan = singleScans_[thisIdx];
+            const Source &thisSource = sources[thisScan.getSourceId()];
+            bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()]);
+            if (!flag) {
+                continue;
+            }
+            thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            double newScore = thisScan.getScore();
+
+            q.push(make_pair(newScore, idx));
+
+        } else {
+            unsigned long thisIdx = idx - nSingleScans_;
+            auto &thisScans = subnettingScans_[thisIdx];
+
+            Scan &thisScan1 = thisScans.first;
+            const Source &thisSource1 = sources[thisScan1.getSourceId()];
+            bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()]);
+            if (!flag1) {
+                continue;
+            }
+            thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            double newScore1 = thisScan1.getScore();
+
+            Scan &thisScan2 = thisScans.second;
+            const Source &thisSource2 = sources[thisScan2.getSourceId()];
+            bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()]);
+            if (!flag2) {
+                continue;
+            }
+
+            unsigned int maxTime1 = thisScan1.maxTime();
+            unsigned int maxTime2 = thisScan2.maxTime();
+            unsigned int deltaTime;
+            if (maxTime1 > maxTime2) {
+                deltaTime = maxTime1 - maxTime2;
+            } else {
+                deltaTime = maxTime2 - maxTime1;
+            }
+            if (deltaTime > 600) {
+                continue;
+            }
+
+            thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            double newScore2 = thisScan2.getScore();
+            double newScore = newScore1 + newScore2;
+
+            q.push(make_pair(newScore, idx));
+        }
+        unsigned long newIdx = q.top().second;
+        if (newIdx == idx) {
+            return idx;
+        }
+    }
+
+}
+
+
 void Subcon::removeScan(unsigned long idx) noexcept {
     if (idx < nSingleScans_) {
         unsigned long thisIdx = idx;
@@ -519,4 +629,15 @@ void Subcon::clearSubnettingScans() {
     subnettingScans_.clear();
     subnettingScanScores_.clear();
 }
+
+void Subcon::changeScanTypes(Scan::ScanType type) {
+    for(auto &scan:singleScans_){
+        scan.setType(type);
+    }
+    for(auto &scans:subnettingScans_){
+        scans.first.setType(type);
+        scans.second.setType(type);
+    }
+}
+
 

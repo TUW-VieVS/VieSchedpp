@@ -29,6 +29,9 @@ namespace VieVS{
     class SkyCoverage {
     public:
         static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
+        static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
+        static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
+        static double maxTwinTelecopeDistance; ///< maximum distance between corresponding telescopes
 
         /**
          * @brief empty default constructor
@@ -43,43 +46,7 @@ namespace VieVS{
          * @param skyCoverageInterval maximum influence time of a scan in seconds
          * @param id sky coverage id
          */
-        SkyCoverage(const std::vector<int> &staids, double skyCoverageDistance, double skyCoverageInterval, int id);
-
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other sky coverage
-         */
-        SkyCoverage(const SkyCoverage &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other sky coverage
-         */
-        SkyCoverage(SkyCoverage &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other sky coverage
-         * @return copy of other sky coverage
-         */
-        SkyCoverage &operator=(const SkyCoverage &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other sky coverage
-         * @return moved other sky coverage
-         */
-        SkyCoverage &operator=(SkyCoverage &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~SkyCoverage();
-
+        SkyCoverage(const std::vector<int> &staids, int id);
 
         /**
          * @brief getter for all station ids which belong to this sky coverage
@@ -142,24 +109,12 @@ namespace VieVS{
          */
         void update(const PointingVector &start, const PointingVector &end) noexcept;
 
-        /**
-         * @brief getter for maximum influence time
-         *
-         * @return maximum influence time in seconds
-         */
-        double getMaxInfluenceTime_() const {
-            return maxInfluenceTime_;
-        }
-
     private:
         unsigned long nStations_; ///< number of stations that belong to this sky coverage
         std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all pointing vectors at start of a scan
         std::vector<PointingVector> pointingVectorsEnd_; ///< all pointing vectors at end of a scan
-
-        double maxInfluenceTime_; ///< maximum angular distance of influence on the sky coverage
-        double maxInfluenceDistance_; ///< maximum time influence on the sky coverage
 
         int id_; ///< sky coverage id
     };

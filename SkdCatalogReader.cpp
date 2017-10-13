@@ -13,37 +13,37 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
 
     map<string, vector<string>> all;
     int indexOfKey;
-    string filepath = rootPath_ + "/";
+    string filepath;
 
     // switch between four available catalogs
     switch (type) {
         case CATALOG::antenna: {
-            filepath.append(antennaPath_);
+            filepath = antennaPath_;
             indexOfKey = 1;
             break;
         }
         case CATALOG::position: {
-            filepath.append(positionPath_);
+            filepath = positionPath_;
             indexOfKey = 0;
             break;
         }
         case CATALOG::equip: {
-            filepath.append(equipPath_);
+            filepath = equipPath_;
             indexOfKey = 1;
             break;
         }
         case CATALOG::mask: {
-            filepath.append(maskPath_);
+            filepath = maskPath_;
             indexOfKey = 2;
             break;
         }
         case CATALOG::source: {
-            filepath.append(sourcePath_);
+            filepath = sourcePath_;
             indexOfKey = 0;
             break;
         }
         case CATALOG::flux: {
-            filepath.append(fluxPath_);
+            filepath = fluxPath_;
             indexOfKey = 0;
             break;
         }
@@ -197,8 +197,6 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
 }
 
 void SkdCatalogReader::setCatalogFilePathes(const boost::property_tree::ptree &ptreeWithPathes) {
-    rootPath_ = ptreeWithPathes.get<string>("root");
-
     sourcePath_ = ptreeWithPathes.get<string>("source");
     fluxPath_ = ptreeWithPathes.get<string>("flux");
 
@@ -214,6 +212,31 @@ void SkdCatalogReader::setCatalogFilePathes(const boost::property_tree::ptree &p
     rxPath_ = ptreeWithPathes.get<string>("rx");
     loifPath_ = ptreeWithPathes.get<string>("loif");
 }
+
+
+void SkdCatalogReader::setCatalogFilePathes(const std::string &antenna, const std::string &equip, const std::string &flux,
+                          const std::string &freq, const std::string &hdpos, const std::string &loif,
+                          const std::string &mask, const std::string &modes, const std::string &position,
+                          const std::string &rec, const std::string &rx, const std::string &source,
+                          const std::string &tracks){
+
+    sourcePath_ = source;
+    fluxPath_ = flux;
+
+    antennaPath_ = antenna;
+    positionPath_ = position;
+    equipPath_ = equip;
+    maskPath_ = mask;
+
+    modesPath_ = modes;
+    recPath_ = rec;
+    tracksPath_ = tracks;
+    freqPath_ = freq;
+    rxPath_ = rx;
+    loifPath_ = loif;
+
+}
+
 
 void SkdCatalogReader::initializeSourceCatalogs() {
     sourceCatalog_ = readCatalog(CATALOG::source);
@@ -240,7 +263,7 @@ void SkdCatalogReader::initializeModesCatalogs(const string &obsModeName) {
 }
 
 void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
-    ifstream fmodes(rootPath_ + "/" + modesPath_);
+    ifstream fmodes(modesPath_);
     string line;
     while (getline(fmodes, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -262,7 +285,7 @@ void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
 }
 
 void SkdCatalogReader::readRecCatalog() {
-    ifstream frec(rootPath_ + "/" + recPath_);
+    ifstream frec(recPath_);
     string line;
     while (getline(frec, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -305,7 +328,7 @@ void SkdCatalogReader::readRecCatalog() {
 
 void SkdCatalogReader::readTracksCatalog() {
     for (const auto &tracksId:tracksIds_) {
-        ifstream ftracks(rootPath_ + "/" + tracksPath_);
+        ifstream ftracks(tracksPath_);
         string line;
         while (getline(ftracks, line)) {
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -315,7 +338,13 @@ void SkdCatalogReader::readTracksCatalog() {
 
                 if (splitVector[0] == tracksId) {
                     tracksId2fanoutMap_[tracksId] = boost::lexical_cast<int>(splitVector[1]);
-                    tracksId2bitsMap_[tracksId] = boost::lexical_cast<int>(splitVector[2]);
+                    unsigned int bits = boost::lexical_cast<unsigned int>(splitVector[2]);
+                    if(bits_ == 0){
+                        bits_ = bits;
+                    } else if(bits_ != bits){
+                        cerr << "Number of recorded bits is different for different track ids\n";
+                    }
+                    tracksId2bitsMap_[tracksId] = bits;
 
                     while (getline(ftracks, line)) {
                         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -338,7 +367,7 @@ void SkdCatalogReader::readTracksCatalog() {
 }
 
 void SkdCatalogReader::readFreqCatalog() {
-    ifstream ffreq(rootPath_ + "/" + freqPath_);
+    ifstream ffreq(freqPath_);
     string line;
     while (getline(ffreq, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -379,7 +408,7 @@ void SkdCatalogReader::readFreqCatalog() {
 }
 
 void SkdCatalogReader::readRxCatalog() {
-    ifstream frx(rootPath_ + "/" + rxPath_);
+    ifstream frx(rxPath_);
     string line;
     while (getline(frx, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
@@ -419,7 +448,7 @@ void SkdCatalogReader::readRxCatalog() {
 void SkdCatalogReader::readLoifCatalog() {
     string line;
     for (const auto &loifId:loifIds_) {
-        ifstream floif(rootPath_ + "/" + loifPath_);
+        ifstream floif(loifPath_);
         while (getline(floif, line)) {
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
                 boost::trim(line);

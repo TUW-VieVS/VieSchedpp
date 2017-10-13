@@ -617,7 +617,7 @@ void Output::skd_MAJOR(const SkdCatalogReader &skdCatalogReader, ofstream &of) {
     of << boost::format("%-14s %6d\n") % "MinBetween" % (*sources_[0].getPARA().minRepeat / 60);
     of << boost::format("%-14s %6d\n") % "MinSunDist" % 0;
     of << boost::format("%-14s %6d\n") % "MaxSlewTime" % *stations_[0].getPARA().maxSlewtime;
-    of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (skyCoverages_[0].getMaxInfluenceTime_() / 3600);
+    of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (SkyCoverage::maxInfluenceTime / 3600);
     of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % *sources_[0].getPARA().minNumberOfStations;
     if (xml_.get<bool>("master.general.subnetting")) {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 1;
@@ -673,7 +673,7 @@ void Output::skd_STATWT(std::ofstream &of) {
 void Output::skd_SRCWT(std::ofstream &of) {
     of << "$SRCWT\n";
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
         }
     }
@@ -726,7 +726,7 @@ void Output::skd_SOURCES(const SkdCatalogReader &skdCatalogReader, std::ofstream
     const map<string, vector<string> > &src = skdCatalogReader.getSourceCatalog();
 
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             vector<string> tmp = src.at(any.getName());
             of << boost::format(" %-8s %-8s   %2s %2s %9s    %3s %2s %9s %6s %3s ")
                   % tmp[0] % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8] % tmp[9];
@@ -812,7 +812,7 @@ void Output::skd_FLUX(const SkdCatalogReader &skdCatalogReader, std::ofstream &o
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();
     for (const auto &any:sources_) {
-        if (any.getNscans() > 0) {
+        if (any.getNTotalScans() > 0) {
             const string &name = any.getName();
             vector<string> tmp = flu.at(name);
 
@@ -880,12 +880,19 @@ void Output::skd_CODES(const SkdCatalogReader &skd, std::ofstream &of) {
         for (int i = 1; i < nchannels + 1; ++i) {
             of << "C " << skd.getFreqTwoLetterCode() << " " << skd.getChannelNumber2band().at(i) << " "
                << skd.getChannelNumber2skyFreq().at(i) << " "
-               << skd.getChannelNumber2phaseCalFrequency().at(i) << " " << boost::format("%2d") % i << " MK341:"
+               << skd.getChannelNumber2phaseCalFrequency().at(i) << " " << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " MK341:"
                << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth() << " "
                << skd.getChannelNumber2tracksMap().at(i) << "\n";
         }
 
     }
+    for (const auto &sta:stations_){
+        if(skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()){
+            cerr << "skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!\n";
+            of << "*** F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode! ***\n";
+        }
+    }
+
     of << "R " << skd.getFreqTwoLetterCode() << " " << skd.getSampleRate() << "\n";
     of << "B " << skd.getFreqTwoLetterCode() << "\n";
 

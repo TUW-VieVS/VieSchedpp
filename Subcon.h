@@ -39,41 +39,6 @@ namespace VieVS{
         Subcon();
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other subcon
-         */
-        Subcon(const Subcon &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other subcon
-         */
-        Subcon(Subcon &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other subcon
-         * @return copy of other subcon
-         */
-        Subcon &operator=(const Subcon &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other subcon
-         * @return moved other subcon
-         */
-        Subcon &operator=(Subcon &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Subcon() {};
-
-        /**
          * @brief add a single source scan to subcon
          *
          * @param scan scan which should be added
@@ -124,7 +89,7 @@ namespace VieVS{
          * @param idx index
          * @return subnetting scan at this index
          */
-        std::pair<Scan, Scan> &referenceDoubleSourceScan(unsigned long idx) noexcept {
+        std::pair<Scan, Scan> &referenceSubnettingScans(unsigned long idx) noexcept {
             return subnettingScans_[idx];
         }
 
@@ -219,11 +184,15 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          * @param skyCoverages list of all sky coverages
+         * @param prevLowElevationScores optinal argument if you have a calibrator block scan - previouse low elevation scores
+         * @param prevHighElevationScores optinal argument if you have a calibrator block scan - previouse high elevation scores
          * @return index of best scan
          */
         boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations,
                                                      const std::vector<Source> &sources,
                                                      const std::vector<SkyCoverage> &skyCoverages) noexcept;
+
+
 
         /**
          * @brief clear all subnetting scans
@@ -231,6 +200,17 @@ namespace VieVS{
          * Usually unused
          */
         void clearSubnettingScans();
+
+        void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore);
+
+        boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                                                 const std::vector<SkyCoverage> &skyCoverages,
+                                                 const std::vector<double> &prevLowElevationScores,
+                                                 const std::vector<double> &prevHighElevationScores);
+
+        void calcCalibratorScanDuration(const std::vector<Station> &stations, const std::vector<Source> &sources);
+
+        void changeScanTypes(Scan::ScanType type);
 
     private:
         unsigned long nSingleScans_; ///< number of single source scans

@@ -42,8 +42,6 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
     }
 }
 
-CableWrap::~CableWrap() {
-}
 
 bool CableWrap::anglesInside(const PointingVector &p) const noexcept {
     double az = p.getAz();

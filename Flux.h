@@ -46,41 +46,6 @@ namespace VieVS{
          */
         Flux(std::string stype);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other flux information
-         */
-        Flux(const Flux &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other flux information
-         */
-        Flux(Flux &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other flux information
-         * @return copy of other flux information
-         */
-        Flux &operator=(const Flux &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other flux information
-         * @return moved other flux information
-         */
-        Flux &operator=(Flux &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Flux();
-
 
         /**
          * @brief adds flux information to object

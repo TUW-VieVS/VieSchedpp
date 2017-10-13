@@ -26,33 +26,11 @@
 using namespace std;
 using namespace VieVS;
 
-Station::Station(){
-    axis_ = AxisType::undefined;
-}
 
-Station::Station(const string &sta_name, int id, const Antenna &sta_antenna,
-                           const CableWrap &sta_cableWrap, const Position &sta_position,
-                           const Equipment &sta_equip, const HorizonMask &sta_mask, const string &sta_axis):
+Station::Station(const string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
+                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask) :
         name_{sta_name}, id_{id}, antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
-        equip_{sta_equip}, mask_{sta_mask}{
-    skyCoverageId_ = -1;
-    if (sta_axis.compare("AZEL") == 0)
-        axis_ = AxisType::AZEL;
-    else if(sta_axis.compare("HADC") == 0)
-        axis_ = AxisType::HADC;
-    else if(sta_axis.compare("XYNS") == 0)
-        axis_ = AxisType::XYNS;
-    else if(sta_axis.compare("XYEW") == 0)
-        axis_ = AxisType::XYEW;
-    else if(sta_axis.compare("RICH") == 0)
-        axis_ = AxisType::RICH;
-    else if(sta_axis.compare("SEST") == 0)
-        axis_ = AxisType::SEST;
-    else if(sta_axis.compare("ALGO") == 0)
-        axis_ = AxisType::ALGO;
-    else
-        axis_ = AxisType::undefined;
-
+        equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}{
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
@@ -85,10 +63,10 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     unsigned int time = p.getTime();
     //  TIME
     double date1 = 2400000.5;
-    double date2 = TimeSystem::mjdStart + static_cast<double>(time) / 86400;
+    double mjd = TimeSystem::mjdStart + static_cast<double>(time) / 86400;
 
     // Earth Rotation
-    double ERA = iauEra00(date1, date2);
+    double ERA = iauEra00(date1, mjd);
 
     // precession nutation
     double C[3][3] = {{1, 0, 0},
@@ -138,11 +116,18 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     iauRxp(t2c, v1, v1R);
 
 
-    double k1a[3] = {};
-    double k1a_t1[3] = {(Earth::velocity[0] + v1[0]) / CMPS,
-                        (Earth::velocity[1] + v1[1]) / CMPS,
-                        (Earth::velocity[2] + v1[2]) / CMPS};
 
+    double k1a[3] = {};
+    double k1a_t1[3];
+    if (model == AzelModel::rigorous) {
+        k1a_t1[0] = (Earth::velocity[0] + v1[0]) / CMPS;
+        k1a_t1[1] = (Earth::velocity[1] + v1[1]) / CMPS;
+        k1a_t1[2] = (Earth::velocity[2] + v1[2]) / CMPS;
+    }else{
+        k1a_t1[0] = 0;
+        k1a_t1[1] = 0;
+        k1a_t1[2] = 0;
+    }
 
     // Source vector in CRF
     const vector<double> & scrs_ = source.getSourceInCrs();
@@ -183,6 +168,21 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
     p.setAz(az);
     p.setEl(el);
+
+    if(antenna_.getAxisType() == Antenna::AxisType::HADC){
+        double gmst = TimeSystem::mjd2gmst(mjd);
+
+        double ha = gmst + position_.getLon() - source.getRa();
+        while(ha>pi){
+            ha = ha - twopi;
+        }
+        while(ha< -pi){
+            ha = ha + twopi;
+        }
+        p.setHa(ha);
+        p.setDc(source.getDe());
+    }
+
 //    cout << cout.precision(18) << " mjd=" << date2 << "; lat=" << position_.getLat() << "; lon=" << position_.getLon() << "; ra=" << source.getRa() << "; de=" << source.getDe() << "; az_=" << az << "; el_=" << el <<";\n";
     p.setTime(time);
 }
@@ -240,10 +240,11 @@ unsigned int Station::slewTime(const PointingVector &pointingVector) const noexc
     }
 }
 
-void Station::update(unsigned long nbl, const PointingVector &start, const PointingVector &end,
-                          const vector<unsigned int> &times, const string &srcName) noexcept {
-    ++nScans_;
-    nBaselines_ += nbl;
+void Station::update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept {
+    if(addToStatistics){
+        ++nScans_;
+        nBaselines_ += nbl;
+    }
     pointingVectorsStart_.push_back(start);
     pointingVectorsEnd_.push_back(end);
     currentPositionVector_ = end;
@@ -253,11 +254,27 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
     }
 }
 
-void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
+void Station::checkForNewEvent() noexcept {
 
-    while (events_[nextEvent_].time <= time && time != TimeSystem::duration) {
-        bool oldAvailable = *parameters_.available;
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time == 0) {
         parameters_ = events_[nextEvent_].PARA;
+        nextEvent_++;
+    }
+}
+
+void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept {
+
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
+        bool oldAvailable = *parameters_.available;
+        bool oldTagalong = *parameters_.tagalong;
+        if(!oldTagalong){
+            parameters_ = events_[nextEvent_].PARA;
+
+        } else {
+            out << "TAGALONG for station " << name_ << " required!\n";
+            tagalong = true;
+            return;
+        }
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
         bool newAvailable = *parameters_.available;
 
@@ -266,11 +283,25 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, 
             parameters_.firstScan = true;
         }
 
-        if (output) {
-            bodyLog << "###############################################\n";
-            bodyLog << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
-            bodyLog << "###############################################\n";
+        if(time < TimeSystem::duration){
+            out << "###############################################\n";
+            out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+            out << "###############################################\n";
         }
         nextEvent_++;
     }
 }
+
+void Station::applyNextEvent(std::ofstream &out) noexcept{
+    unsigned int nextEventTimes = events_[nextEvent_].time;
+    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= nextEventTimes) {
+        parameters_ = events_[nextEvent_].PARA;
+
+        out << "###############################################\n";
+        out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+        out << "###############################################\n";
+        nextEvent_++;
+    }
+
+}
+

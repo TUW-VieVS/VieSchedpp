@@ -38,41 +38,6 @@ namespace VieVS{
         PointingVector(int staid, int srcid);
 
         /**
-         * @brief default copy constructor
-         *
-         * @param other other pointing vector
-         */
-        PointingVector(const PointingVector &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other pointing vector
-         */
-        PointingVector(PointingVector &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other pointing vector
-         * @return copy of other pointing vector
-         */
-        PointingVector &operator=(const PointingVector &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other pointing vector
-         * @return moved other pointing vector
-         */
-        PointingVector &operator=(PointingVector &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~PointingVector() {}
-
-        /**
          * @brief getter for station id
          *
          * @return id of station
@@ -109,6 +74,24 @@ namespace VieVS{
         }
 
         /**
+         * @brief getter for local hour angle
+         *
+         * @return local hour angle
+         */
+        double getHa_() const {
+            return ha_;
+        }
+
+        /**
+         * @brief getter for declination
+         *
+         * @return declination
+         */
+        double getDc_() const {
+            return dc_;
+        }
+
+        /**
          * @brief getter for time for which azimuth and elevation is calculated
          *
          * @return time in seconds since session start
@@ -136,6 +119,24 @@ namespace VieVS{
         };
 
         /**
+         * @brief sets local hour angle
+         *
+         * @param ha new local hour angle
+         */
+        void setHa(double ha) {
+            PointingVector::ha_ = ha;
+        }
+
+        /**
+         * @brief sets declination
+         *
+         * @param dc new declination
+         */
+        void setDc(double dc) {
+            PointingVector::dc_ = dc;
+        }
+
+        /**
          * @brief sets time for which azimth and elevation is calculated
          *
          * @param new_time new time
@@ -149,6 +150,8 @@ namespace VieVS{
         int srcid_; ///< source id
         double az_; ///< azimth
         double el_; ///< elevation
+        double ha_; ///< declination
+        double dc_; ///< local hour angle
         unsigned int time_; ///< time in seconds since session start for which azimth and elevation is calculated
     };
 }

@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <boost/optional.hpp>
 #include <boost/format.hpp>
+
 #include "TimeSystem.h"
 
 namespace VieVS{
@@ -88,41 +89,6 @@ namespace VieVS{
          * @param startTime observation start time in seconds after session start
          */
         Baseline(int staid1, int staid2, int srcid, unsigned int startTime);
-
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other baseline
-         */
-        Baseline(const Baseline &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other baseline
-         */
-        Baseline(Baseline &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other baseline
-         * @return copy of other baseline
-         */
-        Baseline &operator=(const Baseline &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other baseline
-         * @return moved other baseline
-         */
-        Baseline &operator=(Baseline &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Baseline() = default;
 
         /**
          * @brief getter method for first station id

@@ -15,52 +15,123 @@
 using namespace std;
 using namespace VieVS;
 
-Antenna::Antenna(double offset_m,
-                 double diam_m,
-                 double rate1_deg_per_min,
-                 double constantOverhead1_s,
-                 double rate2_deg_per_min,
-                 double constantOverhead2_s):
-                 offset_{offset_m},
-                 diam_{diam_m},
-                 rate1_{rate1_deg_per_min*deg2rad/60},
-                 con1_{constantOverhead1_s},
-                 rate2_{rate2_deg_per_min*deg2rad/60},
-                 con2_{constantOverhead2_s}{}
+Antenna::Antenna(const std::string &type, double offset_m, double diam_m, double rate1_deg_per_min,
+                 double constantOverhead1_s, double rate2_deg_per_min, double constantOverhead2_s) :
+                 offset_{offset_m}, diam_{diam_m}, rate1_{rate1_deg_per_min*deg2rad/60}, con1_{constantOverhead1_s},
+                 rate2_{rate2_deg_per_min*deg2rad/60}, con2_{constantOverhead2_s}{
+
+    if (type.compare("AZEL") == 0)
+        axisType_ = AxisType::AZEL;
+    else if(type.compare("HADC") == 0)
+        axisType_ = AxisType::HADC;
+    else if(type.compare("XYNS") == 0)
+        axisType_ = AxisType::XYNS;
+    else if(type.compare("XYEW") == 0)
+        axisType_ = AxisType::XYEW;
+    else if(type.compare("RICH") == 0)
+        axisType_ = AxisType::RICH;
+    else if(type.compare("SEST") == 0)
+        axisType_ = AxisType::SEST;
+    else if(type.compare("ALGO") == 0)
+        axisType_ = AxisType::ALGO;
+    else
+        axisType_ = AxisType::undefined;
+
+}
 
 unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
                                     const PointingVector &new_pointingVector) const noexcept {
+    // TODO acceleration is hardcoded
+    double acc1 = rate1_;
+    double acc2 = rate2_;
 
-    double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
-    double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
-    double acc1 = 1*deg2rad; // TODO acceleration is hardcoded
-    double acc2 = 1*deg2rad;
+    unsigned int slewtime;
+    switch(axisType_){
+        case AxisType::AZEL:{
+            double delta1 = abs(old_pointingVector.getAz()-new_pointingVector.getAz());
+            double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
 
-    double t_acc_1 = rate1_/acc1;
-    double t_acc_2 = rate2_/acc2;
 
-    double s_acc_1 = 2*(acc1*t_acc_1*t_acc_1/2);
-    double s_acc_2 = 2*(acc2*t_acc_2*t_acc_2/2);
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
 
-    double t_1, t_2;
-    if (delta1<s_acc_1){
-        t_1 = 2*sqrt(delta1/acc1);
-    } else {
-        t_1 = 2 * t_acc_1 + (delta1 - s_acc_1) / rate1_;
+            if(t_1>t_2){
+                slewtime = static_cast<unsigned int>(ceil(t_1));
+            }else{
+                slewtime = static_cast<unsigned int>(ceil(t_2));
+            }
+            break;
+        }
+        case AxisType::HADC:{
+            double delta1 = abs(new_pointingVector.getHa_() - old_pointingVector.getHa_());
+            double delta2 = abs(new_pointingVector.getDc_() - old_pointingVector.getDc_());
+
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
+
+            if(t_1>t_2){
+                slewtime = static_cast<unsigned int>(ceil(t_1));
+            }else{
+                slewtime = static_cast<unsigned int>(ceil(t_2));
+            }
+            break;
+        }
+        case AxisType::XYEW:{
+            double cel_old = cos(old_pointingVector.getEl());
+            double sel_old = sin(old_pointingVector.getEl());
+            double caz_old = cos(old_pointingVector.getAz());
+            double saz_old = sin(old_pointingVector.getAz());
+
+            double x_old = atan2(cel_old*caz_old,sel_old);
+            double y_old = asin(cel_old*saz_old);
+
+            double cel_new = cos(new_pointingVector.getEl());
+            double sel_new = sin(new_pointingVector.getEl());
+            double caz_new = cos(new_pointingVector.getAz());
+            double saz_new = sin(new_pointingVector.getAz());
+
+            double x_new = atan2(cel_new*caz_new,sel_new);
+            double y_new = asin(cel_new*saz_new);
+
+            double delta1 = x_new-x_old;
+            double delta2 = y_new-y_old;
+
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
+
+            if(t_1>t_2){
+                slewtime = static_cast<unsigned int>(ceil(t_1));
+            }else{
+                slewtime = static_cast<unsigned int>(ceil(t_2));
+            }
+            break;
+        }
+        case AxisType::XYNS:
+        case AxisType::RICH:
+        case AxisType::SEST:
+        case AxisType::ALGO:
+        case AxisType::undefined:{
+            cerr << "ERROR axis type is not yet implementet for slewtime calculation!\n";
+            slewtime = numeric_limits<unsigned int>::max();
+            break;
+        }
     }
-    if (delta2<s_acc_2){
-        t_2 = 2*sqrt(delta2/acc2);
-    } else {
-        t_2 = 2 * t_acc_2 + (delta2 - s_acc_2) / rate2_;
-    }
-
-    auto slewtime = static_cast<unsigned int>(ceil(t_1));
-    if(t_2>t_1){
-        slewtime = static_cast<unsigned int>((t_2));
-    }
-
     return slewtime;
 }
+
+double Antenna::slewTimePerAxis(double delta, double rate, double acc) const noexcept {
+    double t_acc = rate/acc;
+    double s_acc = 2*(acc*t_acc*t_acc/2);
+    double t;
+    if (delta<s_acc){
+        t = 2*sqrt(delta/acc);
+    } else {
+        t = 2 * t_acc + (delta - s_acc) / rate1_;
+    }
+    return t;
+}
+
+
 
 namespace VieVS {
     ostream &operator<<(ostream &out, const Antenna &antenna) noexcept {
@@ -71,4 +142,6 @@ namespace VieVS {
         cout << boost::format("    slew rate axis2: %6.2f [deg/s]\n") % rate2degs;
         return out;
     }
+
+
 }

@@ -64,19 +64,18 @@ namespace VieVS {
          *
          * @param startTime session start time
          * @param endTime session end time
-         * @param maxDistanceTwinTeleskopes maximum distance between corresponding telescopes
          * @param subnetting flag if subnetting is allowed
          * @param fillinmode flag if fillin modes are allowed
+         * @param fillinmodeInfluence flag if fillin mode scans should have an influence on the schedule
          * @param stations list of all stations
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode, double minElevation,
+                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
                      const std::vector<std::string> &stations);
 
         /**
          * @brief catalogs block in parameters.xml
          *
-         * @param root root directory path
          * @param antenna antenna catalog name
          * @param equip equip catalog name
          * @param flux flux catalog name
@@ -91,10 +90,10 @@ namespace VieVS {
          * @param source source catalog name
          */
         void
-        catalogs(const std::string &root, const std::string &antenna, const std::string &equip, const std::string &flux,
-                 const std::string &freq, const std::string &hdpos, const std::string &loif, const std::string &mask,
-                 const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
-                 const std::string &source, const std::string &tracks);
+        catalogs(const std::string &antenna, const std::string &equip, const std::string &flux, const std::string &freq,
+                 const std::string &hdpos, const std::string &loif, const std::string &mask, const std::string &modes,
+                 const std::string &position, const std::string &rec, const std::string &rx, const std::string &source,
+                 const std::string &tracks);
 
         /**
          * @brief group defined in parameters.xml
@@ -167,8 +166,9 @@ namespace VieVS {
          *
          * @param influenceDistance maximum angular influence distance in degrees
          * @param influenceInterval maximum time influence distance in seconds
+         * @param maxTwinTelecopeDistance maximum distance between twin telescopes
          */
-        void skyCoverage(double influenceDistance, unsigned int influenceInterval);
+        void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance);
 
         /**
          * @brief weightFactor block in parameter.xml
@@ -191,14 +191,18 @@ namespace VieVS {
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
         /**
-         * @brief mode block in parameter.xml
+         * @brief custom mode block in parameter.xml
          *
-         * @param bandwith bandwith
          * @param sampleRate sample rate
-         * @param fanout fanout
          * @param bits bits
          */
-        void mode(unsigned int bandwith, unsigned int sampleRate, unsigned int fanout, unsigned int bits);
+        void mode(double sampleRate, unsigned int bits);
+
+        /**
+         * @brief mode block in parameter.xml
+         * @param skdMode name of observing mode in skd catalogs
+         */
+        void mode(const std::string & skdMode);
 
         /**
          * @brief band sub-block in mode block in parameter.xml
@@ -247,6 +251,31 @@ namespace VieVS {
                     const std::string &scheduler,
                     const std::string &correlator, bool createSummary, bool createNGS, bool createSKD,
                     bool createSkyCoverage);
+
+
+        /**
+         * @brief specify the sequence in which sources should be observed
+         *
+         * If you say cadence = 5, modulo = 0, source = A than every 5th selected scan(or subnetting sequence) will be
+         * (if possible) to a source of A. This does not effect the first scan of a schedule!
+         *
+         * You can use the modulo number to to combine different rules:
+         * cadence = 10, modulo = 0, source = "1234+567" and cadence = 10, modulo = 1, source = "1234+568" means that
+         * every 10th scan will be (if possible) to source 1234+567 followed by a scan to "1234+568".
+         *
+         * @param cadence cadence for this rule
+         * @param modulo modulo operator for number of scan and cadence
+         * @param member source(group) which should be observed
+         */
+        void ruleScanSequence(unsigned int cadence, const std::vector<unsigned int> &modulo,
+                              const std::vector<std::string> &member);
+
+        void ruleCalibratorBlockTime(unsigned int cadence, const std::string &member,
+                                     const std::vector<std::pair<double,double> > &between_elevation,
+                                     unsigned int nMaxScans, unsigned int scanTime);
+
+        void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
+                                                unsigned int nMaxScans, unsigned int scanTime);
 
     private:
         boost::property_tree::ptree master_; ///< master property tree

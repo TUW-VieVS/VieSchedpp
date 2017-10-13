@@ -53,6 +53,7 @@ namespace VieVS{
             boost::optional<unsigned int> maxNumberOfScans = 9999; ///< maximum number of scans
             boost::optional<bool> tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
 
+            boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
@@ -94,6 +95,9 @@ namespace VieVS{
                     of << "    tryToFocusIfObservedOnce: TRUE\n";
                 } else {
                     of << "    tryToFocusIfObservedOnce: FALSE\n";
+                }
+                if (tryToObserveXTimesEvenlyDistributed.is_initialized()) {
+                    of << "    tryToObserveXTimesEvenlyDistributed: "<< *tryToObserveXTimesEvenlyDistributed <<"\n";
                 }
 
 
@@ -158,37 +162,9 @@ namespace VieVS{
          * @param src_de_deg declination in degrees
          * @param src_flux flux information per band
          */
-        Source(const std::string &src_name, double src_ra_deg, double src_de_deg, const std::unordered_map<std::string, Flux> &src_flux);
+        Source(const std::string &src_name, double src_ra_deg, double src_de_deg,
+               const std::unordered_map<std::string, Flux> &src_flux, int id);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other source
-         */
-        Source(const Source &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other source
-         */
-        Source(Source &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other source
-         * @return copy of other source
-         */
-        Source &operator=(const Source &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other source
-         * @return moved other source
-         */
-        Source &operator=(Source &&other) = default;
 
         /**
          * @brief getter of parameter object
@@ -263,10 +239,19 @@ namespace VieVS{
         /**
          * @brief geter for number of already scheduled scans to this source
          *
-         * @return number of already scheduled scans
+         * @return number of already scheduled scans that influence schedule
          */
         unsigned int getNscans() const {
             return nScans_;
+        }
+
+        /**
+         * @brief geter for number of already scheduled scans to this source
+         *
+         * @return number of already scheduled scans in total
+         */
+        unsigned int getNTotalScans() const {
+            return nTotalScans_;
         }
 
         /**
@@ -329,11 +314,6 @@ namespace VieVS{
         double observedFlux(const std::string &band, double gmst, double dx, double dy, double dz) const noexcept;
 
         /**
-         * @brief destructor
-         */
-        virtual ~Source();
-
-        /**
          * @brief this function checks if it is time to change the parameters
          *
          * !!! This function changes hardBreak !!!
@@ -352,8 +332,9 @@ namespace VieVS{
          *
          * @param nbl number of baselines observed in scan to this source
          * @param time scan end time in seconds since start
+         * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
-        void update(unsigned long nbl, unsigned int time) noexcept;
+        void update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept;
 
         /**
          * @brief overload of the << operator for output to stream
@@ -378,7 +359,8 @@ namespace VieVS{
         unsigned int nextEvent_; ///< index of next event
 
         unsigned int lastScan_; ///< last scan to this source
-        unsigned int nScans_; ///< number of scans to this source
+        unsigned int nScans_; ///< number of scans to this source that have influence on scheduling algorithms
+        unsigned int nTotalScans_; ///< number of total scans
         unsigned long nBaselines_; ///< number of observed baselines to this source
     };
     

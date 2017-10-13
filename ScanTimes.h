@@ -11,6 +11,7 @@
 #define SCANTIMES_H
 
 #include <vector>
+#include <limits>
 
 namespace VieVS {
 
@@ -35,41 +36,6 @@ namespace VieVS {
          * @param nsta number of stations
          */
         explicit ScanTimes(unsigned int nsta);
-
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other scan times object
-         */
-        ScanTimes(const ScanTimes &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other scan times object
-         */
-        ScanTimes(ScanTimes &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other scan times object
-         * @return copy of other scan times object
-         */
-        ScanTimes &operator=(const ScanTimes &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other scan times object
-         * @return copy of other scan times object
-         */
-        ScanTimes &operator=(ScanTimes &&other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~ScanTimes() = default;
 
         /**
          * @brief sets the endtime of the last scan
@@ -206,12 +172,22 @@ namespace VieVS {
          */
         void addScanTimes(const std::vector<unsigned int> &scanTimes) noexcept;
 
+
+        void addScanTimes(unsigned int scanTimes) noexcept;
+
         /**
          * @brief latest time until scan is finished
          *
          * @return time until all stations are finished with the observation in seconds since session start
          */
         unsigned int maxTime() const noexcept;
+
+        /**
+         * @brief earliest start time of a scan
+         *
+         * @return scan start time
+         */
+        unsigned int scanStart() const noexcept;
 
     private:
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan

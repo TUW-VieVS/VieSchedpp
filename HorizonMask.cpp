@@ -53,7 +53,6 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
 }
 
 
-HorizonMask::~HorizonMask() = default;
 
 bool HorizonMask::visible(const PointingVector &pv) const noexcept {
 

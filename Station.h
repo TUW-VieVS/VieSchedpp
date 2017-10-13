@@ -45,19 +45,6 @@ namespace VieVS{
     */
     class Station {
     public:
-        /**
-         * @brief antenna type
-         */
-        enum class AxisType {
-            AZEL, ///< azimuth elevation antenna
-            HADC, ///< hour angle declination antenna
-            XYNS, ///< x-y north south antenna
-            XYEW, ///< x-y east west antenna
-            RICH, ///< keine ahnung
-            SEST, ///< keine ahnung
-            ALGO, ///< keine ahnung
-            undefined ///< undefined antenna type
-        };
 
         /**
          * @brief azimuth elevation calculation model
@@ -71,8 +58,9 @@ namespace VieVS{
          * @brief station parameters
          */
         struct PARAMETERS{
-            boost::optional<bool> firstScan = false; ///< if true no time is spend for setup, source, tape, calibration, and slewing
-            boost::optional<bool> available = true; ///< if true this station is available for a scan
+            boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
+            boost::optional<bool> available;  ///< if set to true: this station is available for a scan
+            boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
@@ -179,7 +167,7 @@ namespace VieVS{
         /**
          * @brief empty default constructor
          */
-        Station();
+        Station() = default;
 
         /**
          * @brief constructor
@@ -193,49 +181,17 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(const std::string &sta_name,
-                int id,
-                const Antenna &sta_antenna,
-                const CableWrap &sta_cableWrap,
-                const Position &sta_position,
-                const Equipment &sta_equip,
-                const HorizonMask &sta_mask,
-                const std::string &sta_axis);
+        Station(const std::string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
+                const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
 
         /**
-         * @brief default copy constructor
+         * @brief getter for station id
          *
-         * @param other other station
+         * @return station id
          */
-        Station(const Station &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other station
-         */
-        Station(Station &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other station
-         * @return copy of other station
-         */
-        Station &operator=(const Station &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other station
-         * @return moved other station
-         */
-        Station &operator=(Station &&other) = default;
-
-        /**
-         * @brief destuctor
-         */
-        virtual ~Station() = default;;
+        int getId() const {
+            return id_;
+        }
 
         /**
          * @brief getter for parameters
@@ -431,7 +387,7 @@ namespace VieVS{
          */
         void
         calcAzEl(const Source &source, PointingVector &p,
-                 AzelModel model = AzelModel::simple) const noexcept;
+                 AzelModel model = AzelModel::rigorous) const noexcept;
 
         /**
          * @brief change current pointing vector
@@ -469,17 +425,33 @@ namespace VieVS{
             Station::nextEvent_ = EVENTS[0].time;
         }
 
+
+        /**
+         * @brief this function applies all changes of parameters at the start of session
+         *
+         */
+        void checkForNewEvent() noexcept;
+
+
         /**
          * @brief this function checks if it is time to change the parameters
          *
-         * !!! This function changes hardBreak !!!
+         * !!! This function changes hardBreak and tagalong !!!
          *
          * @param time current time in seconds since start
          * @param hardBreak flag if a hard break was found
-         * @param output displays output (default is false)
-         * @param bodyLog out stream object
+         * @param bodyLog output stream object
+         * @param tagalong flag if station should be scheduled in tagalong mode
          */
-        void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
+        void checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept;
+
+        /**
+         * @brief changes parameters to next setup
+         *
+         * @param out output stream object
+         */
+        void applyNextEvent(std::ofstream & out) noexcept;
+
 
         /**
          * @brief update station if used for a scan
@@ -487,11 +459,9 @@ namespace VieVS{
          * @param nbl number of observed baselines
          * @param start pointing vector at start time
          * @param end pointing vector at end time
-         * @param times time stamps of scan
-         * @param srcName name of observed source
+         * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
-        void update(unsigned long nbl, const PointingVector &start, const PointingVector &end,
-                    const std::vector<unsigned int> &times, const std::string &srcName) noexcept;
+        void update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept;
 
 
         /**
@@ -505,6 +475,15 @@ namespace VieVS{
             return {pointingVectorsStart_,pointingVectorsEnd_};
         };
 
+        void addPointingVectorStart(const PointingVector &pv){
+            pointingVectorsStart_.push_back(pv);
+        }
+
+        void addPointingVectorEnd(const PointingVector &pv){
+            pointingVectorsEnd_.push_back(pv);
+        }
+
+
     private:
         std::string name_; ///< station name
         int id_; ///< station id
@@ -513,7 +492,6 @@ namespace VieVS{
         Position position_; ///< station position
         Equipment equip_; ///< station equipment
         HorizonMask mask_; ///< station horizon mask
-        AxisType axis_; ///< station axis type
         int skyCoverageId_; ///< station sky coverage id
 
         PARAMETERS parameters_; ///< station parameters
@@ -524,6 +502,8 @@ namespace VieVS{
         unsigned int nextEvent_; ///< index of next evend
 
         PointingVector currentPositionVector_; ///< current pointing vector
+        double currentHA_; ///< current hour angle to improve computation speed (only used for HADC antennas)
+        double currentDE_; ///< current right ascension to improve computation speed (only used for HADC antennas)
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end

@@ -22,14 +22,14 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                int maxDistanceTwinTeleskopes, bool subnetting, bool fillinmode, double minElevation,
+                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
                                 const std::vector<std::string> &stations) {
     boost::property_tree::ptree general;
     general.add("general.startTime", startTime);
     general.add("general.endTime", endTime);
-    general.add("general.maxDistanceTwinTeleskopes", maxDistanceTwinTeleskopes);
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
+    general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
     general.add("general.minElevation", minElevation);
 
     boost::property_tree::ptree all_stations;
@@ -43,15 +43,12 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     master_.add_child("master.general", general.get_child("general"));
 }
 
-void ParameterSettings::catalogs(const std::string &root, const std::string &antenna, const std::string &equip,
-                                 const std::string &flux,
+void ParameterSettings::catalogs(const std::string &antenna, const std::string &equip, const std::string &flux,
                                  const std::string &freq, const std::string &hdpos, const std::string &loif,
-                                 const std::string &mask,
-                                 const std::string &modes, const std::string &position, const std::string &rec,
-                                 const std::string &rx,
-                                 const std::string &source, const std::string &tracks) {
+                                 const std::string &mask, const std::string &modes, const std::string &position,
+                                 const std::string &rec, const std::string &rx, const std::string &source,
+                                 const std::string &tracks) {
     boost::property_tree::ptree catalogs;
-    catalogs.add("catalogs.root", root);
     catalogs.add("catalogs.antenna", antenna);
     catalogs.add("catalogs.equip", equip);
     catalogs.add("catalogs.flux", flux);
@@ -111,6 +108,9 @@ void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS 
     }
     if (PARA.firstScan.is_initialized()) {
         parameters.add("parameters.firstScan", PARA.firstScan);
+    }
+    if (PARA.tagalong.is_initialized()) {
+        parameters.add("parameters.tagalong", PARA.tagalong);
     }
 
     if (PARA.weight.is_initialized()) {
@@ -182,6 +182,9 @@ void ParameterSettings::parameters(const std::string &name, Source::PARAMETERS P
         parameters.add("parameters.minFlux", PARA.minFlux);
     }
 
+    if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+        parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
+    }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
     }
@@ -460,10 +463,12 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 }
 
 
-void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval) {
+void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance) {
     boost::property_tree::ptree skyCoverage;
     skyCoverage.add("skyCoverage.influenceDistance", influenceDistance);
     skyCoverage.add("skyCoverage.influenceInterval", influenceInterval);
+    skyCoverage.add("skyCoverage.maxTwinTelecopeDistance", maxTwinTelecopeDistance);
+
 
     master_.add_child("master.skyCoverage", skyCoverage.get_child("skyCoverage"));
 }
@@ -491,11 +496,17 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
-void ParameterSettings::mode(unsigned int bandwith, unsigned int sampleRate, unsigned int fanout, unsigned int bits) {
+void ParameterSettings::mode(const std::string &skdMode) {
     boost::property_tree::ptree mode;
-    mode.add("mode.bandwith", bandwith);
+    mode.add("mode.skdMode", skdMode);
+
+    master_.add_child("master.mode", mode.get_child("mode"));
+}
+
+
+void ParameterSettings::mode(double sampleRate, unsigned int bits) {
+    boost::property_tree::ptree mode;
     mode.add("mode.sampleRate", sampleRate);
-    mode.add("mode.fanout", fanout);
     mode.add("mode.bits", bits);
 
     master_.add_child("master.mode", mode.get_child("mode"));
@@ -576,6 +587,66 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     master_.add_child("master.output", output.get_child("output"));
 
 }
+
+void ParameterSettings::ruleScanSequence(unsigned int cadence, const vector<unsigned int> &modulo,
+                                         const vector<string> &member) {
+    boost::property_tree::ptree rules;
+    rules.add("rules.sourceSequence.cadence",cadence);
+
+    unsigned long n = modulo.size();
+    for (int i = 0; i < n; ++i) {
+        boost::property_tree::ptree sourceSelection;
+
+        sourceSelection.add("sequence.modulo",modulo[i]);
+        sourceSelection.add("sequence.member",member[i]);
+
+        rules.add_child("rules.sourceSequence.sequence", sourceSelection.get_child("sequence"));
+    }
+
+    master_.add_child("master.rules.sourceSequence", rules.get_child("rules.sourceSequence"));
+
+}
+
+void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std::string &member,
+                                                const std::vector<std::pair<double, double> > &between_elevation,
+                                                unsigned int nMaxScans, unsigned int scanTime) {
+    boost::property_tree::ptree rules;
+
+    rules.add("calibratorBlock.cadence_seconds",cadence);
+    rules.add("calibratorBlock.member",member);
+    rules.add("calibratorBlock.nMaxScans",nMaxScans);
+    rules.add("calibratorBlock.fixedScanTime",scanTime);
+    for(const auto &any:between_elevation){
+        boost::property_tree::ptree be;
+        double el1 = any.first;
+        double el2 = any.second;
+        if(el1>el2){
+            swap(el1,el2);
+        }
+
+        be.add("targetElevation.lower_limit",el1);
+        be.add("targetElevation.upper_limit",el1);
+
+        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
+    }
+
+    master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+}
+
+void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
+                                                           unsigned int nMaxScans, unsigned int scanTime) {
+
+    boost::property_tree::ptree rules;
+
+    rules.add("calibratorBlock.cadence_nScanSelections",cadence);
+    rules.add("calibratorBlock.member",member);
+    rules.add("calibratorBlock.nMaxScans",nMaxScans);
+    rules.add("calibratorBlock.fixedScanTime",scanTime);
+
+    master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+
+}
+
 
 
 

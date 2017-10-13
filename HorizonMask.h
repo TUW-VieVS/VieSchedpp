@@ -52,43 +52,6 @@ namespace VieVS{
          */
         explicit HorizonMask(const std::vector<double> &el_mask_deg);
 
-
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other horizon mask
-         */
-        HorizonMask(const HorizonMask &other) = default;
-
-        /**
-         * @brief default move constructor
-         *
-         * @param other other horizon mask
-         */
-        HorizonMask(HorizonMask &&other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other horizon mask
-         * @return copy of other horizon mask
-         */
-        HorizonMask &operator=(const HorizonMask &other) = default;
-
-        /**
-         * @brief default move assignment operator
-         *
-         * @param other other horizon mask
-         * @return moved other horizon mask
-         */
-        HorizonMask &operator=(HorizonMask &&other) = default;
-
-
-        /**
-         * @brief destructor
-         */
-        virtual ~HorizonMask();
-
         /**
          * checks if a pointing vector is visible
          *

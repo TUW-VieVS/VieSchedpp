@@ -4,7 +4,9 @@
 #include <boost/format.hpp>
 #include <iostream>
 #include <thread>
+//#include <experimental/filesystem>
 //#include <boost/filesystem.hpp>
+
 
 #include "Initializer.h"
 #include "Scheduler.h"
@@ -40,12 +42,11 @@ void createParameterFile();
  *
  * @param argc currently unused
  * @param argv  currently unused
- * @return 0 if no errors occures
+ * @return 0 if no error occurred
  */
 int main(int argc, char *argv[])
 {
     createParameterFile();
-
     auto start = std::chrono::high_resolution_clock::now();
     run();
     auto finish = std::chrono::high_resolution_clock::now();
@@ -76,19 +77,19 @@ void run(){
     ofstream headerLog("header.txt");
 
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
-    skdCatalogReader.initializeStationCatalogs();
-    skdCatalogReader.initializeSourceCatalogs();
-    skdCatalogReader.initializeModesCatalogs("1024-16(AU)");
 
-    init.initializeObservingMode();
+    init.initializeObservingMode(skdCatalogReader, headerLog);
     init.initializeLookup();
     init.initializeSkyCoverages();
 
     init.createStations(skdCatalogReader, headerLog);
-    init.createSkyCoverages();
+    init.createSkyCoverages(headerLog);
 
     init.createSources(skdCatalogReader, headerLog);
     init.precalcSubnettingSrcIds();
+    init.initializeSourceSequence();
+
+    init.initializeCalibrationBlocks( headerLog );
 
     bool flag_multiSched = false;
     unsigned long nsched = 1;
@@ -98,7 +99,7 @@ void run(){
     if (!all_multiSched_PARA.empty()) {
         flag_multiSched = true;
         nsched = all_multiSched_PARA.size();
-        headerLog << "multi scheduling enabled... creating " << nsched << "schedules!\n";
+        headerLog << "multi scheduling found ... creating " << nsched << " schedules!\n";
     }
 
     headerLog.close();
@@ -200,32 +201,30 @@ void createParameterFile(){
     boost::posix_time::ptime start(boost::gregorian::date(2017, 01, 01), boost::posix_time::time_duration(12, 30, 00));
     boost::posix_time::ptime end = start + boost::posix_time::hours(24);
     boost::posix_time::time_duration a = end - start;
-    unsigned int duration = a.total_seconds();
+    auto duration = static_cast<unsigned int>(a.total_seconds());
 
     vector<string> station_names{"HART15M", "NYALES20", "SEJONG", "WETTZ13N", "WETTZ13S", "WETTZELL", "YARRA12M",
                                  "KATH12M"};
-    para.general(start, end, 5000, true, true, 5.0, station_names);
+    para.general(start, end, true, true, true, 5.0, station_names);
 
 
-    para.output("TEST", "test_description", "VIEN", "SHAO", true, true, true, true);
+    para.output("TEST", "test_description", "VIEN", "SHAO", true, true, true, false);
 
-//    std::string root = "D:/VieVS/CATALOGS";
-    std::string root = "/data/VieVS/CATALOGS";
-    std::string antenna = "antenna.cat";
-    std::string equip = "equip.cat";
-    std::string flux = "flux.cat";
-    std::string freq = "freq.cat";
-    std::string hdpos = "hdpos.cat";
-    std::string loif = "loif.cat";
-    std::string mask = "mask.cat";
-    std::string modes = "modes.cat";
-    std::string position = "position.cat";
-    std::string rec = "rec.cat";
-    std::string rx = "rx.cat";
-    std::string source = "source.cat";
-    std::string tracks = "tracks.cat";
+    std::string antenna = "/data/VieVS/CATALOGS/antenna.cat";
+    std::string equip = "/data/VieVS/CATALOGS/equip.cat";
+    std::string flux = "/data/VieVS/CATALOGS/flux.cat";
+    std::string freq = "/data/VieVS/CATALOGS/freq.cat";
+    std::string hdpos = "/data/VieVS/CATALOGS/hdpos.cat";
+    std::string loif = "/data/VieVS/CATALOGS/loif.cat";
+    std::string mask = "/data/VieVS/CATALOGS/mask.cat";
+    std::string modes = "/data/VieVS/CATALOGS/modes.cat";
+    std::string position = "/data/VieVS/CATALOGS/position.cat";
+    std::string rec = "/data/VieVS/CATALOGS/rec.cat";
+    std::string rx = "/data/VieVS/CATALOGS/rx.cat";
+    std::string source = "/data/VieVS/CATALOGS/source_geod.cat";
+    std::string tracks = "/data/VieVS/CATALOGS/tracks.cat";
 
-    para.catalogs(root, antenna, equip, flux, freq, hdpos,
+    para.catalogs(antenna, equip, flux, freq, hdpos,
                   loif, mask, modes, position, rec, rx,
                   source, tracks);
 
@@ -256,6 +255,10 @@ void createParameterFile(){
     sta_para4.available = false;
     para.parameters("para:down", sta_para4);
 
+    VieVS::Station::PARAMETERS sta_para5;
+    sta_para5.tagalong = true;
+    para.parameters("para:tagalong", sta_para5);
+
     VieVS::ParameterSetup pp(0, std::numeric_limits<unsigned int>::max());
     VieVS::ParameterSetup pp1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp11("para:wettzell", "group:siteWettzell",
@@ -263,6 +266,8 @@ void createParameterFile(){
                                duration);
     VieVS::ParameterSetup pp2("para:SEJONG", "SEJONG", 0, duration);
     VieVS::ParameterSetup pp21("para:down", "SEJONG", 3600, 7200, VieVS::ParameterSetup::Transition::hard);
+    VieVS::ParameterSetup pp3("para:tagalong", "HART15M", 3600, 7200);
+
     bool valid;
     valid = pp2.addChild(pp21);
     if (!valid) {
@@ -273,6 +278,10 @@ void createParameterFile(){
         cout << "no valid child!\n";
     }
     valid = pp1.addChild(pp2);
+    if (!valid) {
+        cout << "no valid child!\n";
+    }
+    valid = pp1.addChild(pp3);
     if (!valid) {
         cout << "no valid child!\n";
     }
@@ -288,7 +297,7 @@ void createParameterFile(){
     para.stationCableWrapBuffer("group:siteWettzell", 0, 0, 0, 0);
     para.stationCableWrapBuffer("SEJONG", 5, 5, 5, 5);
 
-    VieVS::ParameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384"});
+    VieVS::ParameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384","0003-066","1615+029","1920-211"});
     para.group(VieVS::ParameterSettings::Type::source, group_src);
 
     VieVS::Source::PARAMETERS src_para1;
@@ -302,6 +311,10 @@ void createParameterFile(){
     src_para2.minScan = 100;
     src_para2.maxScan = 700;
     src_para2.fixedScanDuration = 500;
+    src_para2.tryToObserveXTimesEvenlyDistributed = 3;
+    src_para2.weight = 10;
+    src_para2.minNumberOfStations = 3;
+    src_para2.requiredStationsString.emplace_back("WETTZELL");
     src_para2.ignoreStationsString.emplace_back("WETTZ13N");
     src_para2.ignoreStationsString.emplace_back("WETTZ13S");
     src_para2.ignoreBaselinesString.emplace_back("WETTZ13S", "WETTZ13N");
@@ -342,14 +355,14 @@ void createParameterFile(){
 
     para.parameters("para:lessMinSNR", bl_para2);
     VieVS::ParameterSetup pp_bl(0, std::numeric_limits<unsigned int>::max());
-    VieVS::ParameterSetup pp_bl1("para:ignore", "group:siteWettzell",
-                             para.getGroupMembers(VieVS::ParameterSettings::Type::baseline, "group:siteWettzell"), 0,
-                             duration);
+//    VieVS::ParameterSetup pp_bl1("para:ignore", "group:siteWettzell",
+//                             para.getGroupMembers(VieVS::ParameterSettings::Type::baseline, "group:siteWettzell"), 0,
+//                             duration);
     VieVS::ParameterSetup pp_bl2("para:lessMinSNR", "HART15M-YARRA12M", 0, duration);
-    valid = pp_bl.addChild(pp_bl1);
-    if (!valid) {
-        cout << "no valid child!\n";
-    }
+//    valid = pp_bl.addChild(pp_bl1);
+//    if (!valid) {
+//        cout << "no valid child!\n";
+//    }
     valid = pp_bl.addChild(pp_bl2);
     if (!valid) {
         cout << "no valid child!\n";
@@ -357,24 +370,29 @@ void createParameterFile(){
     para.setup(VieVS::ParameterSettings::Type::baseline, pp_bl);
 
 
-    para.skyCoverage(30, 3600);
+    para.skyCoverage(30, 3600, 5000);
 
 
     para.weightFactor(2, 1, 1, 0, 0.1, 0, -20, -50, 0, 20, 10);
 
+//    para.ruleScanSequence(10, std::vector<unsigned int>{0,1},
+//                          std::vector<string>{"group:starSources","group:starSources"});
 
-    para.mode(16, 32, 1, 2);
-    para.mode_band("X", 0.0349, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
-                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 10);
-    para.mode_band("S", 3.8000, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
-                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 6);
+    para.ruleCalibratorBlockNScanSelections(10,"__all__",3,120);
+
+    para.mode("1024-16(AU)");
+//    para.mode(32, 2);
+//    para.mode_band("X", 0.0349, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
+//                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 10);
+//    para.mode_band("S", 3.8000, VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0,
+//                   VieVS::ObservationMode::Property::required, VieVS::ObservationMode::Backup::none,0, 6);
 
 
-    VieVS::MultiScheduling multiSched;
-    multiSched.setWeight_skyCoverage(vector<double>{1, 2});
-    multiSched.setStation_maxSlewtime(group_sta, vector<unsigned int>{100, 200, 300});
-    multiSched.setStation_maxSlewtime("HART15M", vector<unsigned int>{100, 200});
-    para.multisched(multiSched);
+//    VieVS::MultiScheduling multiSched;
+//    multiSched.setWeight_skyCoverage(std::vector<double>{1, 2});
+//    multiSched.setStation_maxSlewtime(group_sta, std::vector<unsigned int>{100, 200, 300});
+//    multiSched.setStation_maxSlewtime("HART15M", std::vector<unsigned int>{100, 200});
+//    para.multisched(multiSched);
 
     para.write("parameters.xml");
 

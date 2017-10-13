@@ -14,6 +14,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <algorithm>
+#include <numeric>
 
 #include "Constants.h"
 #include "Station.h"
@@ -27,7 +28,8 @@
 #include "TimeSystem.h"
 #include "Baseline.h"
 #include "SkdCatalogReader.h"
-
+#include "CalibratorBlock.h"
+#include "Scan.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -43,22 +45,26 @@ namespace VieVS {
     class Initializer {
         friend class Scheduler;
     public:
+
+        /**
+         * @brief possible group types
+         */
+        enum class GroupType {
+            station, ///< stations wise group
+            source, ///< source wise group
+            baseline, ///< baseline wise group
+        };
+
         /**
          * @brief Parameters used in VLBI_initializer.
          *
          * Most of this parameters are than passed to other classes like VLBI_scheduler.
          */
         struct Parameters {
-            std::string experimentName; ///< experimet Name from .xml file
-            std::string experimentDescription; ///< experiment description form xml file
             bool subnetting = true; ///< if set to true subnetting is enabled
             bool fillinmode = true; ///< it set to true fillin scans are calculated
-
-            double maxDistanceTwinTeleskopes = 0; ///< maximum distance between corresponding teleskopes
+            bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
             std::vector<std::string> selectedStations; ///< list of all selected station for this session from .xml file
-
-            double skyCoverageDistance = 30 * deg2rad; ///< maximum influence distance on sphere for sky Coverage
-            double skyCoverageInterval = 3600; ///< maximum temporal distance of impact of scans in sky Coverage
 
             double minAngleBetweenSubnettingSources =
                     120 * deg2rad; ///< minimum angle between subnetting sources in radians
@@ -76,25 +82,6 @@ namespace VieVS {
          */
         explicit Initializer(const std::string &path);
 
-        /**
-         * @brief default copy constructor
-         *
-         * @param other other scan
-         */
-        Initializer(const Initializer &other) = default;
-
-        /**
-         * @brief default copy assignment operator
-         *
-         * @param other other scan
-         * @return copy of other scan
-         */
-        Initializer &operator=(const Initializer &other) = default;
-
-        /**
-         * @brief destructor
-         */
-        virtual ~Initializer();
 
         SkdCatalogReader createSkdCatalogReader() const noexcept;
 
@@ -108,19 +95,19 @@ namespace VieVS {
          *
          * @param headerLog outstream to log file
          */
-        void createStations(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createStations(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all possible sources from sked catalogs
          *
          * @param headerLog outstream to log file
          */
-        void createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief creates all sky Coverage objects
          */
-        void createSkyCoverages() noexcept;
+        void createSkyCoverages(std::ofstream &headerLog) noexcept;
 
         /**
          * @brief displays a short summary of created stations and sources.
@@ -190,7 +177,12 @@ namespace VieVS {
         /**
          * @brief reads the observing mode information from xml file
          */
-        void initializeObservingMode() noexcept;
+        void initializeObservingMode(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+
+        /**
+         * @brief initializes a custom source sequence if there is one defined in the .xml file
+         */
+        void initializeSourceSequence() noexcept;
 
         /**
          * @brief reads all groups spezified in the root tree
@@ -198,7 +190,7 @@ namespace VieVS {
          * @param root tree start point
          * @return key is group name, value is list of group members
          */
-        std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root) noexcept;
+        std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root, GroupType type) noexcept;
 
         /**
          * @brief applies all multi scheduling parameters to the initializer
@@ -214,6 +206,8 @@ namespace VieVS {
          * @return vector of all possible multisched parameter combination
          */
         std::vector<MultiScheduling::Parameters> readMultiSched();
+
+        void initializeCalibrationBlocks(std::ofstream &headerLog);
 
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
@@ -282,6 +276,8 @@ namespace VieVS {
                            const std::unordered_map<std::string, std::vector<std::string> > &groups,
                            const Baseline::PARAMETERS &parentPARA) noexcept;
 
+        unsigned int
+    minutesVisible(const Source &source, const Source::PARAMETERS &parameters, unsigned int start, unsigned int end);
     };
 }
 #endif /* INITIALIZER_H */
