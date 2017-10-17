@@ -10,13 +10,15 @@
 #include <QDialogButtonBox>
 #include <QMessageBox>
 #include <QTableWidgetItem>
+#include <QTreeWidgetItem>
+#include <QCloseEvent>
 
 #include <QtCharts/QChart>
-#include "chartview.h"
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 
+#include "chartview.h"
 #include "multischededitdialogint.h"
 #include "multischededitdialogdouble.h"
 #include "multischededitdialogdatetime.h"
@@ -38,6 +40,8 @@ public:
     ~MainWindow();
 
 private slots:    
+    void closeEvent(QCloseEvent *event);
+
     void on_actionMode_triggered();
 
     void on_actionWelcome_triggered();
@@ -152,16 +156,25 @@ private slots:
 
     void multiSchedEditButton_clicked(QString name);
 
+    void on_actionExit_triggered();
+
+    void on_iconSizeSpinBox_valueChanged(int arg1);
+
+    void on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column);
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
 
     QStandardItemModel *allStationModel;
+    QStandardItemModel *allSourceModel;
     QSortFilterProxyModel *allStationProxyModel;
 
     QStringListModel *selectedStationModel;
 
-    QStandardItemModel *allSourceModel;
+    QStandardItemModel *allSourcePlusGroupModel;
+    QStandardItemModel *allStationPlusGroupModel;
+    QStandardItemModel *allBaselinePlusGroupModel;
 
     QStringListModel *allSkedModesModel;
 

@@ -8,15 +8,24 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     mainPath = QCoreApplication::applicationFilePath();
 
+    ui->iconSizeSpinBox->setValue(ui->basicToolBar->iconSize().width()*1.5);
+
     QPushButton *savePara = new QPushButton("write xml",this);
     ui->statusBar->addPermanentWidget(savePara);
 
     allStationModel = new QStandardItemModel(0,5,this);
+    allSourceModel = new QStandardItemModel(0,3,this);
     allStationProxyModel = new QSortFilterProxyModel();
     allStationProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     selectedStationModel = new QStringListModel();
-    allSourceModel = new QStandardItemModel(0,3,this);
+
+    allSourcePlusGroupModel = new QStandardItemModel();
+    allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source_group.png"),"__all__"));
+
+    allStationPlusGroupModel = new QStandardItemModel();
+    allStationPlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),"__all__"));
+
     allSkedModesModel = new QStringListModel();
 
     ui->treeView_allAvailabeStations->setModel(allStationProxyModel);
@@ -26,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->listView_allSelectedStations->setModel(selectedStationModel);
     ui->comboBox_skedObsModes->setModel(allSkedModesModel);
+
+    ui->comboBox_stationSettingMember->setModel(allStationPlusGroupModel);
+    ui->comboBox_stationSettingMember_cable->setModel(allStationPlusGroupModel);
+    ui->comboBox_stationSettingMember_wait->setModel(allStationPlusGroupModel);
+
+    ui->comboBox_calibratorBlock_calibratorSources->setModel(allSourcePlusGroupModel);
 
     deleteModeMapper = new QSignalMapper(this);
     connect (deleteModeMapper, SIGNAL(mapped(QString)), this, SLOT(deleteModesCustomLine(QString))) ;
@@ -392,21 +407,24 @@ void MainWindow::readSources()
                 continue;
             }
             QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString sourceName = line.at(0);
-            QString rah = line.at(2);
-            QString ram = line.at(3);
-            QString ras = line.at(4);
+            QString sourceName = split.at(0);
+            QString rah = split.at(2);
+            QString ram = split.at(3);
+            QString ras = split.at(4);
             double ra = (rah.toDouble() + ram.toDouble()/60 + ras.toDouble()/3600)*15;
-            QString ded = line.at(5);
-            QString dem = line.at(6);
-            QString des = line.at(7);
+            QString ded = split.at(5);
+            QString dem = split.at(6);
+            QString des = split.at(7);
             double de = ded.toDouble() + dem.toDouble()/60 + des.toDouble()/3600;
 
             allSourceModel->insertRow(0);
             allSourceModel->setData(allSourceModel->index(0,0), sourceName);
             allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(ra*100 +0.5))/100.0);
             allSourceModel->setData(allSourceModel->index(0, 3), (double)((int)(de*100 +0.5))/100.0);
+
+            allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
         }
+        allSourcePlusGroupModel->sort(0);
         sourceFile.close();
     }
 }
@@ -515,8 +533,6 @@ void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &inde
     int idx = selectedStationModel->stringList().indexOf(name);
     selectedStationModel->removeRow(idx);
 
-
-
     int row;
     double x;
     double y;
@@ -534,6 +550,13 @@ void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &inde
         double yn = selectedStations->at(i).y();
         if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
             selectedStations->remove(i);
+            break;
+        }
+    }
+
+    for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
+        if (allStationPlusGroupModel->index(i,0).data().toString() == name) {
+            allStationPlusGroupModel->removeRow(i);
             break;
         }
     }
@@ -571,6 +594,8 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
         selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
                                  allStationProxyModel->index(row,2).data().toDouble());
 
+
+        allStationPlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/station.png"),name));
     }
 }
 
@@ -623,7 +648,9 @@ void MainWindow::on_spinBox_scanSequenceCadence_valueChanged(int arg1)
     }else{
         while(ui->tableWidget_scanSequence->rowCount()<arg1){
             ui->tableWidget_scanSequence->insertRow(ui->tableWidget_scanSequence->rowCount());
-            ui->tableWidget_scanSequence->setCellWidget(ui->tableWidget_scanSequence->rowCount()-1,0, new QComboBox);
+            QComboBox *cBox = new QComboBox(this);
+            cBox->setModel(allSourcePlusGroupModel);
+            ui->tableWidget_scanSequence->setCellWidget(ui->tableWidget_scanSequence->rowCount()-1,0, cBox);
         }
     }
 }
@@ -1070,6 +1097,7 @@ void MainWindow::multiSchedEditButton_clicked(QString name)
                         tmpNr->setText(QString::number(n,'f',0));
                     }
                 }
+                delete(dialog);
 
             } else if(row2doubleDialog.indexOf(name) != -1){
                 multiSchedEditDialogDouble *dialog = new multiSchedEditDialogDouble(this);
@@ -1091,6 +1119,7 @@ void MainWindow::multiSchedEditButton_clicked(QString name)
                         tmpNr->setText(QString::number(n,'f',0));
                     }
                 }
+                delete(dialog);
 
             } else if (row2dateTimeDialog.indexOf(name) != -1){
                 multiSchedEditDialogDateTime *dialog = new multiSchedEditDialogDateTime(this);
@@ -1112,6 +1141,7 @@ void MainWindow::multiSchedEditButton_clicked(QString name)
                         tmpNr->setText(QString::number(n,'f',0));
                     }
                 }
+                delete(dialog);
             } else if (row2toggle.indexOf(name) != -1){
                 QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
                 QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
@@ -1139,4 +1169,310 @@ void MainWindow::multiSchedEditButton_clicked(QString name)
     }
 
     ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    closeEvent(new QCloseEvent);
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
+{
+    event->ignore();
+    if (QMessageBox::Yes == QMessageBox::question(this, "Exit?", "Do you really want to exit?", QMessageBox::Yes | QMessageBox::No))
+    {
+        event->accept();
+    }
+
+}
+
+void MainWindow::on_iconSizeSpinBox_valueChanged(int arg1)
+{
+    ui->fileToolBar->setIconSize(QSize(arg1,arg1));
+    ui->basicToolBar->setIconSize(QSize(arg1,arg1));
+    ui->advancedToolBar->setIconSize(QSize(arg1,arg1));
+    ui->helpToolBar->setIconSize(QSize(arg1,arg1));
+}
+
+void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
+{
+    if(item->text(0) == "Files"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->fileToolBar->show();
+        }else{
+            ui->fileToolBar->hide();
+        }
+    } else if(item->text(0) == "Basic"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->basicToolBar->show();
+        }else{
+            ui->basicToolBar->hide();
+        }
+    } else if(item->text(0) == "Advanced"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->advancedToolBar->show();
+        }else{
+            ui->advancedToolBar->hide();
+        }
+    } else if(item->text(0) == "Help"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->helpToolBar->show();
+        }else{
+            ui->helpToolBar->hide();
+        }
+    } else if(item->text(0) == "Welcome"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Welcome"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Settings"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Settings"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "New"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "New"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Open"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Open"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Save"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Save"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Run"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Run"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Exit"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Exit"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Input"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Input"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Mode"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Mode"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "General"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "General"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Stations"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Station"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Sources"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Source"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Baselines"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Baseline"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Weight Factors"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Weight Factors"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Output"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Output"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Rules"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Rules"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Multi Scheduling"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Multi Scheduling"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Sky Coverage"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Sky Coverage"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "What is this?"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "What is this?"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "FAQ"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "FAQ"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Current Release"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Current Release"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "About"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "About"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "About Qt"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "About Qt"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    }
 }

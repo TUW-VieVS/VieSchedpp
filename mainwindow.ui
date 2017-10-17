@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>9</number>
+       <number>12</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -977,6 +977,13 @@
                  </property>
                 </widget>
                </item>
+               <item>
+                <widget class="QLabel" name="label_10">
+                 <property name="text">
+                  <string>UTC</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
              <item>
@@ -1196,7 +1203,7 @@
                     <item row="1" column="1">
                      <layout class="QHBoxLayout" name="horizontalLayout_10">
                       <item>
-                       <widget class="QComboBox" name="groupComboBox_2">
+                       <widget class="QComboBox" name="comboBox_stationSettingMember">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>2</horstretch>
@@ -1479,7 +1486,7 @@
                        </widget>
                       </item>
                       <item row="5" column="1">
-                       <widget class="QComboBox" name="comboBox"/>
+                       <widget class="QComboBox" name="comboBox_stationSettingMember_cable"/>
                       </item>
                       <item row="5" column="0">
                        <widget class="QLabel" name="label_14">
@@ -1639,7 +1646,7 @@
                        </widget>
                       </item>
                       <item row="6" column="1">
-                       <widget class="QComboBox" name="groupComboBox"/>
+                       <widget class="QComboBox" name="comboBox_stationSettingMember_wait"/>
                       </item>
                       <item row="7" column="1">
                        <widget class="QPushButton" name="pushButton_6">
@@ -2149,7 +2156,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QComboBox" name="comboBox_4"/>
+                 <widget class="QComboBox" name="comboBox_calibratorBlock_calibratorSources"/>
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_32">
@@ -2651,9 +2658,9 @@
        </layout>
       </widget>
       <widget class="QWidget" name="settings">
-       <layout class="QVBoxLayout" name="verticalLayout_22">
+       <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="1,2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_65">
+         <layout class="QVBoxLayout" name="verticalLayout_22">
           <item>
            <layout class="QFormLayout" name="formLayout_13">
             <item row="0" column="0">
@@ -2680,22 +2687,279 @@
             <item row="1" column="1">
              <widget class="QFontComboBox" name="fontComboBox_font"/>
             </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="iconSizeLabel">
+              <property name="text">
+               <string>icon size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="iconSizeSpinBox"/>
+            </item>
            </layout>
           </item>
           <item>
-           <spacer name="horizontalSpacer_17">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QTreeWidget" name="treeWidget_2">
+            <property name="columnCount">
+             <number>1</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+            <attribute name="headerStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Toolbars</string>
+             </property>
+            </column>
+            <item>
+             <property name="text">
+              <string>Files</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Welcome</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Settings</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>New</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Save</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Run</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Exit</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Basic</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Input</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mode</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>General</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Stations</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/station_p.png</normaloff>:/icons/icons/station_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Sources</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/source_p.png</normaloff>:/icons/icons/source_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Baselines</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/baseline_p.png</normaloff>:/icons/icons/baseline_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Weight Factors</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Output</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Advanced</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Rules</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Multi Scheduling</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Sky Coverage</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Help</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>What is this?</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>FAQ</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Current Release</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>About</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>About Qt</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+            </item>
+           </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_17">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>652</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -2881,16 +3145,28 @@
    </property>
   </action>
   <action name="actionStation">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/station_p.png</normaloff>:/icons/icons/station_p.png</iconset>
+   </property>
    <property name="text">
     <string>Station</string>
    </property>
   </action>
   <action name="actionSource">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/source_p.png</normaloff>:/icons/icons/source_p.png</iconset>
+   </property>
    <property name="text">
     <string>Source</string>
    </property>
   </action>
   <action name="actionBaseline">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/baseline_p.png</normaloff>:/icons/icons/baseline_p.png</iconset>
+   </property>
    <property name="text">
     <string>Baseline</string>
    </property>
@@ -2946,8 +3222,12 @@
    </property>
   </action>
   <action name="actionWeight_factors">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
+   </property>
    <property name="text">
-    <string>Weight factors</string>
+    <string>Weight Factors</string>
    </property>
   </action>
   <action name="actionInput">
@@ -2962,7 +3242,9 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="myresources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>radioButton</sender>

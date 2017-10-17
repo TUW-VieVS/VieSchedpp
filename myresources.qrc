@@ -2,4 +2,17 @@
     <qresource prefix="/plotting">
         <file>coast.txt</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>icons/station_group.png</file>
+        <file>icons/station.png</file>
+        <file>icons/station_p.png</file>
+        <file>icons/station_group_2.png</file>
+        <file>icons/source.png</file>
+        <file>icons/source_group.png</file>
+        <file>icons/source_p.png</file>
+        <file>icons/baseline_group.png</file>
+        <file>icons/baseline_p.png</file>
+        <file>icons/baseline.png</file>
+        <file>icons/weight.png</file>
+    </qresource>
 </RCC>
