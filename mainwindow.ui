@@ -1992,8 +1992,7 @@
         <item>
          <widget class="QGroupBox" name="groupBox_10">
           <property name="styleSheet">
-           <string notr="true">
-</string>
+           <string notr="true"/>
           </property>
           <property name="title">
            <string>Scan Sequence</string>
@@ -2057,8 +2056,7 @@
         <item>
          <widget class="QGroupBox" name="groupBox_11">
           <property name="styleSheet">
-           <string notr="true">
-</string>
+           <string notr="true"/>
           </property>
           <property name="title">
            <string>Calibrator Block</string>
@@ -2089,17 +2087,16 @@
                   <property name="text">
                    <string>time</string>
                   </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QRadioButton" name="radioButton_4">
-                  <property name="text">
-                   <string>scan selections</string>
+                  <property name="checked">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="1">
                  <widget class="QSpinBox" name="spinBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="suffix">
                    <string> [sec]</string>
                   </property>
@@ -2114,8 +2111,18 @@
                   </property>
                  </widget>
                 </item>
+                <item row="1" column="0">
+                 <widget class="QRadioButton" name="radioButton_4">
+                  <property name="text">
+                   <string>scan sequence</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
                 <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBox_5">
+                 <widget class="QSpinBox" name="spinBox_2">
                   <property name="value">
                    <number>5</number>
                   </property>
@@ -2227,7 +2234,7 @@
                 <item row="7" column="0">
                  <widget class="QLabel" name="label_35">
                   <property name="text">
-                   <string>low elevation slope start</string>
+                   <string>low elevation weight start</string>
                   </property>
                  </widget>
                 </item>
@@ -2281,7 +2288,7 @@
                 <item row="9" column="0">
                  <widget class="QLabel" name="label_36">
                   <property name="text">
-                   <string>high elevation slope start</string>
+                   <string>high elevation weight start</string>
                   </property>
                  </widget>
                 </item>
@@ -2347,7 +2354,13 @@
         <item>
          <widget class="QGroupBox" name="groupBox_5">
           <property name="title">
-           <string>General</string>
+           <string>multi scheduling</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_62">
            <item>
@@ -2364,7 +2377,7 @@
              </column>
              <column>
               <property name="text">
-               <string>edit</string>
+               <string>toggle/edit</string>
               </property>
              </column>
             </widget>
@@ -2395,7 +2408,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_10">
+           <widget class="QLabel" name="label_multiSchedulingNsched">
             <property name="text">
              <string>1</string>
             </property>
@@ -2958,12 +2971,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>540</x>
-     <y>348</y>
+     <x>676</x>
+     <y>373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>723</x>
-     <y>349</y>
+     <x>979</x>
+     <y>377</y>
     </hint>
    </hints>
   </connection>
@@ -2974,12 +2987,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>540</x>
-     <y>381</y>
+     <x>636</x>
+     <y>407</y>
     </hint>
     <hint type="destinationlabel">
-     <x>724</x>
-     <y>381</y>
+     <x>980</x>
+     <y>551</y>
     </hint>
    </hints>
   </connection>
@@ -3220,6 +3233,38 @@
     <hint type="destinationlabel">
      <x>260</x>
      <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>577</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>696</x>
+     <y>180</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_4</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>625</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>691</x>
+     <y>214</y>
     </hint>
    </hints>
   </connection>

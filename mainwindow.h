@@ -17,6 +17,9 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 
+#include "multischededitdialogint.h"
+#include "multischededitdialogdouble.h"
+#include "multischededitdialogdatetime.h"
 #include "skdcatalogreader.h"
 #include "callout.h"
 

@@ -772,7 +772,6 @@ void MainWindow::deleteModesCustomLine(QString name)
 
 void MainWindow::createMultiSchedTable()
 {
-    ui->tableWidget_multiSched->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
     ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("session start"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
@@ -783,60 +782,55 @@ void MainWindow::createMultiSchedTable()
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
     ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("sky coverage"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: sky coverage"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("number of observations"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: number of observations"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("duration"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: duration"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("average stations"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: average stations"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("average sources"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: average sources"));
 
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
     ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max slew time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max slew time"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max wait time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max wait time"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max scan time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max scan time"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max scan time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: min scan time"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("weight"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min number of stations"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min flux"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min repeat time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("weight"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: weight"));
 
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
     ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("max scan time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min number of stations"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("min scan time"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min flux"));
     ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("weight"));
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min repeat time"));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: max scan time"));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min scan time"));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: weight"));
 
-
-
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: max scan time"));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: min scan time"));
+    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
+    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: weight"));
 
     QBrush brush(Qt::black,Qt::HorPattern);
-    QSet<int> breakes = {3,9,16,23};
+    QSet<int> breakes = {3,9,15,22};
     for(auto i:breakes){
         for(int j = 0; j<3; ++j){
             ui->tableWidget_multiSched->setItem(i, j, new QTableWidgetItem);
@@ -849,15 +843,27 @@ void MainWindow::createMultiSchedTable()
             continue;
         }
 
+        ui->tableWidget_multiSched->verticalHeader()->setDefaultSectionSize(40);
+
         QListWidget *list = new QListWidget(this);
+        list->setFlow(QListWidget::LeftToRight);
         ui->tableWidget_multiSched->setCellWidget(i, 0, list);
 
-        QPushButton *button = new QPushButton("edit",this);
+        ui->tableWidget_multiSched->setItem(i,1,new QTableWidgetItem);
+
+        QString txt = "edit";
+        if (i==1 || i==2){
+            txt = "toggle";
+        }
+        QPushButton *button = new QPushButton(txt,this);
         ui->tableWidget_multiSched->setCellWidget(i, 2, button);
 
         connect(button,SIGNAL(clicked(bool)),multiSchedMapper,SLOT(map()));
         multiSchedMapper->setMapping(button,ui->tableWidget_multiSched->verticalHeaderItem(i)->text());
     }
+
+    ui->tableWidget_multiSched->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+
 }
 
 
@@ -1012,10 +1018,125 @@ void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &inde
 
 void MainWindow::multiSchedEditButton_clicked(QString name)
 {
+
+    QStringList row2toggle{"subnetting",
+                           "fillin mode"};
+
+    QStringList row2intDialog {"Station: max slew time",
+                              "Station: max wait time",
+                              "Station: max scan time",
+                              "Station: max scan time",
+                              "Station: min scan time",
+                              "Source: min number of stations",
+                              "Source: min repeat time",
+                              "Source: max scan time",
+                              "Source: min scan time",
+                              "Baseline: max scan time",
+                              "Baseline: min scan time"};
+
+    QStringList row2doubleDialog {"Weight: sky coverage",
+                                  "Weight: number of observations",
+                                  "Weight: duration",
+                                  "Weight: average stations",
+                                  "Weight: average sources",
+                                  "Station: weight",
+                                  "Source: min flux",
+                                  "Source: weight",
+                                  "Baseline: weight"};
+
+    QStringList row2dateTimeDialog {"session start"};
+
     for(int i = 0; i<ui->tableWidget_multiSched->rowCount(); ++i){
         QString rname = ui->tableWidget_multiSched->verticalHeaderItem(i)->text();
         if(rname == name){
 
+            if(row2intDialog.indexOf(name) != -1){
+                multiSchedEditDialogInt *dialog = new multiSchedEditDialogInt(this);
+
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    QVector<int> val = dialog->getValues();
+                    int n = val.size();
+
+                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
+                    tmpList->clear();
+                    for(int j = 0; j<n; ++j){
+                        tmpList->addItem(QString::number(val.at(j),'f',2));
+                    }
+
+                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
+                    tmpNr->setText("");
+                    if (n>0){
+                        tmpNr->setText(QString::number(n,'f',0));
+                    }
+                }
+
+            } else if(row2doubleDialog.indexOf(name) != -1){
+                multiSchedEditDialogDouble *dialog = new multiSchedEditDialogDouble(this);
+
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    QVector<double> val = dialog->getValues();
+                    int n = val.size();
+
+                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
+                    tmpList->clear();
+                    for(int j = 0; j<n; ++j){
+                        tmpList->addItem(QString::number(val.at(j),'f',2));
+                    }
+
+                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
+                    tmpNr->setText("");
+                    if (n>0){
+                        tmpNr->setText(QString::number(n,'f',0));
+                    }
+                }
+
+            } else if (row2dateTimeDialog.indexOf(name) != -1){
+                multiSchedEditDialogDateTime *dialog = new multiSchedEditDialogDateTime(this);
+
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    QVector<QDateTime> val = dialog->getValues();
+                    int n = val.size();
+
+                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
+                    tmpList->clear();
+                    for(int j = 0; j<n; ++j){
+                        tmpList->addItem(val.at(j).toString());
+                    }
+
+                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
+                    tmpNr->setText("");
+                    if (n>0){
+                        tmpNr->setText(QString::number(n,'f',0));
+                    }
+                }
+            } else if (row2toggle.indexOf(name) != -1){
+                QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
+                QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
+                if(tmpList->count() == 0){
+                    tmpList->addItem("True");
+                    tmpList->addItem("False");
+                    tmpNr->setText("2");
+                }else {
+                    tmpList->clear();
+                    tmpNr->setText("");
+                }
+            }
+
+            break;
         }
     }
+
+    int nsched = 1;
+    for(int i = 0; i<ui->tableWidget_multiSched->rowCount(); ++i){
+        QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
+        if (tmpNr->text() != ""){
+            int tmpNr_int = tmpNr->text().toInt();
+            nsched *= tmpNr_int;
+        }
+    }
+
+    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
 }

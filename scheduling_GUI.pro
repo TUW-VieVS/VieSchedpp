@@ -31,16 +31,25 @@ SOURCES += \
         mainwindow.cpp \
     skdcatalogreader.cpp \
     chartview.cpp \
-    callout.cpp
+    callout.cpp \
+    multischededitdialogint.cpp \
+    multischededitdialogdouble.cpp \
+    multischededitdialogdatetime.cpp
 
 HEADERS += \
         mainwindow.h \
     skdcatalogreader.h \
     chartview.h \
-    callout.h
+    callout.h \
+    multischededitdialogint.h \
+    multischededitdialogdouble.h \
+    multischededitdialogdatetime.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    multischededitdialogint.ui \
+    multischededitdialogdouble.ui \
+    multischededitdialogdatetime.ui
 
 RESOURCES += \
     myresources.qrc
