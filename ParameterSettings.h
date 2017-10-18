@@ -15,16 +15,10 @@
 #include <boost/date_time.hpp>
 #include <utility>
 
-#include "Station.h"
-#include "Source.h"
-#include "Baseline.h"
-#include "ObservationMode.h"
 #include "ParameterSetup.h"
-#include "MultiScheduling.h"
 #include "ParameterGroup.h"
 
 namespace VieVS {
-
     /**
      * @class ParameterSettings
      * @brief This class stores all setup information and writes a parameters.xml file
@@ -43,6 +37,88 @@ namespace VieVS {
             source, ///< source wise group/setup
             baseline, ///< baseline wise group/setup
         };
+
+
+        /**
+         * @brief station parameters
+         */
+        struct ParametersStations{
+            boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
+            boost::optional<bool> available;  ///< if set to true: this station is available for a scan
+            boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
+
+            std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
+
+            boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
+            boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
+            boost::optional<unsigned int> minScan; ///< minimum required scan time
+
+            boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
+
+            std::vector<std::string> ignoreSources_str; ///< list of all source names which should be ignored
+        };
+
+        /**
+         * @brief source parameters
+         */
+        struct ParametersSources {
+            boost::optional<bool> available = true; ///< flag is source is available
+
+            boost::optional<double> weight = 1; ///< multiplicative factor of score for scans to this source
+
+            std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
+
+            boost::optional<unsigned int> minNumberOfStations = 2; ///< minimum number of stations for a scan
+            boost::optional<double> minFlux = .01; ///< minimum flux density required for this source in jansky
+            boost::optional<unsigned int> minRepeat = 1800; ///< minimum time between two observations of this source in seconds
+            boost::optional<unsigned int> maxScan = 600; ///< maximum allowed scan time in seconds
+            boost::optional<unsigned int> minScan = 30; ///< minimum required scan time in seconds
+            boost::optional<unsigned int> maxNumberOfScans = 9999; ///< maximum number of scans
+            boost::optional<bool> tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
+
+            boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
+            boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
+
+            std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
+            std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
+            std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
+            std::vector<std::pair<std::string, std::string>> ignoreBaselinesString; ///< list of all baseline names which should be ignore
+            std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
+            std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
+        };
+
+        /**
+         * @brief baseline parameters
+         */
+        struct ParametersBaselines {
+            std::unordered_map<std::string, double> minSNR; ///< minimum SNR per band for each baseline
+            boost::optional<bool> ignore; ///< ignore specific baselines
+
+            boost::optional<double> weight; ///< multiplicative factor of score for scans with this baseline
+            boost::optional<unsigned int> minScan; ///< minimum required scan duration of this baseline
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan duration of this baseline
+        };
+
+
+        /**
+         * @brief all possible observation mode flux information type
+         */
+        enum class ObservationModeProperty {
+            required,    ///< this band information is required. If this information is missing this object is not used.
+            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is interpolated
+        };
+
+        /**
+        * @brief all possible observation mode backup models
+        */
+        enum class ObservationModeBackup {
+            minValueTimes, ///< use minimum value found in other bands times a factor
+            maxValueTimes, ///< use maximum value found in other bands times a factor
+            value, ///< use specific value
+            none, ///< no backup model
+        };
+
 
 
         /**
@@ -118,7 +194,7 @@ namespace VieVS {
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, Station::PARAMETERS PARA);
+        void parameters(const std::string &name, ParametersStations PARA);
 
         /**
          * @brief defined source parameters in source block in parameters.xml
@@ -126,7 +202,7 @@ namespace VieVS {
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, Source::PARAMETERS PARA);
+        void parameters(const std::string &name, ParametersSources PARA);
 
         /**
          * @brief defined baseline parameters in baseline block in parameters.xml
@@ -134,7 +210,7 @@ namespace VieVS {
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, Baseline::PARAMETERS PARA);
+        void parameters(const std::string &name, ParametersBaselines PARA);
 
         /**
          * @brief setup block in parameter.xml
@@ -217,16 +293,16 @@ namespace VieVS {
          * @param sourceBackupValue source backup model value
          * @param chanels number of channels
          */
-        void mode_band(const std::string &name, double wavelength, ObservationMode::Property station,
-                       ObservationMode::Backup stationBackup, double stationBackupValue, ObservationMode::Property source,
-                       ObservationMode::Backup sourceBackup, double sourceBackupValue, unsigned int chanels);
+        void mode_band(const std::string &name, double wavelength, ObservationModeProperty station,
+                       ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
+                       ObservationModeBackup sourceBackup, double sourceBackupValue, unsigned int chanels);
 
         /**
          * @brief multisched block in parameter.xml
          *
-         * @param multiSched multisched object
+         * @param multiSched multisched xml tree
          */
-        void multisched(const MultiScheduling &multiSched);
+        void multisched(const boost::property_tree::ptree &multiSched);
 
         /**
          * @brief output routine that produces .xml file

@@ -7,7 +7,7 @@ using namespace std;
 using namespace VieVS;
 
 
-ParameterSetup::ParameterSetup(): start_{0}, end_{TimeSystem::duration}, transition_{Transition::soft} {
+ParameterSetup::ParameterSetup(): start_{0}, end_{0}, transition_{Transition::soft} {
 }
 
 ParameterSetup::ParameterSetup(unsigned int start, unsigned int end) :

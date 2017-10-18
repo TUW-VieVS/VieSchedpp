@@ -510,7 +510,6 @@ void Output::skd_PARAM(const SkdCatalogReader &skdCatalogReader, ofstream &of) {
 
     const std::map<std::string, std::string> &twoLetterCode = skdCatalogReader.getTwoLetterCode();
 
-    string root = xml_.get<string>("master.catalogs.root");
     string antennaCat = xml_.get<string>("master.catalogs.antenna");
     string equipCat = xml_.get<string>("master.catalogs.equip");
 
@@ -681,8 +680,6 @@ void Output::skd_SRCWT(std::ofstream &of) {
 
 void Output::skd_CATALOG_USED(std::ofstream &of) {
     of << "$CATALOG_USED\n";
-    string root = xml_.get<string>("master.catalogs.root");
-
     string source = xml_.get<string>("master.catalogs.source");
     string flux = xml_.get<string>("master.catalogs.flux");
 
@@ -699,21 +696,21 @@ void Output::skd_CATALOG_USED(std::ofstream &of) {
     string tracks = xml_.get<string>("master.catalogs.tracks");;
     string hdpos = xml_.get<string>("master.catalogs.hdpos");;
 
-    of << boost::format("%-10s %13s %s\n") % "SOURCE" % "UNKNOWN" % (root + source);
-    of << boost::format("%-10s %13s %s\n") % "FLUX" % "UNKNOWN" % (root + flux);
+    of << boost::format("%-10s %13s %s\n") % "SOURCE" % "UNKNOWN" % source;
+    of << boost::format("%-10s %13s %s\n") % "FLUX" % "UNKNOWN" % flux;
 
-    of << boost::format("%-10s %13s %s\n") % "ANTENNA" % "UNKNOWN" % (root + antenna);
-    of << boost::format("%-10s %13s %s\n") % "POSITION" % "UNKNOWN" % (root + position);
-    of << boost::format("%-10s %13s %s\n") % "EQUIP" % "UNKNOWN" % (root + equip);
-    of << boost::format("%-10s %13s %s\n") % "MASK" % "UNKNOWN" % (root + mask);
+    of << boost::format("%-10s %13s %s\n") % "ANTENNA" % "UNKNOWN" % antenna;
+    of << boost::format("%-10s %13s %s\n") % "POSITION" % "UNKNOWN" % position;
+    of << boost::format("%-10s %13s %s\n") % "EQUIP" % "UNKNOWN" % equip;
+    of << boost::format("%-10s %13s %s\n") % "MASK" % "UNKNOWN" % mask;
 
-    of << boost::format("%-10s %13s %s\n") % "MODES" % "UNKNOWN" % (root + modes);
-    of << boost::format("%-10s %13s %s\n") % "FREQ" % "UNKNOWN" % (root + freq);
-    of << boost::format("%-10s %13s %s\n") % "REC" % "UNKNOWN" % (root + rec);
-    of << boost::format("%-10s %13s %s\n") % "RX" % "UNKNOWN" % (root + rx);
-    of << boost::format("%-10s %13s %s\n") % "LOIF" % "UNKNOWN" % (root + loif);
-    of << boost::format("%-10s %13s %s\n") % "TRACKS" % "UNKNOWN" % (root + tracks);
-    of << boost::format("%-10s %13s %s\n") % "HDPOS" % "UNKNOWN" % (root + hdpos);
+    of << boost::format("%-10s %13s %s\n") % "MODES" % "UNKNOWN" % modes;
+    of << boost::format("%-10s %13s %s\n") % "FREQ" % "UNKNOWN" % freq;
+    of << boost::format("%-10s %13s %s\n") % "REC" % "UNKNOWN" % rec;
+    of << boost::format("%-10s %13s %s\n") % "RX" % "UNKNOWN" % rx;
+    of << boost::format("%-10s %13s %s\n") % "LOIF" % "UNKNOWN" % loif;
+    of << boost::format("%-10s %13s %s\n") % "TRACKS" % "UNKNOWN" % tracks;
+    of << boost::format("%-10s %13s %s\n") % "HDPOS" % "UNKNOWN" % hdpos;
 
 }
 
@@ -807,7 +804,6 @@ void Output::skd_STATIONS(const SkdCatalogReader &skdCatalogReader, std::ofstrea
 
 void Output::skd_FLUX(const SkdCatalogReader &skdCatalogReader, std::ofstream &of) {
     of << "$FLUX\n";
-    string root = xml_.get<string>("master.catalogs.root");
     string fluxCat = xml_.get<string>("master.catalogs.flux");
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();

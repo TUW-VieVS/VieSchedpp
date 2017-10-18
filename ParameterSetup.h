@@ -16,8 +16,6 @@
 #include <vector>
 #include <memory>
 
-#include "TimeSystem.h"
-
 namespace VieVS {
     /**
      * @class ParameterSetup
