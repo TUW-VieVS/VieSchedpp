@@ -14,11 +14,11 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_27">
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>12</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -604,7 +604,7 @@
                   <number>3</number>
                  </property>
                  <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </attribute>
                  <attribute name="verticalHeaderVisible">
                   <bool>false</bool>
@@ -862,7 +862,11 @@
               <item>
                <widget class="QPushButton" name="pushButton_worldmapZoomFull">
                 <property name="text">
-                 <string>zoom full</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>icons/zoom-fit-best-3.png</normaloff>icons/zoom-fit-best-3.png</iconset>
                 </property>
                </widget>
               </item>
@@ -906,74 +910,35 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QDateEdit" name="dateEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>100</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumDateTime">
-                  <datetime>
-                   <hour>23</hour>
-                   <minute>59</minute>
-                   <second>59</second>
-                   <year>7930</year>
-                   <month>12</month>
-                   <day>31</day>
-                  </datetime>
-                 </property>
-                 <property name="minimumDateTime">
+                <widget class="QDateTimeEdit" name="dateTimeEdit_sessionStart">
+                 <property name="dateTime">
                   <datetime>
                    <hour>0</hour>
                    <minute>0</minute>
                    <second>0</second>
-                   <year>1760</year>
-                   <month>1</month>
-                   <day>1</day>
+                   <year>2017</year>
+                   <month>12</month>
+                   <day>31</day>
                   </datetime>
                  </property>
                  <property name="maximumDate">
                   <date>
-                   <year>7930</year>
+                   <year>7999</year>
                    <month>12</month>
                    <day>31</day>
                   </date>
                  </property>
-                 <property name="currentSection">
-                  <enum>QDateTimeEdit::DaySection</enum>
-                 </property>
                  <property name="displayFormat">
-                  <string>dd.MM.yyyy</string>
+                  <string>dd.MM.yy HH:mm</string>
                  </property>
                  <property name="calendarPopup">
                   <bool>true</bool>
                  </property>
-                 <property name="date">
-                  <date>
-                   <year>2018</year>
-                   <month>1</month>
-                   <day>1</day>
-                  </date>
+                 <property name="currentSectionIndex">
+                  <number>0</number>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QTimeEdit" name="timeEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="currentSection">
-                  <enum>QDateTimeEdit::HourSection</enum>
-                 </property>
-                 <property name="displayFormat">
-                  <string>HH:mm:ss</string>
-                 </property>
-                 <property name="calendarPopup">
-                  <bool>false</bool>
+                 <property name="timeSpec">
+                  <enum>Qt::UTC</enum>
                  </property>
                 </widget>
                </item>
@@ -1009,7 +974,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_sessionDuration">
                  <property name="minimumSize">
                   <size>
                    <width>80</width>
@@ -1160,204 +1125,297 @@
        </layout>
       </widget>
       <widget class="QWidget" name="setup_sta">
-       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>station:</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_16">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_33">
-               <item>
-                <widget class="QGroupBox" name="groupBox_9">
-                 <property name="title">
-                  <string>Setup</string>
-                 </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_47" stretch="2,3,4">
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="tabPosition">
+           <enum>QTabWidget::North</enum>
+          </property>
+          <property name="tabShape">
+           <enum>QTabWidget::Rounded</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tabWidgetPage1" native="true">
+           <attribute name="title">
+            <string>Setup</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_28">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_2" columnstretch="1,3">
+              <item row="0" column="0">
+               <layout class="QFormLayout" name="formLayout_4">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="groupLabel_2">
+                  <property name="text">
+                   <string>member</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_10">
                   <item>
-                   <layout class="QFormLayout" name="formLayout_4">
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="parentLabel">
-                      <property name="text">
-                       <string>Parent</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_9">
-                      <item>
-                       <widget class="QComboBox" name="parentComboBox"/>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="groupLabel_2">
-                      <property name="text">
-                       <string>member</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_10">
-                      <item>
-                       <widget class="QComboBox" name="comboBox_stationSettingMember">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>2</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_3">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>20</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>+</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QLabel" name="parameterLabel">
-                      <property name="text">
-                       <string>Parameter</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_11">
-                      <item>
-                       <widget class="QComboBox" name="parameterComboBox">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>2</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_4">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>1</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>20</width>
-                          <height>0</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>+</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="3" column="0">
-                     <widget class="QLabel" name="startLabel">
-                      <property name="text">
-                       <string>Start</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_32">
-                      <item>
-                       <widget class="QDateTimeEdit" name="startDateTimeEdit"/>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_10">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="4" column="0">
-                     <widget class="QLabel" name="endLabel">
-                      <property name="text">
-                       <string>End</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="1">
-                     <layout class="QHBoxLayout" name="horizontalLayout_44">
-                      <item>
-                       <widget class="QDateTimeEdit" name="endDateTimeEdit"/>
-                      </item>
-                      <item>
-                       <spacer name="horizontalSpacer_12">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
-                      </item>
-                     </layout>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="QTreeWidget" name="treeWidget">
-                    <column>
-                     <property name="text">
-                      <string>member</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>parameter</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>start</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>end</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>transition</string>
-                     </property>
-                    </column>
+                   <widget class="QComboBox" name="comboBox_stationSettingMember">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>2</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                    </widget>
                   </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_addGroupStationSetup">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>1</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>20</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="myresources.qrc">
+                      <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>16</width>
+                      <height>16</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="parameterLabel">
+                  <property name="text">
+                   <string>Parameter</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <item>
+                   <widget class="QComboBox" name="ComboBox_parameterStation">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>2</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_stationParameter">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>1</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>20</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="myresources.qrc">
+                      <normaloff>:/icons/icons/edit-add-2.png</normaloff>:/icons/icons/edit-add-2.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="startLabel">
+                  <property name="text">
+                   <string>Start</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_32">
+                  <item>
+                   <widget class="QDateTimeEdit" name="DateTimeEdit_startParameterStation">
+                    <property name="timeSpec">
+                     <enum>Qt::UTC</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="endLabel">
+                  <property name="text">
+                   <string>End</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_44">
+                  <item>
+                   <widget class="QDateTimeEdit" name="DateTimeEdit_endParameterStation">
+                    <property name="timeSpec">
+                     <enum>Qt::UTC</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
+                   <string>Transition</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QComboBox" name="comboBox_parameterStationTransition">
+                  <item>
+                   <property name="text">
+                    <string>soft</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>hard</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="1">
+               <layout class="QHBoxLayout" name="horizontalLayout_22">
+                <item>
+                 <spacer name="horizontalSpacer_22">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_4">
+                  <property name="text">
+                   <string>remove selected</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_18">
+                <item>
+                 <spacer name="horizontalSpacer_20">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton_3">
+                  <property name="text">
+                   <string>add child</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="0" column="1">
+               <widget class="QTreeWidget" name="treeWidget_setupStation">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="alternatingRowColors">
+                 <bool>true</bool>
+                </property>
+                <property name="animated">
+                 <bool>false</bool>
+                </property>
+                <attribute name="headerStretchLastSection">
+                 <bool>false</bool>
+                </attribute>
+                <column>
+                 <property name="text">
+                  <string>member</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>parameter</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>start</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>end</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>transition</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>294</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabWidgetPage2" native="true">
+           <attribute name="title">
+            <string>Wait times</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,10">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_21">
+              <item>
+               <layout class="QGridLayout" name="gridLayout">
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
                   <item>
                    <spacer name="horizontalSpacer_14">
                     <property name="orientation">
@@ -1365,330 +1423,450 @@
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
-                      <width>462</width>
+                      <width>40</width>
                       <height>20</height>
                      </size>
                     </property>
                    </spacer>
                   </item>
-                 </layout>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_25">
-               <item>
-                <widget class="QGroupBox" name="groupBox_7">
-                 <property name="title">
-                  <string>cable wrap buffer</string>
-                 </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_24">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_23">
+                   <widget class="QPushButton" name="pushButton_12">
+                    <property name="text">
+                     <string>add</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0">
+                 <layout class="QFormLayout" name="formLayout_2">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="setupLabel_3">
+                    <property name="text">
+                     <string>setup</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="axis1LowSpinBox_13">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="prefix">
+                     <string/>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="sourceLabel_3">
+                    <property name="text">
+                     <string>source</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="axis1LowSpinBox_14">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="value">
+                     <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="tapeLabel_3">
+                    <property name="text">
+                     <string>tape</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QSpinBox" name="axis1LowSpinBox_15">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="calibrationLabel_3">
+                    <property name="text">
+                     <string>calibration</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QSpinBox" name="axis1LowSpinBox_16">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="value">
+                     <number>10</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="corSynchLabel_3">
+                    <property name="text">
+                     <string>corr. synch</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QSpinBox" name="axis1LowSpinBox_5">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="value">
+                     <number>3</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0" colspan="2">
+                   <widget class="Line" name="line_8">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="0">
+                   <widget class="QLabel" name="groupLabel_4">
+                    <property name="text">
+                     <string>member</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_15">
                     <item>
-                     <layout class="QFormLayout" name="formLayout">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="axis1LowLabel">
-                        <property name="text">
-                         <string>axis 1 low</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_13">
-                        <item>
-                         <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox">
-                          <property name="suffix">
-                           <string> [deg]</string>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.500000000000000</double>
-                          </property>
-                          <property name="value">
-                           <double>1.000000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="axis2LowLabel">
-                        <property name="text">
-                         <string>axis 1 up</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_14">
-                        <item>
-                         <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox_2">
-                          <property name="suffix">
-                           <string> [deg]</string>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.500000000000000</double>
-                          </property>
-                          <property name="value">
-                           <double>1.000000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="axis2LowLabel_2">
-                        <property name="text">
-                         <string>axis 2 low</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_16">
-                        <item>
-                         <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox_4">
-                          <property name="suffix">
-                           <string> [deg]</string>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.500000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="axis2UpLabel">
-                        <property name="text">
-                         <string>axis 2 up</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_15">
-                        <item>
-                         <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
-                          <property name="suffix">
-                           <string> [deg]</string>
-                          </property>
-                          <property name="singleStep">
-                           <double>0.500000000000000</double>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="4" column="0" colspan="2">
-                       <widget class="Line" name="line_2">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="1">
-                       <widget class="QComboBox" name="comboBox_stationSettingMember_cable"/>
-                      </item>
-                      <item row="5" column="0">
-                       <widget class="QLabel" name="label_14">
-                        <property name="text">
-                         <string>member</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="1">
-                       <widget class="QPushButton" name="pushButton_5">
-                        <property name="text">
-                         <string>add</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QComboBox" name="comboBox_stationSettingMember_wait"/>
                     </item>
                     <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_10">
-                      <item>
-                       <widget class="QLabel" name="label_24">
-                        <property name="text">
-                         <string>selected</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QTableView" name="tableView"/>
-                      </item>
-                     </layout>
+                     <widget class="QPushButton" name="pushButton_addGroupStationWait">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>1</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </item>
                  </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="groupBox_6">
-                 <property name="title">
-                  <string>wait times</string>
-                 </property>
-                 <layout class="QHBoxLayout" name="horizontalLayout_22">
+                </item>
+                <item row="0" column="1">
+                 <layout class="QVBoxLayout" name="verticalLayout_11">
                   <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_12">
+                   <widget class="QLabel" name="label_25">
+                    <property name="text">
+                     <string>defined</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTableView" name="tableView_2"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_20">
+                  <item>
+                   <spacer name="horizontalSpacer_21">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_14">
+                    <property name="text">
+                     <string>remove selected</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>356</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabWidgetPage3" native="true">
+           <attribute name="title">
+            <string>Axis limit buffer</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,10">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,0">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="0" column="0">
+                 <layout class="QFormLayout" name="formLayout_17">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="axis1LowLabel_3">
+                    <property name="text">
+                     <string>axis 1 low</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox_9">
+                    <property name="suffix">
+                     <string> [deg]</string>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.500000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="axis2LowLabel_5">
+                    <property name="text">
+                     <string>axis 1 up</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox_8">
+                    <property name="suffix">
+                     <string> [deg]</string>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.500000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>1.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="axis2LowLabel_6">
+                    <property name="text">
+                     <string>axis 2 low</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="axis1LowDoubleSpinBox_7">
+                    <property name="suffix">
+                     <string> [deg]</string>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.500000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="axis2UpLabel_3">
+                    <property name="text">
+                     <string>axis 2 up</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                    <property name="suffix">
+                     <string> [deg]</string>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.500000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0" colspan="2">
+                   <widget class="Line" name="line_9">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>member</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_42">
                     <item>
-                     <layout class="QFormLayout" name="formLayout_2">
-                      <item row="0" column="0">
-                       <widget class="QLabel" name="setupLabel">
-                        <property name="text">
-                         <string>setup</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="sourceLabel">
-                        <property name="text">
-                         <string>source</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="tapeLabel">
-                        <property name="text">
-                         <string>tape</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="calibrationLabel">
-                        <property name="text">
-                         <string>calibration</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="corSynchLabel">
-                        <property name="text">
-                         <string>corr. synch</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_18">
-                        <item>
-                         <widget class="QSpinBox" name="axis1LowSpinBox_5">
-                          <property name="suffix">
-                           <string> [sec]</string>
-                          </property>
-                          <property name="prefix">
-                           <string/>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="1" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_21">
-                        <item>
-                         <widget class="QSpinBox" name="axis1LowSpinBox_8">
-                          <property name="suffix">
-                           <string> [sec]</string>
-                          </property>
-                          <property name="value">
-                           <number>5</number>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="2" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_20">
-                        <item>
-                         <widget class="QSpinBox" name="axis1LowSpinBox_7">
-                          <property name="suffix">
-                           <string> [sec]</string>
-                          </property>
-                          <property name="value">
-                           <number>1</number>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="3" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_19">
-                        <item>
-                         <widget class="QSpinBox" name="axis1LowSpinBox_6">
-                          <property name="suffix">
-                           <string> [sec]</string>
-                          </property>
-                          <property name="value">
-                           <number>10</number>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="4" column="1">
-                       <layout class="QHBoxLayout" name="horizontalLayout_17">
-                        <item>
-                         <widget class="QSpinBox" name="axis1LowSpinBox_3">
-                          <property name="suffix">
-                           <string> [sec]</string>
-                          </property>
-                          <property name="value">
-                           <number>3</number>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="6" column="0">
-                       <widget class="QLabel" name="groupLabel">
-                        <property name="text">
-                         <string>member</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="1">
-                       <widget class="QComboBox" name="comboBox_stationSettingMember_wait"/>
-                      </item>
-                      <item row="7" column="1">
-                       <widget class="QPushButton" name="pushButton_6">
-                        <property name="text">
-                         <string>add</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="0" colspan="2">
-                       <widget class="Line" name="line_3">
-                        <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
+                     <widget class="QComboBox" name="comboBox_stationSettingMember_cable"/>
                     </item>
                     <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_11">
-                      <item>
-                       <widget class="QLabel" name="label_25">
-                        <property name="text">
-                         <string>selected</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QTableView" name="tableView_2"/>
-                      </item>
-                     </layout>
+                     <widget class="QPushButton" name="pushButton_addGroupStationCable">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </item>
                  </layout>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </widget>
-          </item>
-         </layout>
+                </item>
+                <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_19">
+                  <item>
+                   <spacer name="horizontalSpacer_23">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_15">
+                    <property name="text">
+                     <string>add</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                  <item>
+                   <widget class="QLabel" name="label_24">
+                    <property name="text">
+                     <string>defined</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QTableView" name="tableView"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_23">
+                  <item>
+                   <spacer name="horizontalSpacer_24">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_16">
+                    <property name="text">
+                     <string>remove selected</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_12">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>388</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -2010,7 +2188,7 @@
           <property name="checked">
            <bool>false</bool>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_35">
+          <layout class="QHBoxLayout" name="horizontalLayout_17">
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_17">
              <item>
@@ -2023,7 +2201,42 @@
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="spinBox_scanSequenceCadence"/>
+                <widget class="QSpinBox" name="spinBox_scanSequenceCadence">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_addSourceGroup_Sequence">
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_14">
+               <item>
+                <spacer name="horizontalSpacer_19">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </item>
@@ -2154,9 +2367,6 @@
                    <string>calibrator sources</string>
                   </property>
                  </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="comboBox_calibratorBlock_calibratorSources"/>
                 </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_32">
@@ -2341,6 +2551,31 @@
                     </property>
                     <property name="value">
                      <double>70.000000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_16">
+                  <item>
+                   <widget class="QComboBox" name="comboBox_calibratorBlock_calibratorSources">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_addSourceGroup_Calibrator">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="myresources.qrc">
+                      <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
                     </property>
                    </widget>
                   </item>
@@ -2658,7 +2893,7 @@
        </layout>
       </widget>
       <widget class="QWidget" name="settings">
-       <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="1,2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_22">
           <item>
@@ -2726,6 +2961,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/go-home-5.png</normaloff>:/icons/icons/go-home-5.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2733,6 +2972,10 @@
               </property>
               <property name="checkState">
                <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/emblem-system-2.png</normaloff>:/icons/icons/emblem-system-2.png</iconset>
               </property>
              </item>
              <item>
@@ -2742,6 +2985,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2749,6 +2996,10 @@
               </property>
               <property name="checkState">
                <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
               </property>
              </item>
              <item>
@@ -2758,6 +3009,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2766,6 +3021,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/arrow-right-3.png</normaloff>:/icons/icons/arrow-right-3.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2773,6 +3032,10 @@
               </property>
               <property name="checkState">
                <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/application-exit-5.png</normaloff>:/icons/icons/application-exit-5.png</iconset>
               </property>
              </item>
             </item>
@@ -2790,6 +3053,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2798,6 +3065,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2805,6 +3076,10 @@
               </property>
               <property name="checkState">
                <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
               </property>
              </item>
              <item>
@@ -2862,6 +3137,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export-4.png</normaloff>:/icons/icons/document-export-4.png</iconset>
+              </property>
              </item>
             </item>
             <item>
@@ -2878,6 +3157,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/system-run-3.png</normaloff>:/icons/icons/system-run-3.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2886,6 +3169,10 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/multi_sched.png</normaloff>:/icons/icons/multi_sched.png</iconset>
+              </property>
              </item>
              <item>
               <property name="text">
@@ -2893,6 +3180,10 @@
               </property>
               <property name="checkState">
                <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
               </property>
              </item>
             </item>
@@ -2910,13 +3201,9 @@
               <property name="checkState">
                <enum>Checked</enum>
               </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>FAQ</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/help-contents.png</normaloff>:/icons/icons/help-contents.png</iconset>
               </property>
              </item>
              <item>
@@ -3027,7 +3314,6 @@
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionWhat_is_this"/>
-    <addaction name="actionFAQ"/>
     <addaction name="separator"/>
     <addaction name="actionCurrent_Release"/>
     <addaction name="separator"/>
@@ -3071,9 +3357,11 @@
    <addaction name="actionInput"/>
    <addaction name="actionMode"/>
    <addaction name="actionGeneral"/>
+   <addaction name="separator"/>
    <addaction name="actionStation"/>
    <addaction name="actionSource"/>
    <addaction name="actionBaseline"/>
+   <addaction name="separator"/>
    <addaction name="actionWeight_factors"/>
    <addaction name="actionOutput"/>
   </widget>
@@ -3085,7 +3373,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionRules"/>
    <addaction name="actionMulti_Scheduling"/>
@@ -3102,7 +3390,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionWhat_is_this"/>
-   <addaction name="actionFAQ"/>
    <addaction name="separator"/>
    <addaction name="actionCurrent_Release"/>
    <addaction name="separator"/>
@@ -3110,36 +3397,64 @@
    <addaction name="actionAbout_Qt"/>
   </widget>
   <action name="actionNew">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
+   </property>
    <property name="text">
     <string>New</string>
    </property>
   </action>
   <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
+   </property>
    <property name="text">
     <string>Open</string>
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+   </property>
    <property name="text">
     <string>Save</string>
    </property>
   </action>
   <action name="actionRun">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/arrow-right-3.png</normaloff>:/icons/icons/arrow-right-3.png</iconset>
+   </property>
    <property name="text">
     <string>Run</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/application-exit-5.png</normaloff>:/icons/icons/application-exit-5.png</iconset>
+   </property>
    <property name="text">
     <string>Exit</string>
    </property>
   </action>
   <action name="actionMode">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
+   </property>
    <property name="text">
     <string>Mode</string>
    </property>
   </action>
   <action name="actionGeneral">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+   </property>
    <property name="text">
     <string>General</string>
    </property>
@@ -3172,28 +3487,39 @@
    </property>
   </action>
   <action name="actionOutput">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/document-export-4.png</normaloff>:/icons/icons/document-export-4.png</iconset>
+   </property>
    <property name="text">
     <string>Output</string>
    </property>
   </action>
   <action name="actionRules">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/system-run-3.png</normaloff>:/icons/icons/system-run-3.png</iconset>
+   </property>
    <property name="text">
     <string>Rules</string>
    </property>
   </action>
   <action name="actionMulti_Scheduling">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/multi_sched.png</normaloff>:/icons/icons/multi_sched.png</iconset>
+   </property>
    <property name="text">
     <string>Multi Scheduling</string>
    </property>
   </action>
   <action name="actionWhat_is_this">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/help-contents.png</normaloff>:/icons/icons/help-contents.png</iconset>
+   </property>
    <property name="text">
     <string>What is this?</string>
-   </property>
-  </action>
-  <action name="actionFAQ">
-   <property name="text">
-    <string>FAQ</string>
    </property>
   </action>
   <action name="actionCurrent_Release">
@@ -3212,11 +3538,19 @@
    </property>
   </action>
   <action name="actionWelcome">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/go-home-5.png</normaloff>:/icons/icons/go-home-5.png</iconset>
+   </property>
    <property name="text">
     <string>Welcome</string>
    </property>
   </action>
   <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/emblem-system-2.png</normaloff>:/icons/icons/emblem-system-2.png</iconset>
+   </property>
    <property name="text">
     <string>Settings</string>
    </property>
@@ -3231,11 +3565,19 @@
    </property>
   </action>
   <action name="actionInput">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
+   </property>
    <property name="text">
     <string>Input</string>
    </property>
   </action>
   <action name="actionSky_Coverage">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
+   </property>
    <property name="text">
     <string>Sky Coverage</string>
    </property>
@@ -3253,12 +3595,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>676</x>
-     <y>373</y>
+     <x>86</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
-     <x>979</x>
-     <y>377</y>
+     <x>93</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -3269,12 +3611,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>636</x>
-     <y>407</y>
+     <x>86</x>
+     <y>139</y>
     </hint>
     <hint type="destinationlabel">
-     <x>980</x>
-     <y>551</y>
+     <x>92</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -3285,12 +3627,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>277</y>
+     <x>19</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>300</x>
-     <y>280</y>
+     <x>91</x>
+     <y>86</y>
     </hint>
    </hints>
   </connection>
@@ -3301,12 +3643,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>285</y>
+     <x>19</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>132</x>
-     <y>306</y>
+     <x>19</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>
@@ -3317,12 +3659,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>275</y>
+     <x>19</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>346</y>
+     <x>19</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
@@ -3333,12 +3675,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>57</x>
-     <y>282</y>
+     <x>19</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>263</x>
-     <y>311</y>
+     <x>91</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>
@@ -3349,12 +3691,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>280</y>
+     <x>19</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
-     <x>238</x>
-     <y>343</y>
+     <x>91</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
@@ -3365,12 +3707,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>371</y>
+     <x>19</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>312</x>
-     <y>377</y>
+     <x>91</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3381,12 +3723,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>375</y>
+     <x>19</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>79</x>
-     <y>400</y>
+     <x>19</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
@@ -3397,12 +3739,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>379</y>
+     <x>19</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>56</x>
-     <y>451</y>
+     <x>19</x>
+     <y>95</y>
     </hint>
    </hints>
   </connection>
@@ -3413,12 +3755,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
-     <y>370</y>
+     <x>19</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>251</x>
-     <y>406</y>
+     <x>91</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
@@ -3429,12 +3771,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>31</x>
-     <y>374</y>
+     <x>19</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>279</x>
-     <y>440</y>
+     <x>91</x>
+     <y>95</y>
     </hint>
    </hints>
   </connection>
@@ -3445,12 +3787,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>249</y>
+     <x>19</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>247</y>
+     <x>91</x>
+     <y>84</y>
     </hint>
    </hints>
   </connection>
@@ -3461,12 +3803,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>214</y>
+     <x>19</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
-     <x>301</x>
-     <y>216</y>
+     <x>91</x>
+     <y>82</y>
     </hint>
    </hints>
   </connection>
@@ -3477,12 +3819,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>62</x>
-     <y>176</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>306</x>
-     <y>182</y>
+     <x>91</x>
+     <y>80</y>
     </hint>
    </hints>
   </connection>
@@ -3493,12 +3835,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>151</y>
+     <x>19</x>
+     <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>266</x>
-     <y>151</y>
+     <x>91</x>
+     <y>78</y>
     </hint>
    </hints>
   </connection>
@@ -3509,12 +3851,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>121</y>
+     <x>19</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
-     <y>119</y>
+     <x>91</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
@@ -3525,12 +3867,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>577</x>
-     <y>180</y>
+     <x>86</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
-     <y>180</y>
+     <x>92</x>
+     <y>142</y>
     </hint>
    </hints>
   </connection>
@@ -3541,12 +3883,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>625</x>
-     <y>211</y>
+     <x>86</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
-     <x>691</x>
-     <y>214</y>
+     <x>92</x>
+     <y>146</y>
     </hint>
    </hints>
   </connection>

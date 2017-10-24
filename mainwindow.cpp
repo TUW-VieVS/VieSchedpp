@@ -8,10 +8,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     mainPath = QCoreApplication::applicationFilePath();
 
-    ui->iconSizeSpinBox->setValue(ui->basicToolBar->iconSize().width()*1.5);
+    ui->iconSizeSpinBox->setValue(ui->basicToolBar->iconSize().width());
 
     QPushButton *savePara = new QPushButton("write xml",this);
     ui->statusBar->addPermanentWidget(savePara);
+    ui->dateTimeEdit_sessionStart->setDate(QDate::currentDate());
 
     allStationModel = new QStandardItemModel(0,5,this);
     allSourceModel = new QStandardItemModel(0,3,this);
@@ -19,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     allStationProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     selectedStationModel = new QStringListModel();
+    selectedSourceModel = new QStringListModel();
 
     allSourcePlusGroupModel = new QStandardItemModel();
     allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source_group.png"),"__all__"));
@@ -47,6 +49,14 @@ MainWindow::MainWindow(QWidget *parent) :
     multiSchedMapper = new QSignalMapper(this);
     connect (multiSchedMapper, SIGNAL(mapped(QString)), this, SLOT(multiSchedEditButton_clicked(QString))) ;
 
+
+    connect(ui->pushButton_addGroupStationSetup, SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
+    connect(ui->pushButton_addGroupStationWait, SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
+    connect(ui->pushButton_addGroupStationCable, SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
+
+    connect(ui->pushButton_addSourceGroup_Calibrator,SIGNAL(clicked(bool)), this, SLOT(addGroupSource()));
+    connect(ui->pushButton_addSourceGroup_Sequence,SIGNAL(clicked(bool)), this, SLOT(addGroupSource()));
+
     readAllSkedObsModes();
     readSkedCatalogs();
     readStations();
@@ -55,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent) :
     createMultiSchedTable();
     createModesPolicyTable();
     createModesCustonBandTable();
+
+    defaultParameters();
 }
 
 MainWindow::~MainWindow()
@@ -422,6 +434,11 @@ void MainWindow::readSources()
             allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(ra*100 +0.5))/100.0);
             allSourceModel->setData(allSourceModel->index(0, 3), (double)((int)(de*100 +0.5))/100.0);
 
+            selectedSourceModel->insertRow(0);
+            QModelIndex index_new = selectedSourceModel->index(0);
+            selectedSourceModel->setData(index_new,sourceName);
+            selectedSourceModel->sort(0);
+
             allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
         }
         allSourcePlusGroupModel->sort(0);
@@ -456,6 +473,10 @@ void MainWindow::readAllSkedObsModes()
 
 void MainWindow::plotWorldMap()
 {
+    ui->pushButton_worldmapZoomFull->setSizeIncrement(45,45);
+    ui->pushButton_worldmapZoomFull->setText("");
+    ui->pushButton_worldmapZoomFull->setIcon(QIcon(":/icons/icons/zoom-fit-best-3.png"));
+    ui->pushButton_worldmapZoomFull->setIconSize(ui->pushButton_worldmapZoomFull->size());
     worldChart = new QChart();
     worldChart->setAcceptHoverEvents(true);
 
@@ -524,6 +545,56 @@ void MainWindow::plotWorldMap()
     worldmap->setMouseTracking(true);
 
     ui->verticalLayout_worldmap->addWidget(worldmap,8);
+
+}
+
+void MainWindow::defaultParameters()
+{
+    VieVS::ParameterSettings::ParametersStations sta;
+    sta.available = true;
+    sta.maxScan = 600;
+    sta.minScan = 20;
+    sta.maxSlewtime = 600;
+    sta.maxWait = 600;
+    sta.weight = 1;
+
+    para.parameters("default",sta);
+    ui->ComboBox_parameterStation->addItem("default");
+
+    QTreeWidgetItem *d = new QTreeWidgetItem();
+    d->setText(0,"__all__");
+    d->setText(1,"default");
+    d->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yy hh:mm"));
+    QDateTime e = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    d->setText(3,e.toString("dd.MM.yy hh:mm"));
+    d->setText(4,"hard");
+    d->setIcon(0,QIcon(":/icons/icons/station_group_2.png"));
+    ui->treeWidget_setupStation->insertTopLevelItem(0,d);
+
+
+//    QTreeWidgetItem *c = new QTreeWidgetItem();
+//    d->addChild(c);
+
+//    QComboBox *mem = new QComboBox(this);
+//    mem->setModel(allStationPlusGroupModel);
+//    ui->treeWidget_setupStation->setItemWidget(ui->treeWidget_setupStation->topLevelItem(0)->child(0),0,mem);
+
+//    QDateTimeEdit *start = new QDateTimeEdit(this);
+//    start->setMinimumDateTime(ui->dateTimeEdit_sessionStart->dateTime());
+//    start->setMaximumDateTime(e);
+//    ui->treeWidget_setupStation->setItemWidget(ui->treeWidget_setupStation->topLevelItem(0)->child(0),2,start);
+
+//    QDateTimeEdit *end = new QDateTimeEdit(this);
+//    end->setMinimumDateTime(ui->dateTimeEdit_sessionStart->dateTime());
+//    end->setMaximumDateTime(e);
+//    ui->treeWidget_setupStation->setItemWidget(ui->treeWidget_setupStation->topLevelItem(0)->child(0),3,end);
+
+//    QComboBox *trans = new QComboBox(this);
+//    trans->insertItem(0,"soft");
+//    trans->insertItem(1,"hard");
+//    ui->treeWidget_setupStation->setItemWidget(ui->treeWidget_setupStation->topLevelItem(0)->child(0),4,trans);
+
+
 
 }
 
@@ -1430,17 +1501,6 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
                 }
             }
         }
-    } else if(item->text(0) == "FAQ"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "FAQ"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
     } else if(item->text(0) == "Current Release"){
         auto actions = ui->helpToolBar->actions();
         for(const auto &any:actions){
@@ -1474,5 +1534,137 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
                 }
             }
         }
+    }
+}
+
+void MainWindow::addGroupStation()
+{
+    AddGroupDialog *dial = new AddGroupDialog(this);
+    dial->addModel(selectedStationModel);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::vector<std::string> stdlist = dial->getSelection();
+        std::string stdname = dial->getGroupName();
+        VieVS::ParameterGroup newGroup(stdname, stdlist);
+        para.group(VieVS::ParameterSettings::Type::station,newGroup);
+        allStationPlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(stdname) ));
+    }
+    delete(dial);
+}
+
+void MainWindow::addGroupSource()
+{
+    AddGroupDialog *dial = new AddGroupDialog(this);
+    int i = selectedSourceModel->rowCount();
+    dial->addModel(selectedSourceModel);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::vector<std::string> stdlist = dial->getSelection();
+        std::string stdname = dial->getGroupName();
+        VieVS::ParameterGroup newGroup(stdname, stdlist);
+        para.group(VieVS::ParameterSettings::Type::source,newGroup);
+        allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(stdname) ));
+    }
+    delete(dial);
+}
+
+void MainWindow::addGroupBaseline()
+{
+
+}
+
+void MainWindow::on_pushButton_stationParameter_clicked()
+{
+    stationParametersDialog *dial = new stationParametersDialog(this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    QStringList sources = selectedSourceModel->stringList();
+    dial->addSourceNames(sources);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersStations parameter = res.second;
+
+        para.parameters(name,parameter);
+
+        ui->ComboBox_parameterStation->addItem(QString::fromStdString(name));
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_dateTimeEdit_sessionStart_dateTimeChanged(const QDateTime &dateTime)
+{
+    ui->DateTimeEdit_startParameterStation->setMinimumDateTime(dateTime);
+    ui->DateTimeEdit_endParameterStation->setMinimumDateTime(dateTime);
+    QDateTime dateTimeEnd = dateTime.addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    ui->DateTimeEdit_startParameterStation->setMaximumDateTime(dateTimeEnd);
+    ui->DateTimeEdit_endParameterStation->setMaximumDateTime(dateTimeEnd);
+
+    ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
+    ui->DateTimeEdit_endParameterStation->setDateTime(dateTimeEnd);
+}
+
+void MainWindow::on_doubleSpinBox_sessionDuration_valueChanged(double arg1)
+{
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(arg1*3600);
+    ui->DateTimeEdit_startParameterStation->setMaximumDateTime(dateTimeEnd);
+    ui->DateTimeEdit_endParameterStation->setMaximumDateTime(dateTimeEnd);
+}
+
+
+void MainWindow::on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime)
+{
+    if(dateTime > ui->DateTimeEdit_endParameterStation->dateTime()){
+        ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
+    }
+}
+
+void MainWindow::on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime)
+{
+    if(dateTime < ui->DateTimeEdit_startParameterStation->dateTime()){
+        ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
+    }
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    QList<QTreeWidgetItem *> sel = ui->treeWidget_setupStation->selectedItems();
+    if(sel.size() != 1){
+        QMessageBox *ms = new QMessageBox;
+        ms->warning(this,"Wrong selection","Please select one parent in the right window!");
+    }else{
+        QTreeWidgetItem *c = new QTreeWidgetItem();
+
+        c->setText(0,ui->comboBox_stationSettingMember->currentText());
+        c->setText(1,ui->ComboBox_parameterStation->currentText());
+        c->setText(2,ui->DateTimeEdit_startParameterStation->dateTime().toString("dd.MM.yy hh:mm"));
+        c->setText(3,ui->DateTimeEdit_endParameterStation->dateTime().toString("dd.MM.yy hh:mm"));
+        c->setText(4,ui->comboBox_parameterStationTransition->currentText());
+
+        sel.at(0)->addChild(c);
+        sel.at(0)->setExpanded(true);
+    }
+
+
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    QList<QTreeWidgetItem *> sel = ui->treeWidget_setupStation->selectedItems();
+    for(int i = 0; i<sel.size(); ++i){
+        if(sel.at(0)->parent()){
+            delete(sel.at(0));
+        }else{
+            QMessageBox *ms = new QMessageBox;
+            ms->warning(this,"Wrong selection","You can not delete top level default parameter item!");
+        }
+
     }
 }

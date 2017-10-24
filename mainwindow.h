@@ -24,6 +24,11 @@
 #include "multischededitdialogdatetime.h"
 #include "skdcatalogreader.h"
 #include "callout.h"
+#include "ParameterSettings.h"
+#include "addgroupdialog.h"
+#include "baselineparametersdialog.h"
+#include "stationparametersdialog.h"
+#include "sourceparametersdialog.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -162,21 +167,46 @@ private slots:
 
     void on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column);
 
+    void addGroupStation();
+
+    void addGroupSource();
+
+    void addGroupBaseline();
+
+    void on_pushButton_stationParameter_clicked();
+
+    void on_dateTimeEdit_sessionStart_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_doubleSpinBox_sessionDuration_valueChanged(double arg1);
+
+
+    void on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_4_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
+
+    VieVS::ParameterSettings para;
 
     QStandardItemModel *allStationModel;
     QStandardItemModel *allSourceModel;
     QSortFilterProxyModel *allStationProxyModel;
 
     QStringListModel *selectedStationModel;
+    QStringListModel *selectedSourceModel;
 
     QStandardItemModel *allSourcePlusGroupModel;
     QStandardItemModel *allStationPlusGroupModel;
     QStandardItemModel *allBaselinePlusGroupModel;
 
     QStringListModel *allSkedModesModel;
+    QStringListModel *parameterStationModel;
 
     VieVS::SkdCatalogReader skdCatalogReader;
 
@@ -190,6 +220,7 @@ private:
 
     QSignalMapper *deleteModeMapper;
     QSignalMapper *multiSchedMapper;
+
     void readSkedCatalogs();
 
     void readStations();
@@ -199,6 +230,8 @@ private:
     void readAllSkedObsModes();
 
     void plotWorldMap();
+
+    void defaultParameters();
 };
 
 #endif // MAINWINDOW_H

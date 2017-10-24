@@ -14,5 +14,30 @@
         <file>icons/baseline_p.png</file>
         <file>icons/baseline.png</file>
         <file>icons/weight.png</file>
+        <file>icons/arrow-right-3.png</file>
+        <file>icons/help-hint.png</file>
+        <file>icons/document-new-8.png</file>
+        <file>icons/help.png</file>
+        <file>icons/help-contents.png</file>
+        <file>icons/document-export.png</file>
+        <file>icons/zoom-fit-best-2.png</file>
+        <file>icons/system-run-3.png</file>
+        <file>icons/edit-add-2.png</file>
+        <file>icons/document-open-2.png</file>
+        <file>icons/draw-line-2.png</file>
+        <file>icons/application-exit-5.png</file>
+        <file>icons/go-home-5.png</file>
+        <file>icons/document-export-4.png</file>
+        <file>icons/view-calendar.png</file>
+        <file>icons/document-import-2.png</file>
+        <file>icons/emblem-system-2.png</file>
+        <file>icons/applications-internet-2.png</file>
+        <file>icons/drive-harddisk-3.png</file>
+        <file>icons/sky_coverage.png</file>
+        <file>icons/zoom-fit-best-3.png</file>
+        <file>icons/multi_sched.png</file>
+        <file>icons/baseline_group_plus.png</file>
+        <file>icons/source_group_plus.png</file>
+        <file>icons/station_group_plus.png</file>
     </qresource>
 </RCC>

@@ -34,7 +34,14 @@ SOURCES += \
     callout.cpp \
     multischededitdialogint.cpp \
     multischededitdialogdouble.cpp \
-    multischededitdialogdatetime.cpp
+    multischededitdialogdatetime.cpp \
+    ParameterGroup.cpp \
+    ParameterSettings.cpp \
+    ParameterSetup.cpp \
+    addgroupdialog.cpp \
+    stationparametersdialog.cpp \
+    sourceparametersdialog.cpp \
+    baselineparametersdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,13 +50,24 @@ HEADERS += \
     callout.h \
     multischededitdialogint.h \
     multischededitdialogdouble.h \
-    multischededitdialogdatetime.h
+    multischededitdialogdatetime.h \
+    ParameterGroup.h \
+    ParameterSettings.h \
+    ParameterSetup.h \
+    addgroupdialog.h \
+    stationparametersdialog.h \
+    sourceparametersdialog.h \
+    baselineparametersdialog.h
 
 FORMS += \
         mainwindow.ui \
     multischededitdialogint.ui \
     multischededitdialogdouble.ui \
-    multischededitdialogdatetime.ui
+    multischededitdialogdatetime.ui \
+    addgroupdialog.ui \
+    stationparametersdialog.ui \
+    sourceparametersdialog.ui \
+    baselineparametersdialog.ui
 
 RESOURCES += \
     myresources.qrc
