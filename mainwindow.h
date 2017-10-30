@@ -12,11 +12,15 @@
 #include <QTableWidgetItem>
 #include <QTreeWidgetItem>
 #include <QCloseEvent>
+#include <QVBoxLayout>
+#include <QComboBox>
+#include <QDateTimeEdit>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QDateTimeAxis>
 
 #include "chartview.h"
 #include "multischededitdialogint.h"
@@ -179,14 +183,75 @@ private slots:
 
     void on_doubleSpinBox_sessionDuration_valueChanged(double arg1);
 
-
     void on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime);
 
     void on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime);
 
     void on_pushButton_3_clicked();
 
+    void addSetup(QTreeWidget *targetTreeWidget, QDateTimeEdit *paraStart, QDateTimeEdit *paraEnd,
+                  QComboBox *transition, QComboBox *member, QComboBox *parameter, VieVS::ParameterSetup &paraSetup,
+                  QChartView *setupChartView, QComboBox *targetStationPlot);
+
     void on_pushButton_4_clicked();
+
+    void deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *setupChartView, QComboBox *setupCB, QTreeWidget *setupTW);
+
+    void on_treeWidget_setupStation_itemEntered(QTreeWidgetItem *item, int column);
+
+    void prepareSetupPlot(QChartView *figure, QVBoxLayout *container);
+
+    void drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw);
+
+    void on_comboBox_stationSettingMember_currentTextChanged(const QString &arg1);
+
+    void on_ComboBox_parameterStation_currentTextChanged(const QString &arg1);
+
+    void displayStationSetupParameterFromPlot();
+
+    void displaySourceSetupParameterFromPlot();
+
+    void displayBaselineSetupParameterFromPlot();
+
+    void on_comboBox_setupStation_currentTextChanged(const QString &arg1);
+
+    void on_pushButton_sourceParameter_clicked();
+
+    void on_comboBox_setupSource_currentTextChanged(const QString &arg1);
+
+    void on_treeWidget_setupSource_itemEntered(QTreeWidgetItem *item, int column);
+
+    void on_pushButton_removeSetupSource_clicked();
+
+    void on_pushButton_addSetupSource_clicked();
+
+    void on_DateTimeEdit_startParameterSource_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_DateTimeEdit_endParameterSource_dateTimeChanged(const QDateTime &dateTime);
+
+    void createBaselineModel();
+
+    void on_pushButton__baselineParameter_clicked();
+
+    void on_DateTimeEdit_startParameterBaseline_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDateTime &dateTime);
+
+    void on_pushButton_addSetupBaseline_clicked();
+
+    void on_pushButton_removeSetupBaseline_clicked();
+
+    void on_treeWidget_setupBaseline_itemEntered(QTreeWidgetItem *item, int column);
+
+    void on_comboBox_setupBaseline_currentTextChanged(const QString &arg1);
+
+    void setupStationWaitAddRow();
+
+    void setupStationAxisBufferAddRow();
+
+    void on_pushButton_14_clicked();
+
+    void on_pushButton_16_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -200,6 +265,7 @@ private:
 
     QStringListModel *selectedStationModel;
     QStringListModel *selectedSourceModel;
+    QStringListModel *selectedBaselineModel;
 
     QStandardItemModel *allSourcePlusGroupModel;
     QStandardItemModel *allStationPlusGroupModel;
@@ -211,6 +277,10 @@ private:
     VieVS::SkdCatalogReader skdCatalogReader;
 
     ChartView *worldmap;
+    QChartView *setupStation;
+    QChartView *setupSource;
+    QChartView *setupBaseline;
+
     QChart *worldChart;
     QScatterSeries *availableStations;
     QScatterSeries *selectedStations;
@@ -220,6 +290,10 @@ private:
 
     QSignalMapper *deleteModeMapper;
     QSignalMapper *multiSchedMapper;
+
+    VieVS::ParameterSetup setupStationTree;
+    VieVS::ParameterSetup setupSourceTree;
+    VieVS::ParameterSetup setupBaselineTree;
 
     void readSkedCatalogs();
 
@@ -232,6 +306,23 @@ private:
     void plotWorldMap();
 
     void defaultParameters();
+
+    bool eventFilter(QObject *watched, QEvent *event);
+
+    void displayStationSetupMember(QString name);
+
+    void displaySourceSetupMember(QString name);
+
+    void displayBaselineSetupMember(QString name);
+
+    void displayStationSetupParameter(QString name);
+
+    void displaySourceSetupParameter(QString name);
+
+    void displayBaselineSetupParameter(QString name);
+
+    int plotParameter(QChart* targetChart, QTreeWidgetItem *item, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map);
+
 };
 
 #endif // MAINWINDOW_H

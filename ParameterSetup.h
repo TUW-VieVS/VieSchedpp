@@ -142,25 +142,33 @@ namespace VieVS {
          * @brief checks if this setup is a valid child of other setup
          *
          * @param other other setup
-         * @return true if it is a valid child
+         * @return error code or 0 if everything is ok
          */
-        bool isValidChild(const ParameterSetup &other) const;
+        int isValidChild(const ParameterSetup &other) const;
 
         /**
          * @brief checks if this setup is a valid siblig of other setup
          *
          * @param other other setup
-         * @return true if it is a valid sibling
+         * @return error code or 0 if everything is ok
          */
-        bool isValidSibling(const ParameterSetup &other) const;
+        int isValidSibling(const ParameterSetup &other) const;
 
         /**
          * @brief add a child setup to current setup
          *
          * @param child child setup object
-         * @return true if the addition of the child was sucessfull
+         * @return error code or 0 if everything is ok
          */
-        bool addChild(const ParameterSetup &child);
+        int addChild(const ParameterSetup &child);
+
+        boost::optional<ParameterSetup &> search(int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
+                               const std::vector<std::string> &members, Transition transition,
+                               unsigned int start, unsigned int end);
+
+        bool deleteChild(int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
+                         const std::vector<std::string> &members, Transition transition,
+                         unsigned int start, unsigned int end);
 
     private:
         std::string parameterName_; ///< parameter name
@@ -174,6 +182,9 @@ namespace VieVS {
         unsigned int end_; ///< end time in seconds since session start
 
         std::vector<ParameterSetup> childrens_; ///< list of all setup children
+
+        bool isEqual(std::string parameterName, std::string memberName, std::vector<std::string> members,
+                     ParameterSetup::Transition transition, unsigned int start, unsigned int end);
     };
 }
 

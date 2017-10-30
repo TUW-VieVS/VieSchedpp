@@ -24,7 +24,7 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QCheckBox" name="availableCheckBox">
+      <widget class="QCheckBox" name="CheckBox_ignore">
        <property name="checked">
         <bool>false</bool>
        </property>
@@ -38,7 +38,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QTableWidget" name="tableWidget">
+      <widget class="QTableWidget" name="tableWidget_SNR">
        <attribute name="horizontalHeaderStretchLastSection">
         <bool>true</bool>
        </attribute>
@@ -67,7 +67,7 @@
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QSpinBox" name="spinBox_3">
+      <widget class="QSpinBox" name="spinBox_maxScan">
        <property name="suffix">
         <string> [s]</string>
        </property>
@@ -90,7 +90,7 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QSpinBox" name="spinBox_4">
+      <widget class="QSpinBox" name="spinBox_minScan">
        <property name="suffix">
         <string> [s]</string>
        </property>
@@ -113,7 +113,7 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox">
+      <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
        <property name="singleStep">
         <double>0.100000000000000</double>
        </property>
@@ -141,7 +141,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEdit_paraName"/>
      </item>
     </layout>
    </item>
@@ -158,38 +158,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>baselineParametersDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>baselineParametersDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

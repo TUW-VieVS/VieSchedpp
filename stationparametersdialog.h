@@ -2,7 +2,7 @@
 #define STATIONPARAMETERSDIALOG_H
 
 #include <QDialog>
-#include <QStringListModel>
+#include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <ParameterSettings.h>
@@ -21,7 +21,7 @@ public:
 
     void addBandNames(QStringList bands);
 
-    void addSourceNames(QStringList sources);
+    void addSourceNames(QStandardItemModel *sources);
 
     std::pair<std::string, VieVS::ParameterSettings::ParametersStations> getParameters();
 
@@ -38,7 +38,7 @@ private slots:
 private:
     Ui::stationParametersDialog *ui;
 
-    QStringListModel *sources;
+    QStandardItemModel *sources;
     QSortFilterProxyModel *sources_proxy;
 };
 

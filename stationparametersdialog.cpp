@@ -6,7 +6,7 @@ stationParametersDialog::stationParametersDialog(QWidget *parent) :
     ui(new Ui::stationParametersDialog)
 {
     ui->setupUi(this);
-    sources = new QStringListModel(this);
+    sources = new QStandardItemModel(this);
     sources_proxy = new QSortFilterProxyModel(this);
     sources_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     sources_proxy->setSourceModel(sources);
@@ -37,9 +37,11 @@ void stationParametersDialog::addBandNames(QStringList bands)
     }
 }
 
-void stationParametersDialog::addSourceNames(QStringList sources)
+void stationParametersDialog::addSourceNames(QStandardItemModel *otherSources)
 {
-    this->sources->setStringList(sources);
+    for(int i=0; i<otherSources->rowCount();++i){
+        sources->appendRow(otherSources->item(i)->clone());
+    }
 }
 
 
@@ -81,7 +83,6 @@ void stationParametersDialog::on_buttonBox_accepted()
     }else{
         this->accept();
     }
-
 }
 
 std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationParametersDialog::getParameters()
@@ -102,19 +103,19 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
         para.tagalong = true;
     }
     if(ui->spinBox_maxSlewTime->value() != 600){
-        para.maxSlewtime = 600;
+        para.maxSlewtime = ui->spinBox_maxSlewTime->value();
     }
     if(ui->spinBox_maxWaitTime->value() != 600){
-        para.maxWait = 600;
+        para.maxWait = ui->spinBox_maxWaitTime->value();
     }
     if(ui->spinBox_minScanTime->value() != 20){
-        para.minScan = 20;
+        para.minScan = ui->spinBox_minScanTime->value();
     }
     if(ui->spinBox_maxScanTime->value() != 600){
-        para.maxScan = 600;
+        para.maxScan = ui->spinBox_maxScanTime->value();
     }
     if(ui->doubleSpinBox_weight->value() != 1){
-        para.weight = 1;
+        para.weight = ui->doubleSpinBox_weight->value();
     }
     for(int i = 0; i<ui->listWidget_selectedIgnoreSources->count(); ++i){
         para.ignoreSources_str.push_back(ui->listWidget_selectedIgnoreSources->item(i)->text().toStdString());

@@ -118,7 +118,7 @@ void Callout::setText(const QString &text)
 {
     m_text = text;
     QFontMetrics metrics(m_font);
-    m_textRect = metrics.boundingRect(QRect(0, 0, 150, 150), Qt::AlignLeft, m_text);
+    m_textRect = metrics.boundingRect(QRect(0, 0, 150, 300), Qt::AlignLeft, m_text);
     m_textRect.translate(5, 5);
     prepareGeometryChange();
     m_rect = m_textRect.adjusted(-5, -5, 5, 5);
@@ -133,4 +133,9 @@ void Callout::updateGeometry()
 {
     prepareGeometryChange();
     setPos(m_chart->mapToPosition(m_anchor) + QPoint(10, -50));
+}
+
+void Callout::setFont(QFont newFont)
+{
+    m_font = newFont;
 }

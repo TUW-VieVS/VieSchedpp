@@ -354,12 +354,42 @@ namespace VieVS {
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
+        const std::map<std::string, std::vector<std::string>> &getGroupStations() const {
+            return groupStations_;
+        }
+
+        const std::map<std::string, std::vector<std::string>> &getGroupSources() const {
+            return groupSources_;
+        }
+
+        const std::map<std::string, std::vector<std::string>> &getGroupBaselines() const {
+            return groupBaselines_;
+        }
+
+        const std::map<std::string, ParametersStations> &getParaStations() const {
+            return paraStations_;
+        }
+
+        const std::map<std::string, ParametersSources> &getParaSources() const {
+            return paraSources_;
+        }
+
+        const std::map<std::string, ParametersBaselines> &getParaBaselines() const {
+            return paraBaselines_;
+        }
+
+
+
     private:
         boost::property_tree::ptree master_; ///< master property tree
 
         std::map<std::string, std::vector<std::string> > groupStations_; ///< defined station group
         std::map<std::string, std::vector<std::string> > groupSources_; ///< defined source group
         std::map<std::string, std::vector<std::string> > groupBaselines_; ///< defined baseline group
+
+        std::map<std::string, ParametersStations > paraStations_; ///< defined station parameters
+        std::map<std::string, ParametersSources > paraSources_; ///< defined source parameters
+        std::map<std::string, ParametersBaselines > paraBaselines_; ///< defined baseline parameters
 
         /**
          * @brief returns a child tree of root setup object

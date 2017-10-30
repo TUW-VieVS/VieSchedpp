@@ -52,6 +52,7 @@ public:
     void setText(const QString &text);
     void setAnchor(QPointF point);
     void updateGeometry();
+    void setFont(QFont newFont);
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,QWidget *widget);

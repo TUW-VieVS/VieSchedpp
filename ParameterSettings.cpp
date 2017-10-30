@@ -102,6 +102,8 @@ ParameterSettings::getGroupMembers(ParameterSettings::Type type, std::string gro
 }
 
 void ParameterSettings::parameters(const std::string &name, ParametersStations PARA) {
+    paraStations_[name] = PARA;
+
     boost::property_tree::ptree parameters;
     if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
@@ -155,6 +157,8 @@ void ParameterSettings::parameters(const std::string &name, ParametersStations P
 }
 
 void ParameterSettings::parameters(const std::string &name, ParametersSources PARA) {
+    paraSources_[name] = PARA;
+
     boost::property_tree::ptree parameters;
 
     if (!PARA.available) {
@@ -241,6 +245,7 @@ void ParameterSettings::parameters(const std::string &name, ParametersSources PA
 }
 
 void ParameterSettings::parameters(const std::string &name, ParametersBaselines PARA) {
+    paraBaselines_[name] = PARA;
     boost::property_tree::ptree parameters;
 
     if (PARA.ignore.is_initialized()) {

@@ -39,5 +39,14 @@
         <file>icons/baseline_group_plus.png</file>
         <file>icons/source_group_plus.png</file>
         <file>icons/station_group_plus.png</file>
+        <file>icons/edit-add.png</file>
+        <file>icons/edit-delete-6.png</file>
+        <file>icons/document-open-8.png</file>
+        <file>icons/folder-saved-search.png</file>
+        <file>icons/folder-open.png</file>
+        <file>icons/folder-open-5.png</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>images/logo.png</file>
     </qresource>
 </RCC>
