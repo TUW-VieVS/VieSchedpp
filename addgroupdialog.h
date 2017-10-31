@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QStandardItemModel>
-#include <QStringListModel>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 
@@ -19,7 +18,7 @@ public:
     explicit AddGroupDialog(QWidget *parent = 0);
     ~AddGroupDialog();
 
-    void addModel(QStringListModel *model);
+    void addModel(QStandardItemModel *model);
 
     std::vector<std::string> getSelection();
 

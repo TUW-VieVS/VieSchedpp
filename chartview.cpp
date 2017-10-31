@@ -37,6 +37,14 @@ ChartView::ChartView(QChart *chart, QWidget *parent) :
     setRubberBand(QChartView::RectangleRubberBand);
 }
 
+void ChartView::setMinMax(double minx, double maxx, double miny, double maxy)
+{
+    minx_ = minx;
+    maxx_ = maxx;
+    miny_ = miny;
+    maxy_ = maxy;
+}
+
 bool ChartView::viewportEvent(QEvent *event)
 {
     if (event->type() == QEvent::TouchBegin) {
@@ -48,16 +56,23 @@ bool ChartView::viewportEvent(QEvent *event)
 
         // Turn off animations when handling gestures they
         // will only slow us down.
-        chart()->setAnimationOptions(QChart::NoAnimation);
+//        chart()->setAnimationOptions(QChart::NoAnimation);
     }
     return QChartView::viewportEvent(event);
 }
 
 void ChartView::mousePressEvent(QMouseEvent *event)
 {
-    if (m_isTouching)
-        return;
+
+    if(event->button() == Qt::RightButton){
+        chart()->zoomOut();
+        checkZoom();
+    }else{
+        if (m_isTouching)
+            return;
+    }
     QChartView::mousePressEvent(event);
+
 }
 
 void ChartView::mouseMoveEvent(QMouseEvent *event)
@@ -69,14 +84,20 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
 
 void ChartView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (m_isTouching)
-        m_isTouching = false;
 
-    // Because we disabled animations when touch event was detected
-    // we must put them back on.
-    chart()->setAnimationOptions(QChart::SeriesAnimations);
+    if(event->button() == Qt::RightButton){
+        chart()->zoomOut();
+        checkZoom();
+    }else{
+        if (m_isTouching)
+            m_isTouching = false;
 
-    QChartView::mouseReleaseEvent(event);
+        // Because we disabled animations when touch event was detected
+        // we must put them back on.
+//        chart()->setAnimationOptions(QChart::SeriesAnimations);
+
+        QChartView::mouseReleaseEvent(event);
+    }
 }
 
 void ChartView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -90,6 +111,7 @@ void ChartView::wheelEvent(QWheelEvent *event)
         chart()->zoomIn();
     }else{
         chart()->zoomOut();
+        checkZoom();
     }
 }
 
@@ -102,6 +124,7 @@ void ChartView::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Minus:
         chart()->zoomOut();
+        checkZoom();
         break;
 //![1]
     case Qt::Key_Left:
@@ -120,4 +143,29 @@ void ChartView::keyPressEvent(QKeyEvent *event)
         QGraphicsView::keyPressEvent(event);
         break;
     }
+}
+
+void ChartView::checkZoom()
+{
+    auto ax = chart()->axes();
+    QValueAxis *axx = qobject_cast<QValueAxis *>(ax.at(0));
+    double minx = axx->min();
+    double maxx = axx->max();
+    if(minx<minx_){
+        minx = minx_;
+    }
+    if(maxx>maxx_){
+        maxx = maxx_;
+    }
+    QValueAxis *axy = qobject_cast<QValueAxis *>(ax.at(1));
+    double miny = axy->min();
+    double maxy = axy->max();
+    if(miny<miny_){
+        miny = miny_;
+    }
+    if(maxy>maxy_){
+        maxy = maxy_;
+    }
+    axx->setRange(minx,maxx);
+    axy->setRange(miny,maxy);
 }

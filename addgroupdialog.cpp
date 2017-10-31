@@ -19,10 +19,10 @@ AddGroupDialog::~AddGroupDialog()
     delete ui;
 }
 
-void AddGroupDialog::addModel(QStringListModel *model)
+void AddGroupDialog::addModel(QStandardItemModel *model)
 {
     for(int i = 0; i< model->rowCount(); ++i){
-        all->insertRow(i, new QStandardItem(model->index(i,0).data().toString()));
+        all->setItem(i,model->item(i)->clone());
     }
 
 }

@@ -32,6 +32,7 @@
 
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
+#include <QValueAxis>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -41,6 +42,7 @@ class ChartView : public QChartView
 {
 public:
     ChartView(QChart *chart, QWidget *parent = 0);
+    void setMinMax(double minx, double maxx, double miny, double maxy);
 
 //![2]
 protected:
@@ -55,6 +57,13 @@ protected:
 
 private:
     bool m_isTouching;
+    double minx_;
+    double maxx_;
+    double miny_;
+    double maxy_;
+
+    void checkZoom();
+
 };
 
 #endif

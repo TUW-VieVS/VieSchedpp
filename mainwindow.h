@@ -155,7 +155,7 @@ private slots:
 
     void worldmap_hovered(QPointF point, bool state);
 
-//    void worldmap_clicked();
+    void skymap_hovered(QPointF point, bool state);
 
     void on_pushButton_modeCustomAddBAnd_clicked();
 
@@ -253,6 +253,22 @@ private slots:
 
     void on_pushButton_16_clicked();
 
+    void on_treeView_allAvailabeSources_clicked(const QModelIndex &index);
+
+    void on_listView_allSelectedSources_clicked(const QModelIndex &index);
+
+    void on_pushButton_13_clicked();
+
+    void on_pushButton_15_clicked();
+
+    void worldmap_clicked(QPointF point);
+
+    void on_treeView_allAvailabeSources_entered(const QModelIndex &index);
+
+    void on_listView_allSelectedSources_entered(const QModelIndex &index);
+
+    void on_pushButton_skymapZoomFull_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
@@ -262,31 +278,34 @@ private:
     QStandardItemModel *allStationModel;
     QStandardItemModel *allSourceModel;
     QSortFilterProxyModel *allStationProxyModel;
+    QSortFilterProxyModel *allSourceProxyModel;
 
-    QStringListModel *selectedStationModel;
-    QStringListModel *selectedSourceModel;
-    QStringListModel *selectedBaselineModel;
+    QStandardItemModel *selectedStationModel;
+    QStandardItemModel *selectedSourceModel;
+    QStandardItemModel *selectedBaselineModel;
 
     QStandardItemModel *allSourcePlusGroupModel;
     QStandardItemModel *allStationPlusGroupModel;
     QStandardItemModel *allBaselinePlusGroupModel;
 
     QStringListModel *allSkedModesModel;
-    QStringListModel *parameterStationModel;
 
     VieVS::SkdCatalogReader skdCatalogReader;
 
     ChartView *worldmap;
+    ChartView *skymap;
     QChartView *setupStation;
     QChartView *setupSource;
     QChartView *setupBaseline;
 
-    QChart *worldChart;
     QScatterSeries *availableStations;
     QScatterSeries *selectedStations;
+    QScatterSeries *availableSources;
+    QScatterSeries *selectedSources;
 
 //    QMap<QString, QScatterSeries *> scatterPlotStations;
     Callout *worldMapCallout;
+    Callout *skyMapCallout;
 
     QSignalMapper *deleteModeMapper;
     QSignalMapper *multiSchedMapper;
@@ -304,6 +323,8 @@ private:
     void readAllSkedObsModes();
 
     void plotWorldMap();
+
+    void plotSkyMap();
 
     void defaultParameters();
 

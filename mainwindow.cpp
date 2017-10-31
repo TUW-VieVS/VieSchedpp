@@ -22,12 +22,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     allStationModel = new QStandardItemModel(0,19,this);
     allSourceModel = new QStandardItemModel(0,3,this);
-    allStationProxyModel = new QSortFilterProxyModel();
+    allStationProxyModel = new QSortFilterProxyModel(this);
+    allStationProxyModel->setSourceModel(allStationModel);
     allStationProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    allSourceProxyModel = new QSortFilterProxyModel(this);
+    allSourceProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    allSourceProxyModel->setSourceModel(allSourceModel);
 
-    selectedStationModel = new QStringListModel();
-    selectedSourceModel = new QStringListModel();
-    selectedBaselineModel = new QStringListModel();
+
+    selectedStationModel = new QStandardItemModel();
+    selectedSourceModel = new QStandardItemModel();
+    selectedBaselineModel = new QStandardItemModel();
 
     allSourcePlusGroupModel = new QStandardItemModel();
     allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source_group.png"),"__all__"));
@@ -45,8 +50,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->treeView_allAvailabeStations->setSortingEnabled(true);
     ui->treeView_allAvailabeStations->sortByColumn(0, Qt::AscendingOrder);
 
+    ui->treeView_allAvailabeSources->setModel(allSourceProxyModel);
+    ui->treeView_allAvailabeSources->setRootIsDecorated(false);
+    ui->treeView_allAvailabeSources->setSortingEnabled(true);
+    ui->treeView_allAvailabeSources->sortByColumn(0, Qt::AscendingOrder);
+
     ui->listView_allSelectedStations->setModel(selectedStationModel);
     ui->comboBox_skedObsModes->setModel(allSkedModesModel);
+    ui->listView_allSelectedSources->setModel(selectedSourceModel);
 
     ui->comboBox_stationSettingMember->setModel(allStationPlusGroupModel);
     ui->comboBox_stationSettingMember_axis->setModel(allStationPlusGroupModel);
@@ -199,7 +210,7 @@ void MainWindow::displayStationSetupMember(QString name)
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
         t->setRowCount(selectedStationModel->rowCount());
         for(int i=0; i<selectedStationModel->rowCount(); ++i){
-            QString txt = selectedStationModel->index(i).data().toString();
+            QString txt = selectedStationModel->index(i,0).data().toString();
             t->setItem(i,0,new QTableWidgetItem(txt));
         }
     }else if(groups.find(name.toStdString()) != groups.end()){
@@ -237,7 +248,7 @@ void MainWindow::displaySourceSetupMember(QString name)
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
         t->setRowCount(selectedSourceModel->rowCount());
         for(int i=0; i<selectedSourceModel->rowCount(); ++i){
-            QString txt = selectedSourceModel->index(i).data().toString();
+            QString txt = selectedSourceModel->index(i,0).data().toString();
             t->setItem(i,0,new QTableWidgetItem(txt));
         }
     }else if(groups.find(name.toStdString()) != groups.end()){
@@ -275,7 +286,7 @@ void MainWindow::displayBaselineSetupMember(QString name)
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
         t->setRowCount(selectedBaselineModel->rowCount());
         for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
-            QString txt = selectedBaselineModel->index(i).data().toString();
+            QString txt = selectedBaselineModel->index(i,0).data().toString();
             t->setItem(i,0,new QTableWidgetItem(txt));
         }
     }else if(groups.find(name.toStdString()) != groups.end()){
@@ -873,6 +884,7 @@ void MainWindow::readStations()
 
             allStationModel->insertRow(0);
             allStationModel->setData(allStationModel->index(0, 0), antName);
+            allStationModel->item(0,0)->setIcon(QIcon(":/icons/icons/station.png"));
             allStationModel->setData(allStationModel->index(0, 1), antId);
             allStationModel->setData(allStationModel->index(0, 2), (double)((int)(qRadiansToDegrees(lat)*100 +0.5))/100.0);
             allStationModel->setData(allStationModel->index(0, 3), (double)((int)(qRadiansToDegrees(lon)*100 +0.5))/100.0);
@@ -903,13 +915,12 @@ void MainWindow::readStations()
         }
     }
 
-    allStationProxyModel->setSourceModel(allStationModel);
     for(int i=0; i<19; ++i){
         ui->treeView_allAvailabeStations->resizeColumnToContents(i);
     }
 
     plotWorldMap();
-    worldMapCallout = new Callout(worldChart);
+    worldMapCallout = new Callout(worldmap->chart());
     worldMapCallout->hide();
 }
 
@@ -943,12 +954,12 @@ void MainWindow::readSources()
 
             allSourceModel->insertRow(0);
             allSourceModel->setData(allSourceModel->index(0,0), sourceName);
+            allSourceModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
             allSourceModel->setData(allSourceModel->index(0, 1), (double)((int)(ra*100 +0.5))/100.0);
             allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(de*100 +0.5))/100.0);
 
             selectedSourceModel->insertRow(0);
-            QModelIndex index_new = selectedSourceModel->index(0);
-            selectedSourceModel->setData(index_new,sourceName);
+            selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
             selectedSourceModel->sort(0);
 
 
@@ -971,6 +982,10 @@ void MainWindow::readSources()
         }
         sourceFile.close();
     }
+    plotSkyMap();
+    skyMapCallout = new Callout(skymap->chart());
+    skyMapCallout->hide();
+
 }
 
 void MainWindow::readAllSkedObsModes()
@@ -1001,10 +1016,8 @@ void MainWindow::readAllSkedObsModes()
 void MainWindow::plotWorldMap()
 {
     ui->pushButton_worldmapZoomFull->setSizeIncrement(45,45);
-    ui->pushButton_worldmapZoomFull->setText("");
-    ui->pushButton_worldmapZoomFull->setIcon(QIcon(":/icons/icons/zoom-fit-best-3.png"));
     ui->pushButton_worldmapZoomFull->setIconSize(ui->pushButton_worldmapZoomFull->size());
-    worldChart = new QChart();
+    QChart *worldChart = new QChart();
     worldChart->setAcceptHoverEvents(true);
 
 
@@ -1041,22 +1054,26 @@ void MainWindow::plotWorldMap()
     availableStations->setMarkerSize(10);
 
     selectedStations = new QScatterSeries(worldChart);
-    selectedStations->setColor(Qt::darkGreen);
-    selectedStations->setMarkerSize(15);
+    QImage img(":/icons/icons/station_white.png");
+    img = img.scaled(30,30);
+    selectedStations->setBrush(QBrush(img));
+    selectedStations->setMarkerSize(30);
+    selectedStations->setPen(QColor(Qt::transparent));
+//    selectedStations->setColor(Qt::darkGreen);
+//    selectedStations->setMarkerSize(15);
 
     worldChart->addSeries(availableStations);
     worldChart->addSeries(selectedStations);
 
     connect(availableStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
+    connect(availableStations,SIGNAL(clicked(QPointF)),this,SLOT(worldmap_clicked(QPointF)));
     connect(selectedStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
 
-    for(int row = 0; row<allStationModel->rowCount(); ++row){
 
-        QScatterSeries *stations = new QScatterSeries(worldChart);
+    for(int row = 0; row<allStationModel->rowCount(); ++row){
         double lat = allStationModel->index(row,2).data().toDouble();
         double lon = allStationModel->index(row,3).data().toDouble();
         availableStations->append(lon,lat);
-
     }
 
     worldChart->createDefaultAxes();
@@ -1064,8 +1081,10 @@ void MainWindow::plotWorldMap()
     worldChart->legend()->hide();
     worldChart->axisX()->setRange(-180,180);
     worldChart->axisY()->setRange(-90,90);
+    worldChart->setAnimationOptions(QChart::NoAnimation);
 
     worldmap = new ChartView(worldChart);
+    worldmap->setMinMax(-180,180,-90,90);
     worldmap->setRenderHint(QPainter::Antialiasing);
     worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
     worldmap->setBackgroundBrush(QBrush(Qt::white));
@@ -1074,6 +1093,98 @@ void MainWindow::plotWorldMap()
     ui->verticalLayout_worldmap->addWidget(worldmap,8);
 
 }
+
+void MainWindow::plotSkyMap(){
+    ui->pushButton_skymapZoomFull->setSizeIncrement(45,45);
+    ui->pushButton_skymapZoomFull->setIconSize(ui->pushButton_skymapZoomFull->size());
+    QChart *skyChart = new QChart();
+
+    for(int ra = -180; ra<=180; ra+=60){
+        QLineSeries *ral = new QLineSeries(skyChart);
+        ral->setColor(Qt::gray);
+        double lambda = qDegreesToRadians((double) ra);
+
+        for(int de = -90; de<=90; de+=5){
+            double phi = qDegreesToRadians((double) de);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+            ral->append(x,y);
+        }
+        skyChart->addSeries(ral);
+    }
+
+    for(int de = -60; de<=60; de+=30){
+        QLineSeries *del = new QLineSeries(skyChart);
+        del->setColor(Qt::gray);
+        double phi = qDegreesToRadians((double) de);
+
+        for(int ra = -180; ra<=180; ra+=5){
+            double lambda = qDegreesToRadians((double) ra);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+            del->append(x,y);
+        }
+        skyChart->addSeries(del);
+    }
+
+
+    availableSources = new QScatterSeries(skyChart);
+    availableSources->setColor(Qt::red);
+    availableSources->setMarkerSize(10);
+
+    selectedSources = new QScatterSeries(skyChart);
+    selectedSources->setColor(Qt::darkGreen);
+    selectedSources->setMarkerSize(12);
+
+    skyChart->addSeries(availableSources);
+    skyChart->addSeries(selectedSources);
+
+    connect(availableSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
+    connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
+
+    for(int i = 0; i< allSourceModel->rowCount(); ++i){
+        double ra = allSourceModel->item(i,1)->text().toDouble();
+        ra -=180;
+        double lambda = qDegreesToRadians(ra);
+
+        double dc = allSourceModel->item(i,2)->text().toDouble();
+        double phi = qDegreesToRadians(dc);
+
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+        availableSources->append(x,y);
+        selectedSources->append(x,y);
+    }
+
+
+    skyChart->createDefaultAxes();
+    skyChart->setAcceptHoverEvents(true);
+    skyChart->legend()->hide();
+    skyChart->axisX()->setRange(-2.85,2.85);
+    skyChart->axisY()->setRange(-1.45,1.45);
+    skyChart->axisX()->hide();
+    skyChart->axisY()->hide();
+    skyChart->setAnimationOptions(QChart::NoAnimation);
+
+    skymap = new ChartView(skyChart);
+    skymap->setMinMax(-2.85,2.85,-1.45,1.45);
+    skymap->setRenderHint(QPainter::Antialiasing);
+    skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
+    skymap->setBackgroundBrush(QBrush(Qt::white));
+    skymap->setMouseTracking(true);
+
+
+    ui->verticalLayout_skymap->addWidget(skymap,8);
+}
+
+
 
 void MainWindow::defaultParameters()
 {
@@ -1173,9 +1284,9 @@ void MainWindow::defaultParameters()
 
 void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &index)
 {
-    QString name = selectedStationModel->stringList().at(index.row());
-    int idx = selectedStationModel->stringList().indexOf(name);
-    selectedStationModel->removeRow(idx);
+
+    QString name = selectedStationModel->item(index.row())->text();
+    selectedStationModel->removeRow(index.row());
 
     int row;
     double x;
@@ -1209,6 +1320,50 @@ void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &inde
 
 }
 
+void MainWindow::on_listView_allSelectedSources_clicked(const QModelIndex &index)
+{
+    QString name = selectedSourceModel->item(index.row())->text();
+    selectedSourceModel->removeRow(index.row());
+
+    int row;
+    double x;
+    double y;
+    for(int i = 0; i < allSourceModel->rowCount(); ++i){
+        if (allSourceModel->index(i,0).data().toString() == name){
+            row = i;
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            double dc = allSourceModel->index(i,2).data().toDouble();
+            ra -=180;
+
+            double lambda = qDegreesToRadians(ra);
+            double phi = qDegreesToRadians(dc);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            y = (qSqrt(2) *qSin(phi) ) / hn;
+            break;
+        }
+    }
+
+    for(int i = 0; i<selectedSources->count(); ++i){
+        double xn = selectedSources->at(i).x();
+        double yn = selectedSources->at(i).y();
+        if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
+            selectedSources->remove(i);
+            break;
+        }
+    }
+
+    for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+        if (allSourcePlusGroupModel->index(i,0).data().toString() == name) {
+            allSourcePlusGroupModel->removeRow(i);
+            break;
+        }
+    }
+
+}
+
+
 void MainWindow::on_groupBox_modeSked_toggled(bool arg1)
 {
     ui->groupBox_modeCustom->setChecked(!arg1);
@@ -1229,10 +1384,9 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
     int row = index.row();
     QString name = allStationProxyModel->index(row,0).data().toString();
 
-    if(selectedStationModel->stringList().indexOf(name) == -1){
+    if(selectedStationModel->findItems(name).isEmpty()){
         selectedStationModel->insertRow(0);
-        QModelIndex index_new = selectedStationModel->index(0);
-        selectedStationModel->setData(index_new,name);
+        selectedStationModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
         selectedStationModel->sort(0);
         selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
                                  allStationProxyModel->index(row,2).data().toDouble());
@@ -1256,6 +1410,49 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
         createBaselineModel();
     }
 }
+
+void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allSourceProxyModel->index(row,0).data().toString();
+
+    if(selectedSourceModel->findItems(name).isEmpty()){
+        selectedSourceModel->insertRow(0);
+        selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
+        selectedSourceModel->sort(0);
+
+        double ra = allSourceProxyModel->index(row,1).data().toDouble();
+        double dc = allSourceProxyModel->index(row,2).data().toDouble();
+        ra -=180;
+
+        double lambda = qDegreesToRadians(ra);
+        double phi = qDegreesToRadians(dc);
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+        selectedSources->append(x,y);
+
+        auto map = para.getGroupSources();
+        int r = 0;
+        for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+            QString txt = allSourcePlusGroupModel->item(i)->text();
+            if(map.find(txt.toStdString()) != map.end() || txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(txt>name){
+                break;
+            }else{
+                ++r;
+            }
+        }
+
+        allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
+        createBaselineModel();
+    }
+}
+
 
 
 void MainWindow::on_checkBox_fillinMode_clicked(bool checked)
@@ -1562,6 +1759,7 @@ void MainWindow::on_spinBox_fontSize_valueChanged(int arg1)
     QFont myFont = ui->fontComboBox_font->currentFont();
     myFont.setPointSize(arg1);
     worldMapCallout->setFont(myFont);
+    skyMapCallout->setFont(myFont);
     QApplication::setFont(myFont);
 }
 
@@ -1570,6 +1768,7 @@ void MainWindow::on_fontComboBox_font_currentFontChanged(const QFont &f)
     QFont myFont = f;
     myFont.setPointSize(ui->spinBox_fontSize->value());
     worldMapCallout->setFont(myFont);
+    skyMapCallout->setFont(myFont);
     QApplication::setFont(myFont);
 }
 
@@ -1599,8 +1798,8 @@ void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &inde
     int row = index.row();
     QString name = allStationProxyModel->index(row,0).data().toString();
 
-    double x = allStationProxyModel->index(row,3).data().toDouble();;
-    double y = allStationProxyModel->index(row,2).data().toDouble();;
+    double x = allStationProxyModel->index(row,3).data().toDouble();
+    double y = allStationProxyModel->index(row,2).data().toDouble();
     QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
     worldMapCallout->setText(text);
     worldMapCallout->setAnchor(QPointF(x,y));
@@ -1608,6 +1807,32 @@ void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &inde
     worldMapCallout->updateGeometry();
     worldMapCallout->show();
 }
+
+void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allSourceProxyModel->index(row,0).data().toString();
+
+    double ra = allSourceProxyModel->index(row,1).data().toDouble();
+    ra -=180;
+    double dc = allSourceProxyModel->index(row,2).data().toDouble();
+
+    double lambda = qDegreesToRadians(ra);
+    double phi = qDegreesToRadians(dc);
+    double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+    double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+    double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+    QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+    skyMapCallout->setText(text);
+    skyMapCallout->setAnchor(QPointF(x,y));
+    skyMapCallout->setZValue(11);
+    skyMapCallout->updateGeometry();
+    skyMapCallout->show();
+}
+
 
 void MainWindow::worldmap_hovered(QPointF point, bool state)
 {
@@ -1626,6 +1851,7 @@ void MainWindow::worldmap_hovered(QPointF point, bool state)
                     sta.append(","+allStationModel->index(i,0).data().toString());
                 }
             }
+
         }
 
         QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(sta).arg(point.x()).arg(point.y());
@@ -1639,6 +1865,48 @@ void MainWindow::worldmap_hovered(QPointF point, bool state)
     }
 
 }
+
+void MainWindow::skymap_hovered(QPointF point, bool state){
+
+    if (state) {
+
+        double px = point.x();
+        double py = point.y();
+
+
+        double z = qSqrt(1 - (1./4.*px)*(1./4.*px) - (1./2.*py)*(1./2.*py));
+        double pra = qRadiansToDegrees(2* qAtan( (z*px) / (2*(2*z*z-1)) ));
+        pra +=180;
+        double pde = qRadiansToDegrees(qAsin(z*py));
+
+        QString src;
+        for(int i = 0; i<allSourceModel->rowCount();++i){
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            double de = allSourceModel->index(i,2).data().toDouble();
+
+            auto dra = ra-pra;
+            auto dde = de-pde;
+            if(dra*dra+dde*dde < 10){
+                if(src.size()==0){
+                    src.append(allSourceModel->index(i,0).data().toString());
+                }else{
+                    src.append(","+allSourceModel->index(i,0).data().toString());
+                }
+            }
+        }
+
+        QString text = QString("%1 \nRA: %2 [deg] \nDC: %3 [deg] ").arg(src).arg(pra).arg(pde);
+        skyMapCallout->setText(text);
+        skyMapCallout->setAnchor(point);
+        skyMapCallout->setZValue(11);
+        skyMapCallout->updateGeometry();
+        skyMapCallout->show();
+    } else {
+        skyMapCallout->hide();
+    }
+
+}
+
 
 //void MainWindow::worldmap_clicked()
 //{
@@ -1707,6 +1975,40 @@ void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &inde
         }
     }
 }
+
+void MainWindow::on_listView_allSelectedSources_entered(const QModelIndex &index)
+{
+
+    int row = index.row();
+    QString name = selectedSourceModel->index(row,0).data().toString();
+
+    for(int i = 0; i < allSourceModel->rowCount(); ++i){
+        QString newName = allSourceModel->index(i,0).data().toString();
+
+        if (newName == name){
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            ra -=180;
+            double dc = allSourceModel->index(i,2).data().toDouble();
+
+            double lambda = qDegreesToRadians(ra);
+            double phi = qDegreesToRadians(dc);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+            QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+            skyMapCallout->setText(text);
+            skyMapCallout->setAnchor(QPointF(x,y));
+            skyMapCallout->setZValue(11);
+            skyMapCallout->updateGeometry();
+            skyMapCallout->show();
+            break;
+        }
+    }
+}
+
 
 void MainWindow::multiSchedEditButton_clicked(QString name)
 {
@@ -2179,7 +2481,6 @@ void MainWindow::addGroupStation()
 void MainWindow::addGroupSource()
 {
     AddGroupDialog *dial = new AddGroupDialog(this);
-    int i = selectedSourceModel->rowCount();
     dial->addModel(selectedSourceModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -2213,7 +2514,6 @@ void MainWindow::addGroupSource()
 void MainWindow::addGroupBaseline()
 {
     AddGroupDialog *dial = new AddGroupDialog(this);
-    int i = selectedBaselineModel->rowCount();
     dial->addModel(selectedBaselineModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -2406,7 +2706,7 @@ void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDat
 
 void MainWindow::createBaselineModel()
 {
-    selectedBaselineModel->setStringList(QStringList());
+    selectedBaselineModel->clear();
 
     allBaselinePlusGroupModel->clear();
     allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),"__all__"));
@@ -2415,12 +2715,12 @@ void MainWindow::createBaselineModel()
     int n = selectedStationModel->rowCount();
     for(int i = 0; i<n; ++i){
         for(int j = i+1; j<n; ++j){
-            QString bl = selectedStationModel->index(i).data().toString();
-            bl.append("-").append(selectedStationModel->index(j).data().toString());
+            QString bl = selectedStationModel->index(i,0).data().toString();
+            bl.append("-").append(selectedStationModel->index(j,0).data().toString());
             allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
-            selectedBaselineModel->insertRow(selectedBaselineModel->rowCount());
-            QModelIndex index_new = selectedBaselineModel->index(selectedBaselineModel->rowCount()-1);
-            selectedBaselineModel->setData(index_new,bl);
+            int row = selectedBaselineModel->rowCount();
+            selectedBaselineModel->insertRow(row);
+            selectedBaselineModel->setItem(row,new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
         }
     }
 }
@@ -2554,19 +2854,19 @@ void MainWindow::addSetup(QTreeWidget *targetTreeWidget, QDateTimeEdit *paraStar
             QIcon ic;
             if(isGroup || member->currentText() == "__all__"){
                 if(targetTreeWidget == ui->treeWidget_setupStation){
-                    ic = QIcon(":icons/icons/station_group_2.png");
+                    ic = QIcon(":/icons/icons/station_group_2.png");
                 }else if(targetTreeWidget == ui->treeWidget_setupSource){
-                    ic = QIcon(":icons/icons/source_group.png");
+                    ic = QIcon(":/icons/icons/source_group.png");
                 }else if(targetTreeWidget == ui->treeWidget_setupBaseline){
-                    ic = QIcon(":icons/icons/baseline_group.png");
+                    ic = QIcon(":/icons/icons/baseline_group.png");
                 }
             }else{
                 if(targetTreeWidget == ui->treeWidget_setupStation){
-                    ic = QIcon(":icons/icons/station.png");
+                    ic = QIcon(":/icons/icons/station.png");
                 }else if(targetTreeWidget == ui->treeWidget_setupSource){
-                    ic = QIcon(":icons/icons/source.png");
+                    ic = QIcon(":/icons/icons/source.png");
                 }else if(targetTreeWidget == ui->treeWidget_setupBaseline){
-                    ic = QIcon(":icons/icons/baseline.png");
+                    ic = QIcon(":/icons/icons/baseline.png");
                 }
             }
 
@@ -2743,6 +3043,8 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     QDateTime end = QDateTime::fromString(root->text(3),"dd.MM.yyyy hh:mm");
 
     QLineSeries *series = new QLineSeries();
+
+//    connect(series,SIGNAL(clicked(QPointF)),this,SLOT(worldmap_clicked(QPointF)));
     series->setName(root->text(1));
 
     QColor c;
@@ -2862,9 +3164,9 @@ void MainWindow::setupStationWaitAddRow()
     QIcon ic;
     bool inGroup = groups.find(name.toStdString()) != groups.end();
     if( inGroup || name == "__all__"){
-        ic = QIcon(":icons/icons/station_group_2.png");
+        ic = QIcon(":/icons/icons/station_group_2.png");
     }else{
-        ic = QIcon(":icons/icons/station.png");
+        ic = QIcon(":/icons/icons/station.png");
     }
 
     QString errorStation;
@@ -2944,9 +3246,9 @@ void MainWindow::setupStationAxisBufferAddRow()
     QIcon ic;
     bool inGroup = groups.find(name.toStdString()) != groups.end();
     if( inGroup || name == "__all__"){
-        ic = QIcon(":icons/icons/station_group_2.png");
+        ic = QIcon(":/icons/icons/station_group_2.png");
     }else{
-        ic = QIcon(":icons/icons/station.png");
+        ic = QIcon(":/icons/icons/station.png");
     }
 
     QString errorStation;
@@ -3032,4 +3334,31 @@ void MainWindow::on_pushButton_16_clicked()
     for(int i=0; i<sel.count(); ++i){
         delete(sel.at(i));
     }
+}
+
+
+
+void MainWindow::on_pushButton_13_clicked()
+{
+    for(int i=0; i<allSourceModel->rowCount(); ++i){
+        on_treeView_allAvailabeSources_clicked(allSourceModel->index(i,0));
+    }
+}
+
+
+void MainWindow::on_pushButton_15_clicked()
+{
+    selectedSourceModel->clear();
+    selectedSources->clear();
+}
+
+void MainWindow::worldmap_clicked(QPointF point)
+{
+    bool x = true;
+}
+
+void MainWindow::on_pushButton_skymapZoomFull_clicked()
+{
+    skymap->chart()->axisX()->setRange(-2.85,2.85);
+    skymap->chart()->axisY()->setRange(-1.45,1.45);
 }

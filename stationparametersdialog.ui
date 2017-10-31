@@ -293,15 +293,6 @@
     </widget>
    </item>
   </layout>
-  <zorder>line</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>listView_ignoreSources</zorder>
-  <zorder>listView_ignoreSources</zorder>
-  <zorder>listWidget_selectedIgnoreSources</zorder>
-  <zorder>label_6</zorder>
-  <zorder>label_7</zorder>
-  <zorder>lineEdit_filter</zorder>
-  <zorder>label_8</zorder>
  </widget>
  <resources/>
  <connections>
