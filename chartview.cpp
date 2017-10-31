@@ -35,6 +35,8 @@ ChartView::ChartView(QChart *chart, QWidget *parent) :
     m_isTouching(false)
 {
     setRubberBand(QChartView::RectangleRubberBand);
+//    setDragMode(QGraphicsView::NoDrag);
+//    this->setMouseTracking(true);
 }
 
 void ChartView::setMinMax(double minx, double maxx, double miny, double maxy)
@@ -48,15 +50,8 @@ void ChartView::setMinMax(double minx, double maxx, double miny, double maxy)
 bool ChartView::viewportEvent(QEvent *event)
 {
     if (event->type() == QEvent::TouchBegin) {
-        // By default touch events are converted to mouse events. So
-        // after this event we will get a mouse event also but we want
-        // to handle touch events as gestures only. So we need this safeguard
-        // to block mouse events that are actually generated from touch.
         m_isTouching = true;
-
-        // Turn off animations when handling gestures they
-        // will only slow us down.
-//        chart()->setAnimationOptions(QChart::NoAnimation);
+        chart()->setAnimationOptions(QChart::NoAnimation);
     }
     return QChartView::viewportEvent(event);
 }
@@ -67,7 +62,15 @@ void ChartView::mousePressEvent(QMouseEvent *event)
     if(event->button() == Qt::RightButton){
         chart()->zoomOut();
         checkZoom();
-    }else{
+    } else if(event->button() == Qt::MiddleButton){
+        QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor));
+        lastMousePos = event->pos();
+        QRectF bounds = currentViewRect();
+        viewWidth = bounds.right()-bounds.left();
+        viewHeight = bounds.top()-bounds.bottom();
+        chart()->setAnimationOptions(QChart::NoAnimation);
+        event->accept();
+    } else{
         if (m_isTouching)
             return;
     }
@@ -77,8 +80,32 @@ void ChartView::mousePressEvent(QMouseEvent *event)
 
 void ChartView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (m_isTouching)
-        return;
+    if(event->buttons() == Qt::MiddleButton){
+        QRectF bounds = currentViewRect();
+
+        QPoint evpos = event->pos();
+        QPointF p1 = chart()->mapToValue(evpos);
+        QPointF p2 = chart()->mapToValue(lastMousePos);
+        auto dPos = p1-p2;
+        double dx = dPos.x();
+        double dy = dPos.y();
+
+        auto axh = chart()->axes(Qt::Horizontal);
+        double newXmin = bounds.left()-dx;
+        double newXmax = bounds.left()+viewWidth-dx;
+        chart()->axisX()->setRange(newXmin,newXmax);
+
+        auto axv = chart()->axes(Qt::Vertical);
+        double newYmax = bounds.top()-dy;
+        double newYmin = bounds.top()-viewHeight-dy;
+        chart()->axisY()->setRange(newYmin,newYmax);
+
+        lastMousePos = evpos;
+        event->accept();
+    }else{
+        if (m_isTouching)
+            return;
+    }
     QChartView::mouseMoveEvent(event);
 }
 
@@ -88,13 +115,16 @@ void ChartView::mouseReleaseEvent(QMouseEvent *event)
     if(event->button() == Qt::RightButton){
         chart()->zoomOut();
         checkZoom();
-    }else{
+    } else if(event->button() == Qt::MiddleButton){
+        QApplication::restoreOverrideCursor();
+        chart()->setAnimationOptions(QChart::SeriesAnimations);
+    } else{
         if (m_isTouching)
             m_isTouching = false;
 
         // Because we disabled animations when touch event was detected
         // we must put them back on.
-//        chart()->setAnimationOptions(QChart::SeriesAnimations);
+        chart()->setAnimationOptions(QChart::SeriesAnimations);
 
         QChartView::mouseReleaseEvent(event);
     }
@@ -168,4 +198,16 @@ void ChartView::checkZoom()
     }
     axx->setRange(minx,maxx);
     axy->setRange(miny,maxy);
+}
+
+QRectF ChartView::currentViewRect()
+{
+    auto ax = chart()->axes();
+    QValueAxis *axx = qobject_cast<QValueAxis *>(ax.at(0));
+    double minx = axx->min();
+    double maxx = axx->max();
+    QValueAxis *axy = qobject_cast<QValueAxis *>(ax.at(1));
+    double miny = axy->min();
+    double maxy = axy->max();
+    return QRectF(QPointF(minx,maxy),QPointF(maxx,miny));
 }

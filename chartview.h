@@ -33,6 +33,7 @@
 #include <QtCharts/QChartView>
 #include <QtWidgets/QRubberBand>
 #include <QValueAxis>
+#include <QApplication>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -62,7 +63,14 @@ private:
     double miny_;
     double maxy_;
 
+    QPointF lastMousePos;
+
+    double viewWidth;
+    double viewHeight;
+
     void checkZoom();
+
+    QRectF currentViewRect();
 
 };
 
