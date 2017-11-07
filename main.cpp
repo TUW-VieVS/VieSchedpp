@@ -233,33 +233,33 @@ void createParameterFile(){
                                           std::vector<std::string>{"WETTZ13N", "WETTZ13S", "WETTZELL"});
     para.group(VieVS::ParameterSettings::Type::station, group_sta);
 
-    VieVS::Station::PARAMETERS sta_para1;
+    VieVS::ParameterSettings::ParametersStations sta_para1;
     sta_para1.minScan = 42;
     sta_para1.minSNR.insert({"X", 20});
     sta_para1.minSNR.insert({"S", 15});
     sta_para1.maxSlewtime = 600;
     para.parameters("para:general", sta_para1);
 
-    VieVS::Station::PARAMETERS sta_para2;
+    VieVS::ParameterSettings::ParametersStations sta_para2;
     sta_para2.maxSlewtime = 400;
     sta_para2.maxScan = 400;
     para.parameters("para:wettzell", sta_para2);
 
-    VieVS::Station::PARAMETERS sta_para3;
+    VieVS::ParameterSettings::ParametersStations sta_para3;
     sta_para3.minSNR.insert({"X", 22});
     sta_para3.ignoreSources_str.emplace_back("0104-408");
     sta_para3.ignoreSources_str.emplace_back("0111+021");
     para.parameters("para:SEJONG", sta_para3);
 
-    VieVS::Station::PARAMETERS sta_para4;
+    VieVS::ParameterSettings::ParametersStations sta_para4;
     sta_para4.available = false;
     para.parameters("para:down", sta_para4);
 
-    VieVS::Station::PARAMETERS sta_para5;
+    VieVS::ParameterSettings::ParametersStations sta_para5;
     sta_para5.tagalong = true;
     para.parameters("para:tagalong", sta_para5);
 
-    VieVS::ParameterSetup pp(0, std::numeric_limits<unsigned int>::max());
+    VieVS::ParameterSetup pp(0, duration);
     VieVS::ParameterSetup pp1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp11("para:wettzell", "group:siteWettzell",
                                para.getGroupMembers(VieVS::ParameterSettings::Type::station, "group:siteWettzell"), 0,
@@ -300,12 +300,12 @@ void createParameterFile(){
     VieVS::ParameterGroup group_src("group:starSources", std::vector<std::string>{"2355-534", "2329-384","0003-066","1615+029","1920-211"});
     para.group(VieVS::ParameterSettings::Type::source, group_src);
 
-    VieVS::Source::PARAMETERS src_para1;
+    VieVS::ParameterSettings::ParametersSources src_para1;
     src_para1.minFlux = .5;
     src_para1.maxScan = 500;
     para.parameters("para:general", src_para1);
 
-    VieVS::Source::PARAMETERS src_para2;
+    VieVS::ParameterSettings::ParametersSources src_para2;
     src_para2.minFlux = 0;
     src_para2.minRepeat = 3600;
     src_para2.minScan = 100;
@@ -322,7 +322,7 @@ void createParameterFile(){
     src_para2.ignoreBaselinesString.emplace_back("WETTZELL", "WETTZ13S");
     para.parameters("para:star", src_para2);
 
-    VieVS::ParameterSetup pp_src(0, std::numeric_limits<unsigned int>::max());
+    VieVS::ParameterSetup pp_src(0, duration);
     VieVS::ParameterSetup pp_src1("para:general", "__all__", 0, duration);
     VieVS::ParameterSetup pp_src2("para:star", "group:starSources",
                               para.getGroupMembers(VieVS::ParameterSettings::Type::source, "group:starSources"), 0,
@@ -344,17 +344,17 @@ void createParameterFile(){
                                                                   "WETTZ13S-WETTZELL"});
     para.group(VieVS::ParameterSettings::Type::baseline, group_bl);
 
-    VieVS::Baseline::PARAMETERS bl_para1;
+    VieVS::ParameterSettings::ParametersBaselines bl_para1;
     bl_para1.ignore = true;
     para.parameters("para:ignore", bl_para1);
 
-    VieVS::Baseline::PARAMETERS bl_para2;
+    VieVS::ParameterSettings::ParametersBaselines bl_para2;
     bl_para2.minScan = 10;
     bl_para2.minSNR.insert({"X", 10});
     bl_para2.minSNR.insert({"S", 12});
 
     para.parameters("para:lessMinSNR", bl_para2);
-    VieVS::ParameterSetup pp_bl(0, std::numeric_limits<unsigned int>::max());
+    VieVS::ParameterSetup pp_bl(0, duration);
 //    VieVS::ParameterSetup pp_bl1("para:ignore", "group:siteWettzell",
 //                             para.getGroupMembers(VieVS::ParameterSettings::Type::baseline, "group:siteWettzell"), 0,
 //                             duration);
@@ -392,7 +392,8 @@ void createParameterFile(){
 //    multiSched.setWeight_skyCoverage(std::vector<double>{1, 2});
 //    multiSched.setStation_maxSlewtime(group_sta, std::vector<unsigned int>{100, 200, 300});
 //    multiSched.setStation_maxSlewtime("HART15M", std::vector<unsigned int>{100, 200});
-//    para.multisched(multiSched);
+//    boost::property_tree::ptree ms_tree = multiSched.createPropertyTree();
+//    para.multisched(ms_tree);
 
     para.write("parameters.xml");
 

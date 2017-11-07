@@ -127,8 +127,6 @@ namespace VieVS{
                     of << "\n";
                 }
             }
-
-
         };
 
         /**

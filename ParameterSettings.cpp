@@ -101,7 +101,7 @@ ParameterSettings::getGroupMembers(ParameterSettings::Type type, std::string gro
 
 }
 
-void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS PARA) {
+void ParameterSettings::parameters(const std::string &name, ParametersStations PARA) {
     boost::property_tree::ptree parameters;
     if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
@@ -154,7 +154,7 @@ void ParameterSettings::parameters(const std::string &name, Station::PARAMETERS 
     master_.add_child("master.station.parameters", parameters.get_child("parameters"));
 }
 
-void ParameterSettings::parameters(const std::string &name, Source::PARAMETERS PARA) {
+void ParameterSettings::parameters(const std::string &name, ParametersSources PARA) {
     boost::property_tree::ptree parameters;
 
     if (!PARA.available) {
@@ -240,7 +240,7 @@ void ParameterSettings::parameters(const std::string &name, Source::PARAMETERS P
 
 }
 
-void ParameterSettings::parameters(const std::string &name, Baseline::PARAMETERS PARA) {
+void ParameterSettings::parameters(const std::string &name, ParametersBaselines PARA) {
     boost::property_tree::ptree parameters;
 
     if (PARA.ignore.is_initialized()) {
@@ -512,41 +512,41 @@ void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     master_.add_child("master.mode", mode.get_child("mode"));
 }
 
-void ParameterSettings::mode_band(const std::string &name, double wavelength, ObservationMode::Property station,
-                                ObservationMode::Backup stationBackup, double stationBackupValue, ObservationMode::Property source,
-                                ObservationMode::Backup sourceBackup, double sourceBackupValue, unsigned int chanels) {
+void ParameterSettings::mode_band(const std::string &name, double wavelength, ObservationModeProperty station,
+                                ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
+                                ObservationModeBackup sourceBackup, double sourceBackupValue, unsigned int chanels) {
     boost::property_tree::ptree band;
     band.add("band.wavelength", wavelength);
     band.add("band.chanels", chanels);
 
 
-    if (station == ObservationMode::Property::required) {
+    if (station == ObservationModeProperty::required) {
         band.add("band.station.tag", "required");
-    } else if (station == ObservationMode::Property::optional) {
+    } else if (station == ObservationModeProperty::optional) {
         band.add("band.station.tag", "optional");
     }
-    if (stationBackup == ObservationMode::Backup::maxValueTimes) {
+    if (stationBackup == ObservationModeBackup::maxValueTimes) {
         band.add("band.station.backup_maxValueTimes", stationBackupValue);
-    } else if (stationBackup == ObservationMode::Backup::minValueTimes) {
+    } else if (stationBackup == ObservationModeBackup::minValueTimes) {
         band.add("band.station.backup_minValueTimes", stationBackupValue);
-    } else if (stationBackup == ObservationMode::Backup::value) {
+    } else if (stationBackup == ObservationModeBackup::value) {
         band.add("band.station.backup_value", stationBackupValue);
-    } else if (stationBackup == ObservationMode::Backup::none) {
+    } else if (stationBackup == ObservationModeBackup::none) {
     }
 
-    if (source == ObservationMode::Property::required) {
+    if (source == ObservationModeProperty::required) {
         band.add("band.source.tag", "required");
-    } else if (source == ObservationMode::Property::optional) {
+    } else if (source == ObservationModeProperty::optional) {
         band.add("band.source.tag", "optional");
     }
 
-    if (sourceBackup == ObservationMode::Backup::maxValueTimes) {
+    if (sourceBackup == ObservationModeBackup::maxValueTimes) {
         band.add("band.source.backup_maxValueTimes", sourceBackupValue);
-    } else if (sourceBackup == ObservationMode::Backup::minValueTimes) {
+    } else if (sourceBackup == ObservationModeBackup::minValueTimes) {
         band.add("band.source.backup_minValueTimes", sourceBackupValue);
-    } else if (sourceBackup == ObservationMode::Backup::value) {
+    } else if (sourceBackup == ObservationModeBackup::value) {
         band.add("band.source.backup_value", sourceBackupValue);
-    } else if (sourceBackup == ObservationMode::Backup::none) {
+    } else if (sourceBackup == ObservationModeBackup::none) {
     }
 
     band.add("band.<xmlattr>.name", name);
@@ -563,11 +563,8 @@ void ParameterSettings::write(const std::string &name) {
     os.close();
 }
 
-void ParameterSettings::multisched(const MultiScheduling &ms) {
-    boost::property_tree::ptree ms_tree = ms.createPropertyTree();
-
+void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree) {
     master_.add_child("master.multisched", ms_tree.get_child("multisched"));
-
 }
 
 void
