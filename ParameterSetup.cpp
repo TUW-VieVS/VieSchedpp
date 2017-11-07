@@ -96,3 +96,47 @@ bool ParameterSetup::addChild(const ParameterSetup &child) {
 }
 
 
+boost::optional<ParameterSetup &>
+ParameterSetup::search(int thisLevel, int level, const std::string &parameterName, const std::string &memberName, const std::vector<std::string> &members,
+                       ParameterSetup::Transition transition, unsigned int start, unsigned int end) {
+
+    if(thisLevel == level && this->isEqual(parameterName,memberName,members,transition,start,end)){
+        return *this;
+    }else{
+        for(auto &any: childrens_){
+            auto ans = any.search(++thisLevel, level, parameterName, memberName, members, transition, start, end);
+            if(ans.is_initialized()){
+                return ans;
+            }
+        }
+    }
+    return boost::none;
+}
+
+bool
+ParameterSetup::isEqual(std::string parameterName, std::string memberName, std::vector<std::string> members,
+                        ParameterSetup::Transition transition, unsigned int start, unsigned int end) {
+
+    if(parameterName_ != parameterName){
+        return false;
+    }
+    if(memberName_ != memberName){
+        return false;
+    }
+    if(members_ != members){
+        return false;
+    }
+    if(transition_ != transition){
+        return false;
+    }
+    if(start_ != start){
+        return false;
+    }
+    if(end_ != end){
+        return  false;
+    }
+
+    return true;
+}
+
+

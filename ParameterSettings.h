@@ -353,6 +353,18 @@ namespace VieVS {
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
+        const std::map<std::string, std::vector<std::string>> &getGroupStations() const {
+            return groupStations_;
+        }
+
+        const std::map<std::string, std::vector<std::string>> &getGroupSources() const {
+            return groupSources_;
+        }
+
+        const std::map<std::string, std::vector<std::string>> &getGroupBaselines() const {
+            return groupBaselines_;
+        }
+
     private:
         boost::property_tree::ptree master_; ///< master property tree
 

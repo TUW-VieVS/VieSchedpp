@@ -162,6 +162,10 @@ namespace VieVS {
          */
         bool addChild(const ParameterSetup &child);
 
+        boost::optional<ParameterSetup &> search(int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
+                               const std::vector<std::string> &members, Transition transition,
+                               unsigned int start, unsigned int end);
+
     private:
         std::string parameterName_; ///< parameter name
         std::string memberName_; ///< member name
@@ -174,6 +178,9 @@ namespace VieVS {
         unsigned int end_; ///< end time in seconds since session start
 
         std::vector<ParameterSetup> childrens_; ///< list of all setup children
+
+        bool isEqual(std::string parameterName, std::string memberName, std::vector<std::string> members,
+                     ParameterSetup::Transition transition, unsigned int start, unsigned int end);
     };
 }
 
