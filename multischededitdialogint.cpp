@@ -6,6 +6,16 @@ multiSchedEditDialogInt::multiSchedEditDialogInt(QWidget *parent) :
     ui(new Ui::multiSchedEditDialogInt)
 {
     ui->setupUi(this);
+    ui->groupBox_member->hide();
+    all = new QStandardItemModel(0,1,this);
+    proxy = new QSortFilterProxyModel();
+    proxy->setSourceModel(all);
+
+    ui->listView_member->setModel(proxy);
+    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    ui->tableWidget_values->verticalHeader()->show();
+    ui->tableWidget_values->horizontalHeader()->show();
 }
 
 multiSchedEditDialogInt::~multiSchedEditDialogInt()
@@ -75,6 +85,43 @@ void multiSchedEditDialogInt::on_spinBox_stop_valueChanged(int arg1)
 {
     if(arg1 < ui->spinBox_start->value()){
         ui->spinBox_start->setValue(arg1);
+    }
+
+}
+
+void multiSchedEditDialogInt::addMember(QStandardItemModel *model)
+{
+    ui->groupBox_member->show();
+    for(int i = 0; i< model->rowCount(); ++i){
+        all->setItem(i,model->item(i)->clone());
+    }
+}
+
+QStandardItem *multiSchedEditDialogInt::getMember()
+{
+    return all->item(ui->listView_member->selectionModel()->selectedIndexes().at(0).row());
+}
+
+void multiSchedEditDialogInt::on_lineEdit_filter_textChanged(const QString &arg1)
+{
+    proxy->setFilterRegExp(arg1);
+}
+
+void multiSchedEditDialogInt::on_buttonBox_accepted()
+{
+    if(ui->tableWidget_values->rowCount()>0){
+        if(ui->groupBox_member->isHidden()){
+            this->accept();
+        }else{
+            if(ui->listView_member->selectionModel()->selectedIndexes().count() == 1){
+                this->accept();
+            }else{
+                QMessageBox ms;
+                ms.warning(this,"Select member!","You forgot to select a member!");
+            }
+        }
+    }else{
+        this->reject();
     }
 
 }

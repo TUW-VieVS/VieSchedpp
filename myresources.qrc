@@ -46,6 +46,9 @@
         <file>icons/folder-open.png</file>
         <file>icons/folder-open-5.png</file>
         <file>icons/station_white.png</file>
+        <file>icons/emblem-important-4.png</file>
+        <file>icons/edit-copy-6.png</file>
+        <file>icons/file-redo.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>

@@ -6,6 +6,16 @@ multiSchedEditDialogDouble::multiSchedEditDialogDouble(QWidget *parent) :
     ui(new Ui::multiSchedEditDialogDouble)
 {
     ui->setupUi(this);
+    ui->groupBox_member->hide();
+    all = new QStandardItemModel(0,1,this);
+    proxy = new QSortFilterProxyModel();
+    proxy->setSourceModel(all);
+
+    ui->listView_member->setModel(proxy);
+    proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    ui->tableWidget_values->verticalHeader()->show();
+    ui->tableWidget_values->horizontalHeader()->show();
 }
 
 multiSchedEditDialogDouble::~multiSchedEditDialogDouble()
@@ -21,6 +31,19 @@ QVector<double> multiSchedEditDialogDouble::getValues()
         values << box->value();
     }
     return values;
+}
+
+void multiSchedEditDialogDouble::addMember(QStandardItemModel *model)
+{
+    ui->groupBox_member->show();
+    for(int i = 0; i< model->rowCount(); ++i){
+        all->setItem(i,model->item(i)->clone());
+    }
+}
+
+QStandardItem *multiSchedEditDialogDouble::getMember()
+{
+    return all->item(ui->listView_member->selectionModel()->selectedIndexes().at(0).row());
 }
 
 void multiSchedEditDialogDouble::on_doubleSpinBox_start_valueChanged(double arg1)
@@ -41,7 +64,7 @@ void multiSchedEditDialogDouble::on_pushButton_generate_clicked()
 {
     ui->tableWidget_values->setRowCount(0);
     QVector<double> values;
-    for(double i = ui->doubleSpinBox_start->value(); i<= ui->doubleSpinBox_stop->value(); i+=ui->doubleSpinBox_step->value()+1e-5){
+    for(double i = ui->doubleSpinBox_start->value(); i<= ui->doubleSpinBox_stop->value()+1e-5; i+=ui->doubleSpinBox_step->value()){
         values << i;
     }
 
@@ -70,5 +93,28 @@ void multiSchedEditDialogDouble::on_pushButton_delete_clicked()
     for(int i = sel.size()-1; i>=0 ; --i){
         int row = sel.at(0).row();
         ui->tableWidget_values->removeRow(row);
+    }
+}
+
+void multiSchedEditDialogDouble::on_lineEdit_filter_textChanged(const QString &arg1)
+{
+    proxy->setFilterRegExp(arg1);
+}
+
+void multiSchedEditDialogDouble::on_buttonBox_accepted()
+{
+    if(ui->tableWidget_values->rowCount()>0){
+        if(ui->groupBox_member->isHidden()){
+            this->accept();
+        }else{
+            if(ui->listView_member->selectionModel()->selectedIndexes().count() == 1){
+                this->accept();
+            }else{
+                QMessageBox ms;
+                ms.warning(this,"Select member!","You forgot to select a member!");
+            }
+        }
+    }else{
+        this->reject();
     }
 }

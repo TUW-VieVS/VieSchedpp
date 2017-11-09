@@ -6,6 +6,9 @@ multiSchedEditDialogDateTime::multiSchedEditDialogDateTime(QWidget *parent) :
     ui(new Ui::multiSchedEditDialogDateTime)
 {
     ui->setupUi(this);
+    ui->tableWidget_values->verticalHeader()->show();
+    ui->tableWidget_values->horizontalHeader()->show();
+
 }
 
 multiSchedEditDialogDateTime::~multiSchedEditDialogDateTime()
@@ -78,4 +81,13 @@ void multiSchedEditDialogDateTime::on_pushButton_delete_clicked()
         ui->tableWidget_values->removeRow(row);
     }
 
+}
+
+void multiSchedEditDialogDateTime::on_buttonBox_accepted()
+{
+    if(ui->tableWidget_values->rowCount()>0){
+        this->accept();
+    }else{
+        this->reject();
+    }
 }

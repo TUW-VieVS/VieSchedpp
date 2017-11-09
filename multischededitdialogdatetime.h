@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButton_delete_clicked();
 
+    void on_buttonBox_accepted();
+
 private:
     Ui::multiSchedEditDialogDateTime *ui;
 };

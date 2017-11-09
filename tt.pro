@@ -43,8 +43,7 @@ SOURCES += \
     addgroupdialog.cpp \
     stationparametersdialog.cpp \
     sourceparametersdialog.cpp \
-    baselineparametersdialog.cpp \
-    MultiScheduling.cpp
+    baselineparametersdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -60,8 +59,7 @@ HEADERS += \
     addgroupdialog.h \
     stationparametersdialog.h \
     sourceparametersdialog.h \
-    baselineparametersdialog.h \
-    MultiScheduling.h
+    baselineparametersdialog.h
 
 FORMS += \
         mainwindow.ui \

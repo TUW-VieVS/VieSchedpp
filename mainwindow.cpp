@@ -15,8 +15,32 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("VieVS Scheduler");
 
     mainPath = QCoreApplication::applicationFilePath();
+    QStringList mainPathSplit = mainPath.split("/");
+    mainPathSplit.removeLast();
+    mainPathSplit.removeLast();
+    mainPath = mainPathSplit.join("/");
+    ui->pathToGUILineEdit->setText(mainPath);
+    ui->defaultSettingsFileLineEdit->setText(mainPath+"/settings.txt");
+    QLabel *il = new QLabel;
+    QPixmap ic(":/icons/icons/emblem-important-4.png");
+    ic = ic.scaled(16,16);
+    il->setPixmap(ic);
+    ui->horizontalLayout->insertWidget(0,il);
 
-    QPushButton *savePara = new QPushButton("write xml",this);
+
+    file.setFileName("settings.txt");
+    if(!file.exists()){
+        QMessageBox mb;
+        QString txt = "Before you start, please make sure to set the path to the VieVS Scheduling executeable in the settings <img src=\":/icons/icons/emblem-system-2.png\" height=\"30\" width=\"30\"/> page!";
+        mb.information(this,"Before you start!",txt);
+    }
+    file.open(QIODevice::ReadWrite);
+
+    QPushButton *savePara = new QPushButton(QIcon(":/icons/icons/document-export.png"),"",this);
+    savePara->setToolTip("Write parameter file");
+    savePara->setStatusTip("Write parameter file");
+    connect(savePara,SIGNAL(clicked(bool)),this,SLOT(writeXML()));
+    savePara->setMinimumSize(30,30);
     ui->statusBar->addPermanentWidget(savePara);
     ui->dateTimeEdit_sessionStart->setDate(QDate::currentDate());
 
@@ -71,9 +95,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     deleteModeMapper = new QSignalMapper(this);
     connect (deleteModeMapper, SIGNAL(mapped(QString)), this, SLOT(deleteModesCustomLine(QString))) ;
-    multiSchedMapper = new QSignalMapper(this);
-    connect (multiSchedMapper, SIGNAL(mapped(QString)), this, SLOT(multiSchedEditButton_clicked(QString))) ;
-
 
     connect(ui->pushButton_addGroupStationSetup, SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
     connect(ui->pushButton_addGroupStationWait, SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
@@ -122,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->splitter->setStretchFactor(0,1);
     ui->splitter->setStretchFactor(1,3);
-    ui->splitter_4->setStretchFactor(1,1);
+    ui->splitter_5->setStretchFactor(1,3);
 
     ui->spinBox_fontSize->setValue(QApplication::font().pointSize());
     ui->iconSizeSpinBox->setValue(ui->fileToolBar->iconSize().width());
@@ -137,6 +158,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setupStationAxisBufferAddRow();
     setupStationWaitAddRow();
+
+    connect(ui->pushButton_addGroupStationSetup_2,SIGNAL(clicked(bool)),this,SLOT(addGroupStation()));
+    connect(ui->pushButton_addGroupsourceSetup_2,SIGNAL(clicked(bool)),this,SLOT(addGroupSource()));
+    connect(ui->pushButton_addGroupBaselineSetup_2,SIGNAL(clicked(bool)),this,SLOT(addGroupBaseline()));
 
 }
 
@@ -203,26 +228,25 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
 void MainWindow::displayStationSetupMember(QString name)
 {
     auto t = ui->tableWidget_setupStation;
-    t->clear();
-    auto groups = para.getGroupStations();
+    t->clear();    
     t->setColumnCount(1);
     if (name == "__all__"){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/station_group_2.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedStationModel->rowCount());
         for(int i=0; i<selectedStationModel->rowCount(); ++i){
             QString txt = selectedStationModel->index(i,0).data().toString();
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),txt));
         }
-    }else if(groups.find(name.toStdString()) != groups.end()){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
-        auto members = groups.at(name.toStdString());
+    }else if(groupSta.find(name.toStdString()) != groupSta.end()){
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/station_group_2.png"),QString("Group: %1").arg(name)));
+        auto members = groupSta.at(name.toStdString());
         t->setRowCount(members.size());
         for(int i=0; i<members.size(); ++i){
             QString txt = QString::fromStdString(members.at(i));
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),txt));
         }
     }else{
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Station: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),QString("Station: %1").arg(name)));
         t->setRowCount(allStationModel->columnCount());
         QList<QStandardItem *> litm = allStationModel->findItems(name);
         QStandardItem * itm = litm.at(0);
@@ -242,25 +266,24 @@ void MainWindow::displaySourceSetupMember(QString name)
 {
     auto t = ui->tableWidget_setupSource;
     t->clear();
-    auto groups = para.getGroupSources();
     t->setColumnCount(1);
     if (name == "__all__"){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/source_group.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedSourceModel->rowCount());
         for(int i=0; i<selectedSourceModel->rowCount(); ++i){
             QString txt = selectedSourceModel->index(i,0).data().toString();
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),txt));
         }
-    }else if(groups.find(name.toStdString()) != groups.end()){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
-        auto members = groups.at(name.toStdString());
+    }else if(groupSrc.find(name.toStdString()) != groupSrc.end()){
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/source_group.png"),QString("Group: %1").arg(name)));
+        auto members = groupSrc.at(name.toStdString());
         t->setRowCount(members.size());
         for(int i=0; i<members.size(); ++i){
             QString txt = QString::fromStdString(members.at(i));
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),txt));
         }
     }else{
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Source: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),QString("Source: %1").arg(name)));
         t->setRowCount(allSourceModel->columnCount());
         QList<QStandardItem *> litm = allSourceModel->findItems(name);
         QStandardItem * itm = litm.at(0);
@@ -280,29 +303,28 @@ void MainWindow::displayBaselineSetupMember(QString name)
 {
     auto t = ui->tableWidget_setupBaseline;
     t->clear();
-    auto groups = para.getGroupBaselines();
     t->setColumnCount(1);
     if (name == "__all__"){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/baseline_group.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedBaselineModel->rowCount());
         for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
             QString txt = selectedBaselineModel->index(i,0).data().toString();
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/baseline.png"),txt));
         }
-    }else if(groups.find(name.toStdString()) != groups.end()){
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Group: %1").arg(name)));
-        auto members = groups.at(name.toStdString());
+    }else if(groupBl.find(name.toStdString()) != groupBl.end()){
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/baseline_group.png"),QString("Group: %1").arg(name)));
+        auto members = groupBl.at(name.toStdString());
         t->setRowCount(members.size());
         for(int i=0; i<members.size(); ++i){
             QString txt = QString::fromStdString(members.at(i));
-            t->setItem(i,0,new QTableWidgetItem(txt));
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/baseline.png"),txt));
         }
     }else{
-        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Baseline: %1").arg(name)));
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/baseline.png"),QString("Baseline: %1").arg(name)));
         t->setRowCount(2);
         QStringList list= name.split("-");
-        t->setItem(0,0,new QTableWidgetItem(list.at(0)));
-        t->setItem(0,1,new QTableWidgetItem(list.at(1)));
+        t->setItem(0,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),list.at(0)));
+        t->setItem(0,1,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),list.at(1)));
         t->setVerticalHeaderItem(0,new QTableWidgetItem("Station 1"));
         t->setVerticalHeaderItem(1,new QTableWidgetItem("Station 2"));
     }
@@ -318,7 +340,6 @@ void MainWindow::displayStationSetupParameter(QString name)
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
-    auto paraSta = para.getParaStations();
     VieVS::ParameterSettings::ParametersStations para = paraSta.at(name.toStdString());
     t->setRowCount(0);
     int r = 0;
@@ -376,15 +397,27 @@ void MainWindow::displayStationSetupParameter(QString name)
         }
     }
     if(para.ignoreSources_str.size() > 0){
-        std::string txt = "";
-        for(const auto &any: para.ignoreSources_str){
-            txt.append(any).append(", ");
-        }
-        txt = txt.substr(0,txt.size()-2);
-        t->insertRow(r);
-        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore sources"));
-        ++r;
+          for(const auto &any: para.ignoreSources_str){
+              t->insertRow(r);
+              if(groupSrc.find(any) != groupSrc.end() || any == "__all__"){
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore source group"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(any)));
+              }else{
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore source"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),QString::fromStdString(any)));
+              }
+              ++r;
+          }
+
+//        std::string txt = "";
+//        for(const auto &any: para.ignoreSources_str){
+//            txt.append(any).append(", ");
+//        }
+//        txt = txt.substr(0,txt.size()-2);
+//        t->insertRow(r);
+//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
+//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore sources"));
+//        ++r;
 
     }
     QHeaderView *hv = t->verticalHeader();
@@ -396,7 +429,6 @@ void MainWindow::displaySourceSetupParameter(QString name){
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
-    auto paraSrc = para.getParaSources();
     VieVS::ParameterSettings::ParametersSources para = paraSrc.at(name.toStdString());
     t->setRowCount(0);
     int r = 0;
@@ -472,39 +504,74 @@ void MainWindow::displaySourceSetupParameter(QString name){
         }
     }
     if(para.ignoreStationsString.size() > 0){
-        std::string txt = "";
-        for(const auto &any: para.ignoreStationsString){
-            txt.append(any).append(", ");
-        }
-        txt = txt.substr(0,txt.size()-2);
-        t->insertRow(r);
-        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore stations"));
-        ++r;
+          for(const auto &any: para.ignoreStationsString){
+              t->insertRow(r);
+              if(groupSta.find(any) != groupSta.end() || any == "__all__"){
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore station group"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(any)));
+              }else{
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore station"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),QString::fromStdString(any)));
+              }
+              ++r;
+          }
+//        std::string txt = "";
+//        for(const auto &any: para.ignoreStationsString){
+//            txt.append(any).append(", ");
+//        }
+//        txt = txt.substr(0,txt.size()-2);
+//        t->insertRow(r);
+//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
+//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore stations"));
+//        ++r;
     }
     if(para.requiredStationsString.size() > 0){
-        std::string txt = "";
-        for(const auto &any: para.requiredStationsString){
-            txt.append(any).append(", ");
-        }
-        txt = txt.substr(0,txt.size()-2);
-        t->insertRow(r);
-        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("required stations"));
-        ++r;
+          for(const auto &any: para.requiredStationsString){
+              t->insertRow(r);
+              if(groupSta.find(any) != groupSta.end() || any == "__all__"){
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("required station group"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(any)));
+              }else{
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("required stations"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),QString::fromStdString(any)));
+              }
+              ++r;
+          }
+
+//        std::string txt = "";
+//        for(const auto &any: para.requiredStationsString){
+//            txt.append(any).append(", ");
+//        }
+//        txt = txt.substr(0,txt.size()-2);
+//        t->insertRow(r);
+//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
+//        t->setVerticalHeaderItem(r,new QTableWidgetItem("required stations"));
+//        ++r;
     }
     if(para.ignoreBaselinesString.size() > 0){
-        std::string txt = "";
-        for(const auto &any: para.ignoreBaselinesString){
-            std::string bl = any.first;
-            bl.append("-").append(any.second);
-            txt.append(bl).append(", ");
-        }
-        txt = txt.substr(0,txt.size()-2);
-        t->insertRow(r);
-        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignored baselines"));
-        ++r;
+          for(const auto &any: para.ignoreBaselinesString){
+              t->insertRow(r);
+              if(groupBl.find(any) != groupBl.end() || any == "__all__"){
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore baseline group"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(any)));
+              }else{
+                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore baseline"));
+                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/baseline.png"),QString::fromStdString(any)));
+              }
+              ++r;
+          }
+
+//        std::string txt = "";
+//        for(const auto &any: para.ignoreBaselinesString){
+//            std::string bl = any.first;
+//            bl.append("-").append(any.second);
+//            txt.append(bl).append(", ");
+//        }
+//        txt = txt.substr(0,txt.size()-2);
+//        t->insertRow(r);
+//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
+//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignored baselines"));
+//        ++r;
     }
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -516,8 +583,7 @@ void MainWindow::displayBaselineSetupParameter(QString name)
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
-    auto paraSta = para.getParaBaselines();
-    VieVS::ParameterSettings::ParametersBaselines para = paraSta.at(name.toStdString());
+    VieVS::ParameterSettings::ParametersBaselines para = paraBl.at(name.toStdString());
     t->setRowCount(0);
     int r = 0;
     if(para.ignore.is_initialized()){
@@ -629,6 +695,11 @@ void MainWindow::on_actionSettings_triggered()
 void MainWindow::on_actionWhat_is_this_triggered()
 {
     QWhatsThis::enterWhatsThisMode();
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    writeXML();
 }
 
 
@@ -962,12 +1033,10 @@ void MainWindow::readSources()
             selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
             selectedSourceModel->sort(0);
 
-
-            auto map = para.getGroupSources();
             int r = 0;
             for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
                 QString txt = allSourcePlusGroupModel->item(i)->text();
-                if(map.find(txt.toStdString()) != map.end() || txt == "__all__"){
+                if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
                     ++r;
                     continue;
                 }
@@ -1211,13 +1280,13 @@ void MainWindow::defaultParameters()
     bl.weight = 1;
 
 
-    para.parameters("default",sta);
+    paraSta["default"] = sta;
     ui->ComboBox_parameterStation->addItem("default");
 
-    para.parameters("default",src);
+    paraSrc["default"] = src;
     ui->ComboBox_parameterSource->addItem("default");
 
-    para.parameters("default",bl);
+    paraBl["default"] = bl;
     ui->ComboBox_parameterBaseline->addItem("default");
 
     QDateTime e = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
@@ -1391,11 +1460,10 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
         selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
                                  allStationProxyModel->index(row,2).data().toDouble());
 
-        auto map = para.getGroupStations();
         int r = 0;
         for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
             QString txt = allStationPlusGroupModel->item(i)->text();
-            if(map.find(txt.toStdString()) != map.end() || txt == "__all__"){
+            if(groupSta.find(txt.toStdString()) != groupSta.end() || txt == "__all__"){
                 ++r;
                 continue;
             }
@@ -1433,11 +1501,10 @@ void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index
         double y = (qSqrt(2) *qSin(phi) ) / hn;
         selectedSources->append(x,y);
 
-        auto map = para.getGroupSources();
         int r = 0;
         for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
             QString txt = allSourcePlusGroupModel->item(i)->text();
-            if(map.find(txt.toStdString()) != map.end() || txt == "__all__"){
+            if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
                 ++r;
                 continue;
             }
@@ -1449,7 +1516,6 @@ void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index
         }
 
         allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
-        createBaselineModel();
     }
 }
 
@@ -1557,13 +1623,13 @@ void MainWindow::addModesPolicyTable(QString name){
     QComboBox *bsta = new QComboBox(this);
     bsta->addItem("none");
     bsta->addItem("value");
-    bsta->addItem("minValueTimes");
-    bsta->addItem("maxValueTimes");
+    bsta->addItem("min value Times");
+    bsta->addItem("max value Times");
     QComboBox *bsrc = new QComboBox(this);
     bsrc->addItem("none");
     bsrc->addItem("value");
-    bsrc->addItem("minValueTimes");
-    bsrc->addItem("maxValueTimes");
+    bsrc->addItem("min value Times");
+    bsrc->addItem("max value Times");
     QDoubleSpinBox *vsta = new QDoubleSpinBox(this);
     vsta->setMinimum(0);
     vsta->setMaximum(100000);
@@ -1659,98 +1725,12 @@ void MainWindow::deleteModesCustomLine(QString name)
 
 void MainWindow::createMultiSchedTable()
 {
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("session start"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("subnetting"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("fillin mode"));
 
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: sky coverage"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: number of observations"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: duration"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: average stations"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Weight: average sources"));
+    QTreeWidget *t = ui->treeWidget_multiSched;
 
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max slew time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max wait time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: max scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: min scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Station: weight"));
-
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min number of stations"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min flux"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min repeat time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: max scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: min scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Source: weight"));
-
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem(""));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: max scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: min scan time"));
-    ui->tableWidget_multiSched->insertRow(ui->tableWidget_multiSched->rowCount());
-    ui->tableWidget_multiSched->setVerticalHeaderItem(ui->tableWidget_multiSched->rowCount()-1,new QTableWidgetItem("Baseline: weight"));
-
-    QBrush brush(Qt::black,Qt::HorPattern);
-    QSet<int> breakes = {3,9,15,22};
-    for(auto i:breakes){
-        for(int j = 0; j<3; ++j){
-            ui->tableWidget_multiSched->setItem(i, j, new QTableWidgetItem);
-            // ui->tableWidget_multiSched->item(i, j)->setBackground(brush);
-        }
-    }
-
-    for(int i = 0; i< ui->tableWidget_multiSched->rowCount(); ++i){
-        if (breakes.find(i) != breakes.end()){
-            continue;
-        }
-
-        ui->tableWidget_multiSched->verticalHeader()->setDefaultSectionSize(40);
-
-        QListWidget *list = new QListWidget(this);
-        list->setFlow(QListWidget::LeftToRight);
-        ui->tableWidget_multiSched->setCellWidget(i, 0, list);
-
-        ui->tableWidget_multiSched->setItem(i,1,new QTableWidgetItem);
-
-        QString txt = "edit";
-        if (i==1 || i==2){
-            txt = "toggle";
-        }
-        QPushButton *button = new QPushButton(txt,this);
-        ui->tableWidget_multiSched->setCellWidget(i, 2, button);
-
-        connect(button,SIGNAL(clicked(bool)),multiSchedMapper,SLOT(map()));
-        multiSchedMapper->setMapping(button,ui->tableWidget_multiSched->verticalHeaderItem(i)->text());
-    }
-
-    ui->tableWidget_multiSched->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
-
+    t->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    t->expandAll();
+    ui->treeWidget_multiSchedSelected->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 
@@ -2009,133 +1989,186 @@ void MainWindow::on_listView_allSelectedSources_entered(const QModelIndex &index
     }
 }
 
-
-void MainWindow::multiSchedEditButton_clicked(QString name)
+void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
 {
+    auto tall = ui->treeWidget_multiSched;
+    auto list = tall->selectedItems();
 
-    QStringList row2toggle{"subnetting",
-                           "fillin mode"};
+    for(const auto&any:list){
 
-    QStringList row2intDialog {"Station: max slew time",
-                              "Station: max wait time",
-                              "Station: max scan time",
-                              "Station: max scan time",
-                              "Station: min scan time",
-                              "Source: min number of stations",
-                              "Source: min repeat time",
-                              "Source: max scan time",
-                              "Source: min scan time",
-                              "Baseline: max scan time",
-                              "Baseline: min scan time"};
+        if(any->parent()){
+            QString name = any->text(0);
+            QString parameterType = any->parent()->text(0);
 
-    QStringList row2doubleDialog {"Weight: sky coverage",
-                                  "Weight: number of observations",
-                                  "Weight: duration",
-                                  "Weight: average stations",
-                                  "Weight: average sources",
-                                  "Station: weight",
-                                  "Source: min flux",
-                                  "Source: weight",
-                                  "Baseline: weight"};
+            QStringList row2toggle{"subnetting",
+                                   "fillin mode"};
 
-    QStringList row2dateTimeDialog {"session start"};
+            QStringList row2intDialog {"max slew time",
+                                      "max wait time",
+                                      "max scan time",
+                                      "min scan time",
+                                      "min number of stations",
+                                      "min repeat time"};
 
-    for(int i = 0; i<ui->tableWidget_multiSched->rowCount(); ++i){
-        QString rname = ui->tableWidget_multiSched->verticalHeaderItem(i)->text();
-        if(rname == name){
+            QStringList row2doubleDialog {"sky coverage",
+                                          "number of observations",
+                                          "duration",
+                                          "average stations",
+                                          "average sources",
+                                          "min flux",
+                                          "weight"};
 
-            if(row2intDialog.indexOf(name) != -1){
+            QStringList row2dateTimeDialog {"session start"};
+
+            QIcon ic;
+            if(parameterType == "General"){
+                ic = QIcon(":/icons/icons/applications-internet-2.png");
+            }else if(parameterType == "Weight factor"){
+                ic = QIcon(":/icons/icons/weight.png");
+            }else if(parameterType == "Station"){
+                ic = QIcon(":/icons/icons/station.png");
+            }else if(parameterType == "Source"){
+                ic = QIcon(":/icons/icons/source.png");
+            }else if(parameterType == "Baseline"){
+                ic = QIcon(":/icons/icons/baseline.png");
+            }
+
+            auto t = ui->treeWidget_multiSchedSelected;
+
+            QTreeWidgetItem * itm = new QTreeWidgetItem();
+
+            if(row2toggle.indexOf(name) != -1){
+                if(parameterType == "General" || parameterType == "Weight factor"){
+                    any->setDisabled(true);
+                }
+                QString valuesString = "True, False";
+
+                itm->setText(0,name);
+                itm->setIcon(0,ic);
+                itm->setText(1,"global");
+                itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                itm->setText(2,"2");
+
+                QComboBox *cb = new QComboBox(this);
+                cb->addItem("True");
+                cb->addItem("False");
+
+                t->addTopLevelItem(itm);
+                t->setItemWidget(itm,3,cb);
+
+            }else if(row2intDialog.indexOf(name) != -1){
                 multiSchedEditDialogInt *dialog = new multiSchedEditDialogInt(this);
-
+                if(parameterType == "Station"){
+                    dialog->addMember(allStationPlusGroupModel);
+                }else if(parameterType == "Source"){
+                    dialog->addMember(allSourcePlusGroupModel);
+                }else if(parameterType == "Baseline"){
+                    dialog->addMember(allBaselinePlusGroupModel);
+                }
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor"){
+                        any->setDisabled(true);
+                    }
                     QVector<int> val = dialog->getValues();
                     int n = val.size();
-
-                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
-                    tmpList->clear();
-                    for(int j = 0; j<n; ++j){
-                        tmpList->addItem(QString::number(val.at(j),'f',2));
+                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
+                        QStandardItem* member = dialog->getMember();
+                        itm->setText(1,member->text());
+                        itm->setIcon(1,member->icon());
+                    }else{
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    }
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(QString::number(any));
                     }
 
-                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
-                    tmpNr->setText("");
-                    if (n>0){
-                        tmpNr->setText(QString::number(n,'f',0));
-                    }
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
+
                 }
                 delete(dialog);
 
-            } else if(row2doubleDialog.indexOf(name) != -1){
+            }else if(row2doubleDialog.indexOf(name) != -1){
                 multiSchedEditDialogDouble *dialog = new multiSchedEditDialogDouble(this);
-
+                if(parameterType == "Station"){
+                    dialog->addMember(allStationPlusGroupModel);
+                }else if(parameterType == "Source"){
+                    dialog->addMember(allSourcePlusGroupModel);
+                }else if(parameterType == "Baseline"){
+                    dialog->addMember(allBaselinePlusGroupModel);
+                }else{
+                    itm->setText(1,"global");
+                    itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                }
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor"){
+                        any->setDisabled(true);
+                    }
                     QVector<double> val = dialog->getValues();
                     int n = val.size();
 
-                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
-                    tmpList->clear();
-                    for(int j = 0; j<n; ++j){
-                        tmpList->addItem(QString::number(val.at(j),'f',2));
+                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
+                        QStandardItem* member = dialog->getMember();
+                        itm->setText(1,member->text());
+                        itm->setIcon(1,member->icon());
+                    }else{
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    }
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(QString::number(any));
                     }
 
-                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
-                    tmpNr->setText("");
-                    if (n>0){
-                        tmpNr->setText(QString::number(n,'f',0));
-                    }
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
                 }
                 delete(dialog);
 
-            } else if (row2dateTimeDialog.indexOf(name) != -1){
+            }else if(row2dateTimeDialog.indexOf(name) != -1){
                 multiSchedEditDialogDateTime *dialog = new multiSchedEditDialogDateTime(this);
 
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor"){
+                        any->setDisabled(true);
+                    }
                     QVector<QDateTime> val = dialog->getValues();
                     int n = val.size();
 
-                    QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
-                    tmpList->clear();
-                    for(int j = 0; j<n; ++j){
-                        tmpList->addItem(val.at(j).toString());
+                    itm->setText(1,"global");
+                    itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(any.toString("dd.MM.yyyy hh:mm"));
                     }
 
-                    QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
-                    tmpNr->setText("");
-                    if (n>0){
-                        tmpNr->setText(QString::number(n,'f',0));
-                    }
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
                 }
                 delete(dialog);
-            } else if (row2toggle.indexOf(name) != -1){
-                QListWidget *tmpList = qobject_cast<QListWidget*>(ui->tableWidget_multiSched->cellWidget(i,0));
-                QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
-                if(tmpList->count() == 0){
-                    tmpList->addItem("True");
-                    tmpList->addItem("False");
-                    tmpNr->setText("2");
-                }else {
-                    tmpList->clear();
-                    tmpNr->setText("");
-                }
             }
 
-            break;
+            int nsched = 1;
+            for(int i = 0; i<t->topLevelItemCount(); ++i){
+                nsched *= t->topLevelItem(i)->text(2).toInt();
+            }
+            ui->label_multiSchedulingNsched->setText(QString::number(nsched));
         }
     }
-
-    int nsched = 1;
-    for(int i = 0; i<ui->tableWidget_multiSched->rowCount(); ++i){
-        QTableWidgetItem *tmpNr = ui->tableWidget_multiSched->item(i,1);
-        if (tmpNr->text() != ""){
-            int tmpNr_int = tmpNr->text().toInt();
-            nsched *= tmpNr_int;
-        }
-    }
-
-    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -2151,9 +2184,445 @@ void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants 
     {
         QSettings settings("TU Wien","VieVS Scheduler");
         settings.setValue("geometry", saveGeometry());
+        file.close();
         event->accept();
     }
 
+}
+
+void MainWindow::writeXML()
+{
+
+    para.software(QApplication::applicationName().toStdString(), QApplication::applicationVersion().toStdString());
+
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    int startYear = ui->dateTimeEdit_sessionStart->date().year();
+    int startMonth = ui->dateTimeEdit_sessionStart->date().month();
+    int startDay = ui->dateTimeEdit_sessionStart->date().day();
+    int startHour = ui->dateTimeEdit_sessionStart->time().hour();
+    int startMinute = ui->dateTimeEdit_sessionStart->time().minute();
+    int startSecond = ui->dateTimeEdit_sessionStart->time().second();
+    boost::posix_time::ptime start(boost::gregorian::date(startYear, startMonth, startDay), boost::posix_time::time_duration(startHour, startMinute, startSecond));
+    int duration = ui->doubleSpinBox_sessionDuration->value()*3600;
+    boost::posix_time::ptime end = start + boost::posix_time::seconds(duration);
+    std::vector<std::string> station_names;
+    for(int i=0; i<selectedStationModel->rowCount(); ++i){
+        station_names.push_back(selectedStationModel->item(i)->text().toStdString());
+    }
+    bool fillinMode = ui->checkBox_fillinMode->isChecked();
+    bool subnetting = ui->checkBox_subnetting->isChecked();
+    bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
+    double minElevation = ui->doubleSpinBox_minElevation->value();
+    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, minElevation, station_names, now);
+
+
+    std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
+    std::string experimentDescription = ui->plainTextEdit_experimentDescription->toPlainText().toStdString();
+    std::string scheduler = ui->schedulerLineEdit->text().toStdString();
+    std::string correlator = ui->correlatorLineEdit->text().toStdString();
+    bool statistics = ui->checkBox_outputStatisticsFile->isChecked();
+    bool ngs = ui->checkBox_outputNGSFile->isChecked();
+    bool skd = ui->checkBox_outputSkdFile->isChecked();
+    bool skyCov = ui->checkBox_outputSkyCoverageFile->isChecked();
+    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, skyCov);
+
+    std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
+    std::string equip = ui->lineEdit_pathEquip->text().toStdString();
+    std::string flux = ui->lineEdit_pathFlux->text().toStdString();
+    std::string freq = ui->lineEdit_pathFreq->text().toStdString();
+    std::string hdpos = ui->lineEdit_pathHdpos->text().toStdString();
+    std::string loif = ui->lineEdit_pathLoif->text().toStdString();
+    std::string mask = ui->lineEdit_pathMask->text().toStdString();
+    std::string modes = ui->lineEdit_pathModes->text().toStdString();
+    std::string position = ui->lineEdit_pathPosition->text().toStdString();
+    std::string rec = ui->lineEdit_pathRec->text().toStdString();
+    std::string rx = ui->lineEdit_pathRx->text().toStdString();
+    std::string source = ui->lineEdit_pathSource->text().toStdString();
+    std::string tracks = ui->lineEdit_pathTracks->text().toStdString();
+    para.catalogs(antenna, equip, flux, freq, hdpos, loif, mask, modes, position, rec, rx, source, tracks);
+
+
+    para.setup(VieVS::ParameterSettings::Type::station,setupStationTree);
+    para.setup(VieVS::ParameterSettings::Type::source,setupSourceTree);
+    para.setup(VieVS::ParameterSettings::Type::baseline,setupBaselineTree);
+
+    for(const auto&any:paraSta){
+        para.parameters(any.first, any.second);
+    }
+    for(const auto&any:paraSrc){
+        para.parameters(any.first, any.second);
+    }
+    for(const auto&any:paraBl){
+        para.parameters(any.first, any.second);
+    }
+    for(const auto&any:groupSta){
+        para.group(VieVS::ParameterSettings::Type::station,VieVS::ParameterGroup(any.first,any.second));
+    }
+    for(const auto&any:groupSrc){
+        para.group(VieVS::ParameterSettings::Type::source,VieVS::ParameterGroup(any.first,any.second));
+    }
+    for(const auto&any:groupBl){
+        para.group(VieVS::ParameterSettings::Type::baseline,VieVS::ParameterGroup(any.first,any.second));
+    }
+
+
+    for(int i=0; i<ui->treeWidget_setupStationWait->topLevelItemCount(); ++i){
+        auto itm = ui->treeWidget_setupStationWait->topLevelItem(i);
+        std::string name = itm->text(0).toStdString();
+        int setup = QString(itm->text(1)).toInt();
+        int source = QString(itm->text(2)).toInt();
+        int tape = QString(itm->text(3)).toInt();
+        int calibration = QString(itm->text(4)).toInt();
+        int corrSynch = QString(itm->text(5)).toInt();
+        para.stationWaitTimes(name,setup,source,tape,calibration,corrSynch);
+    }
+
+    for(int i=0; i<ui->treeWidget_setupStationAxis->topLevelItemCount(); ++i){
+        auto itm = ui->treeWidget_setupStationAxis->topLevelItem(i);
+        std::string name = itm->text(0).toStdString();
+        double ax1low = QString(itm->text(1)).toDouble();
+        double ax1up = QString(itm->text(2)).toDouble();
+        double ax2low = QString(itm->text(3)).toDouble();
+        double ax2up = QString(itm->text(4)).toDouble();
+        para.stationCableWrapBuffer(name,ax1low,ax1up,ax2low,ax2up);
+    }
+
+    double influenceDistance = ui->influenceDistanceDoubleSpinBox->value();
+    double influenceTime = ui->influenceTimeSpinBox->value();
+    double maxDistanceTwin = ui->maxDistanceForCombiningAntennasDoubleSpinBox->value();
+    para.skyCoverage(influenceDistance,influenceTime,maxDistanceTwin);
+
+    double weightSkyCoverage = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightSkyCoverage = ui->doubleSpinBox_weightSkyCoverage->value();
+    }
+    double weightNumberOfObservations = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightNumberOfObservations = ui->doubleSpinBox_weightNumberOfObservations->value();
+    }
+    double weightDuration = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightDuration = ui->doubleSpinBox_weightDuration->value();
+    }
+    double weightAverageSources = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightAverageSources = ui->doubleSpinBox_weightAverageSources->value();
+    }
+    double weightAverageStations = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightAverageStations = ui->doubleSpinBox_weightAverageStations->value();
+    }
+    double weightDeclination = 0;
+    double weightDeclinationSlopeStart = 0;
+    double weightDeclinationSlopeEnd = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightDeclination = ui->doubleSpinBox_weightLowDec->value();
+        weightDeclinationSlopeStart = ui->doubleSpinBox_weightLowDecStart->value();
+        weightDeclinationSlopeEnd = ui->doubleSpinBox_weightLowDecEnd->value();
+    }
+    double weightElevation = 0;
+    double weightElevationSlopeStart = 0;
+    double weightElevationSlopeEnd = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        weightElevation = ui->doubleSpinBox_weightLowEl->value();
+        weightElevationSlopeStart = ui->doubleSpinBox_weightLowElStart->value();
+        weightElevationSlopeEnd = ui->doubleSpinBox_weightLowElEnd->value();
+    }
+    para.weightFactor(weightSkyCoverage, weightNumberOfObservations, weightDuration, weightAverageSources,
+                      weightAverageStations, weightDeclination, weightDeclinationSlopeStart, weightDeclinationSlopeEnd,
+                      weightElevation, weightElevationSlopeStart, weightElevationSlopeEnd);
+
+    if(ui->groupBox_scanSequence->isChecked()){
+        int cadence = ui->spinBox_scanSequenceCadence->value();
+        std::vector<unsigned int> modulo;
+        std::vector<std::string> member;
+        for(int i = 0; i<cadence; ++i){
+            QWidget * w = ui->tableWidget_scanSequence->cellWidget(i,0);
+            QComboBox* cb = qobject_cast<QComboBox*>(w);
+            modulo.push_back(i);
+            member.push_back(cb->currentText().toStdString());
+        }
+        para.ruleScanSequence(cadence,modulo,member);
+    }
+
+    // TODO: change elevationAngles in NScanSelections and change their names
+    if(ui->groupBox_CalibratorBlock->isChecked()){
+        std::string member = ui->comboBox_calibratorBlock_calibratorSources->currentText().toStdString();
+        double lowStart = ui->doubleSpinBox_calibratorLowElStart->value();
+        double lowEnd = ui->doubleSpinBox_calibratorLowElEnd->value();
+        double highStart = ui->doubleSpinBox_calibratorHighElStart->value();
+        double highEnd = ui->doubleSpinBox_calibratorHighElEnd->value();
+        std::vector<std::pair<double, double> > elevationAngles {{lowStart,lowEnd},{highStart,highEnd}};
+        int nmaxScans = ui->spinBox_calibrator_maxScanSequence->value();
+        int scanTime = ui->spinBox_calibratorFixedScanLength->value();
+        if(ui->radioButton_calibratorTime->isChecked()){
+            int cadence = ui->spinBox_calibratorTime->value();
+            para.ruleCalibratorBlockTime(cadence,member,elevationAngles,nmaxScans,scanTime);
+        }else if(ui->radioButton_calibratorScanSequence->isChecked()){
+            int cadence = ui->spinBox_calibratorScanSequence->value();
+            para.ruleCalibratorBlockNScanSelections(cadence,member,elevationAngles,nmaxScans,scanTime);
+        }
+    }
+
+    // TODO: write modePolicy function
+    if(ui->groupBox_modeSked->isChecked()){
+        std::string skdMode = ui->comboBox_skedObsModes->currentText().toStdString();
+        para.mode(skdMode);
+    }else if(ui->groupBox_modeCustom->isChecked()){
+        double sampleRate = ui->sampleRateDoubleSpinBox->value();
+        int bits = ui->sampleBitsSpinBox->value();
+        para.mode(sampleRate, bits);
+
+        for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i){
+            std::string name = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text().toStdString();
+            double wavelength = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
+            int chanels = qobject_cast<QSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,2))->value();
+            para.mode_band(name,wavelength,chanels);
+        }
+    }
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        std::string name = ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text().toStdString();
+
+        VieVS::ParameterSettings::ObservationModeProperty policySta;
+        QString polSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,0))->currentText();
+        if(polSta == "required"){
+            policySta = VieVS::ParameterSettings::ObservationModeProperty::required;
+        }else if(polSta == "optional"){
+            policySta = VieVS::ParameterSettings::ObservationModeProperty::optional;
+        }
+
+        VieVS::ParameterSettings::ObservationModeProperty policySrc;
+        QString polSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,3))->currentText();
+        if(polSrc == "required"){
+            policySrc = VieVS::ParameterSettings::ObservationModeProperty::required;
+        }else if(polSrc == "optional"){
+            policySrc = VieVS::ParameterSettings::ObservationModeProperty::optional;
+        }
+
+        VieVS::ParameterSettings::ObservationModeBackup backupSta;
+        QString bacSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,1))->currentText();
+        if(bacSta == "none"){
+            backupSta = VieVS::ParameterSettings::ObservationModeBackup::none;
+        }else if(bacSta == "value"){
+            backupSta = VieVS::ParameterSettings::ObservationModeBackup::value;
+        }else if(bacSta == "min value Times"){
+            backupSta = VieVS::ParameterSettings::ObservationModeBackup::minValueTimes;
+        }else if(bacSta == "max value Times"){
+            backupSta = VieVS::ParameterSettings::ObservationModeBackup::maxValueTimes;
+        }
+
+        VieVS::ParameterSettings::ObservationModeBackup backupSrc;
+        QString bacSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,4))->currentText();
+        if(bacSrc == "none"){
+            backupSrc = VieVS::ParameterSettings::ObservationModeBackup::none;
+        }else if(bacSrc == "value"){
+            backupSrc = VieVS::ParameterSettings::ObservationModeBackup::value;
+        }else if(bacSrc == "min value Times"){
+            backupSrc = VieVS::ParameterSettings::ObservationModeBackup::minValueTimes;
+        }else if(bacSrc == "max value Times"){
+            backupSrc = VieVS::ParameterSettings::ObservationModeBackup::maxValueTimes;
+        }
+
+        double valSta = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,2))->value();
+        double valSrc = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,5))->value();
+
+        para.mode_bandPolicy(name,policySta,backupSta,valSta,policySrc,backupSrc,valSrc);
+    }
+
+    if (ui->groupBox_multiScheduling->isChecked()){
+
+        VieVS::MultiScheduling ms;
+        QIcon icSta = QIcon(":/icons/icons/station.png");
+        QIcon icSrc = QIcon(":/icons/icons/source.png");
+        QIcon icBl = QIcon(":/icons/icons/baseline.png");
+        QIcon icStaGrp = QIcon(":/icons/icons/station_group_2.png");
+        QIcon icSrcGrp = QIcon(":/icons/icons/source_group.png");
+        QIcon icBlGrp = QIcon(":/icons/icons/baseline_group.png");
+
+        for(int i = 0; i<ui->treeWidget_multiSchedSelected->topLevelItemCount(); ++i){
+            auto itm = ui->treeWidget_multiSchedSelected->topLevelItem(i);
+            QString parameter = itm->text(0);
+            QIcon parameterIcon = itm->icon(0);
+            QString member = itm->text(1);
+            QIcon memberIcon = itm->icon(0);
+            QListWidget *list = qobject_cast<QListWidget*>(ui->treeWidget_multiSchedSelected->itemWidget(itm,3));
+
+            QStringList parameter2int {"max slew time",
+                                      "max wait time",
+                                      "max scan time",
+                                      "min scan time",
+                                      "min number of stations",
+                                      "min repeat time"};
+
+            QStringList parameter2double {"sky coverage",
+                                          "number of observations",
+                                          "duration",
+                                          "average stations",
+                                          "average sources",
+                                          "min flux",
+                                          "weight"};
+
+            QStringList parameter2dateTime {"session start"};
+
+            std::vector<double> vecDouble;
+            std::vector<unsigned int> vecInt;
+            if(parameter2double.indexOf(parameter) != -1 ){
+                for(int j = 0; j<list->count(); ++i){
+                    vecDouble.push_back( QString(list->item(j)->text()).toDouble());
+                }
+
+            }else if(parameter2int.indexOf(parameter) != -1){
+                for(int j = 0; j<list->count(); ++i){
+                    vecInt.push_back( QString(list->item(j)->text()).toInt());
+                }
+            }
+
+            if(parameterIcon.pixmap(16,16).toImage() == icSta.pixmap(16,16).toImage()){
+                if(memberIcon.pixmap(16,16).toImage() == icStaGrp.pixmap(16,16).toImage()){
+                    auto grpMem = groupSta.at(member.toStdString());
+                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
+
+                    if(parameter == "max slew time"){
+                        ms.setStation_maxSlewtime(grp,vecInt);
+                    }else if(parameter == "max wait time"){
+                        ms.setStation_maxWait(grp,vecInt);
+                    }else if(parameter == "max scan time"){
+                        ms.setStation_maxScan(grp,vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setStation_minScan(grp,vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setStation_weight(grp,vecDouble);
+                    }
+                }else{
+                    if(parameter == "max slew time"){
+                        ms.setStation_maxSlewtime(member.toStdString(),vecInt);
+                    }else if(parameter == "max wait time"){
+                        ms.setStation_maxWait(member.toStdString(),vecInt);
+                    }else if(parameter == "max scan time"){
+                        ms.setStation_maxScan(member.toStdString(),vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setStation_minScan(member.toStdString(),vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setStation_weight(member.toStdString(),vecDouble);
+                    }
+                }
+
+            }else if(parameterIcon.pixmap(16,16).toImage() == icSrc.pixmap(16,16).toImage()){
+                if(memberIcon.pixmap(16,16).toImage() == icSrcGrp.pixmap(16,16).toImage()){
+                    auto grpMem = groupSrc.at(member.toStdString());
+                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
+
+                    if(parameter == "min number of stations"){
+                        ms.setSource_minNumberOfStations(grp,vecInt);
+                    }else if(parameter == "min flux"){
+                        ms.setSource_minFlux(grp,vecDouble);
+                    }else if(parameter == "min repeat time"){
+                        ms.setSource_minRepeat(grp,vecInt);
+                    }else if(parameter == "max scan time"){
+                        ms.setSource_minNumberOfStations(grp,vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setSource_minNumberOfStations(grp,vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setSource_weight(grp,vecDouble);
+                    }
+                }else{
+                    if(parameter == "min number of stations"){
+                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
+                    }else if(parameter == "min flux"){
+                        ms.setSource_minFlux(member.toStdString(),vecDouble);
+                    }else if(parameter == "min repeat time"){
+                        ms.setSource_minRepeat(member.toStdString(),vecInt);
+                    }else if(parameter == "max scan time"){
+                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setSource_weight(member.toStdString(),vecDouble);
+                    }
+                }
+
+            }else if(parameterIcon.pixmap(16,16).toImage() == icBl.pixmap(16,16).toImage()){
+                if(memberIcon.pixmap(16,16).toImage() == icBlGrp.pixmap(16,16).toImage()){
+                    auto grpMem = groupBl.at(member.toStdString());
+                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
+
+                    if(parameter == "max scan time"){
+                        ms.setBaseline_maxScan(grp,vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setBaseline_minScan(grp,vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setBaseline_weight(grp,vecDouble);
+                    }
+                }else{
+                    if(parameter == "max scan time"){
+                        ms.setBaseline_maxScan(member.toStdString(),vecInt);
+                    }else if(parameter == "min scan time"){
+                        ms.setBaseline_minScan(member.toStdString(),vecInt);
+                    }else if(parameter == "weight"){
+                        ms.setBaseline_weight(member.toStdString(),vecDouble);
+                    }
+                }
+
+            }else{
+                if(parameter == "session start"){
+                    std::vector<boost::posix_time::ptime> times;
+                    for(int j = 0; j<list->count(); ++j){
+                        QString txt = list->item(j)->text();
+                        int year = QString(txt.mid(6,4)).toInt();
+                        int month = QString(txt.mid(3,2)).toInt();
+                        int day = QString(txt.mid(0,2)).toInt();
+                        int hour = QString(txt.mid(11,2)).toInt();
+                        int min = QString(txt.mid(14,2)).toInt();
+                        int sec = 0;
+                        boost::posix_time::ptime t(boost::gregorian::date(year,month,day),boost::posix_time::time_duration(hour,min,sec));
+                        times.push_back(t);
+                    }
+                    ms.setStart(times);
+                }else if(parameter == "subnetting"){
+                    ms.setMultiSched_subnetting(true);
+                }else if(parameter == "fillin mode"){
+                    ms.setMultiSched_fillinmode(true);
+                }else if(parameter == "sky coverage"){
+                    ms.setWeight_skyCoverage(vecDouble);
+                }else if(parameter == "number of observations"){
+                    ms.setWeight_numberOfObservations(vecDouble);
+                }else if(parameter == "duration"){
+                    ms.setWeight_duration(vecDouble);
+                }else if(parameter == "average stations"){
+                    ms.setWeight_averageStations(vecDouble);
+                }else if(parameter == "average sources"){
+                    ms.setWeight_averageSources(vecDouble);
+                }
+            }
+        }
+    }
+    QString path = ui->lineEdit_outputPath->text();
+    path = path.simplified();
+    path.replace("\\\\","/");
+    path.replace("\\","/");
+    if(path.right(1) != "/"){
+        path.append("/");
+    }
+    QString ename = QString::fromStdString(experimentName);
+    ename.simplified();
+    ename.replace(" ","_");
+    if(ui->checkBox_outputAddTimestamp->isChecked()){
+        QString dateTime = QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
+        path.append(dateTime).append("_").append(ename).append("/");
+    }else{
+        path.append(ename).append("/");
+    }
+    QDir mydir(path);
+    if(! mydir.exists() ){
+        QDir().mkpath(path);
+    }
+    path.append("parameters.xml");
+    para.write(path.toStdString());
+    QMessageBox mb;
+    QMessageBox::StandardButton reply = mb.information(this,"parameter file created",QString("A new parameter file was created and saved at: \n").append(path),QMessageBox::Open,QMessageBox::Ok);
+    if(reply == QMessageBox::Open){
+        QDesktopServices::openUrl(QUrl(mydir.path()));
+    }
 }
 
 void MainWindow::on_iconSizeSpinBox_valueChanged(int arg1)
@@ -2453,7 +2922,6 @@ void MainWindow::addGroupStation()
         std::string stdname = dial->getGroupName();
         VieVS::ParameterGroup newGroup(stdname, stdlist);
 
-        auto map = para.getGroupStations();
         int r = 0;
         for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
             QString txt = allStationPlusGroupModel->item(i)->text();
@@ -2461,7 +2929,7 @@ void MainWindow::addGroupStation()
                 ++r;
                 continue;
             }
-            if(map.find(txt.toStdString()) == map.end()){
+            if(groupSta.find(txt.toStdString()) == groupSta.end()){
                 break;
             }
             if(txt>QString::fromStdString(stdname)){
@@ -2470,9 +2938,8 @@ void MainWindow::addGroupStation()
                 ++r;
             }
         }
+        groupSta[stdname] = stdlist;
 
-
-        para.group(VieVS::ParameterSettings::Type::station,newGroup);
         allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(stdname) ));
     }
     delete(dial);
@@ -2488,7 +2955,6 @@ void MainWindow::addGroupSource()
         std::string stdname = dial->getGroupName();
         VieVS::ParameterGroup newGroup(stdname, stdlist);
 
-        auto map = para.getGroupSources();
         int r = 0;
         for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
             QString txt = allSourcePlusGroupModel->item(i)->text();
@@ -2496,7 +2962,7 @@ void MainWindow::addGroupSource()
                 ++r;
                 continue;
             }
-            if(map.find(txt.toStdString()) == map.end()){
+            if(groupSrc.find(txt.toStdString()) == groupSrc.end()){
                 break;
             }
             if(txt>QString::fromStdString(stdname)){
@@ -2505,7 +2971,9 @@ void MainWindow::addGroupSource()
                 ++r;
             }
         }
-        para.group(VieVS::ParameterSettings::Type::source,newGroup);
+
+        groupSrc[stdname] = stdlist;
+
         allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(stdname) ));
     }
     delete(dial);
@@ -2521,7 +2989,6 @@ void MainWindow::addGroupBaseline()
         std::string stdname = dial->getGroupName();
         VieVS::ParameterGroup newGroup(stdname, stdlist);
 
-        auto map = para.getGroupSources();
         int r = 0;
         for(int i = 0; i<allBaselinePlusGroupModel->rowCount(); ++i){
             QString txt = allBaselinePlusGroupModel->item(i)->text();
@@ -2529,7 +2996,7 @@ void MainWindow::addGroupBaseline()
                 ++r;
                 continue;
             }
-            if(map.find(txt.toStdString()) == map.end()){
+            if(groupBl.find(txt.toStdString()) == groupBl.end()){
                 break;
             }
             if(txt>QString::fromStdString(stdname)){
@@ -2538,7 +3005,9 @@ void MainWindow::addGroupBaseline()
                 ++r;
             }
         }
-        para.group(VieVS::ParameterSettings::Type::baseline,newGroup);
+
+        groupBl[stdname] = stdlist;
+
         allBaselinePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(stdname) ));
     }
     delete(dial);
@@ -2561,7 +3030,7 @@ void MainWindow::on_pushButton_stationParameter_clicked()
         std::string name = res.first;
         VieVS::ParameterSettings::ParametersStations parameter = res.second;
 
-        para.parameters(name,parameter);
+        paraSta[name] = parameter;
 
         ui->ComboBox_parameterStation->addItem(QString::fromStdString(name));
 
@@ -2587,7 +3056,7 @@ void MainWindow::on_pushButton_sourceParameter_clicked()
         std::string name = res.first;
         VieVS::ParameterSettings::ParametersSources parameter = res.second;
 
-        para.parameters(name,parameter);
+        paraSrc[name] = parameter;
 
         ui->ComboBox_parameterSource->addItem(QString::fromStdString(name));
 
@@ -2610,7 +3079,7 @@ void MainWindow::on_pushButton__baselineParameter_clicked()
         std::string name = res.first;
         VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
 
-        para.parameters(name,parameter);
+        paraBl[name] = parameter;
 
         ui->ComboBox_parameterBaseline->addItem(QString::fromStdString(name));
 
@@ -2708,8 +3177,7 @@ void MainWindow::createBaselineModel()
 {
     selectedBaselineModel->clear();
 
-    allBaselinePlusGroupModel->clear();
-    allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),"__all__"));
+    allBaselinePlusGroupModel->removeRows(1,allBaselinePlusGroupModel->rowCount());
 
 
     int n = selectedStationModel->rowCount();
@@ -2774,11 +3242,11 @@ void MainWindow::addSetup(QTreeWidget *targetTreeWidget, QDateTimeEdit *paraStar
 
         std::map<std::string, std::vector<std::string>> groups;
         if(targetTreeWidget == ui->treeWidget_setupStation){
-            groups = para.getGroupStations();
+            groups = groupSta;
         }else if(targetTreeWidget == ui->treeWidget_setupSource){
-            groups = para.getGroupSources();
+            groups = groupSrc;
         }else if(targetTreeWidget == ui->treeWidget_setupBaseline){
-            groups = para.getGroupBaselines();
+            groups = groupBl;
         }
         bool isGroup = groups.find(member->currentText().toStdString() ) != groups.end();
         if(isGroup){
@@ -2905,7 +3373,6 @@ void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *
     for(int i = 0; i<sel.size(); ++i){
         if(sel.at(0)->parent()){
 
-            std::map<std::string, std::vector<std::string>> groups = para.getGroupStations();
             QString txt2 = sel.at(0)->text(2);
             QString txt3 = sel.at(0)->text(3);
             QDateTime start2 = QDateTime::fromString(txt2,"dd.MM.yyyy hh:mm");
@@ -2917,8 +3384,8 @@ void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *
             std::string parameterName2 = sel.at(0)->text(1).toStdString();
             std::string memberName2 = sel.at(0)->text(0).toStdString();
             std::vector<std::string> members2;
-            if(groups.find(memberName2) != groups.end()){
-                members2 = groups.at(memberName2);
+            if(groupSta.find(memberName2) != groupSta.end()){
+                members2 = groupSta.at(memberName2);
             }else{
                 members2.push_back(memberName2);
             }
@@ -3019,11 +3486,11 @@ void MainWindow::drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw)
 
     std::map<std::string,std::vector<std::string>> map;
     if(cv == setupStation){
-        map = para.getGroupStations();
+        map = groupSta;
     }else if(cv == setupSource){
-        map = para.getGroupSources();
+        map = groupSrc;
     }else if(cv == setupBaseline){
-        map = para.getGroupBaselines();
+        map = groupBl;
     }
 
     QTreeWidgetItem *root = tw->topLevelItem(0);
@@ -3108,6 +3575,17 @@ void MainWindow::on_comboBox_stationSettingMember_currentTextChanged(const QStri
     displayStationSetupMember(arg1);
 }
 
+void MainWindow::on_comboBox_sourceSettingMember_currentTextChanged(const QString &arg1)
+{
+    displaySourceSetupMember(arg1);
+}
+
+void MainWindow::on_comboBox_baselineSettingMember_currentTextChanged(const QString &arg1)
+{
+    displayBaselineSetupMember(arg1);
+}
+
+
 void MainWindow::displayStationSetupParameterFromPlot(){
     QLineSeries* series = qobject_cast<QLineSeries*>(sender());
     QString name = series->name();
@@ -3130,6 +3608,18 @@ void MainWindow::on_ComboBox_parameterStation_currentTextChanged(const QString &
 {
     displayStationSetupParameter(arg1);
 }
+
+
+void MainWindow::on_ComboBox_parameterSource_currentTextChanged(const QString &arg1)
+{
+    displaySourceSetupParameter(arg1);
+}
+
+void MainWindow::on_ComboBox_parameterBaseline_currentTextChanged(const QString &arg1)
+{
+    displayBaselineSetupParameter(arg1);
+}
+
 
 void MainWindow::on_comboBox_setupStation_currentTextChanged(const QString &arg1)
 {
@@ -3160,9 +3650,8 @@ void MainWindow::setupStationWaitAddRow()
     auto t = ui->treeWidget_setupStationWait;
     int row = t->topLevelItemCount();
     QString name = ui->comboBox_stationSettingMember_wait->currentText();
-    auto groups = para.getGroupStations();
     QIcon ic;
-    bool inGroup = groups.find(name.toStdString()) != groups.end();
+    bool inGroup = groupSta.find(name.toStdString()) != groupSta.end();
     if( inGroup || name == "__all__"){
         ic = QIcon(":/icons/icons/station_group_2.png");
     }else{
@@ -3179,10 +3668,10 @@ void MainWindow::setupStationWaitAddRow()
             break;
         }
 
-        if(groups.find(itmName.toStdString()) != groups.end()){
-            std::vector<std::string> itmMembers = groups.at(itmName.toStdString());
+        if(groupSta.find(itmName.toStdString()) != groupSta.end()){
+            std::vector<std::string> itmMembers = groupSta.at(itmName.toStdString());
             if(inGroup){
-                std::vector<std::string> members = groups.at(name.toStdString());
+                std::vector<std::string> members = groupSta.at(name.toStdString());
                 for(const auto &any:members){
                     if(std::find(itmMembers.begin(),itmMembers.end(),any) != itmMembers.end()){
                         valid = false;
@@ -3199,7 +3688,7 @@ void MainWindow::setupStationWaitAddRow()
             }
         }else{
             if(inGroup){
-                std::vector<std::string> members = groups.at(name.toStdString());
+                std::vector<std::string> members = groupSta.at(name.toStdString());
                 if(std::find(members.begin(),members.end(),itmName.toStdString()) != members.end()){
                     valid = false;
                     errorStation = itmName;
@@ -3242,9 +3731,8 @@ void MainWindow::setupStationAxisBufferAddRow()
     auto t = ui->treeWidget_setupStationAxis;
     int row = t->topLevelItemCount();
     QString name = ui->comboBox_stationSettingMember_axis->currentText();
-    auto groups = para.getGroupStations();
     QIcon ic;
-    bool inGroup = groups.find(name.toStdString()) != groups.end();
+    bool inGroup = groupSta.find(name.toStdString()) != groupSta.end();
     if( inGroup || name == "__all__"){
         ic = QIcon(":/icons/icons/station_group_2.png");
     }else{
@@ -3261,10 +3749,10 @@ void MainWindow::setupStationAxisBufferAddRow()
             break;
         }
 
-        if(groups.find(itmName.toStdString()) != groups.end()){
-            std::vector<std::string> itmMembers = groups.at(itmName.toStdString());
+        if(groupSta.find(itmName.toStdString()) != groupSta.end()){
+            std::vector<std::string> itmMembers = groupSta.at(itmName.toStdString());
             if(inGroup){
-                std::vector<std::string> members = groups.at(name.toStdString());
+                std::vector<std::string> members = groupSta.at(name.toStdString());
                 for(const auto &any:members){
                     if(std::find(itmMembers.begin(),itmMembers.end(),any) != itmMembers.end()){
                         valid = false;
@@ -3281,7 +3769,7 @@ void MainWindow::setupStationAxisBufferAddRow()
             }
         }else{
             if(inGroup){
-                std::vector<std::string> members = groups.at(name.toStdString());
+                std::vector<std::string> members = groupSta.at(name.toStdString());
                 if(std::find(members.begin(),members.end(),itmName.toStdString()) != members.end()){
                     valid = false;
                     errorStation = itmName;
@@ -3362,3 +3850,58 @@ void MainWindow::on_pushButton_skymapZoomFull_clicked()
     skymap->chart()->axisX()->setRange(-2.85,2.85);
     skymap->chart()->axisY()->setRange(-1.45,1.45);
 }
+
+void MainWindow::on_pushButton_18_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(ui->pathToGUILineEdit->text());
+}
+
+void MainWindow::on_pushButton_19_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(ui->defaultSettingsFileLineEdit->text());
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+    if (QMessageBox::Yes == QMessageBox::question(this, "Restart?", "Do you really want to restart?", QMessageBox::Yes | QMessageBox::No)){
+        QApplication::exit(1000);
+    }
+}
+
+
+
+void MainWindow::on_pushButton_25_clicked()
+{
+    auto list = ui->treeWidget_multiSchedSelected->selectedItems();{
+        for(const auto& any:list){
+            if(any->text(0) == "session start"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "subnetting"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
+            }else if(any->text(0) == "sky coverage"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "number of obserations"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(1)->setDisabled(false);
+            }else if(any->text(0) == "duration"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(2)->setDisabled(false);
+            }else if(any->text(0) == "average stations"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(3)->setDisabled(false);
+            }else if(any->text(0) == "average sources"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(4)->setDisabled(false);
+            }
+            delete(any);
+        }
+    }
+
+    int nsched = 1;
+    for(int i = 0; i<ui->treeWidget_multiSchedSelected->topLevelItemCount(); ++i){
+        nsched *= ui->treeWidget_multiSchedSelected->topLevelItem(i)->text(2).toInt();
+    }
+    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+
+}
+

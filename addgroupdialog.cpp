@@ -24,7 +24,6 @@ void AddGroupDialog::addModel(QStandardItemModel *model)
     for(int i = 0; i< model->rowCount(); ++i){
         all->setItem(i,model->item(i)->clone());
     }
-
 }
 
 std::vector<std::string> AddGroupDialog::getSelection()
@@ -48,7 +47,7 @@ std::string AddGroupDialog::getGroupName()
 
 void AddGroupDialog::on_lineEdit_allStationsFilter_textChanged(const QString &arg1)
 {
-    proxy->setFilterRegExp(ui->lineEdit_allStationsFilter->text());
+    proxy->setFilterRegExp(arg1);
 }
 
 

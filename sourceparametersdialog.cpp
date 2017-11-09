@@ -209,11 +209,7 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
         para.requiredStationsString.push_back(ui->listWidget_selectedRequiredStations->item(i)->text().toStdString());
     }
     for(int i = 0; i<ui->listWidget_selectedIgnoreBaselines->count(); ++i){
-        QString selected = ui->listWidget_selectedIgnoreBaselines->item(i)->text();
-        QStringList stations = selected.split("-");
-        QString first = stations.at(0);
-        QString second = stations.at(1);
-        para.ignoreBaselinesString.push_back(std::make_pair(first.toStdString(),second.toStdString()));
+        para.ignoreBaselinesString.push_back(ui->listWidget_selectedIgnoreBaselines->item(i)->text().toStdString());
     }
     for(int i = 0; i<ui->tableWidget_minSNR->rowCount(); ++i){
         QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_minSNR->cellWidget(i,0));

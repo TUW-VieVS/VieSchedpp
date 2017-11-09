@@ -2,6 +2,9 @@
 #define MULTISCHEDEDITDIALOGDOUBLE_H
 
 #include <QDialog>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QMessageBox>
 
 namespace Ui {
 class multiSchedEditDialogDouble;
@@ -17,6 +20,10 @@ public:
 
     QVector<double> getValues();
 
+    void addMember(QStandardItemModel *model);
+
+    QStandardItem* getMember();
+
 private slots:
     void on_doubleSpinBox_start_valueChanged(double arg1);
 
@@ -28,8 +35,14 @@ private slots:
 
     void on_pushButton_delete_clicked();
 
+    void on_lineEdit_filter_textChanged(const QString &arg1);
+
+    void on_buttonBox_accepted();
+
 private:
     Ui::multiSchedEditDialogDouble *ui;
+    QStandardItemModel *all;
+    QSortFilterProxyModel *proxy;
 };
 
 #endif // MULTISCHEDEDITDIALOGDOUBLE_H

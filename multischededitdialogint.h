@@ -2,6 +2,9 @@
 #define MULTISCHEDEDITDIALOGINT_H
 
 #include <QDialog>
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QMessageBox>
 
 namespace Ui {
 class multiSchedEditDialogInt;
@@ -17,6 +20,10 @@ public:
 
     QVector<int> getValues();
 
+    void addMember(QStandardItemModel *model);
+
+    QStandardItem* getMember();
+
 private slots:
     void on_pushButton_generate_clicked();
 
@@ -28,8 +35,14 @@ private slots:
 
     void on_spinBox_stop_valueChanged(int arg1);
 
+    void on_lineEdit_filter_textChanged(const QString &arg1);
+
+    void on_buttonBox_accepted();
+
 private:
     Ui::multiSchedEditDialogInt *ui;
+    QStandardItemModel *all;
+    QSortFilterProxyModel *proxy;
 };
 
 #endif // MULTISCHEDEDITDIALOGINT_H

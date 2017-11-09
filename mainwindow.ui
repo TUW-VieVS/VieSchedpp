@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1024</width>
-    <height>768</height>
+    <width>1021</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_27">
+   <layout class="QVBoxLayout" name="verticalLayout_46">
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
@@ -86,6 +86,15 @@
             <layout class="QHBoxLayout" name="horizontalLayout_49">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathAntenna">
+               <property name="acceptDrops">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>path to skd antenna catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd antenna catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/antenna.cat</string>
                </property>
@@ -93,6 +102,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseAntenna">
+               <property name="toolTip">
+                <string>browse for skd antenna catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd antenna catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -115,6 +130,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_50">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathEquip">
+               <property name="toolTip">
+                <string>path to skd equip catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd equip catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/equip.cat</string>
                </property>
@@ -122,6 +143,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseEquip">
+               <property name="toolTip">
+                <string>browse for skd equp catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd equip catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -144,6 +171,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_51">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathPosition">
+               <property name="toolTip">
+                <string>path to skd position catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd position catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/position.cat</string>
                </property>
@@ -151,6 +184,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browsePosition">
+               <property name="toolTip">
+                <string>browse for skd position catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd position catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -173,6 +212,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_52">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathMask">
+               <property name="toolTip">
+                <string>path to skd mask catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd mask catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/mask.cat</string>
                </property>
@@ -180,6 +225,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseMask">
+               <property name="toolTip">
+                <string>browse for skd mask catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd mask catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -211,6 +262,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_54">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathSource">
+               <property name="toolTip">
+                <string>path to skd source catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd source catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/source.cat</string>
                </property>
@@ -218,6 +275,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseSource">
+               <property name="toolTip">
+                <string>browse for skd source catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd source catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -240,6 +303,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_53">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathFlux">
+               <property name="toolTip">
+                <string>path to skd flux catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd flux catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/flux.cat</string>
                </property>
@@ -247,6 +316,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseFlux">
+               <property name="toolTip">
+                <string>browse for skd flux catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd flux catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -263,6 +338,13 @@
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_17">
+          <property name="toolTip">
+           <string>Read skd observing mode catalogs.
+If you only want to run simulations you can deselect this to avoid error messages due to missing catalog entries</string>
+          </property>
+          <property name="statusTip">
+           <string>read skd observing mode catalogs</string>
+          </property>
           <property name="title">
            <string>Observing mode</string>
           </property>
@@ -281,6 +363,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_55">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathModes">
+               <property name="toolTip">
+                <string>path to skd modes catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd modes catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/modes.cat</string>
                </property>
@@ -288,6 +376,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browsModes">
+               <property name="toolTip">
+                <string>browse for skd modes catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd modes catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -310,6 +404,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_56">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathFreq">
+               <property name="toolTip">
+                <string>path to skd freq catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd freq catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/freq.cat</string>
                </property>
@@ -317,6 +417,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseFreq">
+               <property name="toolTip">
+                <string>browse for skd freq catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd freq catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -339,6 +445,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_59">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathTracks">
+               <property name="toolTip">
+                <string>path to skd tracks catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd tracks catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/tracks.cat</string>
                </property>
@@ -346,6 +458,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseTracks">
+               <property name="toolTip">
+                <string>browse for skd tracks catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd tracks catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -368,6 +486,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_58">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathLoif">
+               <property name="toolTip">
+                <string>path to skd loif catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd loif catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/loif.cat</string>
                </property>
@@ -375,6 +499,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseLoif">
+               <property name="toolTip">
+                <string>browse for skd loif catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd loif catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -397,6 +527,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_57">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathRec">
+               <property name="toolTip">
+                <string>path to skd rec catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd rec catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/rec.cat</string>
                </property>
@@ -404,6 +540,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseRec">
+               <property name="toolTip">
+                <string>browse for skd rec catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd rec catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -426,6 +568,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_60">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathRx">
+               <property name="toolTip">
+                <string>path to skd rx catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd rx catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/rx.cat</string>
                </property>
@@ -433,6 +581,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseRx">
+               <property name="toolTip">
+                <string>browse for skd rx catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd rx catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -455,6 +609,12 @@
             <layout class="QHBoxLayout" name="horizontalLayout_61">
              <item>
               <widget class="QLineEdit" name="lineEdit_pathHdpos">
+               <property name="toolTip">
+                <string>path to skd hdpos catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>enter path to skd hdpos catalog here</string>
+               </property>
                <property name="text">
                 <string>/data/VieVS/CATALOGS/hdpos.cat</string>
                </property>
@@ -462,6 +622,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="pushButton_browseHdpos">
+               <property name="toolTip">
+                <string>browse for skd hdpos catalog</string>
+               </property>
+               <property name="statusTip">
+                <string>browse for skd hdpos catalog</string>
+               </property>
                <property name="text">
                 <string>browse</string>
                </property>
@@ -475,6 +641,57 @@
            </item>
           </layout>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_87">
+          <item>
+           <spacer name="horizontalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_20">
+            <property name="toolTip">
+             <string>save all pathes</string>
+            </property>
+            <property name="statusTip">
+             <string>save all pathes</string>
+            </property>
+            <property name="text">
+             <string> save</string>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_21">
+            <property name="toolTip">
+             <string>load saved pathes</string>
+            </property>
+            <property name="statusTip">
+             <string>load saved pathes</string>
+            </property>
+            <property name="text">
+             <string> load</string>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <spacer name="verticalSpacer_3">
@@ -552,7 +769,7 @@
                  <item row="0" column="0">
                   <widget class="QLabel" name="sampleRateLabel">
                    <property name="text">
-                    <string>Sample Rate</string>
+                    <string>sample rate</string>
                    </property>
                   </widget>
                  </item>
@@ -575,7 +792,7 @@
                  <item row="1" column="0">
                   <widget class="QLabel" name="sampleBitsLabel">
                    <property name="text">
-                    <string>Sample Bits</string>
+                    <string>sample bits</string>
                    </property>
                   </widget>
                  </item>
@@ -627,14 +844,14 @@
                <item>
                 <widget class="QLabel" name="label_28">
                  <property name="text">
-                  <string>Mode</string>
+                  <string>mode</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="pushButton_10">
                  <property name="text">
-                  <string> Load</string>
+                  <string> load</string>
                  </property>
                  <property name="icon">
                   <iconset resource="myresources.qrc">
@@ -645,7 +862,7 @@
                <item>
                 <widget class="QPushButton" name="pushButton_9">
                  <property name="text">
-                  <string> Save</string>
+                  <string> save</string>
                  </property>
                  <property name="icon">
                   <iconset resource="myresources.qrc">
@@ -678,7 +895,7 @@
              <item>
               <widget class="QTableWidget" name="tableWidget_modeCustonBand">
                <property name="columnCount">
-                <number>3</number>
+                <number>4</number>
                </property>
                <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
                 <bool>false</bool>
@@ -688,17 +905,22 @@
                </attribute>
                <column>
                 <property name="text">
-                 <string>Wavelength</string>
+                 <string>frequency</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>Channels</string>
+                 <string>wavelength</string>
                 </property>
                </column>
                <column>
                 <property name="text">
-                 <string>Remove</string>
+                 <string>channels</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>remove</string>
                 </property>
                </column>
               </widget>
@@ -725,7 +947,7 @@
                  </property>
                  <property name="icon">
                   <iconset resource="myresources.qrc">
-                   <normaloff>:/icons/icons/edit-add-2.png</normaloff>:/icons/icons/edit-add-2.png</iconset>
+                   <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -749,14 +971,14 @@
                <item>
                 <widget class="QLabel" name="label_27">
                  <property name="text">
-                  <string>Band:</string>
+                  <string>band:</string>
                  </property>
                 </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="pushButton_7">
                  <property name="text">
-                  <string> Load</string>
+                  <string> load</string>
                  </property>
                  <property name="icon">
                   <iconset resource="myresources.qrc">
@@ -767,7 +989,7 @@
                <item>
                 <widget class="QPushButton" name="pushButton_8">
                  <property name="text">
-                  <string> Save</string>
+                  <string> save</string>
                  </property>
                  <property name="icon">
                   <iconset resource="myresources.qrc">
@@ -785,7 +1007,7 @@
         <item>
          <widget class="QGroupBox" name="groupBox_18">
           <property name="title">
-           <string>Policy</string>
+           <string>policy</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
            <item>
@@ -807,32 +1029,32 @@
              </attribute>
              <column>
               <property name="text">
-               <string>Policy Stations</string>
+               <string>value for stations</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Backup Stations</string>
+               <string>backup stations</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Backup Value Stations</string>
+               <string>backup value stations</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Policy Sources</string>
+               <string>value for sources</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Backup Sources</string>
+               <string>backup sources</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Backup Value Sources</string>
+               <string>backup value sources</string>
               </property>
              </column>
             </widget>
@@ -882,6 +1104,12 @@
                </item>
                <item>
                 <widget class="QDateTimeEdit" name="dateTimeEdit_sessionStart">
+                 <property name="toolTip">
+                  <string>select session start date</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>session start date</string>
+                 </property>
                  <property name="dateTime">
                   <datetime>
                    <hour>0</hour>
@@ -952,6 +1180,12 @@
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="toolTip">
+                  <string>session duration in hours</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>session duration</string>
+                 </property>
                  <property name="suffix">
                   <string> [h]</string>
                  </property>
@@ -1007,6 +1241,12 @@
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
                 <widget class="QCheckBox" name="checkBox_fillinMode">
+                 <property name="toolTip">
+                  <string>allow fillin mode</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>allow fillin mode</string>
+                 </property>
                  <property name="text">
                   <string>fillin mode</string>
                  </property>
@@ -1017,6 +1257,12 @@
                </item>
                <item>
                 <widget class="QCheckBox" name="checkBox_fillinModeInfluence">
+                 <property name="toolTip">
+                  <string>should fillin mode scans influence schedule</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>should fillin mode scans influence schedule</string>
+                 </property>
                  <property name="text">
                   <string>influence schedule</string>
                  </property>
@@ -1041,15 +1287,15 @@
               </layout>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox_2">
+              <widget class="QCheckBox" name="checkBox_subnetting">
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;allowes subnetting&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>allow subnetting</string>
                </property>
                <property name="statusTip">
-                <string>allowes subnetting</string>
+                <string>allow subnetting</string>
                </property>
                <property name="whatsThis">
-                <string>allowes subnetting</string>
+                <string/>
                </property>
                <property name="text">
                 <string>subnetting</string>
@@ -1082,7 +1328,13 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
+                 <property name="toolTip">
+                  <string>minimum allowed elevation angle</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>minimum elevation angle</string>
+                 </property>
                  <property name="suffix">
                   <string> [deg]</string>
                  </property>
@@ -1125,6 +1377,13 @@
                 <property name="mouseTracking">
                  <bool>true</bool>
                 </property>
+                <property name="toolTip">
+                 <string>List of all available stations
+Click on station to select it</string>
+                </property>
+                <property name="statusTip">
+                 <string>available stations</string>
+                </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
                 </property>
@@ -1165,6 +1424,13 @@
                <widget class="QListView" name="listView_allSelectedStations">
                 <property name="mouseTracking">
                  <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>List of all selected stations
+Click on station to deselect it</string>
+                </property>
+                <property name="statusTip">
+                 <string>selected stations</string>
                 </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
@@ -1221,6 +1487,12 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="pushButton_worldmapZoomFull">
+                  <property name="toolTip">
+                   <string>zoom all</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>zoom all</string>
+                  </property>
                   <property name="text">
                    <string/>
                   </property>
@@ -1254,6 +1526,13 @@
                <widget class="QTreeView" name="treeView_allAvailabeSources">
                 <property name="mouseTracking">
                  <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>List of all available sources
+Click on source to select it</string>
+                </property>
+                <property name="statusTip">
+                 <string>available sources</string>
                 </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
@@ -1295,6 +1574,13 @@
                <widget class="QListView" name="listView_allSelectedSources">
                 <property name="mouseTracking">
                  <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>List of all selected sources
+Click on source to deselect it</string>
+                </property>
+                <property name="statusTip">
+                 <string>selected sources</string>
                 </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
@@ -1407,7 +1693,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabWidgetPage1">
            <attribute name="title">
@@ -2936,7 +3222,13 @@
           <item>
            <layout class="QFormLayout" name="formLayout_6">
             <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_8">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightNumberOfObservations">
+              <property name="toolTip">
+               <string>weight factor for high number of observations</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for high number of observations</string>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -2946,7 +3238,13 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_9">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightDuration">
+              <property name="toolTip">
+               <string>weight factor for fast scan durations</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for fast scan durations</string>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -2956,7 +3254,13 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_10">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageSources">
+              <property name="toolTip">
+               <string>weight factor for average source distribution</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for average source distribution</string>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -2966,7 +3270,13 @@
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_11">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageStations">
+              <property name="toolTip">
+               <string>weight factor for average station distribution </string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for average station distribution </string>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -2979,6 +3289,12 @@
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDec">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight factor for low declination scans</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for low declination scans</string>
               </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
@@ -3002,6 +3318,12 @@
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDecStart">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum declination for extra weight</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum declination for extra weight</string>
               </property>
               <property name="suffix">
                <string> [deg]</string>
@@ -3032,6 +3354,12 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>minimum declination for full weight</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum declination for full weight</string>
+              </property>
               <property name="suffix">
                <string> [deg]</string>
               </property>
@@ -3050,7 +3378,16 @@
              </widget>
             </item>
             <item row="8" column="0">
-             <widget class="QCheckBox" name="checkBox_4">
+             <widget class="QCheckBox" name="checkBox_weightLowElevation">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>prefer low elevation scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer low elevation scans</string>
+              </property>
               <property name="text">
                <string>low elevation</string>
               </property>
@@ -3060,6 +3397,12 @@
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowEl">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight factor for low elevation scans</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for low elevation scans</string>
               </property>
               <property name="maximum">
                <double>90.000000000000000</double>
@@ -3086,6 +3429,12 @@
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowElStart">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum elevation for extra weight</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum elevation for extra weight</string>
               </property>
               <property name="suffix">
                <string> [deg]</string>
@@ -3116,6 +3465,12 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>minimum elevation for full extra weight</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum elevation for full extra weight</string>
+              </property>
               <property name="suffix">
                <string> [deg]</string>
               </property>
@@ -3131,14 +3486,26 @@
              </widget>
             </item>
             <item row="5" column="0">
-             <widget class="QCheckBox" name="checkBox_3">
+             <widget class="QCheckBox" name="checkBox_weightLowDeclination">
+              <property name="toolTip">
+               <string>prefer low decliantion scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer low decliantion scans</string>
+              </property>
               <property name="text">
                <string>low declination</string>
               </property>
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="checkBox_weightAverageStations">
+              <property name="toolTip">
+               <string>try to average scans per stations</string>
+              </property>
+              <property name="statusTip">
+               <string>try to average scans per stations</string>
+              </property>
               <property name="text">
                <string>average stations</string>
               </property>
@@ -3148,7 +3515,13 @@
              </widget>
             </item>
             <item row="3" column="0">
-             <widget class="QCheckBox" name="checkBox_9">
+             <widget class="QCheckBox" name="checkBox_weightAverageSources">
+              <property name="toolTip">
+               <string>try to average scans per source</string>
+              </property>
+              <property name="statusTip">
+               <string>try to average scans per source</string>
+              </property>
               <property name="text">
                <string>average sources</string>
               </property>
@@ -3158,7 +3531,13 @@
              </widget>
             </item>
             <item row="2" column="0">
-             <widget class="QCheckBox" name="checkBox_10">
+             <widget class="QCheckBox" name="checkBox_weightDuration">
+              <property name="toolTip">
+               <string>prefer fast scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer fast scans</string>
+              </property>
               <property name="text">
                <string>duration</string>
               </property>
@@ -3168,7 +3547,13 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QCheckBox" name="checkBox_11">
+             <widget class="QCheckBox" name="checkBox_weightNobs">
+              <property name="toolTip">
+               <string>prefer scans with high number of baselines</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans with high number of baselines</string>
+              </property>
               <property name="text">
                <string>number of observations</string>
               </property>
@@ -3178,7 +3563,13 @@
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QCheckBox" name="checkBox_12">
+             <widget class="QCheckBox" name="checkBox_weightCoverage">
+              <property name="toolTip">
+               <string>prefer scans that improve sky coverage</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans that improve sky coverage</string>
+              </property>
               <property name="text">
                <string>sky coverage</string>
               </property>
@@ -3188,7 +3579,13 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightSkyCoverage">
+              <property name="toolTip">
+               <string>weight factor for sky coverage improvement</string>
+              </property>
+              <property name="statusTip">
+               <string>weight factor for sky coverage improvement</string>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
@@ -3232,7 +3629,7 @@
       <widget class="QWidget" name="rules">
        <layout class="QHBoxLayout" name="horizontalLayout_43">
         <item>
-         <widget class="QGroupBox" name="groupBox_10">
+         <widget class="QGroupBox" name="groupBox_scanSequence">
           <property name="styleSheet">
            <string notr="true"/>
           </property>
@@ -3269,6 +3666,12 @@
                </item>
                <item>
                 <widget class="QPushButton" name="pushButton_addSourceGroup_Sequence">
+                 <property name="toolTip">
+                  <string>add new source group</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>add new source group</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
@@ -3331,7 +3734,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_11">
+         <widget class="QGroupBox" name="groupBox_CalibratorBlock">
           <property name="styleSheet">
            <string notr="true"/>
           </property>
@@ -3360,7 +3763,7 @@
               <item>
                <layout class="QFormLayout" name="formLayout_14">
                 <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_2">
+                 <widget class="QRadioButton" name="radioButton_calibratorTime">
                   <property name="text">
                    <string>time</string>
                   </property>
@@ -3370,7 +3773,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QSpinBox" name="spinBox">
+                 <widget class="QSpinBox" name="spinBox_calibratorTime">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -3389,7 +3792,7 @@
                  </widget>
                 </item>
                 <item row="1" column="0">
-                 <widget class="QRadioButton" name="radioButton_4">
+                 <widget class="QRadioButton" name="radioButton_calibratorScanSequence">
                   <property name="text">
                    <string>scan sequence</string>
                   </property>
@@ -3399,7 +3802,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBox_2">
+                 <widget class="QSpinBox" name="spinBox_calibratorScanSequence">
                   <property name="value">
                    <number>5</number>
                   </property>
@@ -3433,7 +3836,7 @@
                  </widget>
                 </item>
                 <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBox_3">
+                 <widget class="QSpinBox" name="spinBox_calibrator_maxScanSequence">
                   <property name="minimum">
                    <number>1</number>
                   </property>
@@ -3459,7 +3862,7 @@
                 <item row="3" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_37">
                   <item>
-                   <widget class="QSpinBox" name="spinBox_4">
+                   <widget class="QSpinBox" name="spinBox_calibratorFixedScanLength">
                     <property name="suffix">
                      <string> [sec]</string>
                     </property>
@@ -3633,6 +4036,12 @@
                   </item>
                   <item>
                    <widget class="QPushButton" name="pushButton_addSourceGroup_Calibrator">
+                    <property name="toolTip">
+                     <string>add new source group</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>add new source group</string>
+                    </property>
                     <property name="text">
                      <string/>
                     </property>
@@ -3657,7 +4066,7 @@
       <widget class="QWidget" name="multi_scheduling">
        <layout class="QVBoxLayout" name="verticalLayout_20">
         <item>
-         <widget class="QGroupBox" name="groupBox_5">
+         <widget class="QGroupBox" name="groupBox_multiScheduling">
           <property name="title">
            <string>multi scheduling</string>
           </property>
@@ -3667,71 +4076,411 @@
           <property name="checked">
            <bool>false</bool>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_62">
+          <layout class="QVBoxLayout" name="verticalLayout_44" stretch="1,0">
            <item>
-            <widget class="QTableWidget" name="tableWidget_multiSched">
-             <column>
-              <property name="text">
-               <string>values</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string># </string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>toggle/edit</string>
-              </property>
-             </column>
+            <widget class="QSplitter" name="splitter_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <widget class="QWidget" name="layoutWidget">
+              <layout class="QVBoxLayout" name="verticalLayout_33">
+               <item>
+                <widget class="QLabel" name="label_20">
+                 <property name="text">
+                  <string>available multi scheduling parameters</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTreeWidget" name="treeWidget_multiSched">
+                 <attribute name="headerHighlightSections">
+                  <bool>false</bool>
+                 </attribute>
+                 <attribute name="headerShowSortIndicator" stdset="0">
+                  <bool>false</bool>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string>parameter</string>
+                  </property>
+                 </column>
+                 <item>
+                  <property name="text">
+                   <string>General</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>session start</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>subnetting</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>fillin mode</string>
+                   </property>
+                  </item>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Weight factor</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>sky coverage</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>number of observations</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>duration</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>average stations</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>average sources</string>
+                   </property>
+                  </item>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Station</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/station.png</normaloff>:/icons/icons/station.png</iconset>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>max slew time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>max wait time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>max scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>min scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>weight</string>
+                   </property>
+                  </item>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Source</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/source.png</normaloff>:/icons/icons/source.png</iconset>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>min number of stations</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>min flux</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>min repeat time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>max scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>min scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>weight</string>
+                   </property>
+                  </item>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Baseline</string>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/baseline.png</normaloff>:/icons/icons/baseline.png</iconset>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>max scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>min scan time</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>weight</string>
+                   </property>
+                  </item>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_91">
+                 <item>
+                  <widget class="QPushButton" name="pushButton_addGroupStationSetup_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>add new station group</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>add new station group</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>16</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_addGroupsourceSetup_2">
+                   <property name="toolTip">
+                    <string>add new source group</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>add new source group</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_addGroupBaselineSetup_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="toolTip">
+                    <string>add new baseline group</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>add new baseline group</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/baseline_group_plus.png</normaloff>:/icons/icons/baseline_group_plus.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>16</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_17">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_multiSchedAddSelected">
+                   <property name="text">
+                    <string>add selected</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="layoutWidget">
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <widget class="QLabel" name="label_21">
+                 <property name="text">
+                  <string>selected multi scheduling parameters</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTreeWidget" name="treeWidget_multiSchedSelected">
+                 <column>
+                  <property name="text">
+                   <string>parameter</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>member</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>nr. values</string>
+                  </property>
+                 </column>
+                 <column>
+                  <property name="text">
+                   <string>list of values</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_63">
+                 <item>
+                  <spacer name="horizontalSpacer_12">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_25">
+                   <property name="text">
+                    <string>remove selected</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_62">
+             <item>
+              <spacer name="horizontalSpacer_16">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_9">
+               <property name="text">
+                <string>total number of schedules: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_multiSchedulingNsched">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_63">
-          <item>
-           <spacer name="horizontalSpacer_16">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>total number of schedules: </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_multiSchedulingNsched">
-            <property name="text">
-             <string>1</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_47">
-          <property name="text">
-           <string/>
-          </property>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="sky_coverage">
-       <layout class="QVBoxLayout" name="verticalLayout_21">
+       <layout class="QHBoxLayout" name="horizontalLayout_46">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_64">
           <item>
@@ -3828,17 +4577,23 @@
        </layout>
       </widget>
       <widget class="QWidget" name="output">
-       <layout class="QVBoxLayout" name="verticalLayout_9">
+       <layout class="QVBoxLayout" name="verticalLayout_21" stretch="0,1,1">
         <item>
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Output files</string>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_46">
+          <layout class="QVBoxLayout" name="verticalLayout_27">
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
-              <widget class="QCheckBox" name="checkBox_5">
+              <widget class="QCheckBox" name="checkBox_outputSkdFile">
+               <property name="toolTip">
+                <string>create skd file</string>
+               </property>
+               <property name="statusTip">
+                <string>create skd file</string>
+               </property>
                <property name="text">
                 <string>create skd file</string>
                </property>
@@ -3848,7 +4603,13 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox_6">
+              <widget class="QCheckBox" name="checkBox_outputNGSFile">
+               <property name="toolTip">
+                <string>create empty ngs file</string>
+               </property>
+               <property name="statusTip">
+                <string>create empty ngs file</string>
+               </property>
                <property name="text">
                 <string>create ngs file</string>
                </property>
@@ -3858,7 +4619,13 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox_7">
+              <widget class="QCheckBox" name="checkBox_outputStatisticsFile">
+               <property name="toolTip">
+                <string>create statistics file</string>
+               </property>
+               <property name="statusTip">
+                <string>create statistics file</string>
+               </property>
                <property name="text">
                 <string>create statistics file</string>
                </property>
@@ -3868,9 +4635,66 @@
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox_8">
+              <widget class="QCheckBox" name="checkBox_outputSkyCoverageFile">
+               <property name="toolTip">
+                <string>create sky coverage file</string>
+               </property>
+               <property name="statusTip">
+                <string>create sky coverage file</string>
+               </property>
                <property name="text">
                 <string>create sky coverage file</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_74">
+             <item>
+              <widget class="QLabel" name="label_22">
+               <property name="text">
+                <string>output directory</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_outputPath">
+               <property name="toolTip">
+                <string>path to output directory</string>
+               </property>
+               <property name="statusTip">
+                <string>output directory</string>
+               </property>
+               <property name="text">
+                <string>out</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_26">
+               <property name="toolTip">
+                <string>save as default path</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default path</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_outputAddTimestamp">
+               <property name="text">
+                <string>add timestamp</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -3880,69 +4704,153 @@
          </widget>
         </item>
         <item>
-         <widget class="QSplitter" name="splitter_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QGroupBox" name="groupBox_8">
+          <property name="title">
+           <string>Additional information</string>
           </property>
-          <widget class="QGroupBox" name="groupBox_8">
-           <property name="title">
-            <string>Additional information</string>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_74">
-            <item>
-             <layout class="QFormLayout" name="formLayout_10">
-              <item row="0" column="0">
-               <widget class="QLabel" name="experimentNameLabel">
-                <property name="text">
-                 <string>experiment name</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="experimentNameLineEdit">
-                <property name="inputMask">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="experimentDesctiptionLabel">
-                <property name="text">
-                 <string>experiment desctiption</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QPlainTextEdit" name="plainTextEdit">
-                <property name="placeholderText">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QLabel" name="schedulerLabel">
-                <property name="text">
-                 <string>scheduler</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="schedulerLineEdit"/>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="correlatorLabel">
-                <property name="text">
-                 <string>correlator</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="correlatorLineEdit"/>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_88">
+           <item>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="1" column="0">
+              <widget class="QLabel" name="experimentDesctiptionLabel">
+               <property name="text">
+                <string>experiment desctiption</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButton_24">
+               <property name="toolTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="statusTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QPushButton" name="pushButton_23">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="schedulerLabel">
+               <property name="text">
+                <string>scheduler</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="schedulerLineEdit">
+               <property name="toolTip">
+                <string>enter scheduler name here</string>
+               </property>
+               <property name="statusTip">
+                <string>scheduler</string>
+               </property>
+               <property name="text">
+                <string>VIEN</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+               <property name="toolTip">
+                <string>enter experiment description here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment description</string>
+               </property>
+               <property name="placeholderText">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="experimentNameLineEdit">
+               <property name="toolTip">
+                <string>enter experiment name here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment name</string>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string>exp_test</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="experimentNameLabel">
+               <property name="text">
+                <string>experiment name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="correlatorLabel">
+               <property name="text">
+                <string>correlator</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string>VIEN</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="pushButton_22">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -3953,7 +4861,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>507</height>
+            <height>246</height>
            </size>
           </property>
          </spacer>
@@ -3961,7 +4869,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="settings">
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout_86" stretch="1,2">
+        <property name="spacing">
+         <number>15</number>
+        </property>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_22">
           <item>
@@ -3975,6 +4886,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QSpinBox" name="spinBox_fontSize">
+              <property name="toolTip">
+               <string>change global font size</string>
+              </property>
+              <property name="statusTip">
+               <string>change global font size</string>
+              </property>
               <property name="value">
                <number>11</number>
               </property>
@@ -3988,7 +4905,14 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QFontComboBox" name="fontComboBox_font"/>
+             <widget class="QFontComboBox" name="fontComboBox_font">
+              <property name="toolTip">
+               <string>change global font</string>
+              </property>
+              <property name="statusTip">
+               <string>change global font size</string>
+              </property>
+             </widget>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="iconSizeLabel">
@@ -3998,14 +4922,30 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QSpinBox" name="iconSizeSpinBox"/>
+             <widget class="QSpinBox" name="iconSizeSpinBox">
+              <property name="toolTip">
+               <string>change global icon size</string>
+              </property>
+              <property name="statusTip">
+               <string>change global icon size</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
           <item>
            <widget class="QTreeWidget" name="treeWidget_2">
+            <property name="toolTip">
+             <string>customize toolbars</string>
+            </property>
+            <property name="statusTip">
+             <string>customize toolbars</string>
+            </property>
             <property name="itemsExpandable">
              <bool>true</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>false</bool>
             </property>
             <property name="columnCount">
              <number>1</number>
@@ -4051,30 +4991,6 @@
              </item>
              <item>
               <property name="text">
-               <string>New</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Open</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>Save</string>
               </property>
               <property name="checkState">
@@ -4099,6 +5015,30 @@
              </item>
              <item>
               <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>New</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>Exit</string>
               </property>
               <property name="checkState">
@@ -4119,38 +5059,14 @@
              </property>
              <item>
               <property name="text">
-               <string>Input</string>
+               <string>Weight Factors</string>
               </property>
               <property name="checkState">
                <enum>Checked</enum>
               </property>
               <property name="icon">
                <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mode</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>General</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+                <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
               </property>
              </item>
              <item>
@@ -4191,18 +5107,6 @@
              </item>
              <item>
               <property name="text">
-               <string>Weight Factors</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
                <string>Output</string>
               </property>
               <property name="checkState">
@@ -4213,6 +5117,42 @@
                 <normaloff>:/icons/icons/document-export-4.png</normaloff>:/icons/icons/document-export-4.png</iconset>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Mode</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Input</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>General</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+              </property>
+             </item>
             </item>
             <item>
              <property name="text">
@@ -4221,6 +5161,18 @@
              <property name="checkState">
               <enum>Checked</enum>
              </property>
+             <item>
+              <property name="text">
+               <string>Sky Coverage</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
+              </property>
+             </item>
              <item>
               <property name="text">
                <string>Rules</string>
@@ -4243,18 +5195,6 @@
               <property name="icon">
                <iconset resource="myresources.qrc">
                 <normaloff>:/icons/icons/multi_sched.png</normaloff>:/icons/icons/multi_sched.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Sky Coverage</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
               </property>
              </item>
             </item>
@@ -4287,7 +5227,7 @@
              </item>
              <item>
               <property name="text">
-               <string>About</string>
+               <string>About Qt</string>
               </property>
               <property name="checkState">
                <enum>Checked</enum>
@@ -4295,7 +5235,7 @@
              </item>
              <item>
               <property name="text">
-               <string>About Qt</string>
+               <string>About</string>
               </property>
               <property name="checkState">
                <enum>Checked</enum>
@@ -4307,17 +5247,257 @@
          </layout>
         </item>
         <item>
-         <spacer name="horizontalSpacer_17">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>652</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         <layout class="QVBoxLayout" name="verticalLayout_23">
+          <item>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="nameLabel">
+              <property name="text">
+               <string>name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_76">
+              <item>
+               <widget class="QLineEdit" name="nameLineEdit">
+                <property name="toolTip">
+                 <string>enter your name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>your name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_5">
+                <property name="toolTip">
+                 <string>save as default name</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default name</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="emailLabel">
+              <property name="text">
+               <string>email</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_77">
+              <item>
+               <widget class="QLineEdit" name="emailLineEdit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>enter your email address here</string>
+                </property>
+                <property name="statusTip">
+                 <string>your email address</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_6">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default email address</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="pathToGUILabel">
+              <property name="text">
+               <string>GUI executable</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_84">
+              <item>
+               <widget class="QLineEdit" name="pathToGUILineEdit">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>path to VieVS Scheduler GUI executable</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler GUI executable</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_18">
+                <property name="toolTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="statusTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="pathToSchedulerLabel">
+                <property name="text">
+                 <string>scheduler executable</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_78" stretch="0,0,0">
+              <item>
+               <widget class="QLineEdit" name="pathToSchedulerLineEdit">
+                <property name="toolTip">
+                 <string>enter path to VieVS Scheduler executable here</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler executable</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_browseAntenna_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>79</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>browse for executable</string>
+                </property>
+                <property name="statusTip">
+                 <string>browse for executable</string>
+                </property>
+                <property name="text">
+                 <string>browse</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_17">
+                <property name="toolTip">
+                 <string>save as default path</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default path</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="defaultSettingsFileLabel">
+              <property name="text">
+               <string>default settings file</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_85">
+              <item>
+               <widget class="QLineEdit" name="defaultSettingsFileLineEdit">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>path to VieVS Scheduler GUI default settings file</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler GUI default settings file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_19">
+                <property name="toolTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="statusTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -4330,7 +5510,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1024</width>
+     <width>1021</width>
      <height>22</height>
     </rect>
    </property>
@@ -4470,7 +5650,7 @@
   <action name="actionNew">
    <property name="icon">
     <iconset resource="myresources.qrc">
-     <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
+     <normaloff>:/icons/icons/file-redo.png</normaloff>:/icons/icons/file-redo.png</iconset>
    </property>
    <property name="text">
     <string>New</string>
@@ -4598,7 +5778,7 @@
   </action>
   <action name="actionCurrent_Release">
    <property name="text">
-    <string>Current Release</string>
+    <string>Current Reference</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -4665,16 +5845,16 @@
   <connection>
    <sender>radioButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>spinBox_4</receiver>
+   <receiver>spinBox_calibratorFixedScanLength</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>618</x>
-     <y>350</y>
+     <x>82</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
-     <x>815</x>
-     <y>354</y>
+     <x>89</x>
+     <y>118</y>
     </hint>
    </hints>
   </connection>
@@ -4685,284 +5865,284 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>618</x>
-     <y>384</y>
+     <x>82</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
-     <x>813</x>
-     <y>480</y>
+     <x>88</x>
+     <y>118</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_3</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowDec</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>266</y>
+     <x>91</x>
+     <y>80</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_3</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
    <receiver>label_weightLowDecStart</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>298</y>
+     <x>19</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_3</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
    <receiver>label_weightLowDecEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>330</y>
+     <x>19</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_3</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowDecStart</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>298</y>
+     <x>91</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_3</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowDecEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>19</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>330</y>
+     <x>91</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_4</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowEl</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>19</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>362</y>
+     <x>91</x>
+     <y>85</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_4</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
    <receiver>label_weightLowElStart</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>19</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>394</y>
+     <x>19</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_4</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
    <receiver>label_weightLowElEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>19</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>426</y>
+     <x>19</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_4</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowElStart</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>19</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>394</y>
+     <x>91</x>
+     <y>87</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_4</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
    <receiver>doubleSpinBox_weightLowElEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>19</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>426</y>
+     <x>91</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox</sender>
+   <sender>checkBox_weightAverageStations</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_11</receiver>
+   <receiver>doubleSpinBox_weightAverageStations</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>231</y>
+     <x>19</x>
+     <y>78</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>234</y>
+     <x>91</x>
+     <y>78</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_9</sender>
+   <sender>checkBox_weightAverageSources</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_10</receiver>
+   <receiver>doubleSpinBox_weightAverageSources</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>199</y>
+     <x>19</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>202</y>
+     <x>91</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_10</sender>
+   <sender>checkBox_weightDuration</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_9</receiver>
+   <receiver>doubleSpinBox_weightDuration</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>167</y>
+     <x>19</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>170</y>
+     <x>91</x>
+     <y>74</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_11</sender>
+   <sender>checkBox_weightNobs</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_8</receiver>
+   <receiver>doubleSpinBox_weightNumberOfObservations</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>135</y>
+     <x>19</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>138</y>
+     <x>91</x>
+     <y>72</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_12</sender>
+   <sender>checkBox_weightCoverage</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_3</receiver>
+   <receiver>doubleSpinBox_weightSkyCoverage</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>103</y>
+     <x>19</x>
+     <y>70</y>
     </hint>
     <hint type="destinationlabel">
-     <x>313</x>
-     <y>106</y>
+     <x>91</x>
+     <y>70</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>radioButton_calibratorTime</sender>
    <signal>toggled(bool)</signal>
-   <receiver>spinBox</receiver>
+   <receiver>spinBox_calibratorTime</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>592</x>
-     <y>166</y>
+     <x>82</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
-     <x>754</x>
-     <y>169</y>
+     <x>88</x>
+     <y>118</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_4</sender>
+   <sender>radioButton_calibratorScanSequence</sender>
    <signal>toggled(bool)</signal>
-   <receiver>spinBox_2</receiver>
+   <receiver>spinBox_calibratorScanSequence</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>618</x>
-     <y>198</y>
+     <x>82</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>754</x>
-     <y>201</y>
+     <x>88</x>
+     <y>122</y>
     </hint>
    </hints>
   </connection>

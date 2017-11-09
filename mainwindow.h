@@ -15,6 +15,7 @@
 #include <QVBoxLayout>
 #include <QComboBox>
 #include <QDateTimeEdit>
+#include <QDesktopServices>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
@@ -33,6 +34,7 @@
 #include "baselineparametersdialog.h"
 #include "stationparametersdialog.h"
 #include "sourceparametersdialog.h"
+#include "MultiScheduling.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -50,6 +52,8 @@ public:
 
 private slots:    
     void closeEvent(QCloseEvent *event);
+
+    void writeXML();
 
     void on_actionMode_triggered();
 
@@ -163,8 +167,6 @@ private slots:
 
     void on_actionSky_Coverage_triggered();
 
-    void multiSchedEditButton_clicked(QString name);
-
     void on_actionExit_triggered();
 
     void on_iconSizeSpinBox_valueChanged(int arg1);
@@ -269,9 +271,30 @@ private slots:
 
     void on_pushButton_skymapZoomFull_clicked();
 
+    void on_pushButton_18_clicked();
+
+    void on_pushButton_19_clicked();
+
+    void on_actionNew_triggered();
+
+    void on_comboBox_sourceSettingMember_currentTextChanged(const QString &arg1);
+
+    void on_comboBox_baselineSettingMember_currentTextChanged(const QString &arg1);
+
+    void on_ComboBox_parameterSource_currentTextChanged(const QString &arg1);
+
+    void on_ComboBox_parameterBaseline_currentTextChanged(const QString &arg1);
+
+    void on_pushButton_multiSchedAddSelected_clicked();
+
+    void on_pushButton_25_clicked();
+
+    void on_actionSave_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
+    QFile file;
 
     VieVS::ParameterSettings para;
 
@@ -308,11 +331,18 @@ private:
     Callout *skyMapCallout;
 
     QSignalMapper *deleteModeMapper;
-    QSignalMapper *multiSchedMapper;
 
     VieVS::ParameterSetup setupStationTree;
     VieVS::ParameterSetup setupSourceTree;
     VieVS::ParameterSetup setupBaselineTree;
+
+    std::map<std::string, std::vector<std::string>> groupSta;
+    std::map<std::string, std::vector<std::string>> groupSrc;
+    std::map<std::string, std::vector<std::string>> groupBl;
+
+    std::map<std::string, VieVS::ParameterSettings::ParametersStations> paraSta;
+    std::map<std::string, VieVS::ParameterSettings::ParametersSources> paraSrc;
+    std::map<std::string, VieVS::ParameterSettings::ParametersBaselines> paraBl;
 
     void readSkedCatalogs();
 

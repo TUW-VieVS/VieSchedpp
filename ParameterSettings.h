@@ -84,7 +84,7 @@ namespace VieVS {
             std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
             std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
-            std::vector<std::pair<std::string, std::string>> ignoreBaselinesString; ///< list of all baseline names which should be ignore
+            std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
             std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
         };
@@ -132,9 +132,8 @@ namespace VieVS {
          *
          * @param name software name
          * @param version software version
-         * @param created local time and date of created parameter.xml file
          */
-        void software(const std::string &name, const std::string &version, const boost::posix_time::ptime &created);
+        void software(const std::string &name, const std::string &version);
 
         /**
          * @brief general block in parameter.xml
@@ -145,10 +144,11 @@ namespace VieVS {
          * @param fillinmode flag if fillin modes are allowed
          * @param fillinmodeInfluence flag if fillin mode scans should have an influence on the schedule
          * @param stations list of all stations
+         * @param now local time and date of created parameter.xml file
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                     const std::vector<std::string> &stations);
+                     const std::vector<std::string> &stations, const boost::posix_time::ptime &now);
 
         /**
          * @brief catalogs block in parameters.xml
@@ -286,17 +286,24 @@ namespace VieVS {
          *
          * @param name band name
          * @param wavelength band wavelength
+         * @param chanels number of channels
+         */
+        void mode_band(const std::string &name, double wavelength, unsigned int chanels);
+
+        /**
+         * @brief bandPolicy sub-block in mode block in parameter.xml
+         *
+         * @param name band name
          * @param station station policy for this band
          * @param stationBackup station backup model
          * @param stationBackupValue station backup model value
          * @param source source policy for this band
          * @param sourceBackup source backup model
          * @param sourceBackupValue source backup model value
-         * @param chanels number of channels
          */
-        void mode_band(const std::string &name, double wavelength, ObservationModeProperty station,
+        void mode_bandPolicy(const std::string &name, ObservationModeProperty station,
                        ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
-                       ObservationModeBackup sourceBackup, double sourceBackupValue, unsigned int chanels);
+                       ObservationModeBackup sourceBackup, double sourceBackupValue);
 
         /**
          * @brief multisched block in parameter.xml
@@ -352,6 +359,7 @@ namespace VieVS {
                                      unsigned int nMaxScans, unsigned int scanTime);
 
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
+                                                const std::vector<std::pair<double, double> > &between_elevation,
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
         const std::map<std::string, std::vector<std::string>> &getGroupStations() const {

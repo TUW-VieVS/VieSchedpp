@@ -10,21 +10,20 @@ VieVS::ParameterSettings::ParameterSettings() {
 
 }
 
-void ParameterSettings::software(const std::string &name, const std::string &version,
-                               const boost::posix_time::ptime &created) {
+void ParameterSettings::software(const std::string &name, const std::string &version) {
     boost::property_tree::ptree software;
     software.add("software.name", name);
     software.add("software.version", version);
-    software.add("software.created", created);
 
+//    master_.insert(master_.begin(),software.get_child("software"));
     master_.add_child("master.software", software.get_child("software"));
-
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                                const std::vector<std::string> &stations) {
+                                const std::vector<std::string> &stations, const boost::posix_time::ptime &created) {
     boost::property_tree::ptree general;
+    general.add("general.created", created);
     general.add("general.startTime", startTime);
     general.add("general.endTime", endTime);
     general.add("general.subnetting", subnetting);
@@ -38,8 +37,11 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
         tmp.add("station", any);
         all_stations.add_child("stations.station", tmp.get_child("station"));
     }
-    general.add_child("general.stations", all_stations.get_child("stations"));
+    if(!all_stations.empty()){
+        general.add_child("general.stations", all_stations.get_child("stations"));
+    }
 
+//    master_.insert(master_.begin(),general.get_child("general"));
     master_.add_child("master.general", general.get_child("general"));
 }
 
@@ -230,8 +232,8 @@ void ParameterSettings::parameters(const std::string &name, ParametersSources PA
         boost::property_tree::ptree ignoreBaselines;
         for (const auto &any:PARA.ignoreBaselinesString) {
             boost::property_tree::ptree baselineName;
-            string bname = any.first + "-" + any.second;
-            baselineName.add("baseline", bname);
+//            string bname = any.first + "-" + any.second;
+            baselineName.add("baseline", any);
             ignoreBaselines.add_child("ignoreBaselines.baseline", baselineName.get_child("baseline"));
         }
         parameters.add_child("parameters.ignoreBaselines", ignoreBaselines.get_child("ignoreBaselines"));
@@ -484,20 +486,31 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
                                 double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                                 double lowElevationSlopeStart, double lowElevationSlopeEnd) {
     boost::property_tree::ptree weightFactor;
-    weightFactor.add("weightFactor.skyCoverage", weight_skyCoverage);
-    weightFactor.add("weightFactor.numberOfObservations", weight_numberOfObservations);
-    weightFactor.add("weightFactor.duration", weight_duration);
-    weightFactor.add("weightFactor.averageSources", weight_averageSources);
-    weightFactor.add("weightFactor.averageStations", weight_averageStations);
-
-    weightFactor.add("weightFactor.weightDeclination", weightDeclination);
-    weightFactor.add("weightFactor.declinationSlopeStart", declinationSlopeStart);
-    weightFactor.add("weightFactor.declinationSlopeEnd", declinationSlopeEnd);
-
-    weightFactor.add("weightFactor.weightLowElevation", weightLowElevation);
-    weightFactor.add("weightFactor.lowElevationSlopeStart", lowElevationSlopeStart);
-    weightFactor.add("weightFactor.lowElevationSlopeEnd", lowElevationSlopeEnd);
-
+    if(weight_skyCoverage != 0){
+        weightFactor.add("weightFactor.skyCoverage", weight_skyCoverage);
+    }
+    if(weight_numberOfObservations != 0){
+        weightFactor.add("weightFactor.numberOfObservations", weight_numberOfObservations);
+    }
+    if(weight_duration != 0){
+        weightFactor.add("weightFactor.duration", weight_duration);
+    }
+    if(weight_averageSources != 0){
+        weightFactor.add("weightFactor.averageSources", weight_averageSources);
+    }
+    if(weight_averageStations != 0){
+        weightFactor.add("weightFactor.averageStations", weight_averageStations);
+    }
+    if(weightDeclination != 0){
+        weightFactor.add("weightFactor.weightDeclination", weightDeclination);
+        weightFactor.add("weightFactor.declinationSlopeStart", declinationSlopeStart);
+        weightFactor.add("weightFactor.declinationSlopeEnd", declinationSlopeEnd);
+    }
+    if(weightLowElevation != 0){
+        weightFactor.add("weightFactor.weightLowElevation", weightLowElevation);
+        weightFactor.add("weightFactor.lowElevationSlopeStart", lowElevationSlopeStart);
+        weightFactor.add("weightFactor.lowElevationSlopeEnd", lowElevationSlopeEnd);
+    }
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
@@ -517,13 +530,21 @@ void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     master_.add_child("master.mode", mode.get_child("mode"));
 }
 
-void ParameterSettings::mode_band(const std::string &name, double wavelength, ObservationModeProperty station,
-                                ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
-                                ObservationModeBackup sourceBackup, double sourceBackupValue, unsigned int chanels) {
+void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int chanels) {
     boost::property_tree::ptree band;
     band.add("band.wavelength", wavelength);
     band.add("band.chanels", chanels);
 
+    band.add("band.<xmlattr>.name", name);
+
+    master_.add_child("master.mode.band", band.get_child("band"));
+}
+
+void ParameterSettings::mode_bandPolicy(const std::string &name, ObservationModeProperty station,
+                                        ObservationModeBackup stationBackup, double stationBackupValue,
+                                        ObservationModeProperty source, ObservationModeBackup sourceBackup,
+                                        double sourceBackupValue) {
+    boost::property_tree::ptree band;
 
     if (station == ObservationModeProperty::required) {
         band.add("band.station.tag", "required");
@@ -556,9 +577,9 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, Ob
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("master.mode.band", band.get_child("band"));
-
+    master_.add_child("master.mode.bandPolicy", band.get_child("band"));
 }
+
 
 void ParameterSettings::write(const std::string &name) {
     std::ofstream os;
@@ -636,6 +657,7 @@ void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std:
 }
 
 void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
+                                                           const std::vector<std::pair<double, double> > &between_elevation,
                                                            unsigned int nMaxScans, unsigned int scanTime) {
 
     boost::property_tree::ptree rules;
@@ -644,6 +666,20 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
     rules.add("calibratorBlock.member",member);
     rules.add("calibratorBlock.nMaxScans",nMaxScans);
     rules.add("calibratorBlock.fixedScanTime",scanTime);
+    for(const auto &any:between_elevation){
+        boost::property_tree::ptree be;
+        double el1 = any.first;
+        double el2 = any.second;
+        if(el1>el2){
+            swap(el1,el2);
+        }
+
+        be.add("targetElevation.lower_limit",el1);
+        be.add("targetElevation.upper_limit",el1);
+
+        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
+    }
+
 
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 
