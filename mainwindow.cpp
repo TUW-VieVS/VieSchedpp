@@ -2192,7 +2192,7 @@ void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants 
 
 void MainWindow::writeXML()
 {
-
+    para = VieVS::ParameterSettings();
     para.software(QApplication::applicationName().toStdString(), QApplication::applicationVersion().toStdString());
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
@@ -2445,7 +2445,7 @@ void MainWindow::writeXML()
             QIcon parameterIcon = itm->icon(0);
             QString member = itm->text(1);
             QIcon memberIcon = itm->icon(0);
-            QListWidget *list = qobject_cast<QListWidget*>(ui->treeWidget_multiSchedSelected->itemWidget(itm,3));
+            QComboBox *list = qobject_cast<QComboBox*>(ui->treeWidget_multiSchedSelected->itemWidget(itm,3));
 
             QStringList parameter2int {"max slew time",
                                       "max wait time",
@@ -2467,13 +2467,13 @@ void MainWindow::writeXML()
             std::vector<double> vecDouble;
             std::vector<unsigned int> vecInt;
             if(parameter2double.indexOf(parameter) != -1 ){
-                for(int j = 0; j<list->count(); ++i){
-                    vecDouble.push_back( QString(list->item(j)->text()).toDouble());
+                for(int j = 0; j<list->count(); ++j){
+                    vecDouble.push_back( QString(list->itemText(j)).toDouble());
                 }
 
             }else if(parameter2int.indexOf(parameter) != -1){
-                for(int j = 0; j<list->count(); ++i){
-                    vecInt.push_back( QString(list->item(j)->text()).toInt());
+                for(int j = 0; j<list->count(); ++j){
+                    vecInt.push_back( QString(list->itemText(j)).toInt());
                 }
             }
 
@@ -2567,7 +2567,7 @@ void MainWindow::writeXML()
                 if(parameter == "session start"){
                     std::vector<boost::posix_time::ptime> times;
                     for(int j = 0; j<list->count(); ++j){
-                        QString txt = list->item(j)->text();
+                        QString txt = list->itemText(j);
                         int year = QString(txt.mid(6,4)).toInt();
                         int month = QString(txt.mid(3,2)).toInt();
                         int day = QString(txt.mid(0,2)).toInt();
@@ -2595,6 +2595,8 @@ void MainWindow::writeXML()
                 }
             }
         }
+
+        para.multisched(ms.createPropertyTree());
     }
     QString path = ui->lineEdit_outputPath->text();
     path = path.simplified();
@@ -3092,24 +3094,24 @@ void MainWindow::on_dateTimeEdit_sessionStart_dateTimeChanged(const QDateTime &d
 {
     QDateTime dateTimeEnd = dateTime.addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
 
-    ui->DateTimeEdit_startParameterStation->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_endParameterStation->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_startParameterStation->setMaximumDateTime(dateTimeEnd);
-    ui->DateTimeEdit_endParameterStation->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_startParameterStation->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_endParameterStation->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_startParameterStation->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_endParameterStation->setMaximumDateTime(dateTimeEnd);
     ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
     ui->DateTimeEdit_endParameterStation->setDateTime(dateTimeEnd);
 
-    ui->DateTimeEdit_startParameterSource->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_endParameterSource->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_startParameterSource->setMaximumDateTime(dateTimeEnd);
-    ui->DateTimeEdit_endParameterSource->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_startParameterSource->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_endParameterSource->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_startParameterSource->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_endParameterSource->setMaximumDateTime(dateTimeEnd);
     ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
     ui->DateTimeEdit_endParameterSource->setDateTime(dateTimeEnd);
 
-    ui->DateTimeEdit_startParameterBaseline->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_endParameterBaseline->setMinimumDateTime(dateTime);
-    ui->DateTimeEdit_startParameterBaseline->setMaximumDateTime(dateTimeEnd);
-    ui->DateTimeEdit_endParameterBaseline->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_startParameterBaseline->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_endParameterBaseline->setMinimumDateTime(dateTime);
+//    ui->DateTimeEdit_startParameterBaseline->setMaximumDateTime(dateTimeEnd);
+//    ui->DateTimeEdit_endParameterBaseline->setMaximumDateTime(dateTimeEnd);
     ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
     ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTimeEnd);
 
@@ -3130,46 +3132,100 @@ void MainWindow::on_doubleSpinBox_sessionDuration_valueChanged(double arg1)
 }
 
 
-void MainWindow::on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime > ui->DateTimeEdit_endParameterStation->dateTime()){
         ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
 }
 
-void MainWindow::on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime < ui->DateTimeEdit_startParameterStation->dateTime()){
         ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
 }
 
-void MainWindow::on_DateTimeEdit_startParameterSource_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_startParameterSource_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime > ui->DateTimeEdit_endParameterSource->dateTime()){
         ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
 }
 
-void MainWindow::on_DateTimeEdit_endParameterSource_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_endParameterSource_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime < ui->DateTimeEdit_startParameterSource->dateTime()){
         ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
 }
 
-void MainWindow::on_DateTimeEdit_startParameterBaseline_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_startParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime > ui->DateTimeEdit_endParameterBaseline->dateTime()){
         ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
 }
 
-void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDateTime &dateTime)
+void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
 {
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
     if(dateTime < ui->DateTimeEdit_startParameterBaseline->dateTime()){
         ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
     }
+    ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
 }
 
 

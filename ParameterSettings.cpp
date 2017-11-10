@@ -79,13 +79,13 @@ void ParameterSettings::group(ParameterSettings::Type type, ParameterGroup group
     }
 
     if (type == ParameterSettings::Type::station) {
-        master_.add_child("master.station.group", pt_group.get_child("group"));
+        master_.add_child("master.station.groups.group", pt_group.get_child("group"));
         groupStations_[group.name] = group.members;
     } else if (type == ParameterSettings::Type::source) {
-        master_.add_child("master.source.group", pt_group.get_child("group"));
+        master_.add_child("master.source.groups.group", pt_group.get_child("group"));
         groupSources_[group.name] = group.members;
     } else if (type == ParameterSettings::Type::baseline) {
-        master_.add_child("master.baseline.group", pt_group.get_child("group"));
+        master_.add_child("master.baseline.groups.group", pt_group.get_child("group"));
         groupBaselines_[group.name] = group.members;
     }
 }
@@ -154,8 +154,7 @@ void ParameterSettings::parameters(const std::string &name, ParametersStations P
     }
 
     parameters.add("parameters.<xmlattr>.name", name);
-
-    master_.add_child("master.station.parameters", parameters.get_child("parameters"));
+    master_.add_child("master.station.parameters.parameter", parameters.get_child("parameters"));
 }
 
 void ParameterSettings::parameters(const std::string &name, ParametersSources PARA) {
@@ -241,8 +240,7 @@ void ParameterSettings::parameters(const std::string &name, ParametersSources PA
 
 
     parameters.add("parameters.<xmlattr>.name", name);
-
-    master_.add_child("master.source.parameters", parameters.get_child("parameters"));
+    master_.add_child("master.source.parameters.parameter", parameters.get_child("parameters"));
 
 }
 
@@ -271,34 +269,29 @@ void ParameterSettings::parameters(const std::string &name, ParametersBaselines 
     }
 
     parameters.add("parameters.<xmlattr>.name", name);
-
-    master_.add_child("master.baseline.parameters", parameters.get_child("parameters"));
+    master_.add_child("master.baseline.parameters.parameter", parameters.get_child("parameters"));
 
 }
 
 void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup &setup) {
 
     boost::property_tree::ptree root;
+    boost::property_tree::ptree defaultTree = getChildTree(setup);
+    root.add_child("setup", defaultTree.get_child("root"));
 
-    if (!setup.getChildren().empty()) {
-        for (const auto &any:setup.getChildren()) {
-            boost::property_tree::ptree thisChildTree = getChildTree(any);
-            root.add_child("setup", thisChildTree.get_child("root"));
-        }
-    }
+//    if (!setup.getChildren().empty()) {
+//        for (const auto &any:setup.getChildren()) {
+//            boost::property_tree::ptree thisChildTree = getChildTree(any);
+//            root.add_child("setup", thisChildTree.get_child("root"));
+//        }
+//    }
 
     if (type == ParameterSettings::Type::station) {
-        for (const auto &it:root) {
-            master_.add_child("master.station.setup", it.second);
-        }
+        master_.add_child("master.station", root);
     } else if (type == ParameterSettings::Type::source) {
-        for (const auto &it:root) {
-            master_.add_child("master.source.setup", it.second);
-        }
+        master_.add_child("master.source", root);
     } else if (type == ParameterSettings::Type::baseline) {
-        for (const auto &it:root) {
-            master_.add_child("master.baseline.setup", it.second);
-        }
+        master_.add_child("master.baseline", root);
     }
 }
 
@@ -344,14 +337,14 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup,
     }
 
     boost::property_tree::ptree wtimes;
-    wtimes.add("waitTimes.setup", setup);
-    wtimes.add("waitTimes.source", source);
-    wtimes.add("waitTimes.tape", tape);
-    wtimes.add("waitTimes.calibration", calibration);
-    wtimes.add("waitTimes.corsynch", corsynch);
-    wtimes.add("waitTimes.<xmlattr>.member", name);
+    wtimes.add("waitTime.setup", setup);
+    wtimes.add("waitTime.source", source);
+    wtimes.add("waitTime.tape", tape);
+    wtimes.add("waitTime.calibration", calibration);
+    wtimes.add("waitTime.corsynch", corsynch);
+    wtimes.add("waitTime.<xmlattr>.member", name);
 
-    master_.add_child("master.station.waitTimes", wtimes.get_child("waitTimes"));
+    master_.add_child("master.station.waitTimes.waitTime", wtimes.get_child("waitTime"));
 }
 
 void ParameterSettings::stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,
@@ -401,7 +394,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
     cable.add("cableWrapBuffer.axis2UpOffset", axis2UpOffset);
     cable.add("cableWrapBuffer.<xmlattr>.member", name);
 
-    master_.add_child("master.station.cableWrapBuffer", cable.get_child("cableWrapBuffer"));
+    master_.add_child("master.station.cableWrapBuffers.cableWrapBuffer", cable.get_child("cableWrapBuffer"));
 }
 
 
@@ -537,7 +530,7 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, un
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("master.mode.band", band.get_child("band"));
+    master_.add_child("master.mode.bands.band", band.get_child("band"));
 }
 
 void ParameterSettings::mode_bandPolicy(const std::string &name, ObservationModeProperty station,
@@ -577,7 +570,7 @@ void ParameterSettings::mode_bandPolicy(const std::string &name, ObservationMode
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("master.mode.bandPolicy", band.get_child("band"));
+    master_.add_child("master.mode.bandPolicies.bandPolicy", band.get_child("band"));
 }
 
 
@@ -627,7 +620,6 @@ void ParameterSettings::ruleScanSequence(unsigned int cadence, const vector<unsi
     }
 
     master_.add_child("master.rules.sourceSequence", rules.get_child("rules.sourceSequence"));
-
 }
 
 void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std::string &member,
