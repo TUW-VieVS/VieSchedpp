@@ -93,11 +93,27 @@ void ChartView::mouseMoveEvent(QMouseEvent *event)
         auto axh = chart()->axes(Qt::Horizontal);
         double newXmin = bounds.left()-dx;
         double newXmax = bounds.left()+viewWidth-dx;
+        if(newXmin<minx_){
+            newXmin = minx_;
+            newXmax = minx_+viewWidth;
+        }
+        if(newXmax>maxx_){
+            newXmax = maxx_;
+            newXmin = maxx_-viewWidth;
+        }
         chart()->axisX()->setRange(newXmin,newXmax);
 
         auto axv = chart()->axes(Qt::Vertical);
         double newYmax = bounds.top()-dy;
         double newYmin = bounds.top()-viewHeight-dy;
+        if(newYmin<miny_){
+            newYmin = miny_;
+            newYmax = miny_+viewHeight;
+        }
+        if(newYmax>maxy_){
+            newYmax = maxy_;
+            newYmin = maxy_-viewHeight;
+        }
         chart()->axisY()->setRange(newYmin,newYmax);
 
         lastMousePos = evpos;
