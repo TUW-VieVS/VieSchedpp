@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>350</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,11 +59,14 @@
             </item>
             <item row="2" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_step">
+              <property name="minimum">
+               <double>0.010000000000000</double>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
               <property name="value">
-               <double>0.100000000000000</double>
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>

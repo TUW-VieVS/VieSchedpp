@@ -6,6 +6,7 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <ParameterSettings.h>
+#include <settingsloadwindow.h>
 
 namespace Ui {
 class stationParametersDialog;
@@ -20,6 +21,8 @@ public:
     ~stationParametersDialog();
 
     void addBandNames(QStringList bands);
+
+    void addDefaultParameters(VieVS::ParameterSettings::ParametersStations defaultPara);
 
     void addSourceNames(QStandardItemModel *sources);
 
@@ -40,6 +43,7 @@ private slots:
 
 private:
     Ui::stationParametersDialog *ui;
+    VieVS::ParameterSettings::ParametersStations dp;
 
     boost::property_tree::ptree &settings;
     QStandardItemModel *sources;

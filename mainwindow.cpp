@@ -3265,6 +3265,7 @@ void MainWindow::on_pushButton_stationParameter_clicked()
     }
     dial->addBandNames(bands);
     dial->addSourceNames(allSourcePlusGroupModel);
+    dial->addDefaultParameters(paraSta["default"]);
 
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -3801,6 +3802,15 @@ void MainWindow::drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw)
     axes.at(1)->setMax(1);
 }
 
+void MainWindow::setBackgroundColorOfChildrenWhite(QTreeWidgetItem *item)
+{
+    for(int i=0; i<item->childCount(); ++i){
+        auto itm = item->child(i);
+        itm->setBackgroundColor(5,Qt::white);
+        setBackgroundColorOfChildrenWhite(itm);
+    }
+}
+
 int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map){
     QDateTime start = QDateTime::fromString(root->text(2),"dd.MM.yyyy hh:mm");
     QDateTime end = QDateTime::fromString(root->text(3),"dd.MM.yyyy hh:mm");
@@ -3861,6 +3871,7 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
             plot = plotParameter(chart,itm,level+1, plot+1,target,map);
         }else{
             itm->setBackgroundColor(5,Qt::white);
+            setBackgroundColorOfChildrenWhite(itm);
         }
     }
     return plot;

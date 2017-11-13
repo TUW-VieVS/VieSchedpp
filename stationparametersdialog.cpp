@@ -1,8 +1,8 @@
 #include "stationparametersdialog.h"
 #include "ui_stationparametersdialog.h"
 
-stationParametersDialog::stationParametersDialog(boost::property_tree::ptree &settings_,QWidget *parent) :
-    QDialog(parent), settings(settings_),
+stationParametersDialog::stationParametersDialog(boost::property_tree::ptree &settings_, QWidget *parent) :
+    QDialog(parent), settings{settings_},
     ui(new Ui::stationParametersDialog)
 {
     ui->setupUi(this);
@@ -34,6 +34,16 @@ void stationParametersDialog::addBandNames(QStringList bands)
         spin->setSuffix(" [Jy]");
         ui->tableWidget_SNR->setCellWidget(nextrow,0,spin);
     }
+}
+
+void stationParametersDialog::addDefaultParameters(VieVS::ParameterSettings::ParametersStations d)
+{
+    dp = d;
+    ui->doubleSpinBox_weight->setValue(*d.weight);
+    ui->spinBox_minScanTime->setValue(*d.minScan);
+    ui->spinBox_maxScanTime->setValue(*d.maxScan);
+    ui->spinBox_maxWaitTime->setValue(*d.maxWait);
+    ui->spinBox_maxSlewTime->setValue(*d.maxSlewtime);
 }
 
 void stationParametersDialog::addSourceNames(QStandardItemModel *otherSources)
@@ -101,19 +111,19 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
     if(ui->tagalongCheckBox->isChecked()){
         para.tagalong = true;
     }
-    if(ui->spinBox_maxSlewTime->value() != 600){
+    if(ui->spinBox_maxSlewTime->value() != *dp.maxSlewtime){
         para.maxSlewtime = ui->spinBox_maxSlewTime->value();
     }
-    if(ui->spinBox_maxWaitTime->value() != 600){
+    if(ui->spinBox_maxWaitTime->value() != *dp.maxWait ){
         para.maxWait = ui->spinBox_maxWaitTime->value();
     }
-    if(ui->spinBox_minScanTime->value() != 20){
+    if(ui->spinBox_minScanTime->value() != *dp.minScan){
         para.minScan = ui->spinBox_minScanTime->value();
     }
-    if(ui->spinBox_maxScanTime->value() != 600){
+    if(ui->spinBox_maxScanTime->value() != *dp.maxScan){
         para.maxScan = ui->spinBox_maxScanTime->value();
     }
-    if(ui->doubleSpinBox_weight->value() != 1){
+    if(ui->doubleSpinBox_weight->value() != *dp.weight){
         para.weight = ui->doubleSpinBox_weight->value();
     }
     for(int i = 0; i<ui->listWidget_selectedIgnoreSources->count(); ++i){
@@ -160,5 +170,12 @@ void stationParametersDialog::on_pushButton_load_clicked()
         VieVS::ParameterSettings::ParametersStations para = tmp.second;
         paras.push_back(para);
     }
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+    dial->setStationParameters(names,paras);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+
+    }
+
 
 }

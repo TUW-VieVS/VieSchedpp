@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>350</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,6 +75,9 @@
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="spinBox_step">
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
                <number>10000</number>
               </property>

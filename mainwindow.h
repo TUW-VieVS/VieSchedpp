@@ -207,6 +207,8 @@ private slots:
 
     void drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw);
 
+    void setBackgroundColorOfChildrenWhite(QTreeWidgetItem *item);
+
     void on_comboBox_stationSettingMember_currentTextChanged(const QString &arg1);
 
     void on_ComboBox_parameterStation_currentTextChanged(const QString &arg1);

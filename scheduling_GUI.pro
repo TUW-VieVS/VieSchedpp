@@ -44,7 +44,8 @@ SOURCES += \
     stationparametersdialog.cpp \
     sourceparametersdialog.cpp \
     baselineparametersdialog.cpp \
-    MultiScheduling.cpp
+    MultiScheduling.cpp \
+    settingsloadwindow.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -61,7 +62,8 @@ HEADERS += \
     stationparametersdialog.h \
     sourceparametersdialog.h \
     baselineparametersdialog.h \
-    MultiScheduling.h
+    MultiScheduling.h \
+    settingsloadwindow.h
 
 FORMS += \
         mainwindow.ui \
@@ -71,7 +73,8 @@ FORMS += \
     addgroupdialog.ui \
     stationparametersdialog.ui \
     sourceparametersdialog.ui \
-    baselineparametersdialog.ui
+    baselineparametersdialog.ui \
+    settingsloadwindow.ui
 
 RESOURCES += \
     myresources.qrc
