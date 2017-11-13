@@ -16,7 +16,7 @@ class stationParametersDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit stationParametersDialog(QWidget *parent = 0);
+    explicit stationParametersDialog(boost::property_tree::ptree &settings_, QWidget *parent = 0);
     ~stationParametersDialog();
 
     void addBandNames(QStringList bands);
@@ -34,10 +34,14 @@ private slots:
 
     void on_buttonBox_accepted();
 
+    void on_pushButton_save_clicked();
+
+    void on_pushButton_load_clicked();
 
 private:
     Ui::stationParametersDialog *ui;
 
+    boost::property_tree::ptree &settings;
     QStandardItemModel *sources;
     QSortFilterProxyModel *sources_proxy;
 };

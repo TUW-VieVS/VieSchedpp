@@ -27,14 +27,18 @@ MainWindow::MainWindow(QWidget *parent) :
     il->setPixmap(ic);
     ui->horizontalLayout->insertWidget(0,il);
 
-
-    file.setFileName("settings.txt");
+    QFile file;
+    file.setFileName("settings.xml");
     if(!file.exists()){
         QMessageBox mb;
         QString txt = "Before you start, please make sure to set the path to the VieVS Scheduling executeable in the settings <img src=\":/icons/icons/emblem-system-2.png\" height=\"30\" width=\"30\"/> page!";
         mb.information(this,"Before you start!",txt);
+        createDefaultParameterSettings();
     }
-    file.open(QIODevice::ReadWrite);
+
+    std::ifstream iSettings("settings.xml");
+    boost::property_tree::read_xml(iSettings,settings,boost::property_tree::xml_parser::trim_whitespace);
+    readSettings();
 
     QPushButton *savePara = new QPushButton(QIcon(":/icons/icons/document-export.png"),"",this);
     savePara->setToolTip("Write parameter file");
@@ -396,8 +400,8 @@ void MainWindow::displayStationSetupParameter(QString name)
             ++r;
         }
     }
-    if(para.ignoreSources_str.size() > 0){
-          for(const auto &any: para.ignoreSources_str){
+    if(para.ignoreSourcesString.size() > 0){
+          for(const auto &any: para.ignoreSourcesString){
               t->insertRow(r);
               if(groupSrc.find(any) != groupSrc.end() || any == "__all__"){
                   t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore source group"));
@@ -699,7 +703,27 @@ void MainWindow::on_actionWhat_is_this_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    writeXML();
+    QString path = ui->lineEdit_outputPath->text();
+    path = path.simplified();
+    path.replace("\\\\","/");
+    path.replace("\\","/");
+    if(path.right(1) != "/"){
+        path.append("/");
+    }
+    QString ename = ui->experimentNameLineEdit->text();
+    ename.simplified();
+    ename.replace(" ","_");
+    if(ui->checkBox_outputAddTimestamp->isChecked()){
+        QString dateTime = QDateTime::currentDateTime().toString("yyyyMMddhhmmss");
+        path.append(dateTime).append("_").append(ename).append("/");
+    }else{
+        path.append(ename).append("/");
+    }
+    QString txt = "Do you want to save xml file to: ";
+    txt.append(path).append("?");
+    if (QMessageBox::Yes == QMessageBox::question(this, "Save?", txt, QMessageBox::Yes | QMessageBox::No)){
+        writeXML();
+    }
 }
 
 
@@ -1265,6 +1289,37 @@ void MainWindow::defaultParameters()
     sta.maxWait = 600;
     sta.weight = 1;
 
+    auto stationTree = settings.get_child_optional("settings.station.parameters");
+    if(stationTree.is_initialized()){
+        for(const auto& it: *stationTree){
+            std::string parameterName = it.second.get_child("<xmlattr>.name").data();
+            if(parameterName == "default"){
+                for (auto &it2: it.second) {
+                    std::string paraName = it2.first;
+                    if (paraName == "<xmlattr>") {
+                        continue;
+                    } else if (paraName == "weight") {
+                        sta.weight = it2.second.get_value<double>();
+                    } else if (paraName == "minScan") {
+                        sta.minScan = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxScan") {
+                        sta.maxScan = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxSlewtime") {
+                        sta.maxSlewtime = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxWait") {
+                        sta.maxWait = it2.second.get_value < unsigned int > ();
+                    } else {
+                        QString txt = "Ignoring parameter: ";
+                        txt.append(QString::fromStdString(paraName)).append(" in station default parameters!\nCheck settings.xml file!");
+                        QMessageBox::warning(this,"Wrong default setting!",txt,QMessageBox::Ok);
+                    }
+                }
+            }
+        }
+    }else{
+        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default station parameters in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+    }
+
     VieVS::ParameterSettings::ParametersSources src;
     src.available = true;
     src.minRepeat = 1800;
@@ -1272,13 +1327,68 @@ void MainWindow::defaultParameters()
     src.maxScan = 600;
     src.weight = 1;
     src.maxNumberOfScans = 999;
+    auto sourceTree = settings.get_child_optional("settings.source.parameters");
+    if(sourceTree.is_initialized()){
+        for(const auto& it: *sourceTree){
+            std::string parameterName = it.second.get_child("<xmlattr>.name").data();
+            if(parameterName == "default"){
+                for (auto &it2: it.second) {
+                    std::string paraName = it2.first;
+                    if (paraName == "<xmlattr>") {
+                        continue;
+                    } else if (paraName == "weight") {
+                        src.weight = it2.second.get_value<double>();
+                    } else if (paraName == "minScan") {
+                        src.minScan = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxScan") {
+                        src.maxScan = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "minRepeat") {
+                        src.minRepeat = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxNumberOfScans") {
+                        src.maxNumberOfScans = it2.second.get_value < unsigned int > ();
+                    } else {
+                        QString txt = "Ignoring parameter: ";
+                        txt.append(QString::fromStdString(paraName)).append(" in source default parameters!\nCheck settings.xml file!");
+                        QMessageBox::warning(this,"Wrong default setting!",txt,QMessageBox::Ok);
+                    }
+                }
+            }
+        }
+    }else{
+        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default source parameters in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+    }
 
     VieVS::ParameterSettings::ParametersBaselines bl;
     bl.ignore = false;
     bl.maxScan = 600;
     bl.minScan = 20;
     bl.weight = 1;
-
+    auto baselineTree = settings.get_child_optional("settings.baseline.parameters");
+    if(baselineTree.is_initialized()){
+        for(const auto& it: *baselineTree){
+            std::string parameterName = it.second.get_child("<xmlattr>.name").data();
+            if(parameterName == "default"){
+                for (auto &it2: it.second) {
+                    std::string paraName = it2.first;
+                    if (paraName == "<xmlattr>") {
+                        continue;
+                    } else if (paraName == "weight") {
+                        src.weight = it2.second.get_value<double>();
+                    } else if (paraName == "minScan") {
+                        src.minScan = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxScan") {
+                        src.maxScan = it2.second.get_value < unsigned int > ();
+                    } else {
+                        QString txt = "Ignoring parameter: ";
+                        txt.append(QString::fromStdString(paraName)).append(" in baseline default parameters!\nCheck settings.xml file!");
+                        QMessageBox::warning(this,"Wrong default setting!",txt,QMessageBox::Ok);
+                    }
+                }
+            }
+        }
+    }else{
+        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default baseline parameters in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+    }
 
     paraSta["default"] = sta;
     ui->ComboBox_parameterStation->addItem("default");
@@ -1348,6 +1458,70 @@ void MainWindow::defaultParameters()
                                   endt,
                                   VieVS::ParameterSetup::Transition::hard);
 
+    bool waitTimeMissing = false;
+    boost::optional<int> setup = settings.get_optional<int>("settings.station.waitTimes.setup");
+    if(setup.is_initialized()){
+        ui->SpinBox_setup->setValue(*setup);
+    }else{
+        waitTimeMissing = true;
+    }
+    boost::optional<int> source = settings.get_optional<int>("settings.station.waitTimes.source");
+    if(source.is_initialized()){
+        ui->SpinBox_source->setValue(*source);
+    }else{
+        waitTimeMissing = true;
+    }
+    boost::optional<int> tape = settings.get_optional<int>("settings.station.waitTimes.tape");
+    if(tape.is_initialized()){
+        ui->SpinBox_tape->setValue(*tape);
+    }else{
+        waitTimeMissing = true;
+    }
+    boost::optional<int> calibration = settings.get_optional<int>("settings.station.waitTimes.calibration");
+    if(calibration.is_initialized()){
+        ui->SpinBox_calibration->setValue(*calibration);
+    }else{
+        waitTimeMissing = true;
+    }
+    boost::optional<int> corsynch = settings.get_optional<int>("settings.station.waitTimes.corsynch");
+    if(corsynch.is_initialized()){
+        ui->SpinBox_corrSynch->setValue(*corsynch);
+    }else{
+        waitTimeMissing = true;
+    }
+    if(waitTimeMissing){
+        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default station wait times in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+    }
+
+
+    bool bufferMissing = false;
+    boost::optional<int> ax1low = settings.get_optional<int>("settings.station.cableWrapBuffers.axis1LowOffset");
+    if(ax1low.is_initialized()){
+        ui->DoubleSpinBox_axis1low->setValue(*ax1low);
+    }else{
+        bufferMissing = true;
+    }
+    boost::optional<int> ax1up = settings.get_optional<int>("settings.station.cableWrapBuffers.axis1UpOffset");
+    if(ax1up.is_initialized()){
+        ui->DoubleSpinBox_axis1up->setValue(*ax1up);
+    }else{
+        bufferMissing = true;
+    }
+    boost::optional<int> ax2low = settings.get_optional<int>("settings.station.cableWrapBuffers.axis2LowOffset");
+    if(ax2low.is_initialized()){
+        ui->DoubleSpinBox_axis2low->setValue(*ax2low);
+    }else{
+        bufferMissing = true;
+    }
+    boost::optional<int> ax2up = settings.get_optional<int>("settings.station.cableWrapBuffers.axis2UpOffset");
+    if(ax2up.is_initialized()){
+        ui->DoubleSpinBox_axis2up->setValue(*ax2up);
+    }else{
+        bufferMissing = true;
+    }
+    if(bufferMissing){
+        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default station axis limit buffer in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+    }
 
 }
 
@@ -2184,7 +2358,6 @@ void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants 
     {
         QSettings settings("TU Wien","VieVS Scheduler");
         settings.setValue("geometry", saveGeometry());
-        file.close();
         event->accept();
     }
 
@@ -2627,6 +2800,74 @@ void MainWindow::writeXML()
     }
 }
 
+void MainWindow::readSettings()
+{
+    std::string name = settings.get<std::string>("settings.general.name","");
+    ui->nameLineEdit->setText(QString::fromStdString(name));
+    std::string email = settings.get<std::string>("settings.general.email","");
+    ui->emailLineEdit->setText(QString::fromStdString(email));
+    std::string pathToScheduler = settings.get<std::string>("settings.general.pathToScheduler","");
+    ui->pathToSchedulerLineEdit->setText(QString::fromStdString(pathToScheduler));
+
+    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","");
+    ui->lineEdit_pathAntenna->setText(QString::fromStdString(cAntenna));
+    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","");
+    ui->lineEdit_pathEquip->setText(QString::fromStdString(cEquip));
+    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","");
+    ui->lineEdit_pathPosition->setText(QString::fromStdString(cPosition));
+    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","");
+    ui->lineEdit_pathMask->setText(QString::fromStdString(cMask));
+    std::string cSource = settings.get<std::string>("settings.catalog_path.source","");
+    ui->lineEdit_pathSource->setText(QString::fromStdString(cSource));
+    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","");
+    ui->lineEdit_pathFlux->setText(QString::fromStdString(cFlux));
+    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","");
+    ui->lineEdit_pathModes->setText(QString::fromStdString(cModes));
+    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","");
+    ui->lineEdit_pathFreq->setText(QString::fromStdString(cFreq));
+    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","");
+    ui->lineEdit_pathTracks->setText(QString::fromStdString(cTracks));
+    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","");
+    ui->lineEdit_pathLoif->setText(QString::fromStdString(cLoif));
+    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","");
+    ui->lineEdit_pathRec->setText(QString::fromStdString(cRec));
+    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","");
+    ui->lineEdit_pathRx->setText(QString::fromStdString(cRx));
+    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","");
+    ui->lineEdit_pathHdpos->setText(QString::fromStdString(cHdpos));
+
+    std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
+    ui->lineEdit_outputPath->setText(QString::fromStdString(outputDirectory));
+    std::string outputExpName = settings.get<std::string>("settings.output.experiment_name","");
+    ui->experimentNameLineEdit->setText(QString::fromStdString(outputExpName));
+    std::string outputScheduler = settings.get<std::string>("settings.output.scheduler","");
+    ui->schedulerLineEdit->setText(QString::fromStdString(outputScheduler));
+    std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
+    ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
+    std::string outputExpDesc = settings.get<std::string>("settings.output.experiment_descrtiption","");
+    ui->plainTextEdit_experimentDescription->setPlainText(QString::fromStdString(outputExpDesc));
+
+
+    // bands - mode
+
+    // selected stations
+
+    // selected source
+
+    // station group
+
+    // source group
+
+    // baseline group
+
+    // station parameters
+
+    // source parameters
+
+    // baseline parameters
+
+}
+
 void MainWindow::on_iconSizeSpinBox_valueChanged(int arg1)
 {
     ui->fileToolBar->setIconSize(QSize(arg1,arg1));
@@ -3017,13 +3258,12 @@ void MainWindow::addGroupBaseline()
 
 void MainWindow::on_pushButton_stationParameter_clicked()
 {
-    stationParametersDialog *dial = new stationParametersDialog(this);
+    stationParametersDialog *dial = new stationParametersDialog(settings,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
     }
     dial->addBandNames(bands);
-
     dial->addSourceNames(allSourcePlusGroupModel);
 
     int result = dial->exec();
@@ -3961,3 +4201,147 @@ void MainWindow::on_pushButton_25_clicked()
 
 }
 
+
+void MainWindow::on_pushButton_5_clicked()
+{    
+    QString path = "settings.general.name";
+    QString value = ui->nameLineEdit->text();
+    QString name = "user name";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{    
+    QString path = "settings.general.email";
+    QString value = ui->emailLineEdit->text();
+    QString name = "email address";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_17_clicked()
+{    
+    QString path = "settings.general.pathToScheduler";
+    QString value = ui->pathToSchedulerLineEdit->text();
+    QString name = "path to scheduler executable";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_saveCatalogPathes_clicked()
+{
+    settings.put("settings.catalog_path.antenna",ui->lineEdit_pathAntenna->text().toStdString());
+    settings.put("settings.catalog_path.equip",ui->lineEdit_pathEquip->text().toStdString());
+    settings.put("settings.catalog_path.position",ui->lineEdit_pathPosition->text().toStdString());
+    settings.put("settings.catalog_path.mask",ui->lineEdit_pathMask->text().toStdString());
+    settings.put("settings.catalog_path.source",ui->lineEdit_pathSource->text().toStdString());
+    settings.put("settings.catalog_path.flux",ui->lineEdit_pathFlux->text().toStdString());
+    settings.put("settings.catalog_path.modes",ui->lineEdit_pathModes->text().toStdString());
+    settings.put("settings.catalog_path.freq",ui->lineEdit_pathFreq->text().toStdString());
+    settings.put("settings.catalog_path.tracks",ui->lineEdit_pathTracks->text().toStdString());
+    settings.put("settings.catalog_path.loif",ui->lineEdit_pathLoif->text().toStdString());
+    settings.put("settings.catalog_path.rec",ui->lineEdit_pathRec->text().toStdString());
+    settings.put("settings.catalog_path.rx",ui->lineEdit_pathRx->text().toStdString());
+    settings.put("settings.catalog_path.hdpos",ui->lineEdit_pathHdpos->text().toStdString());
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
+    QString txt = "Your default catalog pathes have been changed!";
+    QMessageBox::information(this,"Default settings changed",txt);
+}
+
+void MainWindow::on_pushButton_26_clicked()
+{
+    QString path = "settings.output.directory";
+    QString value = ui->lineEdit_outputPath->text();
+    QString name = "output path";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::changeDefaultSettings(QString path, QString value, QString name)
+{
+    settings.put(path.toStdString(),value.toStdString());
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
+    QString txt = "Your default ";
+    txt.append(name).append(" is changed to:\n").append(value).append("!");
+    QMessageBox::information(this,"Default settings changed",txt);
+}
+
+void MainWindow::on_pushButton_24_clicked()
+{
+    QString path = "settings.output.experiment_descrtiption";
+    QString value = ui->plainTextEdit_experimentDescription->toPlainText();
+    QString name = "experiment description";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_23_clicked()
+{
+    QString path = "settings.output.scheduler";
+    QString value = ui->schedulerLineEdit->text();
+    QString name = "scheduler";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_22_clicked()
+{
+    QString path = "settings.output.correlator";
+    QString value = ui->correlatorLineEdit->text();
+    QString name = "correlator";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_27_clicked()
+{
+    QString path = "settings.output.experiment_name";
+    QString value = ui->experimentNameLineEdit->text();
+    QString name = "experiment name";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::createDefaultParameterSettings()
+{
+    VieVS::ParameterSettings::ParametersStations sta;
+    sta.maxScan = 600;
+    sta.minScan = 20;
+    sta.maxSlewtime = 600;
+    sta.maxWait = 600;
+    sta.weight = 1;
+    settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
+
+    VieVS::ParameterSettings::ParametersSources src;
+    src.minRepeat = 1800;
+    src.minScan = 20;
+    src.maxScan = 600;
+    src.weight = 1;
+    src.maxNumberOfScans = 999;
+    settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
+
+    VieVS::ParameterSettings::ParametersBaselines bl;
+    bl.maxScan = 600;
+    bl.minScan = 20;
+    bl.weight = 1;
+    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));
+
+    settings.add("settings.station.waitTimes.setup",0);
+    settings.add("settings.station.waitTimes.source",5);
+    settings.add("settings.station.waitTimes.tape",1);
+    settings.add("settings.station.waitTimes.calibration",10);
+    settings.add("settings.station.waitTimes.corsynch",3);
+
+    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 1);
+    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 1);
+    settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
+    settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
+
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
+
+}

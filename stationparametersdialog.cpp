@@ -1,8 +1,8 @@
 #include "stationparametersdialog.h"
 #include "ui_stationparametersdialog.h"
 
-stationParametersDialog::stationParametersDialog(QWidget *parent) :
-    QDialog(parent),
+stationParametersDialog::stationParametersDialog(boost::property_tree::ptree &settings_,QWidget *parent) :
+    QDialog(parent), settings(settings_),
     ui(new Ui::stationParametersDialog)
 {
     ui->setupUi(this);
@@ -10,7 +10,6 @@ stationParametersDialog::stationParametersDialog(QWidget *parent) :
     sources_proxy = new QSortFilterProxyModel(this);
     sources_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     sources_proxy->setSourceModel(sources);
-
     ui->listView_ignoreSources->setModel(sources_proxy);
 }
 
@@ -118,7 +117,7 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
         para.weight = ui->doubleSpinBox_weight->value();
     }
     for(int i = 0; i<ui->listWidget_selectedIgnoreSources->count(); ++i){
-        para.ignoreSources_str.push_back(ui->listWidget_selectedIgnoreSources->item(i)->text().toStdString());
+        para.ignoreSourcesString.push_back(ui->listWidget_selectedIgnoreSources->item(i)->text().toStdString());
     }
     for(int i = 0; i<ui->tableWidget_SNR->rowCount(); ++i){
         QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_SNR->cellWidget(i,0));
@@ -128,4 +127,38 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
     }
 
     return std::make_pair(name,para);
+}
+
+void stationParametersDialog::on_pushButton_save_clicked()
+{
+    if(ui->lineEdit->text().isEmpty()){
+        QMessageBox::warning(this,"No parameter Name!","Please add parameter name first!");
+    }else{
+        if(QMessageBox::Yes == QMessageBox::question(this,"Save?","Are you sure you want to save this settings?\nThis will save the settings to settings.xml file for further use.")){
+            std::pair<std::string, VieVS::ParameterSettings::ParametersStations> para = getParameters();
+
+            settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree(para.first,para.second).get_child("parameters"));
+            std::ofstream os;
+            os.open("settings.xml");
+            boost::property_tree::xml_parser::write_xml(os, settings,
+                                                        boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+            os.close();
+        }
+    }
+}
+
+void stationParametersDialog::on_pushButton_load_clicked()
+{
+    boost::property_tree::ptree parameters = settings.get_child("settings.station.parameters");
+    QVector<QString> names;
+    QVector<VieVS::ParameterSettings::ParametersStations> paras;
+
+    for(const auto &it:parameters){
+        auto tmp = VieVS::ParameterSettings::ptree2parameterStation(it.second);
+        std::string name = tmp.first;
+        names.push_back(QString::fromStdString(name));
+        VieVS::ParameterSettings::ParametersStations para = tmp.second;
+        paras.push_back(para);
+    }
+
 }

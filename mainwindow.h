@@ -55,6 +55,8 @@ private slots:
 
     void writeXML();
 
+    void readSettings();
+
     void on_actionMode_triggered();
 
     void on_actionWelcome_triggered();
@@ -291,10 +293,31 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_pushButton_5_clicked();
+
+    void on_pushButton_6_clicked();
+
+    void on_pushButton_17_clicked();
+
+    void on_pushButton_saveCatalogPathes_clicked();
+
+    void on_pushButton_26_clicked();
+
+    void changeDefaultSettings(QString path, QString value, QString name);
+    void on_pushButton_24_clicked();
+
+    void on_pushButton_23_clicked();
+
+    void on_pushButton_22_clicked();
+
+    void on_pushButton_27_clicked();
+
+    void createDefaultParameterSettings();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
-    QFile file;
+    boost::property_tree::ptree settings;
 
     VieVS::ParameterSettings para;
 

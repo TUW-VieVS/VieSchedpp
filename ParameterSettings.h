@@ -57,26 +57,26 @@ namespace VieVS {
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
-            std::vector<std::string> ignoreSources_str; ///< list of all source names which should be ignored
+            std::vector<std::string> ignoreSourcesString; ///< list of all source names which should be ignored
         };
 
         /**
          * @brief source parameters
          */
         struct ParametersSources {
-            boost::optional<bool> available = true; ///< flag is source is available
+            boost::optional<bool> available; ///< flag is source is available
 
-            boost::optional<double> weight = 1; ///< multiplicative factor of score for scans to this source
+            boost::optional<double> weight; ///< multiplicative factor of score for scans to this source
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            boost::optional<unsigned int> minNumberOfStations = 2; ///< minimum number of stations for a scan
-            boost::optional<double> minFlux = .01; ///< minimum flux density required for this source in jansky
-            boost::optional<unsigned int> minRepeat = 1800; ///< minimum time between two observations of this source in seconds
-            boost::optional<unsigned int> maxScan = 600; ///< maximum allowed scan time in seconds
-            boost::optional<unsigned int> minScan = 30; ///< minimum required scan time in seconds
-            boost::optional<unsigned int> maxNumberOfScans = 9999; ///< maximum number of scans
-            boost::optional<bool> tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
+            boost::optional<unsigned int> minNumberOfStations; ///< minimum number of stations for a scan
+            boost::optional<double> minFlux; ///< minimum flux density required for this source in jansky
+            boost::optional<unsigned int> minRepeat; ///< minimum time between two observations of this source in seconds
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
+            boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
+            boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
+            boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
@@ -190,28 +190,80 @@ namespace VieVS {
         const std::vector<std::string> &getGroupMembers(Type type, std::string groupName);
 
         /**
-         * @brief defined station parameters in station block in parameters.xml
+         * @brief write defined station parameters to parameters.xml
          *
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, ParametersStations PARA);
+        void parameters(const std::string &name, const ParametersStations &PARA);
 
         /**
-         * @brief defined source parameters in source block in parameters.xml
+         * @brief defined station parameters
          *
          * @param name parameter name
          * @param PARA parameters
+         * @return property tree with station parameters
          */
-        void parameters(const std::string &name, ParametersSources PARA);
+        static boost::property_tree::ptree parameterStation2ptree(const std::string &name, const ParametersStations & PARA);
 
         /**
-         * @brief defined baseline parameters in baseline block in parameters.xml
+         * @brief transforms parameterStations to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are station parameters
+         */
+        static std::pair<std::string,ParametersStations> ptree2parameterStation(boost::property_tree::ptree ptree);
+
+        /**
+         * @brief write defined source parameters to parameters.xml
          *
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, ParametersBaselines PARA);
+        void parameters(const std::string &name, const ParametersSources &PARA);
+
+        /**
+         * @brief defined source parameters
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         * @return property tree with source parameters
+         */
+        static boost::property_tree::ptree parameterSource2ptree(const std::string &name, const ParametersSources &PARA);
+
+        /**
+         * @brief transforms parameterSource to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are source parameters
+         */
+        static std::pair<std::string,ParametersSources> ptree2parameterSource(boost::property_tree::ptree ptree);
+
+        /**
+         * @brief write defined baseline parameters to parameters.xml
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         */
+        void parameters(const std::string &name, const ParametersBaselines &PARA);
+
+        /**
+         * @brief defined baseline parameters
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         * @return property tree with baseline parameters
+         */
+        static boost::property_tree::ptree parameterBaseline2ptree(const std::string &name, const ParametersBaselines &PARA);
+
+        /**
+         * @brief transforms ParametersBaselines to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are baseline parameters
+         */
+        static std::pair<std::string,ParametersBaselines> ptree2parameterBaseline(boost::property_tree::ptree ptree);
+
 
         /**
          * @brief setup block in parameter.xml

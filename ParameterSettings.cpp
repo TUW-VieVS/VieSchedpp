@@ -103,9 +103,14 @@ ParameterSettings::getGroupMembers(ParameterSettings::Type type, std::string gro
 
 }
 
-void ParameterSettings::parameters(const std::string &name, ParametersStations PARA) {
+void ParameterSettings::parameters(const std::string &name,const ParametersStations &PARA) {
     paraStations_[name] = PARA;
+    const boost::property_tree::ptree& parameters = parameterStation2ptree(name,PARA);
+    master_.add_child("master.station.parameters.parameter", parameters.get_child("parameters"));
+}
 
+boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const string &name, const ParametersStations &PARA)
+{
     boost::property_tree::ptree parameters;
     if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
@@ -143,9 +148,9 @@ void ParameterSettings::parameters(const std::string &name, ParametersStations P
         }
     }
 
-    if (!PARA.ignoreSources_str.empty()) {
+    if (!PARA.ignoreSourcesString.empty()) {
         boost::property_tree::ptree ignoreSources;
-        for (const auto &any:PARA.ignoreSources_str) {
+        for (const auto &any:PARA.ignoreSourcesString) {
             boost::property_tree::ptree sourceName;
             sourceName.add("source", any);
             ignoreSources.add_child("ignoreSources.source", sourceName.get_child("source"));
@@ -154,15 +159,63 @@ void ParameterSettings::parameters(const std::string &name, ParametersStations P
     }
 
     parameters.add("parameters.<xmlattr>.name", name);
-    master_.add_child("master.station.parameters.parameter", parameters.get_child("parameters"));
+    return parameters;
 }
 
-void ParameterSettings::parameters(const std::string &name, ParametersSources PARA) {
+std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptree2parameterStation(boost::property_tree::ptree ptree)
+{
+    string parameterName = ptree.get_child("<xmlattr>.name").data();
+
+    ParametersStations para;
+
+    for (auto &it: ptree) {
+        string paraName = it.first;
+        if (paraName == "<xmlattr>") {
+            continue;
+        } else if (paraName == "available") {
+            para.available = it.second.get_value<bool>();
+        } else if (paraName == "tagalong") {
+            para.tagalong = it.second.get_value<bool>();
+        } else if (paraName == "firstScan") {
+            para.firstScan = it.second.get_value < bool > ();
+        } else if (paraName == "weight") {
+            para.weight = it.second.get_value<double>();
+        } else if (paraName == "minScan") {
+            para.minScan = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxScan") {
+            para.maxScan = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxSlewtime") {
+            para.maxSlewtime = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxWait") {
+            para.maxWait = it.second.get_value < unsigned int > ();
+        } else if (paraName == "minSNR") {
+            string bandName = it.second.get_child("<xmlattr>.band").data();
+            double value = it.second.get_value<double>();
+            para.minSNR[bandName] = value;
+        } else if (paraName == "ignoreSources") {
+            for (auto &it2: it.second) {
+                string srcName = it2.second.data();
+                para.ignoreSourcesString.push_back(srcName);
+            }
+        } else {
+//            std::cerr << "<station> <parameter>: " << parameterName << ": parameter <" << name
+//                 << "> not understood! (Ignored)\n";
+        }
+    }
+    return {parameterName, para};
+}
+
+void ParameterSettings::parameters(const std::string &name, const ParametersSources &PARA) {
     paraSources_[name] = PARA;
+    const boost::property_tree::ptree& parameters = parameterSource2ptree(name,PARA);
+    master_.add_child("master.source.parameters.parameter", parameters.get_child("parameters"));
 
+}
+
+boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const string &name, const ParametersSources &PARA)
+{
     boost::property_tree::ptree parameters;
-
-    if (!PARA.available) {
+    if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
     }
 
@@ -240,14 +293,80 @@ void ParameterSettings::parameters(const std::string &name, ParametersSources PA
 
 
     parameters.add("parameters.<xmlattr>.name", name);
-    master_.add_child("master.source.parameters.parameter", parameters.get_child("parameters"));
+    return parameters;
 
 }
 
-void ParameterSettings::parameters(const std::string &name, ParametersBaselines PARA) {
-    paraBaselines_[name] = PARA;
-    boost::property_tree::ptree parameters;
+std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree2parameterSource(boost::property_tree::ptree ptree)
+{
+    string parameterName = ptree.get_child("<xmlattr>.name").data();
 
+    ParametersSources para;
+
+    for (auto &it: ptree) {
+        string paraName = it.first;
+        if (paraName == "<xmlattr>") {
+            continue;
+        } else if (paraName == "available") {
+            para.available = it.second.get_value<bool>();
+        } else if (paraName == "weight") {
+            para.weight = it.second.get_value<double>();
+        } else if (paraName == "minScan") {
+            para.minScan = it.second.get_value < unsigned
+            int > ();
+        } else if (paraName == "maxScan") {
+            para.maxScan = it.second.get_value < unsigned
+            int > ();
+        } else if (paraName == "minNumberOfStations") {
+            para.minNumberOfStations = it.second.get_value < unsigned int > ();
+        } else if (paraName == "minRepeat") {
+            para.minRepeat = it.second.get_value < unsigned int > ();
+        } else if (paraName == "minFlux") {
+            para.minFlux = it.second.get_value<double>();
+        } else if (paraName == "tryToObserveXTimesEvenlyDistributed") {
+            para.tryToObserveXTimesEvenlyDistributed = it.second.get_value<unsigned int>();
+        } else if (paraName == "fixedScanDuration") {
+            para.fixedScanDuration = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxNumberOfScans") {
+            para.maxNumberOfScans = it.second.get_value < unsigned int > ();
+        } else if (paraName == "tryToFocusIfObservedOnce") {
+            para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
+        } else if (paraName == "minSNR") {
+            string bandName = it.second.get_child("<xmlattr>.band").data();
+            double value = it.second.get_value<double>();
+            para.minSNR[bandName] = value;
+        } else if (paraName == "ignoreStations") {
+            for (auto &it3: it.second) {
+                string staName = it3.second.data();
+                para.ignoreStationsString.push_back(staName);
+            }
+        } else if (paraName == "requiredStations") {
+            for (auto &it3: it.second) {
+                string staName = it3.second.data();
+                para.requiredStationsString.push_back(staName);
+            }
+        } else if (paraName == "ignoreBaselines") {
+            for (auto &it3: it.second) {
+                string baselineName = it3.second.data();
+                para.ignoreBaselinesString.push_back(baselineName);
+            }
+        } else {
+//            std::cerr << "<source> <parameter>: " << parameterName << ": parameter <" << name
+//                    << "> not understood! (Ignored)\n";
+        }
+    }
+    return {parameterName,para};
+}
+
+void ParameterSettings::parameters(const std::string &name, const ParametersBaselines &PARA) {
+    paraBaselines_[name] = PARA;
+    const boost::property_tree::ptree& parameters = parameterBaseline2ptree(name,PARA);
+    master_.add_child("master.baseline.parameters.parameter", parameters.get_child("parameters"));
+}
+
+boost::property_tree::ptree ParameterSettings::parameterBaseline2ptree(const string &name, const ParametersBaselines &PARA)
+{
+    boost::property_tree::ptree parameters;
     if (PARA.ignore.is_initialized()) {
         parameters.add("parameters.ignore", PARA.ignore);
     }
@@ -269,8 +388,40 @@ void ParameterSettings::parameters(const std::string &name, ParametersBaselines 
     }
 
     parameters.add("parameters.<xmlattr>.name", name);
-    master_.add_child("master.baseline.parameters.parameter", parameters.get_child("parameters"));
 
+    return parameters;
+}
+
+std::pair<string, ParameterSettings::ParametersBaselines> ParameterSettings::ptree2parameterBaseline(boost::property_tree::ptree ptree)
+{
+    string parameterName = ptree.get_child("<xmlattr>.name").data();
+
+    ParametersBaselines para;
+
+    for (auto &it: ptree) {
+        string paraName = it.first;
+        if (paraName == "<xmlattr>") {
+            continue;
+        } else if (paraName == "ignore") {
+            para.ignore = it.second.get_value<bool>();
+        } else if (paraName == "weight") {
+            para.weight = it.second.get_value<double>();
+        } else if (paraName == "minScan") {
+            para.minScan = it.second.get_value < unsigned
+            int > ();
+        } else if (paraName == "maxScan") {
+            para.maxScan = it.second.get_value < unsigned
+            int > ();
+        } else if (paraName == "minSNR") {
+            string bandName = it.second.get_child("<xmlattr>.band").data();
+            double value = it.second.get_value<double>();
+            para.minSNR[bandName] = value;
+        } else {
+//            std::cerr << "<baseline> <parameter>: " << parameterName << ": parameter <" << name
+//                 << "> not understood! (Ignored)\n";
+        }
+    }
+    return{parameterName, para};
 }
 
 void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup &setup) {

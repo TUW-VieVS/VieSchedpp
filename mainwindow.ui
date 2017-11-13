@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
@@ -96,7 +96,7 @@
                 <string>enter path to skd antenna catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/antenna.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -137,7 +137,7 @@
                 <string>enter path to skd equip catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/equip.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -178,7 +178,7 @@
                 <string>enter path to skd position catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/position.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -219,7 +219,7 @@
                 <string>enter path to skd mask catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/mask.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -269,7 +269,7 @@
                 <string>enter path to skd source catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/source.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -310,7 +310,7 @@
                 <string>enter path to skd flux catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/flux.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -370,7 +370,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd modes catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/modes.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -411,7 +411,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd freq catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/freq.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -452,7 +452,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd tracks catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/tracks.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -493,7 +493,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd loif catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/loif.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -534,7 +534,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd rec catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/rec.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -575,7 +575,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd rx catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/rx.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -616,7 +616,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 <string>enter path to skd hdpos catalog here</string>
                </property>
                <property name="text">
-                <string>/data/VieVS/CATALOGS/hdpos.cat</string>
+                <string/>
                </property>
               </widget>
              </item>
@@ -658,7 +658,7 @@ If you only want to run simulations you can deselect this to avoid error message
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_20">
+           <widget class="QPushButton" name="pushButton_saveCatalogPathes">
             <property name="toolTip">
              <string>save all pathes</string>
             </property>
@@ -671,23 +671,6 @@ If you only want to run simulations you can deselect this to avoid error message
             <property name="icon">
              <iconset resource="myresources.qrc">
               <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_21">
-            <property name="toolTip">
-             <string>load saved pathes</string>
-            </property>
-            <property name="statusTip">
-             <string>load saved pathes</string>
-            </property>
-            <property name="text">
-             <string> load</string>
-            </property>
-            <property name="icon">
-             <iconset resource="myresources.qrc">
-              <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
             </property>
            </widget>
           </item>
@@ -1693,7 +1676,7 @@ Click on source to deselect it</string>
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabWidgetPage1">
            <attribute name="title">
@@ -4577,7 +4560,7 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="output">
-       <layout class="QVBoxLayout" name="verticalLayout_21" stretch="0,1,1">
+       <layout class="QVBoxLayout" name="verticalLayout_21">
         <item>
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
@@ -4721,13 +4704,76 @@ Click on source to deselect it</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pushButton_24">
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="experimentNameLineEdit">
                <property name="toolTip">
-                <string>save as experiment name</string>
+                <string>enter experiment name here</string>
                </property>
                <property name="statusTip">
-                <string>save as experiment name</string>
+                <string>experiment name</string>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="experimentNameLabel">
+               <property name="text">
+                <string>experiment name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="schedulerLineEdit">
+               <property name="toolTip">
+                <string>enter scheduler name here</string>
+               </property>
+               <property name="statusTip">
+                <string>scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+               <property name="toolTip">
+                <string>enter experiment description here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment description</string>
+               </property>
+               <property name="placeholderText">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="schedulerLabel">
+               <property name="text">
+                <string>scheduler</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="correlatorLabel">
+               <property name="text">
+                <string>correlator</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="pushButton_22">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
                </property>
                <property name="text">
                 <string/>
@@ -4735,6 +4781,19 @@ Click on source to deselect it</string>
                <property name="icon">
                 <iconset resource="myresources.qrc">
                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string/>
                </property>
               </widget>
              </item>
@@ -4755,89 +4814,30 @@ Click on source to deselect it</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="schedulerLabel">
-               <property name="text">
-                <string>scheduler</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="schedulerLineEdit">
+             <item row="1" column="2">
+              <widget class="QPushButton" name="pushButton_24">
                <property name="toolTip">
-                <string>enter scheduler name here</string>
+                <string>save as experiment name</string>
                </property>
                <property name="statusTip">
-                <string>scheduler</string>
+                <string>save as experiment name</string>
                </property>
                <property name="text">
-                <string>VIEN</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
-               <property name="toolTip">
-                <string>enter experiment description here</string>
-               </property>
-               <property name="statusTip">
-                <string>experiment description</string>
-               </property>
-               <property name="placeholderText">
                 <string/>
                </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
               </widget>
              </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="experimentNameLineEdit">
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButton_27">
                <property name="toolTip">
-                <string>enter experiment name here</string>
+                <string>save as experiment name</string>
                </property>
                <property name="statusTip">
-                <string>experiment name</string>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string>exp_test</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="experimentNameLabel">
-               <property name="text">
-                <string>experiment name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="correlatorLabel">
-               <property name="text">
-                <string>correlator</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="correlatorLineEdit">
-               <property name="toolTip">
-                <string>enter correlator name here</string>
-               </property>
-               <property name="statusTip">
-                <string>correlator</string>
-               </property>
-               <property name="text">
-                <string>VIEN</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QPushButton" name="pushButton_22">
-               <property name="toolTip">
-                <string>save as default email addres</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default correlator</string>
+                <string>save as experiment name</string>
                </property>
                <property name="text">
                 <string/>
@@ -5511,7 +5511,7 @@ Click on source to deselect it</string>
      <x>0</x>
      <y>0</y>
      <width>1021</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menubasic">
