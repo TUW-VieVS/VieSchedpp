@@ -1,8 +1,8 @@
 #include "sourceparametersdialog.h"
 #include "ui_sourceparametersdialog.h"
 
-sourceParametersDialog::sourceParametersDialog(QWidget *parent) :
-    QDialog(parent),
+sourceParametersDialog::sourceParametersDialog(boost::property_tree::ptree &settings_, QWidget *parent) :
+    QDialog(parent), settings{settings_},
     ui(new Ui::sourceParametersDialog)
 {
     ui->setupUi(this);
@@ -60,6 +60,17 @@ void sourceParametersDialog::addBaselineModel(QStandardItemModel *otherBaselines
     for(int i=0; i<otherBaselines->rowCount();++i){
         baseline->appendRow(otherBaselines->item(i)->clone());
     }
+}
+
+void sourceParametersDialog::addDefaultParameters(VieVS::ParameterSettings::ParametersSources d)
+{
+    dp = d;
+    ui->spinBox_minRepeatTime->setValue(*d.minRepeat);
+    ui->spinBox_minScanTime->setValue(*d.minScan);
+    ui->spinBox_maxScanTime->setValue(*d.maxScan);
+    ui->weightDoubleSpinBox->setValue(*d.weight);
+    ui->spinBox_maxNumberOfScans->setValue(*d.maxNumberOfScans);
+    ui->doubleSpinBox_minFlux->setValue(*d.minFlux);
 }
 
 void sourceParametersDialog::on_lineEdit_ignoreStations_textChanged(const QString &arg1)
@@ -175,28 +186,28 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
     if(!ui->availableCheckBox->isChecked()){
         para.available = false;
     }
-    if(ui->spinBox_minScanTime->value() != 20){
+    if(ui->spinBox_minScanTime->value() != *dp.minScan){
         para.minScan = ui->spinBox_minScanTime->value();
     }
-    if(ui->spinBox_maxScanTime->value() != 600){
+    if(ui->spinBox_maxScanTime->value() != *dp.maxScan){
         para.maxScan = ui->spinBox_maxScanTime->value();
     }
-    if(ui->spinBox_minNumberOfStations->value() != 1){
+    if(ui->spinBox_minNumberOfStations->value() != *dp.minNumberOfStations){
         para.minNumberOfStations = ui->spinBox_minNumberOfStations->value();
     }
-    if(ui->doubleSpinBox_minFlux->value() != 0){
+    if(ui->doubleSpinBox_minFlux->value() != *dp.minFlux){
         para.minFlux = ui->doubleSpinBox_minFlux->value();
     }
-    if(ui->spinBox_minRepeatTime->value() != 1800){
+    if(ui->spinBox_minRepeatTime->value() != *dp.minRepeat){
         para.minRepeat = ui->spinBox_minRepeatTime->value();
     }
-    if(ui->spinBox_maxNumberOfScans->value() != 999){
+    if(ui->spinBox_maxNumberOfScans->value() != *dp.maxNumberOfScans){
         para.maxNumberOfScans = ui->spinBox_maxNumberOfScans->value();
     }
     if(ui->spinBox_evenlyDistScans->value() != 0){
         para.tryToObserveXTimesEvenlyDistributed = ui->spinBox_evenlyDistScans->value();
     }
-    if(ui->weightDoubleSpinBox->value() != 1){
+    if(ui->weightDoubleSpinBox->value() != *dp.weight){
         para.weight = ui->weightDoubleSpinBox->value();
     }
     if(ui->checkBox_focusIfObsOnce->isChecked()){
@@ -225,4 +236,168 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
 void sourceParametersDialog::on_buttonBox_rejected()
 {
     this->reject();
+}
+
+void sourceParametersDialog::on_pushButton_2_clicked()
+{
+    boost::property_tree::ptree parameters = settings.get_child("settings.source.parameters");
+    QVector<QString> names;
+    QVector<VieVS::ParameterSettings::ParametersSources> paras;
+
+    for(const auto &it:parameters){
+        auto tmp = VieVS::ParameterSettings::ptree2parameterSource(it.second);
+        std::string name = tmp.first;
+        names.push_back(QString::fromStdString(name));
+        VieVS::ParameterSettings::ParametersSources para = tmp.second;
+        paras.push_back(para);
+    }
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+    dial->setSourceParameters(names,paras);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        QString warningTxt;
+
+        QString itm = dial->selectedItem();
+        int idx = names.indexOf(itm);
+        VieVS::ParameterSettings::ParametersSources sp = paras.at(idx);
+
+        if(sp.available.is_initialized()){
+            ui->availableCheckBox->setChecked(*sp.available);
+        }else{
+            ui->availableCheckBox->setChecked(true);
+        }
+
+        if(sp.minNumberOfStations.is_initialized()){
+            ui->spinBox_minNumberOfStations->setValue(*sp.minNumberOfStations);
+        }else{
+            ui->spinBox_minNumberOfStations->setValue(2);
+        }
+
+        if(sp.minFlux.is_initialized()){
+            ui->doubleSpinBox_minFlux->setValue(*sp.minFlux);
+        }else{
+            ui->doubleSpinBox_minFlux->setValue(*dp.minFlux);
+        }
+
+        if(sp.minRepeat.is_initialized()){
+            ui->spinBox_minRepeatTime->setValue(*sp.minRepeat);
+        }else{
+            ui->spinBox_minRepeatTime->setValue(*dp.minRepeat);
+        }
+
+        if(sp.maxScan.is_initialized()){
+            ui->spinBox_maxScanTime->setValue(*sp.maxScan);
+        }else{
+            ui->spinBox_maxScanTime->setValue(*dp.maxScan);
+        }
+
+        if(sp.minScan.is_initialized()){
+            ui->spinBox_minScanTime->setValue(*sp.minScan);
+        }else{
+            ui->spinBox_minScanTime->setValue(*dp.minScan);
+        }
+
+        if(sp.maxNumberOfScans.is_initialized()){
+            ui->spinBox_maxNumberOfScans->setValue(*sp.maxNumberOfScans);
+        }else{
+            ui->spinBox_maxNumberOfScans->setValue(999);
+        }
+
+        if(sp.tryToFocusIfObservedOnce.is_initialized()){
+            ui->checkBox_focusIfObsOnce->setChecked(*sp.tryToFocusIfObservedOnce);
+        }else{
+            ui->checkBox_focusIfObsOnce->setChecked(false);
+        }
+
+        if(sp.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+            ui->spinBox_evenlyDistScans->setValue(*sp.tryToObserveXTimesEvenlyDistributed);
+        }else{
+            ui->spinBox_evenlyDistScans->setValue(0);
+        }
+
+        if(sp.weight.is_initialized()){
+            ui->weightDoubleSpinBox->setValue(*sp.weight);
+        }else{
+            ui->weightDoubleSpinBox->setValue(*dp.weight);
+        }
+
+        QVector<QString> bands;
+        for(int i=0; i<ui->tableWidget_minSNR->rowCount(); ++i){
+            qobject_cast<QDoubleSpinBox*>(ui->tableWidget_minSNR->cellWidget(i,0))->setValue(0);
+            bands.push_back(ui->tableWidget_minSNR->verticalHeaderItem(i)->text());
+        }
+
+        for(const auto &any:sp.minSNR){
+            QString name = QString::fromStdString(any.first);
+            double val = any.second;
+            int idx = bands.indexOf(name);
+            if(idx != -1){
+                qobject_cast<QDoubleSpinBox*>(ui->tableWidget_minSNR->cellWidget(idx,0))->setValue(val);
+            }else{
+                warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
+            }
+        }
+
+        ui->listWidget_selectedIgnoreStations->clear();
+        for(const auto &any:sp.ignoreStationsString){
+            QString name = QString::fromStdString(any);
+            auto list = stations->findItems(name);
+            if(list.size()==1){
+                ui->listWidget_selectedIgnoreStations->insertItem(ui->listWidget_selectedIgnoreStations->count(),name);
+            }else{
+                warningTxt.append("    unknown station: ").append(name).append(" which should be ignored!\n");
+            }
+        }
+        ui->listWidget_selectedIgnoreStations->sortItems();
+
+        ui->listWidget_selectedRequiredStations->clear();
+        for(const auto &any:sp.requiredStationsString){
+            QString name = QString::fromStdString(any);
+            auto list = stations->findItems(name);
+            if(list.size()==1){
+                ui->listWidget_selectedRequiredStations->insertItem(ui->listWidget_selectedRequiredStations->count(),name);
+            }else{
+                warningTxt.append("    unknown station: ").append(name).append(" which should be required!\n");
+            }
+        }
+        ui->listWidget_selectedRequiredStations->sortItems();
+
+        ui->listWidget_selectedIgnoreBaselines->clear();
+        for(const auto &any:sp.ignoreBaselinesString){
+            QString name = QString::fromStdString(any);
+            auto list = baseline->findItems(name);
+            if(list.size()==1){
+                ui->listWidget_selectedIgnoreBaselines->insertItem(ui->listWidget_selectedIgnoreBaselines->count(),name);
+            }else{
+                warningTxt.append("    unknown baseline: ").append(name).append(" which should be ignored!\n");
+            }
+        }
+        ui->listWidget_selectedIgnoreBaselines->sortItems();
+
+        ui->lineEdit_paraName->setText(itm);
+
+        if(!warningTxt.isEmpty()){
+            QString txt = "The following errors occurred while loading the parameters:\n";
+            txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
+            QMessageBox::warning(this,"Unknown parameters!",txt);
+        }
+    }
+}
+
+void sourceParametersDialog::on_pushButton_clicked()
+{
+    if(ui->lineEdit_paraName->text().isEmpty()){
+        QMessageBox::warning(this,"No parameter Name!","Please add parameter name first!");
+    }else{
+        if(QMessageBox::Yes == QMessageBox::question(this,"Save?","Are you sure you want to save this settings?\nThis will save the settings to settings.xml file for further use.")){
+            std::pair<std::string, VieVS::ParameterSettings::ParametersSources> para = getParameters();
+
+            settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree(para.first,para.second).get_child("parameters"));
+            std::ofstream os;
+            os.open("settings.xml");
+            boost::property_tree::xml_parser::write_xml(os, settings,
+                                                        boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+            os.close();
+        }
+    }
 }

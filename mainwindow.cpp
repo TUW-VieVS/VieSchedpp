@@ -1297,7 +1297,8 @@ void MainWindow::defaultParameters()
     src.minScan = 20;
     src.maxScan = 600;
     src.weight = 1;
-    src.maxNumberOfScans = 999;
+    src.minFlux = 0.05;
+
     auto sourceTree = settings.get_child_optional("settings.source.parameters");
     if(sourceTree.is_initialized()){
         for(const auto& it: *sourceTree){
@@ -1315,8 +1316,8 @@ void MainWindow::defaultParameters()
                         src.maxScan = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "minRepeat") {
                         src.minRepeat = it2.second.get_value < unsigned int > ();
-                    } else if (paraName == "maxNumberOfScans") {
-                        src.maxNumberOfScans = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "minFlux"){
+                        src.minFlux = it2.second.get_value<double>();
                     } else {
                         QString txt = "Ignoring parameter: ";
                         txt.append(QString::fromStdString(paraName)).append(" in source default parameters!\nCheck settings.xml file!");
@@ -3254,7 +3255,7 @@ void MainWindow::on_pushButton_stationParameter_clicked()
 
 void MainWindow::on_pushButton_sourceParameter_clicked()
 {
-    sourceParametersDialog *dial = new sourceParametersDialog(this);
+    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -4300,7 +4301,7 @@ void MainWindow::createDefaultParameterSettings()
     src.minScan = 20;
     src.maxScan = 600;
     src.weight = 1;
-    src.maxNumberOfScans = 999;
+    src.minFlux = 0.05;
     settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
 
     VieVS::ParameterSettings::ParametersBaselines bl;

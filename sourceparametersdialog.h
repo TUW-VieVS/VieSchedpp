@@ -6,6 +6,7 @@
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
 #include <ParameterSettings.h>
+#include <settingsloadwindow.h>
 
 namespace Ui {
 class sourceParametersDialog;
@@ -16,7 +17,7 @@ class sourceParametersDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit sourceParametersDialog(QWidget *parent = 0);
+    explicit sourceParametersDialog(boost::property_tree::ptree &settings_, QWidget *parent = 0);
     ~sourceParametersDialog();
 
     void addBandNames(QStringList bands);
@@ -24,6 +25,8 @@ public:
     void addStationModel(QStandardItemModel *stations);
 
     void addBaselineModel(QStandardItemModel *baselines);
+
+    void addDefaultParameters(VieVS::ParameterSettings::ParametersSources defaultPara);
 
     std::pair<std::string, VieVS::ParameterSettings::ParametersSources> getParameters();
 
@@ -50,8 +53,14 @@ private slots:
 
     void on_buttonBox_rejected();
 
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_clicked();
+
 private:
     Ui::sourceParametersDialog *ui;
+    VieVS::ParameterSettings::ParametersSources dp;
+    boost::property_tree::ptree &settings;
 
     QStandardItemModel *stations;
     QSortFilterProxyModel *stations_proxyIgnore;

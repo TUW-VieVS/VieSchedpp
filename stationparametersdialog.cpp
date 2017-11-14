@@ -250,10 +250,11 @@ void stationParametersDialog::on_pushButton_load_clicked()
             }
         }
         ui->listWidget_selectedIgnoreSources->sortItems();
+        ui->lineEdit->setText(itm);
 
         if(!warningTxt.isEmpty()){
             QString txt = "The following errors occurred while loading the parameters:\n";
-            txt.append(warningTxt).append("These parameters were ignored!");
+            txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
             QMessageBox::warning(this,"Unknown parameters!",txt);
         }
     }
