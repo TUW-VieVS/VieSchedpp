@@ -3129,7 +3129,7 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
 
 void MainWindow::addGroupStation()
 {
-    AddGroupDialog *dial = new AddGroupDialog(this);
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::station,this);
     dial->addModel(selectedStationModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -3162,7 +3162,7 @@ void MainWindow::addGroupStation()
 
 void MainWindow::addGroupSource()
 {
-    AddGroupDialog *dial = new AddGroupDialog(this);
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::source,this);
     dial->addModel(selectedSourceModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -3196,7 +3196,7 @@ void MainWindow::addGroupSource()
 
 void MainWindow::addGroupBaseline()
 {
-    AddGroupDialog *dial = new AddGroupDialog(this);
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::baseline,this);
     dial->addModel(selectedBaselineModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
