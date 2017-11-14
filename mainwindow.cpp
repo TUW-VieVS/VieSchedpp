@@ -3281,7 +3281,7 @@ void MainWindow::on_pushButton_sourceParameter_clicked()
 
 void MainWindow::on_pushButton__baselineParameter_clicked()
 {
-    baselineParametersDialog *dial = new baselineParametersDialog(this);
+    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
