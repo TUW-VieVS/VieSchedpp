@@ -4,6 +4,7 @@
 #include <QDialog>
 #include "ParameterSettings.h"
 #include <QListWidgetItem>
+#include <QMessageBox>
 namespace Ui {
 class settingsLoadWindow;
 }
@@ -23,8 +24,12 @@ public:
     void setSourceGroups(const QVector<QString> &name, const QVector<QVector<QString> > &members);
     void setBaselineGroups(const QVector<QString> &name, const QVector<QVector<QString> > &members);
 
+    QString selectedItem();
+
 private slots:
     void refreshList(QListWidgetItem*);
+
+    void on_buttonBox_accepted();
 
 private:
     Ui::settingsLoadWindow *ui;
@@ -35,9 +40,9 @@ private:
     QVector<VieVS::ParameterSettings::ParametersSources> paraSrc;
     QVector<VieVS::ParameterSettings::ParametersBaselines> paraBl;
 
-    QVector<QVector<QString> > membersSta;
-    QVector<QVector<QString> > membersSrc;
-    QVector<QVector<QString> > membersBl;
+    QVector<QVector<QString> > groupSta;
+    QVector<QVector<QString> > groupSrc;
+    QVector<QVector<QString> > groupBl;
 
 };
 

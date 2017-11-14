@@ -519,15 +519,6 @@ void MainWindow::displaySourceSetupParameter(QString name){
               }
               ++r;
           }
-//        std::string txt = "";
-//        for(const auto &any: para.ignoreStationsString){
-//            txt.append(any).append(", ");
-//        }
-//        txt = txt.substr(0,txt.size()-2);
-//        t->insertRow(r);
-//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore stations"));
-//        ++r;
     }
     if(para.requiredStationsString.size() > 0){
           for(const auto &any: para.requiredStationsString){
@@ -542,15 +533,6 @@ void MainWindow::displaySourceSetupParameter(QString name){
               ++r;
           }
 
-//        std::string txt = "";
-//        for(const auto &any: para.requiredStationsString){
-//            txt.append(any).append(", ");
-//        }
-//        txt = txt.substr(0,txt.size()-2);
-//        t->insertRow(r);
-//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-//        t->setVerticalHeaderItem(r,new QTableWidgetItem("required stations"));
-//        ++r;
     }
     if(para.ignoreBaselinesString.size() > 0){
           for(const auto &any: para.ignoreBaselinesString){
@@ -565,17 +547,6 @@ void MainWindow::displaySourceSetupParameter(QString name){
               ++r;
           }
 
-//        std::string txt = "";
-//        for(const auto &any: para.ignoreBaselinesString){
-//            std::string bl = any.first;
-//            bl.append("-").append(any.second);
-//            txt.append(bl).append(", ");
-//        }
-//        txt = txt.substr(0,txt.size()-2);
-//        t->insertRow(r);
-//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignored baselines"));
-//        ++r;
     }
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
