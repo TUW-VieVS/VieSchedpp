@@ -2041,44 +2041,17 @@ void MainWindow::skymap_hovered(QPointF point, bool state){
 
 void MainWindow::on_pushButton_modeCustomAddBAnd_clicked()
 {
-    QDialog *d = new QDialog();
-    QVBoxLayout *mainLayout = new QVBoxLayout(d);
-    QFormLayout *layout = new QFormLayout(d);
+    addBandDialog *dial = new addBandDialog(settings,this);
+    int result = dial->exec();
 
-    QLineEdit *name = new QLineEdit(d);
-    QDoubleSpinBox *freqSB = new QDoubleSpinBox(d);
-    freqSB->setMinimum(0);
-    freqSB->setMaximum(100);
-    freqSB->setSingleStep(.1);
-    freqSB->setValue(1);
-    freqSB->setDecimals(4);
-    freqSB->setSuffix(" [GHz]");
-
-    QSpinBox *nChannelSB = new QSpinBox(d);
-    nChannelSB->setMinimum(1);
-    nChannelSB->setMaximum(100);
-    nChannelSB->setValue(1);
-
-    QDialogButtonBox * buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                                        | QDialogButtonBox::Cancel);
-
-    QObject::connect(buttonBox, SIGNAL(accepted()), d, SLOT(accept()));
-    QObject::connect(buttonBox, SIGNAL(rejected()), d, SLOT(reject()));
-
-    layout->addRow(tr("&Name"),name);
-    layout->addRow(tr("&Frequency"),freqSB);
-    layout->addRow(tr("&Channels"),nChannelSB);
-
-    mainLayout->addLayout(layout);
-    mainLayout->addWidget(buttonBox);
-    d->setLayout(mainLayout);
-
-    int result = d->exec();
     if(result == QDialog::Accepted){
-        addModesCustomTable(name->text(),freqSB->value(),nChannelSB->value());
+        QString name = dial->getBandName();
+        double freq = dial->getFrequency();
+        int channels = dial->getChannels();
+        addModesCustomTable(name,freq,channels);
     }
 
-    delete(d);
+    delete(dial);
 }
 
 void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &index)

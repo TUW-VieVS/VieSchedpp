@@ -35,6 +35,7 @@
 #include "stationparametersdialog.h"
 #include "sourceparametersdialog.h"
 #include "MultiScheduling.h"
+#include "addbanddialog.h"
 
 QT_CHARTS_USE_NAMESPACE
 

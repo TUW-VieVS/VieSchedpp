@@ -107,7 +107,7 @@ void baselineParametersDialog::on_pushButton_load_clicked()
         QString warningTxt;
 
         QString itm = dial->selectedItem();
-        int idx = names.indexOf(itm);
+        int idx = dial->selectedIdx();
         VieVS::ParameterSettings::ParametersBaselines sp = paras.at(idx);
 
         if(sp.ignore.is_initialized()){

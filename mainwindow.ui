@@ -832,7 +832,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_10">
+                <widget class="QPushButton" name="pushButton_loadMode">
                  <property name="text">
                   <string> load</string>
                  </property>
@@ -843,7 +843,7 @@ If you only want to run simulations you can deselect this to avoid error message
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="pushButton_9">
+                <widget class="QPushButton" name="pushButton_saveMode">
                  <property name="text">
                   <string> save</string>
                  </property>
@@ -871,7 +871,7 @@ If you only want to run simulations you can deselect this to avoid error message
             </layout>
            </item>
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_12" stretch="0,0,0">
+            <layout class="QVBoxLayout" name="verticalLayout_12" stretch="0,0">
              <property name="sizeConstraint">
               <enum>QLayout::SetDefaultConstraint</enum>
              </property>
@@ -926,52 +926,6 @@ If you only want to run simulations you can deselect this to avoid error message
                  <property name="icon">
                   <iconset resource="myresources.qrc">
                    <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_26">
-               <item>
-                <spacer name="horizontalSpacer_5">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QLabel" name="label_27">
-                 <property name="text">
-                  <string>band:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButton_7">
-                 <property name="text">
-                  <string> load</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="myresources.qrc">
-                   <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButton_8">
-                 <property name="text">
-                  <string> save</string>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="myresources.qrc">
-                   <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
                  </property>
                 </widget>
                </item>
@@ -5844,12 +5798,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>117</y>
+     <x>533</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>118</y>
+     <x>723</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>
@@ -5860,12 +5814,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>118</y>
+     <x>533</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>88</x>
-     <y>118</y>
+     <x>722</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -5876,12 +5830,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>20</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>80</y>
+     <x>287</x>
+     <y>241</y>
     </hint>
    </hints>
   </connection>
@@ -5892,12 +5846,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>20</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>81</y>
+     <x>20</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -5908,12 +5862,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>20</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>83</y>
+     <x>20</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -5924,12 +5878,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>20</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>81</y>
+     <x>287</x>
+     <y>273</y>
     </hint>
    </hints>
   </connection>
@@ -5940,12 +5894,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>20</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>83</y>
+     <x>287</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
@@ -5956,12 +5910,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>20</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>85</y>
+     <x>287</x>
+     <y>337</y>
     </hint>
    </hints>
   </connection>
@@ -5972,12 +5926,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>20</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>87</y>
+     <x>20</x>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -5988,12 +5942,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>20</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>89</y>
+     <x>20</x>
+     <y>401</y>
     </hint>
    </hints>
   </connection>
@@ -6004,12 +5958,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>20</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>87</y>
+     <x>287</x>
+     <y>369</y>
     </hint>
    </hints>
   </connection>
@@ -6020,12 +5974,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>20</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>89</y>
+     <x>287</x>
+     <y>401</y>
     </hint>
    </hints>
   </connection>
@@ -6036,12 +5990,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>78</y>
+     <x>20</x>
+     <y>209</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>78</y>
+     <x>287</x>
+     <y>209</y>
     </hint>
    </hints>
   </connection>
@@ -6052,12 +6006,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>76</y>
+     <x>20</x>
+     <y>177</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>76</y>
+     <x>287</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -6068,12 +6022,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>74</y>
+     <x>20</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>74</y>
+     <x>287</x>
+     <y>145</y>
     </hint>
    </hints>
   </connection>
@@ -6084,12 +6038,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>72</y>
+     <x>20</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>72</y>
+     <x>287</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -6100,12 +6054,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>70</y>
+     <x>20</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>70</y>
+     <x>287</x>
+     <y>81</y>
     </hint>
    </hints>
   </connection>
@@ -6116,12 +6070,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>118</y>
+     <x>533</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>88</x>
-     <y>118</y>
+     <x>663</x>
+     <y>144</y>
     </hint>
    </hints>
   </connection>
@@ -6132,12 +6086,12 @@ Click on source to deselect it</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>122</y>
+     <x>533</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>88</x>
-     <y>122</y>
+     <x>663</x>
+     <y>176</y>
     </hint>
    </hints>
   </connection>

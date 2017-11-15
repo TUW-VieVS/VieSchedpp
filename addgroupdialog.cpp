@@ -159,7 +159,7 @@ void AddGroupDialog::on_pushButton_Load_clicked()
         QString warningTxt;
 
         QString itm = dial->selectedItem();
-        int idx = names.indexOf(itm);
+        int idx = dial->selectedIdx();
         QVector<QString> members = groups.at(idx);
 
         ui->listWidget_selected->clear();
@@ -179,7 +179,5 @@ void AddGroupDialog::on_pushButton_Load_clicked()
             txt.append(warningTxt).append("These members were ignored!\nPlease double check members again!");
             QMessageBox::warning(this,"Unknown group members!",txt);
         }
-
     }
-
 }

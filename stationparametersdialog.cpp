@@ -177,7 +177,7 @@ void stationParametersDialog::on_pushButton_load_clicked()
         QString warningTxt;
 
         QString itm = dial->selectedItem();
-        int idx = names.indexOf(itm);
+        int idx = dial->selectedIdx();
         VieVS::ParameterSettings::ParametersStations sp = paras.at(idx);
 
         if(sp.available.is_initialized()){

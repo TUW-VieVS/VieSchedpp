@@ -45,7 +45,8 @@ SOURCES += \
     sourceparametersdialog.cpp \
     baselineparametersdialog.cpp \
     MultiScheduling.cpp \
-    settingsloadwindow.cpp
+    settingsloadwindow.cpp \
+    addbanddialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -63,7 +64,8 @@ HEADERS += \
     sourceparametersdialog.h \
     baselineparametersdialog.h \
     MultiScheduling.h \
-    settingsloadwindow.h
+    settingsloadwindow.h \
+    addbanddialog.h
 
 FORMS += \
         mainwindow.ui \
@@ -74,7 +76,8 @@ FORMS += \
     stationparametersdialog.ui \
     sourceparametersdialog.ui \
     baselineparametersdialog.ui \
-    settingsloadwindow.ui
+    settingsloadwindow.ui \
+    addbanddialog.ui
 
 RESOURCES += \
     myresources.qrc

@@ -258,7 +258,7 @@ void sourceParametersDialog::on_pushButton_2_clicked()
         QString warningTxt;
 
         QString itm = dial->selectedItem();
-        int idx = names.indexOf(itm);
+        int idx = dial->selectedIdx();
         VieVS::ParameterSettings::ParametersSources sp = paras.at(idx);
 
         if(sp.available.is_initialized()){

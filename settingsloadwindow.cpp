@@ -70,10 +70,26 @@ void settingsLoadWindow::setBaselineGroups(const QVector<QString> &name, const Q
     groupBl = members;
 }
 
+void settingsLoadWindow::setBands(const QVector<QString> &name, const QVector<QPair<double, int> > &bands_)
+{
+    for(const auto&any:name){
+        ui->name->addItem(any);
+    }
+    type = 6;
+    bands = bands_;
+
+}
+
 QString settingsLoadWindow::selectedItem()
 {
     auto list = ui->name->selectedItems();
     return list.at(0)->text();
+}
+
+int settingsLoadWindow::selectedIdx()
+{
+    int row = ui->name->selectionModel()->selectedRows(0).at(0).row();
+    return row;
 }
 
 void settingsLoadWindow::refreshList(QListWidgetItem *itm)
@@ -354,6 +370,21 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         QHeaderView *hv = t->verticalHeader();
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+        break;
+    }
+    case 6:{
+        auto t = ui->para;
+        t->clear();
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Band: %1").arg(name)));
+        auto band = bands.at(idx);
+        t->setRowCount(2);
+        t->setItem(0,0,new QTableWidgetItem(QString::number(band.first)));
+        t->setVerticalHeaderItem(0,new QTableWidgetItem("frequency [GHz]"));
+        t->setItem(1,0,new QTableWidgetItem(QString::number(band.second)));
+        t->setVerticalHeaderItem(1,new QTableWidgetItem("channels"));
+        QHeaderView *hv = t->verticalHeader();
+        hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;
     }
     default:{
