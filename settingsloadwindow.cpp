@@ -21,7 +21,7 @@ void settingsLoadWindow::setStationParameters(const QVector<QString> &name, cons
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 0;
+    type = Type::stationParameters;
     paraSta = paras;
 }
 
@@ -30,7 +30,7 @@ void settingsLoadWindow::setSourceParameters(const QVector<QString> &name, const
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 1;
+    type = Type::sourceParameters;
     paraSrc = paras;
 }
 
@@ -39,7 +39,7 @@ void settingsLoadWindow::setBaselineParameters(const QVector<QString> &name, con
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 2;
+    type = Type::baselineParameters;
     paraBl = paras;
 }
 
@@ -48,7 +48,7 @@ void settingsLoadWindow::setStationGroups(const QVector<QString> &name, const QV
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 3;
+    type = Type::stationGroup;
     groupSta = members;
 }
 
@@ -57,7 +57,7 @@ void settingsLoadWindow::setSourceGroups(const QVector<QString> &name, const QVe
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 4;
+    type = Type::sourceGroup;
     groupSrc = members;
 }
 
@@ -66,7 +66,7 @@ void settingsLoadWindow::setBaselineGroups(const QVector<QString> &name, const Q
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 5;
+    type = Type::baselineGroup;
     groupBl = members;
 }
 
@@ -75,9 +75,27 @@ void settingsLoadWindow::setBands(const QVector<QString> &name, const QVector<QP
     for(const auto&any:name){
         ui->name->addItem(any);
     }
-    type = 6;
+    type = Type::bands;
     bands = bands_;
 
+}
+
+void settingsLoadWindow::setNetwork(const QVector<QString> &name, const QVector<QVector<QString> > &members)
+{
+    for(const auto&any:name){
+        ui->name->addItem(any);
+    }
+    type = Type::network;
+    network = members;
+}
+
+void settingsLoadWindow::setSourceList(const QVector<QString> &name, const QVector<QVector<QString> > &members)
+{
+    for(const auto&any:name){
+        ui->name->addItem(any);
+    }
+    type = Type::sourceList;
+    sourceList = members;
 }
 
 QString settingsLoadWindow::selectedItem()
@@ -97,7 +115,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
     QString name = itm->text();
     int idx = itm->listWidget()->row(itm);
     switch (type) {
-    case 0:{
+    case Type::stationParameters:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -159,19 +177,19 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             }
         }
         if(para.ignoreSourcesString.size() > 0){
-              for(const auto &any: para.ignoreSourcesString){
-                  t->insertRow(r);
-                  t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore source"));
-                  t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),QString::fromStdString(any)));
-                  ++r;
-              }
+            for(const auto &any: para.ignoreSourcesString){
+                t->insertRow(r);
+                t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore source"));
+                t->setItem(r,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),QString::fromStdString(any)));
+                ++r;
+            }
         }
         QHeaderView *hv = t->verticalHeader();
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 
         break;
     }
-    case 1:{
+    case Type::sourceParameters:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -280,7 +298,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;
     }
-    case 2:{
+    case Type::baselineParameters:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -326,7 +344,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;
     }
-    case 3:{
+    case Type::stationGroup:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -341,7 +359,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;
     }
-    case 4:{
+    case Type::sourceGroup:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -356,7 +374,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;
     }
-    case 5:{
+    case Type::baselineGroup:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -372,7 +390,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
 
         break;
     }
-    case 6:{
+    case Type::bands:{
         auto t = ui->para;
         t->clear();
         t->setColumnCount(1);
@@ -383,6 +401,36 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         t->setVerticalHeaderItem(0,new QTableWidgetItem("frequency [GHz]"));
         t->setItem(1,0,new QTableWidgetItem(QString::number(band.second)));
         t->setVerticalHeaderItem(1,new QTableWidgetItem("channels"));
+        QHeaderView *hv = t->verticalHeader();
+        hv->setSectionResizeMode(QHeaderView::ResizeToContents);
+        break;
+    }
+    case Type::network:{
+        auto t = ui->para;
+        t->clear();
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Network: %1").arg(name)));
+        auto members = network.at(idx);
+        t->setRowCount(members.size());
+        for(int i=0; i<members.size(); ++i){
+            QString txt = members.at(i);
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),txt));
+        }
+        QHeaderView *hv = t->verticalHeader();
+        hv->setSectionResizeMode(QHeaderView::ResizeToContents);
+        break;
+    }
+    case Type::sourceList:{
+        auto t = ui->para;
+        t->clear();
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("source list: %1").arg(name)));
+        auto members = sourceList.at(idx);
+        t->setRowCount(members.size());
+        for(int i=0; i<members.size(); ++i){
+            QString txt = members.at(i);
+            t->setItem(i,0,new QTableWidgetItem(QIcon(":/icons/icons/source.png"),txt));
+        }
         QHeaderView *hv = t->verticalHeader();
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
         break;

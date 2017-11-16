@@ -14,6 +14,19 @@ class settingsLoadWindow : public QDialog
     Q_OBJECT
 
 public:
+    enum class Type {
+        stationParameters,
+        sourceParameters,
+        baselineParameters,
+        stationGroup,
+        sourceGroup,
+        baselineGroup,
+        bands,
+        network,
+        sourceList
+    };
+
+
     explicit settingsLoadWindow(QWidget *parent = 0);
     ~settingsLoadWindow();
 
@@ -31,6 +44,11 @@ public:
 
     void setBands(const QVector<QString> &name, const QVector<QPair<double, int> > &bands);
 
+    void setNetwork(const QVector<QString> &name, const QVector<QVector<QString> > &members);
+
+    void setSourceList(const QVector<QString> &name, const QVector<QVector<QString> > &members);
+
+
     QString selectedItem();
 
     int selectedIdx();
@@ -43,7 +61,7 @@ private slots:
 private:
     Ui::settingsLoadWindow *ui;
 
-    int type;
+    Type type;
 
     QVector<VieVS::ParameterSettings::ParametersStations> paraSta;
     QVector<VieVS::ParameterSettings::ParametersSources> paraSrc;
@@ -54,6 +72,10 @@ private:
     QVector<QVector<QString> > groupBl;
 
     QVector<QPair<double,int> > bands;
+
+    QVector<QVector<QString> > network;
+    QVector<QVector<QString> > sourceList;
+
 };
 
 #endif // SETTINGSLOADWINDOW_H

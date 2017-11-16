@@ -4301,3 +4301,135 @@ void MainWindow::createDefaultParameterSettings()
     os.close();
 
 }
+
+void MainWindow::on_pushButton_saveNetwork_clicked()
+{
+    QVector<QString> selSta;
+    for(int i = 0; i<selectedStationModel->rowCount(); ++i){
+        selSta.append(selectedStationModel->item(i)->text());
+    }
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    dial->setType(saveToSettingsDialog::Type::stationNetwork);
+    dial->setNetwork(selSta);
+
+    dial->exec();
+}
+
+void MainWindow::on_pushButton_loadNetwork_clicked()
+{
+    auto network= settings.get_child_optional("settings.networks");
+    if(!network.is_initialized()){
+        QMessageBox::warning(this,"No network found!","There was no network saved in settings.xml file\nCheck settings.networks");
+        return;
+    }
+
+    QVector<QString> names;
+    QVector<QVector<QString> > networks;
+
+    for(const auto &it:*network){
+        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
+        QVector<QString> network;
+
+        for(const auto &it2:it.second){
+            if(it2.first == "member"){
+                network.push_back(QString::fromStdString(it2.second.data()));
+            }
+        }
+
+        names.push_back(name);
+        networks.push_back(network);
+    }
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+
+    dial->setNetwork(names,networks);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        QString warningTxt;
+
+        QString itm = dial->selectedItem();
+        int idx = dial->selectedIdx();
+        QVector<QString> members = networks.at(idx);
+
+        selectedStationModel->clear();
+        for(const auto&any:members){
+            auto list = allStationModel->findItems(any);
+            if(list.size() == 1){
+                selectedStationModel->appendRow(new QStandardItem(QIcon(":icons/icons/station.png"),list.at(0)->text()));
+            }else{
+                warningTxt.append("    unknown station: ").append(any).append("!\n");
+            }
+        }
+        if(!warningTxt.isEmpty()){
+            QString txt = "The following errors occurred while loading the network:\n";
+            txt.append(warningTxt).append("These stations were ignored!\nPlease double check stations again!");
+            QMessageBox::warning(this,"Unknown network stations!",txt);
+        }
+    }
+}
+
+void MainWindow::on_pushButton_saveSourceList_clicked()
+{
+    QVector<QString> selSrc;
+    for(int i = 0; i<selectedSourceModel->rowCount(); ++i){
+        selSrc.append(selectedSourceModel->item(i)->text());
+    }
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    dial->setType(saveToSettingsDialog::Type::sourceNetwork);
+    dial->setNetwork(selSrc);
+
+    dial->exec();
+}
+
+void MainWindow::on_pushButton_loadSourceList_clicked()
+{
+    auto network= settings.get_child_optional("settings.source_lists");
+    if(!network.is_initialized()){
+        QMessageBox::warning(this,"No source list found!","There was no source list saved in settings.xml file\nCheck settings.source_list");
+        return;
+    }
+
+    QVector<QString> names;
+    QVector<QVector<QString> > source_lists;
+
+    for(const auto &it:*network){
+        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
+        QVector<QString> source_list;
+
+        for(const auto &it2:it.second){
+            if(it2.first == "member"){
+                source_list.push_back(QString::fromStdString(it2.second.data()));
+            }
+        }
+
+        names.push_back(name);
+        source_lists.push_back(source_list);
+    }
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+
+    dial->setSourceList(names,source_lists);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        QString warningTxt;
+
+        QString itm = dial->selectedItem();
+        int idx = dial->selectedIdx();
+        QVector<QString> members = source_lists.at(idx);
+
+        selectedSourceModel->clear();
+        for(const auto&any:members){
+            auto list = allSourceModel->findItems(any);
+            if(list.size() == 1){
+                selectedSourceModel->appendRow(new QStandardItem(QIcon(":icons/icons/source.png"),list.at(0)->text()));
+            }else{
+                warningTxt.append("    unknown station: ").append(any).append("!\n");
+            }
+        }
+        if(!warningTxt.isEmpty()){
+            QString txt = "The following errors occurred while loading the source list:\n";
+            txt.append(warningTxt).append("These sources were ignored!\nPlease double check sources again!");
+            QMessageBox::warning(this,"Unknown source list source!",txt);
+        }
+    }
+}

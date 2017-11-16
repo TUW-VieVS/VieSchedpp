@@ -36,6 +36,7 @@
 #include "sourceparametersdialog.h"
 #include "MultiScheduling.h"
 #include "addbanddialog.h"
+#include "savetosettingsdialog.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -316,6 +317,14 @@ private slots:
     void on_pushButton_27_clicked();
 
     void createDefaultParameterSettings();
+
+    void on_pushButton_saveNetwork_clicked();
+
+    void on_pushButton_loadNetwork_clicked();
+
+    void on_pushButton_saveSourceList_clicked();
+
+    void on_pushButton_loadSourceList_clicked();
 
 private:
     Ui::MainWindow *ui;
