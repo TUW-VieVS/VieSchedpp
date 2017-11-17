@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QCoreApplication::setApplicationName("VieVS Scheduler");
     QCoreApplication::setApplicationVersion("v0.8");
+    ui->label_version->setText("Version: " + QCoreApplication::applicationVersion());
+    ui->label_version->setFont(QFont(QApplication::font().family(),8));
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setOrganizationDomain("http://hg.geo.tuwien.ac.at/");
 

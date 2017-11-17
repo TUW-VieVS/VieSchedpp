@@ -49,6 +49,8 @@
         <file>icons/emblem-important-4.png</file>
         <file>icons/edit-copy-6.png</file>
         <file>icons/file-redo.png</file>
+        <file>icons/document-sign-3.png</file>
+        <file>icons/documentation.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>
