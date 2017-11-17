@@ -23,7 +23,8 @@ public:
         baselineGroup,
         bands,
         network,
-        sourceList
+        sourceList,
+        modes
     };
 
 
@@ -48,6 +49,9 @@ public:
 
     void setSourceList(const QVector<QString> &name, const QVector<QVector<QString> > &members);
 
+    void setModes(const QVector<QString> &names, const QVector<int> &bits, const QVector<double> &srates,
+                  const QVector<QVector<QString> > &bands, const QVector<QVector<int> > &channels,
+                  const QVector<QVector<double> > &freqs);
 
     QString selectedItem();
 
@@ -75,6 +79,13 @@ private:
 
     QVector<QVector<QString> > network;
     QVector<QVector<QString> > sourceList;
+
+    QVector<int> bits;
+    QVector<double> srates;
+    QVector<QVector<QString> > modes_bands;
+    QVector<QVector<int> > channels;
+    QVector<QVector<double> > freqs;
+
 
 };
 

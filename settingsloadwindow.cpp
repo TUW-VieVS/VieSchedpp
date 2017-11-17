@@ -98,6 +98,24 @@ void settingsLoadWindow::setSourceList(const QVector<QString> &name, const QVect
     sourceList = members;
 }
 
+void settingsLoadWindow::setModes(const QVector<QString> &names, const QVector<int> &bits,
+                                  const QVector<double> &srates,
+                                  const QVector<QVector<QString> > &bands,
+                                  const QVector<QVector<int> > &channels,
+                                  const QVector<QVector<double> > &freqs)
+{
+    for(const auto&any:names){
+        ui->name->addItem(any);
+    }
+    type = Type::modes;
+
+    this->bits = bits;
+    this->srates = srates;
+    this->modes_bands = bands;
+    this->channels = channels;
+    this->freqs = freqs;
+}
+
 QString settingsLoadWindow::selectedItem()
 {
     auto list = ui->name->selectedItems();
@@ -433,6 +451,36 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
         }
         QHeaderView *hv = t->verticalHeader();
         hv->setSectionResizeMode(QHeaderView::ResizeToContents);
+        break;
+    }
+    case Type::modes:{
+        auto t = ui->para;
+        t->clear();
+        t->setColumnCount(1);
+        t->setRowCount(0);
+        t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("mode: %1").arg(name)));
+
+        t->insertRow(0);
+        t->setItem(0,0,new QTableWidgetItem(QString::number(srates.at(idx))));
+        t->setVerticalHeaderItem(0,new QTableWidgetItem("sample rate [MHz]"));
+
+        t->insertRow(1);
+        t->setItem(1,0,new QTableWidgetItem(QString::number(bits.at(idx))));
+        t->setVerticalHeaderItem(1,new QTableWidgetItem("sample bits"));
+
+        int c=2;
+        for(int i = 0; i< modes_bands.at(idx).size(); ++i){
+            QString name = modes_bands.at(idx).at(i);
+            t->insertRow(c);
+            t->setItem(c,0,new QTableWidgetItem(QString::number(channels.at(idx).at(i))));
+            t->setVerticalHeaderItem(c,new QTableWidgetItem(name+": channels"));
+            ++c;
+
+            t->insertRow(c);
+            t->setItem(c,0,new QTableWidgetItem(QString::number(freqs.at(idx).at(i))));
+            t->setVerticalHeaderItem(c,new QTableWidgetItem(name+": frequency [GHz]"));
+            ++c;
+        }
         break;
     }
     default:{

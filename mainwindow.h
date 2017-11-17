@@ -326,6 +326,10 @@ private slots:
 
     void on_pushButton_loadSourceList_clicked();
 
+    void on_pushButton_saveMode_clicked();
+
+    void on_pushButton_loadMode_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

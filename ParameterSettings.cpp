@@ -684,12 +684,13 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, un
     master_.add_child("master.mode.bands.band", band.get_child("band"));
 }
 
-void ParameterSettings::mode_bandPolicy(const std::string &name, ObservationModeProperty station,
+void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
                                         ObservationModeBackup stationBackup, double stationBackupValue,
                                         ObservationModeProperty source, ObservationModeBackup sourceBackup,
                                         double sourceBackupValue) {
     boost::property_tree::ptree band;
 
+    band.add("band.minSNR",minSNR);
     if (station == ObservationModeProperty::required) {
         band.add("band.station.tag", "required");
     } else if (station == ObservationModeProperty::optional) {

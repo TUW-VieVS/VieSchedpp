@@ -1760,6 +1760,14 @@ void MainWindow::addModesPolicyTable(QString name){
 
     ui->tableWidget_ModesPolicy->insertRow(ui->tableWidget_ModesPolicy->rowCount());
     ui->tableWidget_ModesPolicy->setVerticalHeaderItem(ui->tableWidget_ModesPolicy->rowCount()-1,new QTableWidgetItem(name));
+    QDoubleSpinBox *dsp = new QDoubleSpinBox(this);
+    if(name == "S"){
+        dsp->setValue(15.);
+    }else{
+        dsp->setValue(20.);
+    }
+    dsp->setSuffix(" [Jy]");
+    dsp->setMaximum(1000);
     QComboBox *psta = new QComboBox(this);
     psta->addItem("required");
     psta->addItem("optional");
@@ -1786,12 +1794,13 @@ void MainWindow::addModesPolicyTable(QString name){
     vsrc->setMaximum(100000);
     vsrc->setSingleStep(.1);
     vsrc->setValue(1);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,0,psta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,1,bsta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,2,vsta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,3,psrc);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,4,bsrc);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,5,vsrc);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,0,dsp);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,1,psta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,2,bsta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,3,vsta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,4,psrc);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,5,bsrc);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,6,vsrc);
 
 
 }
@@ -2501,8 +2510,10 @@ void MainWindow::writeXML()
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         std::string name = ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text().toStdString();
 
+        double minSNR = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,0))->value();
+
         VieVS::ParameterSettings::ObservationModeProperty policySta;
-        QString polSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,0))->currentText();
+        QString polSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,1))->currentText();
         if(polSta == "required"){
             policySta = VieVS::ParameterSettings::ObservationModeProperty::required;
         }else if(polSta == "optional"){
@@ -2510,7 +2521,7 @@ void MainWindow::writeXML()
         }
 
         VieVS::ParameterSettings::ObservationModeProperty policySrc;
-        QString polSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,3))->currentText();
+        QString polSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,4))->currentText();
         if(polSrc == "required"){
             policySrc = VieVS::ParameterSettings::ObservationModeProperty::required;
         }else if(polSrc == "optional"){
@@ -2518,7 +2529,7 @@ void MainWindow::writeXML()
         }
 
         VieVS::ParameterSettings::ObservationModeBackup backupSta;
-        QString bacSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,1))->currentText();
+        QString bacSta = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,2))->currentText();
         if(bacSta == "none"){
             backupSta = VieVS::ParameterSettings::ObservationModeBackup::none;
         }else if(bacSta == "value"){
@@ -2530,7 +2541,7 @@ void MainWindow::writeXML()
         }
 
         VieVS::ParameterSettings::ObservationModeBackup backupSrc;
-        QString bacSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,4))->currentText();
+        QString bacSrc = qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,5))->currentText();
         if(bacSrc == "none"){
             backupSrc = VieVS::ParameterSettings::ObservationModeBackup::none;
         }else if(bacSrc == "value"){
@@ -2541,10 +2552,10 @@ void MainWindow::writeXML()
             backupSrc = VieVS::ParameterSettings::ObservationModeBackup::maxValueTimes;
         }
 
-        double valSta = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,2))->value();
-        double valSrc = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,5))->value();
+        double valSta = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,3))->value();
+        double valSrc = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,6))->value();
 
-        para.mode_bandPolicy(name,policySta,backupSta,valSta,policySrc,backupSrc,valSrc);
+        para.mode_bandPolicy(name,minSNR,policySta,backupSta,valSta,policySrc,backupSrc,valSrc);
     }
 
     if (ui->groupBox_multiScheduling->isChecked()){
@@ -4432,4 +4443,94 @@ void MainWindow::on_pushButton_loadSourceList_clicked()
             QMessageBox::warning(this,"Unknown source list source!",txt);
         }
     }
+}
+
+void MainWindow::on_pushButton_saveMode_clicked()
+{
+    int bits = ui->sampleBitsSpinBox->value();
+    double srate = ui->sampleRateDoubleSpinBox->value();
+    QVector<QString> bands;
+    QVector<double> freqs;
+    QVector<int> chans;
+
+    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i){
+        QString band = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
+        bands.push_back(band);
+        double freq = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,0))->value();
+        freqs.push_back(freq);
+        int chan = qobject_cast<QSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
+        chans.push_back(chan);
+    }
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    dial->setType(saveToSettingsDialog::Type::modes);
+    dial->setMode(bits,srate,bands,freqs,chans);
+
+    dial->exec();
+
+}
+
+void MainWindow::on_pushButton_loadMode_clicked()
+{
+    auto modes= settings.get_child_optional("settings.modes");
+    if(!modes.is_initialized()){
+        QMessageBox::warning(this,"No modes list found!","There were no modes saved in settings.xml file\nCheck settings.modes");
+        return;
+    }
+
+    QVector<QString> names;
+    QVector<int> bits;
+    QVector<double> srates;
+    QVector<QVector<QString> > bands;
+    QVector<QVector<int> > channels;
+    QVector<QVector<double> > freqs;
+
+    for(const auto &it:*modes){
+        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
+        int bit;
+        double srate;
+        QVector<QString> band;
+        QVector<int> channel;
+        QVector<double> freq;
+
+        for(const auto &it2:it.second){
+            if(it2.first == "bits"){
+                bit = it2.second.get_value<int>();
+            }else if(it2.first == "sampleRate"){
+                srate = it2.second.get_value<double>();
+            }else if(it2.first == "band"){
+
+                channel.push_back(it2.second.get<int>("channels"));
+                freq.push_back(it2.second.get<double>("frequency"));
+                band.push_back(QString::fromStdString(it2.second.get<std::string>("<xmlattr>.name")));
+
+            }
+        }
+        names.push_back(name);
+        bits.push_back(bit);
+        srates.push_back(srate);
+        bands.push_back(band);
+        channels.push_back(channel);
+        freqs.push_back(freq);
+    }
+
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+    dial->setModes(names,bits,srates,bands,channels,freqs);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        QString itm = dial->selectedItem();
+        int idx = dial->selectedIdx();
+
+        ui->sampleBitsSpinBox->setValue(bits.at(idx));
+        ui->sampleRateDoubleSpinBox->setValue(srates.at(idx));
+        ui->tableWidget_modeCustonBand->setRowCount(0);
+        ui->tableWidget_ModesPolicy->setRowCount(0);
+        for(int i=0; i<bands.at(idx).size(); ++i){
+            QString bName = bands.at(idx).at(i);
+            double bFreq = freqs.at(idx).at(i);
+            int bChannels = channels.at(idx).at(i);
+            addModesCustomTable(bName, bFreq, bChannels);
+        }
+    }
+
 }

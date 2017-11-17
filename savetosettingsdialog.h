@@ -27,6 +27,8 @@ public:
 
     void setNetwork(QVector<QString> newNetwork);
 
+    void setMode(int bits, double srate, QVector<QString> myBands, QVector<double> myFreqs, QVector<int> myChanls);
+
     ~saveToSettingsDialog();
 
 private slots:
@@ -37,6 +39,12 @@ private:
     Type type;
 
     QVector<QString> network;
+
+    QVector<QString> bands;
+    QVector<double> freqs;
+    QVector<int> chanls;
+    int bits;
+    double srate;
 
     Ui::saveToSettingsDialog *ui;
 };

@@ -353,7 +353,7 @@ namespace VieVS {
          * @param sourceBackup source backup model
          * @param sourceBackupValue source backup model value
          */
-        void mode_bandPolicy(const std::string &name, ObservationModeProperty station,
+        void mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
                        ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
                        ObservationModeBackup sourceBackup, double sourceBackupValue);
 

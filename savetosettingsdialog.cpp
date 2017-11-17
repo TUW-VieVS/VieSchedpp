@@ -26,6 +26,15 @@ void saveToSettingsDialog::setNetwork(QVector<QString> newNetwork)
     network = newNetwork;
 }
 
+void saveToSettingsDialog::setMode(int myBits, double mySrate, QVector<QString> myBands, QVector<double> myFreqs, QVector<int> myChanls)
+{
+    bands = myBands;
+    freqs = myFreqs;
+    chanls = myChanls;
+    bits = myBits;
+    srate = mySrate;
+}
+
 void saveToSettingsDialog::on_buttonBox_accepted()
 {
     if(ui->lineEdit->text().isEmpty()){
@@ -70,7 +79,23 @@ void saveToSettingsDialog::on_buttonBox_accepted()
             break;
         }
         case Type::modes:{
-
+            boost::property_tree::ptree pt;
+            pt.add("mode.<xmlattr>.name", ui->lineEdit->text().toStdString());
+            pt.add("mode.bits",bits);
+            pt.add("mode.sampleRate",srate);
+            for (int i = 0; i<bands.size(); ++i) {
+                boost::property_tree::ptree tmp;
+                tmp.add("band.<xmlattr>.name", bands.at(i).toStdString());
+                tmp.add("band.frequency",freqs.at(i));
+                tmp.add("band.channels",chanls.at(i));
+                pt.add_child("mode.band", tmp.get_child("band"));
+            }
+            settings.add_child("settings.modes.mode", pt.get_child("mode"));
+            std::ofstream os;
+            os.open("settings.xml");
+            boost::property_tree::xml_parser::write_xml(os, settings,
+                                                        boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+            os.close();
             break;
         }
         default:

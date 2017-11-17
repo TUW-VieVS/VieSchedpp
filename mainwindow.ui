@@ -18,13 +18,10 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>3</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="welcome">
-       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
-        <property name="spacing">
-         <number>30</number>
-        </property>
+       <layout class="QVBoxLayout" name="verticalLayout_45">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
@@ -56,14 +53,72 @@
          </layout>
         </item>
         <item>
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Thank you for using VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If you need any help either press F1 or click the&lt;/span&gt;&lt;img src=&quot;:/icons/icons/help.png&quot; height=&quot;30&quot; width=&quot;30&quot;/&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; icon. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <layout class="QHBoxLayout" name="horizontalLayout_26">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Thank you for using VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Before your start, please read the following &lt;span style=&quot; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;: &lt;/p&gt;&lt;p&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;p&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;p&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;p&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;&lt;/p&gt;&lt;p&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt;, output &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt; and select desired other features&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If you need any &lt;span style=&quot; font-weight:600;&quot;&gt;help&lt;/span&gt; read our &lt;span style=&quot; font-weight:600;&quot;&gt;FAQ&lt;/span&gt; or either press &lt;span style=&quot; font-weight:600;&quot;&gt;F1&lt;/span&gt; or click the help icon &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot;/&gt; to enter the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode. &lt;/p&gt;&lt;p&gt;If you are in the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode, click the item that you do not understand. &lt;/p&gt;&lt;p&gt;If you need general help for a window click the icon at the tool bar during &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode.&lt;/p&gt;&lt;p&gt;If a item has no &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; description or the description is unclear and the tooltip and statustip does not provide all necessary information eighter please tell us and we will add some more details. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_38">
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;alpha version&lt;/span&gt;! &lt;/p&gt;&lt;p&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
           </property>
-         </widget>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -961,6 +1016,11 @@ If you only want to run simulations you can deselect this to avoid error message
              </attribute>
              <column>
               <property name="text">
+               <string>min SNR</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
                <string>value for stations</string>
               </property>
              </column>
@@ -1288,7 +1348,7 @@ If you only want to run simulations you can deselect this to avoid error message
         <item>
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -5600,6 +5660,7 @@ Click on source to deselect it</string>
     <bool>false</bool>
    </attribute>
    <addaction name="actionWhat_is_this"/>
+   <addaction name="actionFAQ"/>
    <addaction name="separator"/>
    <addaction name="actionCurrent_Release"/>
    <addaction name="separator"/>
@@ -5793,6 +5854,11 @@ Click on source to deselect it</string>
    </property>
    <property name="text">
     <string>Sky Coverage</string>
+   </property>
+  </action>
+  <action name="actionFAQ">
+   <property name="text">
+    <string>FAQ</string>
    </property>
   </action>
  </widget>
