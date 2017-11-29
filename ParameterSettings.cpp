@@ -647,13 +647,13 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     }
     if(weightDeclination != 0){
         weightFactor.add("weightFactor.weightDeclination", weightDeclination);
-        weightFactor.add("weightFactor.declinationSlopeStart", declinationSlopeStart);
-        weightFactor.add("weightFactor.declinationSlopeEnd", declinationSlopeEnd);
+        weightFactor.add("weightFactor.declinationStartWeight", declinationSlopeStart);
+        weightFactor.add("weightFactor.declinationFullWeight", declinationSlopeEnd);
     }
     if(weightLowElevation != 0){
         weightFactor.add("weightFactor.weightLowElevation", weightLowElevation);
-        weightFactor.add("weightFactor.lowElevationSlopeStart", lowElevationSlopeStart);
-        weightFactor.add("weightFactor.lowElevationSlopeEnd", lowElevationSlopeEnd);
+        weightFactor.add("weightFactor.lowElevationStartWeight", lowElevationSlopeStart);
+        weightFactor.add("weightFactor.lowElevationFullWeight", lowElevationSlopeEnd);
     }
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
@@ -783,19 +783,24 @@ void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std:
     rules.add("calibratorBlock.member",member);
     rules.add("calibratorBlock.nMaxScans",nMaxScans);
     rules.add("calibratorBlock.fixedScanTime",scanTime);
-    for(const auto &any:between_elevation){
-        boost::property_tree::ptree be;
-        double el1 = any.first;
-        double el2 = any.second;
-        if(el1>el2){
-            swap(el1,el2);
-        }
 
-        be.add("targetElevation.lower_limit",el1);
-        be.add("targetElevation.upper_limit",el1);
+    rules.add("calibratorBlock.lowElevation.startWeight",between_elevation.at(0).first);
+    rules.add("calibratorBlock.lowElevation.fullWeight",between_elevation.at(0).second);
+    rules.add("calibratorBlock.highElevation.startWeight",between_elevation.at(1).first);
+    rules.add("calibratorBlock.highElevation.fullWeight",between_elevation.at(1).second);
 
-        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
-    }
+
+//    for(const auto &any:between_elevation){
+//        boost::property_tree::ptree be;
+//        double el1 = any.first;
+//        double el2 = any.second;
+//        if(el1>el2){
+//            swap(el1,el2);
+//        }
+//        be.add("targetElevation.lower_limit",el1);
+//        be.add("targetElevation.upper_limit",el1);
+//        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
+//    }
 
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 }
@@ -810,19 +815,25 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
     rules.add("calibratorBlock.member",member);
     rules.add("calibratorBlock.nMaxScans",nMaxScans);
     rules.add("calibratorBlock.fixedScanTime",scanTime);
-    for(const auto &any:between_elevation){
-        boost::property_tree::ptree be;
-        double el1 = any.first;
-        double el2 = any.second;
-        if(el1>el2){
-            swap(el1,el2);
-        }
 
-        be.add("targetElevation.lower_limit",el1);
-        be.add("targetElevation.upper_limit",el1);
 
-        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
-    }
+    rules.add("calibratorBlock.lowElevation.startWeight",between_elevation.at(0).first);
+    rules.add("calibratorBlock.lowElevation.fullWeight",between_elevation.at(0).second);
+    rules.add("calibratorBlock.highElevation.startWeight",between_elevation.at(1).first);
+    rules.add("calibratorBlock.highElevation.fullWeight",between_elevation.at(1).second);
+
+
+//    for(const auto &any:between_elevation){
+//        boost::property_tree::ptree be;
+//        double el1 = any.first;
+//        double el2 = any.second;
+//        if(el1>el2){
+//            swap(el1,el2);
+//        }
+//        be.add("targetElevation.lower_limit",el1);
+//        be.add("targetElevation.upper_limit",el1);
+//        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevation"));
+//    }
 
 
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));

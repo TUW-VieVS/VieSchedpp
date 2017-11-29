@@ -236,48 +236,74 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>focus if observed once</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="9" column="1">
         <widget class="QCheckBox" name="checkBox_focusIfObsOnce">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>evenly distributed scans</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="10" column="1">
         <widget class="QSpinBox" name="spinBox_evenlyDistScans">
          <property name="maximum">
           <number>999</number>
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <widget class="QLabel" name="weightLabel">
          <property name="text">
           <string>weight</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
+       <item row="11" column="1">
         <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
          <property name="singleStep">
           <double>0.100000000000000</double>
          </property>
          <property name="value">
           <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QSpinBox" name="spinBox_fixedScanDuration">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="suffix">
+          <string> [s]</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="value">
+          <number>120</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>fixed scan duration</string>
          </property>
         </widget>
        </item>
@@ -569,5 +595,22 @@
  <resources>
   <include location="myresources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBox_fixedScanDuration</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>480</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>478</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

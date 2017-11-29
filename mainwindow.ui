@@ -18,13 +18,10 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
-        <property name="spacing">
-         <number>15</number>
-        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
@@ -65,7 +62,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Thank you for using VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Welcome to VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Please read the following &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reference:&lt;/span&gt;&lt;/p&gt;
@@ -77,19 +74,24 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select desired other features&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need more &lt;span style=&quot; font-weight:600;&quot;&gt;help&lt;/span&gt;  press &lt;span style=&quot; font-weight:600;&quot;&gt;F1&lt;/span&gt; or click the help icon &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to enter the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode and than select the item that you do not understand. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need more &lt;span style=&quot; font-weight:600;&quot;&gt;help&lt;/span&gt;  press &lt;span style=&quot; font-weight:600;&quot;&gt;F1&lt;/span&gt; or click the help icon &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to enter the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode and than select the item that you do not understand. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need general help for a window click the icon at the tool bar during &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a item has no &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; description or the description is unclear and the tooltip and statustip does not provide all necessary information eighter please tell us and we will add some more details. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For some frequently asked questions we provide a &lt;span style=&quot; font-weight:600;&quot;&gt;FAQ&lt;/span&gt; page &lt;img src=&quot;:/icons/icons/documentation.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. &lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;alpha version&lt;/span&gt;! &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;alpha version&lt;/span&gt;! &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Although a checking routine runs at the end of each created schedule, it might be advisable to double check your schedule via a different software package like &lt;span style=&quot; font-weight:600;&quot;&gt;SKED&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;SKED check &lt;/span&gt;command.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Missing Features GUI:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;load function&lt;/span&gt;&lt;/li&gt;
+&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;calibration block min SNR&lt;/li&gt;
+&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;sky coverage types&lt;/li&gt;&lt;/ul&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
@@ -106,627 +108,1279 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="Input">
-       <layout class="QVBoxLayout" name="verticalLayout_19">
+      <widget class="QWidget" name="settings">
+       <layout class="QHBoxLayout" name="horizontalLayout_86" stretch="1,2">
+        <property name="spacing">
+         <number>15</number>
+        </property>
         <item>
-         <widget class="QGroupBox" name="groupBox_4">
-          <property name="title">
-           <string>Station</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_7">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_50">
-             <property name="text">
-              <string>antenna</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_49">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathAntenna">
-               <property name="acceptDrops">
-                <bool>true</bool>
-               </property>
-               <property name="toolTip">
-                <string>path to skd antenna catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd antenna catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseAntenna">
-               <property name="toolTip">
-                <string>browse for skd antenna catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd antenna catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_51">
-             <property name="text">
-              <string>equip</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_50">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathEquip">
-               <property name="toolTip">
-                <string>path to skd equip catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd equip catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseEquip">
-               <property name="toolTip">
-                <string>browse for skd equp catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd equip catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_53">
-             <property name="text">
-              <string>position</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_51">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathPosition">
-               <property name="toolTip">
-                <string>path to skd position catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd position catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browsePosition">
-               <property name="toolTip">
-                <string>browse for skd position catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd position catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_54">
-             <property name="text">
-              <string>mask</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_52">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathMask">
-               <property name="toolTip">
-                <string>path to skd mask catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd mask catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseMask">
-               <property name="toolTip">
-                <string>browse for skd mask catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd mask catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_16">
-          <property name="title">
-           <string>Source</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_8">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_52">
-             <property name="text">
-              <string>source</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_54">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathSource">
-               <property name="toolTip">
-                <string>path to skd source catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd source catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseSource">
-               <property name="toolTip">
-                <string>browse for skd source catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd source catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_55">
-             <property name="text">
-              <string>flux</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_53">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathFlux">
-               <property name="toolTip">
-                <string>path to skd flux catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd flux catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseFlux">
-               <property name="toolTip">
-                <string>browse for skd flux catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd flux catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_17">
-          <property name="toolTip">
-           <string>Read skd observing mode catalogs.
-If you only want to run simulations you can deselect this to avoid error messages due to missing catalog entries</string>
-          </property>
-          <property name="statusTip">
-           <string>read skd observing mode catalogs</string>
-          </property>
-          <property name="title">
-           <string>Observing mode</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <layout class="QFormLayout" name="formLayout_9">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_56">
-             <property name="text">
-              <string>modes</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_55">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathModes">
-               <property name="toolTip">
-                <string>path to skd modes catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd modes catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browsModes">
-               <property name="toolTip">
-                <string>browse for skd modes catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd modes catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_58">
-             <property name="text">
-              <string>freq</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_56">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathFreq">
-               <property name="toolTip">
-                <string>path to skd freq catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd freq catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseFreq">
-               <property name="toolTip">
-                <string>browse for skd freq catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd freq catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_62">
-             <property name="text">
-              <string>tracks</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_59">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathTracks">
-               <property name="toolTip">
-                <string>path to skd tracks catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd tracks catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseTracks">
-               <property name="toolTip">
-                <string>browse for skd tracks catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd tracks catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="label_59">
-             <property name="text">
-              <string>loif</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_58">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathLoif">
-               <property name="toolTip">
-                <string>path to skd loif catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd loif catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseLoif">
-               <property name="toolTip">
-                <string>browse for skd loif catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd loif catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label_60">
-             <property name="text">
-              <string>rec</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_57">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathRec">
-               <property name="toolTip">
-                <string>path to skd rec catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd rec catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseRec">
-               <property name="toolTip">
-                <string>browse for skd rec catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd rec catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="5" column="0">
-            <widget class="QLabel" name="label_61">
-             <property name="text">
-              <string>rx</string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_60">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathRx">
-               <property name="toolTip">
-                <string>path to skd rx catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd rx catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseRx">
-               <property name="toolTip">
-                <string>browse for skd rx catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd rx catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="6" column="0">
-            <widget class="QLabel" name="label_57">
-             <property name="text">
-              <string>hdpos</string>
-             </property>
-            </widget>
-           </item>
-           <item row="6" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_61">
-             <item>
-              <widget class="QLineEdit" name="lineEdit_pathHdpos">
-               <property name="toolTip">
-                <string>path to skd hdpos catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>enter path to skd hdpos catalog here</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_browseHdpos">
-               <property name="toolTip">
-                <string>browse for skd hdpos catalog</string>
-               </property>
-               <property name="statusTip">
-                <string>browse for skd hdpos catalog</string>
-               </property>
-               <property name="text">
-                <string>browse</string>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_87">
+         <layout class="QVBoxLayout" name="verticalLayout_22">
           <item>
-           <spacer name="horizontalSpacer_10">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           <layout class="QFormLayout" name="formLayout_13">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_44">
+              <property name="text">
+               <string>font size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinBox_fontSize">
+              <property name="toolTip">
+               <string>change global font size</string>
+              </property>
+              <property name="statusTip">
+               <string>change global font size</string>
+              </property>
+              <property name="value">
+               <number>11</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>font</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QFontComboBox" name="fontComboBox_font">
+              <property name="toolTip">
+               <string>change global font</string>
+              </property>
+              <property name="statusTip">
+               <string>change global font size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="iconSizeLabel">
+              <property name="text">
+               <string>icon size</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="iconSizeSpinBox">
+              <property name="toolTip">
+               <string>change global icon size</string>
+              </property>
+              <property name="statusTip">
+               <string>change global icon size</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_saveCatalogPathes">
+           <widget class="QTreeWidget" name="treeWidget_2">
             <property name="toolTip">
-             <string>save all pathes</string>
+             <string>customize toolbars</string>
             </property>
             <property name="statusTip">
-             <string>save all pathes</string>
+             <string>customize toolbars</string>
             </property>
-            <property name="text">
-             <string> save</string>
+            <property name="itemsExpandable">
+             <bool>true</bool>
             </property>
-            <property name="icon">
-             <iconset resource="myresources.qrc">
-              <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+            <property name="sortingEnabled">
+             <bool>false</bool>
             </property>
+            <property name="columnCount">
+             <number>1</number>
+            </property>
+            <attribute name="headerStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Toolbars</string>
+             </property>
+            </column>
+            <item>
+             <property name="text">
+              <string>Files</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Welcome</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/go-home-5.png</normaloff>:/icons/icons/go-home-5.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Settings</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/emblem-system-2.png</normaloff>:/icons/icons/emblem-system-2.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Save</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Run</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/arrow-right-3.png</normaloff>:/icons/icons/arrow-right-3.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Open</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>New</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Exit</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/application-exit-5.png</normaloff>:/icons/icons/application-exit-5.png</iconset>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Basic</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Weight Factors</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Stations</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/station_p.png</normaloff>:/icons/icons/station_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Sources</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/source_p.png</normaloff>:/icons/icons/source_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Parameter Baselines</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/baseline_p.png</normaloff>:/icons/icons/baseline_p.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Output</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export-4.png</normaloff>:/icons/icons/document-export-4.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mode</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Input</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>General</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Advanced</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>Sky Coverage</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Rules</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/system-run-3.png</normaloff>:/icons/icons/system-run-3.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Multi Scheduling</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/multi_sched.png</normaloff>:/icons/icons/multi_sched.png</iconset>
+              </property>
+             </item>
+            </item>
+            <item>
+             <property name="text">
+              <string>Help</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <item>
+              <property name="text">
+               <string>What is this?</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/help.png</normaloff>:/icons/icons/help.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Current Release</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>About Qt</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>About</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+             </item>
+            </item>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
+         <layout class="QVBoxLayout" name="verticalLayout_23">
+          <item>
+           <layout class="QFormLayout" name="formLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="nameLabel">
+              <property name="text">
+               <string>name</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_76">
+              <item>
+               <widget class="QLineEdit" name="nameLineEdit">
+                <property name="toolTip">
+                 <string>enter your name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>your name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_5">
+                <property name="toolTip">
+                 <string>save as default name</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default name</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="emailLabel">
+              <property name="text">
+               <string>email</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_77">
+              <item>
+               <widget class="QLineEdit" name="emailLineEdit">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>enter your email address here</string>
+                </property>
+                <property name="statusTip">
+                 <string>your email address</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_6">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default email address</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="pathToGUILabel">
+              <property name="text">
+               <string>GUI executable</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_84">
+              <item>
+               <widget class="QLineEdit" name="pathToGUILineEdit">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>path to VieVS Scheduler GUI executable</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler GUI executable</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_18">
+                <property name="toolTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="statusTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="pathToSchedulerLabel">
+                <property name="text">
+                 <string>scheduler executable</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_78" stretch="0,0,0">
+              <item>
+               <widget class="QLineEdit" name="pathToSchedulerLineEdit">
+                <property name="toolTip">
+                 <string>enter path to VieVS Scheduler executable here</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler executable</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_browseAntenna_2">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>79</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>browse for executable</string>
+                </property>
+                <property name="statusTip">
+                 <string>browse for executable</string>
+                </property>
+                <property name="text">
+                 <string>browse</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_17">
+                <property name="toolTip">
+                 <string>save as default path</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default path</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="defaultSettingsFileLabel">
+              <property name="text">
+               <string>default settings file</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_85">
+              <item>
+               <widget class="QLineEdit" name="defaultSettingsFileLineEdit">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>path to VieVS Scheduler GUI default settings file</string>
+                </property>
+                <property name="statusTip">
+                 <string>path to VieVS Scheduler GUI default settings file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_19">
+                <property name="toolTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="statusTip">
+                 <string>copy to clipboard</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="Input">
+       <layout class="QVBoxLayout" name="verticalLayout_19">
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>983</width>
+             <height>697</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_47">
+            <item>
+             <widget class="QGroupBox" name="groupBox_4">
+              <property name="title">
+               <string>Station</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_7">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_50">
+                 <property name="text">
+                  <string>antenna</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_49">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathAntenna">
+                   <property name="acceptDrops">
+                    <bool>true</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>path to skd antenna catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd antenna catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseAntenna">
+                   <property name="toolTip">
+                    <string>browse for skd antenna catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd antenna catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_51">
+                 <property name="text">
+                  <string>equip</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_50">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathEquip">
+                   <property name="toolTip">
+                    <string>path to skd equip catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd equip catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseEquip">
+                   <property name="toolTip">
+                    <string>browse for skd equp catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd equip catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_53">
+                 <property name="text">
+                  <string>position</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_51">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathPosition">
+                   <property name="toolTip">
+                    <string>path to skd position catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd position catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browsePosition">
+                   <property name="toolTip">
+                    <string>browse for skd position catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd position catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_54">
+                 <property name="text">
+                  <string>mask</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_52">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathMask">
+                   <property name="toolTip">
+                    <string>path to skd mask catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd mask catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseMask">
+                   <property name="toolTip">
+                    <string>browse for skd mask catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd mask catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_16">
+              <property name="title">
+               <string>Source</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_8">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_52">
+                 <property name="text">
+                  <string>source</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_54">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathSource">
+                   <property name="toolTip">
+                    <string>path to skd source catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd source catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseSource">
+                   <property name="toolTip">
+                    <string>browse for skd source catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd source catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_55">
+                 <property name="text">
+                  <string>flux</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_53">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathFlux">
+                   <property name="toolTip">
+                    <string>path to skd flux catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd flux catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseFlux">
+                   <property name="toolTip">
+                    <string>browse for skd flux catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd flux catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_17">
+              <property name="toolTip">
+               <string>Read skd observing mode catalogs.
+If you only want to run simulations you can deselect this to avoid error messages due to missing catalog entries</string>
+              </property>
+              <property name="statusTip">
+               <string>read skd observing mode catalogs</string>
+              </property>
+              <property name="title">
+               <string>Observing mode</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <layout class="QFormLayout" name="formLayout_9">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_56">
+                 <property name="text">
+                  <string>modes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_55">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathModes">
+                   <property name="toolTip">
+                    <string>path to skd modes catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd modes catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browsModes">
+                   <property name="toolTip">
+                    <string>browse for skd modes catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd modes catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_58">
+                 <property name="text">
+                  <string>freq</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_56">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathFreq">
+                   <property name="toolTip">
+                    <string>path to skd freq catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd freq catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseFreq">
+                   <property name="toolTip">
+                    <string>browse for skd freq catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd freq catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_62">
+                 <property name="text">
+                  <string>tracks</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_59">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathTracks">
+                   <property name="toolTip">
+                    <string>path to skd tracks catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd tracks catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseTracks">
+                   <property name="toolTip">
+                    <string>browse for skd tracks catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd tracks catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="3" column="0">
+                <widget class="QLabel" name="label_59">
+                 <property name="text">
+                  <string>loif</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_58">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathLoif">
+                   <property name="toolTip">
+                    <string>path to skd loif catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd loif catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseLoif">
+                   <property name="toolTip">
+                    <string>browse for skd loif catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd loif catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="label_60">
+                 <property name="text">
+                  <string>rec</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_57">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathRec">
+                   <property name="toolTip">
+                    <string>path to skd rec catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd rec catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseRec">
+                   <property name="toolTip">
+                    <string>browse for skd rec catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd rec catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="5" column="0">
+                <widget class="QLabel" name="label_61">
+                 <property name="text">
+                  <string>rx</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_60">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathRx">
+                   <property name="toolTip">
+                    <string>path to skd rx catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd rx catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseRx">
+                   <property name="toolTip">
+                    <string>browse for skd rx catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd rx catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="6" column="0">
+                <widget class="QLabel" name="label_57">
+                 <property name="text">
+                  <string>hdpos</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_61">
+                 <item>
+                  <widget class="QLineEdit" name="lineEdit_pathHdpos">
+                   <property name="toolTip">
+                    <string>path to skd hdpos catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>enter path to skd hdpos catalog here</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_browseHdpos">
+                   <property name="toolTip">
+                    <string>browse for skd hdpos catalog</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>browse for skd hdpos catalog</string>
+                   </property>
+                   <property name="text">
+                    <string>browse</string>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="myresources.qrc">
+                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_87">
+              <item>
+               <spacer name="horizontalSpacer_10">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_saveCatalogPathes">
+                <property name="toolTip">
+                 <string>save all pathes</string>
+                </property>
+                <property name="statusTip">
+                 <string>save all pathes</string>
+                </property>
+                <property name="text">
+                 <string> save</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -1390,7 +2044,7 @@ Click on station to select it</string>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <item>
-               <widget class="QLabel" name="label_5">
+               <widget class="QLabel" name="label_network_selected">
                 <property name="text">
                  <string>selected</string>
                 </property>
@@ -1540,7 +2194,7 @@ Click on source to select it</string>
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_42">
               <item>
-               <widget class="QLabel" name="label_23">
+               <widget class="QLabel" name="label_sourceList_selected">
                 <property name="text">
                  <string>selected</string>
                 </property>
@@ -1659,7 +2313,7 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="setup_sta">
-       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="tabPosition">
@@ -2526,7 +3180,7 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="setup_source">
-       <layout class="QVBoxLayout" name="verticalLayout_37">
+       <layout class="QVBoxLayout" name="verticalLayout_37" stretch="1">
         <item>
          <widget class="QSplitter" name="splitter_2">
           <property name="orientation">
@@ -2859,7 +3513,7 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="setup_baseline">
-       <layout class="QVBoxLayout" name="verticalLayout_41">
+       <layout class="QVBoxLayout" name="verticalLayout_41" stretch="1">
         <item>
          <widget class="QSplitter" name="splitter_3">
           <property name="orientation">
@@ -3602,449 +4256,777 @@ Click on source to deselect it</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="rules">
-       <layout class="QHBoxLayout" name="horizontalLayout_43">
+      <widget class="QWidget" name="output">
+       <layout class="QVBoxLayout" name="verticalLayout_21">
         <item>
-         <widget class="QGroupBox" name="groupBox_scanSequence">
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
+         <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
-           <string>Scan Sequence</string>
+           <string>Output files</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
+          <layout class="QVBoxLayout" name="verticalLayout_27">
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_17">
+            <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_34">
-               <item>
-                <widget class="QLabel" name="label_29">
-                 <property name="text">
-                  <string>cadence</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="spinBox_scanSequenceCadence">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="pushButton_addSourceGroup_Sequence">
-                 <property name="toolTip">
-                  <string>add new source group</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>add new source group</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                 <property name="icon">
-                  <iconset resource="myresources.qrc">
-                   <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+              <widget class="QCheckBox" name="checkBox_outputSkdFile">
+               <property name="toolTip">
+                <string>create skd file</string>
+               </property>
+               <property name="statusTip">
+                <string>create skd file</string>
+               </property>
+               <property name="text">
+                <string>create skd file</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_14">
-               <item>
-                <spacer name="horizontalSpacer_19">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
+              <widget class="QCheckBox" name="checkBox_outputNGSFile">
+               <property name="toolTip">
+                <string>create empty ngs file</string>
+               </property>
+               <property name="statusTip">
+                <string>create empty ngs file</string>
+               </property>
+               <property name="text">
+                <string>create ngs file</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
+              <widget class="QCheckBox" name="checkBox_outputStatisticsFile">
+               <property name="toolTip">
+                <string>create statistics file</string>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
+               <property name="statusTip">
+                <string>create statistics file</string>
                </property>
-              </spacer>
+               <property name="text">
+                <string>create statistics file</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_outputSkyCoverageFile">
+               <property name="toolTip">
+                <string>create sky coverage file</string>
+               </property>
+               <property name="statusTip">
+                <string>create sky coverage file</string>
+               </property>
+               <property name="text">
+                <string>create sky coverage file</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>
            <item>
-            <widget class="QTableWidget" name="tableWidget_scanSequence">
-             <property name="columnCount">
-              <number>1</number>
-             </property>
-             <attribute name="horizontalHeaderStretchLastSection">
-              <bool>true</bool>
-             </attribute>
-             <column>
-              <property name="text">
-               <string>allowed source</string>
-              </property>
-             </column>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_74">
+             <item>
+              <widget class="QLabel" name="label_22">
+               <property name="text">
+                <string>output directory</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_outputPath">
+               <property name="toolTip">
+                <string>path to output directory</string>
+               </property>
+               <property name="statusTip">
+                <string>output directory</string>
+               </property>
+               <property name="text">
+                <string>out</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_26">
+               <property name="toolTip">
+                <string>save as default path</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default path</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_outputAddTimestamp">
+               <property name="text">
+                <string>add timestamp</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_CalibratorBlock">
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
+         <widget class="QGroupBox" name="groupBox_8">
           <property name="title">
-           <string>Calibrator Block</string>
+           <string>Additional information</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_24">
+          <layout class="QHBoxLayout" name="horizontalLayout_88">
            <item>
-            <widget class="QGroupBox" name="groupBox_12">
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="title">
-              <string>cadence</string>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_25">
-              <item>
-               <layout class="QFormLayout" name="formLayout_14">
-                <item row="0" column="0">
-                 <widget class="QRadioButton" name="radioButton_calibratorTime">
-                  <property name="text">
-                   <string>time</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QSpinBox" name="spinBox_calibratorTime">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="suffix">
-                   <string> [sec]</string>
-                  </property>
-                  <property name="maximum">
-                   <number>100000</number>
-                  </property>
-                  <property name="singleStep">
-                   <number>600</number>
-                  </property>
-                  <property name="value">
-                   <number>3600</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QRadioButton" name="radioButton_calibratorScanSequence">
-                  <property name="text">
-                   <string>scan sequence</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBox_calibratorScanSequence">
-                  <property name="value">
-                   <number>5</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_13">
-             <property name="title">
-              <string>parameters</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_26">
-              <item>
-               <layout class="QFormLayout" name="formLayout_5">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_31">
-                  <property name="text">
-                   <string>calibrator sources</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_32">
-                  <property name="text">
-                   <string>max Scans sequences</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QSpinBox" name="spinBox_calibrator_maxScanSequence">
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" colspan="2">
-                 <widget class="Line" name="line_6">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QRadioButton" name="radioButton">
-                  <property name="text">
-                   <string>fixed scan length</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_37">
-                  <item>
-                   <widget class="QSpinBox" name="spinBox_calibratorFixedScanLength">
-                    <property name="suffix">
-                     <string> [sec]</string>
-                    </property>
-                    <property name="prefix">
-                     <string/>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="maximum">
-                     <number>10000</number>
-                    </property>
-                    <property name="singleStep">
-                     <number>10</number>
-                    </property>
-                    <property name="value">
-                     <number>120</number>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QRadioButton" name="radioButton_3">
-                  <property name="text">
-                   <string>target SNR</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="1">
-                 <widget class="QTableWidget" name="tableWidget_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <attribute name="horizontalHeaderStretchLastSection">
-                   <bool>true</bool>
-                  </attribute>
-                  <column>
-                   <property name="text">
-                    <string>target SNR</string>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
-                <item row="7" column="0" colspan="2">
-                 <widget class="Line" name="line_5">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="0">
-                 <widget class="QLabel" name="label_35">
-                  <property name="text">
-                   <string>low elevation weight start</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_38">
-                  <item>
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorLowElStart">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="maximum">
-                     <double>90.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>5.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>40.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="9" column="0">
-                 <widget class="QLabel" name="label_33">
-                  <property name="text">
-                   <string>low elevation full weight</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_41">
-                  <item>
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorLowElEnd">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="maximum">
-                     <double>90.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>5.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>20.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="10" column="0">
-                 <widget class="QLabel" name="label_36">
-                  <property name="text">
-                   <string>high elevation weight start</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="10" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_39">
-                  <item>
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorHighElStart">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="maximum">
-                     <double>90.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>5.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>50.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="11" column="0">
-                 <widget class="QLabel" name="label_37">
-                  <property name="text">
-                   <string>high elevation full weight</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="11" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_40">
-                  <item>
-                   <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorHighElEnd">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="maximum">
-                     <double>90.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>5.000000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>70.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_16">
-                  <item>
-                   <widget class="QComboBox" name="comboBox_calibratorBlock_calibratorSources">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pushButton_addSourceGroup_Calibrator">
-                    <property name="toolTip">
-                     <string>add new source group</string>
-                    </property>
-                    <property name="statusTip">
-                     <string>add new source group</string>
-                    </property>
-                    <property name="text">
-                     <string/>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="myresources.qrc">
-                      <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QRadioButton" name="radioButton_2">
-                  <property name="text">
-                   <string>from setup</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="1" column="0">
+              <widget class="QLabel" name="experimentDesctiptionLabel">
+               <property name="text">
+                <string>experiment desctiption</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="experimentNameLineEdit">
+               <property name="toolTip">
+                <string>enter experiment name here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment name</string>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="experimentNameLabel">
+               <property name="text">
+                <string>experiment name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="schedulerLineEdit">
+               <property name="toolTip">
+                <string>enter scheduler name here</string>
+               </property>
+               <property name="statusTip">
+                <string>scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+               <property name="toolTip">
+                <string>enter experiment description here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment description</string>
+               </property>
+               <property name="placeholderText">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="schedulerLabel">
+               <property name="text">
+                <string>scheduler</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="correlatorLabel">
+               <property name="text">
+                <string>correlator</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="pushButton_22">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QPushButton" name="pushButton_23">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="pushButton_24">
+               <property name="toolTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="statusTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButton_27">
+               <property name="toolTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="statusTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_6">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>246</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rules">
+       <layout class="QHBoxLayout" name="horizontalLayout_43">
+        <item>
+         <widget class="QScrollArea" name="scrollArea_2">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>983</width>
+             <height>697</height>
+            </rect>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_89">
+            <item>
+             <widget class="QGroupBox" name="groupBox_scanSequence">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="title">
+               <string>Scan Sequence</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_17">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_17">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_34">
+                   <item>
+                    <widget class="QLabel" name="label_29">
+                     <property name="text">
+                      <string>cadence</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="spinBox_scanSequenceCadence">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_addSourceGroup_Sequence">
+                     <property name="toolTip">
+                      <string>add new source group</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>add new source group</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_14">
+                   <item>
+                    <spacer name="horizontalSpacer_19">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QTableWidget" name="tableWidget_scanSequence">
+                 <property name="columnCount">
+                  <number>1</number>
+                 </property>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>true</bool>
+                 </attribute>
+                 <column>
+                  <property name="text">
+                   <string>allowed source</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_CalibratorBlock">
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="title">
+               <string>Calibrator Block</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_24">
+               <item>
+                <widget class="QGroupBox" name="groupBox_12">
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="title">
+                  <string>cadence</string>
+                 </property>
+                 <property name="flat">
+                  <bool>false</bool>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_25">
+                  <item>
+                   <layout class="QFormLayout" name="formLayout_14">
+                    <item row="0" column="0">
+                     <widget class="QRadioButton" name="radioButton_calibratorTime">
+                      <property name="text">
+                       <string>time</string>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QSpinBox" name="spinBox_calibratorTime">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="suffix">
+                       <string> [sec]</string>
+                      </property>
+                      <property name="maximum">
+                       <number>100000</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>600</number>
+                      </property>
+                      <property name="value">
+                       <number>3600</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QRadioButton" name="radioButton_calibratorScanSequence">
+                      <property name="text">
+                       <string>scan sequence</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QSpinBox" name="spinBox_calibratorScanSequence">
+                      <property name="value">
+                       <number>5</number>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_13">
+                 <property name="title">
+                  <string>parameters</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_26">
+                  <item>
+                   <layout class="QFormLayout" name="formLayout_5">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_31">
+                      <property name="text">
+                       <string>calibrator sources</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_32">
+                      <property name="text">
+                       <string>max Scans sequences</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QSpinBox" name="spinBox_calibrator_maxScanSequence">
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0" colspan="2">
+                     <widget class="Line" name="line_6">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QRadioButton" name="radioButton">
+                      <property name="text">
+                       <string>fixed scan length</string>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_37">
+                      <item>
+                       <widget class="QSpinBox" name="spinBox_calibratorFixedScanLength">
+                        <property name="suffix">
+                         <string> [sec]</string>
+                        </property>
+                        <property name="prefix">
+                         <string/>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>10000</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>10</number>
+                        </property>
+                        <property name="value">
+                         <number>120</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QRadioButton" name="radioButton_3">
+                      <property name="text">
+                       <string>target SNR</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QTableWidget" name="tableWidget_2">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <attribute name="horizontalHeaderStretchLastSection">
+                       <bool>true</bool>
+                      </attribute>
+                      <column>
+                       <property name="text">
+                        <string>target SNR</string>
+                       </property>
+                      </column>
+                     </widget>
+                    </item>
+                    <item row="7" column="0" colspan="2">
+                     <widget class="Line" name="line_5">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_35">
+                      <property name="text">
+                       <string>low elevation weight start</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_38">
+                      <item>
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorLowElStart">
+                        <property name="suffix">
+                         <string> [deg]</string>
+                        </property>
+                        <property name="maximum">
+                         <double>90.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>40.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_33">
+                      <property name="text">
+                       <string>low elevation full weight</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_41">
+                      <item>
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorLowElEnd">
+                        <property name="suffix">
+                         <string> [deg]</string>
+                        </property>
+                        <property name="maximum">
+                         <double>90.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>20.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="10" column="0">
+                     <widget class="QLabel" name="label_36">
+                      <property name="text">
+                       <string>high elevation weight start</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_39">
+                      <item>
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorHighElStart">
+                        <property name="suffix">
+                         <string> [deg]</string>
+                        </property>
+                        <property name="maximum">
+                         <double>90.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>50.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="11" column="0">
+                     <widget class="QLabel" name="label_37">
+                      <property name="text">
+                       <string>high elevation full weight</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_40">
+                      <item>
+                       <widget class="QDoubleSpinBox" name="doubleSpinBox_calibratorHighElEnd">
+                        <property name="suffix">
+                         <string> [deg]</string>
+                        </property>
+                        <property name="maximum">
+                         <double>90.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>70.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="0" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_16">
+                      <item>
+                       <widget class="QComboBox" name="comboBox_calibratorBlock_calibratorSources">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_addSourceGroup_Calibrator">
+                        <property name="toolTip">
+                         <string>add new source group</string>
+                        </property>
+                        <property name="statusTip">
+                         <string>add new source group</string>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="myresources.qrc">
+                          <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QRadioButton" name="radioButton_2">
+                      <property name="text">
+                       <string>from setup</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -4472,13 +5454,39 @@ Click on source to deselect it</string>
           <item>
            <layout class="QFormLayout" name="formLayout_12">
             <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>distance type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBox">
+              <item>
+               <property name="text">
+                <string>cosine</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>linear</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>constant</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
              <widget class="QLabel" name="influenceDistanceLabel">
               <property name="text">
                <string>influence distance</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
+            <item row="1" column="1">
              <widget class="QDoubleSpinBox" name="influenceDistanceDoubleSpinBox">
               <property name="suffix">
                <string> [deg]</string>
@@ -4494,14 +5502,40 @@ Click on source to deselect it</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>time type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="comboBox_2">
+              <item>
+               <property name="text">
+                <string>cosine</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>linear</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>constant</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="0">
              <widget class="QLabel" name="influenceTimeLabel">
               <property name="text">
                <string>influence time</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="3" column="1">
              <widget class="QSpinBox" name="influenceTimeSpinBox">
               <property name="suffix">
                <string> [s]</string>
@@ -4517,14 +5551,14 @@ Click on source to deselect it</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
+            <item row="5" column="0">
              <widget class="QLabel" name="maxDistanceForCombiningAntennasLabel">
               <property name="text">
                <string>max distance for combining antennas</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="5" column="1">
              <widget class="QDoubleSpinBox" name="maxDistanceForCombiningAntennasDoubleSpinBox">
               <property name="suffix">
                <string> [m]</string>
@@ -4540,6 +5574,13 @@ Click on source to deselect it</string>
               </property>
               <property name="value">
                <double>5000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
@@ -4562,945 +5603,82 @@ Click on source to deselect it</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="output">
-       <layout class="QVBoxLayout" name="verticalLayout_21">
+      <widget class="QWidget" name="page">
+       <layout class="QVBoxLayout" name="verticalLayout_45">
         <item>
-         <widget class="QGroupBox" name="groupBox_3">
-          <property name="title">
-           <string>Output files</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_27">
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputSkdFile">
-               <property name="toolTip">
-                <string>create skd file</string>
-               </property>
-               <property name="statusTip">
-                <string>create skd file</string>
-               </property>
-               <property name="text">
-                <string>create skd file</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputNGSFile">
-               <property name="toolTip">
-                <string>create empty ngs file</string>
-               </property>
-               <property name="statusTip">
-                <string>create empty ngs file</string>
-               </property>
-               <property name="text">
-                <string>create ngs file</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputStatisticsFile">
-               <property name="toolTip">
-                <string>create statistics file</string>
-               </property>
-               <property name="statusTip">
-                <string>create statistics file</string>
-               </property>
-               <property name="text">
-                <string>create statistics file</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputSkyCoverageFile">
-               <property name="toolTip">
-                <string>create sky coverage file</string>
-               </property>
-               <property name="statusTip">
-                <string>create sky coverage file</string>
-               </property>
-               <property name="text">
-                <string>create sky coverage file</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_74">
-             <item>
-              <widget class="QLabel" name="label_22">
-               <property name="text">
-                <string>output directory</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_outputPath">
-               <property name="toolTip">
-                <string>path to output directory</string>
-               </property>
-               <property name="statusTip">
-                <string>output directory</string>
-               </property>
-               <property name="text">
-                <string>out</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_26">
-               <property name="toolTip">
-                <string>save as default path</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default path</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputAddTimestamp">
-               <property name="text">
-                <string>add timestamp</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_8">
-          <property name="title">
-           <string>Additional information</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_88">
-           <item>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="1" column="0">
-              <widget class="QLabel" name="experimentDesctiptionLabel">
-               <property name="text">
-                <string>experiment desctiption</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="experimentNameLineEdit">
-               <property name="toolTip">
-                <string>enter experiment name here</string>
-               </property>
-               <property name="statusTip">
-                <string>experiment name</string>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="experimentNameLabel">
-               <property name="text">
-                <string>experiment name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="schedulerLineEdit">
-               <property name="toolTip">
-                <string>enter scheduler name here</string>
-               </property>
-               <property name="statusTip">
-                <string>scheduler</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
-               <property name="toolTip">
-                <string>enter experiment description here</string>
-               </property>
-               <property name="statusTip">
-                <string>experiment description</string>
-               </property>
-               <property name="placeholderText">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="schedulerLabel">
-               <property name="text">
-                <string>scheduler</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="correlatorLabel">
-               <property name="text">
-                <string>correlator</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QPushButton" name="pushButton_22">
-               <property name="toolTip">
-                <string>save as default email addres</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default correlator</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="correlatorLineEdit">
-               <property name="toolTip">
-                <string>enter correlator name here</string>
-               </property>
-               <property name="statusTip">
-                <string>correlator</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="pushButton_23">
-               <property name="toolTip">
-                <string>save as default email addres</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default scheduler</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="pushButton_24">
-               <property name="toolTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="statusTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pushButton_27">
-               <property name="toolTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="statusTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>246</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="settings">
-       <layout class="QHBoxLayout" name="horizontalLayout_86" stretch="1,2">
-        <property name="spacing">
-         <number>15</number>
-        </property>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_22">
+         <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="0,1,2">
           <item>
-           <layout class="QFormLayout" name="formLayout_13">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_44">
-              <property name="text">
-               <string>font size</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox_fontSize">
-              <property name="toolTip">
-               <string>change global font size</string>
-              </property>
-              <property name="statusTip">
-               <string>change global font size</string>
-              </property>
-              <property name="value">
-               <number>11</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>font</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QFontComboBox" name="fontComboBox_font">
-              <property name="toolTip">
-               <string>change global font</string>
-              </property>
-              <property name="statusTip">
-               <string>change global font size</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="iconSizeLabel">
-              <property name="text">
-               <string>icon size</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QSpinBox" name="iconSizeSpinBox">
-              <property name="toolTip">
-               <string>change global icon size</string>
-              </property>
-              <property name="statusTip">
-               <string>change global icon size</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QTreeWidget" name="treeWidget_2">
-            <property name="toolTip">
-             <string>customize toolbars</string>
+           <widget class="QLabel" name="label_38">
+            <property name="text">
+             <string>search:</string>
             </property>
-            <property name="statusTip">
-             <string>customize toolbars</string>
-            </property>
-            <property name="itemsExpandable">
-             <bool>true</bool>
-            </property>
-            <property name="sortingEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="columnCount">
-             <number>1</number>
-            </property>
-            <attribute name="headerStretchLastSection">
-             <bool>true</bool>
-            </attribute>
-            <column>
-             <property name="text">
-              <string>Toolbars</string>
-             </property>
-            </column>
-            <item>
-             <property name="text">
-              <string>Files</string>
-             </property>
-             <property name="checkState">
-              <enum>Checked</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>Welcome</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/go-home-5.png</normaloff>:/icons/icons/go-home-5.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Settings</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/emblem-system-2.png</normaloff>:/icons/icons/emblem-system-2.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Save</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Run</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/arrow-right-3.png</normaloff>:/icons/icons/arrow-right-3.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Open</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-open-2.png</normaloff>:/icons/icons/document-open-2.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>New</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-new-8.png</normaloff>:/icons/icons/document-new-8.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Exit</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/application-exit-5.png</normaloff>:/icons/icons/application-exit-5.png</iconset>
-              </property>
-             </item>
-            </item>
-            <item>
-             <property name="text">
-              <string>Basic</string>
-             </property>
-             <property name="checkState">
-              <enum>Checked</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>Weight Factors</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Parameter Stations</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/station_p.png</normaloff>:/icons/icons/station_p.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Parameter Sources</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/source_p.png</normaloff>:/icons/icons/source_p.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Parameter Baselines</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/baseline_p.png</normaloff>:/icons/icons/baseline_p.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Output</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-export-4.png</normaloff>:/icons/icons/document-export-4.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Mode</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/drive-harddisk-3.png</normaloff>:/icons/icons/drive-harddisk-3.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Input</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/document-import-2.png</normaloff>:/icons/icons/document-import-2.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>General</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
-              </property>
-             </item>
-            </item>
-            <item>
-             <property name="text">
-              <string>Advanced</string>
-             </property>
-             <property name="checkState">
-              <enum>Checked</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>Sky Coverage</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Rules</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/system-run-3.png</normaloff>:/icons/icons/system-run-3.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Multi Scheduling</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/multi_sched.png</normaloff>:/icons/icons/multi_sched.png</iconset>
-              </property>
-             </item>
-            </item>
-            <item>
-             <property name="text">
-              <string>Help</string>
-             </property>
-             <property name="checkState">
-              <enum>Checked</enum>
-             </property>
-             <item>
-              <property name="text">
-               <string>What is this?</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/help.png</normaloff>:/icons/icons/help.png</iconset>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Current Release</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>About Qt</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>About</string>
-              </property>
-              <property name="checkState">
-               <enum>Checked</enum>
-              </property>
-             </item>
-            </item>
            </widget>
           </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_23">
           <item>
-           <layout class="QFormLayout" name="formLayout">
-            <item row="0" column="0">
-             <widget class="QLabel" name="nameLabel">
-              <property name="text">
-               <string>name</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_76">
-              <item>
-               <widget class="QLineEdit" name="nameLineEdit">
-                <property name="toolTip">
-                 <string>enter your name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>your name</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_5">
-                <property name="toolTip">
-                 <string>save as default name</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default name</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="emailLabel">
-              <property name="text">
-               <string>email</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_77">
-              <item>
-               <widget class="QLineEdit" name="emailLineEdit">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>enter your email address here</string>
-                </property>
-                <property name="statusTip">
-                 <string>your email address</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_6">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default email address</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="pathToGUILabel">
-              <property name="text">
-               <string>GUI executable</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_84">
-              <item>
-               <widget class="QLineEdit" name="pathToGUILineEdit">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>path to VieVS Scheduler GUI executable</string>
-                </property>
-                <property name="statusTip">
-                 <string>path to VieVS Scheduler GUI executable</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_18">
-                <property name="toolTip">
-                 <string>copy to clipboard</string>
-                </property>
-                <property name="statusTip">
-                 <string>copy to clipboard</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="0">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLabel" name="pathToSchedulerLabel">
-                <property name="text">
-                 <string>scheduler executable</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="3" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_78" stretch="0,0,0">
-              <item>
-               <widget class="QLineEdit" name="pathToSchedulerLineEdit">
-                <property name="toolTip">
-                 <string>enter path to VieVS Scheduler executable here</string>
-                </property>
-                <property name="statusTip">
-                 <string>path to VieVS Scheduler executable</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_browseAntenna_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>79</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="toolTip">
-                 <string>browse for executable</string>
-                </property>
-                <property name="statusTip">
-                 <string>browse for executable</string>
-                </property>
-                <property name="text">
-                 <string>browse</string>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_17">
-                <property name="toolTip">
-                 <string>save as default path</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default path</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="defaultSettingsFileLabel">
-              <property name="text">
-               <string>default settings file</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_85">
-              <item>
-               <widget class="QLineEdit" name="defaultSettingsFileLineEdit">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>path to VieVS Scheduler GUI default settings file</string>
-                </property>
-                <property name="statusTip">
-                 <string>path to VieVS Scheduler GUI default settings file</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_19">
-                <property name="toolTip">
-                 <string>copy to clipboard</string>
-                </property>
-                <property name="statusTip">
-                 <string>copy to clipboard</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/edit-copy-6.png</normaloff>:/icons/icons/edit-copy-6.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+           <widget class="QLineEdit" name="lineEdit_faqSearch"/>
           </item>
           <item>
-           <spacer name="verticalSpacer_7">
+           <spacer name="horizontalSpacer_5">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>40</width>
+              <height>20</height>
              </size>
             </property>
            </spacer>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="textEdit_faq">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="html">
+           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:14pt; font-weight:600;&quot;&gt;FAQ:&lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:12pt; font-weight:600;&quot;&gt;I have a question, whom should I contact?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you have a question about VieVS Scheduler please read the following FAQs first. Also check there exists additional information via the &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; mode. You can enter the &amp;quot;What is this?&amp;quot; mode by pressing the &lt;/span&gt;&lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; icon at your help toolbar or by pressing F1. After entering the &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; mode try to click the item that you need help with. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you still have questions please feel free to contact us via: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Where can I change the default parameters?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Browse to your binary files and open the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;There you can change the following default values:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;station.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; This are the default station parameters that covers the whole time span and is parent of all other parameters&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;source.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default source parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;baseline.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default baseline parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.waitTimes:&lt;/span&gt; Default values for station wait times&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.cableWrapBuffers:&lt;/span&gt; Default values for cable wrap buffers&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;You can manually edit these parameters and they will get loaded the next time you open VieVS Scheduler. Please note that some of the default parameters are necessary and if they are not provided some hard coded default values will be taken.&lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Where can I remove my saved parameters or groups?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Everything you saved is stored in the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Your stored parameters are located in:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.parameters&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.parameters&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.parameters&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;You saved groups are located in: &lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.groups&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.groups&lt;/li&gt;
+&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.groups&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;The name is always provided as a attribute. You can manually edit this file and delete some parameters or groups. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Be careful not to delete the default parameters! Otherwise some hard coded internal values will be taken! &lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;My GUI is crashing, what should I do? &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Did you manually change the settings.xml file? (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page) &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If yes it is maybe due to a wrong xml format. Delete your settings.xml file and restart VieVS Scheduler. If this does not solve the problem please write us an email to: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Why is feature xy not implemented?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you have great ideas for missing features please tell us via: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; and we will discuss it. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -5568,6 +5746,7 @@ Click on source to deselect it</string>
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionWhat_is_this"/>
+    <addaction name="actionFAQ"/>
     <addaction name="separator"/>
     <addaction name="actionCurrent_Release"/>
     <addaction name="separator"/>
@@ -5704,6 +5883,9 @@ Click on source to deselect it</string>
    <property name="text">
     <string>Mode</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
   </action>
   <action name="actionGeneral">
    <property name="icon">
@@ -5712,6 +5894,9 @@ Click on source to deselect it</string>
    </property>
    <property name="text">
     <string>General</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
    </property>
   </action>
   <action name="actionStation">
@@ -5722,6 +5907,9 @@ Click on source to deselect it</string>
    <property name="text">
     <string>Station</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
   </action>
   <action name="actionSource">
    <property name="icon">
@@ -5730,6 +5918,9 @@ Click on source to deselect it</string>
    </property>
    <property name="text">
     <string>Source</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
    </property>
   </action>
   <action name="actionBaseline">
@@ -5740,6 +5931,9 @@ Click on source to deselect it</string>
    <property name="text">
     <string>Baseline</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
+   </property>
   </action>
   <action name="actionOutput">
    <property name="icon">
@@ -5748,6 +5942,9 @@ Click on source to deselect it</string>
    </property>
    <property name="text">
     <string>Output</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+7</string>
    </property>
   </action>
   <action name="actionRules">
@@ -5833,6 +6030,9 @@ Click on source to deselect it</string>
    </property>
    <property name="text">
     <string>Input</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
    </property>
   </action>
   <action name="actionSky_Coverage">

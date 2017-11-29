@@ -16,6 +16,9 @@
 #include <QComboBox>
 #include <QDateTimeEdit>
 #include <QDesktopServices>
+#include <QDockWidget>
+//#include <QTextBrowser>
+#include <mytextbrowser.h>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
@@ -55,7 +58,7 @@ public:
 private slots:    
     void closeEvent(QCloseEvent *event);
 
-    void writeXML();
+    QString writeXML();
 
     void readSettings();
 
@@ -295,7 +298,7 @@ private slots:
 
     void on_pushButton_25_clicked();
 
-    void on_actionSave_triggered();
+    QString on_actionSave_triggered();
 
     void on_pushButton_5_clicked();
 
@@ -329,6 +332,22 @@ private slots:
     void on_pushButton_saveMode_clicked();
 
     void on_pushButton_loadMode_clicked();
+
+    void clearGroup(bool sta, bool src, bool bl, QString name);
+
+    void clearSetup(bool sta, bool src, bool bl);
+
+    void splitterMoved();
+
+    void on_pushButton_faqSearch_clicked();
+
+    void on_actionFAQ_triggered();
+
+    void on_actionRun_triggered();
+
+    void networkSizeChanged();
+
+    void sourceListChanged();
 
 private:
     Ui::MainWindow *ui;
@@ -371,6 +390,7 @@ private:
 
     QSignalMapper *deleteModeMapper;
 
+    bool setupChanged;
     VieVS::ParameterSetup setupStationTree;
     VieVS::ParameterSetup setupSourceTree;
     VieVS::ParameterSetup setupBaselineTree;

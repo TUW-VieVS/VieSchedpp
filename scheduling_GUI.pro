@@ -47,7 +47,8 @@ SOURCES += \
     MultiScheduling.cpp \
     settingsloadwindow.cpp \
     addbanddialog.cpp \
-    savetosettingsdialog.cpp
+    savetosettingsdialog.cpp \
+    mytextbrowser.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -67,7 +68,8 @@ HEADERS += \
     MultiScheduling.h \
     settingsloadwindow.h \
     addbanddialog.h \
-    savetosettingsdialog.h
+    savetosettingsdialog.h \
+    mytextbrowser.h
 
 FORMS += \
         mainwindow.ui \

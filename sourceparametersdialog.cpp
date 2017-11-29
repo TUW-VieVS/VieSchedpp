@@ -210,6 +210,9 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
     if(ui->weightDoubleSpinBox->value() != *dp.weight){
         para.weight = ui->weightDoubleSpinBox->value();
     }
+    if(ui->checkBox->isChecked()){
+        para.fixedScanDuration = ui->spinBox_fixedScanDuration->value();
+    }
     if(ui->checkBox_focusIfObsOnce->isChecked()){
         para.tryToFocusIfObservedOnce = true;
     }
