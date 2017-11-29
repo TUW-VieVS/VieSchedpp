@@ -312,7 +312,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup,
         if (any.first == "waitTimes") {
             if (name == "__all__") {
                 cerr << "ERROR: double use of station/group " << name
-                     << " in cable wrap buffer block! This whole block is ignored!";
+                     << " in cable wrap buffer block! This whole block is ignored!;\n";
                 return;
             }
             string memberName = any.second.get_child("<xmlattr>.member").data();
@@ -321,7 +321,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup,
                                           groupStations_[memberName].end());
             } else if (memberName == "__all__") {
                 cerr << "ERROR: double use of station/group " << name
-                     << " in wait time block! This whole block is ignored!";
+                     << " in wait time block! This whole block is ignored!;\n";
                 return;
             } else {
                 membersAlreadyUsed.push_back(memberName);
@@ -331,7 +331,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup,
     for (const auto &any:members) {
         if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
             cerr << "ERROR: double use of station/group " << name
-                 << " in wait times block! This whole block is ignored!";
+                 << " in wait times block! This whole block is ignored!;\n";
             return;
         }
     }
@@ -362,7 +362,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
         if (any.first == "cableWrapBuffer") {
             if (name == "__all__") {
                 cerr << "ERROR: double use of station/group " << name
-                     << " in cable wrap buffer block! This whole block is ignored!";
+                     << " in cable wrap buffer block! This whole block is ignored!;\n";
                 return;
             }
             string memberName = any.second.get_child("<xmlattr>.member").data();
@@ -371,7 +371,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
                                           groupStations_[memberName].end());
             } else if (memberName == "__all__") {
                 cerr << "ERROR: double use of station/group " << name
-                     << " in cable wrap buffer block! This whole block is ignored!";
+                     << " in cable wrap buffer block! This whole block is ignored!;\n";
                 return;
             } else {
                 membersAlreadyUsed.push_back(memberName);
@@ -382,7 +382,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
     for (const auto &any:members) {
         if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
             cerr << "ERROR: double use of station/group " << name
-                 << " in cable wrap buffer block! This whole block is ignored!";
+                 << " in cable wrap buffer block! This whole block is ignored!;\n";
             return;
         }
     }
@@ -486,12 +486,12 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     weightFactor.add("weightFactor.averageStations", weight_averageStations);
 
     weightFactor.add("weightFactor.weightDeclination", weightDeclination);
-    weightFactor.add("weightFactor.declinationSlopeStart", declinationSlopeStart);
-    weightFactor.add("weightFactor.declinationSlopeEnd", declinationSlopeEnd);
+    weightFactor.add("weightFactor.declinationStartWeight", declinationSlopeStart);
+    weightFactor.add("weightFactor.declinationFullWeight", declinationSlopeEnd);
 
     weightFactor.add("weightFactor.weightLowElevation", weightLowElevation);
-    weightFactor.add("weightFactor.lowElevationSlopeStart", lowElevationSlopeStart);
-    weightFactor.add("weightFactor.lowElevationSlopeEnd", lowElevationSlopeEnd);
+    weightFactor.add("weightFactor.lowElevationStartWeight", lowElevationSlopeStart);
+    weightFactor.add("weightFactor.lowElevationFullWeight", lowElevationSlopeEnd);
 
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }

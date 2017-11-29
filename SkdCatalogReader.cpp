@@ -59,7 +59,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
 
@@ -86,7 +86,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         if (all.find(key) == all.end()) {
                             all.insert(pair<string, vector<string>>(key, splitVector));
                         } else {
-                            cerr << "    Duplicated element of '" << key << "' in " << filepath << "\n";
+                            cerr << "WARNING: Duplicated element of '" << key << "' in " << filepath << ";\n";
                         }
                     }
                 }
@@ -101,7 +101,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
                 vector<string> splitVector_total;
@@ -145,7 +145,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
                 vector<string> lines;
@@ -315,7 +315,7 @@ void SkdCatalogReader::readRecCatalog() {
                             staName2recFormatMap_[thisStaName] = splitVector2[4];
                             if (splitVector2.size() > 5) {
                                 cout << "WARNING: barrel_roll and max_bw information ignored for station "
-                                     << thisStaName << " in rec.cat";
+                                     << thisStaName << " in rec.cat" << ";" << endl;
                             }
                         }
                     }
@@ -342,7 +342,7 @@ void SkdCatalogReader::readTracksCatalog() {
                     if(bits_ == 0){
                         bits_ = bits;
                     } else if(bits_ != bits){
-                        cerr << "Number of recorded bits is different for different track ids\n";
+                        cerr << "ERROR: Number of recorded bits is different for different track ids;\n";
                     }
                     tracksId2bitsMap_[tracksId] = bits;
 
@@ -486,10 +486,10 @@ void SkdCatalogReader::saveOneLetterCode() {
         auto tmp = ant.at(staName);
         char oneLetterCode = tmp[0][0];
         if (charsUsed.find(oneLetterCode) != charsUsed.end()) {
-            cout << "One letter code " << oneLetterCode << " of station " << staName << " already used!";
+            cout << "WARGNING: One letter code " << oneLetterCode << " of station " << staName << " already used!";
             for (char l = 'A'; l <= 'Z'; ++l) {
                 if (charsUsed.find(l) == charsUsed.end()) {
-                    cout << "--> using \"" << l << "\" insted!\n";
+                    cout << "--> using \"" << l << "\" insted!; \n";
                     oneLetterCode = l;
                     break;
                 }

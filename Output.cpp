@@ -9,9 +9,10 @@ using namespace VieVS;
 
 Output::Output() = default;
 
-Output::Output(Scheduler &sched) : xml_{std::move(sched.xml_)},
+Output::Output(Scheduler &sched, std::string path) : xml_{std::move(sched.xml_)},
                                    stations_{std::move(sched.stations_)}, sources_{std::move(sched.sources_)},
-                                   skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)} {
+                                   skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)},
+                                   path{path} {
 }
 
 
@@ -23,9 +24,9 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
     } else {
         fname = (boost::format("statistics_%04d.txt") % (iSched_)).str();
     }
-    ofstream out(fname);
+    ofstream out(path+fname);
 
-    string txt = (boost::format("writing statistics to %s\n") % fname).str();
+    string txt = (boost::format("writing statistics to %s;\n") % fname).str();
     cout << txt;
 
     if (general) {
@@ -362,9 +363,9 @@ void Output::writeNGS() {
     } else {
         fname = (boost::format("ngs_%04d.txt") % (iSched_)).str();
     }
-    ofstream out(fname);
+    ofstream out(path+fname);
 
-    string txt = (boost::format("writing NGS file %s\n") % fname).str();
+    string txt = (boost::format("writing NGS file %s;\n") % fname).str();
     cout << txt;
 
     boost::posix_time::ptime start = TimeSystem::startTime;
@@ -429,10 +430,10 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
         fname = (boost::format("schedule_%04d.skd") % (iSched_)).str();
     }
 
-    string txt = (boost::format("writing SKD file %s\n") % fname).str();
+    string txt = (boost::format("writing SKD file %s;\n") % fname).str();
     cout << txt;
 
-    ofstream of(fname);
+    ofstream of(path+fname);
 
     of << "$EXPER " << xml_.get<string>("master.output.experimentName") << endl;
     skd_PARAM(skdCatalogReader, of);
@@ -458,7 +459,7 @@ void Output::skd_PARAM(const SkdCatalogReader &skdCatalogReader, ofstream &of) {
     of << "DESCRIPTION " << xml_.get<string>("master.output.experimentDescription") << endl;
     of << "SCHEDULING_SoFTWARE NEW_VIE_SCHED\n";
     of << "SOFTWARE_VERSION NEW_VIE_SCHED 0.1\n";
-    auto ct = xml_.get<boost::posix_time::ptime>("master.software.created");
+    auto ct = xml_.get<boost::posix_time::ptime>("master.general.created");
     of << boost::format("SCHEDULE_CREATE_DATE %04d%03d%02d%02d%02d ") % ct.date().year() % ct.date().day_of_year() %
           ct.time_of_day().hours() % ct.time_of_day().minutes() % ct.time_of_day().seconds();
     of << "SCHEDULER " << xml_.get<string>("master.output.scheduler") << " ";
@@ -884,7 +885,7 @@ void Output::skd_CODES(const SkdCatalogReader &skd, std::ofstream &of) {
     }
     for (const auto &sta:stations_){
         if(skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()){
-            cerr << "skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!\n";
+            cerr << "WARNING: skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!;\n";
             of << "*** F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode! ***\n";
         }
     }

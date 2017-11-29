@@ -702,11 +702,11 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         // update prev low elevation scores
         for(const auto &scan:bestScans){
-            double lowElevationSlopeStart = CalibratorBlock::lowElevationSlopeStart;
-            double lowElevationSlopeEnd = CalibratorBlock::lowElevationSlopeEnd;
+            double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
+            double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
-            double highElevationSlopeStart = CalibratorBlock::highElevationSlopeStart;
-            double highElevationSlopeEnd = CalibratorBlock::highElevationSlopeEnd;
+            double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
+            double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
 
 //            cout << "new Scan\n";
             for(int j = 0; j<scan.getNSta(); ++j){

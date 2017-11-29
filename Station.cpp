@@ -31,6 +31,7 @@ Station::Station(const string &sta_name, int id, const Antenna &sta_antenna, con
                  const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask) :
         name_{sta_name}, id_{id}, antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
         equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}{
+    std::replace(name_.begin(), name_.end(), '-', '_');
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {

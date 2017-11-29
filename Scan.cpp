@@ -735,13 +735,13 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (weightDeclination != 0) {
         double dec = source.getDe();
         double f = 0;
-        if (dec < WeightFactors::declinationSlopeStart) {
+        if (dec < WeightFactors::declinationStartWeight) {
             f = 0;
-        } else if (dec > WeightFactors::declinationSlopeEnd) {
+        } else if (dec > WeightFactors::declinationFullWeight) {
             f = 1;
         } else {
-            f = (dec - WeightFactors::declinationSlopeStart) /
-                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+            f = (dec - WeightFactors::declinationStartWeight) /
+                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
         this_score += f * WeightFactors::weightDeclination;
     }
@@ -807,13 +807,13 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (weightDeclination != 0) {
         double dec = source.getDe();
         double f = 0;
-        if (dec < WeightFactors::declinationSlopeStart) {
+        if (dec < WeightFactors::declinationStartWeight) {
             f = 0;
-        } else if (dec > WeightFactors::declinationSlopeEnd) {
+        } else if (dec > WeightFactors::declinationFullWeight) {
             f = 1;
         } else {
-            f = (dec - WeightFactors::declinationSlopeStart) /
-                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+            f = (dec - WeightFactors::declinationStartWeight) /
+                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
         this_score += f * WeightFactors::weightDeclination;
     }
@@ -879,13 +879,13 @@ void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const s
     if (weightDeclination != 0) {
         double dec = source.getDe();
         double f = 0;
-        if (dec < WeightFactors::declinationSlopeStart) {
+        if (dec < WeightFactors::declinationStartWeight) {
             f = 0;
-        } else if (dec > WeightFactors::declinationSlopeEnd) {
+        } else if (dec > WeightFactors::declinationFullWeight) {
             f = 1;
         } else {
-            f = (dec - WeightFactors::declinationSlopeStart) /
-                (WeightFactors::declinationSlopeEnd - WeightFactors::declinationSlopeStart);
+            f = (dec - WeightFactors::declinationStartWeight) /
+                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
         this_score += f * WeightFactors::weightDeclination;
     }
@@ -921,11 +921,11 @@ void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const s
 void Scan::calcScore(const std::vector<double> &prevLowElevationScores,
                      const std::vector<double> &prevHighElevationScores, unsigned int minRequiredTime,
                      unsigned int maxRequiredTime) {
-    double lowElevationSlopeStart = CalibratorBlock::lowElevationSlopeStart;
-    double lowElevationSlopeEnd = CalibratorBlock::lowElevationSlopeEnd;
+    double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
+    double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
-    double highElevationSlopeStart = CalibratorBlock::highElevationSlopeStart;
-    double highElevationSlopeEnd = CalibratorBlock::highElevationSlopeEnd;
+    double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
+    double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
 
     double improvementLowElevation = 0;
     double improvementHighElevation = 0;
@@ -1267,13 +1267,13 @@ double Scan::calcScore_lowElevation() {
     for (const auto &pv:pointingVectors_) {
         double el = pv.getEl();
         double f = 0;
-        if (el < WeightFactors::lowElevationSlopeStart) {
+        if (el < WeightFactors::lowElevationStartWeight) {
             f = 0;
-        } else if (el > WeightFactors::lowElevationSlopeEnd) {
+        } else if (el > WeightFactors::lowElevationFullWeight) {
             f = 1;
         } else {
-            f = (el - WeightFactors::lowElevationSlopeStart) /
-                (WeightFactors::lowElevationSlopeEnd - WeightFactors::lowElevationSlopeStart);
+            f = (el - WeightFactors::lowElevationStartWeight) /
+                (WeightFactors::lowElevationFullWeight - WeightFactors::lowElevationStartWeight);
         }
         score += f;
     }

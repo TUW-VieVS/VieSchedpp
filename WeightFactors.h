@@ -29,12 +29,12 @@ namespace VieVS{
         static thread_local double weightAverageStations; ///< weight factor for average out stations
 
         static thread_local double weightDeclination; ///< weight factor for declination
-        static thread_local double declinationSlopeStart; ///< start declination of additional weight (everything above has factor 0)
-        static thread_local double declinationSlopeEnd; ///< end declination of additional declination weight slope (everything below has factor 1)
+        static thread_local double declinationStartWeight; ///< start declination of additional weight (everything above has factor 0)
+        static thread_local double declinationFullWeight; ///< end declination of additional declination weight slope (everything below has factor 1)
 
         static thread_local double weightLowElevation; ///< weight factor for low elevation scans
-        static thread_local double lowElevationSlopeStart; ///< start elevation of additional weight (everything above has factor 0)
-        static thread_local double lowElevationSlopeEnd; ///< end elevation of additional declination weight slope (everything below has factor 1)
+        static thread_local double lowElevationStartWeight; ///< start elevation of additional weight (everything above has factor 0)
+        static thread_local double lowElevationFullWeight; ///< end elevation of additional declination weight slope (everything below has factor 1)
         /**
          * @brief summary of all weight factors
          *
@@ -48,14 +48,14 @@ namespace VieVS{
             of << "duration:             " << weightDuration << "\n";
             of << "averageSources:       " << weightAverageSources << "\n";
             of << "averageStations:      " << weightAverageStations << "\n";
-            of << "declination           " << weightDeclination << "from 90 to " << declinationSlopeStart * rad2deg
+            of << "declination           " << weightDeclination << "from 90 to " << declinationStartWeight * rad2deg
                << " = 0; from "
-               << declinationSlopeStart * rad2deg << " to " << declinationSlopeEnd * rad2deg << " = linear; from "
-               << declinationSlopeEnd * rad2deg << " to -90" << " = 1;\n";
-            of << "elevation             " << weightLowElevation << "from 90 to " << lowElevationSlopeStart * rad2deg
+               << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear; from "
+               << declinationFullWeight * rad2deg << " to -90" << " = 1;\n";
+            of << "elevation             " << weightLowElevation << "from 90 to " << lowElevationStartWeight * rad2deg
                << " = 0; from "
-               << lowElevationSlopeStart * rad2deg << " to " << lowElevationSlopeEnd * rad2deg << " = linear; from "
-               << lowElevationSlopeEnd * rad2deg << " to -90" << " = 1;\n";
+               << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear; from "
+               << lowElevationFullWeight * rad2deg << " to -90" << " = 1;\n";
         }
     };
 }

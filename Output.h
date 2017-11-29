@@ -33,7 +33,7 @@ namespace VieVS{
          *
          * @param sched scheduler
          */
-        explicit Output(Scheduler &sched);
+        explicit Output(Scheduler &sched, std::string path);
 
         /**
          * @brief sets the number of this schedule
@@ -72,6 +72,7 @@ namespace VieVS{
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
+        std::string path;
         int iSched_; ///< number of this schedule
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
