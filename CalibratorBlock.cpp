@@ -17,12 +17,12 @@ std::vector<int> CalibratorBlock::calibratorSourceIds {};
 
 unsigned int CalibratorBlock::nmaxScans = 0;
 
-CalibratorBlock::TargetScanLengthType CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::seconds;
+CalibratorBlock::TargetScanLengthType CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::parameters;
 std::unordered_map<std::string,double> CalibratorBlock::minSNR {};
 unsigned int CalibratorBlock::scanLength = 0;
 
-double CalibratorBlock::lowElevationSlopeStart = 40*deg2rad;
-double CalibratorBlock::lowElevationSlopeEnd   = 20*deg2rad;
+double CalibratorBlock::lowElevationStartWeight = 0*deg2rad;
+double CalibratorBlock::lowElevationFullWeight   = 0*deg2rad;
 
-double CalibratorBlock::highElevationSlopeStart = 50*deg2rad;
-double CalibratorBlock::highElevationSlopeEnd   = 70*deg2rad;
+double CalibratorBlock::highElevationStartWeight = 90*deg2rad;
+double CalibratorBlock::highElevationFullWeight   = 90*deg2rad;

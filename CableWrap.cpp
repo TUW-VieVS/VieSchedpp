@@ -24,7 +24,7 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
     if ((axis1Up_ - axis1Low_) > twopi) {
         double overlapping = (axis1Up_ - axis1Low_) - twopi;
         if (overlapping>twopi){
-            cerr << "ERROR: cable wrap limits to large!";
+            cerr << "ERROR: cable wrap limits to large!;";
         }
         wLow_ = axis1Low_;
         wUp_ = axis1Low_ + overlapping / 2;
@@ -130,7 +130,7 @@ double CableWrap::neutralPoint(int axis) const noexcept {
     } else if(axis==2){
         return (axis2Low_+axis2Up_)/2;
     } else {
-        cerr<< "Wrong axis number, use 1 or 2!\n";
+        cerr<< "ERROR: Wrong axis number, use 1 or 2!;\n";
     }
     return 0;
 }

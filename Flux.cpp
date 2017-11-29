@@ -41,8 +41,8 @@ bool Flux::addFluxParameters(const vector<string> &parameters) noexcept {
                 }
             }
             catch(const std::exception& e){
-                cout << "*** ERROR: reading flux information ***\n";
-                cout << e.what();
+                cout << "ERROR: reading flux information; \n";
+                cout << e.what() << ";\n";
                 return false;
             }
         }
@@ -59,7 +59,7 @@ bool Flux::addFluxParameters(const vector<string> &parameters) noexcept {
                 positionAngle_.push_back(boost::lexical_cast<double>(parameters.at(i*6+3))*deg2rad);
             }
             catch(const std::exception& e){
-                cout << "*** ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information ***\n";
+                cout << "ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information;\n";
                 return false;
             }
         }

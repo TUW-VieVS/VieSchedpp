@@ -18,6 +18,7 @@ namespace VieVS{
         };
 
         enum class TargetScanLengthType {
+            parameters,
             minSNR,
             seconds,
         };
@@ -39,11 +40,11 @@ namespace VieVS{
         static unsigned int scanLength;
 
 
-        static double lowElevationSlopeStart;
-        static double lowElevationSlopeEnd;
+        static double lowElevationStartWeight;
+        static double lowElevationFullWeight;
 
-        static double highElevationSlopeStart;
-        static double highElevationSlopeEnd;
+        static double highElevationStartWeight;
+        static double highElevationFullWeight;
 
     };
 }

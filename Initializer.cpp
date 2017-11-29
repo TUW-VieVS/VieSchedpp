@@ -22,7 +22,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     for (int i = 0; i < nsrc; ++i) {
         for (int j = i + 1; j < nsrc; ++j) {
             double dist = sources_[i].angleDistance(sources_[j]);
-            if (dist > parameters_.minAngleBetweenSubnettingSources) {
+            if (dist > parameters_.minAngleBetweenSubnettingSources){
                 subnettingSrcIds[i].push_back(j);
             }
         }
@@ -168,13 +168,13 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             }
         }
         if(!everythingOkWithBands){
-            cerr << "*** ERROR: station " << name << " required SEFD_ information missing!\n";
+            cerr << "ERROR: station " << name << " required SEFD_ information missing!;\n";
             continue;
         }
 
         if(SEFDs.size() != ObservationMode::bands.size()){
             if(SEFDs.empty()){
-                cerr << "*** ERROR: station " << name << " no SEFD_ information found to calculate backup value!\n";
+                cerr << "ERROR: station " << name << " no SEFD_ information found to calculate backup value!;\n";
                 continue;
             }
             double max = 0;
@@ -220,7 +220,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "*** ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!\n";
+                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
@@ -237,7 +237,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "*** ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!\n";
+                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
@@ -391,8 +391,8 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     if (flux_split[i][2] == thisType){
                         parameters.insert(parameters.end(), flux_split[i].begin()+3, flux_split[i].end());
                     }else {
-                        cerr << "*** ERROR: Source:" << name << "Flux: " << thisBand << "\n";
-                        cerr << "    You can not mix B and M flux information for one band!";
+                        cerr << "ERROR: Source:" << name << "Flux: " << thisBand << ";\n";
+                        cerr << "ERROR:   You can not mix B and M flux information for one band!;\n";
                     }
                 }
             }
@@ -406,7 +406,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             if (flagFlux){
                 flux[thisBand] = srcFlux;
             }else{
-                cerr << "error reading flux info of: "<< name << "\n";
+                cerr << "ERROR: error reading flux info of: "<< name << ";\n";
             }
             ++cflux;
         }
@@ -427,12 +427,12 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             }
         }
         if(!fluxBandInfoOk){
-            cerr << "WARNING: source " << name << " required SEFD_ information missing!\n";
+            cerr << "WARNING: source " << name << " required SEFD_ information missing!;\n";
         }
 
         if(flux.size() != ObservationMode::bands.size()){
             if(flux.empty()){
-                cerr << "*** ERROR: station " << name << " no SEFD_ information found to calculate backup value!\n";
+                cerr << "ERROR: station " << name << " no SEFD_ information found to calculate backup value!;\n";
                 continue;
             }
             double max = 0;
@@ -521,20 +521,20 @@ void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
 
 void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
     try {
-        boost::posix_time::ptime startTime = xml_.get<boost::posix_time::ptime>("master.general.startTime");
+        auto startTime = xml_.get<boost::posix_time::ptime>("master.general.startTime");
         headerLog << "start time:" << startTime << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
-        boost::posix_time::ptime endTime = xml_.get<boost::posix_time::ptime>("master.general.endTime");
+        auto endTime = xml_.get<boost::posix_time::ptime>("master.general.endTime");
         headerLog << "end time:" << endTime << "\n";
 
 
         boost::posix_time::time_duration a = endTime - startTime;
         int sec = a.total_seconds();
         if (sec < 0) {
-            cerr << "ERROR: duration is less than zero seconds!\n";
+            cerr << "ERROR: duration is less than zero seconds!;\n";
         }
         auto duration = static_cast<unsigned int>(sec);
         headerLog << "duration: " << duration << " [s]\n";
@@ -574,15 +574,16 @@ void Initializer::initializeStations() noexcept {
         PARA_station = xml_.get_child("master.station");
     }catch(const boost::property_tree::ptree_error &e){
         cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <station> block?" << endl;
+             "    probably missing <station> block?;" << endl;
     }
 
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
     unordered_map<std::string, Station::PARAMETERS> parameters;
-    for (auto &it: PARA_station) {
+    auto para_tree = PARA_station.get_child("parameters");
+    for (auto &it: para_tree) {
         string name = it.first;
-        if (name == "parameters") {
+        if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
             Station::PARAMETERS PARA;
@@ -605,7 +606,7 @@ void Initializer::initializeStations() noexcept {
                     PARA.maxScan = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "maxSlewtime") {
                     PARA.maxSlewtime = it2.second.get_value < unsigned int > ();
-                } else if (name == "maxWait") {
+                } else if (paraName == "maxWait") {
                     PARA.maxWait = it2.second.get_value < unsigned int > ();
                 } else if (paraName == "minSNR") {
                     string bandName = it2.second.get_child("<xmlattr>.band").data();
@@ -622,8 +623,8 @@ void Initializer::initializeStations() noexcept {
                         }
                     }
                 } else {
-                    cerr << "<station> <parameter>: " << parameterName << ": parameter <" << name
-                         << "> not understood! (Ignored)\n";
+                    cerr << "ERROR: <station> <parameter>: " << paraName << ": parameter <" << name
+                         << "> not understood! (Ignored);\n";
                 }
             }
             parameters[parameterName] = PARA;
@@ -639,7 +640,7 @@ void Initializer::initializeStations() noexcept {
     parentPARA.maxSlewtime = 9999;
     parentPARA.maxWait = 9999;
     parentPARA.maxScan = 600;
-    parentPARA.minScan = 30;
+    parentPARA.minScan = 20;
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
         parentPARA.minSNR[name] = 0;
@@ -703,9 +704,10 @@ void Initializer::initializeStations() noexcept {
     }
 
     vector<string> waitTimesInitialized;
-    for (auto &it: PARA_station) {
+    auto waitTime_tree = PARA_station.get_child("waitTimes");
+    for (auto &it: waitTime_tree) {
         string name = it.first;
-        if (name == "waitTimes") {
+        if (name == "waitTime") {
             vector<string> waitTimesNow;
             string memberName = it.second.get_child("<xmlattr>.member").data();
             if (groups.find(memberName) != groups.end()) {
@@ -722,7 +724,7 @@ void Initializer::initializeStations() noexcept {
             for (const auto &any:waitTimesNow) {
                 if (find(waitTimesInitialized.begin(), waitTimesInitialized.end(), any) != waitTimesInitialized.end()) {
                     cerr << "ERROR: double use of station/group " << name
-                         << " in wait times block! This whole block is ignored!";
+                         << " in wait times block! This whole block is ignored!;\n";
                     errorFlagWaitTime = true;
                 }
             }
@@ -749,8 +751,9 @@ void Initializer::initializeStations() noexcept {
         }
     }
 
+    auto cableBuffer_tree = PARA_station.get_child("cableWrapBuffers");
     vector<string> cableInitialized;
-    for (auto &it: PARA_station) {
+    for (auto &it: cableBuffer_tree) {
         string name = it.first;
         if (name == "cableWrapBuffer") {
             vector<string> cableNow;
@@ -769,7 +772,7 @@ void Initializer::initializeStations() noexcept {
             for (const auto &any:cableNow) {
                 if (find(cableInitialized.begin(), cableInitialized.end(), any) != cableInitialized.end()) {
                     cerr << "ERROR: double use of station/group " << name
-                         << " in wait times block! This whole block is ignored!";
+                         << " in wait times block! This whole block is ignored!;\n";
                     errorFlagWaitTime = true;
                 }
             }
@@ -883,7 +886,7 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << "\n";
+                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
             }
         }
     }
@@ -939,15 +942,16 @@ void Initializer::initializeSources() noexcept {
         PARA_source = xml_.get_child("master.source");
     }catch(const boost::property_tree::ptree_error &e){
         cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <source> block?" << endl;
+             "    probably missing <source> block?;" << endl;
     }
 
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
+    auto para_tree = PARA_source.get_child("parameters");
     unordered_map<std::string, Source::PARAMETERS> parameters;
-    for (auto &it: PARA_source) {
+    for (auto &it: para_tree) {
         string name = it.first;
-        if (name == "parameters") {
+        if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
             Source::PARAMETERS PARA;
@@ -1031,8 +1035,8 @@ void Initializer::initializeSources() noexcept {
                         PARA.ignoreBaselines.push_back({staid1, staid2});
                     }
                 } else {
-                    cerr << "<source> <parameter>: " << parameterName << ": parameter <" << name
-                            << "> not understood! (Ignored)\n";
+                    cerr << "ERROR: <source> <parameter>: " << parameterName << ": parameter <" << name
+                            << "> not understood! (Ignored);\n";
                 }
             }
             parameters[parameterName] = PARA;
@@ -1193,7 +1197,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << "\n";
+                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
             }
         }
     }
@@ -1365,12 +1369,12 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightAverageStations = xml_.get<double>("master.weightFactor.averageStations", 0);
 
     WeightFactors::weightDeclination = xml_.get<double>("master.weightFactor.weightDeclination", 0);
-    WeightFactors::declinationSlopeStart = xml_.get<double>("master.weightFactor.declinationSlopeStart", 0) * deg2rad;
-    WeightFactors::declinationSlopeEnd = xml_.get<double>("master.weightFactor.declinationSlopeEnd", 0) * deg2rad;
+    WeightFactors::declinationStartWeight = xml_.get<double>("master.weightFactor.declinationStartWeight", 0) * deg2rad;
+    WeightFactors::declinationFullWeight = xml_.get<double>("master.weightFactor.declinationFullWeight", 0) * deg2rad;
 
     WeightFactors::weightLowElevation = xml_.get<double>("master.weightFactor.weightLowElevation", 0);
-    WeightFactors::lowElevationSlopeStart = xml_.get<double>("master.weightFactor.lowElevationSlopeStart", 0) * deg2rad;
-    WeightFactors::lowElevationSlopeEnd = xml_.get<double>("master.weightFactor.lowElevationSlopeEnd", 0) * deg2rad;
+    WeightFactors::lowElevationStartWeight = xml_.get<double>("master.weightFactor.lowElevationStartWeight", 0) * deg2rad;
+    WeightFactors::lowElevationFullWeight = xml_.get<double>("master.weightFactor.lowElevationFullWeight", 0) * deg2rad;
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
@@ -1411,15 +1415,16 @@ void Initializer::initializeBaselines() noexcept {
         PARA_baseline = xml_.get_child("master.baseline");
     } catch (const boost::property_tree::ptree_error &e) {
         cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <baseline> block?" << endl;
+             "    probably missing <baseline> block?;" << endl;
     }
 
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline, GroupType::baseline);
 
+    auto para_tree = PARA_baseline.get_child("parameters");
     unordered_map<std::string, Baseline::PARAMETERS> parameters;
-    for (auto &it: PARA_baseline) {
+    for (auto &it: para_tree) {
         string name = it.first;
-        if (name == "parameters") {
+        if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
             Baseline::PARAMETERS PARA;
@@ -1443,8 +1448,8 @@ void Initializer::initializeBaselines() noexcept {
                     double value = it2.second.get_value<double>();
                     PARA.minSNR[bandName] = value;
                 } else {
-                    cerr << "<baseline> <parameter>: " << parameterName << ": parameter <" << name
-                         << "> not understood! (Ignored)\n";
+                    cerr << "ERROR: <baseline> <parameter>: " << parameterName << ": parameter <" << name
+                         << "> not understood! (Ignored);\n";
                 }
             }
             parameters[parameterName] = PARA;
@@ -1537,8 +1542,10 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
         } else if (paraName == "member") {
             string tmp = it.second.data();
             if (tmp == "__all__") {
-                for (const auto &any:sources_) {
-                    members.push_back(any.getName());
+                for(int i = 0; i<stations_.size(); ++i){
+                    for(int j=i+1; j<stations_.size(); ++j){
+                        members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
+                    }
                 }
             } else {
                 members.push_back(tmp);
@@ -1585,7 +1592,7 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << "\n";
+                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
             }
         }
     }
@@ -1728,12 +1735,6 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
         } else if(it.first == "band"){
             double wavelength;
             unsigned int channels;
-            ObservationMode::Property station_property;
-            ObservationMode::Backup station_backup = ObservationMode::Backup::none;
-            double station_backupValue;
-            ObservationMode::Property source_property;
-            ObservationMode::Backup source_backup = ObservationMode::Backup::none;
-            double source_backupValue;
             string name;
 
             for (const auto &it_band:it.second){
@@ -1744,64 +1745,83 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
                     wavelength = it_band.second.get_value<double>();
                 }else if(it_band.first == "chanels"){
                     channels = it_band.second.get_value<unsigned int>();
-                }else if(it_band.first == "station"){
-                    for (const auto &it_band_station:it_band.second){
-                        string thisName = it_band_station.first.data();
-                        if (thisName == "tag"){
-                            if(it_band_station.second.get_value<std::string>() == "required") {
-                                station_property = ObservationMode::Property::required;
-                            }else if(it_band_station.second.get_value<std::string>() == "optional"){
-                                station_property = ObservationMode::Property::optional;
-                            }
-                        } else if (thisName == "backup_maxValueTimes"){
-                            station_backup = ObservationMode::Backup::maxValueTimes;
-                            station_backupValue = it_band_station.second.get_value<double>();
-
-                        } else if (thisName == "backup_minValueTimes"){
-                            station_backup = ObservationMode::Backup::minValueTimes;
-                            station_backupValue = it_band_station.second.get_value<double>();
-
-                        } else if (thisName == "backup_value"){
-                            station_backup = ObservationMode::Backup::value;
-                            station_backupValue = it_band_station.second.get_value<double>();
-                        }
-                    }
-                }else if(it_band.first == "source"){
-                    for (const auto &it_band_source:it_band.second){
-                        string thisName = it_band_source.first.data();
-                        if (thisName == "tag"){
-                            if(it_band_source.second.get_value<std::string>() == "required") {
-                                source_property = ObservationMode::Property::required;
-                            }else if(it_band_source.second.get_value<std::string>() == "optional"){
-                                source_property = ObservationMode::Property::optional;
-                            }
-                        } else if (thisName == "backup_maxValueTimes"){
-                            source_backup = ObservationMode::Backup::maxValueTimes;
-                            source_backupValue = it_band_source.second.get_value<double>();
-
-                        } else if (thisName == "backup_minValueTimes"){
-                            source_backup = ObservationMode::Backup::minValueTimes;
-                            source_backupValue = it_band_source.second.get_value<double>();
-
-                        } else if (thisName == "backup_value"){
-                            source_backup = ObservationMode::Backup::value;
-                            source_backupValue = it_band_source.second.get_value<double>();
-                        }
-                    }
                 }
             }
             ObservationMode::bands.push_back(name);
 
             ObservationMode::nChannels[name] = channels;
             ObservationMode::wavelength[name] = wavelength;
+        }else if(it.first == "bandPolicies"){
 
-            ObservationMode::stationProperty[name] = station_property;
-            ObservationMode::stationBackup[name] = station_backup;
-            ObservationMode::stationBackupValue[name] = station_backupValue;
+            for (const auto &it_bandPolicies:it.second){
+                ObservationMode::Property station_property;
+                ObservationMode::Backup station_backup = ObservationMode::Backup::none;
+                double station_backupValue;
+                ObservationMode::Property source_property;
+                ObservationMode::Backup source_backup = ObservationMode::Backup::none;
+                double source_backupValue;
+                double minSNR;
+                string name;
 
-            ObservationMode::sourceProperty[name] = source_property;
-            ObservationMode::sourceBackup[name] = source_backup;
-            ObservationMode::sourceBackupValue[name] = source_backupValue;
+                for(const auto &it_bandPolicy:it_bandPolicies.second){
+                    if(it_bandPolicy.first == "<xmlattr>"){
+                        name = it_bandPolicy.second.get_child("name").data();
+                    }else if(it_bandPolicy.first == "minSNR"){
+                        minSNR = it_bandPolicy.second.get_value<double>();
+                    }else if(it_bandPolicy.first == "station"){
+                        for (const auto &it_band_station:it_bandPolicy.second){
+                            string thisName = it_band_station.first.data();
+                            if (thisName == "tag"){
+                                if(it_band_station.second.get_value<std::string>() == "required") {
+                                    station_property = ObservationMode::Property::required;
+                                }else if(it_band_station.second.get_value<std::string>() == "optional"){
+                                    station_property = ObservationMode::Property::optional;
+                                }
+                            } else if (thisName == "backup_maxValueTimes"){
+                                station_backup = ObservationMode::Backup::maxValueTimes;
+                                station_backupValue = it_band_station.second.get_value<double>();
+
+                            } else if (thisName == "backup_minValueTimes"){
+                                station_backup = ObservationMode::Backup::minValueTimes;
+                                station_backupValue = it_band_station.second.get_value<double>();
+
+                            } else if (thisName == "backup_value"){
+                                station_backup = ObservationMode::Backup::value;
+                                station_backupValue = it_band_station.second.get_value<double>();
+                            }
+                        }
+                    }else if(it_bandPolicy.first == "source") {
+                        for (const auto &it_band_source:it_bandPolicy.second) {
+                            string thisName = it_band_source.first.data();
+                            if (thisName == "tag") {
+                                if (it_band_source.second.get_value<std::string>() == "required") {
+                                    source_property = ObservationMode::Property::required;
+                                } else if (it_band_source.second.get_value<std::string>() == "optional") {
+                                    source_property = ObservationMode::Property::optional;
+                                }
+                            } else if (thisName == "backup_maxValueTimes") {
+                                source_backup = ObservationMode::Backup::maxValueTimes;
+                                source_backupValue = it_band_source.second.get_value<double>();
+
+                            } else if (thisName == "backup_minValueTimes") {
+                                source_backup = ObservationMode::Backup::minValueTimes;
+                                source_backupValue = it_band_source.second.get_value<double>();
+
+                            } else if (thisName == "backup_value") {
+                                source_backup = ObservationMode::Backup::value;
+                                source_backupValue = it_band_source.second.get_value<double>();
+                            }
+                        }
+                    }
+                }
+                ObservationMode::stationProperty[name] = station_property;
+                ObservationMode::stationBackup[name] = station_backup;
+                ObservationMode::stationBackupValue[name] = station_backupValue;
+
+                ObservationMode::sourceProperty[name] = source_property;
+                ObservationMode::sourceBackup[name] = source_backup;
+                ObservationMode::sourceBackupValue[name] = source_backupValue;
+            }
         }
     }
 
@@ -1810,18 +1830,6 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
     headerLog << "  recording bits: " << ObservationMode::bits << "\n";
     headerLog << "  Bands: \n";
     for(const auto &any:ObservationMode::bands){
-//        string staReq;
-//        if(ObservationMode::stationProperty.at(any) == ObservationMode::Property::required){
-//            staReq = "required";
-//        } else {
-//            staReq = "optional";
-//        }
-//        string srcReq;
-//        if(ObservationMode::sourceProperty.at(any) == ObservationMode::Property::required){
-//            srcReq = "required";
-//        } else {
-//            srcReq = "optional";
-//        }
         unsigned int channels = ObservationMode::nChannels.at(any);
         double wavelength = ObservationMode::wavelength.at(any);
         headerLog << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
@@ -1831,17 +1839,20 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
     unordered_map<std::string, std::vector<std::string> > groups;
-    for (auto &it: root) {
-        string name = it.first;
-        if (name == "group") {
-            string groupName = it.second.get_child("<xmlattr>.name").data();
-            std::vector<std::string> members;
-            for (auto &it2: it.second) {
-                if (it2.first == "member") {
-                    members.push_back(it2.second.data());
+    auto groupTree = root.get_child_optional("groups");
+    if(groupTree.is_initialized()){
+        for (auto &it: *groupTree) {
+            string name = it.first;
+            if (name == "group") {
+                string groupName = it.second.get_child("<xmlattr>.name").data();
+                std::vector<std::string> members;
+                for (auto &it2: it.second) {
+                    if (it2.first == "member") {
+                        members.push_back(it2.second.data());
+                    }
                 }
+                groups[groupName] = members;
             }
-            groups[groupName] = members;
         }
     }
 
@@ -2380,7 +2391,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_station.find(name) != group_station.end()) {
@@ -2406,7 +2417,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_station.find(name) != group_station.end()) {
@@ -2432,7 +2443,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_station.find(name) != group_station.end()) {
@@ -2458,7 +2469,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_station.find(name) != group_station.end()) {
@@ -2483,7 +2494,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_station.find(name) != group_station.end()) {
@@ -2509,7 +2520,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2534,7 +2545,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2560,7 +2571,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2586,7 +2597,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2612,7 +2623,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2637,7 +2648,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_source.find(name) != group_source.end()) {
@@ -2663,7 +2674,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_baseline.find(name) != group_baseline.end()) {
@@ -2689,7 +2700,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_baseline.find(name) != group_baseline.end()) {
@@ -2714,7 +2725,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     }
                 }
                 if (name.empty()) {
-                    cerr << "missing member attribute in parameter file!\n";
+                    cerr << "ERROR: missing member attribute in parameter file!;\n";
                     terminate();
                 }
                 if (group_baseline.find(name) != group_baseline.end()) {
@@ -2867,6 +2878,12 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
 
                 headerLog << "  fixed scan length for calibrator scans: "<< CalibratorBlock::scanLength <<" seconds\n";
 
+            } else if (any.first == "lowElevation"){
+                CalibratorBlock::lowElevationStartWeight = any.second.get<double>("startWeight");
+                CalibratorBlock::lowElevationFullWeight = any.second.get<double>("fullWeight");
+            } else if (any.first == "highElevation"){
+                CalibratorBlock::highElevationStartWeight = any.second.get<double>("startWeight");
+                CalibratorBlock::highElevationFullWeight = any.second.get<double>("fullWeight");
             }
 
         }

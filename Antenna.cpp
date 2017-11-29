@@ -111,7 +111,7 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
         case AxisType::SEST:
         case AxisType::ALGO:
         case AxisType::undefined:{
-            cerr << "ERROR axis type is not yet implementet for slewtime calculation!\n";
+            cerr << "ERROR axis type is not yet implementet for slewtime calculation!;\n";
             slewtime = numeric_limits<unsigned int>::max();
             break;
         }
