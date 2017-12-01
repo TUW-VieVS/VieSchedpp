@@ -15,6 +15,7 @@
 #include <boost/date_time.hpp>
 #include <utility>
 #include <unordered_map>
+#include <boost/format.hpp>
 
 #include "ParameterSetup.h"
 #include "ParameterGroup.h"
@@ -363,6 +364,20 @@ namespace VieVS {
          * @param multiSched multisched xml tree
          */
         void multisched(const boost::property_tree::ptree &multiSched);
+
+        /**
+         * @brief multiCore multi core support for scheduling
+         *
+         * @param threads thread creation schema
+         * @param nThreadsManual number of manually selected threads
+         * @param jobScheduler job scheduling algorithmus
+         * @param chunkSize job scheduling chunk size
+         * @param threadPlace thread affinitiy control
+         */
+        void multiCore(const std::string &threads, int nThreadsManual,
+                       const std::string &jobScheduler, int chunkSize,
+                       const std::string &threadPlace);
+
 
         /**
          * @brief output routine that produces .xml file

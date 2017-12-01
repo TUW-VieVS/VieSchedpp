@@ -24,8 +24,17 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
                                 const std::vector<std::string> &stations, const boost::posix_time::ptime &created) {
     boost::property_tree::ptree general;
     general.add("general.created", created);
-    general.add("general.startTime", startTime);
-    general.add("general.endTime", endTime);
+
+    string startTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                           % startTime.date().year() %startTime.date().month() %startTime.date().day()
+                           % startTime.time_of_day().hours() %startTime.time_of_day().minutes() %startTime.time_of_day().seconds()).str();
+    general.add("general.startTime", startTimeStr);
+
+    string endTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                           % endTime.date().year() %endTime.date().month() %endTime.date().day()
+                           % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
+    general.add("general.endTime", endTimeStr);
+
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
     general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
@@ -551,8 +560,25 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
 
 boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup &setup) {
     boost::property_tree::ptree root;
-    boost::posix_time::ptime start = master_.get<boost::posix_time::ptime>("master.general.startTime");
-    boost::posix_time::ptime end = master_.get<boost::posix_time::ptime>("master.general.endTime");
+
+    string startstr = master_.get<string>("master.general.startTime");
+    auto syear = boost::lexical_cast<unsigned short>(startstr.substr(0,4));
+    auto smonth = boost::lexical_cast<unsigned short>(startstr.substr(5,2));
+    auto sday = boost::lexical_cast<unsigned short>(startstr.substr(8,2));
+    auto shour = boost::lexical_cast<int>(startstr.substr(11,2));
+    auto sminute = boost::lexical_cast<int>(startstr.substr(14,2));
+    auto ssecond = boost::lexical_cast<int>(startstr.substr(17,2));
+    boost::posix_time::ptime start = boost::posix_time::ptime(boost::gregorian::date(syear,smonth,sday),boost::posix_time::time_duration(shour,sminute,ssecond));
+
+
+    string endstr = master_.get<string>("master.general.endTime");
+    auto eyear = boost::lexical_cast<unsigned short>(endstr.substr(0,4));
+    auto emonth = boost::lexical_cast<unsigned short>(endstr.substr(5,2));
+    auto eday = boost::lexical_cast<unsigned short>(endstr.substr(8,2));
+    auto ehour = boost::lexical_cast<int>(endstr.substr(11,2));
+    auto eminute = boost::lexical_cast<int>(endstr.substr(14,2));
+    auto esecond = boost::lexical_cast<int>(endstr.substr(17,2));
+    boost::posix_time::ptime end = boost::posix_time::ptime(boost::gregorian::date(eyear,emonth,eday),boost::posix_time::time_duration(ehour,eminute,esecond));
 
     boost::posix_time::time_duration a = end - start;
     int sec = a.total_seconds();
@@ -736,6 +762,22 @@ void ParameterSettings::write(const std::string &name) {
 
 void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree) {
     master_.add_child("master.multisched", ms_tree.get_child("multisched"));
+}
+
+void ParameterSettings::multiCore(const string &threads, int nThreadsManual, const string &jobScheduler, int chunkSize, const string &threadPlace)
+{
+    boost::property_tree::ptree mc;
+    mc.add("multiCore.threads",threads);
+    if(threads == "manual"){
+        mc.add("multiCore.nThreads",nThreadsManual);
+    }
+    mc.add("multiCore.jobScheduling",jobScheduler);
+    if(jobScheduler != "auto"){
+        mc.add("multiCore.chunkSize",chunkSize);
+    }
+    mc.add("multiCore.threadPlace",threadPlace);
+
+    master_.add_child("master.multiCore", mc.get_child("multiCore"));
 }
 
 void

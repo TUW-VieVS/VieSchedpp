@@ -2707,8 +2707,14 @@ QString MainWindow::writeXML()
                 }
             }
         }
-
         para.multisched(ms.createPropertyTree());
+
+        std::string threads = ui->comboBox_nThreads->currentText().toStdString();
+        int nThreadsManual = ui->spinBox_nCores->value();
+        std::string jobScheduler = ui->comboBox_jobSchedule->currentText().toStdString();
+        int chunkSize = ui->spinBox_chunkSize->value();
+        std::string threadPlace = ui->comboBox_threadPlace->currentText().toStdString();
+        para.multiCore(threads,nThreadsManual,jobScheduler,chunkSize,threadPlace);
     }
     QString path = ui->lineEdit_outputPath->text();
     path = path.simplified();
@@ -4826,14 +4832,18 @@ void MainWindow::on_actionRun_triggered()
         myTextBrowser *tb = new myTextBrowser(dw);
         dw->setWidget(tb);
 
-        addDockWidget(Qt::BottomDockWidgetArea,dw);
+        QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
 
+        if(dockWidgets.size() == 1){
+            addDockWidget(Qt::BottomDockWidgetArea,dw);
+        }else{
+            tabifyDockWidget(dockWidgets.at(0),dw);
+        }
         QString program = ui->pathToSchedulerLineEdit->text();
         QStringList arguments;
         arguments << fullPath;
 
         QProcess *start = new QProcess(this);
-        start->setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
 
         start->start(program,arguments);
 
@@ -4860,4 +4870,26 @@ void MainWindow::sourceListChanged()
 {
     int size = selectedSourceModel->rowCount();
     ui->label_sourceList_selected->setText(QString("selected: %1").arg(size));
+}
+
+void MainWindow::on_comboBox_nThreads_currentTextChanged(const QString &arg1)
+{
+    if(arg1 == "manual"){
+        ui->label_nCores->setEnabled(true);
+        ui->spinBox_nCores->setEnabled(true);
+    }else{
+        ui->label_nCores->setEnabled(false);
+        ui->spinBox_nCores->setEnabled(false);
+    }
+}
+
+void MainWindow::on_comboBox_jobSchedule_currentTextChanged(const QString &arg1)
+{
+    if(arg1 == "auto"){
+        ui->label_chunkSize->setEnabled(false);
+        ui->spinBox_chunkSize->setEnabled(false);
+    }else{
+        ui->label_chunkSize->setEnabled(true);
+        ui->spinBox_chunkSize->setEnabled(true);
+    }
 }

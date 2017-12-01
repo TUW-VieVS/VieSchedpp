@@ -349,6 +349,10 @@ private slots:
 
     void sourceListChanged();
 
+    void on_comboBox_nThreads_currentTextChanged(const QString &arg1);
+
+    void on_comboBox_jobSchedule_currentTextChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

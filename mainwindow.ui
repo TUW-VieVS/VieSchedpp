@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>10</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -753,8 +753,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>247</width>
+             <height>612</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -5042,284 +5042,392 @@ Click on source to deselect it</string>
            <bool>true</bool>
           </property>
           <property name="checked">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_44" stretch="1,0">
+          <layout class="QVBoxLayout" name="verticalLayout_44" stretch="0">
            <item>
-            <widget class="QSplitter" name="splitter_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+            <widget class="QTabWidget" name="tabWidget_3">
+             <property name="tabShape">
+              <enum>QTabWidget::Rounded</enum>
              </property>
-             <widget class="QWidget" name="layoutWidget">
-              <layout class="QVBoxLayout" name="verticalLayout_33">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="tab_3">
+              <attribute name="title">
+               <string>parameters</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_48" stretch="1,0">
                <item>
-                <widget class="QLabel" name="label_20">
-                 <property name="text">
-                  <string>available multi scheduling parameters</string>
+                <widget class="QSplitter" name="splitter_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
                  </property>
+                 <widget class="QWidget" name="layoutWidget">
+                  <layout class="QVBoxLayout" name="verticalLayout_33">
+                   <item>
+                    <widget class="QLabel" name="label_20">
+                     <property name="text">
+                      <string>available multi scheduling parameters</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTreeWidget" name="treeWidget_multiSched">
+                     <attribute name="headerHighlightSections">
+                      <bool>false</bool>
+                     </attribute>
+                     <attribute name="headerShowSortIndicator" stdset="0">
+                      <bool>false</bool>
+                     </attribute>
+                     <column>
+                      <property name="text">
+                       <string>parameter</string>
+                      </property>
+                     </column>
+                     <item>
+                      <property name="text">
+                       <string>General</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>session start</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>subnetting</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>fillin mode</string>
+                       </property>
+                      </item>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Weight factor</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>sky coverage</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>number of observations</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>duration</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>average stations</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>average sources</string>
+                       </property>
+                      </item>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Station</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/station.png</normaloff>:/icons/icons/station.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>max slew time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>max wait time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>max scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>min scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Source</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/source.png</normaloff>:/icons/icons/source.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>min number of stations</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>min flux</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>min repeat time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>max scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>min scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Baseline</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/baseline.png</normaloff>:/icons/icons/baseline.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>max scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>min scan time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                     </item>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_91">
+                     <item>
+                      <widget class="QPushButton" name="pushButton_addGroupStationSetup_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>1</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>20</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string>add new station group</string>
+                       </property>
+                       <property name="statusTip">
+                        <string>add new station group</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="myresources.qrc">
+                         <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>16</width>
+                         <height>16</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_addGroupsourceSetup_2">
+                       <property name="toolTip">
+                        <string>add new source group</string>
+                       </property>
+                       <property name="statusTip">
+                        <string>add new source group</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="myresources.qrc">
+                         <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_addGroupBaselineSetup_2">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                         <horstretch>1</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>20</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string>add new baseline group</string>
+                       </property>
+                       <property name="statusTip">
+                        <string>add new baseline group</string>
+                       </property>
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="myresources.qrc">
+                         <normaloff>:/icons/icons/baseline_group_plus.png</normaloff>:/icons/icons/baseline_group_plus.png</iconset>
+                       </property>
+                       <property name="iconSize">
+                        <size>
+                         <width>16</width>
+                         <height>16</height>
+                        </size>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_17">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_multiSchedAddSelected">
+                       <property name="text">
+                        <string>add selected</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="myresources.qrc">
+                         <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="layoutWidget">
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <item>
+                    <widget class="QLabel" name="label_21">
+                     <property name="text">
+                      <string>selected multi scheduling parameters</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QTreeWidget" name="treeWidget_multiSchedSelected">
+                     <column>
+                      <property name="text">
+                       <string>parameter</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>member</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>nr. values</string>
+                      </property>
+                     </column>
+                     <column>
+                      <property name="text">
+                       <string>list of values</string>
+                      </property>
+                     </column>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QHBoxLayout" name="horizontalLayout_63">
+                     <item>
+                      <spacer name="horizontalSpacer_12">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_25">
+                       <property name="text">
+                        <string>remove selected</string>
+                       </property>
+                       <property name="icon">
+                        <iconset resource="myresources.qrc">
+                         <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </widget>
                 </widget>
                </item>
                <item>
-                <widget class="QTreeWidget" name="treeWidget_multiSched">
-                 <attribute name="headerHighlightSections">
-                  <bool>false</bool>
-                 </attribute>
-                 <attribute name="headerShowSortIndicator" stdset="0">
-                  <bool>false</bool>
-                 </attribute>
-                 <column>
-                  <property name="text">
-                   <string>parameter</string>
-                  </property>
-                 </column>
+                <layout class="QHBoxLayout" name="horizontalLayout_62">
                  <item>
-                  <property name="text">
-                   <string>General</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>session start</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>subnetting</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>fillin mode</string>
-                   </property>
-                  </item>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Weight factor</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/weight.png</normaloff>:/icons/icons/weight.png</iconset>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>sky coverage</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>number of observations</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>duration</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>average stations</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>average sources</string>
-                   </property>
-                  </item>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Station</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/station.png</normaloff>:/icons/icons/station.png</iconset>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>max slew time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>max wait time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>max scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>min scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>weight</string>
-                   </property>
-                  </item>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Source</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/source.png</normaloff>:/icons/icons/source.png</iconset>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>min number of stations</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>min flux</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>min repeat time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>max scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>min scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>weight</string>
-                   </property>
-                  </item>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Baseline</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/baseline.png</normaloff>:/icons/icons/baseline.png</iconset>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>max scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>min scan time</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>weight</string>
-                   </property>
-                  </item>
-                 </item>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_91">
-                 <item>
-                  <widget class="QPushButton" name="pushButton_addGroupStationSetup_2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="toolTip">
-                    <string>add new station group</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>add new station group</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_addGroupsourceSetup_2">
-                   <property name="toolTip">
-                    <string>add new source group</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>add new source group</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_addGroupBaselineSetup_2">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>1</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>20</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="toolTip">
-                    <string>add new baseline group</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>add new baseline group</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/baseline_group_plus.png</normaloff>:/icons/icons/baseline_group_plus.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>16</width>
-                     <height>16</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_17">
+                  <spacer name="horizontalSpacer_16">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
@@ -5332,13 +5440,16 @@ Click on source to deselect it</string>
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pushButton_multiSchedAddSelected">
+                  <widget class="QLabel" name="label_9">
                    <property name="text">
-                    <string>add selected</string>
+                    <string>total number of schedules: </string>
                    </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_multiSchedulingNsched">
+                   <property name="text">
+                    <string>1</string>
                    </property>
                   </widget>
                  </item>
@@ -5346,43 +5457,153 @@ Click on source to deselect it</string>
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="layoutWidget">
-              <layout class="QVBoxLayout" name="verticalLayout_9">
+             <widget class="QWidget" name="tab_4">
+              <attribute name="title">
+               <string>multi core support</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_49">
                <item>
-                <widget class="QLabel" name="label_21">
-                 <property name="text">
-                  <string>selected multi scheduling parameters</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QTreeWidget" name="treeWidget_multiSchedSelected">
-                 <column>
-                  <property name="text">
-                   <string>parameter</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>member</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>nr. values</string>
-                  </property>
-                 </column>
-                 <column>
-                  <property name="text">
-                   <string>list of values</string>
-                  </property>
-                 </column>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_63">
+                <layout class="QHBoxLayout" name="horizontalLayout_90">
                  <item>
-                  <spacer name="horizontalSpacer_12">
+                  <layout class="QGridLayout" name="gridLayout_4">
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_chunkSize">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>chunk size</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QComboBox" name="comboBox_jobSchedule">
+                     <item>
+                      <property name="text">
+                       <string>auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>static</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dynamic</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>guided</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_nCores">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>select</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QComboBox" name="comboBox_nThreads">
+                     <item>
+                      <property name="text">
+                       <string>auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>single</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>manual</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QLabel" name="label_23">
+                     <property name="text">
+                      <string>job scheduling</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0">
+                    <widget class="QLabel" name="label_5">
+                     <property name="text">
+                      <string>number of threads</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="3">
+                    <widget class="QSpinBox" name="spinBox_nCores">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>10000</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QSpinBox" name="spinBox_chunkSize">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>10000</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QLabel" name="label_41">
+                     <property name="text">
+                      <string>thread places</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QComboBox" name="comboBox_threadPlace">
+                     <item>
+                      <property name="text">
+                       <string>auto</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>cores</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>threads</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>sockets</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_35">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
@@ -5394,53 +5615,24 @@ Click on source to deselect it</string>
                    </property>
                   </spacer>
                  </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_25">
-                   <property name="text">
-                    <string>remove selected</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
                 </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_10">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>504</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </widget>
             </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_62">
-             <item>
-              <spacer name="horizontalSpacer_16">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_9">
-               <property name="text">
-                <string>total number of schedules: </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_multiSchedulingNsched">
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </item>
           </layout>
          </widget>
