@@ -68,7 +68,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
         }
 
         if (!scanValid_slew || !scanValid_idle){
-            singleScans_.erase(singleScans_.begin()+i);
+            singleScans_.erase(next(singleScans_.begin(),i));
             --nSingleScans_;
         }else{
             ++i;
@@ -86,7 +86,7 @@ void Subcon::constructAllBaselines(const vector<Source> &sources) noexcept {
             ++i;
         } else {
             --nSingleScans_;
-            singleScans_.erase(singleScans_.begin() + i);
+            singleScans_.erase(next(singleScans_.begin(),i));
         }
     }
 }
@@ -133,7 +133,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
         }
 
         if (!scanValid_slew || !scanValid_idle){
-            singleScans_.erase(singleScans_.begin()+i);
+            singleScans_.erase(next(singleScans_.begin(),i));
             --nSingleScans_;
         }else{
             ++i;
@@ -152,7 +152,7 @@ Subcon::calcAllBaselineDurations(const vector<Station> &stations,
             ++i;
         } else {
             --nSingleScans_;
-            singleScans_.erase(singleScans_.begin()+i);
+            singleScans_.erase(next(singleScans_.begin(),i));
         }
     }
 }
@@ -169,7 +169,7 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations,
             ++i;
         } else {
             --nSingleScans_;
-            singleScans_.erase(singleScans_.begin()+i);
+            singleScans_.erase(next(singleScans_.begin(),i));
         }
     }
 }
@@ -611,15 +611,15 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
 void Subcon::removeScan(unsigned long idx) noexcept {
     if (idx < nSingleScans_) {
         unsigned long thisIdx = idx;
-        singleScans_.erase(singleScans_.begin() + thisIdx);
+        singleScans_.erase(next(singleScans_.begin(),thisIdx));
         --nSingleScans_;
-        singleScanScores_.erase(singleScanScores_.begin() + thisIdx);
+        singleScanScores_.erase(next(singleScanScores_.begin(),thisIdx));
 
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
-        subnettingScans_.erase(subnettingScans_.begin() + thisIdx);
+        subnettingScans_.erase(next(subnettingScans_.begin(),thisIdx));
         --nSubnettingScans_;
-        subnettingScanScores_.erase(subnettingScanScores_.begin() + thisIdx);
+        subnettingScanScores_.erase(next(subnettingScanScores_.begin(),thisIdx));
 
     }
 }

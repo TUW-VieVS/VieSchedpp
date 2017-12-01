@@ -68,7 +68,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     if (line.length() > 0 && line.at(0) != '*') {
 
                         // trim leading and trailing blanks
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
 
                         // split vector
                         vector<string> splitVector;
@@ -111,7 +111,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     if (line.length() > 0 && line.at(0) != '*') {
 
                         // trim leading and trailing blanks
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
 
                         // if first element is not an '-' this line belongs to new station mask
                         if (line.at(0) != '-' && !splitVector_total.empty()) {
@@ -155,7 +155,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // get first entry
                 while (true) {
                     getline(fid, line);
-                    boost::trim(line);
+                    line = boost::algorithm::trim_copy(line);
                     if (line.length() > 0 && line.at(0) != '*') {
                         boost::split(splitVector_total, line, boost::is_space(), boost::token_compress_on);
                         station = splitVector_total[indexOfKey];
@@ -167,7 +167,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // loop through CATALOG
                 while (getline(fid, line)) {
                     // trim leading and trailing blanks
-                    boost::trim(line);
+                    line = boost::algorithm::trim_copy(line);
 
                     if (line.length() > 0 && line.at(0) != '*') {
                         vector<string> splitVector;
@@ -267,7 +267,7 @@ void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
     string line;
     while (getline(fmodes, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-            boost::trim(line);
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
             boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
@@ -289,14 +289,14 @@ void SkdCatalogReader::readRecCatalog() {
     string line;
     while (getline(frec, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-            boost::trim(line);
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
             boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
             if (splitVector[0] == recName_) {
                 while (getline(frec, line)) {
                     if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
                         if (line[0] != '-') {
                             break;
                         }
@@ -332,7 +332,7 @@ void SkdCatalogReader::readTracksCatalog() {
         string line;
         while (getline(ftracks, line)) {
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                boost::trim(line);
+                line = boost::algorithm::trim_copy(line);
                 vector<string> splitVector;
                 boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
@@ -348,7 +348,7 @@ void SkdCatalogReader::readTracksCatalog() {
 
                     while (getline(ftracks, line)) {
                         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                            boost::trim(line);
+                            line = boost::algorithm::trim_copy(line);
                             if (line[0] != '-') {
                                 break;
                             }
@@ -371,7 +371,7 @@ void SkdCatalogReader::readFreqCatalog() {
     string line;
     while (getline(ffreq, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-            boost::trim(line);
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
             boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
@@ -381,7 +381,7 @@ void SkdCatalogReader::readFreqCatalog() {
 
                 while (getline(ffreq, line)) {
                     if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
                         if (line[0] != '-') {
                             break;
                         }
@@ -412,14 +412,14 @@ void SkdCatalogReader::readRxCatalog() {
     string line;
     while (getline(frx, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-            boost::trim(line);
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
             boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
             if (splitVector[0] == rxName_) {
                 while (getline(frx, line)) {
                     if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
                         if (line[0] != '-') {
                             break;
                         }
@@ -451,7 +451,7 @@ void SkdCatalogReader::readLoifCatalog() {
         ifstream floif(loifPath_);
         while (getline(floif, line)) {
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                boost::trim(line);
+                line = boost::algorithm::trim_copy(line);
                 vector<string> splitVector;
                 boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
@@ -460,7 +460,7 @@ void SkdCatalogReader::readLoifCatalog() {
 
                     while (getline(floif, line)) {
                         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                            boost::trim(line);
+                            line = boost::algorithm::trim_copy(line);
                             if (line[0] != '-') {
                                 loifId2loifInfo_[loifId] = loifInfo;
                                 break;

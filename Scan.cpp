@@ -98,9 +98,9 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
 
     times_.removeElement(idx);
 
-    pointingVectors_.erase(pointingVectors_.begin()+idx);
+    pointingVectors_.erase(next(pointingVectors_.begin(),idx));
     if (!pointingVectorsEndtime_.empty()) {
-        pointingVectorsEndtime_.erase(pointingVectorsEndtime_.begin() + idx);
+        pointingVectorsEndtime_.erase(next(pointingVectorsEndtime_.begin(),idx));
     }
 
 
@@ -108,7 +108,7 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     int i=0;
     while (i<baselines_.size()){
         if(baselines_[i].getStaid1()==staid || baselines_[i].getStaid2()==staid){
-            baselines_.erase(baselines_.begin()+i);
+            baselines_.erase(next(baselines_.begin(),i));
         } else {
             ++i;
         }
@@ -120,7 +120,7 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
 
     int staid1 = baselines_[idx_bl].getStaid1();
     int staid2 = baselines_[idx_bl].getStaid2();
-    baselines_.erase(baselines_.begin()+idx_bl);
+    baselines_.erase(next(baselines_.begin(),idx_bl));
     if (baselines_.empty()) {
         return false;
     }
@@ -172,7 +172,7 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> maxIdle, const Source &sourc
             if (dt[i]>maxIdle[i]){
                 scan_valid = removeStation(idx, source);
                 if (scan_valid){
-                    maxIdle.erase(maxIdle.begin()+idx);
+                    maxIdle.erase(next(maxIdle.begin(),idx));
                     idleTimeValid = false;
                     break;
                 } else {
@@ -440,7 +440,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
             }
 
             scanValid = removeStation(eraseThis, source);
-            minscanTimes.erase(minscanTimes.begin() + eraseThis);
+            minscanTimes.erase(next(minscanTimes.begin(),eraseThis));
 
             if (!scanValid){
                 break;
@@ -1030,7 +1030,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << thisTime.time_of_day() << " | ";
+            of << TimeSystem::ptime2string(thisTime) << " | ";
         } else {
             of << "         | ";
         }
@@ -1042,7 +1042,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << thisTime.time_of_day() << " | ";
+            of << TimeSystem::ptime2string(thisTime) << " | ";
         } else {
             of << "         | ";
         }
@@ -1054,7 +1054,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << thisTime.time_of_day() << " | ";
+            of << TimeSystem::ptime2string(thisTime) << " | ";
         } else {
             of << "         | ";
         }
@@ -1066,7 +1066,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << thisTime.time_of_day() << " | ";
+            of << TimeSystem::ptime2string(thisTime) << " | ";
         } else {
             of << "         | ";
         }
@@ -1078,7 +1078,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << thisTime.time_of_day() << " | ";
+            of << TimeSystem::ptime2string(thisTime) << " | ";
         } else {
             of << "         | ";
         }

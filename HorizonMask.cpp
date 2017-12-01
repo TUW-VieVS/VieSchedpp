@@ -28,25 +28,25 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
     } else {
         for(int i=0; i<el_mask_deg.size(); ++i){
             if (i%2==0)
-                azimuth_.push_back(el_mask_deg[i]*deg2rad);
+                azimuth_.push_back(el_mask_deg.at(i)*deg2rad);
             else
-                elevation_.push_back(el_mask_deg[i]*deg2rad);
+                elevation_.push_back(el_mask_deg.at(i)*deg2rad);
         }
 
 
-        if (azimuth_.size()%2==0){
+        if (el_mask_deg.size()%2==0){
             type_ = Category::line;
-            if (*azimuth_.end() != twopi) {
+            if (azimuth_.back() != twopi) {
                 azimuth_.push_back(twopi);
-                elevation_.push_back(elevation_[elevation_.size() - 1]);
+                elevation_.push_back(elevation_.at(elevation_.size() - 1));
             }
 
 
         } else {
             type_ = Category::step;
-            if (*azimuth_.end() != twopi) {
+            if (azimuth_.back() != twopi) {
                 azimuth_.push_back(twopi);
-                elevation_.push_back(elevation_[elevation_.size() - 1]);
+                elevation_.push_back(elevation_.at(elevation_.size() - 1));
             }
         }
     }
@@ -73,14 +73,14 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
         case Category::line:{
             int i = 1;
 
-            while(az>azimuth_[i]){
+            while(az>azimuth_.at(i)){
                 ++i;
             }
 
             int begin = i-1;
             int end = i;
-            double delta = az-azimuth_[begin];
-            double el_mask = elevation_[begin] + (elevation_[end]-elevation_[begin])/(azimuth_[end]-azimuth_[begin])*delta;
+            double delta = az-azimuth_.at(begin);
+            double el_mask = elevation_.at(begin) + (elevation_.at(end)-elevation_.at(begin))/(azimuth_.at(end)-azimuth_.at(begin))*delta;
             if(el<el_mask){
                 return false;
             }
@@ -90,11 +90,11 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
         }
         case Category::step:{
             int i = 1;
-            while(az>azimuth_[i]){
+            while(az>azimuth_.at(i)){
                 ++i;
             }
 
-            double el_mask = elevation_[i-1];
+            double el_mask = elevation_.at(i-1);
             if(el<el_mask){
                 return false;
             }

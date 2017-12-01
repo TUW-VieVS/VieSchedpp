@@ -34,3 +34,22 @@ double VieVS::TimeSystem::mjd2gmst(double mjd) {
     return fmod(theta,twopi);
 }
 
+std::string VieVS::TimeSystem::ptime2string(boost::posix_time::ptime ptime) {
+    std::string dateStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                           % ptime.date().year() %ptime.date().month() %ptime.date().day()
+                           % ptime.time_of_day().hours() %ptime.time_of_day().minutes() %ptime.time_of_day().seconds()).str();
+    return dateStr;
+}
+
+boost::posix_time::ptime VieVS::TimeSystem::string2ptime(std::string timeStr) {
+    boost::posix_time::ptime ptime;
+    auto year = boost::lexical_cast<unsigned short>(timeStr.substr(0,4));
+    auto month = boost::lexical_cast<unsigned short>(timeStr.substr(5,2));
+    auto day = boost::lexical_cast<unsigned short>(timeStr.substr(8,2));
+    auto hour = boost::lexical_cast<int>(timeStr.substr(11,2));
+    auto minute = boost::lexical_cast<int>(timeStr.substr(14,2));
+    auto second = boost::lexical_cast<int>(timeStr.substr(17,2));
+    ptime = boost::posix_time::ptime(boost::gregorian::date(year,month,day),boost::posix_time::time_duration(hour,minute,second));
+    return ptime;
+}
+

@@ -21,7 +21,7 @@ Source::Source() {
 Source::Source(const string &src_name, double src_ra_deg, double src_de_deg,
                          const unordered_map<string, Flux> &src_flux, int id) :
         name_{src_name}, id_{id}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{src_flux}, lastScan_{0},
-        nScans_{0}, nBaselines_{0} {
+        nScans_{0}, nTotalScans_{0}, nBaselines_{0} {
 
     preCalculated_.sourceInCrs.resize(3);
     preCalculated_.sourceInCrs[0] = cos(de_)*cos(ra_);

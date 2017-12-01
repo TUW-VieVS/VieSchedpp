@@ -30,7 +30,7 @@ Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std:
     for (int i = 0; i < nsta; ++i) {
         for (int j = i + 1; j < nsta; ++j) {
 
-            unsigned int thisNextEvent = Baseline::nextEvent[i][j];
+            unsigned int thisNextEvent = Baseline::nextEvent.at(i).at(j);
 
             while (thisNextEvent < EVENTS[i][j].size() && EVENTS[i][j][thisNextEvent].time <= time) {
 
@@ -42,7 +42,7 @@ Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std:
                 Baseline::PARA.minScan[i][j] = *newPARA.minScan;
                 Baseline::PARA.weight[i][j] = *newPARA.weight;
                 for (const auto &any:newPARA.minSNR) {
-                    Baseline::PARA.minSNR[any.first][i][j] = any.second;
+                    Baseline::PARA.minSNR.at(any.first).at(i).at(j) = any.second;
                 }
                 if (output && time < TimeSystem::duration) {
                     bodyLog << "###############################################\n";

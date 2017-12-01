@@ -15,6 +15,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <algorithm>
 #include <numeric>
+#include <thread>
 
 #include "Constants.h"
 #include "Station.h"
@@ -208,6 +209,8 @@ namespace VieVS {
         std::vector<MultiScheduling::Parameters> readMultiSched();
 
         void initializeCalibrationBlocks(std::ofstream &headerLog);
+
+        void initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace);
 
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file

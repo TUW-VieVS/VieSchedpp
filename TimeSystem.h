@@ -12,6 +12,7 @@
 #include "Constants.h"
 
 #include <boost/date_time.hpp>
+#include <boost/format.hpp>
 
 namespace VieVS {
     /**
@@ -36,6 +37,8 @@ namespace VieVS {
          */
         static double mjd2gmst(double mjd);
 
+        static std::string ptime2string(boost::posix_time::ptime ptime);
+        static boost::posix_time::ptime string2ptime(std::string);
     };
 }
 

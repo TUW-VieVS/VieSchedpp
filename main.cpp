@@ -3,15 +3,16 @@
 #include <vector>
 #include <boost/format.hpp>
 #include <iostream>
-#include <thread>
-//#include <experimental/filesystem>
-//#include <boost/filesystem.hpp>
 
 
 #include "Initializer.h"
 #include "Scheduler.h"
 #include "Output.h"
 #include "ParameterSettings.h"
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 /**
  * @file main.cpp
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171128110916_test/parameters.xml";
+        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171130112133_test/parameters.xml";
     }
 
 
@@ -122,6 +123,7 @@ void run(std::string file){
         flag_multiSched = true;
         nsched = all_multiSched_PARA.size();
         headerLog << "multi scheduling found ... creating " << nsched << " schedules!\n";
+        cout << "multi scheduling found ... creating " << nsched << " schedules!;\n";
     }
 
     headerLog.close();
@@ -129,23 +131,45 @@ void run(std::string file){
     unsigned long numberOfCreatedScans = 0;
 
 
-//    unsigned int concurentThreadsSupported = std::thread::hardware_concurrency();
-//    omp_set_num_threads(concurentThreadsSupported);
-//    omp_set_num_threads(1);
-//    #pragma omp parallel for
+    #ifdef _OPENMP
+
+        int nThreads = 1;
+        if(flag_multiSched){
+            std::string jobScheduling;
+            int chunkSize;
+            std::string threadPlace;
+
+            init.initializeMultiCore(nThreads,jobScheduling,chunkSize,threadPlace);
+
+            cout << "Using OpenMP to parallize multi scheduling;";
+            cout << (boost::format("OpenMP: starting %d threads;\n") % nThreads).str();
+        }
+        omp_set_num_threads(nThreads);
+        #pragma omp parallel for reduction(+:numberOfCreatedScans)
+    #else
+        if(nsched > 1){
+            cout << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support!";
+        }
+    #endif
     for (int i = 0; i < nsched; ++i) {
 
         VieVS::Scheduler scheduler;
 
         ofstream bodyLog;
+        string threadNumberPrefix = "";
         if (flag_multiSched) {
             VieVS::Initializer newinit = init;
             string fname = (boost::format("body_%04d.txt") % (i + 1)).str();
             bodyLog.open(path+fname);
 
-            string txt = (boost::format("########## multiSched number: %4d of %4d ##########;\n") % (i + 1) %
+
+            #ifdef  _OPENMP
+            threadNumberPrefix = (boost::format("thread %d: ") % omp_get_thread_num()).str();
+            #endif
+            string txt = threadNumberPrefix + (boost::format("creating multi scheduling version %d of %d;\n") % (i + 1) %
                           nsched).str();
-            string txt2 = (boost::format("log file is written in this file: %s;\n") % fname).str();
+
+            string txt2 = (boost::format("version %d: log file is written in this file: %s;\n") % (i+1) % fname).str();
             cout << txt;
             cout << txt2;
 
@@ -185,7 +209,6 @@ void run(std::string file){
 
         unsigned long createdScans = scheduler.numberOfCreatedScans();
 
-//        #pragma omp atomic
         numberOfCreatedScans += createdScans;
 
         bodyLog.close();
@@ -203,8 +226,10 @@ void run(std::string file){
 
         output.writeSkd(skdCatalogReader);
 
-        string txt3 = (boost::format("thread %4d finished;\n") % (i + 1)).str();
-        cout << txt3;
+        if(flag_multiSched){
+            string txt3 = threadNumberPrefix+(boost::format("version %4d finished;\n") % (i + 1)).str();
+            cout << txt3;
+        }
 
     }
     cout << "everything finally finished!!!;\n";

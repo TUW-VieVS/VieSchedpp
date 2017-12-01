@@ -400,8 +400,13 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
 
 boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup &setup) {
     boost::property_tree::ptree root;
-    boost::posix_time::ptime start = master_.get<boost::posix_time::ptime>("master.general.startTime");
-    boost::posix_time::ptime end = master_.get<boost::posix_time::ptime>("master.general.endTime");
+
+    string startstr = master_.get<string>("master.general.startTime");
+    boost::posix_time::ptime start = TimeSystem::string2ptime(startstr);
+
+    string endstr = master_.get<string>("master.general.endTime");
+    boost::posix_time::ptime end = TimeSystem::string2ptime(endstr);
+
 
     boost::posix_time::time_duration a = end - start;
     int sec = a.total_seconds();

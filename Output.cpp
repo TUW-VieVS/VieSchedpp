@@ -21,13 +21,17 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
     string fname;
     if (iSched_ == 0) {
         fname = "statistics.txt";
+        string txt = (boost::format("writing statistics to %s;\n") % fname).str();
+        cout << txt;
+
     } else {
         fname = (boost::format("statistics_%04d.txt") % (iSched_)).str();
+        string txt = (boost::format("version %4d: writing statistics to %s;\n") %iSched_ % fname).str();
+        cout << txt;
+
     }
     ofstream out(path+fname);
 
-    string txt = (boost::format("writing statistics to %s;\n") % fname).str();
-    cout << txt;
 
     if (general) {
         displayGeneralStatistics(out);
@@ -360,13 +364,15 @@ void Output::writeNGS() {
     string fname;
     if (iSched_ == 0) {
         fname = "ngs.txt";
+        string txt = (boost::format("writing NGS file %s;\n") % fname).str();
+        cout << txt;
     } else {
         fname = (boost::format("ngs_%04d.txt") % (iSched_)).str();
+        string txt = (boost::format("version %4d: writing NGS file %s;\n") % iSched_ % fname).str();
+        cout << txt;
     }
     ofstream out(path+fname);
 
-    string txt = (boost::format("writing NGS file %s;\n") % fname).str();
-    cout << txt;
 
     boost::posix_time::ptime start = TimeSystem::startTime;
     unsigned long counter = 1;
@@ -423,17 +429,20 @@ void Output::writeNGS() {
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
-    string fname;
+    int x = 0;
+    std::string fileName;
     if (iSched_ == 0) {
-        fname = "schedule.skd";
+        fileName = "schedule.skd";
+        string txt = (boost::format("writing SKD file %s;\n") % fileName).str();
+        cout << txt;
     } else {
-        fname = (boost::format("schedule_%04d.skd") % (iSched_)).str();
+        fileName = (boost::format("schedule_%04d.skd") % (iSched_)).str();
+        string txt = (boost::format("version %4d: writing SKD file %s;\n") % iSched_ % fileName).str();
+        cout << txt;
     }
 
-    string txt = (boost::format("writing SKD file %s;\n") % fname).str();
-    cout << txt;
 
-    ofstream of(path+fname);
+    ofstream of(path+fileName);
 
     of << "$EXPER " << xml_.get<string>("master.output.experimentName") << endl;
     skd_PARAM(skdCatalogReader, of);
@@ -459,7 +468,8 @@ void Output::skd_PARAM(const SkdCatalogReader &skdCatalogReader, ofstream &of) {
     of << "DESCRIPTION " << xml_.get<string>("master.output.experimentDescription") << endl;
     of << "SCHEDULING_SoFTWARE NEW_VIE_SCHED\n";
     of << "SOFTWARE_VERSION NEW_VIE_SCHED 0.1\n";
-    auto ct = xml_.get<boost::posix_time::ptime>("master.general.created");
+    auto ctstr = xml_.get<string>("master.general.created");
+    boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %04d%03d%02d%02d%02d ") % ct.date().year() % ct.date().day_of_year() %
           ct.time_of_day().hours() % ct.time_of_day().minutes() % ct.time_of_day().seconds();
     of << "SCHEDULER " << xml_.get<string>("master.output.scheduler") << " ";
@@ -666,7 +676,9 @@ void Output::skd_ASTROMETRIC(std::ofstream &of) {
 void Output::skd_STATWT(std::ofstream &of) {
     of << "$STATWT\n";
     for (const auto &any:stations_) {
-        of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
+        if(*any.getPARA().weight != 1) {
+            of << boost::format("%-10s %6.2f\n") % any.getName() % *any.getPARA().weight;
+        }
     }
 }
 
@@ -674,7 +686,9 @@ void Output::skd_SRCWT(std::ofstream &of) {
     of << "$SRCWT\n";
     for (const auto &any:sources_) {
         if (any.getNTotalScans() > 0) {
-            of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
+            if(*any.getPARA().weight != 1){
+                of << boost::format("%-10s %6.2f\n") % any.getName() % *any.getPARA().weight;
+            }
         }
     }
 }
@@ -778,7 +792,8 @@ void Output::skd_STATIONS(const SkdCatalogReader &skdCatalogReader, std::ofstrea
     }
 
     for (const auto &any:stations_) {
-        vector<string> tmp = equ.at(equMap[any.getName()]);
+        string staname = any.getName();
+        vector<string> tmp = equ.at(equMap[staname]);
         of << boost::format("E %-8s %3s %8s  %7s %8s   %1s %5s  %1s %5s ")
               % tmp[0] % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8];
         for (int i = 9; i < tmp.size(); ++i) {
@@ -897,7 +912,7 @@ void Output::skd_CODES(const SkdCatalogReader &skd, std::ofstream &of) {
         const auto &loifId = skd.getStaName2loifId().at(staName);
         const vector<string> loif = skd.getLoifId2loifInfo().at(loifId);
         for (auto any:loif) {
-            boost::trim(any);
+            any = boost::algorithm::trim_copy(any);
             vector<string> splitVector;
             boost::split(splitVector, any, boost::is_space(), boost::token_compress_on);
             string nr = splitVector[1];

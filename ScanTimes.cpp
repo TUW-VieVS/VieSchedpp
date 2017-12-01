@@ -31,14 +31,47 @@ ScanTimes::addTimes(int idx, unsigned int setup, unsigned int source, unsigned i
 }
 
 void ScanTimes::removeElement(int idx) noexcept {
-    endOfLastScan_.erase(endOfLastScan_.begin()+idx);
-    endOfSetupTime_.erase(endOfSetupTime_.begin()+idx);
-    endOfSourceTime_.erase(endOfSourceTime_.begin()+idx);
-    endOfSlewTime_.erase(endOfSlewTime_.begin()+idx);
-    endOfIdleTime_.erase(endOfIdleTime_.begin()+idx);
-    endOfTapeTime_.erase(endOfTapeTime_.begin()+idx);
-    endOfCalibrationTime_.erase(endOfCalibrationTime_.begin()+idx);
-    endOfScanTime_.erase(endOfScanTime_.begin()+idx);
+
+    if(idx >= endOfLastScan_.size()){
+        bool flag = false;
+    }
+
+    int e = endOfLastScan_.size();
+
+    if(!(e == endOfSetupTime_.size() &
+            e == endOfSourceTime_.size() &
+            e == endOfSlewTime_.size() &
+            e == endOfIdleTime_.size() &
+            e == endOfTapeTime_.size() &
+            e == endOfCalibrationTime_.size() &
+            e == endOfScanTime_.size())){
+        bool flag = false;
+    }
+
+    unsigned int res;
+    res = endOfLastScan_.at(idx);
+    endOfLastScan_.erase(next(endOfLastScan_.begin(),idx));
+
+    res = endOfSetupTime_.at(idx);
+    endOfSetupTime_.erase(next(endOfSetupTime_.begin(),idx));
+
+    res = endOfSourceTime_.at(idx);
+    endOfSourceTime_.erase(next(endOfSourceTime_.begin(),idx));
+
+    res = endOfSlewTime_.at(idx);
+    endOfSlewTime_.erase(next(endOfSlewTime_.begin(),idx));
+
+    res = endOfIdleTime_.at(idx);
+    endOfIdleTime_.erase(next(endOfIdleTime_.begin(),idx));
+
+    res = endOfTapeTime_.at(idx);
+    endOfTapeTime_.erase(next(endOfTapeTime_.begin(),idx));
+
+    res = endOfCalibrationTime_.at(idx);
+    endOfCalibrationTime_.erase(next(endOfCalibrationTime_.begin(),idx));
+
+    res = endOfScanTime_.at(idx);
+    endOfScanTime_.erase(next(endOfScanTime_.begin(),idx));
 
 
     alignStartTimes();

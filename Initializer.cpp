@@ -521,14 +521,17 @@ void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
 
 void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
     try {
-        auto startTime = xml_.get<boost::posix_time::ptime>("master.general.startTime");
-        headerLog << "start time:" << startTime << "\n";
+
+        string startString = xml_.get<string>("master.general.startTime");
+        boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
+        headerLog << "start time:" << TimeSystem::ptime2string(startTime) << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
-        auto endTime = xml_.get<boost::posix_time::ptime>("master.general.endTime");
-        headerLog << "end time:" << endTime << "\n";
+        string endString = xml_.get<string>("master.general.endTime");
+        boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
+        headerLog << "end time:" << TimeSystem::ptime2string(endTime) << "\n";
 
 
         boost::posix_time::time_duration a = endTime - startTime;
@@ -870,12 +873,14 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             }
 
         } else if (paraName == "start") {
-            boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
-            boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             end = static_cast<unsigned int>(sec);
@@ -1181,12 +1186,14 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             }
 
         } else if (paraName == "start") {
-            boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
-            boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             end = static_cast<unsigned int>(sec);
@@ -1576,12 +1583,14 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             }
 
         } else if (paraName == "start") {
-            boost::posix_time::ptime thisStartTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             start = static_cast<unsigned int>(sec);
         } else if (paraName == "end") {
-            boost::posix_time::ptime thisEndTime = it.second.get_value<boost::posix_time::ptime>();
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
             boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
             int sec = a.total_seconds();
             end = static_cast<unsigned int>(sec);
@@ -2337,12 +2346,13 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
             if (name == "start") {
                 vector<boost::posix_time::ptime> data;
                 for (const auto &any2:any.second) {
-                    data.push_back(any2.second.get_value<boost::posix_time::ptime>());
+                    string t = any2.second.get_value<string>();
+                    data.push_back(TimeSystem::string2ptime(t));
                 }
                 ms.setStart(data);
-            } else if (name == "multisched_subnetting") {
+            } else if (name == "subnetting") {
                 ms.setMultiSched_subnetting(true);
-            } else if (name == "multisched_fillinmode") {
+            } else if (name == "fillinmode") {
                 ms.setMultiSched_fillinmode(true);
             } else if (name == "weight_skyCoverage") {
                 vector<double> data;
@@ -2940,5 +2950,25 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::PAR
 
     }
     return minutes;
+}
+
+void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace) {
+
+
+    std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
+
+    if(threads == "manual"){
+        nThreads = xml_.get<int>("master.multiCore.nThreads",1);
+    } else if (threads == "single"){
+        nThreads = 1;
+    } else if (threads == "auto"){
+        nThreads = std::thread::hardware_concurrency();
+    }
+
+    jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
+    chunkSize = xml_.get<int>("master.multiCore.chunkSize",1);
+    threadPlace = xml_.get<std::string>("master.multiCore.threadPlace","auto");
+
+
 }
 
