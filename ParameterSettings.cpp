@@ -25,13 +25,15 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     boost::property_tree::ptree general;
     general.add("general.created", created);
 
+    int smonth = startTime.date().month();
     string startTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                           % startTime.date().year() %startTime.date().month() %startTime.date().day()
+                           % startTime.date().year() %smonth %startTime.date().day()
                            % startTime.time_of_day().hours() %startTime.time_of_day().minutes() %startTime.time_of_day().seconds()).str();
     general.add("general.startTime", startTimeStr);
 
+    int emonth = endTime.date().month();
     string endTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                           % endTime.date().year() %endTime.date().month() %endTime.date().day()
+                           % endTime.date().year() %emonth %endTime.date().day()
                            % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
     general.add("general.endTime", endTimeStr);
 

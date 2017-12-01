@@ -2541,7 +2541,7 @@ QString MainWindow::writeXML()
         para.mode_bandPolicy(name,minSNR,policySta,backupSta,valSta,policySrc,backupSrc,valSrc);
     }
 
-    if (ui->groupBox_multiScheduling->isChecked()){
+    if (ui->groupBox_multiScheduling->isChecked() && ui->treeWidget_multiSchedSelected->topLevelItemCount()>0){
 
         VieVS::MultiScheduling ms;
         QIcon icSta = QIcon(":/icons/icons/station.png");
@@ -3130,6 +3130,9 @@ void MainWindow::addGroupStation()
         groupSta[stdname] = stdlist;
 
         allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupStationSetup){
+            ui->comboBox_stationSettingMember->setCurrentIndex(r);
+        }
     }
     delete(dial);
 }
@@ -3164,6 +3167,13 @@ void MainWindow::addGroupSource()
         groupSrc[stdname] = stdlist;
 
         allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupSourceSetup){
+            ui->comboBox_sourceSettingMember->setCurrentIndex(r);
+        }
+        if(sender() == ui->pushButton_addSourceGroup_Calibrator){
+            ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(r);
+        }
+
     }
     delete(dial);
 }
@@ -3198,6 +3208,9 @@ void MainWindow::addGroupBaseline()
         groupBl[stdname] = stdlist;
 
         allBaselinePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupBaselineSetup){
+            ui->comboBox_baselineSettingMember->setCurrentIndex(r);
+        }
     }
     delete(dial);
 }
@@ -3222,6 +3235,7 @@ void MainWindow::on_pushButton_stationParameter_clicked()
         paraSta[name] = parameter;
 
         ui->ComboBox_parameterStation->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterStation->setCurrentIndex(ui->ComboBox_parameterStation->count()-1);
 
     }
     delete(dial);
@@ -3249,6 +3263,7 @@ void MainWindow::on_pushButton_sourceParameter_clicked()
         paraSrc[name] = parameter;
 
         ui->ComboBox_parameterSource->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterSource->setCurrentIndex(ui->ComboBox_parameterSource->count()-1);
 
     }
     delete(dial);
@@ -3273,6 +3288,7 @@ void MainWindow::on_pushButton__baselineParameter_clicked()
         paraBl[name] = parameter;
 
         ui->ComboBox_parameterBaseline->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterBaseline->setCurrentIndex(ui->ComboBox_parameterBaseline->count()-1);
 
     }
     delete(dial);
