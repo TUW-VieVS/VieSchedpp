@@ -35,8 +35,9 @@ double VieVS::TimeSystem::mjd2gmst(double mjd) {
 }
 
 std::string VieVS::TimeSystem::ptime2string(boost::posix_time::ptime ptime) {
+    int month = ptime.date().month();
     std::string dateStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                           % ptime.date().year() %ptime.date().month() %ptime.date().day()
+                           % ptime.date().year() %month %ptime.date().day()
                            % ptime.time_of_day().hours() %ptime.time_of_day().minutes() %ptime.time_of_day().seconds()).str();
     return dateStr;
 }

@@ -468,7 +468,7 @@ void Output::skd_PARAM(const SkdCatalogReader &skdCatalogReader, ofstream &of) {
     of << "DESCRIPTION " << xml_.get<string>("master.output.experimentDescription") << endl;
     of << "SCHEDULING_SoFTWARE NEW_VIE_SCHED\n";
     of << "SOFTWARE_VERSION NEW_VIE_SCHED 0.1\n";
-    auto ctstr = xml_.get<string>("master.general.created");
+    auto ctstr = xml_.get<string>("master.created.time");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %04d%03d%02d%02d%02d ") % ct.date().year() % ct.date().day_of_year() %
           ct.time_of_day().hours() % ct.time_of_day().minutes() % ct.time_of_day().seconds();

@@ -1030,7 +1030,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime) << " | ";
+            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";
         }
@@ -1042,7 +1042,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime) << " | ";
+            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";
         }
@@ -1054,7 +1054,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime) << " | ";
+            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";
         }
@@ -1066,7 +1066,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime) << " | ";
+            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";
         }
@@ -1078,7 +1078,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         if (t != maxValue) {
             boost::posix_time::ptime thisTime =
                     TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime) << " | ";
+            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";
         }

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171130112133_test/parameters.xml";
+        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171201133908_test/parameters.xml";
     }
 
 
