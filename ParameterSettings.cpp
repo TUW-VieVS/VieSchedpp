@@ -21,9 +21,8 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                                const std::vector<std::string> &stations, const boost::posix_time::ptime &created) {
+                                const std::vector<std::string> &stations) {
     boost::property_tree::ptree general;
-    general.add("general.created", created);
 
     int smonth = startTime.date().month();
     string startTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
@@ -54,6 +53,19 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
 
 //    master_.insert(master_.begin(),general.get_child("general"));
     master_.add_child("master.general", general.get_child("general"));
+}
+
+void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email)
+{
+    boost::property_tree::ptree created;
+    int smonth = time.date().month();
+    string timeString = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                           % time.date().year() %smonth %time.date().day()
+                           % time.time_of_day().hours() %time.time_of_day().minutes() %time.time_of_day().seconds()).str();
+    created.add("created.time", timeString);
+    created.add("created.name", name);
+    created.add("created.email", email);
+    master_.add_child("master.created", created.get_child("created"));
 }
 
 void ParameterSettings::catalogs(const std::string &antenna, const std::string &equip, const std::string &flux,

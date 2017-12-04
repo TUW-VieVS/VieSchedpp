@@ -2306,6 +2306,8 @@ QString MainWindow::writeXML()
     para.software(QApplication::applicationName().toStdString(), QApplication::applicationVersion().toStdString());
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    para.created(now, ui->nameLineEdit->text().toStdString(), ui->emailLineEdit->text().toStdString());
+
     int startYear = ui->dateTimeEdit_sessionStart->date().year();
     int startMonth = ui->dateTimeEdit_sessionStart->date().month();
     int startDay = ui->dateTimeEdit_sessionStart->date().day();
@@ -2323,7 +2325,7 @@ QString MainWindow::writeXML()
     bool subnetting = ui->checkBox_subnetting->isChecked();
     bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
     double minElevation = ui->doubleSpinBox_minElevation->value();
-    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, minElevation, station_names, now);
+    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, minElevation, station_names);
 
 
     std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
@@ -4860,9 +4862,7 @@ void MainWindow::on_actionRun_triggered()
         arguments << fullPath;
 
         QProcess *start = new QProcess(this);
-
         start->start(program,arguments);
-
         connect(start,SIGNAL(readyReadStandardOutput()),tb,SLOT(readyReadStandardOutput()));
         connect(start,SIGNAL(readyReadStandardError()),tb,SLOT(readyReadStandardError()));
 

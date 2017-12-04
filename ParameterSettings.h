@@ -145,11 +145,12 @@ namespace VieVS {
          * @param fillinmode flag if fillin modes are allowed
          * @param fillinmodeInfluence flag if fillin mode scans should have an influence on the schedule
          * @param stations list of all stations
-         * @param now local time and date of created parameter.xml file
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                     const std::vector<std::string> &stations, const boost::posix_time::ptime &now);
+                     const std::vector<std::string> &stations);
+
+        void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
         /**
          * @brief catalogs block in parameters.xml
