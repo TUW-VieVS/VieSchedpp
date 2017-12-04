@@ -1336,6 +1336,10 @@ void MainWindow::defaultParameters()
                         src.minRepeat = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "minFlux"){
                         src.minFlux = it2.second.get_value<double>();
+                    } else if (paraName == "maxNumberOfScans"){
+                        src.maxNumberOfScans = it2.second.get_value<double>();
+                    } else if (paraName == "minNumberOfStations"){
+                        src.minNumberOfStations = it2.second.get_value<double>();
                     } else {
                         QString txt = "Ignoring parameter: ";
                         txt.append(QString::fromStdString(paraName)).append(" in source default parameters!\nCheck settings.xml file!");
@@ -4313,8 +4317,7 @@ void MainWindow::createDefaultParameterSettings()
     bl.maxScan = 600;
     bl.minScan = 20;
     bl.weight = 1;
-    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));
-
+    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));    
     settings.add("settings.station.waitTimes.setup",0);
     settings.add("settings.station.waitTimes.source",5);
     settings.add("settings.station.waitTimes.tape",1);
@@ -4377,13 +4380,18 @@ void MainWindow::on_pushButton_loadNetwork_clicked()
 
     int result = dial->exec();
     if(result == QDialog::Accepted){
+
+        for(int i=0; i<selectedStationModel->rowCount(); ++i){
+            QModelIndex idx = selectedStationModel->index(0,0);
+            on_listView_allSelectedStations_clicked(idx);
+        }
+
         QString warningTxt;
 
         QString itm = dial->selectedItem();
         int idx = dial->selectedIdx();
         QVector<QString> members = networks.at(idx);
 
-        selectedStationModel->clear();
         for(const auto&any:members){
             auto list = allStationModel->findItems(any);
             if(list.size() == 1){
@@ -4455,7 +4463,7 @@ void MainWindow::on_pushButton_loadSourceList_clicked()
         int idx = dial->selectedIdx();
         QVector<QString> members = source_lists.at(idx);
 
-        selectedSourceModel->clear();
+        on_pushButton_15_clicked();
         for(const auto&any:members){
             auto list = allSourceModel->findItems(any);
             if(list.size() == 1){
