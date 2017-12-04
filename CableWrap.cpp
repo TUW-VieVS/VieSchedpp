@@ -27,10 +27,10 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
             cerr << "ERROR: cable wrap limits to large!;";
         }
         wLow_ = axis1Low_;
-        wUp_ = axis1Low_ + overlapping / 2;
-        nLow_ = axis1Low_ + overlapping / 2;
-        nUp_ = axis1Up_ - overlapping / 2;
-        cLow_ = axis1Up_ - overlapping / 2;
+        wUp_ = axis1Low_ + overlapping;
+        nLow_ = axis1Low_ + overlapping;
+        nUp_ = axis1Up_ - overlapping;
+        cLow_ = axis1Up_ - overlapping;
         cUp_ = axis1Up_;
     }else {
         wLow_ = axis1Low_;

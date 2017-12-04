@@ -794,8 +794,8 @@ void Output::skd_STATIONS(const SkdCatalogReader &skdCatalogReader, std::ofstrea
     for (const auto &any:stations_) {
         string staname = any.getName();
         vector<string> tmp = equ.at(equMap[staname]);
-        of << boost::format("E %-8s %3s %8s  %7s %8s   %1s %5s  %1s %5s ")
-              % tmp[0] % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8];
+        of << boost::format("T %3s %8s  %7s %8s   %1s %5s  %1s %5s ")
+              % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8];
         for (int i = 9; i < tmp.size(); ++i) {
             of << tmp[i] << " ";
         }
@@ -806,7 +806,9 @@ void Output::skd_STATIONS(const SkdCatalogReader &skdCatalogReader, std::ofstrea
         string id = masMap[any.getName()];
         if (id != "--") {
             vector<string> tmp = mas.at(id);
+            tmp.erase(next(tmp.begin(),1));
             if (!tmp.empty()) {
+
                 for (const auto &any2:tmp) {
                     if (any2 != "-") {
                         of << any2 << " ";
