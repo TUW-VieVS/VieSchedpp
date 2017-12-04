@@ -569,9 +569,12 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
         unsigned int timeDiff = newSlewEnd - oldSlewEnd;
         while (timeDiff > 1) {
             oldSlewEnd = newSlewEnd;
-            pv.setTime(oldSlewEnd);
-
             double oldAz = pv.getAz();
+            pv.setTime(oldSlewEnd);
+            thisStation.calcAzEl(source,pv);
+            thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), pv);
+
+
             if (bigSlew) {
                 thisStation.getCableWrap().unwrapAzNearAz(pv, oldAz);
             } else {
@@ -655,8 +658,9 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
             moving_pv.setEl(pv.getEl());
 
             for (unsigned int time = scanStart; scanStart < scanEnd; scanStart += 30) {
-                moving_pv.setTime(scanStart);
                 double oldAz = moving_pv.getAz();
+                moving_pv.setTime(scanStart);
+                thisStation.calcAzEl(source,moving_pv);
                 thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), moving_pv);
                 double newAz = moving_pv.getAz();
 
@@ -669,12 +673,23 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                     continue;
                 }
 
+                bool flag = thisStation.isVisible(moving_pv);
+                if(!flag){
+                    scanValid = removeStation(ista, source);
+                    if (!scanValid) {
+                        return false;
+                    }
+                    stationRemoved = true;
+                    continue;
+                }
+
                 if (time == scanStart) {
                     pointingVectors_[ista] = moving_pv;
                 }
             }
-            moving_pv.setTime(scanEnd);
             double oldAz = moving_pv.getAz();
+            moving_pv.setTime(scanEnd);
+            thisStation.calcAzEl(source,moving_pv);
             thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), moving_pv);
             double newAz = moving_pv.getAz();
 
@@ -686,6 +701,17 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 stationRemoved = true;
                 continue;
             }
+
+            bool flag = thisStation.isVisible(moving_pv);
+            if(!flag){
+                scanValid = removeStation(ista, source);
+                if (!scanValid) {
+                    return false;
+                }
+                stationRemoved = true;
+                continue;
+            }
+
             pointingVectorsEndtime_[ista] = move(moving_pv);
             ++ista;
         }

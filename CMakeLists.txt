@@ -87,8 +87,8 @@ endif()
 #SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/mschartn/boost_1_64_0")
 #SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/home/mschartn/boost_1_64_0")
 
-SET(BOOST_ROOT "/home/mschartn/boost_1_64_0")
-#SET(BOOST_ROOT "C:/boost")
+#SET(BOOST_ROOT "/home/mschartn/boost_1_64_0")
+SET(BOOST_ROOT "C:/boost")
 
 #SET(Boost_DEBUG ON)
 #SET(Boost_DETAILED_FAILURE_MSG ON)

@@ -52,8 +52,8 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
             double delta2 = abs(old_pointingVector.getEl()-new_pointingVector.getEl());
 
 
-            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
-            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1)+con1_;
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2)+con2_;
 
             if(t_1>t_2){
                 slewtime = static_cast<unsigned int>(ceil(t_1));
@@ -66,8 +66,8 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
             double delta1 = abs(new_pointingVector.getHa_() - old_pointingVector.getHa_());
             double delta2 = abs(new_pointingVector.getDc_() - old_pointingVector.getDc_());
 
-            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
-            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1)+con1_;
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2)+con2_;
 
             if(t_1>t_2){
                 slewtime = static_cast<unsigned int>(ceil(t_1));
@@ -96,8 +96,8 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
             double delta1 = x_new-x_old;
             double delta2 = y_new-y_old;
 
-            double t_1  = slewTimePerAxis(delta1,rate1_,acc1);
-            double t_2  = slewTimePerAxis(delta2,rate2_,acc2);
+            double t_1  = slewTimePerAxis(delta1,rate1_,acc1)+con1_;
+            double t_2  = slewTimePerAxis(delta2,rate2_,acc2)+con2_;
 
             if(t_1>t_2){
                 slewtime = static_cast<unsigned int>(ceil(t_1));
@@ -126,7 +126,7 @@ double Antenna::slewTimePerAxis(double delta, double rate, double acc) const noe
     if (delta<s_acc){
         t = 2*sqrt(delta/acc);
     } else {
-        t = 2 * t_acc + (delta - s_acc) / rate1_;
+        t = 2 * t_acc + (delta - s_acc) / rate;
     }
     return t;
 }

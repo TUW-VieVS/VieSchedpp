@@ -76,16 +76,6 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
         }
 
 
-//        cout << setprecision(18) << "mjd=" << TimeSystem::mjdStart + (double)bestScans[0].getPointingVector(0).getTime()/86400.0 << "\n";
-//        cout << setprecision(18) << "ra=" << sources_[bestScans[0].getSourceId()].getRa() << "\n";
-//        cout << setprecision(18) << "de=" << sources_[bestScans[0].getSourceId()].getDe() << "\n";
-//        cout << setprecision(18) << "lon=" << stations_[bestScans[0].getPointingVector(0).getStaid()].getPosition().getLon() << "\n";
-//        cout << setprecision(18) << "lat=" << stations_[bestScans[0].getPointingVector(0).getStaid()].getPosition().getLat() << "\n";
-//        cout << setprecision(18) << "az_=" << bestScans[0].getPointingVector(0).getAz() << "\n";
-//        cout << setprecision(18) << "el_=" << bestScans[0].getPointingVector(0).getEl() << "\n";
-
-
-
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
             if (any.maxTime() > all_maxTime) {

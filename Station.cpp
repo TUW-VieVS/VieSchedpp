@@ -64,7 +64,7 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     unsigned int time = p.getTime();
     //  TIME
     double date1 = 2400000.5;
-    double mjd = TimeSystem::mjdStart + static_cast<double>(time) / 86400;
+    double mjd = TimeSystem::mjdStart + static_cast<double>(time) / 86400.0;
 
     // Earth Rotation
     double ERA = iauEra00(date1, mjd);
