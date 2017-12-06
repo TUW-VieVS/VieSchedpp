@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171204144039_test/parameters.xml";
+        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171205125946_test/parameters.xml";
     }
 
 
@@ -98,6 +98,7 @@ void run(std::string file){
     cout << "log file is written in this file: header.txt;\n";
 
     ofstream headerLog(path+"header.txt");
+    ofstream statisticsLog(path+"statistics.txt");
 
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
 
@@ -117,6 +118,7 @@ void run(std::string file){
     bool flag_multiSched = false;
     unsigned long nsched = 1;
 
+    init.statisticsLogHeader(statisticsLog);
 
     vector<VieVS::MultiScheduling::Parameters> all_multiSched_PARA = init.readMultiSched();
     if (!all_multiSched_PARA.empty()) {
@@ -141,7 +143,7 @@ void run(std::string file){
 
             init.initializeMultiCore(nThreads,jobScheduling,chunkSize,threadPlace);
 
-            cout << "Using OpenMP to parallize multi scheduling;";
+            cout << "Using OpenMP to parallize multi scheduling;\n";
             cout << (boost::format("OpenMP: starting %d threads;\n") % nThreads).str();
         }
         omp_set_num_threads(nThreads);
@@ -220,18 +222,19 @@ void run(std::string file){
             output.setIsched(0);
         }
 
-        output.writeStatistics(true, true, true, true, true);
+        output.writeStatistics(true, true, true, true, true, true, statisticsLog);
 
         output.writeNGS();
 
         output.writeSkd(skdCatalogReader);
 
         if(flag_multiSched){
-            string txt3 = threadNumberPrefix+(boost::format("version %4d finished;\n") % (i + 1)).str();
+            string txt3 = threadNumberPrefix+(boost::format("version %d finished;\n") % (i + 1)).str();
             cout << txt3;
         }
 
     }
+    statisticsLog.close();
     cout << "everything finally finished!!!;\n";
     cout << "created total number of scans: " << numberOfCreatedScans << ";\n";
 }

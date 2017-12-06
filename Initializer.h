@@ -212,6 +212,8 @@ namespace VieVS {
 
         void initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace);
 
+        void statisticsLogHeader(std::ofstream &ofstream);
+
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
         std::vector<Station> stations_; ///< all created stations

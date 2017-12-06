@@ -54,8 +54,10 @@ namespace VieVS{
          * @param source write source based block
          * @param baseline write baseline based block
          * @param duration write duration based block
+         * @param time write time block
+         * @param statisticsLog output log file
          */
-        void writeStatistics(bool general, bool station, bool source, bool baseline, bool duration);
+        void writeStatistics(bool general, bool station, bool source, bool baseline, bool duration, bool time, std::ofstream& statisticsLog);
 
         /**
          * @brief create a ngs file
@@ -83,29 +85,33 @@ namespace VieVS{
          * @brief displays some general statistics of the schedule
          *
          * @param out outsteam file object
+         * @return vector of statistical values
          */
-        void displayGeneralStatistics(std::ofstream &out);
+        std::vector<int> displayGeneralStatistics(std::ofstream &out);
 
         /**
          * @brief displays some baseline dependent statistics of the schedule
          *
          * @param out outsteam file object
+         * @param number of baselines
          */
-        void displayBaselineStatistics(std::ofstream &out);
+        int displayBaselineStatistics(std::ofstream &out);
 
         /**
          * @brief displays some station dependent statistics of the schedule
          *
          * @param out outsteam file object
+         * @return vector of statistical values
          */
-        void displayStationStatistics(std::ofstream &out);
+        std::vector<int> displayStationStatistics(std::ofstream &out);
 
         /**
          * @brief displays some source dependent statistics of the schedule
          *
          * @param out outsteam file object
+         * @param number of scheduled sources
          */
-        void displaySourceStatistics(std::ofstream &out);
+        int displaySourceStatistics(std::ofstream &out);
 
         /**
          * @brief displays some source dependent statistics of the schedule
@@ -224,6 +230,8 @@ namespace VieVS{
          * @param of out stream
          */
         void skd_CODES(const SkdCatalogReader &skdCatalogReader, std::ofstream &of);
+
+        void displayTimeStatistics(std::ofstream &ofstream);
     };
 }
 

@@ -15,6 +15,11 @@
 using namespace std;
 using namespace VieVS;
 
+
+double Flux::flcon1_{(pi * pi) / (4.0 * 0.6931471)}; ///< constant precalculated value for model M
+double Flux::flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
+
+
 Flux::Flux() = default;
 
 Flux::Flux(string stype){
@@ -106,6 +111,7 @@ double Flux::getFlux(double u, double v) const noexcept {
         for (int i = 1; i < knots_.size(); ++i) {
             if(knots_[i]>pbase){
                 observedFlux = values_[i-1];
+                break;
             }
         }
 

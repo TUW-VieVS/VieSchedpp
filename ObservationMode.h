@@ -45,6 +45,7 @@ namespace VieVS{
         static unsigned int bits; ///< number of recorded bits
 
         static std::vector<std::string> bands; ///< list of all bands
+        static std::unordered_map<std::string, double> minSNR;
 
         static std::unordered_map<std::string, unsigned int> nChannels; ///< number of channels per band
         static std::unordered_map<std::string, double> wavelength; ///< wavelength per band

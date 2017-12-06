@@ -45,13 +45,13 @@ namespace VieVS{
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            boost::optional<unsigned int> minNumberOfStations = 2; ///< minimum number of stations for a scan
-            boost::optional<double> minFlux = .01; ///< minimum flux density required for this source in jansky
-            boost::optional<unsigned int> minRepeat = 1800; ///< minimum time between two observations of this source in seconds
-            boost::optional<unsigned int> maxScan = 600; ///< maximum allowed scan time in seconds
-            boost::optional<unsigned int> minScan = 30; ///< minimum required scan time in seconds
-            boost::optional<unsigned int> maxNumberOfScans = 9999; ///< maximum number of scans
-            boost::optional<bool> tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
+            boost::optional<unsigned int> minNumberOfStations; ///< minimum number of stations for a scan
+            boost::optional<double> minFlux = 0.01; ///< minimum flux density required for this source in jansky
+            boost::optional<unsigned int> minRepeat; ///< minimum time between two observations of this source in seconds
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
+            boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
+            boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
+            boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
@@ -293,7 +293,6 @@ namespace VieVS{
          *
          * !!! this function changes maxFlux !!!
          *
-         * // TODO: change this fuction
          * @param maxFlux maximum flux density of this source (will be calculated)
          * @return true if source is strong enough, otherwise false
          */
@@ -302,7 +301,6 @@ namespace VieVS{
         /**
          * @brief observed flux density per band
          *
-         * // TODO CHECK gmst
          * @param gmst greenwhich meridian sedirial time
          * @param dx baseline delta x
          * @param dy baseline delta y

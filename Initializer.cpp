@@ -642,11 +642,11 @@ void Initializer::initializeStations() noexcept {
     parentPARA.tagalong = false;
     parentPARA.maxSlewtime = 9999;
     parentPARA.maxWait = 9999;
-    parentPARA.maxScan = 600;
-    parentPARA.minScan = 20;
+    parentPARA.maxScan = 9999;
+    parentPARA.minScan = 1;
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
-        parentPARA.minSNR[name] = 0;
+        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
     }
 
     parentPARA.weight = 1;
@@ -1054,14 +1054,16 @@ void Initializer::initializeSources() noexcept {
     parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
 
     parentPARA.minNumberOfStations = 2; ///< minimum number of stations for a scan
+    parentPARA.maxNumberOfScans = 9999;
     parentPARA.minFlux = .01; ///< minimum flux density required for this source in jansky
     parentPARA.minRepeat = 1800; ///< minimum time between two observations of this source in seconds
-    parentPARA.maxScan = 600; ///< maximum allowed scan time in seconds
-    parentPARA.minScan = 30; ///< minimum required scan time in seconds
+    parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
+    parentPARA.minScan = 1; ///< minimum required scan time in seconds
+    parentPARA.tryToFocusIfObservedOnce = false;
 
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
-        parentPARA.minSNR[name] = 0;
+        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
     }
 
     vector<vector<Source::EVENT> > events(sources_.size());
@@ -1465,7 +1467,7 @@ void Initializer::initializeBaselines() noexcept {
 
     unsigned long nsta = stations_.size();
     vector<vector <char> > ignore(nsta, vector< char>(nsta,false));
-    vector< vector<unsigned int> > minScan(nsta, vector<unsigned int>(nsta,0));
+    vector< vector<unsigned int> > minScan(nsta, vector<unsigned int>(nsta,1));
     vector< vector<unsigned int> > maxScan(nsta, vector<unsigned int>(nsta,numeric_limits<unsigned int>::max()));
     vector< vector<double> > weight(nsta, vector<double>(nsta,1));
     unordered_map<string,vector< vector<double> >> minSNR;
@@ -1486,10 +1488,10 @@ void Initializer::initializeBaselines() noexcept {
     parentPARA.ignore = false;
     parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
     parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
-    parentPARA.minScan = 0; ///< minimum required scan time in seconds
+    parentPARA.minScan = 1; ///< minimum required scan time in seconds
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
-        parentPARA.minSNR[name] = 0;
+        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
     }
 
     vector<vector<vector<Baseline::EVENT> > > events(nsta, vector<vector<Baseline::EVENT> >(nsta));
@@ -1779,7 +1781,7 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
                         minSNR = it_bandPolicy.second.get_value<double>();
                     }else if(it_bandPolicy.first == "station"){
                         for (const auto &it_band_station:it_bandPolicy.second){
-                            string thisName = it_band_station.first.data();
+                            string thisName = it_band_station.first;
                             if (thisName == "tag"){
                                 if(it_band_station.second.get_value<std::string>() == "required") {
                                     station_property = ObservationMode::Property::required;
@@ -1801,7 +1803,7 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
                         }
                     }else if(it_bandPolicy.first == "source") {
                         for (const auto &it_band_source:it_bandPolicy.second) {
-                            string thisName = it_band_source.first.data();
+                            string thisName = it_band_source.first;
                             if (thisName == "tag") {
                                 if (it_band_source.second.get_value<std::string>() == "required") {
                                     source_property = ObservationMode::Property::required;
@@ -1823,6 +1825,8 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
                         }
                     }
                 }
+                ObservationMode::minSNR[name] = minSNR;
+
                 ObservationMode::stationProperty[name] = station_property;
                 ObservationMode::stationBackup[name] = station_backup;
                 ObservationMode::stationBackupValue[name] = station_backupValue;
@@ -2970,5 +2974,17 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
     threadPlace = xml_.get<std::string>("master.multiCore.threadPlace","auto");
 
 
+}
+
+void Initializer::statisticsLogHeader(ofstream &ofstream) {
+
+    ofstream << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
+    for(const auto&any:stations_){
+        ofstream << "n_scans_" << any.getName() << ",";
+    }
+    for(const auto&any:stations_){
+        ofstream << "n_baselines_" << any.getName() << ",";
+    }
+    ofstream << "n_sources,\n";
 }
 

@@ -109,8 +109,8 @@ namespace VieVS{
 
 
         //TODO: make this static
-        double flcon1_{(pi * pi) / (4.0 * 0.6931471)}; ///< constant precalculated value for model M
-        double flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
+        static double flcon1_; ///< constant precalculated value for model M
+        static double flcon2_; ///< constant precalculated value for model M
     };
 
 }

@@ -27,7 +27,7 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
         type_{type}, score_{0} {
     nsta_ = Scan::pointingVectors_.size();
     srcid_ = Scan::pointingVectors_.at(0).getSrcid();
-    times_ = ScanTimes(nsta_);
+    times_ = ScanTimes(static_cast<unsigned int>(nsta_));
     times_.setEndOfLastScan(endOfLastScan);
     baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
@@ -304,12 +304,13 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
 
         if(!flag_baselineRemoved){
             ++ibl;
+            thisBaseline.setScanDuration(maxScanDuration);
         }
         if(!scanValid){
             return false;
         }
 
-        thisBaseline.setScanDuration(maxScanDuration);
+
     }
 
     return true;
@@ -670,7 +671,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                         return false;
                     }
                     stationRemoved = true;
-                    continue;
+                    break;
                 }
 
                 bool flag = thisStation.isVisible(moving_pv);
@@ -680,12 +681,15 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                         return false;
                     }
                     stationRemoved = true;
-                    continue;
+                    break;
                 }
 
                 if (time == scanStart) {
                     pointingVectors_[ista] = moving_pv;
                 }
+            }
+            if(stationRemoved){
+                break;
             }
             double oldAz = moving_pv.getAz();
             moving_pv.setTime(scanEnd);
@@ -1110,29 +1114,6 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         }
     }
     of << "\n";
-
-
-//    // TODO: EVERYTHING UNTER THIS LINE IS JUST FOR DEBUGGING!!!
-//    if (pointingVectors_.size() != nsta_ || pointingVectorsEndtime_.size() != nsta_ ||
-//        times_.getEndOfSlewTime().size() != nsta_) {
-//        of << "ERROR #1\n";
-//    }
-//
-//    for (int i = 0; i < nsta_; ++i) {
-//        unsigned int pTime = pointingVectors_[i].getTime();
-//        unsigned int tTime = times_.getEndOfCalibrationTime(i);
-//        if (pTime != tTime) {
-//            of << "ERROR #2\n";
-//        }
-//
-//        unsigned int pTime2 = pointingVectorsEndtime_[i].getTime();
-//        unsigned int tTime2 = times_.getEndOfScanTime(i);
-//        if (pTime2 != tTime2) {
-//            of << "ERROR #3\n";
-//        }
-//
-//    }
-
 }
 
 boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &source) const noexcept {

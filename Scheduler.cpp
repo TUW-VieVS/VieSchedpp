@@ -74,8 +74,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             bestScans.push_back(bestScan1);
             bestScans.push_back(bestScan2);
         }
-
-
+        
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
             if (any.maxTime() > all_maxTime) {

@@ -16,7 +16,7 @@ Output::Output(Scheduler &sched, std::string path) : xml_{std::move(sched.xml_)}
 }
 
 
-void Output::writeStatistics(bool general, bool station, bool source, bool baseline, bool duration) {
+void Output::writeStatistics(bool general, bool station, bool source, bool baseline, bool duration, bool time, ofstream& statisticsLog) {
 
     string fname;
     if (iSched_ == 0) {
@@ -26,41 +26,58 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
 
     } else {
         fname = (boost::format("statistics_%04d.txt") % (iSched_)).str();
-        string txt = (boost::format("version %4d: writing statistics to %s;\n") %iSched_ % fname).str();
+        string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
         cout << txt;
 
     }
     ofstream out(path+fname);
 
+    vector<int> statisticsVector{iSched_};
 
     if (general) {
-        displayGeneralStatistics(out);
-    }
-
-    if (station) {
-        displayStationStatistics(out);
-    }
-
-    if (source) {
-        displaySourceStatistics(out);
+        vector<int> v = displayGeneralStatistics(out);
+        statisticsVector.insert(statisticsVector.end(),v.begin(),v.end());
     }
 
     if (baseline) {
-        displayBaselineStatistics(out);
+        int v = displayBaselineStatistics(out);
+        statisticsVector.push_back(v);
+    }
+
+    if (station) {
+        vector<int> v = displayStationStatistics(out);
+        statisticsVector.insert(statisticsVector.end(),v.begin(),v.end());
+    }
+
+    if (source) {
+        int v = displaySourceStatistics(out);
+        statisticsVector.push_back(v);
     }
 
     if (duration) {
         displayScanDurationStatistics(out);
     }
+
+    if(time){
+        displayTimeStatistics(out);
+    }
     out.close();
 
+    string oString = "";
+    for(int any:statisticsVector){
+        oString.append(std::to_string(any)).append(",");
+    }
+    oString.append("\n");
+
+    statisticsLog << oString;
 }
 
-void Output::displayGeneralStatistics(ofstream &out) {
-    unsigned long n_scans = scans_.size();
-    unsigned long n_single = 0;
-    unsigned long n_subnetting = 0;
-    unsigned long n_fillin = 0;
+std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
+    int n_scans = static_cast<int>(scans_.size());
+    int n_single = 0;
+    int n_subnetting = 0;
+    int n_fillin = 0;
+    int n_calibrator = 0;
 
     for (const auto&any:scans_){
         Scan::ScanType thisType = any.getType();
@@ -77,22 +94,28 @@ void Output::displayGeneralStatistics(ofstream &out) {
                 ++n_fillin;
                 break;
             }
+            case Scan::ScanType::calibrator:{
+                ++n_calibrator;
+                break;
+            }
         }
     }
 
     out << "number of total scans:         " << n_scans << "\n";
     out << "number of single source scans: " << n_single << "\n";
     out << "number of subnetting scans:    " << n_subnetting << "\n";
-    out << "number of fillin mode scans:   " << n_fillin << "\n\n";
+    out << "number of fillin mode scans:   " << n_fillin << "\n";
+    out << "number of calibrator scans:    " << n_calibrator << "\n\n";
 
+    return std::vector<int>{n_scans,n_single,n_subnetting,n_fillin,n_calibrator};
 }
 
-void Output::displayBaselineStatistics(ofstream &out) {
+int Output::displayBaselineStatistics(ofstream &out) {
     unsigned long nsta = stations_.size();
-    unsigned long n_bl = 0;
+    int n_bl = 0;
     vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
     for (const auto&any:scans_){
-        unsigned long this_n_bl = any.getNBl();
+        int this_n_bl = static_cast<int>(any.getNBl());
         n_bl += this_n_bl;
 
         for (int i = 0; i < this_n_bl; ++i) {
@@ -154,12 +177,13 @@ void Output::displayBaselineStatistics(ofstream &out) {
     out << "-----------";
     out << "----------'\n\n";
 
+    return n_bl;
 }
 
-void Output::displayStationStatistics(ofstream &out) {
-    vector<unsigned int> nscan_sta(stations_.size());
-    vector< vector<unsigned int> > time_sta(stations_.size());
-    vector< unsigned int> nbl_sta(stations_.size(),0);
+std::vector<int> Output::displayStationStatistics(ofstream &out) {
+    vector<int> nscan_sta(stations_.size());
+    vector< vector<int> > time_sta(stations_.size());
+    vector< int> nbl_sta(stations_.size(),0);
 
     for (auto& any:scans_){
         for (int ista = 0; ista < any.getNSta(); ++ista) {
@@ -203,9 +227,12 @@ void Output::displayStationStatistics(ofstream &out) {
     out
             << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
 
+    vector<int> returnVec = nscan_sta;
+    returnVec.insert(returnVec.end(),nbl_sta.begin(),nbl_sta.end());
+    return returnVec;
 }
 
-void Output::displaySourceStatistics(ofstream &out) {
+int Output::displaySourceStatistics(ofstream &out) {
     out << "number of available sources:   " << sources_.size() << "\n";
     vector<unsigned int> nscan_src(sources_.size(),0);
     vector<unsigned int> nbl_src(sources_.size(),0);
@@ -217,7 +244,7 @@ void Output::displaySourceStatistics(ofstream &out) {
         nbl_src[id] += any.getNBl();
         time_src[id].push_back(any.maxTime());
     }
-    long number = count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;});
+    int number = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
     out << "number of scheduled sources:   " << number << "\n";
     out
             << ".------------------------------------------------------------------------------------------------------------------------.\n";
@@ -247,7 +274,7 @@ void Output::displaySourceStatistics(ofstream &out) {
     }
     out
             << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
-
+    return number;
 }
 
 void Output::displayScanDurationStatistics(ofstream &out) {
@@ -359,6 +386,106 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     out << "'----------------------------------------------------------------'\n\n";
 }
 
+void Output::displayTimeStatistics(std::ofstream &ofstream) {
+
+    int nstaTotal = static_cast<int>(stations_.size());
+    vector<int> scanTime(nstaTotal,0);
+    vector<int> calibrationTime(nstaTotal,0);
+//    vector<int> slewTime(nstaTotal,0);
+//    vector<int> idleTime(nstaTotal,0);
+    vector<int> otherTime(nstaTotal,0);
+    vector<int> totalTime(nstaTotal,0);
+
+
+    for(const auto&any: scans_){
+        unsigned long nsta = any.getNSta();
+        for (int i = 0; i < nsta; ++i) {
+
+            int staid = any.getPointingVector(i).getStaid();
+
+            unsigned int endOfLastScan = any.getTimes().getEndOfLastScan(i);
+            unsigned int endOfSourceTime = any.getTimes().getEndOfSourceTime(i);
+            unsigned int endOfSlewTime = any.getTimes().getEndOfSlewTime(i);
+            unsigned int endOfIdleTime = any.getTimes().getEndOfIdleTime(i);
+            unsigned int endOfTapeTime = any.getTimes().getEndOfTapeTime(i);
+            unsigned int endOfCalibrationTime = any.getTimes().getEndOfCalibrationTime(i);
+            unsigned int endOfScanTime = any.getTimes().getEndOfScanTime(i);
+
+            int other1 = endOfSourceTime-endOfLastScan;
+//            int slew = endOfSlewTime-endOfSourceTime;
+//            int idle = endOfIdleTime-endOfSlewTime;
+            int other2 = endOfTapeTime-endOfIdleTime;
+            int calib = endOfCalibrationTime-endOfTapeTime;
+            int scan = endOfScanTime-endOfCalibrationTime;
+
+            otherTime[staid] += other1;
+            otherTime[staid] += other2;
+//            idleTime[staid] += idle;
+//            slewTime[staid] += slew;
+            calibrationTime[staid] += calib;
+            scanTime[staid] += scan;
+            totalTime[staid] = endOfScanTime;
+
+        }
+    }
+
+    ofstream << ".--------------------";
+    for (int i = 0; i < nstaTotal-1; ++i) {
+        ofstream << "----------";
+    }
+    ofstream << "----------.\n";
+
+    ofstream << "|                   |";
+    for (int i = 0; i < nstaTotal; ++i) {
+        ofstream << boost::format(" %8s ") % stations_[i].getName();
+    }
+    ofstream << "|\n";
+
+    ofstream << "|--------------------";
+    for (int i = 0; i < nstaTotal-1; ++i) {
+        ofstream << "----------";
+    }
+    ofstream << "----------|\n";
+
+    ofstream << "| % obs. time:      |";
+    for (int i = 0; i < nstaTotal; ++i) {
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(scanTime[i])/static_cast<double>(totalTime[i])*100);
+    }
+    ofstream << "|\n";
+
+    ofstream << "| % cal. time:      |";
+    for (int i = 0; i < nstaTotal; ++i) {
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(calibrationTime[i])/static_cast<double>(totalTime[i])*100);
+    }
+    ofstream << "|\n";
+
+    ofstream << "| % slew+idle time: |";
+    for (int i = 0; i < nstaTotal; ++i) {
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(totalTime[i]-calibrationTime[i]-scanTime[i]-otherTime[i])/static_cast<double>(totalTime[i])*100);
+    }
+    ofstream << "|\n";
+
+//    ofstream << "| % idle time:  |";
+//    for (int i = 0; i < nstaTotal; ++i) {
+//        ofstream << boost::format(" %8.1f ") % (static_cast<double>(idleTime[i])/static_cast<double>(totalTime[i])*100);
+//    }
+//    ofstream << "|\n";
+
+    ofstream << "| % other time:     |";
+    for (int i = 0; i < nstaTotal; ++i) {
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(otherTime[i])/static_cast<double>(totalTime[i])*100);
+    }
+    ofstream << "|\n";
+
+    ofstream << "'--------------------";
+    for (int i = 0; i < nstaTotal-1; ++i) {
+        ofstream << "----------";
+    }
+    ofstream << "----------'\n";
+
+}
+
+
 void Output::writeNGS() {
 
     string fname;
@@ -368,7 +495,7 @@ void Output::writeNGS() {
         cout << txt;
     } else {
         fname = (boost::format("ngs_%04d.txt") % (iSched_)).str();
-        string txt = (boost::format("version %4d: writing NGS file %s;\n") % iSched_ % fname).str();
+        string txt = (boost::format("version %d: writing NGS file %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
     ofstream out(path+fname);
@@ -437,7 +564,7 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
         cout << txt;
     } else {
         fileName = (boost::format("schedule_%04d.skd") % (iSched_)).str();
-        string txt = (boost::format("version %4d: writing SKD file %s;\n") % iSched_ % fileName).str();
+        string txt = (boost::format("version %d: writing SKD file %s;\n") % iSched_ % fileName).str();
         cout << txt;
     }
 
@@ -929,4 +1056,5 @@ void Output::skd_CODES(const SkdCatalogReader &skd, std::ofstream &of) {
     }
 
 }
+
 

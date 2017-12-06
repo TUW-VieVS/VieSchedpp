@@ -83,6 +83,16 @@ namespace VieVS {
          * @param idx index of element
          * @return end of idle time in seconds since start for element at position of idx parameter
          */
+        const unsigned int getEndOfLastScan(int idx) const noexcept {
+            return endOfLastScan_[idx];
+        }
+
+        /**
+         * @brief getter for end of idle time of one element
+         *
+         * @param idx index of element
+         * @return end of idle time in seconds since start for element at position of idx parameter
+         */
         const unsigned int getEndOfIdleTime(int idx) const noexcept {
             return endOfIdleTime_[idx];
         }
@@ -105,6 +115,16 @@ namespace VieVS {
          */
         const unsigned int getEndOfSourceTime(int idx) const noexcept {
             return endOfSourceTime_[idx];
+        }
+
+        /**
+         * @brief getter for end of tape time of one element
+         *
+         * @param idx index of element
+         * @return end of tape time in seconds since start for element at position of idx parameter
+         */
+        const unsigned int getEndOfTapeTime(int idx) const noexcept {
+            return endOfTapeTime_[idx];
         }
 
         /**
