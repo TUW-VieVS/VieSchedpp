@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171205125946_test/parameters.xml";
+        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171206160828_test/parameters.xml";
     }
 
 
@@ -114,6 +114,7 @@ void run(std::string file){
     init.initializeSourceSequence();
 
     init.initializeCalibrationBlocks( headerLog );
+    init.initializeWeightFactors();
 
     bool flag_multiSched = false;
     unsigned long nsched = 1;
@@ -158,7 +159,7 @@ void run(std::string file){
         VieVS::Scheduler scheduler;
 
         ofstream bodyLog;
-        string threadNumberPrefix = "";
+        string threadNumberPrefix;
         if (flag_multiSched) {
             VieVS::Initializer newinit = init;
             string fname = (boost::format("body_%04d.txt") % (i + 1)).str();
@@ -205,7 +206,6 @@ void run(std::string file){
 
             scheduler = VieVS::Scheduler(init);
         }
-
 
         scheduler.start(bodyLog);
 

@@ -372,10 +372,10 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
-        void calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
-                              const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                              const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                              const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
+        void calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+                                  const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                                  const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                                  const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
 
         /**
          * @brief calculates the score for a calibrator block scan

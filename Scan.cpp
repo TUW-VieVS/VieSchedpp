@@ -507,7 +507,7 @@ double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcep
 
 double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
     unsigned int thisEndTime = times_.maxTime();
-    double score = 1 - (static_cast<double>(thisEndTime) - static_cast<double>(minTime)) / (maxTime - minTime);
+    double score = 1 - static_cast<double>(thisEndTime - minTime) / static_cast<double>(maxTime - minTime);
     return score;
 }
 
@@ -742,23 +742,23 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
     if (weight_numberOfObservations != 0) {
-        this_score += calcScore_numberOfObservations(nmaxbl) * WeightFactors::weightNumberOfObservations;
+        this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
     }
     double weight_averageSources = WeightFactors::weightAverageSources;
     if (weight_averageSources != 0) {
-        this_score += calcScore_averageSources(asrcs) * WeightFactors::weightAverageSources;
+        this_score += calcScore_averageSources(asrcs) * weight_averageSources;
     }
     double weight_averageStations = WeightFactors::weightAverageStations;
     if (weight_averageStations != 0) {
-        this_score += calcScore_averageStations(astas, nmaxsta) * WeightFactors::weightAverageStations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations;
     }
     double weight_duration = WeightFactors::weightDuration;
     if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * WeightFactors::weightDuration;
+        this_score += calcScore_duration(minTime, maxTime) * weight_duration;
     }
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(skyCoverages, stations) * WeightFactors::weightSkyCoverage;
+        this_score += calcScore_skyCoverage(skyCoverages, stations) * weight_skyCoverage;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
@@ -773,12 +773,12 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
             f = (dec - WeightFactors::declinationStartWeight) /
                 (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
-        this_score += f * WeightFactors::weightDeclination;
+        this_score += f * weightDeclination;
     }
 
     double weightLowElevation = WeightFactors::weightLowElevation;
     if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+        this_score += calcScore_lowElevation() * weightLowElevation;
     }
 
     this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
@@ -813,24 +813,24 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
     if (weight_numberOfObservations != 0) {
-        this_score += calcScore_numberOfObservations(nmaxbl) * WeightFactors::weightNumberOfObservations;
+        this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
     }
     double weight_averageSources = WeightFactors::weightAverageSources;
     if (weight_averageSources != 0) {
-        this_score += calcScore_averageSources(asrcs) * WeightFactors::weightAverageSources;
+        this_score += calcScore_averageSources(asrcs) * weight_averageSources;
     }
     double weight_averageStations = WeightFactors::weightAverageStations;
     if (weight_averageStations != 0) {
-        this_score += calcScore_averageStations(astas, nmaxsta) * WeightFactors::weightAverageStations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations;
     }
     double weight_duration = WeightFactors::weightDuration;
     if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * WeightFactors::weightDuration;
+        this_score += calcScore_duration(minTime, maxTime) * weight_duration;
     }
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
         this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) *
-                      WeightFactors::weightSkyCoverage;
+                weight_skyCoverage;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
@@ -845,12 +845,12 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
             f = (dec - WeightFactors::declinationStartWeight) /
                 (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
-        this_score += f * WeightFactors::weightDeclination;
+        this_score += f * weightDeclination;
     }
 
     double weightLowElevation = WeightFactors::weightLowElevation;
     if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+        this_score += calcScore_lowElevation() * weightLowElevation;
     }
 
     this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
@@ -877,32 +877,31 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
 }
 
 
-void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
-                            const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                            const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                            const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
+void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+                                const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+                                const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
+                                const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
     if (weight_numberOfObservations != 0) {
-        this_score += calcScore_numberOfObservations(nmaxbl) * WeightFactors::weightNumberOfObservations;
+        this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
     }
     double weight_averageSources = WeightFactors::weightAverageSources;
     if (weight_averageSources != 0) {
-        this_score += calcScore_averageSources(asrcs) * WeightFactors::weightAverageSources;
+        this_score += calcScore_averageSources(asrcs) * weight_averageSources * .5;
     }
     double weight_averageStations = WeightFactors::weightAverageStations;
     if (weight_averageStations != 0) {
-        this_score += calcScore_averageStations(astas, nmaxsta) * WeightFactors::weightAverageStations;
+        this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations * .5;
     }
     double weight_duration = WeightFactors::weightDuration;
     if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * WeightFactors::weightDuration;
+        this_score += calcScore_duration(minTime, maxTime) * weight_duration * .5;
     }
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) *
-                      WeightFactors::weightSkyCoverage;
+        this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage * .5;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
@@ -917,12 +916,12 @@ void Scan::calcScore_subcon(unsigned long nmaxsta, unsigned long nmaxbl, const s
             f = (dec - WeightFactors::declinationStartWeight) /
                 (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
         }
-        this_score += f * WeightFactors::weightDeclination;
+        this_score += f * weightDeclination * .5;
     }
 
     double weightLowElevation = WeightFactors::weightLowElevation;
     if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * WeightFactors::weightLowElevation;
+        this_score += calcScore_lowElevation() * weightLowElevation * 0.5;
     }
 
     this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();

@@ -301,17 +301,17 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         Scan &thisScan1 = thisScans.first;
         int srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[thisScan1.getSourceId()];
-        thisScan1.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                   skyCoverages, stations, thisSource1,
-                                   firstScore[srcid1]);
+        thisScan1.calcScore_subnetting(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                       skyCoverages, stations, thisSource1,
+                                       firstScore[srcid1]);
         double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
         int srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[thisScan2.getSourceId()];
-        thisScan2.calcScore_subcon(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                   skyCoverages, stations, thisSource2,
-                                   firstScore[srcid2]);
+        thisScan2.calcScore_subnetting(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                       skyCoverages, stations, thisSource2,
+                                       firstScore[srcid2]);
         double score2 = thisScan2.getScore();
         subnettingScanScores_.push_back(score1 + score2);
     }

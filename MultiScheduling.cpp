@@ -3,6 +3,8 @@
 //
 
 #include "MultiScheduling.h"
+#include "WeightFactors.h"
+
 using namespace std;
 using namespace VieVS;
 
@@ -475,20 +477,138 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         counter.push_back(2);
     }
 
-    if (!weightSkyCoverage_.empty()) {
-        counter.push_back(weightSkyCoverage_.size());
+    vector<vector<double> > weightFactors;
+    vector<char> flag(5,true);
+    if(!weightSkyCoverage_.empty() ||
+            !weightNumberOfObservations_.empty() ||
+            !weightDuration_.empty() ||
+            !weightAverageSources_.empty() ||
+            !weightAverageStations_.empty()) {
+
+        if (weightSkyCoverage_.empty()) {
+            weightSkyCoverage_.push_back(VieVS::WeightFactors::weightSkyCoverage);
+            flag[0] = false;
+        }
+        if (weightNumberOfObservations_.empty()) {
+            weightNumberOfObservations_.push_back(VieVS::WeightFactors::weightNumberOfObservations);
+            flag[1] = false;
+        }
+        if (weightDuration_.empty()) {
+            weightDuration_.push_back(VieVS::WeightFactors::weightDuration);
+            flag[2] = false;
+        }
+        if (weightAverageSources_.empty()) {
+            weightAverageSources_.push_back(VieVS::WeightFactors::weightAverageSources);
+            flag[3] = false;
+        }
+        if (weightAverageStations_.empty()) {
+            weightAverageStations_.push_back(VieVS::WeightFactors::weightAverageStations);
+            flag[4] = false;
+        }
+
+        for (double wsky: weightSkyCoverage_) {
+            for (double wobs: weightNumberOfObservations_) {
+                for (double wdur: weightDuration_) {
+                    for (double wasrc: weightAverageSources_) {
+                        for (double wsta: weightAverageStations_) {
+                            double sum = 0;
+                            if(flag[0]){
+                                sum+=wsky;
+                            }
+                            if(flag[1]){
+                                sum+=wobs;
+                            }
+                            if(flag[2]){
+                                sum+=wdur;
+                            }
+                            if(flag[3]){
+                                sum+=wasrc;
+                            }
+                            if(flag[4]){
+                                sum+=wsta;
+                            }
+
+
+                            vector<double> wf;
+                            if(flag[0]){
+                                if(sum == 0){
+                                    wf.push_back(0);
+                                }else{
+                                    wf.push_back(wsky/sum);
+                                }
+
+                            }else{
+                                wf.push_back(wsky);
+                            }
+                            if(flag[1]){
+                                if(sum == 0){
+                                    wf.push_back(0);
+                                }else{
+                                    wf.push_back(wobs/sum);
+                                }
+                            }else{
+                                wf.push_back(wobs);
+                            }
+                            if(flag[2]){
+                                if(sum == 0){
+                                    wf.push_back(0);
+                                }else{
+                                    wf.push_back(wdur/sum);
+                                }
+                            }else{
+                                wf.push_back(wdur);
+                            }
+                            if(flag[3]){
+                                if(sum == 0){
+                                    wf.push_back(0);
+                                }else{
+                                    wf.push_back(wasrc/sum);
+                                }
+                            }else{
+                                wf.push_back(wasrc);
+                            }
+                            if(flag[4]){
+                                if(sum == 0){
+                                    wf.push_back(0);
+                                }else{
+                                    wf.push_back(wsta/sum);
+                                }
+                            }else{
+                                wf.push_back(wsta);
+                            }
+
+                            weightFactors.push_back(wf);
+                        }
+                    }
+                }
+            }
+        }
+
+        int i1 = 0;
+        while (i1 < weightFactors.size()) {
+            const vector<double> &v1 = weightFactors[i1];
+            int i2 = i1 + 1;
+
+            while (i2 < weightFactors.size()) {
+                const vector<double> &v2 = weightFactors[i2];
+                int equal = 0;
+                for (int i3 = 0; i3 < v1.size(); ++i3) {
+                    if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                        ++equal;
+                    }
+                }
+                if (equal == v1.size()) {
+                    weightFactors.erase(next(weightFactors.begin(), i2));
+                } else {
+                    ++i2;
+                }
+            }
+            ++i1;
+        }
     }
-    if (!weightNumberOfObservations_.empty()) {
-        counter.push_back(weightNumberOfObservations_.size());
-    }
-    if (!weightDuration_.empty()) {
-        counter.push_back(weightDuration_.size());
-    }
-    if (!weightAverageSources_.empty()) {
-        counter.push_back(weightAverageSources_.size());
-    }
-    if (!weightAverageStations_.empty()) {
-        counter.push_back(weightAverageStations_.size());
+
+    if (!weightFactors.empty()) {
+        counter.push_back(weightFactors.size());
     }
 
     if (!stationMaxSlewtime_.empty()) {
@@ -619,76 +739,21 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         n_before = n_block;
     }
 
-    if (!weightSkyCoverage_.empty()) {
-        unsigned long n_this = weightSkyCoverage_.size();
+    if (!weightFactors.empty()) {
+        unsigned long n_this = weightFactors.size();
         unsigned long n_block = n_before * n_this;
         unsigned int n_items = n_total / n_block;
         unsigned int c = 0;
         for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightSkyCoverage_[i_block % n_this];
+            auto thisValue = weightFactors[i_block % n_this];
 
             for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightSkyCoverage = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightNumberOfObservations_.empty()) {
-        unsigned long n_this = weightNumberOfObservations_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightNumberOfObservations_[i_block % n_this];
+                allPARA[c].weightSkyCoverage = thisValue[0];
+                allPARA[c].weightNumberOfObservations = thisValue[1];
+                allPARA[c].weightDuration = thisValue[2];
+                allPARA[c].weightAverageSources = thisValue[3];
+                allPARA[c].weightAverageStations = thisValue[4];
 
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightNumberOfObservations = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightDuration_.empty()) {
-        unsigned long n_this = weightDuration_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightDuration_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightDuration = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightAverageSources_.empty()) {
-        unsigned long n_this = weightAverageSources_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightAverageSources_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightAverageSources = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightAverageStations_.empty()) {
-        unsigned long n_this = weightAverageStations_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightAverageStations_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightAverageStations = thisValue;
                 ++c;
             }
         }

@@ -48,14 +48,18 @@ namespace VieVS{
             of << "duration:             " << weightDuration << "\n";
             of << "averageSources:       " << weightAverageSources << "\n";
             of << "averageStations:      " << weightAverageStations << "\n";
-            of << "declination           " << weightDeclination << "from 90 to " << declinationStartWeight * rad2deg
-               << " = 0; from "
-               << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear; from "
-               << declinationFullWeight * rad2deg << " to -90" << " = 1;\n";
-            of << "elevation             " << weightLowElevation << "from 90 to " << lowElevationStartWeight * rad2deg
-               << " = 0; from "
-               << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear; from "
-               << lowElevationFullWeight * rad2deg << " to -90" << " = 1;\n";
+            if(weightDeclination != 0){
+                of << "declination           " << weightDeclination << " from 90 to " << declinationStartWeight * rad2deg
+                   << " = 0; from "
+                   << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear; from "
+                   << declinationFullWeight * rad2deg << " to -90" << " = 1;\n";
+            }
+            if(weightLowElevation != 0){
+                of << "elevation             " << weightLowElevation << " from 90 to " << lowElevationStartWeight * rad2deg
+                   << " = 0; from "
+                   << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear; from "
+                   << lowElevationFullWeight * rad2deg << " to -90" << " = 1;\n";
+            }
         }
     };
 }
