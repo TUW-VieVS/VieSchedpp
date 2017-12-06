@@ -2278,7 +2278,189 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
             }
 
             int nsched = 1;
+            QVector<double>weightSkyCoverage_;
+            QVector<double>weightNumberOfObservations_;
+            QVector<double>weightDuration_;
+            QVector<double>weightAverageSources_;
+            QVector<double>weightAverageStations_;
             for(int i = 0; i<t->topLevelItemCount(); ++i){
+                if(t->topLevelItem(i)->text(0) == "sky coverage"){
+                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+                    for(int ilist = 0; ilist<list->count(); ++ilist){
+                        weightSkyCoverage_.push_back( QString(list->itemText(ilist)).toDouble());
+                    }
+                }
+                if(t->topLevelItem(i)->text(0) == "number of observations"){
+                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+                    for(int ilist = 0; ilist<list->count(); ++ilist){
+                        weightNumberOfObservations_.push_back( QString(list->itemText(ilist)).toDouble());
+                    }
+                }
+                if(t->topLevelItem(i)->text(0) == "duration"){
+                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+                    for(int ilist = 0; ilist<list->count(); ++ilist){
+                        weightDuration_.push_back( QString(list->itemText(ilist)).toDouble());
+                    }
+                }
+                if(t->topLevelItem(i)->text(0) == "average stations"){
+                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+                    for(int ilist = 0; ilist<list->count(); ++ilist){
+                        weightAverageSources_.push_back( QString(list->itemText(ilist)).toDouble());
+                    }
+                }
+                if(t->topLevelItem(i)->text(0) == "average sources"){
+                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+                    for(int ilist = 0; ilist<list->count(); ++ilist){
+                        weightAverageStations_.push_back( QString(list->itemText(ilist)).toDouble());
+                    }
+                }
+            }
+
+            QVector<QVector<double> > weightFactors;
+            QVector<char> flag(5,true);
+            if(!weightSkyCoverage_.empty() ||
+                    !weightNumberOfObservations_.empty() ||
+                    !weightDuration_.empty() ||
+                    !weightAverageSources_.empty() ||
+                    !weightAverageStations_.empty()) {
+
+                if (weightSkyCoverage_.empty()) {
+                    weightSkyCoverage_.push_back(1);
+                    flag[0] = false;
+                }
+                if (weightNumberOfObservations_.empty()) {
+                    weightNumberOfObservations_.push_back(1);
+                    flag[1] = false;
+                }
+                if (weightDuration_.empty()) {
+                    weightDuration_.push_back(1);
+                    flag[2] = false;
+                }
+                if (weightAverageSources_.empty()) {
+                    weightAverageSources_.push_back(1);
+                    flag[3] = false;
+                }
+                if (weightAverageStations_.empty()) {
+                    weightAverageStations_.push_back(1);
+                    flag[4] = false;
+                }
+
+                for (double wsky: weightSkyCoverage_) {
+                    for (double wobs: weightNumberOfObservations_) {
+                        for (double wdur: weightDuration_) {
+                            for (double wasrc: weightAverageSources_) {
+                                for (double wsta: weightAverageStations_) {
+                                    double sum = 0;
+                                    if(flag[0]){
+                                        sum+=wsky;
+                                    }
+                                    if(flag[1]){
+                                        sum+=wobs;
+                                    }
+                                    if(flag[2]){
+                                        sum+=wdur;
+                                    }
+                                    if(flag[3]){
+                                        sum+=wasrc;
+                                    }
+                                    if(flag[4]){
+                                        sum+=wsta;
+                                    }
+
+
+                                    QVector<double> wf;
+                                    if(flag[0]){
+                                        if(sum == 0){
+                                            wf.push_back(0);
+                                        }else{
+                                            wf.push_back(wsky/sum);
+                                        }
+
+                                    }else{
+                                        wf.push_back(wsky);
+                                    }
+                                    if(flag[1]){
+                                        if(sum == 0){
+                                            wf.push_back(0);
+                                        }else{
+                                            wf.push_back(wobs/sum);
+                                        }
+                                    }else{
+                                        wf.push_back(wobs);
+                                    }
+                                    if(flag[2]){
+                                        if(sum == 0){
+                                            wf.push_back(0);
+                                        }else{
+                                            wf.push_back(wdur/sum);
+                                        }
+                                    }else{
+                                        wf.push_back(wdur);
+                                    }
+                                    if(flag[3]){
+                                        if(sum == 0){
+                                            wf.push_back(0);
+                                        }else{
+                                            wf.push_back(wasrc/sum);
+                                        }
+                                    }else{
+                                        wf.push_back(wasrc);
+                                    }
+                                    if(flag[4]){
+                                        if(sum == 0){
+                                            wf.push_back(0);
+                                        }else{
+                                            wf.push_back(wsta/sum);
+                                        }
+                                    }else{
+                                        wf.push_back(wsta);
+                                    }
+
+                                    weightFactors.push_back(wf);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                int i1 = 0;
+                while (i1 < weightFactors.size()) {
+                    const QVector<double> &v1 = weightFactors[i1];
+                    int i2 = i1 + 1;
+
+                    while (i2 < weightFactors.size()) {
+                        const QVector<double> &v2 = weightFactors[i2];
+                        int equal = 0;
+                        for (int i3 = 0; i3 < v1.size(); ++i3) {
+                            if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                                ++equal;
+                            }
+                        }
+                        if (equal == v1.size()) {
+                            weightFactors.erase(std::next(weightFactors.begin(), i2));
+                        } else {
+                            ++i2;
+                        }
+                    }
+                    ++i1;
+                }
+
+            }
+
+            if (!weightFactors.empty()) {
+                nsched = weightFactors.count();
+            }
+
+            QStringList weightFactorsStr {"sky coverage",
+                                          "number of observations",
+                                          "duration",
+                                          "average stations",
+                                          "average sources"};
+
+            for(int i = 0; i<t->topLevelItemCount(); ++i){
+                if(weightFactorsStr.indexOf(t->topLevelItem(i)->text(0)) != -1){
+                    continue;
+                }
                 nsched *= t->topLevelItem(i)->text(2).toInt();
             }
             ui->label_multiSchedulingNsched->setText(QString::number(nsched));
@@ -2385,11 +2567,11 @@ QString MainWindow::writeXML()
     for(int i=0; i<ui->treeWidget_setupStationWait->topLevelItemCount(); ++i){
         auto itm = ui->treeWidget_setupStationWait->topLevelItem(i);
         std::string name = itm->text(0).toStdString();
-        int setup = QString(itm->text(1)).toInt();
-        int source = QString(itm->text(2)).toInt();
-        int tape = QString(itm->text(3)).toInt();
-        int calibration = QString(itm->text(4)).toInt();
-        int corrSynch = QString(itm->text(5)).toInt();
+        int setup = QString(itm->text(1).left(itm->text(1).count()-6)).toInt();
+        int source = QString(itm->text(2).left(itm->text(2).count()-6)).toInt();
+        int tape = QString(itm->text(3).left(itm->text(3).count()-6)).toInt();
+        int calibration = QString(itm->text(4).left(itm->text(4).count()-6)).toInt();
+        int corrSynch = QString(itm->text(5).left(itm->text(5).count()-6)).toInt();
         para.stationWaitTimes(name,setup,source,tape,calibration,corrSynch);
     }
 
@@ -2480,7 +2662,6 @@ QString MainWindow::writeXML()
         }
     }
 
-    // TODO: write modePolicy function
     if(ui->groupBox_modeSked->isChecked()){
         std::string skdMode = ui->comboBox_skedObsModes->currentText().toStdString();
         para.mode(skdMode);
@@ -4170,7 +4351,7 @@ void MainWindow::on_pushButton_25_clicked()
                 ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
             }else if(any->text(0) == "sky coverage"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
-            }else if(any->text(0) == "number of obserations"){
+            }else if(any->text(0) == "number of observations"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(1)->setDisabled(false);
             }else if(any->text(0) == "duration"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(2)->setDisabled(false);
@@ -4324,8 +4505,8 @@ void MainWindow::createDefaultParameterSettings()
     settings.add("settings.station.waitTimes.calibration",10);
     settings.add("settings.station.waitTimes.corsynch",3);
 
-    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 1);
-    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 1);
+    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 5);
+    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 5);
     settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
     settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
 
