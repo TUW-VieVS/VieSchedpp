@@ -18,17 +18,16 @@ Output::Output(Scheduler &sched, std::string path) : xml_{std::move(sched.xml_)}
 
 void Output::writeStatistics(bool general, bool station, bool source, bool baseline, bool duration, bool time, ofstream& statisticsLog) {
 
-    string fname;
+    string fname = xml_.get("master.output.experimentName","schedule");
     if (iSched_ == 0) {
-        fname = "statistics.txt";
+        fname.append("_skdsum.txt");
         string txt = (boost::format("writing statistics to %s;\n") % fname).str();
         cout << txt;
 
     } else {
-        fname = (boost::format("statistics_%04d.txt") % (iSched_)).str();
+        fname.append((boost::format("%04d_skdsum.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
         cout << txt;
-
     }
     ofstream out(path+fname);
 
@@ -490,11 +489,11 @@ void Output::writeNGS() {
 
     string fname;
     if (iSched_ == 0) {
-        fname = "ngs.txt";
+        fname = TimeSystem::date2string(TimeSystem::startTime);
         string txt = (boost::format("writing NGS file %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("ngs_%04d.txt") % (iSched_)).str();
+        fname = (boost::format("%s_%04d") % TimeSystem::date2string(TimeSystem::startTime) % (iSched_)).str();
         string txt = (boost::format("version %d: writing NGS file %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
@@ -523,7 +522,7 @@ void Output::writeNGS() {
             int minute = tmp.time_of_day().minutes();
             double second = tmp.time_of_day().seconds();
 
-            out << boost::format("%8s  %8s  %8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
+            out << boost::format("%-8s  %-8s  %-8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
                    year % month % day % hour % minute % second;
             out << boost::format("%6d") % counter << "01\n";
 
@@ -557,14 +556,16 @@ void Output::writeNGS() {
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     int x = 0;
-    std::string fileName;
+
+    string fileName = xml_.get("master.output.experimentName","schedule");
     if (iSched_ == 0) {
-        fileName = "schedule.skd";
-        string txt = (boost::format("writing SKD file %s;\n") % fileName).str();
+        fileName.append(".skd");
+        string txt = (boost::format("writing statistics to %s;\n") % fileName).str();
         cout << txt;
+
     } else {
-        fileName = (boost::format("schedule_%04d.skd") % (iSched_)).str();
-        string txt = (boost::format("version %d: writing SKD file %s;\n") % iSched_ % fileName).str();
+        fileName.append((boost::format("%04d.skd") % (iSched_)).str());
+        string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
 

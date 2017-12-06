@@ -478,7 +478,6 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     }
 
     vector<vector<double> > weightFactors;
-    vector<char> flag(5,true);
     if(!weightSkyCoverage_.empty() ||
             !weightNumberOfObservations_.empty() ||
             !weightDuration_.empty() ||
@@ -487,23 +486,18 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
         if (weightSkyCoverage_.empty()) {
             weightSkyCoverage_.push_back(VieVS::WeightFactors::weightSkyCoverage);
-            flag[0] = false;
         }
         if (weightNumberOfObservations_.empty()) {
             weightNumberOfObservations_.push_back(VieVS::WeightFactors::weightNumberOfObservations);
-            flag[1] = false;
         }
         if (weightDuration_.empty()) {
             weightDuration_.push_back(VieVS::WeightFactors::weightDuration);
-            flag[2] = false;
         }
         if (weightAverageSources_.empty()) {
             weightAverageSources_.push_back(VieVS::WeightFactors::weightAverageSources);
-            flag[3] = false;
         }
         if (weightAverageStations_.empty()) {
             weightAverageStations_.push_back(VieVS::WeightFactors::weightAverageStations);
-            flag[4] = false;
         }
 
         for (double wsky: weightSkyCoverage_) {
@@ -511,72 +505,13 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                 for (double wdur: weightDuration_) {
                     for (double wasrc: weightAverageSources_) {
                         for (double wsta: weightAverageStations_) {
-                            double sum = 0;
-                            if(flag[0]){
-                                sum+=wsky;
-                            }
-                            if(flag[1]){
-                                sum+=wobs;
-                            }
-                            if(flag[2]){
-                                sum+=wdur;
-                            }
-                            if(flag[3]){
-                                sum+=wasrc;
-                            }
-                            if(flag[4]){
-                                sum+=wsta;
+                            double sum = wsky + wobs + wdur + wasrc + wsta;
+
+                            if(sum == 0){
+                                continue;
                             }
 
-
-                            vector<double> wf;
-                            if(flag[0]){
-                                if(sum == 0){
-                                    wf.push_back(0);
-                                }else{
-                                    wf.push_back(wsky/sum);
-                                }
-
-                            }else{
-                                wf.push_back(wsky);
-                            }
-                            if(flag[1]){
-                                if(sum == 0){
-                                    wf.push_back(0);
-                                }else{
-                                    wf.push_back(wobs/sum);
-                                }
-                            }else{
-                                wf.push_back(wobs);
-                            }
-                            if(flag[2]){
-                                if(sum == 0){
-                                    wf.push_back(0);
-                                }else{
-                                    wf.push_back(wdur/sum);
-                                }
-                            }else{
-                                wf.push_back(wdur);
-                            }
-                            if(flag[3]){
-                                if(sum == 0){
-                                    wf.push_back(0);
-                                }else{
-                                    wf.push_back(wasrc/sum);
-                                }
-                            }else{
-                                wf.push_back(wasrc);
-                            }
-                            if(flag[4]){
-                                if(sum == 0){
-                                    wf.push_back(0);
-                                }else{
-                                    wf.push_back(wsta/sum);
-                                }
-                            }else{
-                                wf.push_back(wsta);
-                            }
-
+                            vector<double> wf {wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wsta/sum};
                             weightFactors.push_back(wf);
                         }
                     }

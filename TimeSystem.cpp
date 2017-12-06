@@ -54,3 +54,10 @@ boost::posix_time::ptime VieVS::TimeSystem::string2ptime(std::string timeStr) {
     return ptime;
 }
 
+std::string VieVS::TimeSystem::date2string(boost::posix_time::ptime ptime) {
+    std::string dateStr = (boost::format("%04d%3s%02d")
+                           % ptime.date().year() %ptime.date().month() %ptime.date().day()).str();
+    dateStr = boost::to_upper_copy(dateStr);
+    return dateStr;
+}
+
