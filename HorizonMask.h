@@ -59,7 +59,19 @@ namespace VieVS{
          * @return true if visible, false if not visible
          */
         bool visible(const PointingVector &pv) const noexcept;
-        
+
+        const std::vector<double> &getAzimuth() const {
+            return azimuth_;
+        }
+
+        const std::vector<double> &getElevation() const {
+            return elevation_;
+        }
+
+        Category getType() const {
+            return type_;
+        }
+
     private:
         std::vector<double> azimuth_; ///< horizon mask knots in radians
         std::vector<double> elevation_; ///< minimum elevation values in radians

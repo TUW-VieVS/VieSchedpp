@@ -69,7 +69,7 @@ set(SOURCE_FILES
         TimeSystem.cpp
         TimeSystem.h
         WeightFactors.cpp
-        WeightFactors.h)
+        WeightFactors.h Vex.cpp Vex.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

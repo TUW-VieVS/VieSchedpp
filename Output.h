@@ -11,6 +11,7 @@
 #define OUTPUT_H
 #include "Scheduler.h"
 #include "boost/format.hpp"
+#include "Vex.h"
 
 namespace VieVS{
 
@@ -66,15 +67,21 @@ namespace VieVS{
 
 
         /**
-         * @brief create a skd file
+         * @brief creates a skd file
+         * @param skdCatalogReader skd catalogs
          */
         void writeSkd(const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief creates a vex file
+         * @param skdCatalogReader skd catalogs
+         */
+        void writeVex(const SkdCatalogReader &skdCatalogReader);
 
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
-        std::string path;
+        std::string path_;
         int iSched_; ///< number of this schedule
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources

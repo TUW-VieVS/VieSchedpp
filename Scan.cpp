@@ -1054,37 +1054,24 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         scanStart[staid] = times_.getEndOfCalibrationTime(idx);
         scanEnd[staid] = times_.getEndOfScanTime(idx);
     }
-    of << "| slew start | ";
-    for (auto &t:slewStart) {
-        if (t != maxValue) {
-            boost::posix_time::ptime thisTime =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
-        } else {
+
+    of << "| slew time  | ";
+    for(int i = 0; i< nmaxsta; ++i){
+        if(slewStart[i] != maxValue){
+            int deltaTime = slewEnd[i]-slewStart[i];
+            of << boost::format("%8d | ") % deltaTime;
+        }else{
             of << "         | ";
         }
     }
     of << "\n";
 
-    of << "| slew end   | ";
-    for (auto &t:slewEnd) {
-        if (t != maxValue) {
-            boost::posix_time::ptime thisTime =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
-        } else {
-            of << "         | ";
-        }
-    }
-    of << "\n";
-
-    of << "| idle end   | ";
-    for (auto &t:ideling) {
-        if (t != maxValue) {
-            boost::posix_time::ptime thisTime =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
-        } else {
+    of << "| idle time  | ";
+    for(int i = 0; i< nmaxsta; ++i){
+        if(slewStart[i] != maxValue){
+            int deltaTime = ideling[i]-slewEnd[i];
+            of << boost::format("%8d | ") % deltaTime;
+        }else{
             of << "         | ";
         }
     }
@@ -1102,13 +1089,12 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     }
     of << "\n";
 
-    of << "| scan end   | ";
-    for (auto &t:scanEnd) {
-        if (t != maxValue) {
-            boost::posix_time::ptime thisTime =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
-            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
-        } else {
+    of << "| scan time  | ";
+    for(int i = 0; i< nmaxsta; ++i){
+        if(slewStart[i] != maxValue){
+            int deltaTime = scanEnd[i]-scanStart[i];
+            of << boost::format("%8d | ") % deltaTime;
+        }else{
             of << "         | ";
         }
     }

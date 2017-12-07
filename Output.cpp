@@ -12,7 +12,7 @@ Output::Output() = default;
 Output::Output(Scheduler &sched, std::string path) : xml_{std::move(sched.xml_)},
                                    stations_{std::move(sched.stations_)}, sources_{std::move(sched.sources_)},
                                    skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)},
-                                   path{path} {
+                                   path_{path} {
 }
 
 
@@ -25,11 +25,11 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
         cout << txt;
 
     } else {
-        fname.append((boost::format("%04d_skdsum.txt") % (iSched_)).str());
+        fname.append((boost::format("v%04d_skdsum.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
         cout << txt;
     }
-    ofstream out(path+fname);
+    ofstream out(path_+fname);
 
     vector<int> statisticsVector{iSched_};
 
@@ -493,11 +493,11 @@ void Output::writeNGS() {
         string txt = (boost::format("writing NGS file %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%s_%04d") % TimeSystem::date2string(TimeSystem::startTime) % (iSched_)).str();
+        fname = (boost::format("%s_v%04d") % TimeSystem::date2string(TimeSystem::startTime) % (iSched_)).str();
         string txt = (boost::format("version %d: writing NGS file %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
-    ofstream out(path+fname);
+    ofstream out(path_+fname);
 
 
     boost::posix_time::ptime start = TimeSystem::startTime;
@@ -555,22 +555,21 @@ void Output::writeNGS() {
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
-    int x = 0;
 
     string fileName = xml_.get("master.output.experimentName","schedule");
     if (iSched_ == 0) {
         fileName.append(".skd");
-        string txt = (boost::format("writing statistics to %s;\n") % fileName).str();
+        string txt = (boost::format("writing skd file to %s;\n") % fileName).str();
         cout << txt;
 
     } else {
-        fileName.append((boost::format("%04d.skd") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fileName).str();
+        fileName.append((boost::format("v%04d.skd") % (iSched_)).str());
+        string txt = (boost::format("version %d: writing std file to %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
 
 
-    ofstream of(path+fileName);
+    ofstream of(path_+fileName);
 
     of << "$EXPER " << xml_.get<string>("master.output.experimentName") << endl;
     skd_PARAM(skdCatalogReader, of);
@@ -1055,6 +1054,22 @@ void Output::skd_CODES(const SkdCatalogReader &skd, std::ofstream &of) {
         }
 
     }
+
+}
+
+void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
+    string fileName = xml_.get("master.output.experimentName","schedule");
+    if (iSched_ == 0) {
+        fileName.append(".vex");
+        string txt = (boost::format("writing skd file to %s;\n") % fileName).str();
+        cout << txt;
+    } else {
+        fileName.append((boost::format("v%04d.vex") % (iSched_)).str());
+        string txt = (boost::format("version %d: writing std file to %s;\n") %iSched_ % fileName).str();
+        cout << txt;
+    }
+
+    Vex vex(skdCatalogReader, path_ + fileName);
 
 }
 

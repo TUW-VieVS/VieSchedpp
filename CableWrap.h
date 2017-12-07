@@ -137,17 +137,49 @@ namespace VieVS{
          * @return stream object
          */
         friend std::ostream &operator<<(std::ostream &out, const CableWrap &cw) noexcept;
-        
+
+        double getNLow() const {
+            return nLow_;
+        }
+
+        double getNUp() const {
+            return nUp_;
+        }
+
+        double getCLow() const {
+            return cLow_;
+        }
+
+        double getCUp() const {
+            return cUp_;
+        }
+
+        double getWLow() const {
+            return wLow_;
+        }
+
+        double getWUp() const {
+            return wUp_;
+        }
+
+        double getAxis2Low() const {
+            return axis2Low_;
+        }
+
+        double getAxis2Up() const {
+            return axis2Up_;
+        }
+
     private:
         double axis1Low_; ///< lower limit of first axis in radians
         double axis1Up_; ///< upper limit of first axis in radians
         double axis2Low_; ///< lower limit of second axis in radians
         double axis2Up_; ///< upper limit of second axis in radians
 
-        double axis1LowOffset_ = 1 * deg2rad; ///< safety margin for lower limit for first axis in radians
-        double axis1UpOffset_ = 1 * deg2rad; ///< safety margin for upper limit for first axis in radians
-        double axis2LowOffset_ = 1 * deg2rad; ///< safety margin for lower limit for second axis in radians
-        double axis2UpOffset_ = 1 * deg2rad; ///< safety margin for upper limit for second axis in radians
+        double axis1LowOffset_ = 5 * deg2rad; ///< safety margin for lower limit for first axis in radians
+        double axis1UpOffset_ = 5 * deg2rad; ///< safety margin for upper limit for first axis in radians
+        double axis2LowOffset_ = 0 * deg2rad; ///< safety margin for lower limit for second axis in radians
+        double axis2UpOffset_ = 0 * deg2rad; ///< safety margin for upper limit for second axis in radians
 
         double nLow_; ///< lower limit for neutral cable wrap range
         double nUp_; ///< upper limit for neutral cable wrap range

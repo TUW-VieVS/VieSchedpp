@@ -68,6 +68,30 @@ namespace VieVS{
             return axisType_;
         }
 
+        double getDiam() const {
+            return diam_;
+        }
+
+        double getOffset() const {
+            return offset_;
+        }
+
+        double getRate1() const {
+            return rate1_;
+        }
+
+        double getCon1() const {
+            return con1_;
+        }
+
+        double getRate2() const {
+            return rate2_;
+        }
+
+        double getCon2() const {
+            return con2_;
+        }
+
         /**
          * @brief calculates the slewtime between azimuth and elevation of two pointing vectors
          * @param old_pointingVector start azimuth and elevation
@@ -86,7 +110,9 @@ namespace VieVS{
          * @return stream object
          */
         friend std::ostream &operator<<(std::ostream &out, const Antenna &antenna) noexcept;
-        
+
+
+
     private:
         AxisType axisType_; ///< station axis type
 

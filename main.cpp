@@ -97,7 +97,7 @@ void run(std::string file){
 
     cout << "log file is written in this file: header.txt;\n";
 
-    ofstream headerLog(path+"header.txt");
+    ofstream headerLog(path+"log_initializer.txt");
     ofstream statisticsLog(path+"statistics.txt");
 
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
@@ -162,7 +162,7 @@ void run(std::string file){
         string threadNumberPrefix;
         if (flag_multiSched) {
             VieVS::Initializer newinit = init;
-            string fname = (boost::format("body_%04d.txt") % (i + 1)).str();
+            string fname = (boost::format("log_v%04d.txt") % (i + 1)).str();
             bodyLog.open(path+fname);
 
 
@@ -192,7 +192,7 @@ void run(std::string file){
             scheduler = VieVS::Scheduler(newinit);
         } else {
             cout << "log file is written in this file: body.txt;\n";
-            bodyLog.open(path+"body.txt");
+            bodyLog.open(path+"log.txt");
             init.initializeGeneral(bodyLog);
 
             init.initializeStations();
