@@ -1753,7 +1753,6 @@ void MainWindow::addModesPolicyTable(QString name){
     }else{
         dsp->setValue(20.);
     }
-    dsp->setSuffix(" [Jy]");
     dsp->setMaximum(1000);
     QComboBox *psta = new QComboBox(this);
     psta->addItem("required");
@@ -1794,8 +1793,8 @@ void MainWindow::addModesPolicyTable(QString name){
 
 void MainWindow::createModesCustonBandTable()
 {
-    addModesCustomTable("X",8.6,10);
-    addModesCustomTable("S",2.3,6);
+    addModesCustomTable("X",8.590,10);
+    addModesCustomTable("S",2.260,6);
 
     ui->tableWidget_modeCustonBand->resizeColumnsToContents();
     ui->tableWidget_modeCustonBand->verticalHeader()->show();
