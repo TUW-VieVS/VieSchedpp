@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = "/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171206160828_test/parameters.xml";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171211101651_austral/parameters.xml";
     }
 
 
@@ -98,7 +98,7 @@ void run(std::string file){
     cout << "log file is written in this file: header.txt;\n";
 
     ofstream headerLog(path+"log_initializer.txt");
-    ofstream statisticsLog(path+"statistics.txt");
+    ofstream statisticsLog(path+"statistics.csv");
 
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
 
@@ -162,7 +162,7 @@ void run(std::string file){
         string threadNumberPrefix;
         if (flag_multiSched) {
             VieVS::Initializer newinit = init;
-            string fname = (boost::format("log_v%04d.txt") % (i + 1)).str();
+            string fname = (boost::format("log_V%03d.txt") % (i + 1)).str();
             bodyLog.open(path+fname);
 
 

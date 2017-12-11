@@ -25,7 +25,7 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
         cout << txt;
 
     } else {
-        fname.append((boost::format("v%04d_skdsum.txt") % (iSched_)).str());
+        fname.append((boost::format("_V%03d_skdsum.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
         cout << txt;
     }
@@ -489,11 +489,11 @@ void Output::writeNGS() {
 
     string fname;
     if (iSched_ == 0) {
-        fname = TimeSystem::date2string(TimeSystem::startTime);
+        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS");
         string txt = (boost::format("writing NGS file %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%s_v%04d") % TimeSystem::date2string(TimeSystem::startTime) % (iSched_)).str();
+        fname = (boost::format("%sMS_V%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (iSched_)).str();
         string txt = (boost::format("version %d: writing NGS file %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
@@ -563,7 +563,7 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
         cout << txt;
 
     } else {
-        fileName.append((boost::format("v%04d.skd") % (iSched_)).str());
+        fileName.append((boost::format("_V%03d.skd") % (iSched_)).str());
         string txt = (boost::format("version %d: writing std file to %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
@@ -1064,7 +1064,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
         string txt = (boost::format("writing skd file to %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("v%04d.vex") % (iSched_)).str());
+        fileName.append((boost::format("V%03d.vex") % (iSched_)).str());
         string txt = (boost::format("version %d: writing std file to %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }

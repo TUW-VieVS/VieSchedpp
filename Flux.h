@@ -91,7 +91,7 @@ namespace VieVS{
          * @param v projected baseline length
          * @return flux density fot this constellation
          */
-        double getFlux(double u, double v) const noexcept;
+        double observedFlux(double u, double v) const noexcept;
 
     private:
 

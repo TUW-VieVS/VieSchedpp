@@ -66,7 +66,7 @@ double Source::observedFlux(const string &band, double gmst, double dx, double d
     double u = dx * sin(ha) + dy * cos(ha);
     double v = dz*cos(de_) + sin(de_) * (-dx * cos(ha) + dy * sin(ha));
 
-    double flux = flux_.at(band).getFlux(u, v);
+    double flux = flux_.at(band).observedFlux(u, v);
     return flux;
 }
 

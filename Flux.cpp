@@ -102,7 +102,7 @@ namespace VieVS {
     }
 }
 
-double Flux::getFlux(double u, double v) const noexcept {
+double Flux::observedFlux(double u, double v) const noexcept {
     double observedFlux = 0;
 
     if(type_ == FluxType::B){

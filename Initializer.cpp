@@ -390,6 +390,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 if (flux_split[i][1] == thisBand){
                     if (flux_split[i][2] == thisType){
                         parameters.insert(parameters.end(), flux_split[i].begin()+3, flux_split[i].end());
+                        alreadyConsidered.push_back(i);
                     }else {
                         cerr << "ERROR: Source:" << name << "Flux: " << thisBand << ";\n";
                         cerr << "ERROR:   You can not mix B and M flux information for one band!;\n";
