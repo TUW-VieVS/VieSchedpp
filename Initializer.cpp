@@ -306,14 +306,19 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             headerLog << "*** ERROR: " << any.first << ": source.cat to small ***\n";
             continue;
         }
-//        if (any.second.at(1) != "$"){
-//            name = any.second.at(1);
-//        }
+        string commonname = any.second.at(1);
+        if(commonname == "$"){
+            commonname = "";
+        }
 
-        if (fluxCatalog.find(name) == fluxCatalog.end()){
+        bool foundName = fluxCatalog.find(name) != fluxCatalog.end();
+        bool foundCommName = (!commonname.empty() && fluxCatalog.find(commonname) != fluxCatalog.end());
+
+        if ( !foundName && !foundCommName){
             headerLog << "*** WARNING: source " << name << ": flux information not found ***\n";
             continue;
         }
+
 
         double ra_h, ra_m, ra_s, de_deg, de_m, de_s;
         char sign =any.second.at(5).at(0);
@@ -335,7 +340,13 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             de = -1*de;
         }
 
-        vector<string> flux_cat = fluxCatalog.at(name);
+        vector<string> flux_cat;
+        if(foundName){
+            flux_cat = fluxCatalog.at(name);
+        }else{
+            flux_cat = fluxCatalog.at(commonname);
+        }
+
 //            if (flux_cat.size() < 6){
 //                headerLog <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
 //                continue;
@@ -469,7 +480,15 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 
 
         if (!flux.empty()){
-            sources_.emplace_back(name, ra, de, flux, created);
+            string name1, name2;
+            if(commonname.empty()){
+                name1 = name;
+                name2 = "";
+            }else{
+                name1 = commonname;
+                name2 = name;
+            }
+            sources_.emplace_back(name1, name2, ra, de, flux, created);
             created++;
             headerLog << boost::format("  %-8s added\n") % name;
         }

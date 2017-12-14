@@ -156,12 +156,13 @@ namespace VieVS{
          * @brief constructor
          *
          * @param src_name name of the source
+         * @param src_name2 alternative name of source
          * @param src_ra_deg right ascension in degrees
          * @param src_de_deg declination in degrees
          * @param src_flux flux information per band
          */
-        Source(const std::string &src_name, double src_ra_deg, double src_de_deg,
-               const std::unordered_map<std::string, Flux> &src_flux, int id);
+        Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
+               const std::unordered_map<std::string, Flux> src_flux, int id);
 
 
         /**
@@ -199,6 +200,16 @@ namespace VieVS{
         }
 
         /**
+         * @brief getter for alternative source name
+         *
+         * @return alternative name of the source
+         */
+        const std::string &getAlternativeName() const noexcept {
+            return name2_;
+        }
+
+
+        /**
          * @brief getter for right ascension
          *
          * @return right ascension of the source in radians
@@ -206,6 +217,20 @@ namespace VieVS{
         double getRa() const noexcept {
             return ra_;
         }
+
+        /**
+         * @brief getter for right ascension string
+         *
+         * @return right ascension string of the source
+         */
+        std::string getRaString() const noexcept;
+
+        /**
+         * @brief getter for declination string
+         *
+         * @return declination string of the source
+         */
+        std::string getDeString() const noexcept;
 
         /**
          * @brief getter for declination
@@ -343,6 +368,7 @@ namespace VieVS{
         
     private:
         std::string name_; ///< source name
+        std::string name2_; ///< source alternative name
         int id_; ///< source id
         double ra_; ///< source right ascension
         double de_; ///< source declination

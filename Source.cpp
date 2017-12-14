@@ -15,12 +15,12 @@
 using namespace std;
 using namespace VieVS;
 
-Source::Source() {
-}
+Source::Source() = default;
 
-Source::Source(const string &src_name, double src_ra_deg, double src_de_deg,
-                         const unordered_map<string, Flux> &src_flux, int id) :
-        name_{src_name}, id_{id}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{src_flux}, lastScan_{0},
+Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
+               unordered_map<string, Flux> src_flux, int id) :
+        name_{src_name}, name2_{src_name2}, id_{id}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{
+        std::move(src_flux)}, lastScan_{0},
         nScans_{0}, nTotalScans_{0}, nBaselines_{0} {
 
     preCalculated_.sourceInCrs.resize(3);
@@ -109,3 +109,22 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
     return flag;
 }
 
+std::string Source::getRaString() const noexcept{
+    double deg = rad2deg*ra_/15;
+    auto h = static_cast<int>(fmod(deg, 1.));
+    double min = (deg-h)*60;
+    auto m = static_cast<int>(fmod(min, 1.));
+    double s = (min-m)*60;
+    string str = (boost::format("%02dh%02dm%08.5fs") %h %m %s).str();
+    return str;
+}
+
+std::string Source::getDeString() const noexcept{
+    double deg = rad2deg*de_;
+    auto h = static_cast<int>(fmod(deg, 1.));
+    double min = (deg-h)*60;
+    auto m = static_cast<int>(fmod(min, 1.));
+    double s = (min-m)*60;
+    string str = (boost::format("%+03d°%02d'%08.5f\"") %h %m %s).str();
+    return str;
+}

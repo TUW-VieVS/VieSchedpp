@@ -71,7 +71,7 @@ namespace VieVS {
 
 
 
-        void sched_block(const std::vector<Scan>& scans);
+        void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations, const std::vector<Source>& sources);
 
 
 
