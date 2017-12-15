@@ -17,17 +17,28 @@
 namespace VieVS {
 
     /**
-     * @class Output
-     * @brief this is the VLBI output class that creates all output files
+     * @class Vex
+     * @brief this is the VLBI vex-output class
      *
      * @author Matthias Schartner
-     * @date 22.08.2017
+     * @date 07.12.2017
      */
     class Vex {
     public:
         Vex();
 
-        Vex(SkdCatalogReader skd, const std::string &file);
+        explicit Vex(const std::string &file);
+
+        void writeVex(const std::vector<Station>& stations,
+                           const std::vector<Source>& sources,
+                           const std::vector<Scan> & scans,
+                           const SkdCatalogReader &skdCatalogReader,
+                           const boost::property_tree::ptree &xml);
+
+
+    private:
+        std::ofstream of;
+        std::string eol = ";\n";
 
         void global_block(const std::string &expName);
 
@@ -36,13 +47,13 @@ namespace VieVS {
 
 
 
-        void station_block(const std::vector<Station>& stations);
+        void station_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
-        void sites_block(const std::vector<Station>& stations);
+        void sites_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
         void antenna_block(const std::vector<Station>& stations);
 
-        void das_block(const std::vector<Station>& stations);
+        void das_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
 
 
@@ -71,17 +82,8 @@ namespace VieVS {
 
 
 
-        void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations, const std::vector<Source>& sources);
-
-
-
-
-    private:
-        std::ofstream of;
-        std::string eol = ";\n";
-
-        SkdCatalogReader skd_;
-
+        void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
+                         const std::vector<Source>& sources, const SkdCatalogReader &skdCatalogReader);
 
     };
 }

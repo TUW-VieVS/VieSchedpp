@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171211101651_austral/parameters.xml";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171215094115_austral/parameters.xml";
     }
 
 
@@ -227,6 +227,8 @@ void run(std::string file){
         output.writeNGS();
 
         output.writeSkd(skdCatalogReader);
+
+        output.writeVex(skdCatalogReader);
 
         if(flag_multiSched){
             string txt3 = threadNumberPrefix+(boost::format("version %d finished;\n") % (i + 1)).str();

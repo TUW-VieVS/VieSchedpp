@@ -11,11 +11,31 @@ using namespace VieVS;
 
 VieVS::Vex::Vex() = default;
 
-Vex::Vex(SkdCatalogReader skd, const string &file): skd_{std::move(skd)} {
-
-    ofstream of(file);
-
+Vex::Vex(const string &file){
+    of = ofstream(file);
     of << "VEX_rev = 1.5;\n";
+}
+
+
+void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+              const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml) {
+
+    global_block(xml.get("master.output.experimentName","schedule"));
+
+    exper_block(xml.get("master.output.experimentName","schedule"),
+                xml.get("master.output.experimentDescription","schedule"),
+                xml.get("master.created.name","UNKNOWN"),
+                xml.get("master.created.email","UNKNOWN"),
+                xml.get("master.output.correlator","UNKNOWN"));
+
+    station_block(stations, skdCatalogReader);
+    sites_block(stations, skdCatalogReader);
+    antenna_block(stations);
+    das_block(stations, skdCatalogReader);
+
+    source_block(sources);
+
+    sched_block(scans, stations, sources, skdCatalogReader);
 
 }
 
@@ -43,11 +63,11 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
     of << "  enddef;\n";
 }
 
-void Vex::station_block(const std::vector<Station> &stations) {
+void Vex::station_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader) {
     of << "$Station;\n";
-    const auto & tlc = skd_.getTwoLetterCode();
-    const map<string, vector<string> > & cat = skd_.getEquipCatalog();
-    const map<string, vector<string> > & acat = skd_.getAntennaCatalog();
+    const auto & tlc = skdCatalogReader.getTwoLetterCode();
+    const map<string, vector<string> > & cat = skdCatalogReader.getEquipCatalog();
+    const map<string, vector<string> > & acat = skdCatalogReader.getAntennaCatalog();
 
     for(const auto &any: stations){
         const string &name = any.getName();
@@ -59,7 +79,7 @@ void Vex::station_block(const std::vector<Station> &stations) {
         const string & rack = eq.at(eq.size()-1);
         const string & recorder = eq.at(eq.size()-2);
         const string & id = tmp.at(14);
-        const string & id_name = skd_.getTwoLetterCode().at(name) + "_" + tmp.at(14);
+        const string & id_name = skdCatalogReader.getTwoLetterCode().at(name) + "_" + tmp.at(14);
 
 
         of << "  def " << tlc.at(name) << eol;
@@ -73,9 +93,9 @@ void Vex::station_block(const std::vector<Station> &stations) {
     }
 }
 
-void Vex::sites_block(const std::vector<Station> &stations){
+void Vex::sites_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader){
     of << "$SITE;\n";
-    const auto & tlc = skd_.getTwoLetterCode();
+    const auto & tlc = skdCatalogReader.getTwoLetterCode();
     for(const auto &any: stations){
         const string &name = any.getName();
         of << "  def " << name << eol;
@@ -84,7 +104,7 @@ void Vex::sites_block(const std::vector<Station> &stations){
         of << "    site_ID = " << tlc.at(name) << eol;
         of << boost::format("    site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
         of << "    site_position_ref = sked_position.cat;\n";
-        of << "    occupation_code = " << skd_.getPositionCatalog().at(boost::algorithm::to_upper_copy(tlc.at(name))).at(5) << eol;
+        of << "    occupation_code = " << skdCatalogReader.getPositionCatalog().at(boost::algorithm::to_upper_copy(tlc.at(name))).at(5) << eol;
         switch (any.getMask().getType()){
             case HorizonMask::Category::step:{
                 const auto &az = any.getMask().getAzimuth();
@@ -159,28 +179,32 @@ void Vex::antenna_block(const std::vector<Station> &stations) {
         of << boost::format("    antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion1 % (any.getAntenna().getRate1()*rad2deg*60) % (any.getAntenna().getCon1());
         of << boost::format("    antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion2 % (any.getAntenna().getRate2()*rad2deg*60) % (any.getAntenna().getCon2());
         if(any.getAntenna().getAxisType() == Antenna::AxisType::AZEL){
-            of << boost::format("    pointing_sector = &ccw   : %3s : %4.0f deg : 4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") %
-                    motion1 % (any.getCableWrap().getWLow()*rad2deg) % (any.getCableWrap().getWUp()*rad2deg) %
-                    motion2 % (any.getCableWrap().getAxis2Low()*rad2deg) % (any.getCableWrap().getAxis2Up()*rad2deg);
-            of << boost::format("    pointing_sector = &n     : %3s : %4.0f deg : 4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") %
-                  motion1 % (any.getCableWrap().getNLow()*rad2deg) % (any.getCableWrap().getNUp()*rad2deg) %
-                  motion2 % (any.getCableWrap().getAxis2Low()*rad2deg) % (any.getCableWrap().getAxis2Up()*rad2deg);
-            of << boost::format("    pointing_sector = &cw    : %3s : %4.0f deg : 4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") %
-                  motion1 % (any.getCableWrap().getCLow()*rad2deg) % (any.getCableWrap().getCUp()*rad2deg) %
-                  motion2 % (any.getCableWrap().getAxis2Low()*rad2deg) % (any.getCableWrap().getAxis2Up()*rad2deg);
+            double azwl = any.getCableWrap().getWLow()*rad2deg;
+            double azwh = any.getCableWrap().getWUp()*rad2deg;
+            double aznl = any.getCableWrap().getNLow()*rad2deg;
+            double aznh = any.getCableWrap().getWUp()*rad2deg;
+            double azcl = any.getCableWrap().getCLow()*rad2deg;
+            double azch = any.getCableWrap().getWUp()*rad2deg;
+            double ell  = any.getCableWrap().getCUp()*rad2deg;
+            double elh  = any.getCableWrap().getAxis2Up()*rad2deg;
+            of << boost::format("    pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % azwl % azwh % motion2 % ell % elh;
+            of << boost::format("    pointing_sector = &n     : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % aznl % aznh % motion2 % ell % elh;
+            of << boost::format("    pointing_sector = &cw    : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % azcl % azch % motion2 % ell % elh;
         }else{
-            of << boost::format("    pointing_sector = &ccw   : %3s : %4.0f deg : 4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") %
-                  motion1 % (any.getCableWrap().getNLow()*rad2deg) % (any.getCableWrap().getNUp()*rad2deg) %
-                  motion2 % (any.getCableWrap().getAxis2Low()*rad2deg) % (any.getCableWrap().getAxis2Up()*rad2deg);
+            double hal  = any.getCableWrap().getNLow()*rad2deg;
+            double hah  = any.getCableWrap().getNUp()*rad2deg;
+            double dcl  = any.getCableWrap().getAxis2Low()*rad2deg;
+            double dch  = any.getCableWrap().getAxis2Up()*rad2deg;
+            of << boost::format("    pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % hal % hah % motion2 % dcl % dch;
         }
         of << "  enddef;\n";
     }
 }
 
-void Vex::das_block(const std::vector<Station> &stations) {
+void Vex::das_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader) {
     of << "$DAS" << eol;
-    const map<string, vector<string> > & cat = skd_.getEquipCatalog();
-    const map<string, vector<string> > & acat = skd_.getAntennaCatalog();
+    const map<string, vector<string> > & cat = skdCatalogReader.getEquipCatalog();
+    const map<string, vector<string> > & acat = skdCatalogReader.getAntennaCatalog();
 
     vector<string> racks;
     vector<string> recorders;
@@ -195,7 +219,7 @@ void Vex::das_block(const std::vector<Station> &stations) {
         const string &rack = eq.at(eq.size()-1);
         const string & recorder = eq.at(eq.size()-2);
         const string & id = tmp.at(14);
-        const string & id_name = skd_.getTwoLetterCode().at(any.getName()) + "_" + tmp.at(14);
+        const string & id_name = skdCatalogReader.getTwoLetterCode().at(any.getName()) + "_" + tmp.at(14);
 
         if(find(racks.begin(),racks.end(),rack) == racks.end()){
             racks.push_back(rack);
@@ -230,6 +254,9 @@ void Vex::das_block(const std::vector<Station> &stations) {
 void Vex::source_block(const std::vector<Source> &sources) {
     of << "$SOURCE;\n";
     for(const auto&any:sources){
+        if(any.getNTotalScans()==0){
+            continue;
+        }
         of << "  def " << any.getName() << eol;
         of << "    source_type = star" << eol;
         of << "    source_name = " << any.getName() << eol;
@@ -255,11 +282,11 @@ void Vex::phase_cal_detect_block() {
 }
 
 void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station> &stations,
-                      const std::vector<Source> &sources) {
+                      const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader) {
 
     of << "$SCHED;\n";
     boost::posix_time::ptime sessionStart = TimeSystem::startTime;
-    auto tlc = skd_.getTwoLetterCode();
+    auto tlc = skdCatalogReader.getTwoLetterCode();
     vector<string>scanIds;
     for(const auto &scan:scans) {
         unsigned long nsta = scan.getNSta();
@@ -297,8 +324,8 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         of << "    start = " << TimeSystem::ptime2string(scanStart) << eol;
         of << "    mode = GEOSX.SX" << eol;
         of << "    source = " << sources.at(static_cast<unsigned long>(srcid)).getName() << eol;
-        for(int i = 0; i<nsta; ++i){
-            const PointingVector &pv = scan.getPointingVector(i);
+        for(int j = 0; j<nsta; ++j){
+            const PointingVector &pv = scan.getPointingVector(j);
             int staid = pv.getStaid();
             double az = pv.getAz();
             const Station &thisStation = stations.at(static_cast<unsigned long>(staid));
@@ -312,7 +339,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             }else if (cwskd == "W"){
                 cwvex = "&ccw";
             }
-            int duration = scan.getTimes().getEndOfScanTime(i)-scan.getTimes().getEndOfCalibrationTime(i);
+            int duration = scan.getTimes().getEndOfScanTime(j)-scan.getTimes().getEndOfCalibrationTime(j);
             of << boost::format("    station = %2s : %4d sec : %4d sec : 0ft : 1A : %4s : 1;\n") % thisTlc % 0 % duration % cwvex;
         }
         of << "  endscan" << eol;
