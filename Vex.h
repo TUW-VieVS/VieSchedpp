@@ -39,6 +39,7 @@ namespace VieVS {
     private:
         std::ofstream of;
         std::string eol = ";\n";
+        std::map<int,int> channelNr2Bbc_;
 
         void global_block(const std::string &expName);
 
@@ -57,19 +58,19 @@ namespace VieVS {
 
 
 
-        void source_block(const std::vector<Source>& stations);
+        void source_block(const std::vector<Source>& sources);
 
 
 
-        void mode_block();
+        void mode_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
-        void freq_block();
+        void freq_block(const SkdCatalogReader &skdCatalogReader);
 
-        void bbc_block();
+        void bbc_block(const SkdCatalogReader &skdCatalogReader);
 
-        void if_block();
+        void if_block(const SkdCatalogReader &skdCatalogReader);
 
-        void tracks_block();
+        void tracks_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
 
         void head_pos_block();
 

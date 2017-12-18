@@ -338,7 +338,7 @@ void SkdCatalogReader::readTracksCatalog() {
 
                 if (splitVector[0] == tracksId) {
                     tracksId2fanoutMap_[tracksId] = boost::lexical_cast<int>(splitVector[1]);
-                    unsigned int bits = boost::lexical_cast<unsigned int>(splitVector[2]);
+                    auto bits = boost::lexical_cast<unsigned int>(splitVector[2]);
                     if(bits_ == 0){
                         bits_ = bits;
                     } else if(bits_ != bits){
@@ -355,8 +355,8 @@ void SkdCatalogReader::readTracksCatalog() {
 
                             vector<string> splitVector2;
                             boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
-                            int channelNumber = boost::lexical_cast<int>(splitVector2[1]);
-                            channelNumber2tracksMap_[channelNumber] = splitVector2[2];
+                            auto channelNumber = boost::lexical_cast<int>(splitVector2[1]);
+                            tracksId2channelNumber2tracksMap_[tracksId][channelNumber] = splitVector2[2];
                         }
                     }
                 }
@@ -390,7 +390,7 @@ void SkdCatalogReader::readFreqCatalog() {
                         boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
 
                         string channelNumberStr = splitVector2[5];
-                        int channelNumber = boost::lexical_cast<int>(
+                        auto channelNumber = boost::lexical_cast<int>(
                                 channelNumberStr.substr(2, channelNumberStr.size() - 2));
 
                         channelNumber2band_[channelNumber] = splitVector2[1];

@@ -32,14 +32,23 @@ void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Sourc
                 xml.get("master.output.correlator","UNKNOWN"));
 
     station_block(stations, skdCatalogReader);
+    mode_block(stations,skdCatalogReader);
+    sched_block(scans, stations, sources, skdCatalogReader);
+
     sites_block(stations, skdCatalogReader);
     antenna_block(stations);
     das_block(stations, skdCatalogReader);
 
     source_block(sources);
 
-    sched_block(scans, stations, sources, skdCatalogReader);
+    freq_block(skdCatalogReader);
+    bbc_block(skdCatalogReader);
+    if_block(skdCatalogReader);
+    tracks_block(stations, skdCatalogReader);
 
+    pass_order_block();
+    roll_block();
+    phase_cal_detect_block();
 }
 
 void Vex::global_block(const std::string &expName) {
@@ -47,7 +56,6 @@ void Vex::global_block(const std::string &expName) {
     of << "$GLOBAL;\n";
     of << "*=========================================================================================================\n";
     of << "    ref $EXPER = " << expName << eol;
-    of << "    ref $SCHEDULING_PARAMS = PARAMETERS_XML;\n";
 }
 
 void Vex::exper_block(const std::string &expName, const std::string &expDescription, const std::string &schedulerName,
@@ -249,18 +257,18 @@ void Vex::das_block(const std::vector<Station> &stations, const SkdCatalogReader
     for (const auto &rack : racks) {
         of << "    def " << rack << "_rack" << eol;
         of << "        electronics_rack_type = " << rack << eol;
-        of << "    enddef" << eol;
+        of << "    enddef;\n";
     }
 
     for (const auto &recorder : recorders) {
         of << "    def " << recorder << "_recorder" << eol;
         of << "        record_transport_type = " << recorder <<  eol;
-        of << "    enddef" << eol;
+        of << "    enddef;\n";
     }
     for(unsigned long i=0; i<ids.size(); ++i){
         of << "    def " << idNames.at(i) << eol;
         of << "        recording_system_ID = " << ids.at(i) << eol;
-        of << "    enddef" << eol;
+        of << "    enddef;\n";
     }
 }
 
@@ -290,10 +298,12 @@ void Vex::source_block(const std::vector<Source> &sources) {
 }
 
 void Vex::phase_cal_detect_block() {
+    of << "*=========================================================================================================\n";
     of << "$PHASE_CAL_DETECT;\n";
+    of << "*=========================================================================================================\n";
     of << "* WARNING: This block is hard coded!\n";
     of << "    def Standard;\n";
-//    of << "    phase_cal_detect = &U_cal : 1\n";
+    of << "        phase_cal_detect = &U_cal : 1\n";
     of << "    enddef;\n";
 }
 
@@ -303,7 +313,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
     boost::posix_time::ptime sessionStart = TimeSystem::startTime;
-    auto tlc = skdCatalogReader.getTwoLetterCode();
+    const auto & tlc = skdCatalogReader.getTwoLetterCode();
     vector<string>scanIds;
     for(const auto &scan:scans) {
         unsigned long nsta = scan.getNSta();
@@ -359,27 +369,290 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             int duration = scan.getTimes().getEndOfScanTime(j)-scan.getTimes().getEndOfCalibrationTime(j);
             of << boost::format("        station = %2s : %4d sec : %4d sec : 0ft : 1A : %4s : 1;\n") % thisTlc % 0 % duration % cwvex;
         }
-        of << "    endscan" << eol;
+        of << "    endscan;\n";
     }
 }
 
-void Vex::mode_block() {
+void Vex::mode_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader) {
+    of << "*=========================================================================================================\n";
+    of << "$MODE;\n";
+    of << "*=========================================================================================================\n";
+    const auto & tlc = skdCatalogReader.getTwoLetterCode();
+
+    of << "    def " << skdCatalogReader.getFreqName() << eol;
+
+    of << "        ref $FREQ = " << skdCatalogReader.getFreqName();
+    for(const auto &any:tlc){
+        of << " : " << any.second;
+    }
+    of << eol;
+
+    for(const auto &any:skdCatalogReader.getLoifId2loifInfo()) {
+        string name = any.first;
+        of << "        ref $BBC = " << name;
+        for(const auto &any2: skdCatalogReader.getStaName2loifId()){
+            if(any2.second == name){
+                of << " : " << tlc.at(any2.first);
+            }
+        }
+        of << eol;
+    }
+
+    for(const auto &any:skdCatalogReader.getLoifId2loifInfo()) {
+        string name = any.first;
+        of << "        ref $IF = " << name;
+        for(const auto &any2: skdCatalogReader.getStaName2loifId()){
+            if(any2.second == name){
+                of << " : " << tlc.at(any2.first);
+            }
+        }
+        of << eol;
+    }
+
+    for(const auto &any:skdCatalogReader.getTracksIds()) {
+        const string &name = any;
+        of << "        ref $TRACKS = " << name;
+        for(const auto &any2: skdCatalogReader.getStaName2tracksMap()){
+            if(any2.second == name){
+                of << " : " << tlc.at(any2.first);
+            }
+        }
+        of << eol;
+    }
+
+    of << "        ref $PASS_ORDER = passOrder";
+    for(const auto &any:tlc){
+        of << " : " << any.second;
+    }
+    of << eol;
+
+    of << "        ref $ROLL = NO_ROLL";
+    for(const auto &any:tlc){
+        of << " : " << any.second;
+    }
+    of << eol;
+
+    of << "        ref $PHASE_CAL_DETECT = Standard";
+    for(const auto &any:tlc){
+        of << " : " << any.second;
+    }
+    of << eol;
+
+
+    const map<string, vector<string> > & cat = skdCatalogReader.getEquipCatalog();
+    const map<string, vector<string> > & acat = skdCatalogReader.getAntennaCatalog();
+    map<string,vector<string> > recorders;
+
+    for(const auto &any: stations) {
+        const string &name = any.getName();
+        vector<string> tmp = acat.at(name);
+        string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + name;
+        const vector<string> &eq = cat.at(id_EQ);
+        string recorder = eq.at(eq.size() - 2);
+        if(recorder == "Mark5b" || recorder == "K5"){
+            recorder = "Mark5b";
+        }else{
+            recorder = "Mark4";
+        }
+
+        recorders[recorder].push_back(tlc.at(name));
+    }
+
+    for(const auto &any:recorders){
+        of << "        ref $TRACKS = " << any.first << "_format";
+        for(const auto &any2:any.second){
+             of << " : " << any2;
+        }
+    }
+    of << eol;
+
+
+    of << "    enddef;\n";
+}
+
+void Vex::freq_block(const SkdCatalogReader &skdCatalogReader) {
+    of << "*=========================================================================================================\n";
+    of << "$FREQ;\n";
+    of << "*=========================================================================================================\n";
+    of << "    def " << skdCatalogReader.getFreqName() << eol;
+    const auto & channelNumber2band = skdCatalogReader.getChannelNumber2band();
+    const auto & channelNumber2Bbc = skdCatalogReader.getChannelNumber2BBC();
+    const auto & channelNumber2skyFreq = skdCatalogReader.getChannelNumber2skyFreq();
+
+    int lastBbcNr = -1;
+    for(const auto& any:channelNr2Bbc_){
+        int chNr = any.first;
+        int bbcNr = any.second;
+        string chStr = (boost::format("&CH%02d") % chNr).str();
+        string bbcStr = (boost::format("&BBC%02d") % bbcNr).str();
+        string ul = "U";
+        if(bbcNr == lastBbcNr){
+            ul = "L";
+        }
+        of << boost::format("        chan_def = &%1s : %8s : %1s : %6.3f MHz : %5s : %6s : &U_cal;\n") %channelNumber2band.at(bbcNr)
+           % channelNumber2skyFreq.at(bbcNr) % ul % (skdCatalogReader.getBandWidth()) % chStr % bbcStr;
+        lastBbcNr = bbcNr;
+    }
+    of << boost::format("        sample_rate = %.1f Ms/sec;\n") % (skdCatalogReader.getSampleRate());
+    of << "    enddef;\n";
+}
+
+void Vex::bbc_block(const SkdCatalogReader &skdCatalogReader) {
+    of << "*=========================================================================================================\n";
+    of << "$BBC;\n";
+    of << "*=========================================================================================================\n";
+    const auto &loifId2loifInfo = skdCatalogReader.getLoifId2loifInfo();
+    for(const auto &any:loifId2loifInfo){
+        string name = any.first;
+        vector<string> ifs = any.second;
+        of << "    def " << name << eol;
+
+        for(int i=0; i<ifs.size(); ++i) {
+            const string & anyIf = ifs.at(i);
+            vector<string> splitVector;
+            boost::split(splitVector, anyIf, boost::is_space(), boost::token_compress_on);
+            string if_id_link = "&IF_" + splitVector.at(2);
+            string bbc_assign_id = (boost::format("&BBC%02d") %i).str();
+            of << boost::format("        BBC_assign = %6s : %02d : %6s;\n") %bbc_assign_id %i %if_id_link;
+
+        }
+        of << "    enddef;\n";
+    }
+}
+
+void Vex::if_block(const SkdCatalogReader &skdCatalogReader) {
+    of << "*=========================================================================================================\n";
+    of << "$IF;\n";
+    of << "*=========================================================================================================\n";
+    of << "* WARNING: Polarization, Phase-cal frequency interval and Phase-cal frequency is hard coded!\n";
+    const auto & loifId2loifInfo = skdCatalogReader.getLoifId2loifInfo();
+
+    for(const auto &any:loifId2loifInfo){
+        string name = any.first;
+        vector<string> ifs = any.second;
+        of << "    def " << name << eol;
+        string lastId;
+        for(const auto& anyIf : ifs){
+            vector<string>splitVector;
+            boost::split(splitVector, anyIf, boost::is_space(), boost::token_compress_on);
+            if(lastId == splitVector.at(2)){
+                continue;
+            }
+            string if_id_link = "&IF_" + splitVector.at(2);
+            of << boost::format("        if_def = %6s : %2s : R : %7s MHz : %1s : 1MHz : 0 Hz;\n") %
+                    if_id_link % splitVector.at(2) % splitVector.at(4) % splitVector.at(5);
+            lastId = splitVector.at(2);
+        }
+        of << "    enddef;\n";
+    }
 
 }
 
-void Vex::freq_block() {
+void Vex::tracks_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader) {
+    of << "*=========================================================================================================\n";
+    of << "$TRACKS;\n";
+    of << "*=========================================================================================================\n";
+    const auto & tracksIds = skdCatalogReader.getTracksIds();
+    const auto & tracksId2fanout = skdCatalogReader.getTracksId2fanoutMap();
+    const auto & staName2tracks = skdCatalogReader.getStaName2tracksMap();
+    const auto & channelNumber2tracksMap = skdCatalogReader.getTracksId2channelNumber2tracksMap();
+    for(const auto &tracksId:tracksIds){
+        int chn = 1;
+        of << "    def " << tracksId << eol;
+        int bbcNr = 1;
+        if(tracksId2fanout.at(tracksId) == 1){
+            // 1:1 fanout
+            for(const auto &any:channelNumber2tracksMap.at(tracksId)){
 
-}
+                const string &t = any.second;
+                string tracks = t.substr(2,t.size()-3);
+                vector<string> splitVector;
+                boost::split(splitVector, tracks, boost::is_any_of(","), boost::token_compress_off);
+                if(splitVector.size()<=2){
+                    for(const auto &ch: splitVector){
+                        // 1 bit
+                        string chStr = (boost::format("&CH%02d") % chn).str();
+                        auto nr = boost::lexical_cast<int>(ch);
+                        of << boost::format("        fanout_def = A : %5s : sign : 1 : %02d;\n") % chStr %(nr+3);
+                        channelNr2Bbc_[chn] = bbcNr;
+                        ++ chn;
+                    }
+                }else if(splitVector.size()>2){
+                    for(int i=0; i<splitVector.size()/2; ++i){
+                        // 2 bit
+                        string chStr = (boost::format("&CH0%2d") % chn).str();
+                        auto nr = boost::lexical_cast<int>(splitVector.at(i));
+                        of << boost::format("        fanout_def = A : %5s : sign : 1 : %02d;\n") % chStr %(nr+3);
+                        nr = boost::lexical_cast<int>(splitVector.at(i+2));
+                        of << boost::format("        fanout_def = A : %5s : mag  : 1 : %02d;\n") % chStr %(nr+3);
+                        channelNr2Bbc_[chn] = bbcNr;
+                        ++ chn;
+                    }
+                }
+                bbcNr++;
+            }
+        }else if(tracksId2fanout.at(tracksId) == 2){
+            // 1:2 fanout
+            for(const auto &any:channelNumber2tracksMap.at(tracksId)){
+                const string &t = any.second;
+                string tracks = t.substr(2,t.size()-3);
+                vector<string> splitVector;
+                boost::split(splitVector, tracks, boost::is_any_of(","), boost::token_compress_off);
+                if(splitVector.size()<=2){
+                    // 1 bit
+                    for(const auto &ch: splitVector){
+                        // 1 bit
+                        string chStr = (boost::format("&CH%02d") % chn).str();
+                        auto nr = boost::lexical_cast<int>(ch);
+                        of << boost::format("        fanout_def = A : %5s : sign : 1 : %02d : %02d;\n") % chStr %(nr+3) %(nr+5);
+                        channelNr2Bbc_[chn] = bbcNr;
+                        ++ chn;
+                    }
+                }else if(splitVector.size()>2){
+                    // 2 bits
+                    for(int i=0; i<splitVector.size()/2; ++i){
+                        // 2 bit
+                        string chStr = (boost::format("&CH%02d") % chn).str();
+                        auto nr = boost::lexical_cast<int>(splitVector.at(i));
+                        of << boost::format("        fanout_def = A : %5s : sign : 1 : %02d : %02d;\n") % chStr %(nr+3) %(nr+5);
+                        nr = boost::lexical_cast<int>(splitVector.at(i+2));
+                        of << boost::format("        fanout_def = A : %5s : mag  : 1 : %02d : %02d;\n") % chStr %(nr+3) %(nr+5);
+                        channelNr2Bbc_[chn] = bbcNr;
+                        ++ chn;
+                    }
+                }
+                bbcNr++;
+            }
+        }
+        of << "    enddef;\n";
+    }
 
-void Vex::bbc_block() {
 
-}
+    const map<string, vector<string> > & cat = skdCatalogReader.getEquipCatalog();
+    const map<string, vector<string> > & acat = skdCatalogReader.getAntennaCatalog();
+    vector<string> recorders;
 
-void Vex::if_block() {
+    for(const auto &any: stations) {
+        const string &name = any.getName();
 
-}
+        vector<string> tmp = acat.at(name);
+        string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + name;
 
-void Vex::tracks_block() {
+        const vector<string> &eq = cat.at(id_EQ);
+        string recorder = eq.at(eq.size() - 2);
+        if(recorder == "Mark5b" || recorder == "K5"){
+            recorder = "Mark5b";
+        }else{
+            recorder = "Mark4";
+        }
+
+        if(find(recorders.begin(),recorders.end(),recorder) == recorders.end()){
+            recorders.push_back(recorder);
+            of << "    def " << recorder << "_format" << eol;
+            of << "        track_frame_format = " << recorder << eol;
+            of << "    enddef;\n";
+        }
+    }
 
 }
 
@@ -388,11 +661,23 @@ void Vex::head_pos_block() {
 }
 
 void Vex::pass_order_block() {
-
+    of << "*=========================================================================================================\n";
+    of << "$PASS_ORDER;\n";
+    of << "*=========================================================================================================\n";
+    of << "* WARNING: This block is hard coded!\n";
+    of << "    def passOrder;\n";
+    of << "        pass_order =   1A :   2A :   3A :   4A :   5A :   6A :   7A :   8A :   9A :  10A :  11A :  12A :  13A :  14A;\n";
+    of << "    enddef;\n";
 }
 
 void Vex::roll_block() {
-
+    of << "*=========================================================================================================\n";
+    of << "$ROLL;\n";
+    of << "*=========================================================================================================\n";
+    of << "* WARNING: This block is hard coded!\n";
+    of << "    def NO_ROLL;\n";
+    of << "        roll = off;\n";
+    of << "    enddef;\n";
 }
 
 

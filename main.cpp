@@ -34,11 +34,6 @@ using namespace std;
 void run(std::string file);
 
 /**
- * creates the corresponding .xml file (will be replaced later by GUI.
- */
-void createParameterFile();
-
-/**
  * Main function.
  *
  * @param argc currently unused
@@ -52,7 +47,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171215094115_austral/parameters.xml";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20171218123926_austral/parameters.xml";
     }
 
 
@@ -72,16 +67,7 @@ int main(int argc, char *argv[])
 }
 
 /**
- * First a VLBI_initializer is created, than the following steps are executed:
- * - stations are created
- * - sources are creted
- * - stations are initialized
- * - sources are initialized
- * - nutation is calculated
- * - earth velocity is calculated
- * - lookup tabels are created
- * - skyCoverage objects are created
- * After this, the VLBI Scheduler is created, some a prioiri calculations are done and the scheduler is started.
+ * reads xml file and runs scheduling software accordingly
  */
 void run(std::string file){
 

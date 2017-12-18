@@ -44,10 +44,12 @@ void Skd::writeSkd(const std::vector<Station>& stations,
 
 void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_tree::ptree &xml,
                     const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$PARAM\n";
     of << "*=========================================================================================================\n";
     of << "* WARNING: some of the following parameters are not compatible with VieVS Scheduling Software!\n";
+    of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription") << endl;
     of << "SCHEDULING_SoFTWARE NEW_VIE_SCHED\n";
     of << "SOFTWARE_VERSION NEW_VIE_SCHED 0.1\n";
@@ -185,25 +187,31 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 }
 
 void Skd::skd_OP() {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$OP\n";
     of << "*=========================================================================================================\n";
     of << "* OP is not supported in VieVS Scheduling Software \n";
+    of << "*\n";
 }
 
 void Skd::skd_DOWNTIME() {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$DOWNTIME\n";
     of << "*=========================================================================================================\n";
     of << "* Downtime information is stored in parameters \n";
+    of << "*\n";
 }
 
 void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sources,
                     const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$MAJOR\n";
     of << "*=========================================================================================================\n";
     of << "* Sked MAJOR parameters can not be translated directly to VieVS Scheduling Software parameters\n";
+    of << "*\n";
     of << "Subnet ";
     const std::map<std::string, std::string> &twoLetterCode = skdCatalogReader.getTwoLetterCode();
     for (const auto &any:twoLetterCode) {
@@ -239,10 +247,12 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
 }
 
 void Skd::skd_MINOR() {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$MINOR\n";
     of << "*=========================================================================================================\n";
     of << "* Sked MINOR parameters can not be translated directly to VieVS Scheduling Software parameters\n";
+    of << "*\n";
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "Astro" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "BegScan" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "Covar" % "No" % "Abs" % 0.00;
@@ -263,16 +273,21 @@ void Skd::skd_MINOR() {
 }
 
 void Skd::skd_ASTROMETRIC() {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$ASTROMETRIC\n";
     of << "*=========================================================================================================\n";
     of << "* ASTROMETRIC is not supported in VieVS Scheduling Software \n";
+    of << "*\n";
 }
 
 void Skd::skd_STATWT(const std::vector<Station>& stations) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$STATWT\n";
     of << "*=========================================================================================================\n";
+    of << "* all weights except weight=1 are listed here\n";
+    of << "*\n";
     for (const auto &any:stations) {
         if(*any.getPARA().weight != 1) {
             of << boost::format("%-10s %6.2f\n") % any.getName() % *any.getPARA().weight;
@@ -281,9 +296,12 @@ void Skd::skd_STATWT(const std::vector<Station>& stations) {
 }
 
 void Skd::skd_SRCWT(const std::vector<Source> &sources) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$SRCWT\n";
     of << "*=========================================================================================================\n";
+    of << "* all weights except weight=1 are listed here\n";
+    of << "*\n";
     for (const auto &any:sources) {
         if (any.getNTotalScans() > 0) {
             if(*any.getPARA().weight != 1){
@@ -294,9 +312,11 @@ void Skd::skd_SRCWT(const std::vector<Source> &sources) {
 }
 
 void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$CATALOG_USED\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     string source = xml.get<string>("master.catalogs.source");
     string flux = xml.get<string>("master.catalogs.flux");
 
@@ -332,16 +352,20 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml) {
 }
 
 void Skd::skd_BROADBAND() {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$BROADBAND\n";
     of << "*=========================================================================================================\n";
     of << "* $BROADBAND is not supported in VieVS Scheduling Software \n";
+    of << "*\n";
 }
 
 void Skd::skd_SOURCES(const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$SOURCES\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     const map<string, vector<string> > &src = skdCatalogReader.getSourceCatalog();
 
     for (const auto &any:sources) {
@@ -364,9 +388,11 @@ void Skd::skd_SOURCES(const std::vector<Source> &sources, const SkdCatalogReader
 }
 
 void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$STATIONS\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     const map<string, vector<string> > &ant = skdCatalogReader.getAntennaCatalog();
     const map<string, vector<string> > &pos = skdCatalogReader.getPositionCatalog();
     const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
@@ -437,9 +463,11 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
 
 void Skd::skd_FLUX(const vector<Source> &sources, const boost::property_tree::ptree &xml,
                    const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$FLUX\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     string fluxCat = xml.get<string>("master.catalogs.flux");
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();
@@ -459,9 +487,11 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
                    const std::vector<Source> &sources,
                    const std::vector<Scan> &scans,
                    const SkdCatalogReader &skdCatalogReader) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$SKED\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     int preob = stations[0].getWaittimes().calibration;
 
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
@@ -497,9 +527,11 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 }
 
 void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader &skd) {
+    of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$CODES\n";
     of << "*=========================================================================================================\n";
+    of << "*\n";
     unsigned long nchannels = skd.getChannelNumber2band().size();
     const std::map<std::string, char> &olc = skd.getOneLetterCode();
 
@@ -520,14 +552,14 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
                << skd.getChannelNumber2skyFreq().at(i) << " "
                << skd.getChannelNumber2phaseCalFrequency().at(i) << " " << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " MK341:"
                << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth() << " "
-               << skd.getChannelNumber2tracksMap().at(i) << "\n";
+               << skd.getTracksId2channelNumber2tracksMap().at(trackId).at(i) << "\n";
         }
 
     }
     for (const auto &sta:stations){
         if(skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()){
             cerr << "WARNING: skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!;\n";
-            of << "*** F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode! ***\n";
+            of << "* F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!\n";
         }
     }
 
