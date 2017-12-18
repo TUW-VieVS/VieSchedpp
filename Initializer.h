@@ -210,7 +210,9 @@ namespace VieVS {
 
         void initializeCalibrationBlocks(std::ofstream &headerLog);
 
+        #ifdef _OPENMP
         void initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace);
+        #endif
 
         void statisticsLogHeader(std::ofstream &ofstream);
 

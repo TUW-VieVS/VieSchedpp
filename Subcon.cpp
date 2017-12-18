@@ -611,15 +611,15 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
 void Subcon::removeScan(unsigned long idx) noexcept {
     if (idx < nSingleScans_) {
         unsigned long thisIdx = idx;
-        singleScans_.erase(next(singleScans_.begin(),thisIdx));
+        singleScans_.erase(next(singleScans_.begin(), static_cast<int>(thisIdx)));
         --nSingleScans_;
-        singleScanScores_.erase(next(singleScanScores_.begin(),thisIdx));
+        singleScanScores_.erase(next(singleScanScores_.begin(), static_cast<int>(thisIdx)));
 
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
-        subnettingScans_.erase(next(subnettingScans_.begin(),thisIdx));
+        subnettingScans_.erase(next(subnettingScans_.begin(), static_cast<int>(thisIdx)));
         --nSubnettingScans_;
-        subnettingScanScores_.erase(next(subnettingScanScores_.begin(),thisIdx));
+        subnettingScanScores_.erase(next(subnettingScanScores_.begin(), static_cast<int>(thisIdx)));
 
     }
 }

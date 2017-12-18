@@ -2975,9 +2975,8 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::PAR
     }
     return minutes;
 }
-
+#ifdef _OPENMP
 void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace) {
-
 
     std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
 
@@ -2992,9 +2991,8 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
     jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
     chunkSize = xml_.get<int>("master.multiCore.chunkSize",1);
     threadPlace = xml_.get<std::string>("master.multiCore.threadPlace","auto");
-
-
 }
+#endif
 
 void Initializer::statisticsLogHeader(ofstream &ofstream) {
 

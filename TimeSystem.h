@@ -38,6 +38,7 @@ namespace VieVS {
         static double mjd2gmst(double mjd);
 
         static std::string ptime2string(boost::posix_time::ptime ptime);
+        static std::string ptime2string_doy(boost::posix_time::ptime ptime);
         static boost::posix_time::ptime string2ptime(std::string);
         static std::string date2string(boost::posix_time::ptime ptime);
     };

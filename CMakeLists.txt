@@ -115,8 +115,8 @@ endif ()
 
 ############################## SOFA ###################################
 
-FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
-#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
+#FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
+FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
 if (SOFA)
     message("SOFA found here: ${SOFA}")
     TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})
