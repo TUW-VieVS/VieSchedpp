@@ -454,7 +454,6 @@ void Vex::mode_block(const std::vector<Station>& stations, const SkdCatalogReade
         }else{
             recorder = "Mark4";
         }
-
         recorders[recorder].push_back(tlc.at(name));
     }
 

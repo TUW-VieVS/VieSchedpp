@@ -78,7 +78,7 @@ namespace VieVS{
          *
          * @return local hour angle
          */
-        double getHa_() const {
+        double getHa() const {
             return ha_;
         }
 
@@ -87,7 +87,7 @@ namespace VieVS{
          *
          * @return declination
          */
-        double getDc_() const {
+        double getDc() const {
             return dc_;
         }
 

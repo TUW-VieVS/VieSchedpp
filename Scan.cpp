@@ -716,7 +716,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 continue;
             }
 
-            pointingVectorsEndtime_[ista] = move(moving_pv);
+            pointingVectorsEndtime_[ista] = moving_pv;
             ++ista;
         }
     } while (stationRemoved);

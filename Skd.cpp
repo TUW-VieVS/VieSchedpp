@@ -433,8 +433,11 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
     }
 
     for (const auto &any:stations) {
+
         const string &staname = any.getName();
-        vector<string> tmp = equ.at(equMap[staname]);
+        vector<string> atmp = ant.at(staname);
+        const string &id_EQ = boost::algorithm::to_upper_copy(atmp.at(14)) + "|" + staname;
+        const vector<string> &tmp = equ.at(id_EQ);
         of << boost::format("T %3s %8s  %7s %8s   %1s %5s  %1s %5s ")
               % tmp[1] % tmp[2] % tmp[3] % tmp[4] % tmp[5] % tmp[6] % tmp[7] % tmp[8];
         for (int i = 9; i < tmp.size(); ++i) {

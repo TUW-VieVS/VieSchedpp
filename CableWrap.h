@@ -26,6 +26,22 @@ namespace VieVS{
      */
     class CableWrap {
     public:
+
+        /**
+         * @brief cable wrap type
+         *
+         */
+        enum class CableWrapType {
+            AZEL, ///< azimuth elevation antenna
+            HADC, ///< hour angle declination antenna
+            XYNS, ///< x-y north south antenna
+            XYEW, ///< x-y east west antenna
+            RICH, ///< keine ahnung
+            SEST, ///< keine ahnung
+            ALGO, ///< keine ahnung
+            undefined ///< undefined antenna type
+        };
+
         /**
          * @brief empty default constructor
          */
@@ -38,9 +54,10 @@ namespace VieVS{
          * @param axis1_up_deg upper limit for first axis in degrees
          * @param axis2_low_deg lower limit for second axis in degrees
          * @param axis2_up_deg upper limit for second axis in degrees
+         * @param cwt cable wrap type
          */
         CableWrap(double axis1_low_deg, double axis1_up_deg,
-                       double axis2_low_deg, double axis2_up_deg);
+                       double axis2_low_deg, double axis2_up_deg, std::string cwt);
 
 
         /**
@@ -171,6 +188,8 @@ namespace VieVS{
         }
 
     private:
+        CableWrapType cableWrapType_;
+
         double axis1Low_; ///< lower limit of first axis in radians
         double axis1Up_; ///< upper limit of first axis in radians
         double axis2Low_; ///< lower limit of second axis in radians

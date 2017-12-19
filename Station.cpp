@@ -184,7 +184,6 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
         p.setDc(source.getDe());
     }
 
-//    cout << cout.precision(18) << " mjd=" << date2 << "; lat=" << position_.getLat() << "; lon=" << position_.getLon() << "; ra=" << source.getRa() << "; de=" << source.getDe() << "; az_=" << az << "; el_=" << el <<";\n";
     p.setTime(time);
 }
 

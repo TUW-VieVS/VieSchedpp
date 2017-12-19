@@ -277,7 +277,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         stations_.emplace_back(name,
                                created,
                                Antenna(type, offset, diam, rate1, con1, rate2, con2),
-                               CableWrap(axis1_low,axis1_up,axis2_low,axis2_up),
+                               CableWrap(axis1_low,axis1_up,axis2_low,axis2_up, type),
                                Position(x,y,z),
                                std::move(thisEquip),
                                HorizonMask(hmask));

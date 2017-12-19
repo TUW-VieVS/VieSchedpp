@@ -15,11 +15,30 @@
 using namespace std;
 using namespace VieVS;
 
-CableWrap::CableWrap(){}
+CableWrap::CableWrap() = default;
 
-CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg):
+CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg, string cwp):
         axis1Low_{axis1_low_deg * deg2rad}, axis1Up_{axis1_up_deg * deg2rad},
-        axis2Low_{axis2_low_deg * deg2rad}, axis2Up_{axis2_up_deg * deg2rad} {
+        axis2Low_{axis2_low_deg * deg2rad}, axis2Up_{axis2_up_deg * deg2rad}{
+
+
+    if (cwp == "AZEL")
+        cableWrapType_ = CableWrapType::AZEL;
+    else if(cwp == "HADC")
+        cableWrapType_ = CableWrapType::HADC;
+    else if(cwp == "XYNS")
+        cableWrapType_ = CableWrapType::XYNS;
+    else if(cwp == "XYEW")
+        cableWrapType_ = CableWrapType::XYEW;
+    else if(cwp == "RICH")
+        cableWrapType_ = CableWrapType::RICH;
+    else if(cwp == "SEST")
+        cableWrapType_ = CableWrapType::SEST;
+    else if(cwp == "ALGO")
+        cableWrapType_ = CableWrapType::ALGO;
+    else
+        cableWrapType_ = CableWrapType::undefined;
+
 
     if ((axis1Up_ - axis1Low_) > twopi) {
         double overlapping = (axis1Up_ - axis1Low_) - twopi;
@@ -44,15 +63,52 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
 
 
 bool CableWrap::anglesInside(const PointingVector &p) const noexcept {
-    double az = p.getAz();
-    double el = p.getEl();
+    double ax1;
+    double ax2;
+
+    switch (cableWrapType_){
+        case CableWrapType::AZEL:{
+            ax1 = p.getAz();
+            ax2 = p.getEl();
+
+            break;
+        }
+        case CableWrapType::HADC:{
+            ax1 = p.getHa();
+            ax2 = p.getDc();
+
+            break;
+        }
+        case CableWrapType::XYEW:{
+            double az = p.getAz();
+            double el = p.getEl();
+
+            double cel = cos(el);
+            double sel = sin(el);
+            double caz = cos(az);
+            double saz = sin(az);
+            ax1 = atan2(cel*caz,sel);
+            ax2 = asin(cel*saz);
+            break;
+        }
+        case CableWrapType::XYNS:
+        case CableWrapType::RICH:
+        case CableWrapType::SEST:
+        case CableWrapType::ALGO:
+        case CableWrapType::undefined:{
+            cerr << "ERROR axis type is not yet implementet for cable wrap visibility calculation!;\n";
+            return false;
+        }
+    }
+
+
     if ((axis1Up_ - axis1UpOffset_ - axis1Low_ + axis1LowOffset_) < 2 * pi) {
-        if (az < fmod(axis1Low_ + axis1LowOffset_, twopi) || az > fmod(axis1Up_ - axis1UpOffset_, twopi) ||
-            el < axis2Low_ + axis2LowOffset_ || el > axis2Up_ - axis2UpOffset_) {
+        if (ax1 < fmod(axis1Low_ + axis1LowOffset_, twopi) || ax1 > fmod(axis1Up_ - axis1UpOffset_, twopi) ||
+            ax2 < axis2Low_ + axis2LowOffset_ || ax2 > axis2Up_ - axis2UpOffset_) {
             return false;
         }
     } else {
-        if (el < axis2Low_ + axis2LowOffset_ || el > axis2Up_ - axis2UpOffset_) {
+        if (ax2 < axis2Low_ + axis2LowOffset_ || ax2 > axis2Up_ - axis2UpOffset_) {
             return false;
         }
     }
@@ -96,32 +152,36 @@ bool CableWrap::unwrapAzNearNeutralPoint(PointingVector &new_pointingVector) con
 
 void CableWrap::calcUnwrappedAz(const PointingVector &old_pointingVector,
                                      PointingVector &new_pointingVector) const noexcept {
-    double az_old = old_pointingVector.getAz();
-    double az_new = new_pointingVector.getAz();
 
-    double unaz_new;
+    if(cableWrapType_ == CableWrapType::AZEL){
+        double az_old = old_pointingVector.getAz();
+        double az_new = new_pointingVector.getAz();
 
-    while (az_new > axis1Low_ + axis1LowOffset_) {
-        az_new = az_new - 2 * pi;
-    }
-    while (az_new < axis1Low_ + axis1LowOffset_) {
-        az_new = az_new + 2 * pi;
-    }
+        double unaz_new;
 
-
-    unaz_new = az_new;
-    auto ambigurities = static_cast<int>(floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi)));
-    double this_unaz = unaz_new;
-
-    for (int i = 1; i <= ambigurities; ++i) {
-        double this_unaz_new = unaz_new + i * 2 * pi;
-        if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
-            break;
-        } else {
-            this_unaz = this_unaz_new;
+        while (az_new > axis1Low_ + axis1LowOffset_) {
+            az_new = az_new - 2 * pi;
         }
+        while (az_new < axis1Low_ + axis1LowOffset_) {
+            az_new = az_new + 2 * pi;
+        }
+
+
+        unaz_new = az_new;
+        auto ambigurities = static_cast<int>(floor((axis1Up_ - axis1UpOffset_ - unaz_new) / (2 * pi)));
+        double this_unaz = unaz_new;
+
+        for (int i = 1; i <= ambigurities; ++i) {
+            double this_unaz_new = unaz_new + i * 2 * pi;
+            if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
+                break;
+            } else {
+                this_unaz = this_unaz_new;
+            }
+        }
+        new_pointingVector.setAz(this_unaz);
     }
-    new_pointingVector.setAz(this_unaz);
+
 }
 
 double CableWrap::neutralPoint(int axis) const noexcept {

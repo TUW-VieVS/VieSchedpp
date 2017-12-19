@@ -20,19 +20,19 @@ Antenna::Antenna(const std::string &type, double offset_m, double diam_m, double
                  offset_{offset_m}, diam_{diam_m}, rate1_{rate1_deg_per_min*deg2rad/60}, con1_{constantOverhead1_s},
                  rate2_{rate2_deg_per_min*deg2rad/60}, con2_{constantOverhead2_s}{
 
-    if (type.compare("AZEL") == 0)
+    if (type == "AZEL")
         axisType_ = AxisType::AZEL;
-    else if(type.compare("HADC") == 0)
+    else if(type == "HADC")
         axisType_ = AxisType::HADC;
-    else if(type.compare("XYNS") == 0)
+    else if(type == "XYNS")
         axisType_ = AxisType::XYNS;
-    else if(type.compare("XYEW") == 0)
+    else if(type == "XYEW")
         axisType_ = AxisType::XYEW;
-    else if(type.compare("RICH") == 0)
+    else if(type == "RICH")
         axisType_ = AxisType::RICH;
-    else if(type.compare("SEST") == 0)
+    else if(type == "SEST")
         axisType_ = AxisType::SEST;
-    else if(type.compare("ALGO") == 0)
+    else if(type == "ALGO")
         axisType_ = AxisType::ALGO;
     else
         axisType_ = AxisType::undefined;
@@ -63,8 +63,8 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
             break;
         }
         case AxisType::HADC:{
-            double delta1 = abs(new_pointingVector.getHa_() - old_pointingVector.getHa_());
-            double delta2 = abs(new_pointingVector.getDc_() - old_pointingVector.getDc_());
+            double delta1 = abs(new_pointingVector.getHa() - old_pointingVector.getHa());
+            double delta2 = abs(new_pointingVector.getDc() - old_pointingVector.getDc());
 
             double t_1  = slewTimePerAxis(delta1,rate1_,acc1)+con1_;
             double t_2  = slewTimePerAxis(delta2,rate2_,acc2)+con2_;
@@ -93,8 +93,8 @@ unsigned int Antenna::slewTime(const PointingVector &old_pointingVector,
             double x_new = atan2(cel_new*caz_new,sel_new);
             double y_new = asin(cel_new*saz_new);
 
-            double delta1 = x_new-x_old;
-            double delta2 = y_new-y_old;
+            double delta1 = abs(x_new-x_old);
+            double delta2 = abs(y_new-y_old);
 
             double t_1  = slewTimePerAxis(delta1,rate1_,acc1)+con1_;
             double t_2  = slewTimePerAxis(delta2,rate2_,acc2)+con2_;
