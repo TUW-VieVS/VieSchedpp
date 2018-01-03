@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>13</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -753,8 +753,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>247</width>
+             <height>612</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -4384,170 +4384,350 @@ Click on source to deselect it</string>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_8">
-          <property name="title">
-           <string>Additional information</string>
+         <widget class="QTabWidget" name="tabWidget_4">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_88">
-           <item>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="1" column="0">
-              <widget class="QLabel" name="experimentDesctiptionLabel">
-               <property name="text">
-                <string>experiment desctiption</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLineEdit" name="experimentNameLineEdit">
-               <property name="toolTip">
-                <string>enter experiment name here</string>
-               </property>
-               <property name="statusTip">
-                <string>experiment name</string>
-               </property>
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="experimentNameLabel">
-               <property name="text">
-                <string>experiment name</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLineEdit" name="schedulerLineEdit">
-               <property name="toolTip">
-                <string>enter scheduler name here</string>
-               </property>
-               <property name="statusTip">
-                <string>scheduler</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
-               <property name="toolTip">
-                <string>enter experiment description here</string>
-               </property>
-               <property name="statusTip">
-                <string>experiment description</string>
-               </property>
-               <property name="placeholderText">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="schedulerLabel">
-               <property name="text">
-                <string>scheduler</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QLabel" name="correlatorLabel">
-               <property name="text">
-                <string>correlator</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <widget class="QPushButton" name="pushButton_22">
-               <property name="toolTip">
-                <string>save as default email addres</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default correlator</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QLineEdit" name="correlatorLineEdit">
-               <property name="toolTip">
-                <string>enter correlator name here</string>
-               </property>
-               <property name="statusTip">
-                <string>correlator</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="pushButton_23">
-               <property name="toolTip">
-                <string>save as default email addres</string>
-               </property>
-               <property name="statusTip">
-                <string>save as default scheduler</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="pushButton_24">
-               <property name="toolTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="statusTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="pushButton_27">
-               <property name="toolTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="statusTip">
-                <string>save as experiment name</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="icon">
-                <iconset resource="myresources.qrc">
-                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+          <widget class="QWidget" name="tab_5">
+           <attribute name="title">
+            <string>skd and vex</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="1" column="0">
+               <widget class="QLabel" name="experimentDesctiptionLabel">
+                <property name="text">
+                 <string>experiment desctiption</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="experimentNameLineEdit">
+                <property name="toolTip">
+                 <string>enter experiment name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>experiment name</string>
+                </property>
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="experimentNameLabel">
+                <property name="text">
+                 <string>experiment name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="schedulerLineEdit">
+                <property name="toolTip">
+                 <string>enter scheduler name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>scheduler</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+                <property name="toolTip">
+                 <string>enter experiment description here</string>
+                </property>
+                <property name="statusTip">
+                 <string>experiment description</string>
+                </property>
+                <property name="placeholderText">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="schedulerLabel">
+                <property name="text">
+                 <string>scheduler</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="correlatorLabel">
+                <property name="text">
+                 <string>correlator</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QPushButton" name="pushButton_22">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="correlatorLineEdit">
+                <property name="toolTip">
+                 <string>enter correlator name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QPushButton" name="pushButton_23">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default scheduler</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="pushButton_24">
+                <property name="toolTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="pushButton_27">
+                <property name="toolTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_6">
+           <attribute name="title">
+            <string>vex</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_50">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_6">
+              <item row="2" column="0">
+               <widget class="QLabel" name="correlatorLabel_2">
+                <property name="text">
+                 <string>contact name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_39">
+                <property name="text">
+                 <string>contact email</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QPushButton" name="pushButton_28">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="schedulerLabel_2">
+                <property name="text">
+                 <string>PI email</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="schedulerLineEdit_2">
+                <property name="toolTip">
+                 <string>enter scheduler name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>scheduler</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="experimentNameLabel_2">
+                <property name="text">
+                 <string>PI name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="correlatorLineEdit_2">
+                <property name="toolTip">
+                 <string>enter correlator name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="experimentNameLineEdit_2">
+                <property name="toolTip">
+                 <string>enter experiment name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>experiment name</string>
+                </property>
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="pushButton_31">
+                <property name="toolTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as experiment name</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="pushButton_29">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default scheduler</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="correlatorLineEdit_3">
+                <property name="toolTip">
+                 <string>enter correlator name here</string>
+                </property>
+                <property name="statusTip">
+                 <string>correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QPushButton" name="pushButton_30">
+                <property name="toolTip">
+                 <string>save as default email addres</string>
+                </property>
+                <property name="statusTip">
+                 <string>save as default correlator</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_11">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
@@ -4577,8 +4757,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -5795,6 +5975,314 @@ Click on source to deselect it</string>
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="statistics">
+       <layout class="QVBoxLayout" name="verticalLayout_53" stretch="1,3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_92">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_51">
+            <item>
+             <widget class="QLabel" name="label_40">
+              <property name="text">
+               <string>loaded files</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QListWidget" name="listWidget_statistics"/>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_88">
+              <item>
+               <widget class="QPushButton" name="pushButton_addStatistic">
+                <property name="text">
+                 <string>add</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_37">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_removeStatistic">
+                <property name="text">
+                 <string>remove selected</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="treeWidget_statisticGeneral">
+            <attribute name="headerCascadingSectionResizes">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>general</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>color</string>
+             </property>
+            </column>
+            <item>
+             <property name="text">
+              <string># scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># baselines</string>
+             </property>
+             <property name="checkState">
+              <enum>Checked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># stations</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># sources</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># single source scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># subnetting scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># fillin mode scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># calibration scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="treeWidget_statisticStation">
+            <column>
+             <property name="text">
+              <string>station</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>color</string>
+             </property>
+            </column>
+            <item>
+             <property name="text">
+              <string># scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># baselines</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTreeWidget" name="treeWidget_statisticSource">
+            <column>
+             <property name="text">
+              <string>sources</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>color</string>
+             </property>
+            </column>
+            <item>
+             <property name="text">
+              <string># scans</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string># baselines</string>
+             </property>
+             <property name="checkState">
+              <enum>Unchecked</enum>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_statisticPlot">
+          <item>
+           <widget class="QScrollBar" name="horizontalScrollBar_statistics">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_93">
+            <item>
+             <widget class="QRadioButton" name="radioButton_statistics_absolute">
+              <property name="text">
+               <string>absolute</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_statistics_relative">
+              <property name="text">
+               <string>relative</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox_statistics_removeMinimum">
+              <property name="text">
+               <string>remove minimum</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_38">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_42">
+              <property name="text">
+               <string>show </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBox_statistics_show">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>99</number>
+              </property>
+              <property name="value">
+               <number>5</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="page">
        <layout class="QVBoxLayout" name="verticalLayout_45">
         <item>
@@ -6029,10 +6517,17 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionAbout"/>
     <addaction name="actionAbout_Qt"/>
    </widget>
+   <widget class="QMenu" name="menuAnalysis">
+    <property name="title">
+     <string>Analysis</string>
+    </property>
+    <addaction name="actionsummary"/>
+   </widget>
    <addaction name="menufile"/>
    <addaction name="menubasic"/>
    <addaction name="menuadvanced"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuAnalysis"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -6262,6 +6757,11 @@ p, li { white-space: pre-wrap; }
     <string>statistics</string>
    </property>
   </action>
+  <action name="actionsummary">
+   <property name="text">
+    <string>Statistics</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
@@ -6275,12 +6775,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>139</y>
+     <x>307</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>93</x>
-     <y>140</y>
+     <x>497</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -6291,12 +6791,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>140</y>
+     <x>307</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
-     <x>92</x>
-     <y>140</y>
+     <x>496</x>
+     <y>470</y>
     </hint>
    </hints>
   </connection>
@@ -6547,12 +7047,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>142</y>
+     <x>307</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>92</x>
-     <y>142</y>
+     <x>437</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -6563,12 +7063,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>146</y>
+     <x>307</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>92</x>
-     <y>146</y>
+     <x>437</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>

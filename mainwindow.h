@@ -25,6 +25,9 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QBarCategoryAxis>
 
 #include "chartview.h"
 #include "multischededitdialogint.h"
@@ -353,6 +356,26 @@ private slots:
 
     void on_comboBox_jobSchedule_currentTextChanged(const QString &arg1);
 
+    void on_actionsummary_triggered();
+
+    void setupStatisticView();
+
+    void on_pushButton_addStatistic_clicked();
+
+    void on_pushButton_removeStatistic_clicked();
+
+    void on_treeWidget_statisticGeneral_itemChanged(QTreeWidgetItem *item, int column);
+
+    void on_treeWidget_statisticStation_itemChanged(QTreeWidgetItem *item, int column);
+
+//    void on_horizontalScrollBar_statistics_sliderMoved(int position);
+
+    void on_horizontalScrollBar_statistics_valueChanged(int value);
+
+    void on_spinBox_statistics_show_valueChanged(int arg1);
+
+    void plotStatistics();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
@@ -382,13 +405,13 @@ private:
     QChartView *setupStation;
     QChartView *setupSource;
     QChartView *setupBaseline;
+    QChartView *statisticsView;
 
     QScatterSeries *availableStations;
     QScatterSeries *selectedStations;
     QScatterSeries *availableSources;
     QScatterSeries *selectedSources;
 
-//    QMap<QString, QScatterSeries *> scatterPlotStations;
     Callout *worldMapCallout;
     Callout *skyMapCallout;
 
@@ -406,6 +429,9 @@ private:
     std::map<std::string, VieVS::ParameterSettings::ParametersStations> paraSta;
     std::map<std::string, VieVS::ParameterSettings::ParametersSources> paraSrc;
     std::map<std::string, VieVS::ParameterSettings::ParametersBaselines> paraBl;
+
+    QStringList statisticsName;
+    QMap<QString, QMap<int, QVector< int >>> statistics;
 
     void readSkedCatalogs();
 
@@ -436,6 +462,10 @@ private:
     void displayBaselineSetupParameter(QString name);
 
     int plotParameter(QChart* targetChart, QTreeWidgetItem *item, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map);
+
+    void addEmptyStatistic(int idx);
+
+    QBarSet* statisticsBarSet(int idx);
 
 };
 

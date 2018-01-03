@@ -194,6 +194,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_scanSequenceCadence->setValue(2);
     ui->spinBox_scanSequenceCadence->setMinimum(2);
 
+    setupStatisticView();
+
+
 }
 
 MainWindow::~MainWindow()
@@ -692,9 +695,14 @@ void MainWindow::on_actionSky_Coverage_triggered()
     ui->main_stacked->setCurrentIndex(12);
 }
 
-void MainWindow::on_actionFAQ_triggered()
+void MainWindow::on_actionsummary_triggered()
 {
     ui->main_stacked->setCurrentIndex(13);
+}
+
+void MainWindow::on_actionFAQ_triggered()
+{
+    ui->main_stacked->setCurrentIndex(14);
 }
 
 void MainWindow::on_actionWhat_is_this_triggered()
@@ -3978,6 +3986,7 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     return plot;
 }
 
+
 void MainWindow::on_comboBox_stationSettingMember_currentTextChanged(const QString &arg1)
 {
     displayStationSetupMember(arg1);
@@ -5052,4 +5061,417 @@ void MainWindow::on_comboBox_jobSchedule_currentTextChanged(const QString &arg1)
         ui->label_chunkSize->setEnabled(true);
         ui->spinBox_chunkSize->setEnabled(true);
     }
+}
+
+void MainWindow::setupStatisticView()
+{
+    auto hv1 = ui->treeWidget_statisticGeneral->header();
+    hv1->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv2 = ui->treeWidget_statisticStation->header();
+    hv2->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv3 = ui->treeWidget_statisticSource->header();
+    hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    statisticsView = new QChartView(this);
+    ui->verticalLayout_statisticPlot->insertWidget(0,statisticsView,1);
+    ui->horizontalScrollBar_statistics->setRange(0,0);
+
+    connect(ui->radioButton_statistics_absolute,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
+    connect(ui->checkBox_statistics_removeMinimum,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
+}
+
+void MainWindow::on_pushButton_addStatistic_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to statistics.csv file", ui->lineEdit_outputPath->text(),"*.csv");
+    if( !path.isEmpty() ){
+        QStringList tmp = path.split("/");
+        QString folder = tmp.at(tmp.size()-2);
+        if(ui->listWidget_statistics->findItems(folder, Qt::MatchExactly).size()>0){
+            QMessageBox::warning(this,"already visible","There is already one statistics file from this folder visible!");
+            return;
+        }
+
+        ui->listWidget_statistics->insertItem(ui->listWidget_statistics->count(),folder);
+
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::warning(this,"could not open file!","Error while opening:\n"+path,QMessageBox::Ok);
+            return;
+        }
+
+        QTextStream in(&file);
+        QString line = in.readLine();
+        QStringList names = line.split(",",QString::SplitBehavior::SkipEmptyParts);
+
+
+        if(statisticsName.isEmpty()){
+            statisticsName = names;
+        }else{
+            int startIdxNew = names.indexOf("n_stations")+1;
+            int startIdxOld = statisticsName.indexOf("n_stations")+1;
+
+            for(int inew=startIdxNew; inew<names.count(); ++inew){
+                QString thisItem = names.at(inew);
+                if(thisItem.left(7) != "n_scans"){
+                    break;
+                }
+
+                if(statisticsName.indexOf(thisItem) == -1){
+                    for(int iold=startIdxOld; iold<statisticsName.count(); ++iold){
+                        QString thisItemOld = statisticsName.at(iold);
+                        if(thisItemOld.left(7) != "n_scans"){
+                            statisticsName.insert(iold,thisItem);
+                            addEmptyStatistic(iold);
+                            break;
+                        }
+                        if(thisItemOld>thisItem){
+                           statisticsName.insert(iold,thisItem);
+                           addEmptyStatistic(iold);
+                           break;
+                        }
+                    }
+                }
+            }
+
+            startIdxNew = names.indexOf(QRegularExpression("n_baselines.*"),startIdxNew);
+            startIdxOld = statisticsName.indexOf(QRegularExpression("n_baselines.*"),startIdxOld);
+
+            for(int inew=startIdxNew; inew<names.count(); ++inew){
+                QString thisItem = names.at(inew);
+                if(thisItem.left(7) != "n_basel"){
+                    break;
+                }
+
+                if(statisticsName.indexOf(thisItem) == -1){
+                    for(int iold=startIdxOld; iold<statisticsName.count(); ++iold){
+                        QString thisItemOld = statisticsName.at(iold);
+                        if(thisItemOld>thisItem){
+                           statisticsName.insert(iold,thisItem);
+                           addEmptyStatistic(iold);
+                           break;
+                        }
+                        if(thisItemOld.left(7) != "n_basel"){
+                            statisticsName.insert(iold,thisItem);
+                            addEmptyStatistic(iold);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        QStringList staNames;
+        for(int i=8; i<statisticsName.count(); ++i){
+            QString thisName = statisticsName.at(i);
+            if(thisName.left(7) != "n_scans"){
+                break;
+            }
+            thisName = thisName.right(thisName.count()-8);
+            staNames << thisName;
+        }
+
+        ui->treeWidget_statisticStation->clear();
+        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "scans"));
+        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "baselines"));
+        ui->treeWidget_statisticStation->topLevelItem(0)->setCheckState(0,Qt::Unchecked);
+        ui->treeWidget_statisticStation->topLevelItem(1)->setCheckState(0,Qt::Unchecked);
+        for(int i=0; i<staNames.count(); ++i){
+            ui->treeWidget_statisticStation->topLevelItem(0)->addChild(new QTreeWidgetItem(QStringList() << staNames.at(i)));
+            ui->treeWidget_statisticStation->topLevelItem(0)->child(i)->setCheckState(0,Qt::Unchecked);
+            ui->treeWidget_statisticStation->topLevelItem(1)->addChild(new QTreeWidgetItem(QStringList() << staNames.at(i)));
+            ui->treeWidget_statisticStation->topLevelItem(1)->child(i)->setCheckState(0,Qt::Unchecked);
+        }
+        ui->treeWidget_statisticStation->topLevelItem(0)->setExpanded(true);
+        ui->treeWidget_statisticStation->topLevelItem(1)->setExpanded(true);
+
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            QStringList split = line.split(",",QString::SplitBehavior::SkipEmptyParts);
+
+            QString thisElement = split.at(0);
+            int version = thisElement.toInt();
+            statistics[folder][version] = QVector<int>(statisticsName.count(),0);
+            for(int i = 0; i<split.count();++i){
+                QString thisElement = split.at(i);
+                int v = thisElement.toInt();
+                QString thisName = names.at(i);
+                int idx = statisticsName.indexOf(thisName);
+                statistics[folder][version][idx] = v;
+            }
+        }
+        plotStatistics();
+    }
+}
+
+void MainWindow::addEmptyStatistic(int idx)
+{
+    for(const auto &key1: statistics.keys()){
+        for(const auto &key2: statistics[key1].keys()){
+            statistics[key1][key2].insert(idx,0);
+        }
+    }
+}
+
+
+void MainWindow::on_pushButton_removeStatistic_clicked()
+{
+    if(ui->listWidget_statistics->selectedItems().size()==1){
+        QString txt = ui->listWidget_statistics->selectedItems().at(0)->text();
+        int row = ui->listWidget_statistics->selectionModel()->selectedRows(0).at(0).row();
+        statistics.remove(txt);
+        delete ui->listWidget_statistics->item(row);
+
+
+        plotStatistics();
+    }
+}
+
+void MainWindow::plotStatistics()
+{
+
+    int nsta=0;
+    for(int i=7; i<statisticsName.count(); ++i){
+        QString thisName = statisticsName.at(i);
+        if(thisName.left(7) != "n_scans"){
+            break;
+        }
+        ++nsta;
+    }
+
+
+    QMap<QString,int> translateGeneral;
+    translateGeneral["# scans"] = 1;
+    translateGeneral["# baselines"] = 6;
+    translateGeneral["# stations"] = 7;
+    translateGeneral["# sources"] = 8+2*nsta;
+    translateGeneral["# single source scans"] = 2;
+    translateGeneral["# subnetting scans"] = 3;
+    translateGeneral["# fillin mode scans"] = 4;
+    translateGeneral["# calibration scans"] = 5;
+
+    QVector<QColor> colors{
+                QColor(31,120,180),
+                QColor(51,160,44),
+                QColor(227,26,28),
+                QColor(255,127,0),
+                QColor(106,61,154),
+                QColor(177,89,40),
+                QColor(166,206,227),
+                QColor(178,223,138),
+                QColor(251,154,153),
+                QColor(253,191,111),
+                QColor(202,178,214),
+                QColor(255,255,153),
+    };
+
+    QVector<QBrush> brushes;
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::SolidPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::BDiagPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::FDiagPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::DiagCrossPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::HorPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::VerPattern));
+    }
+    for(int i=0; i<colors.size(); ++i){
+        brushes.push_back(QBrush(colors.at(i),Qt::CrossPattern));
+    }
+
+
+    QVector<QBarSet*> barSets;
+    int counter = 0;
+
+    const auto &general = ui->treeWidget_statisticGeneral;
+    for(int i=0; i<general->topLevelItemCount(); ++i){
+        if(general->topLevelItem(i)->checkState(0) == Qt::Checked){
+            int idx = translateGeneral[general->topLevelItem(i)->text(0)];
+            barSets.push_back(statisticsBarSet(idx));
+            general->topLevelItem(i)->setBackground(1,brushes.at(counter));
+
+            barSets.at(barSets.count()-1)->setBrush(brushes.at(counter));
+            ++counter;
+            counter = counter%brushes.count();
+        }else{
+            general->topLevelItem(i)->setBackground(1,Qt::white);
+        }
+    }
+
+    const auto &station = ui->treeWidget_statisticStation;
+    for(int i=0; i<station->topLevelItemCount(); ++i){
+        for(int j=0; j<station->topLevelItem(i)->childCount(); ++j){
+            if(station->topLevelItem(i)->child(j)->checkState(0) == Qt::Checked){
+                barSets.push_back(statisticsBarSet(8+i*nsta+j));
+                station->topLevelItem(i)->child(j)->setBackground(1,brushes.at(counter));
+
+                barSets.at(barSets.count()-1)->setBrush(brushes.at(counter));
+                ++counter;
+                counter = counter%brushes.count();
+            }else{
+                station->topLevelItem(i)->child(j)->setBackground(1,Qt::white);
+            }
+        }
+    }
+
+    QBarSeries* series = new QBarSeries();
+    for(int i=0; i<barSets.count(); ++i){
+        series->append(barSets.at(i));
+    }
+
+    QStringList categories;
+    for(const auto &key1: statistics.keys()){
+        for(const auto &key2: statistics[key1].keys()){
+            categories.push_back("v"+QString("%1 ").arg(key2)+key1);
+        }
+    }
+
+
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("statistics");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    chart->legend()->setVisible(false);
+
+    QBarCategoryAxis *axis = new QBarCategoryAxis();
+    axis->append(categories);
+    chart->createDefaultAxes();
+    chart->setAxisX(axis, series);
+
+    int showN = ui->spinBox_statistics_show->value();
+
+    if(!categories.isEmpty()){
+        QString minax = categories.at(0);
+        QString maxax;
+        if(categories.count()>showN){
+            maxax = categories.at(showN-1);
+        }else{
+            maxax = categories.at(categories.size()-1);
+        }
+        axis->setMin(minax);
+        axis->setMax(maxax);
+    }
+
+    delete statisticsView->chart();
+    statisticsView->setChart(chart);
+    statisticsView->setRenderHint(QPainter::Antialiasing);
+
+    if(categories.count()>showN){
+        ui->horizontalScrollBar_statistics->setRange(0,categories.size()-showN);
+    }else{
+        ui->horizontalScrollBar_statistics->setRange(0,0);
+    }
+}
+
+QBarSet *MainWindow::statisticsBarSet(int idx)
+{
+    QVector<double> v;
+    for(const auto &key1: statistics.keys()){
+        for(const auto &key2: statistics[key1].keys()){
+            v << statistics[key1][key2][idx];
+        }
+    }
+
+    if(ui->checkBox_statistics_removeMinimum->isChecked()){
+        double min = *std::min_element(v.begin(), v.end());
+        for(int i=0; i<v.count(); ++i){
+            v[i] -= min;
+        }
+    }
+
+    if(ui->radioButton_statistics_relative->isChecked()){
+        double max = *std::max_element(v.begin(), v.end());
+        for(int i=0; i<v.count(); ++i){
+            v[i] /= max;
+        }
+    }
+
+    QBarSet *set = new QBarSet("");
+    for(int i=0; i<v.count(); ++i){
+        *set << v.at(i);
+    }
+
+    return set;
+}
+
+void MainWindow::on_treeWidget_statisticGeneral_itemChanged(QTreeWidgetItem *item, int column)
+{
+    plotStatistics();
+}
+
+void MainWindow::on_treeWidget_statisticStation_itemChanged(QTreeWidgetItem *item, int column)
+{
+    ui->treeWidget_statisticStation->blockSignals(true);
+
+    if(item->checkState(0) == Qt::PartiallyChecked){
+        return;
+    }
+    for(int i=0; i<item->childCount(); ++i){
+        item->child(i)->setCheckState(0,item->checkState(0));
+    }
+
+    auto parent = item->parent();
+    bool checked = false;
+    bool unchecked = false;
+    if(parent){
+        for(int i=0; i<parent->childCount();++i){
+            if(parent->child(i)->checkState(0) == Qt::Checked){
+                checked = true;
+            }else{
+                unchecked = true;
+            }
+        }
+
+        if(checked && unchecked){
+            parent->setCheckState(0,Qt::PartiallyChecked);
+        }else if(checked){
+            parent->setCheckState(0,Qt::Checked);
+        }else if(unchecked){
+            parent->setCheckState(0,Qt::Unchecked);
+        }
+    }
+
+    ui->treeWidget_statisticStation->blockSignals(false);
+
+    plotStatistics();
+}
+
+//void MainWindow::on_horizontalScrollBar_statistics_sliderMoved(int position)
+//{
+//    auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
+//    auto categories = axis->categories();
+//    QString min = categories.at(position);
+//    QString max = categories.at(position+3-1);
+//    axis->setMin(min);
+//    axis->setMax(max);
+//}
+
+void MainWindow::on_horizontalScrollBar_statistics_valueChanged(int value)
+{
+
+    statisticsView->chart()->setAnimationOptions(QChart::NoAnimation);
+
+    auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
+    auto categories = axis->categories();
+    if(!categories.isEmpty()){
+        QString min = categories.at(value);
+        QString max = categories.at(value+ui->spinBox_statistics_show->value()-1);
+        axis->setMin(min);
+        axis->setMax(max);
+        axis->setMin(min);
+    }
+}
+
+void MainWindow::on_spinBox_statistics_show_valueChanged(int arg1)
+{
+    plotStatistics();
 }
