@@ -2997,6 +2997,7 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
 void Initializer::statisticsLogHeader(ofstream &ofstream) {
 
     ofstream << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
+    ofstream << "n_stations,";
     for(const auto&any:stations_){
         ofstream << "n_scans_" << any.getName() << ",";
     }

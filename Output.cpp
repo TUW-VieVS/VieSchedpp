@@ -226,7 +226,8 @@ std::vector<int> Output::displayStationStatistics(ofstream &out) {
     out
             << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
 
-    vector<int> returnVec = nscan_sta;
+    vector<int> returnVec {stations_.size()};
+    returnVec.insert(returnVec.end(),nscan_sta.begin(),nscan_sta.end());
     returnVec.insert(returnVec.end(),nbl_sta.begin(),nbl_sta.end());
     return returnVec;
 }

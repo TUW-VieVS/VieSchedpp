@@ -54,7 +54,12 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_, sources_, skyCoverages_);
         if (!bestIdx_opt) {
-            bodyLog << "ERROR! no valid scan found!\n";
+            bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
+            for(auto &any:stations_){
+                PointingVector pv = any.getCurrentPointingVector();
+                pv.setTime(pv.getTime()+60);
+                any.setCurrentPointingVector(pv);
+            }
             continue;
         }
         unsigned long bestIdx = *bestIdx_opt;
@@ -668,8 +673,8 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {
-            bodyLog << "ERROR! no valid scan found!\n";
-            continue;
+            bodyLog << "ERROR! no valid scan found! End of calibrator block!\n";
+            break;
         }
         unsigned long bestIdx = *bestIdx_opt;
         vector<Scan> bestScans;
