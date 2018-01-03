@@ -5076,6 +5076,13 @@ void MainWindow::setupStatisticView()
     ui->verticalLayout_statisticPlot->insertWidget(0,statisticsView,1);
     ui->horizontalScrollBar_statistics->setRange(0,0);
 
+    for(int i=0; i<ui->treeWidget_statisticGeneral->topLevelItemCount(); ++i){
+        auto db = new QDoubleSpinBox(ui->treeWidget_statisticGeneral);
+        db->setMinimum(-99);
+        ui->treeWidget_statisticGeneral->setItemWidget(ui->treeWidget_statisticGeneral->topLevelItem(i),2,db);
+        connect(db,SIGNAL(valueChanged(double)),this,SLOT(plotStatistics()));
+    }
+
     connect(ui->radioButton_statistics_absolute,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
     connect(ui->checkBox_statistics_removeMinimum,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
 }
@@ -5170,6 +5177,7 @@ void MainWindow::on_pushButton_addStatistic_clicked()
             staNames << thisName;
         }
 
+        ui->treeWidget_statisticStation->blockSignals(true);
         ui->treeWidget_statisticStation->clear();
         ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "scans"));
         ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "baselines"));
@@ -5178,11 +5186,24 @@ void MainWindow::on_pushButton_addStatistic_clicked()
         for(int i=0; i<staNames.count(); ++i){
             ui->treeWidget_statisticStation->topLevelItem(0)->addChild(new QTreeWidgetItem(QStringList() << staNames.at(i)));
             ui->treeWidget_statisticStation->topLevelItem(0)->child(i)->setCheckState(0,Qt::Unchecked);
+
+            auto db1 = new QDoubleSpinBox(ui->treeWidget_statisticStation);
+            db1->setMinimum(-99);
+            ui->treeWidget_statisticStation->setItemWidget(ui->treeWidget_statisticStation->topLevelItem(0)->child(i),2,db1);
+            connect(db1,SIGNAL(valueChanged(double)),this,SLOT(plotStatistics()));
+
             ui->treeWidget_statisticStation->topLevelItem(1)->addChild(new QTreeWidgetItem(QStringList() << staNames.at(i)));
             ui->treeWidget_statisticStation->topLevelItem(1)->child(i)->setCheckState(0,Qt::Unchecked);
+
+            auto db2 = new QDoubleSpinBox(ui->treeWidget_statisticStation);
+            db2->setMinimum(-99);
+            ui->treeWidget_statisticStation->setItemWidget(ui->treeWidget_statisticStation->topLevelItem(1)->child(i),2,db2);
+            connect(db2,SIGNAL(valueChanged(double)),this,SLOT(plotStatistics()));
+
         }
         ui->treeWidget_statisticStation->topLevelItem(0)->setExpanded(true);
         ui->treeWidget_statisticStation->topLevelItem(1)->setExpanded(true);
+        ui->treeWidget_statisticStation->blockSignals(false);
 
         while (!in.atEnd()){
             QString line = in.readLine();
@@ -5228,6 +5249,9 @@ void MainWindow::on_pushButton_removeStatistic_clicked()
 
 void MainWindow::plotStatistics()
 {
+    ui->treeWidget_statisticGeneral->blockSignals(true);
+    ui->treeWidget_statisticStation->blockSignals(true);
+    ui->treeWidget_statisticSource->blockSignals(true);
 
     int nsta=0;
     for(int i=7; i<statisticsName.count(); ++i){
@@ -5322,11 +5346,6 @@ void MainWindow::plotStatistics()
         }
     }
 
-    QBarSeries* series = new QBarSeries();
-    for(int i=0; i<barSets.count(); ++i){
-        series->append(barSets.at(i));
-    }
-
     QStringList categories;
     for(const auto &key1: statistics.keys()){
         for(const auto &key2: statistics[key1].keys()){
@@ -5334,28 +5353,72 @@ void MainWindow::plotStatistics()
         }
     }
 
+    QVector<double>score(categories.size(),0);
+    for(int i=0; i<general->topLevelItemCount(); ++i){
+        double val = qobject_cast<QDoubleSpinBox*>(general->itemWidget(general->topLevelItem(i),2))->value();
+        if(val!=0){
+            int idx = translateGeneral[general->topLevelItem(i)->text(0)];
+            auto data = statisticsBarSet(idx);
+            for(int id = 0; id<data->count(); ++id){
+                score[id] += data->at(id)*val;
+            }
+        }
+    }
+    for(int i=0; i<station->topLevelItemCount(); ++i){
+        for(int j=0; j<station->topLevelItem(i)->childCount(); ++j){
+            auto xxx = qobject_cast<QDoubleSpinBox*>(station->itemWidget(station->topLevelItem(i)->child(j),2));
+            double val = qobject_cast<QDoubleSpinBox*>(station->itemWidget(station->topLevelItem(i)->child(j),2))->value();
+            if(val!=0){
+                auto data = statisticsBarSet(8+i*nsta+j);
+                for(int id = 0; id<data->count(); ++id){
+                    score[id] += data->at(id)*val;
+                }
+            }
+        }
+    }
+
+    QVector<int> idx(score.size());
+    std::iota(idx.begin(), idx.end(), 0);
+
+    // sort indexes based on comparing values in v
+    std::stable_sort(idx.begin(), idx.end(),[&score](int i1, int i2) {return score[i1] > score[i2];});
+
+    QStringList sortedCategories;
+    for(int i=0; i<idx.count(); ++i){
+        sortedCategories << categories.at(idx.at(i));
+    }
+    QBarSeries* sortedSeries = new QBarSeries();
+    for(int i=0; i<barSets.count(); ++i){
+        auto thisBarSet = barSets.at(i);
+        QBarSet *sortedBarSet = new QBarSet("");
+        for(int j = 0; j<thisBarSet->count(); ++j){
+            *sortedBarSet << thisBarSet->at(idx.at(j));
+        }
+        sortedSeries->append(sortedBarSet);
+        delete(thisBarSet);
+    }
 
     QChart *chart = new QChart();
-    chart->addSeries(series);
+    chart->addSeries(sortedSeries);
     chart->setTitle("statistics");
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
     chart->legend()->setVisible(false);
 
     QBarCategoryAxis *axis = new QBarCategoryAxis();
-    axis->append(categories);
+    axis->append(sortedCategories);
     chart->createDefaultAxes();
-    chart->setAxisX(axis, series);
+    chart->setAxisX(axis, sortedSeries);
 
     int showN = ui->spinBox_statistics_show->value();
 
-    if(!categories.isEmpty()){
-        QString minax = categories.at(0);
+    if(!sortedCategories.isEmpty()){
+        QString minax = sortedCategories.at(0);
         QString maxax;
-        if(categories.count()>showN){
-            maxax = categories.at(showN-1);
+        if(sortedCategories.count()>showN){
+            maxax = sortedCategories.at(showN-1);
         }else{
-            maxax = categories.at(categories.size()-1);
+            maxax = sortedCategories.at(sortedCategories.size()-1);
         }
         axis->setMin(minax);
         axis->setMax(maxax);
@@ -5370,6 +5433,10 @@ void MainWindow::plotStatistics()
     }else{
         ui->horizontalScrollBar_statistics->setRange(0,0);
     }
+    ui->treeWidget_statisticGeneral->blockSignals(false);
+    ui->treeWidget_statisticStation->blockSignals(false);
+    ui->treeWidget_statisticSource->blockSignals(false);
+
 }
 
 QBarSet *MainWindow::statisticsBarSet(int idx)

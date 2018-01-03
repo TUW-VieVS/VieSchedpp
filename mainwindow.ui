@@ -6054,6 +6054,11 @@ Click on source to deselect it</string>
               <string>color</string>
              </property>
             </column>
+            <column>
+             <property name="text">
+              <string>weight</string>
+             </property>
+            </column>
             <item>
              <property name="text">
               <string># scans</string>
@@ -6153,12 +6158,20 @@ Click on source to deselect it</string>
               <string>color</string>
              </property>
             </column>
+            <column>
+             <property name="text">
+              <string>weight</string>
+             </property>
+            </column>
             <item>
              <property name="text">
               <string># scans</string>
              </property>
              <property name="checkState">
               <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
              </property>
              <property name="text">
               <string/>
@@ -6170,6 +6183,9 @@ Click on source to deselect it</string>
              </property>
              <property name="checkState">
               <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
              </property>
              <property name="text">
               <string/>
@@ -6189,12 +6205,23 @@ Click on source to deselect it</string>
               <string>color</string>
              </property>
             </column>
+            <column>
+             <property name="text">
+              <string>weight</string>
+             </property>
+            </column>
             <item>
              <property name="text">
               <string># scans</string>
              </property>
              <property name="checkState">
               <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </item>
             <item>
@@ -6203,6 +6230,12 @@ Click on source to deselect it</string>
              </property>
              <property name="checkState">
               <enum>Unchecked</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </item>
            </widget>
