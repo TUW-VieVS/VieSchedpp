@@ -368,13 +368,13 @@ private slots:
 
     void on_treeWidget_statisticStation_itemChanged(QTreeWidgetItem *item, int column);
 
-//    void on_horizontalScrollBar_statistics_sliderMoved(int position);
-
     void on_horizontalScrollBar_statistics_valueChanged(int value);
 
     void on_spinBox_statistics_show_valueChanged(int arg1);
 
-    void plotStatistics();
+    void plotStatistics(bool animation = false);
+
+    void statisticsHovered(bool status, int index, QBarSet* barset);
 
 private:
     Ui::MainWindow *ui;
@@ -414,6 +414,7 @@ private:
 
     Callout *worldMapCallout;
     Callout *skyMapCallout;
+    Callout *statisticsCallout;
 
     QSignalMapper *deleteModeMapper;
 
@@ -465,7 +466,7 @@ private:
 
     void addEmptyStatistic(int idx);
 
-    QBarSet* statisticsBarSet(int idx);
+    QBarSet* statisticsBarSet(int idx, QString name="");
 
 };
 

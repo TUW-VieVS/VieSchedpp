@@ -5073,8 +5073,10 @@ void MainWindow::setupStatisticView()
     hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     statisticsView = new QChartView(this);
+    statisticsView->setChart(new QChart());
     ui->verticalLayout_statisticPlot->insertWidget(0,statisticsView,1);
     ui->horizontalScrollBar_statistics->setRange(0,0);
+    ui->horizontalScrollBar_statistics->setSingleStep(1);
 
     for(int i=0; i<ui->treeWidget_statisticGeneral->topLevelItemCount(); ++i){
         auto db = new QDoubleSpinBox(ui->treeWidget_statisticGeneral);
@@ -5083,8 +5085,11 @@ void MainWindow::setupStatisticView()
         connect(db,SIGNAL(valueChanged(double)),this,SLOT(plotStatistics()));
     }
 
+
     connect(ui->radioButton_statistics_absolute,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
     connect(ui->checkBox_statistics_removeMinimum,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
+    statisticsCallout = new Callout(statisticsView->chart());
+    statisticsCallout->hide();
 }
 
 void MainWindow::on_pushButton_addStatistic_clicked()
@@ -5179,8 +5184,8 @@ void MainWindow::on_pushButton_addStatistic_clicked()
 
         ui->treeWidget_statisticStation->blockSignals(true);
         ui->treeWidget_statisticStation->clear();
-        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "scans"));
-        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "baselines"));
+        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "# scans"));
+        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "# baselines"));
         ui->treeWidget_statisticStation->topLevelItem(0)->setCheckState(0,Qt::Unchecked);
         ui->treeWidget_statisticStation->topLevelItem(1)->setCheckState(0,Qt::Unchecked);
         for(int i=0; i<staNames.count(); ++i){
@@ -5220,7 +5225,7 @@ void MainWindow::on_pushButton_addStatistic_clicked()
                 statistics[folder][version][idx] = v;
             }
         }
-        plotStatistics();
+        plotStatistics(true);
     }
 }
 
@@ -5243,18 +5248,21 @@ void MainWindow::on_pushButton_removeStatistic_clicked()
         delete ui->listWidget_statistics->item(row);
 
 
-        plotStatistics();
+        plotStatistics(true);
     }
 }
 
-void MainWindow::plotStatistics()
+void MainWindow::plotStatistics(bool animation)
 {
+
+    try{
+
     ui->treeWidget_statisticGeneral->blockSignals(true);
     ui->treeWidget_statisticStation->blockSignals(true);
     ui->treeWidget_statisticSource->blockSignals(true);
 
     int nsta=0;
-    for(int i=7; i<statisticsName.count(); ++i){
+    for(int i=8; i<statisticsName.count(); ++i){
         QString thisName = statisticsName.at(i);
         if(thisName.left(7) != "n_scans"){
             break;
@@ -5319,7 +5327,7 @@ void MainWindow::plotStatistics()
     for(int i=0; i<general->topLevelItemCount(); ++i){
         if(general->topLevelItem(i)->checkState(0) == Qt::Checked){
             int idx = translateGeneral[general->topLevelItem(i)->text(0)];
-            barSets.push_back(statisticsBarSet(idx));
+            barSets.push_back(statisticsBarSet(idx,general->topLevelItem(i)->text(0)));
             general->topLevelItem(i)->setBackground(1,brushes.at(counter));
 
             barSets.at(barSets.count()-1)->setBrush(brushes.at(counter));
@@ -5332,9 +5340,10 @@ void MainWindow::plotStatistics()
 
     const auto &station = ui->treeWidget_statisticStation;
     for(int i=0; i<station->topLevelItemCount(); ++i){
+        QString prefix = station->topLevelItem(i)->text(0).append(" ");
         for(int j=0; j<station->topLevelItem(i)->childCount(); ++j){
             if(station->topLevelItem(i)->child(j)->checkState(0) == Qt::Checked){
-                barSets.push_back(statisticsBarSet(8+i*nsta+j));
+                barSets.push_back(statisticsBarSet(8+i*nsta+j,prefix + station->topLevelItem(i)->child(j)->text(0)));
                 station->topLevelItem(i)->child(j)->setBackground(1,brushes.at(counter));
 
                 barSets.at(barSets.count()-1)->setBrush(brushes.at(counter));
@@ -5390,7 +5399,8 @@ void MainWindow::plotStatistics()
     QBarSeries* sortedSeries = new QBarSeries();
     for(int i=0; i<barSets.count(); ++i){
         auto thisBarSet = barSets.at(i);
-        QBarSet *sortedBarSet = new QBarSet("");
+        QBarSet *sortedBarSet = new QBarSet(thisBarSet->label());
+        sortedBarSet->setBrush(thisBarSet->brush());
         for(int j = 0; j<thisBarSet->count(); ++j){
             *sortedBarSet << thisBarSet->at(idx.at(j));
         }
@@ -5398,10 +5408,15 @@ void MainWindow::plotStatistics()
         delete(thisBarSet);
     }
 
-    QChart *chart = new QChart();
+    QChart *chart = statisticsView->chart();
+    chart->removeAllSeries();
     chart->addSeries(sortedSeries);
     chart->setTitle("statistics");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
+    if(animation){
+        chart->setAnimationOptions(QChart::SeriesAnimations);
+    }else{
+        chart->setAnimationOptions(QChart::NoAnimation);
+    }
 
     chart->legend()->setVisible(false);
 
@@ -5424,22 +5439,94 @@ void MainWindow::plotStatistics()
         axis->setMax(maxax);
     }
 
-    delete statisticsView->chart();
-    statisticsView->setChart(chart);
     statisticsView->setRenderHint(QPainter::Antialiasing);
 
     if(categories.count()>showN){
         ui->horizontalScrollBar_statistics->setRange(0,categories.size()-showN);
+        ui->horizontalScrollBar_statistics->setSingleStep(1);
     }else{
         ui->horizontalScrollBar_statistics->setRange(0,0);
+        ui->horizontalScrollBar_statistics->setSingleStep(1);
     }
+
+    connect(sortedSeries,SIGNAL(hovered(bool,int,QBarSet*)),this,SLOT(statisticsHovered(bool,int,QBarSet*)));
     ui->treeWidget_statisticGeneral->blockSignals(false);
     ui->treeWidget_statisticStation->blockSignals(false);
     ui->treeWidget_statisticSource->blockSignals(false);
 
+    }catch(...){
+        QMessageBox::warning(this,"keep it slow!","A Error occured! Maybe because you canged too many values too fast!");
+        ui->treeWidget_statisticGeneral->blockSignals(false);
+        ui->treeWidget_statisticStation->blockSignals(false);
+        ui->treeWidget_statisticSource->blockSignals(false);
+    }
+
 }
 
-QBarSet *MainWindow::statisticsBarSet(int idx)
+void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
+{
+    if (status) {
+
+        int nsta=0;
+        for(int i=8; i<statisticsName.count(); ++i){
+            QString thisName = statisticsName.at(i);
+            if(thisName.left(7) != "n_scans"){
+                break;
+            }
+            ++nsta;
+        }
+        QMap<QString,int> translateGeneral;
+        translateGeneral["# scans"] = 1;
+        translateGeneral["# baselines"] = 6;
+        translateGeneral["# stations"] = 7;
+        translateGeneral["# sources"] = 8+2*nsta;
+        translateGeneral["# single source scans"] = 2;
+        translateGeneral["# subnetting scans"] = 3;
+        translateGeneral["# fillin mode scans"] = 4;
+        translateGeneral["# calibration scans"] = 5;
+
+        QString txt = barset->label().append("\n");
+
+        auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
+        auto categories = axis->categories();
+        QString catName = categories.at(index);
+        txt.append(catName).append("\n");
+        QStringList splitCatName = catName.split(" ");
+        int version = splitCatName.at(0).right(splitCatName.at(0).count()-1).toInt();
+        QString name = splitCatName.at(1);
+        int value = 0;
+        if(translateGeneral.keys().indexOf(barset->label()) != -1){
+            value = statistics[name][version][translateGeneral[barset->label()]];
+        }else{
+            int li = barset->label().lastIndexOf(" ");
+            QString staName = barset->label().mid(li+1);
+            if(barset->label().left(7) == "# scans"){
+                int idx = statisticsName.indexOf("n_scans_"+staName);
+                value = statistics[name][version][idx];
+            }else{
+                int idx = statisticsName.indexOf("n_baselines_"+staName);
+                value = statistics[name][version][idx];
+            }
+        }
+        txt.append("value: ").append(QString("%1").arg(value)).append("\n");
+
+        auto point = QCursor::pos();
+        point = statisticsView->mapFromGlobal(point);
+        auto pointF = statisticsView->mapToScene(point);
+        pointF = statisticsView->chart()->mapFromScene(point);
+        pointF = statisticsView->chart()->mapToValue(point,statisticsView->chart()->series().at(0));
+
+        statisticsCallout->setAnchor(pointF);
+        statisticsCallout->setText(txt);
+        statisticsCallout->setZValue(11);
+        statisticsCallout->updateGeometry();
+        statisticsCallout->show();
+    } else {
+        statisticsCallout->hide();
+    }
+}
+
+QBarSet *MainWindow::statisticsBarSet(int idx, QString name)
 {
     QVector<double> v;
     for(const auto &key1: statistics.keys()){
@@ -5462,7 +5549,7 @@ QBarSet *MainWindow::statisticsBarSet(int idx)
         }
     }
 
-    QBarSet *set = new QBarSet("");
+    QBarSet *set = new QBarSet(name);
     for(int i=0; i<v.count(); ++i){
         *set << v.at(i);
     }
@@ -5472,7 +5559,7 @@ QBarSet *MainWindow::statisticsBarSet(int idx)
 
 void MainWindow::on_treeWidget_statisticGeneral_itemChanged(QTreeWidgetItem *item, int column)
 {
-    plotStatistics();
+    plotStatistics(false);
 }
 
 void MainWindow::on_treeWidget_statisticStation_itemChanged(QTreeWidgetItem *item, int column)
@@ -5509,23 +5596,14 @@ void MainWindow::on_treeWidget_statisticStation_itemChanged(QTreeWidgetItem *ite
 
     ui->treeWidget_statisticStation->blockSignals(false);
 
-    plotStatistics();
+    plotStatistics(false);
 }
-
-//void MainWindow::on_horizontalScrollBar_statistics_sliderMoved(int position)
-//{
-//    auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
-//    auto categories = axis->categories();
-//    QString min = categories.at(position);
-//    QString max = categories.at(position+3-1);
-//    axis->setMin(min);
-//    axis->setMax(max);
-//}
 
 void MainWindow::on_horizontalScrollBar_statistics_valueChanged(int value)
 {
 
     statisticsView->chart()->setAnimationOptions(QChart::NoAnimation);
+    statisticsCallout->hide();
 
     auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
     auto categories = axis->categories();
@@ -5540,5 +5618,7 @@ void MainWindow::on_horizontalScrollBar_statistics_valueChanged(int value)
 
 void MainWindow::on_spinBox_statistics_show_valueChanged(int arg1)
 {
-    plotStatistics();
+    statisticsCallout->hide();
+
+    plotStatistics(false);
 }
