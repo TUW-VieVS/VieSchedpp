@@ -51,6 +51,8 @@
         <file>icons/file-redo.png</file>
         <file>icons/document-sign-3.png</file>
         <file>icons/documentation.png</file>
+        <file>icons/office-chart-bar.png</file>
+        <file>icons/Apps-Qt-icon.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>

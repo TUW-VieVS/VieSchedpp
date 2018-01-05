@@ -7,6 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
     QCoreApplication::setApplicationName("VieVS Scheduler");
     QCoreApplication::setApplicationVersion("v0.8");
     ui->label_version->setText("Version: " + QCoreApplication::applicationVersion());
