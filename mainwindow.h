@@ -28,6 +28,8 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QPolarChart>
+#include <QtCharts/QAreaSeries>
 
 #include "chartview.h"
 #include "multischededitdialogint.h"
@@ -376,6 +378,15 @@ private slots:
 
     void statisticsHovered(bool status, int index, QBarSet* barset);
 
+    void setupSkyCoverageTemplatePlot();
+
+    void skyCoverageTemplate();
+
+    void on_pushButton_skyCoverageTemplateRandom_clicked();
+
+    void on_influenceTimeSpinBox_valueChanged(int arg1);
+
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
@@ -406,6 +417,7 @@ private:
     QChartView *setupSource;
     QChartView *setupBaseline;
     QChartView *statisticsView;
+    QChartView *skyCoverageTemplateView;
 
     QScatterSeries *availableStations;
     QScatterSeries *selectedStations;
@@ -415,6 +427,10 @@ private:
     Callout *worldMapCallout;
     Callout *skyMapCallout;
     Callout *statisticsCallout;
+
+    QVector<double> obsAz;
+    QVector<double> obsEl;
+    QVector<int> obsTime;
 
     QSignalMapper *deleteModeMapper;
 
@@ -465,6 +481,8 @@ private:
     int plotParameter(QChart* targetChart, QTreeWidgetItem *item, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map);
 
     void addEmptyStatistic(int idx);
+
+    double interpolate( QVector<double> &xData, QVector<double> &yData, double x, bool extrapolate=false );
 
     QBarSet* statisticsBarSet(int idx, QString name="");
 

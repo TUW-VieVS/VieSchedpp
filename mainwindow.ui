@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>13</number>
+       <number>12</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -4757,8 +4757,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -5820,153 +5820,294 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="sky_coverage">
-       <layout class="QHBoxLayout" name="horizontalLayout_46">
+       <layout class="QHBoxLayout" name="horizontalLayout_46" stretch="1,2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_64">
+         <layout class="QFormLayout" name="formLayout_12">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>distance type</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox_skyCoverageDistanceType">
+            <item>
+             <property name="text">
+              <string>cosine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>linear</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>constant</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="influenceDistanceLabel">
+            <property name="text">
+             <string>influence distance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="influenceDistanceDoubleSpinBox">
+            <property name="suffix">
+             <string> [deg]</string>
+            </property>
+            <property name="minimum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>180.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>5.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>30.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_27">
+            <property name="text">
+             <string>time type</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="comboBox_skyCoverageTimeType">
+            <item>
+             <property name="text">
+              <string>cosine</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>linear</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>constant</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="influenceTimeLabel">
+            <property name="text">
+             <string>influence time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="influenceTimeSpinBox">
+            <property name="suffix">
+             <string> [s]</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>86400</number>
+            </property>
+            <property name="singleStep">
+             <number>600</number>
+            </property>
+            <property name="value">
+             <number>3600</number>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="maxDistanceForCombiningAntennasLabel">
+            <property name="text">
+             <string>max distance for combining antennas</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QDoubleSpinBox" name="maxDistanceForCombiningAntennasDoubleSpinBox">
+            <property name="suffix">
+             <string> [m]</string>
+            </property>
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <double>50000.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>1000.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>5000.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="Line" name="line">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_54" stretch="0,0">
           <item>
-           <layout class="QFormLayout" name="formLayout_12">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>distance type</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="comboBox">
-              <item>
-               <property name="text">
-                <string>cosine</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>linear</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>constant</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="influenceDistanceLabel">
-              <property name="text">
-               <string>influence distance</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QDoubleSpinBox" name="influenceDistanceDoubleSpinBox">
-              <property name="suffix">
-               <string> [deg]</string>
-              </property>
-              <property name="maximum">
-               <double>180.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>30.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_27">
-              <property name="text">
-               <string>time type</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QComboBox" name="comboBox_2">
-              <item>
-               <property name="text">
-                <string>cosine</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>linear</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>constant</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="influenceTimeLabel">
-              <property name="text">
-               <string>influence time</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QSpinBox" name="influenceTimeSpinBox">
-              <property name="suffix">
-               <string> [s]</string>
-              </property>
-              <property name="maximum">
-               <number>86400</number>
-              </property>
-              <property name="singleStep">
-               <number>1800</number>
-              </property>
-              <property name="value">
-               <number>3600</number>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="maxDistanceForCombiningAntennasLabel">
-              <property name="text">
-               <string>max distance for combining antennas</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QDoubleSpinBox" name="maxDistanceForCombiningAntennasDoubleSpinBox">
-              <property name="suffix">
-               <string> [m]</string>
-              </property>
-              <property name="decimals">
-               <number>1</number>
-              </property>
-              <property name="maximum">
-               <double>50000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>5000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="Line" name="line">
+           <layout class="QHBoxLayout" name="horizontalLayout_94">
+            <item>
+             <spacer name="horizontalSpacer_13">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_5">
+              <property name="title">
+               <string>Display</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_52">
+               <item>
+                <layout class="QFormLayout" name="formLayout_10">
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_46">
+                   <property name="text">
+                    <string>marker size:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QSlider" name="horizontalSlider_skyCoverageMarkerSize">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>50</number>
+                   </property>
+                   <property name="value">
+                    <number>13</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>13</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="tickPosition">
+                    <enum>QSlider::NoTicks</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_45">
+                   <property name="text">
+                    <string>scans per hour</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QSpinBox" name="spinBox_skyCoverageTemplateRandomObservations">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="value">
+                    <number>20</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_43">
+                   <property name="text">
+                    <string>marker distance:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QSlider" name="horizontalSlider_skyCoverageMarkerDistance">
+                   <property name="minimum">
+                    <number>10</number>
+                   </property>
+                   <property name="maximum">
+                    <number>50</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>10</number>
+                   </property>
+                   <property name="pageStep">
+                    <number>1</number>
+                   </property>
+                   <property name="value">
+                    <number>30</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QPushButton" name="pushButton_skyCoverageTemplateRandom">
+                   <property name="text">
+                    <string>randomize</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QSlider" name="horizontalSlider_skyCoverageColorResultion">
+                   <property name="minimum">
+                    <number>2</number>
+                   </property>
+                   <property name="maximum">
+                    <number>64</number>
+                   </property>
+                   <property name="value">
+                    <number>21</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_47">
+                   <property name="text">
+                    <string>color resolution</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>
           </item>
           <item>
-           <spacer name="horizontalSpacer_13">
+           <spacer name="verticalSpacer_12">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>20</width>
+              <height>40</height>
              </size>
             </property>
            </spacer>
@@ -6737,8 +6878,8 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionAbout_Qt">
    <property name="icon">
-    <iconset>
-     <normaloff>icons/Apps-Qt-icon.png</normaloff>icons/Apps-Qt-icon.png</iconset>
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/QtProject-creator-icon.png</normaloff>:/icons/icons/QtProject-creator-icon.png</iconset>
    </property>
    <property name="text">
     <string>About Qt</string>
@@ -6801,11 +6942,6 @@ p, li { white-space: pre-wrap; }
     <string>FAQ</string>
    </property>
   </action>
-  <action name="actionstatistics">
-   <property name="text">
-    <string>statistics</string>
-   </property>
-  </action>
   <action name="actionsummary">
    <property name="icon">
     <iconset resource="myresources.qrc">
@@ -6828,12 +6964,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>389</y>
+     <x>608</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
-     <x>497</x>
-     <y>393</y>
+     <x>933</x>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -6844,12 +6980,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>423</y>
+     <x>608</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
-     <x>496</x>
-     <y>470</y>
+     <x>931</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -6860,12 +6996,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>86</y>
+     <x>248</x>
+     <y>224</y>
     </hint>
    </hints>
   </connection>
@@ -6876,12 +7012,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>87</y>
+     <x>39</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -6892,12 +7028,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>
@@ -6908,12 +7044,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>87</y>
+     <x>248</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -6924,12 +7060,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>89</y>
+     <x>248</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>
@@ -6940,12 +7076,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>91</y>
+     <x>248</x>
+     <y>302</y>
     </hint>
    </hints>
   </connection>
@@ -6956,12 +7092,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>93</y>
+     <x>39</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -6972,12 +7108,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>95</y>
+     <x>39</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -6988,12 +7124,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>93</y>
+     <x>248</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -7004,12 +7140,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>95</y>
+     <x>248</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -7020,12 +7156,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>84</y>
+     <x>39</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>84</y>
+     <x>248</x>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
@@ -7036,12 +7172,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>82</y>
+     <x>39</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>82</y>
+     <x>248</x>
+     <y>172</y>
     </hint>
    </hints>
   </connection>
@@ -7052,12 +7188,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>39</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>80</y>
+     <x>248</x>
+     <y>146</y>
     </hint>
    </hints>
   </connection>
@@ -7068,12 +7204,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>78</y>
+     <x>39</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>78</y>
+     <x>248</x>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
@@ -7084,12 +7220,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>76</y>
+     <x>39</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>91</x>
-     <y>76</y>
+     <x>248</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -7100,12 +7236,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>176</y>
+     <x>577</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
-     <x>437</x>
-     <y>179</y>
+     <x>838</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
@@ -7116,12 +7252,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>208</y>
+     <x>608</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>437</x>
-     <y>211</y>
+     <x>838</x>
+     <y>175</y>
     </hint>
    </hints>
   </connection>
