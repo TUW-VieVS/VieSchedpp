@@ -201,7 +201,8 @@ namespace VieVS{
          */
         void clearSubnettingScans();
 
-        void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore);
+        void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
+                                   unsigned int nsta, const std::vector<Source> &sources);
 
         boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                                                  const std::vector<SkyCoverage> &skyCoverages,

@@ -1253,7 +1253,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
 
 
             unsigned int minutes = minutesVisible(thisSource,combinedPARA,start,end);
-            combinedPARA.minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans+1);
+            combinedPARA.minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans);
         }
         auto &thisEvents = events[id];
 
@@ -2913,11 +2913,11 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
                 headerLog << "  fixed scan length for calibrator scans: "<< CalibratorBlock::scanLength <<" seconds\n";
 
             } else if (any.first == "lowElevation"){
-                CalibratorBlock::lowElevationStartWeight = any.second.get<double>("startWeight");
-                CalibratorBlock::lowElevationFullWeight = any.second.get<double>("fullWeight");
+                CalibratorBlock::lowElevationStartWeight = any.second.get<double>("startWeight")*deg2rad;
+                CalibratorBlock::lowElevationFullWeight = any.second.get<double>("fullWeight")*deg2rad;
             } else if (any.first == "highElevation"){
-                CalibratorBlock::highElevationStartWeight = any.second.get<double>("startWeight");
-                CalibratorBlock::highElevationFullWeight = any.second.get<double>("fullWeight");
+                CalibratorBlock::highElevationStartWeight = any.second.get<double>("startWeight")*deg2rad;
+                CalibratorBlock::highElevationFullWeight = any.second.get<double>("fullWeight")*deg2rad;
             }
 
         }

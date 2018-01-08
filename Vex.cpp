@@ -594,7 +594,9 @@ void Vex::tracks_block(const std::vector<Station> &stations, const SkdCatalogRea
             // 1:2 fanout
             for(const auto &any:channelNumber2tracksMap.at(tracksId)){
                 const string &t = any.second;
-                string tracks = t.substr(2,t.size()-3);
+                unsigned long idx1 = t.find('(');
+                unsigned long idx2 = t.find(')');
+                string tracks = t.substr(idx1+1,idx2-idx1-1);
                 vector<string> splitVector;
                 boost::split(splitVector, tracks, boost::is_any_of(","), boost::token_compress_off);
                 if(splitVector.size()<=2){

@@ -947,9 +947,9 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
     score_ =  this_score;
 }
 
-void Scan::calcScore(const std::vector<double> &prevLowElevationScores,
-                     const std::vector<double> &prevHighElevationScores, unsigned int minRequiredTime,
-                     unsigned int maxRequiredTime) {
+bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
+                     unsigned int minRequiredTime, unsigned int maxRequiredTime, unsigned int nMaxBl,
+                     const Source &source) {
     double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
@@ -959,8 +959,8 @@ void Scan::calcScore(const std::vector<double> &prevLowElevationScores,
     double improvementLowElevation = 0;
     double improvementHighElevation = 0;
 
-
-    for(int i = 0; i<nsta_; ++i){
+    int i=0;
+    while( i<nsta_ ){
         const PointingVector &pv = pointingVectors_[i];
         int staid = pv.getStaid();
         double el = pv.getEl();
@@ -991,12 +991,21 @@ void Scan::calcScore(const std::vector<double> &prevLowElevationScores,
         if(deltaHighElScore>0){
             improvementHighElevation += deltaHighElScore;
         }
+
+        if(deltaLowElScore+deltaHighElScore == 0){
+            bool scanValid = removeStation(i, source);
+            if(!scanValid){
+                return false;
+            }
+        }
+
+        ++i;
     }
 
-
-    double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime) *.01;
-
-    score_ = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration;
+    double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime)*.1;
+    double scoreBaselines = static_cast<double>(baselines_.size())/ static_cast<double>(nMaxBl)*.5;
+    score_ = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
+    return true;
 }
 
 

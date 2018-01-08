@@ -317,26 +317,49 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
     }
 }
 
-void Subcon::generateScore(const vector<double> &lowElevatrionScore, const vector<double> &highElevationScore) {
+void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
+                           unsigned int nsta, const std::vector<Source> &sources) {
 
     minMaxTime();
+    unsigned int nMaxBl = (nsta*(nsta-1))/2;
 
-    for (auto &thisScan: singleScans_) {
-        thisScan.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
-        singleScanScores_.push_back(thisScan.getScore());
+    int i=0;
+    while (i<nSingleScans_){
+        Scan& thisScan = singleScans_[i];
+
+        bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
+                                        sources[thisScan.getSourceId()]);
+        if (valid){
+            ++i;
+            singleScanScores_.push_back(thisScan.getScore());
+        } else {
+            --nSingleScans_;
+            singleScans_.erase(next(singleScans_.begin(),i));
+        }
     }
 
-    for (auto &thisScans:subnettingScans_) {
-        Scan &thisScan1 = thisScans.first;
-        thisScan1.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
+    i=0;
+    while (i<subnettingScans_.size()){
+        Scan &thisScan1 = subnettingScans_[i].first;
+
+        bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
+                                          sources[thisScan1.getSourceId()]);
         double score1 = thisScan1.getScore();
 
-        Scan &thisScan2 = thisScans.second;
-        thisScan2.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_);
-        double score2 = thisScan2.getScore();
-        subnettingScanScores_.push_back(score1 + score2);
-    }
+        Scan &thisScan2 = subnettingScans_[i].first;
 
+        bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
+                                          sources[thisScan2.getSourceId()]);
+        double score2 = thisScan2.getScore();
+
+        if (valid1 && valid2){
+            ++i;
+            subnettingScanScores_.push_back(score1+score2);
+        } else {
+            --nSubnettingScans_;
+            subnettingScans_.erase(next(subnettingScans_.begin(),i));
+        }
+    }
 }
 
 
@@ -556,7 +579,11 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             if (!flag) {
                 continue;
             }
-            thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
+                               static_cast<unsigned int>(stations.size()), sources[thisScan.getSourceId()]);
+            if (!flag) {
+                continue;
+            }
             double newScore = thisScan.getScore();
 
             q.push(make_pair(newScore, idx));
@@ -571,7 +598,11 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             if (!flag1) {
                 continue;
             }
-            thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
+                                static_cast<unsigned int>(stations.size()), sources[thisScan1.getSourceId()]);
+            if (!flag1) {
+                continue;
+            }
             double newScore1 = thisScan1.getScore();
 
             Scan &thisScan2 = thisScans.second;
@@ -589,11 +620,16 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             } else {
                 deltaTime = maxTime2 - maxTime1;
             }
-            if (deltaTime > 600) {
+            if (deltaTime > 900) {
                 continue;
             }
 
-            thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_);
+            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
+                                static_cast<unsigned int>(stations.size()), sources[thisScan2.getSourceId()]);
+            if (!flag2) {
+                continue;
+            }
+
             double newScore2 = thisScan2.getScore();
             double newScore = newScore1 + newScore2;
 

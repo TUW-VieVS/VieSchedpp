@@ -669,7 +669,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         Subcon subcon = createSubcon(parameters_.subnetting, true);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
-        subcon.generateScore(prevLowElevationScores,prevHighElevationScores);
+        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta), sources_);
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {
@@ -794,17 +794,17 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         }
     }
 
-    bodyLog << "|-------------";
+    bodyLog << "|=============";
     for (int i = 0; i < stations_.size() - 1; ++i) {
-        bodyLog << "-----------";
+        bodyLog << "===========";
     }
-    bodyLog << "----------| \n";
-    bodyLog << "CALIBRATOR BLOCK SUMMARY:\n";
-    bodyLog << "|-------------";
+    bodyLog << "==========| \n";
+    bodyLog << "| CALIBRATOR BLOCK SUMMARY:\n";
+    bodyLog << "|=============";
     for (int i = 0; i < stations_.size() - 1; ++i) {
-        bodyLog << "-----------";
+        bodyLog << "===========";
     }
-    bodyLog << "----------| \n";
+    bodyLog << "==========| \n";
 
     bodyLog << "| low el     |";
     for (const auto &any:lowestElevations) {
@@ -825,11 +825,11 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     }
     bodyLog << "\n";
 
-    bodyLog << "|-------------";
+    bodyLog << "|=============";
     for (int i = 0; i < stations_.size() - 1; ++i) {
-        bodyLog << "-----------";
+        bodyLog << "===========";
     }
-    bodyLog << "----------| \n";
+    bodyLog << "==========| \n";
 
 
 
