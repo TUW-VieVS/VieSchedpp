@@ -506,8 +506,8 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 
         unsigned int scanTime = scan.getTimes().maxTime() - scan.getTimes().getEndOfCalibrationTime(0);
 
-        of << boost::format("%-8s %3d 8F PREOB  %s  %8d MIDOB         0 POSTOB ")
-              % srcName %preob %TimeSystem::ptime2string_doy(start) %scanTime;
+        of << boost::format("%-8s %3d %s PREOB  %s  %8d MIDOB         0 POSTOB ")
+              % srcName %preob %skdCatalogReader.getFreqTwoLetterCode() %TimeSystem::ptime2string_doy(start) %scanTime;
 
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);
@@ -582,7 +582,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
             string freq = splitVector[4];
             string sideBand = splitVector[5];
 
-            of << boost::format("L %c %2s %2s %8s %3s %s\n") % olc.at(staName) % band % IF % freq % nr % sideBand;
+            of << boost::format("L %c %2s %2s %2s %8s %3s %s\n") % olc.at(staName) % skd.getFreqTwoLetterCode() % band % IF % freq % nr % sideBand;
         }
 
     }
