@@ -386,8 +386,8 @@ namespace VieVS{
          * @param maxRequiredTime maximum time required for a scan
          */
         bool calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
-                       unsigned int minRequiredTime, unsigned int maxRequiredTime, unsigned int nMaxBl,
-                       const Source &source);
+                               const std::vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                               unsigned int nMaxBl, const Source &source);
 
         /**
          * @brief time required for this scan

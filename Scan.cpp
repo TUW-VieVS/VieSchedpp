@@ -786,7 +786,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (*source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10 * nscans;
+            this_score *= 100 * nscans;
         }
     }
 
@@ -858,7 +858,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (*source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10 * nscans;
+            this_score *= 100 * nscans;
         }
     }
 
@@ -929,7 +929,7 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
     if (*source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10 * nscans;
+            this_score *= 100 * nscans;
         }
     }
 
@@ -948,8 +948,8 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
 }
 
 bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
-                     unsigned int minRequiredTime, unsigned int maxRequiredTime, unsigned int nMaxBl,
-                     const Source &source) {
+                     const vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                     unsigned int nMaxBl, const Source &source) {
     double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
@@ -998,13 +998,18 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
                 return false;
             }
         }
-
         ++i;
     }
 
     double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime)*.1;
+
     double scoreBaselines = static_cast<double>(baselines_.size())/ static_cast<double>(nMaxBl)*.5;
-    score_ = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
+
+    double this_score = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
+
+    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+
+    score_ = this_score;
     return true;
 }
 

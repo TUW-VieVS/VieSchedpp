@@ -81,7 +81,7 @@ namespace VieVS{
          *
          * @return subcon with all visible single source scans
          */
-        Subcon allVisibleScans() noexcept;
+        Subcon allVisibleScans(bool calibrator = false) noexcept;
 
 
         /**

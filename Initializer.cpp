@@ -1057,7 +1057,7 @@ void Initializer::initializeSources() noexcept {
                         if (staid1 > staid2) {
                             swap(staid1, staid2);
                         }
-                        PARA.ignoreBaselines.push_back({staid1, staid2});
+                        PARA.ignoreBaselines.emplace_back(staid1, staid2);
                     }
                 } else {
                     cerr << "ERROR: <source> <parameter>: " << parameterName << ": parameter <" << name
@@ -1237,6 +1237,10 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
         srcNames.push_back(any.getName());
     }
 
+    bool tryToFocusIfObservedOnceBackup = *combinedPARA.tryToFocusIfObservedOnce;
+    unsigned int maxNumberOfScansBackup = *combinedPARA.maxNumberOfScans;
+    unsigned int minRepeatBackup = *combinedPARA.minRepeat;
+
     for (const auto &any:members) {
 
         auto it = find(srcNames.begin(), srcNames.end(), any);
@@ -1246,14 +1250,21 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
 
 
         long id = distance(srcNames.begin(), it);
-        if(combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+
+
+        if(combinedPARA.tryToObserveXTimesEvenlyDistributed.is_initialized() && *combinedPARA.tryToObserveXTimesEvenlyDistributed){
             const Source &thisSource = sources_[id];
             combinedPARA.tryToFocusIfObservedOnce = true;
             combinedPARA.maxNumberOfScans = *combinedPARA.tryToObserveXTimesEvenlyDistributed;
 
 
             unsigned int minutes = minutesVisible(thisSource,combinedPARA,start,end);
-            combinedPARA.minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans);
+            unsigned int minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans);
+            unsigned int minRepeatOther = *combinedPARA.minRepeat;
+            if(minRepeat < minRepeatOther){
+                minRepeat = minRepeatOther;
+            }
+            combinedPARA.minRepeat = minRepeat;
         }
         auto &thisEvents = events[id];
 
@@ -1280,6 +1291,11 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
                 break;
             }
         }
+
+        combinedPARA.tryToFocusIfObservedOnce = tryToFocusIfObservedOnceBackup;
+        combinedPARA.maxNumberOfScans = maxNumberOfScansBackup;
+        combinedPARA.minRepeat = minRepeatBackup;
+
     }
 
     for (auto &it: tree) {
@@ -2968,13 +2984,14 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::PAR
         if(requiredStationNotVisible){
             continue;
         }
-        if(visible>minVisible){
+        if(visible>=minVisible){
             ++minutes;
         }
 
     }
     return minutes;
 }
+
 #ifdef _OPENMP
 void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace) {
 

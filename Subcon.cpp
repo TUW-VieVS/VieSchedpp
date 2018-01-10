@@ -318,7 +318,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
 }
 
 void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
-                           unsigned int nsta, const std::vector<Source> &sources) {
+                           unsigned int nsta, const vector<Station> &stations, const std::vector<Source> &sources) {
 
     minMaxTime();
     unsigned int nMaxBl = (nsta*(nsta-1))/2;
@@ -327,8 +327,8 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
     while (i<nSingleScans_){
         Scan& thisScan = singleScans_[i];
 
-        bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
-                                        sources[thisScan.getSourceId()]);
+        bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+                                        maxRequiredTime_, nMaxBl, sources[thisScan.getSourceId()]);
         if (valid){
             ++i;
             singleScanScores_.push_back(thisScan.getScore());
@@ -342,14 +342,14 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
     while (i<subnettingScans_.size()){
         Scan &thisScan1 = subnettingScans_[i].first;
 
-        bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
-                                          sources[thisScan1.getSourceId()]);
+        bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+                                          maxRequiredTime_, nMaxBl, sources[thisScan1.getSourceId()]);
         double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].first;
 
-        bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, minRequiredTime_, maxRequiredTime_, nMaxBl,
-                                          sources[thisScan2.getSourceId()]);
+        bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+                                          maxRequiredTime_, nMaxBl, sources[thisScan2.getSourceId()]);
         double score2 = thisScan2.getScore();
 
         if (valid1 && valid2){
@@ -478,6 +478,8 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
     vector<double> scores = singleScanScores_;
     scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
 
+
+
     std::priority_queue<std::pair<double, unsigned long> > q;
     for (unsigned long i = 0; i < scores.size(); ++i) {
         q.push(std::pair<double, unsigned long>(scores[i], i));
@@ -579,8 +581,9 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             if (!flag) {
                 continue;
             }
-            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
-                               static_cast<unsigned int>(stations.size()), sources[thisScan.getSourceId()]);
+            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+                                      minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
+                                      sources[thisScan.getSourceId()]);
             if (!flag) {
                 continue;
             }
@@ -598,8 +601,9 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             if (!flag1) {
                 continue;
             }
-            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
-                                static_cast<unsigned int>(stations.size()), sources[thisScan1.getSourceId()]);
+            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+                                        minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
+                                        sources[thisScan1.getSourceId()]);
             if (!flag1) {
                 continue;
             }
@@ -624,8 +628,9 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
 
-            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, minRequiredTime_, maxRequiredTime_,
-                                static_cast<unsigned int>(stations.size()), sources[thisScan2.getSourceId()]);
+            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+                                        minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
+                                        sources[thisScan2.getSourceId()]);
             if (!flag2) {
                 continue;
             }

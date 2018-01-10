@@ -154,7 +154,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 }
 
 Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
-    Subcon subcon = allVisibleScans();
+    Subcon subcon = allVisibleScans(calibrator);
     subcon.calcStartTimes(stations_, sources_);
     subcon.updateAzEl(stations_, sources_);
     subcon.constructAllBaselines(sources_);
@@ -174,7 +174,7 @@ Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
 }
 
 
-Subcon Scheduler::allVisibleScans() noexcept {
+Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
     unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
@@ -194,6 +194,10 @@ Subcon Scheduler::allVisibleScans() noexcept {
         Source &thisSource = sources_[isrc];
 
         if (!*thisSource.getPARA().available) {
+            continue;
+        }
+
+        if(calibrator && find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
             continue;
         }
 
@@ -244,7 +248,7 @@ Subcon Scheduler::allVisibleScans() noexcept {
             if (flag){
                 visibleSta++;
                 endOfLastScans.push_back(lastScanLookup[ista]);
-                pointingVectors.push_back(std::move(p));
+                pointingVectors.push_back(p);
             }
         }
         if (visibleSta >= *thisSource.getPARA().minNumberOfStations) {
@@ -669,7 +673,8 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         Subcon subcon = createSubcon(parameters_.subnetting, true);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
-        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta), sources_);
+        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta),
+                             stations_, sources_);
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {

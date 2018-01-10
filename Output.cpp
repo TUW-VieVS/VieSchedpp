@@ -25,7 +25,7 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
         cout << txt;
 
     } else {
-        fname.append((boost::format("_V%03d_skdsum.txt") % (iSched_)).str());
+        fname.append((boost::format("V%03d_skdsum.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
         cout << txt;
     }
@@ -592,3 +592,278 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
 }
 
 
+void Output::writeStatisticsPerSourceGroup() {
+    boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+    unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
+
+    string expName = xml_.get("master.output.experimentName","schedule");
+    string fileName = expName;
+    if (iSched_ == 0) {
+        fileName.append("_sourceStatistics.txt");
+        string txt = (boost::format("writing source statistics file to %s;\n") % fileName).str();
+        cout << txt;
+    } else {
+        fileName.append((boost::format("V%03d_sourceStatistics.txt") % (iSched_)).str());
+        string txt = (boost::format("version %d: writing source statistics file to %s;\n") %iSched_ % fileName).str();
+        cout << txt;
+    }
+
+    ofstream of(path_+fileName);
+
+    auto nsrc = sources_.size();
+    vector<double> sWeight;
+    vector<unsigned int> targetScans;
+    vector<vector<pair<boost::posix_time::ptime,boost::posix_time::ptime>>> visibleTimes(nsrc);
+    bool hardBreak = false;
+    ofstream dummy;
+    for(auto src:sources_){
+        src.checkForNewEvent(0, hardBreak, false, dummy);
+        sWeight.push_back(*src.getPARA().weight);
+        auto tmp = src.getPARA().tryToObserveXTimesEvenlyDistributed;
+        if(tmp.is_initialized() ){
+            targetScans.push_back(*tmp);
+        }else{
+            targetScans.push_back(0);
+        }
+        auto visTimes = minutesVisible(src);
+
+        int start = 0;
+        int lastElement=0;
+        for(auto const &t: visTimes){
+            if(start == 0 ){
+                start = t;
+                lastElement = t;
+            }else {
+                if (t - lastElement != 60) {
+                    boost::posix_time::ptime ptstart =
+                            TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(start));
+                    boost::posix_time::ptime ptend =
+                            TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(lastElement));
+                    visibleTimes[src.getId()].emplace_back(ptstart, ptend);
+                    start = 0;
+                }
+                lastElement = t;
+            }
+        }
+        if(start != 0){
+            boost::posix_time::ptime ptstart =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(start));
+            boost::posix_time::ptime ptend =
+                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(lastElement));
+            visibleTimes[src.getId()].emplace_back(ptstart, ptend);
+        }
+    }
+
+
+
+    vector<vector<unsigned int> > scanTime(nsrc);
+    vector<vector<unsigned long> > scanNsta(nsrc);
+    vector<vector<unsigned long> > scanNbl(nsrc);
+    vector<vector<char> > flag(nsrc);
+
+    for(const auto &scan:scans_){
+        int srcid = scan.getSourceId();
+        scanTime[srcid].push_back(scan.getPointingVector(0).getTime());
+        scanNsta[srcid].push_back(scan.getNSta());
+        scanNbl[srcid].push_back(scan.getNBl());
+        switch (scan.getType()){
+            case Scan::ScanType::single: {
+                flag[srcid].push_back(' ');
+                break;
+            }
+            case Scan::ScanType::subnetting:{
+                flag[srcid].push_back(' ');
+                break;
+            }
+            case Scan::ScanType::fillin:{
+                flag[srcid].push_back('*');
+                break;
+            }
+            case Scan::ScanType::calibrator: {
+                flag[srcid].push_back('#');
+                break;
+            }
+        }
+    }
+
+    unsigned long nMaxScans = 0;
+    for(const auto &any: scanTime){
+        unsigned long thisScans = any.size();
+        if(thisScans>nMaxScans){
+            nMaxScans = thisScans;
+        }
+    }
+
+
+    of << "* Columns:\n";
+    of << "*     1  : Name\n";
+    of << "*     2  : Id\n";
+    of << "*     3  : total scans\n";
+    of << "*     4  : standard scans\n";
+    of << "*     5  : fillin mode scans\n";
+    of << "*     6  : calibrator scans\n";
+    of << "*     7  : weight at start of session\n";
+    of << "*     8  : target scans\n";
+    of << "*     9  : minimum source repeat time [h] (at session start)\n";
+    of << "*     10+: list of scans containing:\n";
+    of << "*             scan start time (UTC)\n";
+    of << "*             scan flag:\n";
+    of << "*                 ' ': single source or subnetting scan\n";
+    of << "*                 '*': fillin mode scan\n";
+    of << "*                 '#': calibrator scan\n";
+    of << "*             number of stations\n";
+    of << "*     end: source visibility time (estimated with parameters at session start)\n";
+    for(const auto &group: group_source){
+        of << "*\n";
+        of << "* ========================== GROUP: "<< group.first <<" ==========================\n";
+        of << "*\n";
+        for(const auto &src: sources_) {
+            int srcid = src.getId();
+            if ( find(group.second.begin(),group.second.end(),src.getName()) != group.second.end() ) {
+
+                unsigned long nscans = scanTime[srcid].size();
+                unsigned long nscansStd = 0;
+                unsigned long nscansFillin = 0;
+                unsigned long nscansCalibrator = 0;
+
+                for(int i=0; i<nscans; ++i) {
+                    if(flag[srcid][i] == ' ') {
+                        ++nscansStd;
+                    }else if(flag[srcid][i] == '*') {
+                        ++nscansFillin;
+                    }else if(flag[srcid][i] == '#') {
+                        ++nscansCalibrator;
+                    }
+                }
+                unsigned long nscansTarget = 0;
+                if(src.getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized()){
+                    nscansTarget = *src.getPARA().tryToObserveXTimesEvenlyDistributed;
+                }
+
+                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget %(static_cast<double>(*src.getPARA().minRepeat)/3600.0);
+                for (int i=0; i<scanTime[srcid].size(); ++i){
+                    unsigned int ttt = scanTime[srcid][i];
+
+                    boost::posix_time::ptime pt = TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(ttt));
+                    of << TimeSystem::ptime2string(pt).substr(11,5).append("[");
+                    of << flag[srcid][i] ;
+                    of << boost::format("%02d], ") % scanNsta[srcid][i];
+                }
+                for (unsigned long i=scanTime[srcid].size(); i < nMaxScans; ++i){
+                    of << "          , ";
+                }
+                for(int i=0; i<visibleTimes[srcid].size(); ++i){
+                    of << "[" << TimeSystem::ptime2string(visibleTimes[srcid][i].first).substr(11,5)
+                       << " - " << TimeSystem::ptime2string(visibleTimes[srcid][i].second).substr(11,5) << "], ";
+                }
+                of << "\n";
+            }
+        }
+    }
+}
+
+
+unordered_map<string, vector<string> > Output::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
+    unordered_map<std::string, std::vector<std::string> > groups;
+    auto groupTree = root.get_child_optional("groups");
+    if(groupTree.is_initialized()){
+        for (auto &it: *groupTree) {
+            string name = it.first;
+            if (name == "group") {
+                string groupName = it.second.get_child("<xmlattr>.name").data();
+                std::vector<std::string> members;
+                for (auto &it2: it.second) {
+                    if (it2.first == "member") {
+                        members.push_back(it2.second.data());
+                    }
+                }
+                groups[groupName] = members;
+            }
+        }
+    }
+
+    switch(type){
+        case GroupType::source:{
+            std::vector<std::string> members;
+            for(const auto&any:sources_){
+                members.push_back(any.getName());
+            }
+            groups["__all__"] = members;
+            break;
+        }
+        case GroupType::station:{
+            std::vector<std::string> members;
+            for(const auto&any:stations_){
+                members.push_back(any.getName());
+            }
+            groups["__all__"] = members;
+            break;
+        }
+        case GroupType::baseline:{
+            std::vector<std::string> members;
+            for(int i = 0; i<stations_.size(); ++i){
+                for (int j = i+1; j<stations_.size(); ++j){
+                    members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
+                }
+            }
+            groups["__all__"] = members;
+            break;
+        }
+    }
+
+    return groups;
+}
+
+
+vector<unsigned int> Output::minutesVisible(const Source &source) {
+    vector<unsigned int> visibleTimes;
+    unsigned int minVisible;
+    const auto &parameters = source.getPARA();
+
+    if(parameters.minNumberOfStations.is_initialized()){
+        minVisible = *parameters.minNumberOfStations;
+    }else{
+        minVisible = 2;
+    }
+
+
+    vector<int> reqSta = parameters.requiredStations;
+    vector<int> ignSta = parameters.ignoreStations;
+    int srcid = source.getId();
+
+    for(unsigned int t = 0; t<TimeSystem::duration; t+=60){
+        unsigned int visible = 0;
+
+        bool requiredStationNotVisible = false;
+        for(int staid = 0; staid<stations_.size(); ++staid){
+
+            if(find(ignSta.begin(),ignSta.end(),staid) != ignSta.end()){
+                continue;
+            }
+
+            PointingVector p(staid,srcid);
+            p.setTime(t);
+
+            stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
+
+            // check if source is up from station
+            bool flag = stations_[staid].isVisible(p);
+            if(flag){
+                ++visible;
+            }else{
+                if(find(reqSta.begin(),reqSta.end(),staid) != reqSta.end()){
+                    requiredStationNotVisible = true;
+                    break;
+                }
+            }
+        }
+        if(requiredStationNotVisible){
+            continue;
+        }
+        if(visible>=minVisible){
+            visibleTimes.push_back(t);
+        }
+
+    }
+    return visibleTimes;
+}

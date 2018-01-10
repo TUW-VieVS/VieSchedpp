@@ -26,6 +26,16 @@ namespace VieVS{
     class Output {
     public:
         /**
+         * @brief possible group types
+         */
+        enum class GroupType {
+            station, ///< stations wise group
+            source, ///< source wise group
+            baseline, ///< baseline wise group
+        };
+
+
+        /**
          * @brief empty default constructor
          */
         Output();
@@ -76,6 +86,8 @@ namespace VieVS{
          * @param skdCatalogReader skd catalogs
          */
         void writeVex(const SkdCatalogReader &skdCatalogReader);
+
+        void writeStatisticsPerSourceGroup();
 
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
@@ -128,6 +140,12 @@ namespace VieVS{
 
 
         void displayTimeStatistics(std::ofstream &ofstream);
+
+        std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root,
+                                                                              GroupType type) noexcept;
+
+        std::vector<unsigned int> minutesVisible(const Source &source);
+
     };
 }
 
