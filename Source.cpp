@@ -110,21 +110,21 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
 }
 
 std::string Source::getRaString() const noexcept{
-    double deg = rad2deg*ra_/15;
-    auto h = static_cast<int>(fmod(deg, 1.));
-    double min = (deg-h)*60;
-    auto m = static_cast<int>(fmod(min, 1.));
-    double s = (min-m)*60;
-    string str = (boost::format("%02dh%02dm%08.5fs") %h %m %s).str();
+    double h = rad2deg*ra_/15;
+    auto m = fmod(h, 1.);
+    m *= 60;
+    auto s = fmod(m, 1.);
+    s *= 60;
+    string str = (boost::format("%02dh%02dm%08.5fs") % static_cast<int>(h) %static_cast<int>(m) %s).str();
     return str;
 }
 
 std::string Source::getDeString() const noexcept{
-    double deg = rad2deg*de_;
-    auto h = static_cast<int>(fmod(deg, 1.));
-    double min = (deg-h)*60;
-    auto m = static_cast<int>(fmod(min, 1.));
-    double s = (min-m)*60;
-    string str = (boost::format("%+03d°%02d'%08.5f\"") %h %m %s).str();
+    double d = rad2deg*de_;
+    auto m = abs(fmod(d, 1.));
+    m *= 60;
+    auto s = fmod(m, 1.);
+    s *= 60;
+    string str = (boost::format("%+03dd%02d'%08.5f\"") %static_cast<int>(d) %static_cast<int>(m) %s).str();
     return str;
 }

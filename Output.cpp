@@ -867,3 +867,24 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
     }
     return visibleTimes;
 }
+
+void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalogReader &skdCatalogReader) {
+
+    if(xml_.get<bool>("master.output.createSummary",false)){
+        writeStatistics(true, true, true, true, true, true, statisticsLog);
+    }
+    if(xml_.get<bool>("master.output.createNGS",false)) {
+        writeNGS();
+    }
+    if(xml_.get<bool>("master.output.createSKD",false)) {
+        writeSkd(skdCatalogReader);
+    }
+    if(xml_.get<bool>("master.output.createVEX",false)) {
+        writeVex(skdCatalogReader);
+    }
+    if(xml_.get<bool>("master.output.createSrcGrp",false)) {
+        writeStatisticsPerSourceGroup();
+    }
+
+}
+

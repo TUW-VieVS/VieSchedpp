@@ -148,7 +148,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     bool everythingOk = check(bodyLog);
     if (!everythingOk) {
-        cout << "########################################################### ERROR ######################################################\n";
+        cout << "ERROR: there was an error while checking the schedule (see log file)\n";
     }
 
 }

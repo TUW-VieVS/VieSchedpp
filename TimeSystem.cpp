@@ -67,3 +67,17 @@ std::string VieVS::TimeSystem::ptime2string_doy(boost::posix_time::ptime ptime) 
     return dateStr;
 }
 
+std::string VieVS::TimeSystem::ptime2string_units(boost::posix_time::ptime ptime) {
+    int month = ptime.date().month();
+    std::string dateStr = (boost::format("%04dy%02md%02dd%02dh%02dm%02ds")
+                           % ptime.date().year() %month %ptime.date().day()
+                           % ptime.time_of_day().hours() %ptime.time_of_day().minutes() %ptime.time_of_day().seconds()).str();
+    return dateStr;
+}
+
+std::string VieVS::TimeSystem::ptime2string_doy_units(boost::posix_time::ptime ptime) {
+    std::string dateStr = (boost::format("%04dy%03dd%02dh%02dm%02ds") % ptime.date().year() % ptime.date().day_of_year() %
+                           ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
+    return dateStr;
+}
+

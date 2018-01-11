@@ -89,6 +89,8 @@ namespace VieVS{
 
         void writeStatisticsPerSourceGroup();
 
+        void createAllOutputFiles(std::ofstream& statisticsLog, const SkdCatalogReader &skdCatalogReader);
+
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
