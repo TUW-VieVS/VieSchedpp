@@ -24,27 +24,27 @@ namespace VieVS{
         };
 
 
-        static bool scheduleCalibrationBlocks;
+        static thread_local bool scheduleCalibrationBlocks;
 
-        static unsigned int cadence;
-        static CadenceUnit cadenceUnit;
+        static thread_local unsigned int cadence;
+        static thread_local CadenceUnit cadenceUnit;
 
-        static unsigned int nextBlock;
+        static thread_local unsigned int nextBlock;
 
-        static std::vector<int> calibratorSourceIds;
+        static thread_local std::vector<int> calibratorSourceIds;
 
-        static unsigned int nmaxScans;
+        static thread_local unsigned int nmaxScans;
 
-        static TargetScanLengthType targetScanLengthType;
-        static std::unordered_map<std::string,double> minSNR;
-        static unsigned int scanLength;
+        static thread_local TargetScanLengthType targetScanLengthType;
+        static thread_local std::unordered_map<std::string,double> minSNR;
+        static thread_local unsigned int scanLength;
 
 
-        static double lowElevationStartWeight;
-        static double lowElevationFullWeight;
+        static thread_local double lowElevationStartWeight;
+        static thread_local double lowElevationFullWeight;
 
-        static double highElevationStartWeight;
-        static double highElevationFullWeight;
+        static thread_local double highElevationStartWeight;
+        static thread_local double highElevationFullWeight;
 
     };
 }

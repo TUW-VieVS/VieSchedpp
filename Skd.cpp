@@ -51,11 +51,11 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << "* WARNING: some of the following parameters are not compatible with VieVS Scheduling Software!\n";
     of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription") << endl;
-    of << "SCHEDULING_SoFTWARE NEW_VIE_SCHED\n";
-    of << "SOFTWARE_VERSION NEW_VIE_SCHED 0.1\n";
+    of << "SCHEDULING_SOFTWARE NEW_VIE_SCHED\n";
+    of << "SOFTWARE_VERSION x.x.x\n";
     auto ctstr = xml.get<string>("master.created.time");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
-    of << boost::format("SCHEDULE_CREATE_DATE %s ") %TimeSystem::ptime2string_doy(ct);
+    of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);
     of << "SCHEDULER " << xml.get<string>("master.output.scheduler") << " ";
     of << "CORRELATOR " << xml.get<string>("master.output.correlator") << " ";
     auto st = TimeSystem::startTime;

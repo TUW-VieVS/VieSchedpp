@@ -2905,16 +2905,16 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
                 vector<int> targetIds;
                 int c = 0;
                 for (const auto &source:sources_) {
-                    if(c==9){
-                        headerLog << "\n    ";
-                        c = 0;
-                    }
                     const string &name = source.getName();
-                    headerLog << boost::format("%-8s ") % name;
                     if (find(targetSources.begin(), targetSources.end(), name) != targetSources.end()) {
+                        if(c==9){
+                            headerLog << "\n    ";
+                            c = 0;
+                        }
+                        headerLog << boost::format("%-8s ") % name;
                         targetIds.push_back(source.getId());
+                        ++c;
                     }
-                    ++c;
                 }
                 headerLog << "\n";
                 CalibratorBlock::calibratorSourceIds = std::move(targetIds);
@@ -3002,7 +3002,7 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
     } else if (threads == "single"){
         nThreads = 1;
     } else if (threads == "auto"){
-        nThreads = std::thread::hardware_concurrency();
+        nThreads = 4;
     }
 
     jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");

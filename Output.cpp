@@ -21,12 +21,12 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
     string fname = xml_.get("master.output.experimentName","schedule");
     if (iSched_ == 0) {
         fname.append("_skdsum.txt");
-        string txt = (boost::format("writing statistics to %s;\n") % fname).str();
+        string txt = (boost::format("writing statistics to: %s;\n") % fname).str();
         cout << txt;
 
     } else {
         fname.append((boost::format("V%03d_skdsum.txt") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing statistics to %s;\n") %iSched_ % fname).str();
+        string txt = (boost::format("version %d: writing statistics to: %s;\n") %iSched_ % fname).str();
         cout << txt;
     }
     ofstream out(path_+fname);
@@ -491,11 +491,11 @@ void Output::writeNGS() {
     string fname;
     if (iSched_ == 0) {
         fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS");
-        string txt = (boost::format("writing NGS file %s;\n") % fname).str();
+        string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
         fname = (boost::format("%sMS_V%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (iSched_)).str();
-        string txt = (boost::format("version %d: writing NGS file %s;\n") % iSched_ % fname).str();
+        string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
     ofstream out(path_+fname);
@@ -561,11 +561,11 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     string fileName = expName;
     if (iSched_ == 0) {
         fileName.append(".vex");
-        string txt = (boost::format("writing vex file to %s;\n") % fileName).str();
+        string txt = (boost::format("writing vex file: %s;\n") % fileName).str();
         cout << txt;
     } else {
         fileName.append((boost::format("V%03d.vex") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing vex file to %s;\n") %iSched_ % fileName).str();
+        string txt = (boost::format("version %d: writing vex file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
 
@@ -579,11 +579,11 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     string fileName = expName;
     if (iSched_ == 0) {
         fileName.append(".skd");
-        string txt = (boost::format("writing skd file to %s;\n") % fileName).str();
+        string txt = (boost::format("writing skd file: %s;\n") % fileName).str();
         cout << txt;
     } else {
         fileName.append((boost::format("V%03d.skd") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing skd file to %s;\n") %iSched_ % fileName).str();
+        string txt = (boost::format("version %d: writing skd file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
 
@@ -600,11 +600,11 @@ void Output::writeStatisticsPerSourceGroup() {
     string fileName = expName;
     if (iSched_ == 0) {
         fileName.append("_sourceStatistics.txt");
-        string txt = (boost::format("writing source statistics file to %s;\n") % fileName).str();
+        string txt = (boost::format("writing source statistics file: %s;\n") % fileName).str();
         cout << txt;
     } else {
         fileName.append((boost::format("V%03d_sourceStatistics.txt") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing source statistics file to %s;\n") %iSched_ % fileName).str();
+        string txt = (boost::format("version %d: writing source statistics file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
 

@@ -84,6 +84,10 @@ namespace VieVS {
         explicit Initializer(const std::string &path);
 
 
+        const boost::property_tree::ptree &getXml() const {
+            return xml_;
+        }
+
         SkdCatalogReader createSkdCatalogReader() const noexcept;
 
         /**

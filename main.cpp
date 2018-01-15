@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180110164712_aua035/parameters.xml";
+        file ="C:/Users/matth/Desktop/GUI/build-scheduling_GUI-Desktop_5_9-Debug/soap_ms/20180112130542_soap/parameters.xml";
     }
 
 
@@ -81,7 +81,7 @@ void run(std::string file){
     }
 
 
-    cout << "log file is written in this file: header.txt;\n";
+    cout << "writing header log file to: log_initializer.txt;\n";
 
     ofstream headerLog(path+"log_initializer.txt");
     ofstream statisticsLog(path+"statistics.csv");
@@ -97,8 +97,8 @@ void run(std::string file){
 
     init.createSources(skdCatalogReader, headerLog);
     init.precalcSubnettingSrcIds();
-    init.initializeSourceSequence();
 
+    init.initializeSourceSequence();
     init.initializeCalibrationBlocks( headerLog );
     init.initializeWeightFactors();
 
@@ -148,7 +148,10 @@ void run(std::string file){
         string threadNumberPrefix;
         if (flag_multiSched) {
             VieVS::Initializer newinit = init;
-            string fname = (boost::format("log_V%03d.txt") % (i + 1)).str();
+
+            string fname = init.getXml().get("master.output.experimentName","schedule");
+            fname.append((boost::format("V%03d.log") % (i+1)).str());
+
             bodyLog.open(path+fname);
 
 
@@ -158,7 +161,7 @@ void run(std::string file){
             string txt = threadNumberPrefix + (boost::format("creating multi scheduling version %d of %d;\n") % (i + 1) %
                           nsched).str();
 
-            string txt2 = (boost::format("version %d: log file is written in this file: %s;\n") % (i+1) % fname).str();
+            string txt2 = (boost::format("version %d: writing log file to: %s;\n") % (i+1) % fname).str();
             cout << txt;
             cout << txt2;
 
@@ -169,16 +172,22 @@ void run(std::string file){
             newinit.initializeBaselines();
 
             newinit.initializeWeightFactors();
+            newinit.initializeSourceSequence();
+            newinit.initializeCalibrationBlocks( headerLog );
 
             newinit.applyMultiSchedParameters(all_multiSched_PARA[i], bodyLog);
 
             newinit.initializeNutation();
             newinit.initializeEarth();
 
+
             scheduler = VieVS::Scheduler(newinit);
         } else {
-            cout << "log file is written in this file: body.txt;\n";
-            bodyLog.open(path+"log.txt");
+
+            string fname = init.getXml().get("master.output.experimentName","schedule");
+            fname.append(".log");
+            bodyLog.open(path+fname);
+
             init.initializeGeneral(bodyLog);
 
             init.initializeStations();
