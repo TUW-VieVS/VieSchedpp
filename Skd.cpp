@@ -222,11 +222,11 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << boost::format("%-14s %6s\n") % "AllBlGood" % "Yes";
     of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 180;
     of << boost::format("%-14s %6.2f\n") % "MinAngle" % 0;
-    of << boost::format("%-14s %6d\n") % "MinBetween" % (*sources[0].getPARA().minRepeat / 60);
+    of << boost::format("%-14s %6d\n") % "MinBetween" % (sources[0].getPARA().minRepeat / 60);
     of << boost::format("%-14s %6d\n") % "MinSunDist" % 0;
-    of << boost::format("%-14s %6d\n") % "MaxSlewTime" % *stations[0].getPARA().maxSlewtime;
+    of << boost::format("%-14s %6d\n") % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (SkyCoverage::maxInfluenceTime / 3600);
-    of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % *sources[0].getPARA().minNumberOfStations;
+    of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % sources[0].getPARA().minNumberOfStations;
     if (xml.get<bool>("master.general.subnetting")) {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 1;
     } else {
@@ -238,7 +238,7 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     } else {
         of << boost::format("%-14s %6s\n") % "FillIn" % "No";
     }
-    of << boost::format("%-14s %6d\n") % "FillMinSub" % *sources[0].getPARA().minNumberOfStations;
+    of << boost::format("%-14s %6d\n") % "FillMinSub" % sources[0].getPARA().minNumberOfStations;
     of << boost::format("%-14s %6d\n") % "FillMinTime" % 0;
     of << boost::format("%-14s %6d\n") % "FillBest" % 100;
     of << boost::format("%-14s %6.2f\n") % "Add_ps" % 0.00;
@@ -289,8 +289,8 @@ void Skd::skd_STATWT(const std::vector<Station>& stations) {
     of << "* all weights except weight=1 are listed here\n";
     of << "*\n";
     for (const auto &any:stations) {
-        if(*any.getPARA().weight != 1) {
-            of << boost::format("%-10s %6.2f\n") % any.getName() % *any.getPARA().weight;
+        if(any.getPARA().weight != 1) {
+            of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
         }
     }
 }
@@ -304,8 +304,8 @@ void Skd::skd_SRCWT(const std::vector<Source> &sources) {
     of << "*\n";
     for (const auto &any:sources) {
         if (any.getNTotalScans() > 0) {
-            if(*any.getPARA().weight != 1){
-                of << boost::format("%-10s %6.2f\n") % any.getName() % *any.getPARA().weight;
+            if(any.getPARA().weight != 1){
+                of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
             }
         }
     }

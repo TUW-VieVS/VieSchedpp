@@ -39,29 +39,26 @@ namespace VieVS{
          * @brief source parameters
          */
         struct PARAMETERS {
-            boost::optional<bool> available = true; ///< flag is source is available
+            bool available = true; ///< flag is source is available
 
-            boost::optional<double> weight = 1; ///< multiplicative factor of score for scans to this source
+            double weight = 1; ///< multiplicative factor of score for scans to this source
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            boost::optional<unsigned int> minNumberOfStations; ///< minimum number of stations for a scan
-            boost::optional<double> minFlux = 0.01; ///< minimum flux density required for this source in jansky
-            boost::optional<unsigned int> minRepeat; ///< minimum time between two observations of this source in seconds
-            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
-            boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
-            boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
-            boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
+            unsigned int minNumberOfStations; ///< minimum number of stations for a scan
+            double minFlux = 0.01; ///< minimum flux density required for this source in jansky
+            unsigned int minRepeat; ///< minimum time between two observations of this source in seconds
+            unsigned int maxScan; ///< maximum allowed scan time in seconds
+            unsigned int minScan; ///< minimum required scan time in seconds
+            unsigned int maxNumberOfScans; ///< maximum number of scans
+            bool tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
-            std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
             std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
-            std::vector<std::pair<std::string, std::string>> ignoreBaselinesString; ///< list of all baseline names which should be ignore
             std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
-            std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
 
             /**
              * @brief setter for available
@@ -78,20 +75,23 @@ namespace VieVS{
              * @param of out stream object
              */
             void output(std::ofstream &of) const {
-                if (*available) {
+                if (available) {
                     of << "    available: TRUE\n";
                 } else {
                     of << "    available: FALSE\n";
                 }
 
-                of << "    minNumOfSta:      " << *minNumberOfStations << "\n";
-                of << "    minFlux:          " << *minFlux << "\n";
-                of << "    minRepeat:        " << *minRepeat << "\n";
-                of << "    maxScan:          " << *maxScan << "\n";
-                of << "    minScan:          " << *minScan << "\n";
-                of << "    weight:           " << *weight << "\n";
-                of << "    maxNumberOfScans: " << *maxNumberOfScans << "\n";
-                if (*tryToFocusIfObservedOnce) {
+                of << "    minNumOfSta:      " << minNumberOfStations << "\n";
+                of << "    minFlux:          " << minFlux << "\n";
+                of << "    minRepeat:        " << minRepeat << "\n";
+                of << "    maxScan:          " << maxScan << "\n";
+                of << "    minScan:          " << minScan << "\n";
+                of << "    weight:           " << weight << "\n";
+                of << "    maxNumberOfScans: " << maxNumberOfScans << "\n";
+                if(fixedScanDuration.is_initialized()){
+                    of << "    fixedScanDuration " << *fixedScanDuration << "\n";
+                }
+                if (tryToFocusIfObservedOnce) {
                     of << "    tryToFocusIfObservedOnce: TRUE\n";
                 } else {
                     of << "    tryToFocusIfObservedOnce: FALSE\n";
@@ -162,7 +162,7 @@ namespace VieVS{
          * @param src_flux flux information per band
          */
         Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-               const std::unordered_map<std::string, Flux> src_flux, int id);
+               std::unordered_map<std::string, Flux> src_flux, int id);
 
 
         /**

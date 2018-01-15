@@ -15,8 +15,8 @@
 #include <boost/date_time.hpp>
 #include <utility>
 #include <unordered_map>
+#include <boost/format.hpp>
 
-#include "TimeSystem.h"
 #include "ParameterSetup.h"
 #include "ParameterGroup.h"
 
@@ -58,7 +58,8 @@ namespace VieVS {
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
-            std::vector<std::string> ignoreSources_str; ///< list of all source names which should be ignored
+            std::vector<std::string> ignoreSourcesString; ///< list of all source names which should be ignored
+            std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
         };
 
         /**
@@ -82,12 +83,12 @@ namespace VieVS {
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
-            std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
-            std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
-            std::vector<std::pair<std::string, std::string>> ignoreBaselinesString; ///< list of all baseline names which should be ignore
-            std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
+            std::vector<int> ignoreStations; ///< list of all station names which should be ignored
+            std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
+            std::vector<std::pair<int,int>> ignoreBaselines; ///< list of all baseline names which should be ignore
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
+            std::vector<int> requiredStations; ///< list of station names which are required for a scan to this source
         };
 
         /**
@@ -133,9 +134,8 @@ namespace VieVS {
          *
          * @param name software name
          * @param version software version
-         * @param created local time and date of created parameter.xml file
          */
-        void software(const std::string &name, const std::string &version, const boost::posix_time::ptime &created);
+        void software(const std::string &name, const std::string &version);
 
         /**
          * @brief general block in parameter.xml
@@ -150,6 +150,8 @@ namespace VieVS {
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
                      const std::vector<std::string> &stations);
+
+        void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
         /**
          * @brief catalogs block in parameters.xml
@@ -191,28 +193,80 @@ namespace VieVS {
         const std::vector<std::string> &getGroupMembers(Type type, std::string groupName);
 
         /**
-         * @brief defined station parameters in station block in parameters.xml
+         * @brief write defined station parameters to parameters.xml
          *
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, ParametersStations PARA);
+        void parameters(const std::string &name, const ParametersStations &PARA);
 
         /**
-         * @brief defined source parameters in source block in parameters.xml
+         * @brief defined station parameters
          *
          * @param name parameter name
          * @param PARA parameters
+         * @return property tree with station parameters
          */
-        void parameters(const std::string &name, ParametersSources PARA);
+        static boost::property_tree::ptree parameterStation2ptree(const std::string &name, const ParametersStations & PARA);
 
         /**
-         * @brief defined baseline parameters in baseline block in parameters.xml
+         * @brief transforms parameterStations to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are station parameters
+         */
+        static std::pair<std::string,ParametersStations> ptree2parameterStation(boost::property_tree::ptree ptree);
+
+        /**
+         * @brief write defined source parameters to parameters.xml
          *
          * @param name parameter name
          * @param PARA parameters
          */
-        void parameters(const std::string &name, ParametersBaselines PARA);
+        void parameters(const std::string &name, const ParametersSources &PARA);
+
+        /**
+         * @brief defined source parameters
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         * @return property tree with source parameters
+         */
+        static boost::property_tree::ptree parameterSource2ptree(const std::string &name, const ParametersSources &PARA);
+
+        /**
+         * @brief transforms parameterSource to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are source parameters
+         */
+        static std::pair<std::string,ParametersSources> ptree2parameterSource(boost::property_tree::ptree ptree);
+
+        /**
+         * @brief write defined baseline parameters to parameters.xml
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         */
+        void parameters(const std::string &name, const ParametersBaselines &PARA);
+
+        /**
+         * @brief defined baseline parameters
+         *
+         * @param name parameter name
+         * @param PARA parameters
+         * @return property tree with baseline parameters
+         */
+        static boost::property_tree::ptree parameterBaseline2ptree(const std::string &name, const ParametersBaselines &PARA);
+
+        /**
+         * @brief transforms ParametersBaselines to property_tree
+         *
+         * @param ptree property tree
+         * @return first entry is parameter name, second are baseline parameters
+         */
+        static std::pair<std::string,ParametersBaselines> ptree2parameterBaseline(boost::property_tree::ptree ptree);
+
 
         /**
          * @brief setup block in parameter.xml
@@ -287,17 +341,24 @@ namespace VieVS {
          *
          * @param name band name
          * @param wavelength band wavelength
+         * @param chanels number of channels
+         */
+        void mode_band(const std::string &name, double wavelength, unsigned int chanels);
+
+        /**
+         * @brief bandPolicy sub-block in mode block in parameter.xml
+         *
+         * @param name band name
          * @param station station policy for this band
          * @param stationBackup station backup model
          * @param stationBackupValue station backup model value
          * @param source source policy for this band
          * @param sourceBackup source backup model
          * @param sourceBackupValue source backup model value
-         * @param chanels number of channels
          */
-        void mode_band(const std::string &name, double wavelength, ObservationModeProperty station,
-                       ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
-                       ObservationModeBackup sourceBackup, double sourceBackupValue, unsigned int chanels);
+        void mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
+                             ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
+                             ObservationModeBackup sourceBackup, double sourceBackupValue);
 
         /**
          * @brief multisched block in parameter.xml
@@ -305,6 +366,20 @@ namespace VieVS {
          * @param multiSched multisched xml tree
          */
         void multisched(const boost::property_tree::ptree &multiSched);
+
+        /**
+         * @brief multiCore multi core support for scheduling
+         *
+         * @param threads thread creation schema
+         * @param nThreadsManual number of manually selected threads
+         * @param jobScheduler job scheduling algorithmus
+         * @param chunkSize job scheduling chunk size
+         * @param threadPlace thread affinitiy control
+         */
+        void multiCore(const std::string &threads, int nThreadsManual,
+                       const std::string &jobScheduler, int chunkSize,
+                       const std::string &threadPlace);
+
 
         /**
          * @brief output routine that produces .xml file
@@ -327,7 +402,7 @@ namespace VieVS {
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
                     const std::string &scheduler,
-                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD,
+                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool srcGrp,
                     bool createSkyCoverage);
 
 
@@ -353,6 +428,7 @@ namespace VieVS {
                                      unsigned int nMaxScans, unsigned int scanTime);
 
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
+                                                const std::vector<std::pair<double, double> > &between_elevation,
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
         const std::map<std::string, std::vector<std::string>> &getGroupStations() const {
@@ -367,12 +443,30 @@ namespace VieVS {
             return groupBaselines_;
         }
 
+        const std::map<std::string, ParametersStations> &getParaStations() const {
+            return paraStations_;
+        }
+
+        const std::map<std::string, ParametersSources> &getParaSources() const {
+            return paraSources_;
+        }
+
+        const std::map<std::string, ParametersBaselines> &getParaBaselines() const {
+            return paraBaselines_;
+        }
+
+
+
     private:
         boost::property_tree::ptree master_; ///< master property tree
 
         std::map<std::string, std::vector<std::string> > groupStations_; ///< defined station group
         std::map<std::string, std::vector<std::string> > groupSources_; ///< defined source group
         std::map<std::string, std::vector<std::string> > groupBaselines_; ///< defined baseline group
+
+        std::map<std::string, ParametersStations > paraStations_; ///< defined station parameters
+        std::map<std::string, ParametersSources > paraSources_; ///< defined source parameters
+        std::map<std::string, ParametersBaselines > paraBaselines_; ///< defined baseline parameters
 
         /**
          * @brief returns a child tree of root setup object

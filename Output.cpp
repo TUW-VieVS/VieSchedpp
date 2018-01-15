@@ -618,7 +618,7 @@ void Output::writeStatisticsPerSourceGroup() {
     ofstream dummy;
     for(auto src:sources_){
         src.checkForNewEvent(0, hardBreak, false, dummy);
-        sWeight.push_back(*src.getPARA().weight);
+        sWeight.push_back(src.getPARA().weight);
         auto tmp = src.getPARA().tryToObserveXTimesEvenlyDistributed;
         if(tmp.is_initialized() ){
             targetScans.push_back(*tmp);
@@ -740,7 +740,7 @@ void Output::writeStatisticsPerSourceGroup() {
                     nscansTarget = *src.getPARA().tryToObserveXTimesEvenlyDistributed;
                 }
 
-                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget %(static_cast<double>(*src.getPARA().minRepeat)/3600.0);
+                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget %(static_cast<double>(src.getPARA().minRepeat)/3600.0);
                 for (int i=0; i<scanTime[srcid].size(); ++i){
                     unsigned int ttt = scanTime[srcid][i];
 
@@ -817,15 +817,8 @@ unordered_map<string, vector<string> > Output::readGroups(boost::property_tree::
 
 vector<unsigned int> Output::minutesVisible(const Source &source) {
     vector<unsigned int> visibleTimes;
-    unsigned int minVisible;
     const auto &parameters = source.getPARA();
-
-    if(parameters.minNumberOfStations.is_initialized()){
-        minVisible = *parameters.minNumberOfStations;
-    }else{
-        minVisible = 2;
-    }
-
+    unsigned int minVisible = parameters.minNumberOfStations;
 
     vector<int> reqSta = parameters.requiredStations;
     vector<int> ignSta = parameters.ignoreStations;

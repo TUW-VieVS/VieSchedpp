@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file ="C:/Users/matth/Desktop/GUI/build-scheduling_GUI-Desktop_5_9-Debug/soap_ms/20180112130542_soap/parameters.xml";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/test/parameters.xml";
     }
 
 

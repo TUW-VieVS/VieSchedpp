@@ -50,7 +50,7 @@ bool Scan::constructBaselines(const Source &source) noexcept {
                 continue;
             }
             if (!source.getPARA().ignoreBaselines.empty()) {
-                auto &PARA = source.getPARA();
+                const auto &PARA = source.getPARA();
                 if (staid1 > staid2) {
                     swap(staid1, staid2);
                 }
@@ -84,7 +84,7 @@ void Scan::addTimes(int idx, unsigned int setup, unsigned int source, unsigned i
 
 bool Scan::removeStation(int idx, const Source &source) noexcept {
     --nsta_;
-    if (nsta_ < *source.getPARA().minNumberOfStations) {
+    if (nsta_ < source.getPARA().minNumberOfStations) {
         return false;
     }
 
@@ -336,12 +336,12 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
 
 
 
-    vector<unsigned int> minscanTimes(nsta_, *source.getPARA().minScan);
-    vector<unsigned int> maxScanTimes(nsta_, *source.getPARA().maxScan);
+    vector<unsigned int> minscanTimes(nsta_, source.getPARA().minScan);
+    vector<unsigned int> maxScanTimes(nsta_, source.getPARA().maxScan);
 
     for (int i = 0; i < nsta_; ++i) {
-        unsigned int stationMinScanTime = *stations[pointingVectors_[i].getStaid()].getPARA().minScan;
-        unsigned int stationMaxScanTime = *stations[pointingVectors_[i].getStaid()].getPARA().maxScan;
+        unsigned int stationMinScanTime = stations[pointingVectors_[i].getStaid()].getPARA().minScan;
+        unsigned int stationMaxScanTime = stations[pointingVectors_[i].getStaid()].getPARA().maxScan;
 
         if(minscanTimes[i]<stationMinScanTime){
             minscanTimes[i] = stationMinScanTime;
@@ -599,7 +599,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
             }
 
             unsigned int thisSlewtime = thisStation.slewTime(pv);
-            if (thisSlewtime > *thisStation.getPARA().maxSlewtime) {
+            if (thisSlewtime > thisStation.getPARA().maxSlewtime) {
                 scanValid = removeStation(ista, source);
                 if (!scanValid) {
                     return false;
@@ -781,9 +781,9 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
         this_score += calcScore_lowElevation() * weightLowElevation;
     }
 
-    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
 
-    if (*source.getPARA().tryToFocusIfObservedOnce) {
+    if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
             this_score *= 100 * nscans;
@@ -853,9 +853,9 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
         this_score += calcScore_lowElevation() * weightLowElevation;
     }
 
-    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
 
-    if (*source.getPARA().tryToFocusIfObservedOnce) {
+    if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
             this_score *= 100 * nscans;
@@ -924,9 +924,9 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
         this_score += calcScore_lowElevation() * weightLowElevation * 0.5;
     }
 
-    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
 
-    if (*source.getPARA().tryToFocusIfObservedOnce) {
+    if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
             this_score *= 100 * nscans;
@@ -1007,7 +1007,7 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 
     double this_score = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
 
-    this_score *= *source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
 
     score_ = this_score;
     return true;
@@ -1131,7 +1131,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &
         }
         ++counter;
     }
-    if (pv.size() < *source.getPARA().minNumberOfStations) {
+    if (pv.size() < source.getPARA().minNumberOfStations) {
         return boost::none;
     }
 
@@ -1251,7 +1251,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
 double Scan::weight_stations(const std::vector<Station> &stations) {
     double weight = 0;
     for (const auto &any:pointingVectors_) {
-        weight += *stations[any.getStaid()].getPARA().weight;
+        weight += stations[any.getStaid()].getPARA().weight;
     }
     weight /= pointingVectors_.size();
 

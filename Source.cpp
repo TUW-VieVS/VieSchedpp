@@ -42,7 +42,7 @@ bool Source::isStrongEnough(double &maxFlux) const noexcept {
             maxFlux = thisFlux;
         }
     }
-    return maxFlux > *parameters_.minFlux;
+    return maxFlux > parameters_.minFlux;
 }
 
 namespace VieVS {
@@ -82,9 +82,9 @@ void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) 
 bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
     bool flag = false;
     while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
-        double oldMinFlux = *parameters_.minFlux;
+        double oldMinFlux = parameters_.minFlux;
         parameters_ = events_[nextEvent_].PARA;
-        double newMinFlux = *parameters_.minFlux;
+        double newMinFlux = parameters_.minFlux;
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
 
         if (output && time < TimeSystem::duration) {
@@ -101,7 +101,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
                 referencePARA().setAvailable(false);
                 bodyLog << "source: " << boost::format("%8s") % name_ << " not strong enough! (max flux = "
                         << boost::format("%4.2f") % maxFlux << " min required flux = "
-                        << boost::format("%4.2f") % *parameters_.minFlux << ")\n";;
+                        << boost::format("%4.2f") % parameters_.minFlux << ")\n";;
             }
             flag = true;
         }

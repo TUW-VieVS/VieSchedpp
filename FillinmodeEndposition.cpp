@@ -86,7 +86,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
         int assumedSlewTime = 5;
         const Station::WAITTIMES wtimes = thisSta.getWaittimes();
         if (deltaT < wtimes.setup + wtimes.source + assumedSlewTime + wtimes.calibration + wtimes.tape +
-                     *thisSta.getPARA().minScan) {
+                     thisSta.getPARA().minScan) {
             stationPossible_[staid] = false;
         }
     }
@@ -95,7 +95,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
     for (int staid = 0; staid < nsta; ++staid) {
         if (stationUnused_[staid]) {
             const Station &thisSta = stations[staid];
-            if (!*thisSta.getPARA().available) {
+            if (!thisSta.getPARA().available) {
                 stationPossible_[staid] = false;
                 availableTime[staid] = 0;
             }

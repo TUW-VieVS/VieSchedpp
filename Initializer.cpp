@@ -6,6 +6,7 @@
  */
 
 #include "Initializer.h"
+#include "ParameterSettings.h"
 
 using namespace std;
 using namespace VieVS;
@@ -602,55 +603,31 @@ void Initializer::initializeStations() noexcept {
 
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
-    unordered_map<std::string, Station::PARAMETERS> parameters;
+    unordered_map<std::string, ParameterSettings::ParametersStations> parameters;
     auto para_tree = PARA_station.get_child("parameters");
     for (auto &it: para_tree) {
         string name = it.first;
         if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
-            Station::PARAMETERS PARA;
+            ParameterSettings::ParametersStations PARA;
 
-            for (auto &it2: it.second) {
-                string paraName = it2.first;
-                if (paraName == "<xmlattr>") {
-                    continue;
-                } else if (paraName == "available") {
-                    PARA.available = it2.second.get_value<bool>();
-                } else if (paraName == "tagalong") {
-                    PARA.tagalong = it2.second.get_value<bool>();
-                } else if (paraName == "firstScan") {
-                    PARA.firstScan = it2.second.get_value < bool > ();
-                } else if (paraName == "weight") {
-                    PARA.weight = it2.second.get_value<double>();
-                } else if (paraName == "minScan") {
-                    PARA.minScan = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "maxScan") {
-                    PARA.maxScan = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "maxSlewtime") {
-                    PARA.maxSlewtime = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "maxWait") {
-                    PARA.maxWait = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "minSNR") {
-                    string bandName = it2.second.get_child("<xmlattr>.band").data();
-                    double value = it2.second.get_value<double>();
-                    PARA.minSNR[bandName] = value;
-                } else if (paraName == "ignoreSources") {
-                    for (auto &it3: it2.second) {
-                        string srcName = it3.second.data();
-                        for (int i = 0; i < sources_.size(); ++i) {
-                            if (srcName == sources_[i].getName()) {
-                                PARA.ignoreSources.push_back(i);
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    cerr << "ERROR: <station> <parameter>: " << paraName << ": parameter <" << name
-                         << "> not understood! (Ignored);\n";
+            auto PARA_ = ParameterSettings::ptree2parameterStation(it.second);
+            PARA = PARA_.second;
+
+            parameters[parameterName] = PARA;
+        }
+    }
+
+    for(auto &any:parameters) {
+        auto &iss = any.second.ignoreSourcesString;
+        for (const auto &iss_n:iss) {
+            for (const auto &src:sources_) {
+                if (src.getName() == iss_n) {
+                    any.second.ignoreSources.push_back(src.getId());
+                    break;
                 }
             }
-            parameters[parameterName] = PARA;
         }
     }
 
@@ -807,10 +784,10 @@ void Initializer::initializeStations() noexcept {
             for (const auto &any: cableNow) {
                 for (auto &sta:stations_) {
                     if (any == sta.getName()) {
-                        double axis1Low = it.second.get<double>("axis1LowOffset");
-                        double axis1Up = it.second.get<double>("axis1UpOffset");
-                        double axis2Low = it.second.get<double>("axis2LowOffset");
-                        double axis2Up = it.second.get<double>("axis2UpOffset");
+                        auto axis1Low = it.second.get<double>("axis1LowOffset");
+                        auto axis1Up = it.second.get<double>("axis1UpOffset");
+                        auto axis2Low = it.second.get<double>("axis2LowOffset");
+                        auto axis2Up = it.second.get<double>("axis2UpOffset");
                         sta.referenceCableWrap().setMinimumOffsets(axis1Low, axis1Up, axis2Low, axis2Up);
                         break;
                     }
@@ -827,7 +804,7 @@ void Initializer::initializeStations() noexcept {
 
 void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
                                     const boost::property_tree::ptree &tree,
-                                    const unordered_map<std::string, Station::PARAMETERS> &parameters,
+                                    const unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
                                     const unordered_map<std::string, std::vector<std::string> > &groups,
                                     const Station::PARAMETERS &parentPARA) noexcept {
 
@@ -853,7 +830,7 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
-            Station::PARAMETERS newPARA = parameters.at(tmp);
+            ParameterSettings::ParametersStations newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
             }
@@ -973,112 +950,78 @@ void Initializer::initializeSources() noexcept {
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
     auto para_tree = PARA_source.get_child("parameters");
-    unordered_map<std::string, Source::PARAMETERS> parameters;
+    unordered_map<std::string, ParameterSettings::ParametersSources> parameters;
     for (auto &it: para_tree) {
         string name = it.first;
         if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
-            Source::PARAMETERS PARA;
+            ParameterSettings::ParametersSources PARA;
 
-            for (auto &it2: it.second) {
-                string paraName = it2.first;
-                if (paraName == "<xmlattr>") {
-                    continue;
-                } else if (paraName == "available") {
-                    PARA.available = it2.second.get_value<bool>();
-                } else if (paraName == "weight") {
-                    PARA.weight = it2.second.get_value<double>();
-                } else if (paraName == "minScan") {
-                    PARA.minScan = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "maxScan") {
-                    PARA.maxScan = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "minNumberOfStations") {
-                    PARA.minNumberOfStations = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "minRepeat") {
-                    PARA.minRepeat = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "minFlux") {
-                    PARA.minFlux = it2.second.get_value<double>();
-                } else if (paraName == "tryToObserveXTimesEvenlyDistributed") {
-                    PARA.tryToObserveXTimesEvenlyDistributed = it2.second.get_value<unsigned int>();
-                } else if (paraName == "fixedScanDuration") {
-                    PARA.fixedScanDuration = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "maxNumberOfScans") {
-                    PARA.maxNumberOfScans = it2.second.get_value < unsigned int > ();
-                } else if (paraName == "tryToFocusIfObservedOnce") {
-                    PARA.tryToFocusIfObservedOnce = it2.second.get_value<bool>();
-                } else if (paraName == "minSNR") {
-                    string bandName = it2.second.get_child("<xmlattr>.band").data();
-                    double value = it2.second.get_value<double>();
-                    PARA.minSNR[bandName] = value;
-                } else if (paraName == "ignoreStations") {
-                    for (auto &it3: it2.second) {
-                        string staName = it3.second.data();
-                        for (int i = 0; i < stations_.size(); ++i) {
-                            if (staName == stations_[i].getName()) {
-                                PARA.ignoreStations.push_back(i);
-                                break;
-                            }
-                        }
-                    }
-                } else if (paraName == "requiredStations") {
-                    for (auto &it3: it2.second) {
-                        string staName = it3.second.data();
-                        for (int i = 0; i < stations_.size(); ++i) {
-                            if (staName == stations_[i].getName()) {
-                                PARA.requiredStations.push_back(i);
-                                break;
-                            }
-                        }
-                    }
-                } else if (paraName == "ignoreBaselines") {
-                    for (auto &it3: it2.second) {
-                        string baselineName = it3.second.data();
-                        vector<string> splitVec;
-                        boost::split(splitVec, baselineName, boost::is_any_of("-"));
-                        string station1 = splitVec[0];
-                        int staid1;
-                        for (int i = 0; i < stations_.size(); ++i) {
-                            if (station1 == stations_[i].getName()) {
-                                staid1 = i;
-                                break;
-                            }
-                        }
-                        string station2 = splitVec[1];
-                        int staid2;
-                        for (int i = 0; i < stations_.size(); ++i) {
-                            if (station2 == stations_[i].getName()) {
-                                staid2 = i;
-                                break;
-                            }
-                        }
-                        if (staid1 > staid2) {
-                            swap(staid1, staid2);
-                        }
-                        PARA.ignoreBaselines.emplace_back(staid1, staid2);
-                    }
-                } else {
-                    cerr << "ERROR: <source> <parameter>: " << parameterName << ": parameter <" << name
-                            << "> not understood! (Ignored);\n";
-                }
-            }
+            auto PARA_ = ParameterSettings::ptree2parameterSource(it.second);
+            PARA = PARA_.second;
+
             parameters[parameterName] = PARA;
         }
     }
+    for(auto &any:parameters){
+        auto &iss = any.second.ignoreStationsString;
+        for(const auto &iss_n:iss) {
+            for(const auto &sta:stations_){
+                if(sta.getName() == iss_n){
+                    any.second.ignoreStations.push_back(sta.getId());
+                    break;
+                }
+            }
+        }
+        auto &iss2 = any.second.requiredStationsString;
+        for(const auto &iss_n:iss2) {
+            for(const auto &sta:stations_){
+                if(sta.getName() == iss_n){
+                    any.second.requiredStations.push_back(sta.getId());
+                    break;
+                }
+            }
+        }
+        auto &iss3 = any.second.ignoreBaselinesString;
+        for(const auto &baselineName:iss3) {
+            vector<string> splitVec;
+            boost::split(splitVec, baselineName, boost::is_any_of("-"));
+            string station1 = splitVec[0];
+            int staid1;
+            for (int i = 0; i < stations_.size(); ++i) {
+                if (station1 == stations_[i].getName()) {
+                    staid1 = i;
+                    break;
+                }
+            }
+            string station2 = splitVec[1];
+            int staid2;
+            for (int i = 0; i < stations_.size(); ++i) {
+                if (station2 == stations_[i].getName()) {
+                    staid2 = i;
+                    break;
+                }
+            }
+            if (staid1 > staid2) {
+                swap(staid1, staid2);
+            }
+            any.second.ignoreBaselines.emplace_back(staid1, staid2);
+        }
+    }
+
 
     Source::PARAMETERS parentPARA;
     parentPARA.available = true;
 
-    parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
+    parentPARA.weight = 1;
 
-    parentPARA.minNumberOfStations = 2; ///< minimum number of stations for a scan
+    parentPARA.minNumberOfStations = 2;
     parentPARA.maxNumberOfScans = 9999;
-    parentPARA.minFlux = .01; ///< minimum flux density required for this source in jansky
-    parentPARA.minRepeat = 1800; ///< minimum time between two observations of this source in seconds
-    parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
-    parentPARA.minScan = 1; ///< minimum required scan time in seconds
+    parentPARA.minFlux = .01;
+    parentPARA.minRepeat = 1800;
+    parentPARA.maxScan = 9999;
+    parentPARA.minScan = 1;
     parentPARA.tryToFocusIfObservedOnce = false;
 
     for (const auto &any:ObservationMode::bands) {
@@ -1126,7 +1069,7 @@ void Initializer::initializeSources() noexcept {
 
 void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
                               const boost::property_tree::ptree &tree,
-                              const unordered_map<std::string, Source::PARAMETERS> &parameters,
+                              const unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                               const unordered_map<std::string, std::vector<std::string> > &groups,
                               const Source::PARAMETERS &parentPARA) noexcept {
 
@@ -1152,7 +1095,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
-            Source::PARAMETERS newPARA = parameters.at(tmp);
+            ParameterSettings::ParametersSources newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
             }
@@ -1237,9 +1180,9 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
         srcNames.push_back(any.getName());
     }
 
-    bool tryToFocusIfObservedOnceBackup = *combinedPARA.tryToFocusIfObservedOnce;
-    unsigned int maxNumberOfScansBackup = *combinedPARA.maxNumberOfScans;
-    unsigned int minRepeatBackup = *combinedPARA.minRepeat;
+    bool tryToFocusIfObservedOnceBackup = combinedPARA.tryToFocusIfObservedOnce;
+    unsigned int maxNumberOfScansBackup = combinedPARA.maxNumberOfScans;
+    unsigned int minRepeatBackup = combinedPARA.minRepeat;
 
     for (const auto &any:members) {
 
@@ -1259,8 +1202,8 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
 
 
             unsigned int minutes = minutesVisible(thisSource,combinedPARA,start,end);
-            unsigned int minRepeat = (60*minutes)/(*combinedPARA.maxNumberOfScans);
-            unsigned int minRepeatOther = *combinedPARA.minRepeat;
+            unsigned int minRepeat = (60*minutes)/(combinedPARA.maxNumberOfScans);
+            unsigned int minRepeatOther = combinedPARA.minRepeat;
             if(minRepeat < minRepeatOther){
                 minRepeat = minRepeatOther;
             }
@@ -1466,37 +1409,16 @@ void Initializer::initializeBaselines() noexcept {
     unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline, GroupType::baseline);
 
     auto para_tree = PARA_baseline.get_child("parameters");
-    unordered_map<std::string, Baseline::PARAMETERS> parameters;
+    unordered_map<std::string, ParameterSettings::ParametersBaselines> parameters;
     for (auto &it: para_tree) {
         string name = it.first;
         if (name == "parameter") {
             string parameterName = it.second.get_child("<xmlattr>.name").data();
 
-            Baseline::PARAMETERS PARA;
+            ParameterSettings::ParametersBaselines PARA;
+            auto PARA_ = ParameterSettings::ptree2parameterBaseline(it.second);
+            PARA = PARA_.second;
 
-            for (auto &it2: it.second) {
-                string paraName = it2.first;
-                if (paraName == "<xmlattr>") {
-                    continue;
-                } else if (paraName == "ignore") {
-                    PARA.ignore = it2.second.get_value<bool>();
-                } else if (paraName == "weight") {
-                    PARA.weight = it2.second.get_value<double>();
-                } else if (paraName == "minScan") {
-                    PARA.minScan = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "maxScan") {
-                    PARA.maxScan = it2.second.get_value < unsigned
-                    int > ();
-                } else if (paraName == "minSNR") {
-                    string bandName = it2.second.get_child("<xmlattr>.band").data();
-                    double value = it2.second.get_value<double>();
-                    PARA.minSNR[bandName] = value;
-                } else {
-                    cerr << "ERROR: <baseline> <parameter>: " << parameterName << ": parameter <" << name
-                         << "> not understood! (Ignored);\n";
-                }
-            }
             parameters[parameterName] = PARA;
         }
     }
@@ -1569,7 +1491,7 @@ void Initializer::initializeBaselines() noexcept {
 
 void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &events,
                                      const boost::property_tree::ptree &tree,
-                                     const unordered_map<std::string, Baseline::PARAMETERS> &parameters,
+                                     const unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
                                      const unordered_map<std::string, std::vector<std::string> > &groups,
                                      const Baseline::PARAMETERS &parentPARA) noexcept {
 
@@ -1597,7 +1519,7 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
-            Baseline::PARAMETERS newPARA = parameters.at(tmp);
+            ParameterSettings::ParametersBaselines newPARA = parameters.at(tmp);
             if (newPARA.ignore.is_initialized()) {
                 combinedPARA.ignore = *newPARA.ignore;
             }
@@ -2943,13 +2865,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
 unsigned int Initializer::minutesVisible(const Source &source, const Source::PARAMETERS &parameters, unsigned int start,
                                          unsigned int end) {
     unsigned int minutes = 0;
-    unsigned int minVisible;
-    if(parameters.minNumberOfStations.is_initialized()){
-        minVisible = *parameters.minNumberOfStations;
-    }else{
-        minVisible = 2;
-    }
-
+    unsigned int minVisible = parameters.minNumberOfStations;
 
     vector<int> reqSta = parameters.requiredStations;
     vector<int> ignSta = parameters.ignoreStations;

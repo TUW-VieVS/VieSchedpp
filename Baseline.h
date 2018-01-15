@@ -39,11 +39,11 @@ namespace VieVS{
          */
         struct PARAMETERS {
             std::unordered_map<std::string, double> minSNR; ///< minimum SNR per band for each baseline
-            boost::optional<bool> ignore; ///< ignore specific baselines
+            bool ignore; ///< ignore specific baselines
 
-            boost::optional<double> weight; ///< multiplicative factor of score for scans with this baseline
-            boost::optional<unsigned int> minScan; ///< minimum required scan duration of this baseline
-            boost::optional<unsigned int> maxScan; ///< maximum allowed scan duration of this baseline
+            double weight; ///< multiplicative factor of score for scans with this baseline
+            unsigned int minScan; ///< minimum required scan duration of this baseline
+            unsigned int maxScan; ///< maximum allowed scan duration of this baseline
         };
 
         /**

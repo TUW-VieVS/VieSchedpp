@@ -193,7 +193,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
     for (int isrc=0; isrc<nsrc; ++isrc){
         Source &thisSource = sources_[isrc];
 
-        if (!*thisSource.getPARA().available) {
+        if (!thisSource.getPARA().available) {
             continue;
         }
 
@@ -202,11 +202,11 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
         }
 
         if (thisSource.lastScanTime() != 0 &&
-            currentTime - thisSource.lastScanTime() < *thisSource.getPARA().minRepeat) {
+            currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat) {
             continue;
         }
 
-        if (thisSource.getNscans() >= *thisSource.getPARA().maxNumberOfScans) {
+        if (thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans) {
             continue;
         }
 
@@ -216,7 +216,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
         for (int ista=0; ista<nsta; ++ista){
             Station &thisSta = stations_[ista];
 
-            if (!*thisSta.getPARA().available || *thisSta.getPARA().tagalong) {
+            if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
                 continue;
             }
 
@@ -228,7 +228,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
             }
 
             if (!thisSource.getPARA().ignoreStations.empty()) {
-                auto &PARA = thisSource.getPARA();
+                const auto &PARA = thisSource.getPARA();
                 if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), ista) !=
                     PARA.ignoreStations.end()) {
                     continue;
@@ -251,7 +251,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
                 pointingVectors.push_back(p);
             }
         }
-        if (visibleSta >= *thisSource.getPARA().minNumberOfStations) {
+        if (visibleSta >= thisSource.getPARA().minNumberOfStations) {
             subcon.addScan(Scan(pointingVectors, endOfLastScans, Scan::ScanType::single));
         }
     }
@@ -412,7 +412,7 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
     unsigned long nsta = stations_.size();
 
     for (int i = 0; i < nsta; ++i) {
-        bool flag = *stations_[i].getPARA().available;
+        bool flag = stations_[i].getPARA().available;
         stationAvailable[i] = flag;
     }
 
@@ -571,7 +571,7 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
 unsigned int Scheduler::countAvailableSources() noexcept {
     unsigned int counter = 0;
     for (const auto &any:sources_) {
-        if (*any.getPARA().available) {
+        if (any.getPARA().available) {
             ++counter;
         }
     }
@@ -909,7 +909,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                     continue;
                 }
                 if (!source.getPARA().ignoreBaselines.empty()) {
-                    auto &PARA = source.getPARA();
+                    const auto &PARA = source.getPARA();
                     if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), make_pair(staid1, staid2)) !=
                         PARA.ignoreBaselines.end()) {
                         continue;
@@ -1044,7 +1044,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             scan.addTagalongStation(pv_new_start,pv_new_end,bls);
             bodyLog << boost::format("possible to observe source: %-8s (scan: %4d) scan start: %5d scan end: %5d \n")
                        %source.getName() %counter %pv_new_start.getTime() %pv_new_end.getTime();
-            if(*station.referencePARA().firstScan){
+            if(station.referencePARA().firstScan){
                 station.referencePARA().firstScan = false;
             }
             station.setCurrentPointingVector(pv_new_end);

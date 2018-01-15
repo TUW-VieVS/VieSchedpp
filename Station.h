@@ -58,21 +58,20 @@ namespace VieVS{
          * @brief station parameters
          */
         struct PARAMETERS{
-            boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
-            boost::optional<bool> available;  ///< if set to true: this station is available for a scan
-            boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
+            bool firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
+            bool available;  ///< if set to true: this station is available for a scan
+            bool tagalong;  ///< if set to true: station is in tagalong mode
+            double weight; ///< multiplicative factor of score for scans with this station
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
-            boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
-            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
-            boost::optional<unsigned int> minScan; ///< minimum required scan time
+            unsigned int maxSlewtime; ///< maximum allowed slewtime
+            unsigned int maxWait; ///< maximum allowed wait time for slow antennas
+            unsigned int maxScan; ///< maximum allowed scan time
+            unsigned int minScan; ///< minimum required scan time
 
-            boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
-            std::vector<std::string> ignoreSources_str; ///< list of all source names which should be ignored
 
             /**
              * @brief setter for available
@@ -98,17 +97,17 @@ namespace VieVS{
              * @param of out stream object
              */
             void output(std::ofstream &of) const {
-                if (*available) {
+                if (available) {
                     of << "    available: TRUE\n";
                 } else {
                     of << "    available: FALSE\n";
                 }
 
-                of << "    maxSlewtime: " << *maxSlewtime << "\n";
-                of << "    maxWait:     " << *maxWait << "\n";
-                of << "    maxScan:     " << *maxScan << "\n";
-                of << "    minScan:     " << *minScan << "\n";
-                of << "    weight:      " << *weight << "\n";
+                of << "    maxSlewtime: " << maxSlewtime << "\n";
+                of << "    maxWait:     " << maxWait << "\n";
+                of << "    maxScan:     " << maxScan << "\n";
+                of << "    minScan:     " << minScan << "\n";
+                of << "    weight:      " << weight << "\n";
 
                 for (const auto &it:minSNR) {
                     of << "    minSNR: " << it.first << " " << it.second << "\n";
@@ -203,6 +202,15 @@ namespace VieVS{
         }
 
         /**
+         * @brief reference to current parameters
+         *
+         * @return reference of current parameters
+         */
+        PARAMETERS &referencePARA() {
+            return parameters_;
+        }
+
+        /**
          * @brief getter for wait times
          *
          * @return station wait times
@@ -211,14 +219,6 @@ namespace VieVS{
             return waitTimes_;
         }
 
-        /**
-         * @brief reference to current parameters
-         *
-         * @return reference of current parameters
-         */
-        PARAMETERS &referencePARA() {
-            return parameters_;
-        }
 
         /**
          * @brief getter for cable wrap

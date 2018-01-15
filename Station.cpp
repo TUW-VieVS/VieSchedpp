@@ -233,7 +233,7 @@ double Station::distance(const Station &other) const noexcept {
 }
 
 unsigned int Station::slewTime(const PointingVector &pointingVector) const noexcept {
-    if (*parameters_.firstScan) {
+    if (parameters_.firstScan) {
         return 0;
     } else {
         return antenna_.slewTime(currentPositionVector_, pointingVector);
@@ -249,7 +249,7 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
     pointingVectorsEnd_.push_back(end);
     currentPositionVector_ = end;
 
-    if (*parameters_.firstScan) {
+    if (parameters_.firstScan) {
         parameters_.firstScan = false;
     }
 }
@@ -265,8 +265,8 @@ void Station::checkForNewEvent() noexcept {
 void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept {
 
     while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
-        bool oldAvailable = *parameters_.available;
-        bool oldTagalong = *parameters_.tagalong;
+        bool oldAvailable = parameters_.available;
+        bool oldTagalong = parameters_.tagalong;
         if(!oldTagalong){
             parameters_ = events_[nextEvent_].PARA;
 
@@ -276,7 +276,7 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
             return;
         }
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
-        bool newAvailable = *parameters_.available;
+        bool newAvailable = parameters_.available;
 
         if (!oldAvailable && newAvailable) {
             currentPositionVector_.setTime(events_[nextEvent_].time);

@@ -38,10 +38,10 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
             int staid = singleScans_[i].getStationId(j);
 
             const Station &thisSta = stations[staid];
-            if (*thisSta.getPARA().firstScan) {
+            if (thisSta.getPARA().firstScan) {
                 singleScans_[i].addTimes(j, 0, 0, 0, 0, 0);
                 ++j;
-                maxIdleTimes.push_back(*thisSta.getPARA().maxWait);
+                maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 continue;
             }
 
@@ -50,13 +50,13 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
                                                    singleScans_[i].referencePointingVector(j));
             unsigned int slewtime = thisSta.slewTime(singleScans_[i].getPointingVector(j));
 
-            if (slewtime > *thisSta.getPARA().maxSlewtime) {
+            if (slewtime > thisSta.getPARA().maxSlewtime) {
                 scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
-                maxIdleTimes.push_back(*thisSta.getPARA().maxWait);
+                maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 const Station::WAITTIMES wtimes = thisSta.getWaittimes();
                 singleScans_[i].addTimes(j, wtimes.setup, wtimes.source, slewtime, wtimes.tape, wtimes.calibration);
                 ++j;
@@ -115,13 +115,13 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
                 slewtime = stations[staid].slewTime(thisPointingVector);
             }
 
-            if (!visible || slewtime > *stations[staid].getPARA().maxSlewtime) {
+            if (!visible || slewtime > stations[staid].getPARA().maxSlewtime) {
                 scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
-                maxIdleTimes.push_back(*stations[staid].getPARA().maxWait);
+                maxIdleTimes.push_back(stations[staid].getPARA().maxWait);
                 singleScans_[i].updateSlewtime(j, slewtime);
                 ++j;
             }
@@ -243,8 +243,8 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
                                 scan2sta.push_back(intersection[ii]);
                             }
                         }
-                        if (scan1sta.size() >= *sources[firstSrcId].getPARA().minNumberOfStations &&
-                            scan2sta.size() >= *sources[secondSrcId].getPARA().minNumberOfStations) {
+                        if (scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
+                            scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations) {
 
                             unsigned int firstTime = first.maxTime();
                             unsigned int secondTime = second.maxTime();

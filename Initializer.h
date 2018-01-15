@@ -31,6 +31,7 @@
 #include "SkdCatalogReader.h"
 #include "CalibratorBlock.h"
 #include "Scan.h"
+#include "ParameterSettings.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -245,7 +246,7 @@ namespace VieVS {
          */
         void stationSetup(std::vector<std::vector<Station::EVENT> > &events,
                           const boost::property_tree::ptree &tree,
-                          const std::unordered_map<std::string, Station::PARAMETERS> &parameters,
+                          const std::unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
                           const std::unordered_map<std::string, std::vector<std::string>> &groups,
                           const Station::PARAMETERS &parentPARA) noexcept;
 
@@ -264,7 +265,7 @@ namespace VieVS {
          */
         void sourceSetup(std::vector<std::vector<Source::EVENT> > &events,
                          const boost::property_tree::ptree &tree,
-                         const std::unordered_map<std::string, Source::PARAMETERS> &parameters,
+                         const std::unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                          const std::unordered_map<std::string, std::vector<std::string> > &groups,
                          const Source::PARAMETERS &parentPARA) noexcept;
 
@@ -283,7 +284,7 @@ namespace VieVS {
          */
         void baselineSetup(std::vector<std::vector<std::vector<Baseline::EVENT> > > &events,
                            const boost::property_tree::ptree &tree,
-                           const std::unordered_map<std::string, Baseline::PARAMETERS> &parameters,
+                           const std::unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
                            const std::unordered_map<std::string, std::vector<std::string> > &groups,
                            const Baseline::PARAMETERS &parentPARA) noexcept;
 

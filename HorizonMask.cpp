@@ -26,7 +26,7 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
     if (el_mask_deg.empty()){
         type_ = Category::none;
     } else {
-        for(int i=0; i<el_mask_deg.size(); ++i){
+        for(unsigned long i=0; i < el_mask_deg.size(); ++i){
             if (i%2==0)
                 azimuth_.push_back(el_mask_deg.at(i)*deg2rad);
             else
@@ -38,7 +38,7 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
             type_ = Category::line;
             if (azimuth_.back() != twopi) {
                 azimuth_.push_back(twopi);
-                elevation_.push_back(elevation_.at(elevation_.size() - 1));
+                elevation_.push_back(elevation_.back());
             }
 
 
@@ -46,7 +46,7 @@ HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
             type_ = Category::step;
             if (azimuth_.back() != twopi) {
                 azimuth_.push_back(twopi);
-                elevation_.push_back(elevation_.at(elevation_.size() - 1));
+                elevation_.push_back(elevation_.back());
             }
         }
     }
@@ -71,14 +71,14 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
         case Category::none:
             break;
         case Category::line:{
-            int i = 1;
+            unsigned long i = 1;
 
             while(az>azimuth_.at(i)){
                 ++i;
             }
 
-            int begin = i-1;
-            int end = i;
+            unsigned long begin = i - 1;
+            unsigned long end = i;
             double delta = az-azimuth_.at(begin);
             double el_mask = elevation_.at(begin) + (elevation_.at(end)-elevation_.at(begin))/(azimuth_.at(end)-azimuth_.at(begin))*delta;
             if(el<el_mask){
@@ -89,7 +89,7 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
             break;
         }
         case Category::step:{
-            int i = 1;
+            unsigned long i = 1;
             while(az>azimuth_.at(i)){
                 ++i;
             }

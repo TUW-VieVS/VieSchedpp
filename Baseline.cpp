@@ -37,10 +37,10 @@ Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std:
                 Baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
                 hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
 
-                Baseline::PARA.ignore[i][j] = *newPARA.ignore;
-                Baseline::PARA.maxScan[i][j] = *newPARA.maxScan;
-                Baseline::PARA.minScan[i][j] = *newPARA.minScan;
-                Baseline::PARA.weight[i][j] = *newPARA.weight;
+                Baseline::PARA.ignore[i][j] = newPARA.ignore;
+                Baseline::PARA.maxScan[i][j] = newPARA.maxScan;
+                Baseline::PARA.minScan[i][j] = newPARA.minScan;
+                Baseline::PARA.weight[i][j] = newPARA.weight;
                 for (const auto &any:newPARA.minSNR) {
                     Baseline::PARA.minSNR.at(any.first).at(i).at(j) = any.second;
                 }
