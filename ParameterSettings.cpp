@@ -698,6 +698,24 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
+void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination)
+{
+    boost::property_tree::ptree conditions;
+    if(andForCombination){
+        conditions.add("optimization.combination","and");
+    }else{
+        conditions.add("optimization.combination","or");
+    }
+    for(int i=0; i<members.size(); ++i){
+        boost::property_tree::ptree condition;
+        condition.add("condition.members",members.at(i));
+        condition.add("condition.minScans",minScans.at(i));
+        condition.add("condition.minBaselines",minBaselines.at(i));
+        conditions.add_child("conditions.condition",condition.get_child("condition"));
+    }
+    master_.add_child("master.optimization",conditions.get_child("optimization"));
+}
+
 void ParameterSettings::mode(const std::string &skdMode) {
     boost::property_tree::ptree mode;
     mode.add("mode.skdMode", skdMode);
@@ -796,7 +814,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD,
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, bool createSrcGrp,
                           bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);
@@ -806,6 +824,8 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     output.add("output.createSummary", createSummary);
     output.add("output.createNGS", createNGS);
     output.add("output.createSKD", createSKD);
+    output.add("output.createVEX", createVEX);
+    output.add("output.createSourceGroupStatistics", createSrcGrp);
     output.add("output.createSkyCoverage", createSkyCoverage);
 
     master_.add_child("master.output", output.get_child("output"));

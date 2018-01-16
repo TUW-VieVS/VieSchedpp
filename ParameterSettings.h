@@ -82,11 +82,8 @@ namespace VieVS {
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
-            std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
-            std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
             std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
-            std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
         };
 
@@ -321,6 +318,8 @@ namespace VieVS {
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
+        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination);
+
         /**
          * @brief custom mode block in parameter.xml
          *
@@ -401,7 +400,7 @@ namespace VieVS {
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
                     const std::string &scheduler,
-                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD,
+                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool srcGrp,
                     bool createSkyCoverage);
 
 

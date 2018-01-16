@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>12</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -753,8 +753,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>247</width>
-             <height>612</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -3885,6 +3885,9 @@ Click on source to deselect it</string>
             </item>
             <item row="3" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageSources">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>weight factor for average source distribution</string>
               </property>
@@ -3901,6 +3904,9 @@ Click on source to deselect it</string>
             </item>
             <item row="4" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageStations">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>weight factor for average station distribution </string>
               </property>
@@ -4140,7 +4146,7 @@ Click on source to deselect it</string>
                <string>average stations</string>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -4156,7 +4162,7 @@ Click on source to deselect it</string>
                <string>average sources</string>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -4283,6 +4289,16 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="checkBox_outputVex">
+               <property name="text">
+                <string>create vex file</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QCheckBox" name="checkBox_outputNGSFile">
                <property name="toolTip">
                 <string>create empty ngs file</string>
@@ -4307,10 +4323,17 @@ Click on source to deselect it</string>
                 <string>create statistics file</string>
                </property>
                <property name="text">
-                <string>create statistics file</string>
+                <string>create session statistics file (skdsum)</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_outputSourceGroupStatFile">
+               <property name="text">
+                <string>create source group based statistics file</string>
                </property>
               </widget>
              </item>
@@ -6055,7 +6078,7 @@ Click on source to deselect it</string>
                     <number>1</number>
                    </property>
                    <property name="value">
-                    <number>30</number>
+                    <number>40</number>
                    </property>
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -6113,6 +6136,212 @@ Click on source to deselect it</string>
            </spacer>
           </item>
          </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_conditions">
+       <layout class="QVBoxLayout" name="verticalLayout_56">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_97" stretch="1,2">
+          <item>
+           <layout class="QFormLayout" name="formLayout_11">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_48">
+              <property name="text">
+               <string>member</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_64" stretch="1,0">
+              <item>
+               <widget class="QComboBox" name="comboBox_conditions_members"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_addSourceGroup_conditions">
+                <property name="toolTip">
+                 <string>add new source group</string>
+                </property>
+                <property name="statusTip">
+                 <string>add new source group</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/source_group_plus.png</normaloff>:/icons/icons/source_group_plus.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_49">
+              <property name="text">
+               <string>min number of scans</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="spinBox_condtionsMinNumScans">
+              <property name="maximum">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_63">
+              <property name="text">
+               <string>min number of baselines</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="spinBox_conditionsMinNumBaselines">
+              <property name="maximum">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_95" stretch="1,0">
+              <item>
+               <spacer name="horizontalSpacer_39">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_addCondition">
+                <property name="text">
+                 <string>add</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_64">
+              <property name="text">
+               <string>combine conditions</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QComboBox" name="comboBox_conditions_combinations">
+              <item>
+               <property name="text">
+                <string>and</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>or</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_55">
+            <item>
+             <widget class="QTreeWidget" name="treeWidget_conditions">
+              <column>
+               <property name="text">
+                <string>priority*</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>member</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>#scans</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>#baselines</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_96">
+              <item>
+               <spacer name="horizontalSpacer_40">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_removeCondition">
+                <property name="text">
+                 <string>remove selected</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="myresources.qrc">
+                  <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_65">
+              <property name="text">
+               <string>*settings with higher priority number overrides previouse ones</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_13">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>455</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
@@ -6605,6 +6834,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionRules"/>
    <addaction name="actionMulti_Scheduling"/>
    <addaction name="actionSky_Coverage"/>
+   <addaction name="actionConditions"/>
   </widget>
   <widget class="QToolBar" name="helpToolBar">
    <property name="windowTitle">
@@ -6659,6 +6889,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionRules"/>
     <addaction name="actionMulti_Scheduling"/>
     <addaction name="actionSky_Coverage"/>
+    <addaction name="actionConditions"/>
    </widget>
    <widget class="QMenu" name="menufile">
     <property name="title">
@@ -6949,6 +7180,15 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Statistics</string>
+   </property>
+  </action>
+  <action name="actionConditions">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/conditions.png</normaloff>:/icons/icons/conditions.png</iconset>
+   </property>
+   <property name="text">
+    <string>Conditions</string>
    </property>
   </action>
  </widget>

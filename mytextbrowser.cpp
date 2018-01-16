@@ -29,7 +29,7 @@ void myTextBrowser::readyReadStandardOutput()
     highlightWord("version",QColor(Qt::darkMagenta));
     highlightWord("thread",QColor(Qt::red));
     highlightWord("threads",QColor(Qt::red));
-    highlightWord("log file",QColor(Qt::darkCyan));
+//    highlightWord("log file",QColor(Qt::darkCyan));
     highlightWord("everything finally finished!!!",QColor(Qt::darkGreen));
     highlightWord("finished",QColor(Qt::darkGreen));
 }

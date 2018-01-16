@@ -198,6 +198,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setupStatisticView();
     setupSkyCoverageTemplatePlot();
 
+    ui->comboBox_conditions_members->setModel(allSourcePlusGroupModel);
+    connect(ui->pushButton_addSourceGroup_conditions,SIGNAL(clicked(bool)), this, SLOT(addGroupSource()));
+
 }
 
 MainWindow::~MainWindow()
@@ -516,11 +519,17 @@ void MainWindow::displaySourceSetupParameter(QString name){
         t->setVerticalHeaderItem(r,new QTableWidgetItem("weight"));
         ++r;
     }
+    if(para.fixedScanDuration.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.fixedScanDuration)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("fixed scan duration"));
+        ++r;
+    }
     if(para.tryToFocusIfObservedOnce.is_initialized()){
         t->insertRow(r);
         QString boolText = *para.tryToFocusIfObservedOnce ? "true" : "false";
         t->setItem(r,0,new QTableWidgetItem(boolText));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
         ++r;
     }
     if(para.tryToObserveXTimesEvenlyDistributed.is_initialized()){
@@ -696,14 +705,19 @@ void MainWindow::on_actionSky_Coverage_triggered()
     ui->main_stacked->setCurrentIndex(12);
 }
 
-void MainWindow::on_actionsummary_triggered()
+void MainWindow::on_actionConditions_triggered()
 {
     ui->main_stacked->setCurrentIndex(13);
 }
 
-void MainWindow::on_actionFAQ_triggered()
+void MainWindow::on_actionsummary_triggered()
 {
     ui->main_stacked->setCurrentIndex(14);
+}
+
+void MainWindow::on_actionFAQ_triggered()
+{
+    ui->main_stacked->setCurrentIndex(15);
 }
 
 void MainWindow::on_actionWhat_is_this_triggered()
@@ -2483,10 +2497,12 @@ QString MainWindow::writeXML()
     std::string scheduler = ui->schedulerLineEdit->text().toStdString();
     std::string correlator = ui->correlatorLineEdit->text().toStdString();
     bool statistics = ui->checkBox_outputStatisticsFile->isChecked();
+    bool vex = ui->checkBox_outputVex->isChecked();
     bool ngs = ui->checkBox_outputNGSFile->isChecked();
     bool skd = ui->checkBox_outputSkdFile->isChecked();
+    bool srcGrp = ui->checkBox_outputSourceGroupStatFile->isChecked();
     bool skyCov = ui->checkBox_outputSkyCoverageFile->isChecked();
-    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, skyCov);
+    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, vex, srcGrp, skyCov);
 
     std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
     std::string equip = ui->lineEdit_pathEquip->text().toStdString();
@@ -2690,6 +2706,23 @@ QString MainWindow::writeXML()
         double valSrc = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,6))->value();
 
         para.mode_bandPolicy(name,minSNR,policySta,backupSta,valSta,policySrc,backupSrc,valSrc);
+    }
+
+    if(ui->treeWidget_conditions->topLevelItemCount()>0){
+        std::vector<std::string> members;
+        std::vector<int> minScans;
+        std::vector<int> minBaselines;
+        for(int i=0; i<ui->treeWidget_conditions->topLevelItemCount(); ++i){
+            auto itm = ui->treeWidget_conditions->topLevelItem(i);
+            members.push_back(itm->text(1).toStdString());
+            minScans.push_back(itm->text(2).toInt());
+            minBaselines.push_back(itm->text(3).toInt());
+        }
+        bool andForCombination;
+        if(ui->comboBox_conditions_combinations->currentText() == "and"){
+            andForCombination = true;
+        }
+        para.conditions(members, minScans, minBaselines, andForCombination);
     }
 
     if (ui->groupBox_multiScheduling->isChecked() && ui->treeWidget_multiSchedSelected->topLevelItemCount()>0){
@@ -5879,4 +5912,42 @@ double MainWindow::interpolate( QVector<double> &xData, QVector<double> &yData, 
 
    double dydx = ( yR - yL ) / ( xR - xL );
    return yL + dydx * ( x - xL );
+}
+
+
+void MainWindow::on_pushButton_addCondition_clicked()
+{
+    QString members = ui->comboBox_conditions_members->currentText();
+    bool isGroup = groupSrc.find(members.toStdString() ) != groupSrc.end();
+
+    int scans = ui->spinBox_condtionsMinNumScans->value();
+    int bls = ui->spinBox_conditionsMinNumBaselines->value();
+
+    QIcon ic;
+    QTreeWidgetItem *c = new QTreeWidgetItem();
+    if(isGroup || members == '__all__'){
+        ic = QIcon(":/icons/icons/source_group.png");
+    }else{
+        ic = QIcon(":/icons/icons/source.png");
+    }
+
+    c->setText(0,QString("%1").arg(ui->treeWidget_conditions->topLevelItemCount()));
+    c->setIcon(1,ic);
+    c->setText(1,members);
+    c->setText(2,QString("%1").arg(scans));
+    c->setText(3,QString("%1").arg(bls));
+
+    ui->treeWidget_conditions->addTopLevelItem(c);
+
+}
+
+void MainWindow::on_pushButton_removeCondition_clicked()
+{
+    auto list = ui->treeWidget_conditions->selectedItems();
+    auto itm = list.at(0);
+    delete itm;
+    for(int i=0; i<ui->treeWidget_conditions->topLevelItemCount(); ++i){
+        auto titm = ui->treeWidget_conditions->topLevelItem(i);
+        titm->setText(0,QString("%1").arg(i));
+    }
 }

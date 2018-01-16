@@ -387,6 +387,12 @@ private slots:
     void on_influenceTimeSpinBox_valueChanged(int arg1);
 
 
+    void on_actionConditions_triggered();
+
+    void on_pushButton_addCondition_clicked();
+
+    void on_pushButton_removeCondition_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

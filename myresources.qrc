@@ -53,6 +53,7 @@
         <file>icons/documentation.png</file>
         <file>icons/office-chart-bar.png</file>
         <file>icons/QtProject-creator-icon.png</file>
+        <file>icons/conditions.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>
