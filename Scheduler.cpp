@@ -23,7 +23,9 @@ Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, 
     parameters_.subnetting = init.parameters_.subnetting;
     parameters_.fillinmode = init.parameters_.fillinmode;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
+    parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.writeSkyCoverageData = false;
+
 
     preCalculated_.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
 
@@ -44,6 +46,17 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 //        printHorizonMasksForDebugging();
 
 //    VieVS::Scan::nScanSelections = 0;
+
+//    ofstream outstream("azel.txt");
+//    for (int i = 0; i < 86400; ++i) {
+//        PointingVector p;
+//        p.setTime(i);
+//        auto thisSta = stations_.at(0);
+//        auto thisSrc = sources_.at(300);
+//        thisSta.calcAzEl(thisSrc,p);
+//        outstream << boost::format("%.15f,%.15f\n") %p.getAz() %p.getEl();
+//    }
+//    outstream.close();
 
     while (true) {
         Subcon subcon = createSubcon(parameters_.subnetting);
@@ -127,17 +140,20 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
                 }
             }
         }
+    }
 
-//            bool flag = check(bodyLog);
+    bool everythingOk = check(bodyLog);
+    if (!everythingOk) {
+        cout << "ERROR: there was an error while checking the schedule (see log file)\n";
+    }
+
+    bool rerun = checkOptimizationConditions(bodyLog);
+    if(rerun){
+        start(bodyLog);
     }
 
 
-    bodyLog << "TOTAL SUMMARY:\n";
-    bodyLog << "created single source scans: " << nSingleScansConsidered << "\n";
-    bodyLog << "created subnetting scans:    " << nSubnettingScansConsidered << "\n";
-    bodyLog << "created fillin mode scans:   " << nFillinScansConsidered << "\n";
-    bodyLog << "total scans considered:      " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered
-            << "\n";
+
 
 //        if(PARA.writeSkyCoverageData){
 //            saveSkyCoverageMain();
@@ -146,11 +162,15 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 //            }
 //        }
 
-    bool everythingOk = check(bodyLog);
-    if (!everythingOk) {
-        cout << "ERROR: there was an error while checking the schedule (see log file)\n";
-    }
+}
 
+void Scheduler::statistics(ofstream &log) {
+    log << "summary:\n";
+    log << "number of scheduled scans       " << scans_.size() << "\n";
+    log << "considered single source scans: " << nSingleScansConsidered << "\n";
+    log << "considered subnetting scans:    " << nSubnettingScansConsidered << "\n";
+    log << "considered fillin mode scans:   " << nFillinScansConsidered << "\n";
+    log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered << "\n";
 }
 
 Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
@@ -193,7 +213,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
     for (int isrc=0; isrc<nsrc; ++isrc){
         Source &thisSource = sources_[isrc];
 
-        if (!thisSource.getPARA().available) {
+        if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
             continue;
         }
 
@@ -237,7 +257,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
 
             PointingVector p(ista,isrc);
 
-            const Station::WAITTIMES &wtimes = thisSta.getWaittimes();
+            const Station::WaitTimes &wtimes = thisSta.getWaittimes();
             unsigned int time = lastScanLookup[ista] + wtimes.setup + wtimes.source + wtimes.tape + wtimes.calibration;
 
             p.setTime(time);
@@ -483,7 +503,7 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
         const vector<PointingVector> & start = tmp.first;
         const vector<PointingVector> & end = tmp.second;
 
-        const Station::WAITTIMES wtimes = any.getWaittimes();
+        const Station::WaitTimes wtimes = any.getWaittimes();
         unsigned int constTimes = wtimes.setup + wtimes.source + wtimes.calibration + wtimes.tape;
 
         if (end.empty()) {
@@ -571,7 +591,7 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
 unsigned int Scheduler::countAvailableSources() noexcept {
     unsigned int counter = 0;
     for (const auto &any:sources_) {
-        if (any.getPARA().available) {
+        if (any.getPARA().available && any.getPARA().globalAvailable) {
             ++counter;
         }
     }
@@ -1055,3 +1075,84 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
 
     station.applyNextEvent(bodyLog);
 }
+
+bool Scheduler::checkOptimizationConditions(ofstream &of) {
+    bool newScheduleNecessary = false;
+    vector<int> excludedSources;
+    int excludedScans = 0;
+    int excludedBaselines = 0;
+    of << "checking optimization conditions... ";
+    int consideredSources = 0;
+    for(int i=0; i<sources_.size(); ++i){
+        auto &thisSource = sources_[i];
+
+        if(!thisSource.getPARA().globalAvailable){
+            continue;
+        }
+        ++consideredSources;
+        bool scansValid = true;
+        if(thisSource.getNTotalScans()<thisSource.getOptimization().minNumScans){
+            scansValid = false;
+        }
+
+        bool baselinesValid = true;
+        if(thisSource.getNbls()<thisSource.getOptimization().minNumBaselines) {
+            baselinesValid = false;
+        }
+
+        bool exclude = true;
+        if(parameters_.andAsConditionCombination){
+            exclude = !(scansValid && baselinesValid);
+        }else{
+            exclude = !(scansValid || baselinesValid);
+        }
+
+
+        if(exclude){
+            excludedScans += thisSource.getNTotalScans();
+            excludedBaselines += thisSource.getNbls();
+            excludedSources.push_back(i);
+            newScheduleNecessary = true;
+            thisSource.referencePARA().setGlobalAvailable(false);
+        }
+    }
+    if(newScheduleNecessary && excludedScans>0){
+        of << "new schedule with reduced source list necessary\n";
+        unsigned long sourcesLeft = consideredSources - excludedSources.size();
+        of << "==========================================================================================\n";
+        if(sourcesLeft<50){
+            of << boost::format("Abortion: only %d sources left!\n")%sourcesLeft;
+            return false;
+        }
+        of << boost::format("creating new schedule with %d sources\n")%sourcesLeft;
+        of << "==========================================================================================\n";
+        of << "List of removed sources:\n";
+        for(int i=0; i<excludedSources.size(); ++i){
+            of << boost::format("%8s ")%sources_[excludedSources[i]].getName();
+            if(i !=0 && i%8==0 && i!=excludedSources.size()-1){
+                of << "\n";
+            }
+        }
+        of << "\n";
+
+        scans_.clear();
+        for(auto &any:stations_){
+            any.clearObservations();
+        }
+        for(auto &any:sources_){
+            any.clearObservations();
+        }
+        for(auto &any:skyCoverages_){
+            any.clearObservations();
+        }
+        bool dummy = false;
+        Baseline::checkForNewEvent(0,dummy,0,of);
+
+
+    }else{
+        of << "everything ok!\n";
+        newScheduleNecessary = false;
+    }
+    return newScheduleNecessary;
+}
+

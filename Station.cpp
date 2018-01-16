@@ -305,3 +305,18 @@ void Station::applyNextEvent(std::ofstream &out) noexcept{
 
 }
 
+void Station::clearObservations() {
+    checkForNewEvent();
+
+    currentPositionVector_ = PointingVector();
+    currentPositionVector_.setTime(0);
+
+    pointingVectorsStart_.clear();
+    pointingVectorsEnd_.clear();
+
+    nScans_ = 0;
+    nBaselines_ = 0;
+
+    parameters_.firstScan=true;
+}
+

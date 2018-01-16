@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/test/parameters.xml";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180116160420_SOAP_test/parameters.xml";
     }
 
 
@@ -101,6 +101,8 @@ void run(std::string file){
     init.initializeSourceSequence();
     init.initializeCalibrationBlocks( headerLog );
     init.initializeWeightFactors();
+
+    init.initializeOptimization(headerLog);
 
     bool flag_multiSched = false;
     unsigned long nsched = 1;
@@ -203,6 +205,7 @@ void run(std::string file){
         }
 
         scheduler.start(bodyLog);
+        scheduler.statistics(bodyLog);
 
         unsigned long createdScans = scheduler.numberOfCreatedScans();
 

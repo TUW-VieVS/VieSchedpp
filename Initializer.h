@@ -68,8 +68,8 @@ namespace VieVS {
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
             std::vector<std::string> selectedStations; ///< list of all selected station for this session from .xml file
 
-            double minAngleBetweenSubnettingSources =
-                    120 * deg2rad; ///< minimum angle between subnetting sources in radians
+            double minAngleBetweenSubnettingSources = 120 * deg2rad; ///< minimum angle between subnetting sources in radians
+            bool andAsConditionCombination = true;
         };
 
         /**
@@ -221,6 +221,8 @@ namespace VieVS {
 
         void statisticsLogHeader(std::ofstream &ofstream);
 
+        void initializeOptimization(std::ofstream &ofstream);
+
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
         std::vector<Station> stations_; ///< all created stations
@@ -244,11 +246,11 @@ namespace VieVS {
          * @param groups all defined groups
          * @param parentPARA previously used parameters which are are use as template
          */
-        void stationSetup(std::vector<std::vector<Station::EVENT> > &events,
+        void stationSetup(std::vector<std::vector<Station::Event> > &events,
                           const boost::property_tree::ptree &tree,
                           const std::unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
                           const std::unordered_map<std::string, std::vector<std::string>> &groups,
-                          const Station::PARAMETERS &parentPARA) noexcept;
+                          const Station::Parameters &parentPARA) noexcept;
 
         /**
          * @brief source setup function
@@ -263,11 +265,11 @@ namespace VieVS {
          * @param groups all defined groups
          * @param parentPARA previously used parameters which are are use as template
          */
-        void sourceSetup(std::vector<std::vector<Source::EVENT> > &events,
+        void sourceSetup(std::vector<std::vector<Source::Event> > &events,
                          const boost::property_tree::ptree &tree,
                          const std::unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                          const std::unordered_map<std::string, std::vector<std::string> > &groups,
-                         const Source::PARAMETERS &parentPARA) noexcept;
+                         const Source::Parameters &parentPARA) noexcept;
 
         /**
          * @brief baseline setup function
@@ -282,14 +284,14 @@ namespace VieVS {
          * @param groups all defined groups
          * @param parentPARA previously used parameters which are are use as template
          */
-        void baselineSetup(std::vector<std::vector<std::vector<Baseline::EVENT> > > &events,
+        void baselineSetup(std::vector<std::vector<std::vector<Baseline::Event> > > &events,
                            const boost::property_tree::ptree &tree,
                            const std::unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
                            const std::unordered_map<std::string, std::vector<std::string> > &groups,
-                           const Baseline::PARAMETERS &parentPARA) noexcept;
+                           const Baseline::Parameters &parentPARA) noexcept;
 
         unsigned int
-    minutesVisible(const Source &source, const Source::PARAMETERS &parameters, unsigned int start, unsigned int end);
+    minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start, unsigned int end);
     };
 }
 #endif /* INITIALIZER_H */

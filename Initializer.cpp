@@ -631,9 +631,9 @@ void Initializer::initializeStations() noexcept {
         }
     }
 
-    vector<vector<Station::EVENT> > events(stations_.size());
+    vector<vector<Station::Event> > events(stations_.size());
 
-    Station::PARAMETERS parentPARA;
+    Station::Parameters parentPARA;
     parentPARA.firstScan = false;
     parentPARA.available = true;
     parentPARA.tagalong = false;
@@ -650,14 +650,14 @@ void Initializer::initializeStations() noexcept {
 
 
     for (int i = 0; i < stations_.size(); ++i) {
-        Station::EVENT newEvent_start;
+        Station::Event newEvent_start;
         newEvent_start.time = 0;
         newEvent_start.softTransition = false;
         newEvent_start.PARA = parentPARA;
 
         events[i].push_back(newEvent_start);
 
-        Station::EVENT newEvent_end;
+        Station::Event newEvent_end;
         newEvent_end.time = TimeSystem::duration;
         newEvent_end.softTransition = true;
         newEvent_end.PARA = parentPARA;
@@ -736,7 +736,7 @@ void Initializer::initializeStations() noexcept {
             for (const auto &any: waitTimesNow) {
                 for (auto &sta:stations_) {
                     if (any == sta.getName()) {
-                        Station::WAITTIMES wtimes;
+                        Station::WaitTimes wtimes;
                         wtimes.setup = it.second.get<double>("setup");
                         wtimes.source = it.second.get<double>("source");
                         wtimes.tape = it.second.get<double>("tape");
@@ -802,14 +802,14 @@ void Initializer::initializeStations() noexcept {
     }
 }
 
-void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
+void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                                     const boost::property_tree::ptree &tree,
                                     const unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
                                     const unordered_map<std::string, std::vector<std::string> > &groups,
-                                    const Station::PARAMETERS &parentPARA) noexcept {
+                                    const Station::Parameters &parentPARA) noexcept {
 
     vector<string> members;
-    Station::PARAMETERS combinedPARA = parentPARA;
+    Station::Parameters combinedPARA = parentPARA;
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -905,7 +905,7 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
         auto &thisEvents = events[id];
 
 
-        Station::EVENT newEvent_start;
+        Station::Event newEvent_start;
         newEvent_start.time = start;
         newEvent_start.softTransition = softTransition;
         newEvent_start.PARA = combinedPARA;
@@ -917,7 +917,7 @@ void Initializer::stationSetup(vector<vector<Station::EVENT> > &events,
             }
         }
 
-        Station::EVENT newEvent_end;
+        Station::Event newEvent_end;
         newEvent_end.time = end;
         newEvent_end.softTransition = true;
         newEvent_end.PARA = parentPARA;
@@ -1011,7 +1011,7 @@ void Initializer::initializeSources() noexcept {
     }
 
 
-    Source::PARAMETERS parentPARA;
+    Source::Parameters parentPARA;
     parentPARA.available = true;
 
     parentPARA.weight = 1;
@@ -1029,17 +1029,17 @@ void Initializer::initializeSources() noexcept {
         parentPARA.minSNR[name] = ObservationMode::minSNR[name];
     }
 
-    vector<vector<Source::EVENT> > events(sources_.size());
+    vector<vector<Source::Event> > events(sources_.size());
 
     for (int i = 0; i < sources_.size(); ++i) {
-        Source::EVENT newEvent_start;
+        Source::Event newEvent_start;
         newEvent_start.time = 0;
         newEvent_start.softTransition = false;
         newEvent_start.PARA = parentPARA;
 
         events[i].push_back(newEvent_start);
 
-        Source::EVENT newEvent_end;
+        Source::Event newEvent_end;
         newEvent_end.time = TimeSystem::duration;
         newEvent_end.softTransition = true;
         newEvent_end.PARA = parentPARA;
@@ -1067,14 +1067,14 @@ void Initializer::initializeSources() noexcept {
 }
 
 
-void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
+void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
                               const boost::property_tree::ptree &tree,
                               const unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
                               const unordered_map<std::string, std::vector<std::string> > &groups,
-                              const Source::PARAMETERS &parentPARA) noexcept {
+                              const Source::Parameters &parentPARA) noexcept {
 
     vector<string> members;
-    Source::PARAMETERS combinedPARA = parentPARA;
+    Source::Parameters combinedPARA = parentPARA;
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -1212,7 +1212,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
         auto &thisEvents = events[id];
 
 
-        Source::EVENT newEvent_start;
+        Source::Event newEvent_start;
         newEvent_start.time = start;
         newEvent_start.softTransition = softTransition;
         newEvent_start.PARA = combinedPARA;
@@ -1224,7 +1224,7 @@ void Initializer::sourceSetup(vector<vector<Source::EVENT> > &events,
             }
         }
 
-        Source::EVENT newEvent_end;
+        Source::Event newEvent_end;
         newEvent_end.time = end;
         newEvent_end.softTransition = true;
         newEvent_end.PARA = parentPARA;
@@ -1442,7 +1442,7 @@ void Initializer::initializeBaselines() noexcept {
     Baseline::PARA.weight = weight;
     Baseline::PARA.minSNR = minSNR;
 
-    Baseline::PARAMETERS parentPARA;
+    Baseline::Parameters parentPARA;
     parentPARA.ignore = false;
     parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
     parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
@@ -1452,19 +1452,19 @@ void Initializer::initializeBaselines() noexcept {
         parentPARA.minSNR[name] = ObservationMode::minSNR[name];
     }
 
-    vector<vector<vector<Baseline::EVENT> > > events(nsta, vector<vector<Baseline::EVENT> >(nsta));
+    vector<vector<vector<Baseline::Event> > > events(nsta, vector<vector<Baseline::Event> >(nsta));
     vector<vector<unsigned int> > nextEvent(nsta, vector<unsigned int>(nsta, 0));
 
     for (int i = 0; i < nsta; ++i) {
         for (int j = i + 1; j < nsta; ++j) {
-            Baseline::EVENT newEvent_start;
+            Baseline::Event newEvent_start;
             newEvent_start.time = 0;
             newEvent_start.softTransition = false;
             newEvent_start.PARA = parentPARA;
 
             events[i][j].push_back(newEvent_start);
 
-            Baseline::EVENT newEvent_end;
+            Baseline::Event newEvent_end;
             newEvent_end.time = TimeSystem::duration;
             newEvent_end.softTransition = true;
             newEvent_end.PARA = parentPARA;
@@ -1489,14 +1489,14 @@ void Initializer::initializeBaselines() noexcept {
 
 }
 
-void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &events,
+void Initializer::baselineSetup(vector<vector<vector<Baseline::Event> > > &events,
                                      const boost::property_tree::ptree &tree,
                                      const unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
                                      const unordered_map<std::string, std::vector<std::string> > &groups,
-                                     const Baseline::PARAMETERS &parentPARA) noexcept {
+                                     const Baseline::Parameters &parentPARA) noexcept {
 
     vector<string> members;
-    Baseline::PARAMETERS combinedPARA = parentPARA;
+    Baseline::Parameters combinedPARA = parentPARA;
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -1586,7 +1586,7 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             std::swap(id1, id2);
         }
 
-        Baseline::EVENT newEvent_start;
+        Baseline::Event newEvent_start;
         newEvent_start.time = start;
         newEvent_start.softTransition = softTransition;
         newEvent_start.PARA = combinedPARA;
@@ -1598,7 +1598,7 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::EVENT> > > &event
             }
         }
 
-        Baseline::EVENT newEvent_end;
+        Baseline::Event newEvent_end;
         newEvent_end.time = end;
         newEvent_end.softTransition = true;
         newEvent_end.PARA = parentPARA;
@@ -2862,7 +2862,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
     }
 }
 
-unsigned int Initializer::minutesVisible(const Source &source, const Source::PARAMETERS &parameters, unsigned int start,
+unsigned int Initializer::minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start,
                                          unsigned int end) {
     unsigned int minutes = 0;
     unsigned int minVisible = parameters.minNumberOfStations;
@@ -2938,5 +2938,42 @@ void Initializer::statisticsLogHeader(ofstream &ofstream) {
         ofstream << "n_baselines_" << any.getName() << ",";
     }
     ofstream << "n_sources,\n";
+}
+
+void Initializer::initializeOptimization(std::ofstream &ofstream) {
+    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.optimization");
+    if (ctree.is_initialized()) {
+
+        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
+
+        for(const auto &any: *ctree){
+            if(any.first == "combination"){
+                bool tmp = any.second.get_value<string>() == "and";
+                parameters_.andAsConditionCombination = tmp;
+            }else if(any.first == "condition"){
+                string member = any.second.get<string>("members");
+                auto scans = any.second.get<unsigned int>("minScans");
+                auto bls = any.second.get<unsigned int>("minBaselines");
+
+                if (groups.find(member) != groups.end()) {
+                    const vector<string> &group = groups.at(member);
+                    for(auto &source:sources_){
+                        if(find(group.begin(),group.end(),source.getName()) != group.end()){
+                            source.referenceCondition().minNumScans = scans;
+                            source.referenceCondition().minNumBaselines = bls;
+                        }
+                    }
+                } else {
+                    for(auto &source:sources_){
+                        if(source.getName() == member){
+                            source.referenceCondition().minNumScans = scans;
+                            source.referenceCondition().minNumBaselines = bls;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 

@@ -146,4 +146,9 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
     return thisScore;
 }
 
+void SkyCoverage::clearObservations() {
+    pointingVectorsStart_.clear();
+    pointingVectorsEnd_.clear();
+}
+
 

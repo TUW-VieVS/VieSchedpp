@@ -57,18 +57,18 @@ namespace VieVS{
         /**
          * @brief station parameters
          */
-        struct PARAMETERS{
-            bool firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
-            bool available;  ///< if set to true: this station is available for a scan
-            bool tagalong;  ///< if set to true: station is in tagalong mode
-            double weight; ///< multiplicative factor of score for scans with this station
+        struct Parameters{
+            bool firstScan = false; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
+            bool available = true;  ///< if set to true: this station is available for a scan
+            bool tagalong = false;  ///< if set to true: station is in tagalong mode
+            double weight = 1; ///< multiplicative factor of score for scans with this station
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            unsigned int maxSlewtime; ///< maximum allowed slewtime
-            unsigned int maxWait; ///< maximum allowed wait time for slow antennas
-            unsigned int maxScan; ///< maximum allowed scan time
-            unsigned int minScan; ///< minimum required scan time
+            unsigned int maxSlewtime = 600; ///< maximum allowed slewtime
+            unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas
+            unsigned int maxScan = 600; ///< maximum allowed scan time
+            unsigned int minScan = 20; ///< minimum required scan time
 
 
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
@@ -79,7 +79,7 @@ namespace VieVS{
              * @param flag true if station is available
              */
             void setAvailable(bool flag) {
-                PARAMETERS::available = flag;
+                Parameters::available = flag;
             }
 
             /**
@@ -88,7 +88,7 @@ namespace VieVS{
              * @param flag true if this is the first scan for a station after down time or at beginning of schedule
              */
             void setFirstScan(bool flag) {
-                PARAMETERS::firstScan = flag;
+                Parameters::firstScan = flag;
             }
 
             /**
@@ -126,7 +126,7 @@ namespace VieVS{
         /**
          * @brief wait times for field system and correlator synchronization
          */
-        struct WAITTIMES {
+        struct WaitTimes {
             unsigned int setup = 0; ///< time required for setup
             unsigned int source = 5; ///< time required for source
             unsigned int tape = 1; ///< time required for tape
@@ -138,24 +138,24 @@ namespace VieVS{
          * @brief setter for wait times
          * @param waittimes new wait times
          */
-        void setWaitTimes(const WAITTIMES &waittimes) {
+        void setWaitTimes(const WaitTimes &waittimes) {
             Station::waitTimes_ = waittimes;
         }
 
         /**
          * @brief changes in parameters
          */
-        struct EVENT {
+        struct Event {
             unsigned int time; ///< time when new parameters should be used in seconds since start
             bool softTransition; ///< transition type
-            PARAMETERS PARA; ///< new parameters
+            Parameters PARA; ///< new parameters
         };
 
 
         /**
          * @brief pre calculated values
          */
-        struct PRECALCULATED{
+        struct PreCalculated{
             std::vector<double> distance; ///< distance between stations
             std::vector<double> dx; ///< delta x of station coordinates
             std::vector<double> dy; ///< delta y of station coordinates
@@ -197,7 +197,7 @@ namespace VieVS{
          *
          * @return currently used parameters
          */
-        const PARAMETERS &getPARA() const {
+        const Parameters &getPARA() const {
             return parameters_;
         }
 
@@ -206,7 +206,7 @@ namespace VieVS{
          *
          * @return reference of current parameters
          */
-        PARAMETERS &referencePARA() {
+        Parameters &referencePARA() {
             return parameters_;
         }
 
@@ -215,7 +215,7 @@ namespace VieVS{
          *
          * @return station wait times
          */
-        const WAITTIMES &getWaittimes() const {
+        const WaitTimes &getWaittimes() const {
             return waitTimes_;
         }
 
@@ -420,7 +420,7 @@ namespace VieVS{
          * @brief sets all upcoming events
          * @param EVENTS all upcoming events
          */
-        void setEVENTS(const std::vector<EVENT> &EVENTS) noexcept {
+        void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
             Station::events_ = EVENTS;
             Station::nextEvent_ = EVENTS[0].time;
         }
@@ -483,6 +483,7 @@ namespace VieVS{
             pointingVectorsEnd_.push_back(pv);
         }
 
+        void clearObservations();
 
     private:
         std::string name_; ///< station name
@@ -494,16 +495,14 @@ namespace VieVS{
         HorizonMask mask_; ///< station horizon mask
         int skyCoverageId_; ///< station sky coverage id
 
-        PARAMETERS parameters_; ///< station parameters
-        WAITTIMES waitTimes_; ///< station wait times
-        PRECALCULATED preCalculated_; ///< precalculated values
+        Parameters parameters_; ///< station parameters
+        WaitTimes waitTimes_; ///< station wait times
+        PreCalculated preCalculated_; ///< precalculated values
 
-        std::vector<EVENT> events_; ///< list of all events
+        std::vector<Event> events_; ///< list of all events
         unsigned int nextEvent_; ///< index of next evend
 
         PointingVector currentPositionVector_; ///< current pointing vector
-        double currentHA_; ///< current hour angle to improve computation speed (only used for HADC antennas)
-        double currentDE_; ///< current right ascension to improve computation speed (only used for HADC antennas)
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end

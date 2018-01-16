@@ -41,6 +41,8 @@ namespace VieVS{
             bool fillinmode = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
 
+            bool andAsConditionCombination = true;
+
             bool writeSkyCoverageData = false; ///< flag if sky coverage data should be printed to file
         };
 
@@ -147,6 +149,8 @@ namespace VieVS{
             return nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered;
         }
 
+        void statistics(std::ofstream &ofstream);
+
     private:
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
@@ -220,6 +224,7 @@ namespace VieVS{
 
         void startTagelongMode(Station &station, std::ofstream &bodyLog);
 
+        bool checkOptimizationConditions(std::ofstream &of);
     };
 }
 #endif /* SCHEDULER_H */

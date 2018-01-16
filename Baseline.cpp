@@ -15,8 +15,8 @@
 using namespace std;
 using namespace VieVS;
 
-thread_local VieVS::Baseline::PARAMETER_STORAGE VieVS::Baseline::PARA;
-std::vector<std::vector<std::vector<VieVS::Baseline::EVENT> > >  VieVS::Baseline::EVENTS;
+thread_local VieVS::Baseline::ParameterStorage VieVS::Baseline::PARA;
+std::vector<std::vector<std::vector<VieVS::Baseline::Event> > >  VieVS::Baseline::EVENTS;
 std::vector<std::vector<unsigned int> >  VieVS::Baseline::nextEvent;
 
 
@@ -34,7 +34,7 @@ Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std:
 
             while (thisNextEvent < EVENTS[i][j].size() && EVENTS[i][j][thisNextEvent].time <= time) {
 
-                Baseline::PARAMETERS newPARA = EVENTS[i][j][thisNextEvent].PARA;
+                Baseline::Parameters newPARA = EVENTS[i][j][thisNextEvent].PARA;
                 hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
 
                 Baseline::PARA.ignore[i][j] = newPARA.ignore;

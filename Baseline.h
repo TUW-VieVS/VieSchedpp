@@ -37,22 +37,22 @@ namespace VieVS{
         /**
          * @brief baseline parameters
          */
-        struct PARAMETERS {
+        struct Parameters {
             std::unordered_map<std::string, double> minSNR; ///< minimum SNR per band for each baseline
-            bool ignore; ///< ignore specific baselines
+            bool ignore = false; ///< ignore specific baselines
 
-            double weight; ///< multiplicative factor of score for scans with this baseline
-            unsigned int minScan; ///< minimum required scan duration of this baseline
-            unsigned int maxScan; ///< maximum allowed scan duration of this baseline
+            double weight = 1; ///< multiplicative factor of score for scans with this baseline
+            unsigned int minScan = 20; ///< minimum required scan duration of this baseline
+            unsigned int maxScan = 600; ///< maximum allowed scan duration of this baseline
         };
 
         /**
          * @brief changes in parameters
          */
-        struct EVENT {
+        struct Event {
             unsigned int time; ///< time wher parameters should be changed in seconds from start
             bool softTransition; ///< flag if a soft or hard transition is required
-            PARAMETERS PARA; ///< new parameters
+            Parameters PARA; ///< new parameters
         };
 
 
@@ -62,7 +62,7 @@ namespace VieVS{
          * Unlike the parameters for station and source this holds the information for all possible baselines.
          * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
          */
-        struct PARAMETER_STORAGE {
+        struct ParameterStorage {
             std::unordered_map<std::string, std::vector<std::vector<double> > > minSNR; ///< minimum SNR per band for each baseline
             std::vector<std::vector<char> > ignore; ///< ignore specific baselines
             std::vector<std::vector<double> > weight; ///< multiplicative factor of score for scans with this baseline
@@ -70,9 +70,9 @@ namespace VieVS{
             std::vector<std::vector<unsigned int> > maxScan; ///< maximum allowed scan duration of this baseline
         };
 
-        static thread_local PARAMETER_STORAGE PARA; ///< parameters for all baselines
+        static thread_local ParameterStorage PARA; ///< parameters for all baselines
 
-        static std::vector<std::vector<std::vector<Baseline::EVENT> > > EVENTS; ///< all events per baseline
+        static std::vector<std::vector<std::vector<Baseline::Event> > > EVENTS; ///< all events per baseline
         static std::vector<std::vector<unsigned int> > nextEvent; ///< next event number per baseline
 
         /**

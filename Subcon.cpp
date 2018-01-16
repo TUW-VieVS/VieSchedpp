@@ -57,7 +57,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
                 }
             } else {
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
-                const Station::WAITTIMES wtimes = thisSta.getWaittimes();
+                const Station::WaitTimes wtimes = thisSta.getWaittimes();
                 singleScans_[i].addTimes(j, wtimes.setup, wtimes.source, slewtime, wtimes.tape, wtimes.calibration);
                 ++j;
             }

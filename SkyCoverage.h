@@ -101,6 +101,8 @@ namespace VieVS{
         double
         scorePerPointingVector(const PointingVector &pv_new, const PointingVector &pv_old) const noexcept;
 
+        void clearObservations();
+
         /**
          * @brief updates the pointing vectors
          *

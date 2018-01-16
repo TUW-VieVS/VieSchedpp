@@ -38,20 +38,21 @@ namespace VieVS{
         /**
          * @brief source parameters
          */
-        struct PARAMETERS {
+        struct Parameters {
             bool available = true; ///< flag is source is available
+            bool globalAvailable = true;
 
             double weight = 1; ///< multiplicative factor of score for scans to this source
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            unsigned int minNumberOfStations; ///< minimum number of stations for a scan
-            double minFlux = 0.01; ///< minimum flux density required for this source in jansky
-            unsigned int minRepeat; ///< minimum time between two observations of this source in seconds
-            unsigned int maxScan; ///< maximum allowed scan time in seconds
-            unsigned int minScan; ///< minimum required scan time in seconds
-            unsigned int maxNumberOfScans; ///< maximum number of scans
-            bool tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
+            unsigned int minNumberOfStations = 2; ///< minimum number of stations for a scan
+            double minFlux = 0.001; ///< minimum flux density required for this source in jansky
+            unsigned int minRepeat = 1800; ///< minimum time between two observations of this source in seconds
+            unsigned int maxScan = 20; ///< maximum allowed scan time in seconds
+            unsigned int minScan = 600; ///< minimum required scan time in seconds
+            unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
+            bool tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
@@ -66,7 +67,14 @@ namespace VieVS{
              * @param flag true if source is available
              */
             void setAvailable(bool flag) {
-                PARAMETERS::available = flag;
+                Parameters::available = flag;
+            }
+
+            void setGlobalAvailable(bool flag) {
+                Parameters::globalAvailable = flag;
+                if(!flag){
+                    Parameters::available = flag;
+                }
             }
 
             /**
@@ -75,10 +83,14 @@ namespace VieVS{
              * @param of out stream object
              */
             void output(std::ofstream &of) const {
-                if (available) {
-                    of << "    available: TRUE\n";
-                } else {
-                    of << "    available: FALSE\n";
+                if(globalAvailable){
+                    if (available) {
+                        of << "    available: TRUE\n";
+                    } else {
+                        of << "    available: FALSE\n";
+                    }
+                }else{
+                    of << "    not available due to optimization\n";
                 }
 
                 of << "    minNumOfSta:      " << minNumberOfStations << "\n";
@@ -129,10 +141,15 @@ namespace VieVS{
             }
         };
 
+        struct Optimization{
+            unsigned int minNumScans = 0;
+            unsigned int minNumBaselines = 0;
+        };
+
         /**
          * @brief pre calculated parameters
          */
-        struct PRECALCULATED{
+        struct PreCalculated{
             std::vector<double> sourceInCrs; ///< source vector in celestrial reference frame
         };
 
@@ -140,10 +157,10 @@ namespace VieVS{
         /**
          * @brief changes in parameters
          */
-        struct EVENT {
+        struct Event {
             unsigned int time; ///< time when new parameters should be used in seconds since start
             bool softTransition; ///< transition type
-            PARAMETERS PARA; ///< new parameters
+            Parameters PARA; ///< new parameters
         };
 
 
@@ -169,7 +186,7 @@ namespace VieVS{
          * @brief getter of parameter object
          * @return parameter object
          */
-        const PARAMETERS &getPARA() const {
+        const Parameters &getPARA() const {
             return parameters_;
         }
 
@@ -177,9 +194,14 @@ namespace VieVS{
          * @brief reference of parameter object
          * @return reference to parameter object
          */
-        PARAMETERS &referencePARA() {
+        Parameters &referencePARA() {
             return parameters_;
         }
+
+        Optimization &referenceCondition() {
+            return condition_;
+        }
+
 
         /**
          * @brief get source position in CRS
@@ -277,6 +299,10 @@ namespace VieVS{
             return nTotalScans_;
         }
 
+        const Optimization &getOptimization() const {
+            return condition_;
+        }
+
         /**
          * @brief looks for last scan time
          *
@@ -300,7 +326,7 @@ namespace VieVS{
          *
          * @param EVENTS list of all events
          */
-        void setEVENTS(const std::vector<EVENT> &EVENTS) noexcept {
+        void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
             Source::events_ = EVENTS;
             Source::nextEvent_ = EVENTS[0].time;
         }
@@ -357,6 +383,8 @@ namespace VieVS{
          */
         void update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept;
 
+        void clearObservations();
+
         /**
          * @brief overload of the << operator for output to stream
          *
@@ -374,10 +402,11 @@ namespace VieVS{
         double de_; ///< source declination
         std::unordered_map<std::string, Flux> flux_; ///< source flux information per band
 
-        PARAMETERS parameters_; ///< parameters
-        PRECALCULATED preCalculated_; ///< pre calculated values
+        Parameters parameters_; ///< parameters
+        PreCalculated preCalculated_; ///< pre calculated values
+        Optimization condition_;
 
-        std::vector<EVENT> events_; ///< list of all events
+        std::vector<Event> events_; ///< list of all events
         unsigned int nextEvent_; ///< index of next event
 
         unsigned int lastScan_; ///< last scan to this source

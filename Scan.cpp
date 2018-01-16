@@ -1222,7 +1222,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
                 availableTime = 0;
             }
 
-            const Station::WAITTIMES &wtimes = thisStation.getWaittimes();
+            const Station::WaitTimes &wtimes = thisStation.getWaittimes();
             int time_needed = slewTime + wtimes.calibration + wtimes.setup + wtimes.source + wtimes.tape;
             if (time_needed > availableTime) {
                 bool valid = removeStation(pv_id, source);

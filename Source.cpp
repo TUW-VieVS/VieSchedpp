@@ -128,3 +128,14 @@ std::string Source::getDeString() const noexcept{
     string str = (boost::format("%+03dd%02d'%08.5f\"") %static_cast<int>(d) %static_cast<int>(m) %s).str();
     return str;
 }
+
+void Source::clearObservations() {
+    lastScan_ = 0;
+    nScans_ = 0;
+    nTotalScans_ = 0;
+    nBaselines_ = 0;
+
+    bool hardBreak = false;
+    ofstream dummy;
+    checkForNewEvent(0, hardBreak, false, dummy);
+}
