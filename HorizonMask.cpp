@@ -15,8 +15,6 @@
 using namespace std;
 using namespace VieVS;
 
-double HorizonMask::minElevation = 0;
-
 HorizonMask::HorizonMask(){
     type_ = Category::none;
 }
@@ -63,9 +61,6 @@ bool HorizonMask::visible(const PointingVector &pv) const noexcept {
     }
 
     double el = pv.getEl();
-    if (el < minElevation) {
-        return false;
-    }
 
     switch (type_){
         case Category::none:

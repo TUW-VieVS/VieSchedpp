@@ -161,6 +161,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const stri
     if (PARA.maxWait.is_initialized()) {
         parameters.add("parameters.maxWait", PARA.maxWait);
     }
+    if (PARA.minElevation.is_initialized()){
+        parameters.add("parameters.minElevation", PARA.minElevation);
+    }
 
     if (!PARA.minSNR.empty()) {
         for (const auto &any:PARA.minSNR) {
@@ -211,7 +214,10 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxSlewtime = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxWait") {
             para.maxWait = it.second.get_value < unsigned int > ();
-        } else if (paraName == "minSNR") {
+        } else if (paraName == "minElevation"){
+            para.minElevation = it.second.get_value<double>();
+        }
+        else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
             double value = it.second.get_value<double>();
             para.minSNR[bandName] = value;

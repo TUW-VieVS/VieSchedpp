@@ -50,10 +50,18 @@ namespace VieVS {
 }
 
 bool Station::isVisible(const PointingVector &p) const noexcept {
-    bool flag1 = mask_.visible(p);
-    bool flag2 = cableWrap_.anglesInside(p);
+    bool visible = true;
+    if(p.getEl()<parameters_.minElevation){
+        visible = false;
+    }
+    if(visible && !mask_.visible(p)){
+        visible = false;
+    }
+    if(visible && !cableWrap_.anglesInside(p)){
+        visible = false;
+    }
 
-    return flag1 && flag2;
+    return visible;
 }
 
 void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model) const noexcept {

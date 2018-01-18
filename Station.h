@@ -62,6 +62,7 @@ namespace VieVS{
             bool available = true;  ///< if set to true: this station is available for a scan
             bool tagalong = false;  ///< if set to true: station is in tagalong mode
             double weight = 1; ///< multiplicative factor of score for scans with this station
+            double minElevation = 5*deg2rad; /// minimum elevation
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
@@ -108,6 +109,7 @@ namespace VieVS{
                 of << "    maxScan:     " << maxScan << "\n";
                 of << "    minScan:     " << minScan << "\n";
                 of << "    weight:      " << weight << "\n";
+                of << "    minElevation " << minElevation << "\n";
 
                 for (const auto &it:minSNR) {
                     of << "    minSNR: " << it.first << " " << it.second << "\n";

@@ -582,8 +582,6 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
         parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule");
 
-        HorizonMask::minElevation = xml_.get<double>("master.general.minElevation") * deg2rad;
-
     } catch (const boost::property_tree::ptree_error &e) {
         headerLog << "ERROR: reading parameters.xml file!" << endl;
     }
@@ -641,6 +639,7 @@ void Initializer::initializeStations() noexcept {
     parentPARA.maxWait = 9999;
     parentPARA.maxScan = 9999;
     parentPARA.minScan = 1;
+    parentPARA.minElevation = 5*deg2rad;
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
         parentPARA.minSNR[name] = ObservationMode::minSNR[name];
@@ -856,6 +855,9 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             }
             if (newPARA.maxWait.is_initialized()) {
                 combinedPARA.maxWait = *newPARA.maxWait;
+            }
+            if (newPARA.minElevation.is_initialized()){
+                combinedPARA.minElevation = *newPARA.minElevation*deg2rad;
             }
 
             if (!newPARA.minSNR.empty()) {

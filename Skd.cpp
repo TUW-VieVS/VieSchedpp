@@ -97,7 +97,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 
     of << "FREQUENCY   SX PREOB      PREOB  MIDOB     MIDOB  POSTOB     POSTOB\n";
 
-    of << boost::format("%-12s %4.1d\n") % "ELEVATION _" % xml.get<double>("master.general.minElevation");
+    of << boost::format("%-12s %4.1d\n") % "ELEVATION _" % (stations[0].getPARA().minElevation*rad2deg);
 
     of << "TAPE_MOTION _ START&STOP\n";
 

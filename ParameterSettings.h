@@ -55,6 +55,7 @@ namespace VieVS {
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
             boost::optional<unsigned int> minScan; ///< minimum required scan time
+            boost::optional<double> minElevation;
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
