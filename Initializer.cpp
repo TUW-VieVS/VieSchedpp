@@ -299,6 +299,29 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
     int created = 0;
     headerLog << "Create Sources:\n";
 
+
+    vector<string> sel_sources;
+    const auto &ptree_useSources = xml_.get_child_optional("master.general.onlyUseListedSources");
+    if(ptree_useSources.is_initialized()){
+        auto it = ptree_useSources->begin();
+        while (it != ptree_useSources->end()) {
+            auto item = it->second.data();
+            sel_sources.push_back(item);
+            ++it;
+        }
+    }
+
+    vector<string> ignore_sources;
+    const auto &ptree_ignoreSources = xml_.get_child_optional("master.general.ignoreListedSources");
+    if(ptree_ignoreSources.is_initialized()){
+        auto it = ptree_ignoreSources->begin();
+        while (it != ptree_ignoreSources->end()) {
+            auto item = it->second.data();
+            ignore_sources.push_back(item);
+            ++it;
+        }
+    }
+
     for (auto any: sourceCatalog){
         counter ++;
         string name = any.first;
@@ -311,6 +334,21 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
         if(commonname == "$"){
             commonname = "";
         }
+
+        if(!sel_sources.empty()){
+            if(find(sel_sources.begin(),sel_sources.end(),name) == sel_sources.end() &&
+               find(sel_sources.begin(),sel_sources.end(),commonname) == sel_sources.end()){
+                headerLog << boost::format("  %8s ignored\n")%name;
+                continue;
+            }
+        }else{
+            if(find(ignore_sources.begin(),ignore_sources.end(),name) != ignore_sources.end() ||
+               find(ignore_sources.begin(),ignore_sources.end(),commonname) != ignore_sources.end()){
+                headerLog << boost::format("  %8s ignored\n")%name;
+                continue;
+            }
+        }
+
 
         bool foundName = fluxCatalog.find(name) != fluxCatalog.end();
         bool foundCommName = (!commonname.empty() && fluxCatalog.find(commonname) != fluxCatalog.end());
