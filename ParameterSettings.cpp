@@ -21,7 +21,8 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
-                                const std::vector<std::string> &stations) {
+                                const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
+                                const std::vector<std::string> &srcNames) {
     boost::property_tree::ptree general;
 
     int smonth = startTime.date().month();
@@ -48,6 +49,21 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     }
     if(!all_stations.empty()){
         general.add_child("general.stations", all_stations.get_child("stations"));
+    }
+
+    if(!srcNames.empty()){
+        boost::property_tree::ptree all_sources;
+        for (const auto &any: srcNames) {
+            boost::property_tree::ptree tmp;
+            tmp.add("source", any);
+            all_sources.add_child("sources.source", tmp.get_child("source"));
+        }
+
+        if(useSourcesFromParameter_otherwiseIgnore){
+            general.add_child("general.onlyUseListedSources", all_sources.get_child("sources"));
+        }else{
+            general.add_child("general.ignoreListedSources", all_sources.get_child("sources"));
+        }
     }
 
 //    master_.insert(master_.begin(),general.get_child("general"));

@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -1695,7 +1695,7 @@ If you only want to run simulations you can deselect this to avoid error message
        </layout>
       </widget>
       <widget class="QWidget" name="general">
-       <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,5">
+       <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,6">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="2,3,0">
           <property name="sizeConstraint">
@@ -1935,6 +1935,19 @@ If you only want to run simulations you can deselect this to avoid error message
                </property>
               </widget>
              </item>
+             <item>
+              <spacer name="verticalSpacer_14">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </widget>
           </item>
@@ -1943,7 +1956,7 @@ If you only want to run simulations you can deselect this to avoid error message
         <item>
          <widget class="QTabWidget" name="tabWidget_2">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -4737,8 +4750,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -7161,12 +7174,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>323</y>
+     <x>663</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>933</x>
-     <y>327</y>
+     <x>966</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -7177,8 +7190,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>351</y>
+     <x>623</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>931</x>
@@ -7193,12 +7206,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>221</y>
+     <x>59</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>224</y>
+     <x>334</x>
+     <y>266</y>
     </hint>
    </hints>
   </connection>
@@ -7209,12 +7222,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>221</y>
+     <x>59</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>250</y>
+     <x>59</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -7225,12 +7238,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>221</y>
+     <x>59</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>276</y>
+     <x>59</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -7241,12 +7254,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>221</y>
+     <x>59</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>250</y>
+     <x>334</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -7257,12 +7270,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>221</y>
+     <x>59</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>276</y>
+     <x>334</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -7273,12 +7286,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>299</y>
+     <x>59</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>302</y>
+     <x>334</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -7289,12 +7302,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>299</y>
+     <x>59</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>328</y>
+     <x>59</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -7305,12 +7318,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>299</y>
+     <x>59</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>354</y>
+     <x>59</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -7321,12 +7334,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>299</y>
+     <x>59</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>328</y>
+     <x>334</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -7337,12 +7350,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>299</y>
+     <x>59</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>354</y>
+     <x>334</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -7353,12 +7366,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>195</y>
+     <x>59</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>198</y>
+     <x>334</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -7369,12 +7382,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>169</y>
+     <x>59</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>172</y>
+     <x>334</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -7385,8 +7398,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>143</y>
+     <x>59</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
@@ -7433,12 +7446,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>577</x>
-     <y>146</y>
+     <x>579</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>838</x>
-     <y>149</y>
+     <x>967</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -7449,12 +7462,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>608</x>
-     <y>172</y>
+     <x>646</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>838</x>
-     <y>175</y>
+     <x>967</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>

@@ -314,7 +314,7 @@ void sourceParametersDialog::on_pushButton_2_clicked()
             ui->spinBox_minScanTime->setEnabled(false);
         }else{
             ui->checkBox->setChecked(false);
-            ui->spinBox_fixedScanDuration->setValue(0);
+            ui->spinBox_fixedScanDuration->setValue(120);
             ui->spinBox_fixedScanDuration->setEnabled(false);
             ui->spinBox_maxScanTime->setEnabled(true);
             ui->spinBox_minScanTime->setEnabled(true);

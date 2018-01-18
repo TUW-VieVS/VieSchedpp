@@ -1608,8 +1608,14 @@ void MainWindow::on_groupBox_modeCustom_toggled(bool arg1)
 
 void MainWindow::on_lineEdit_allStationsFilter_textChanged(const QString &arg1)
 {
-    allStationProxyModel->setFilterRegExp(ui->lineEdit_allStationsFilter->text());
+    allStationProxyModel->setFilterRegExp(arg1);
 }
+
+void MainWindow::on_lineEdit_allStationsFilter_3_textChanged(const QString &arg1)
+{
+    allSourceProxyModel->setFilterRegExp(arg1);
+}
+
 
 void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &index)
 {
@@ -1640,6 +1646,8 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
         allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
         createBaselineModel();
     }
+    ui->lineEdit_allStationsFilter->setFocus();
+    ui->lineEdit_allStationsFilter->selectAll();
 }
 
 void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index)
@@ -1680,6 +1688,8 @@ void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index
 
         allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
     }
+    ui->lineEdit_allStationsFilter_3->setFocus();
+    ui->lineEdit_allStationsFilter_3->selectAll();
 }
 
 
@@ -2492,10 +2502,35 @@ QString MainWindow::writeXML()
     for(int i=0; i<selectedStationModel->rowCount(); ++i){
         station_names.push_back(selectedStationModel->item(i)->text().toStdString());
     }
+
+    std::vector<std::string> srcNames;
+    bool useSourcesFromParameter_otherwiseIgnore;
+    for(int i=0; i<selectedSourceModel->rowCount(); ++i){
+        srcNames.push_back(selectedSourceModel->item(i)->text().toStdString());
+    }
+
+    int selSrc = selectedSourceModel->rowCount();
+    int allSrc = allSourceModel->rowCount();
+    std::vector<std::string> ignoreSrcNames;
+    if(allSrc-selSrc < allSrc/2){
+        useSourcesFromParameter_otherwiseIgnore = false;
+        for(int i=0; i<allSourceModel->rowCount(); ++i){
+            std::string thisSrc = allSourceModel->item(i)->text().toStdString();
+            if(std::find(srcNames.begin(),srcNames.end(),thisSrc) == srcNames.end() ){
+                ignoreSrcNames.push_back(thisSrc);
+            }
+        }
+    }else{
+        useSourcesFromParameter_otherwiseIgnore = true;
+    }
     bool fillinMode = ui->checkBox_fillinMode->isChecked();
     bool subnetting = ui->checkBox_subnetting->isChecked();
     bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
-    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names);
+    if(useSourcesFromParameter_otherwiseIgnore){
+        para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames);
+    }else{
+        para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames);
+    }
 
 
     std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
@@ -5962,3 +5997,4 @@ void MainWindow::on_pushButton_removeCondition_clicked()
         }
     }
 }
+

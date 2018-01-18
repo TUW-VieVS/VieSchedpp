@@ -146,7 +146,8 @@ namespace VieVS {
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
-                     const std::vector<std::string> &stations);
+                     const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
+                     const std::vector<std::string> &srcNames);
 
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 

@@ -393,6 +393,8 @@ private slots:
 
     void on_pushButton_removeCondition_clicked();
 
+    void on_lineEdit_allStationsFilter_3_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
