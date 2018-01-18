@@ -57,6 +57,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_spinBox_evenlyDistScans_valueChanged(int arg1);
+
 private:
     Ui::sourceParametersDialog *ui;
     VieVS::ParameterSettings::ParametersSources dp;

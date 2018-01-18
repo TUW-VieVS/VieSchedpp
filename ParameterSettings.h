@@ -55,6 +55,7 @@ namespace VieVS {
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
             boost::optional<unsigned int> minScan; ///< minimum required scan time
+            boost::optional<double> minElevation; ///< minimum elevation of parameter
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
@@ -144,7 +145,7 @@ namespace VieVS {
          * @param stations list of all stations
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
+                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
                      const std::vector<std::string> &stations);
 
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);

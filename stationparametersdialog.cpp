@@ -40,6 +40,7 @@ void stationParametersDialog::addDefaultParameters(VieVS::ParameterSettings::Par
 {
     dp = d;
     ui->doubleSpinBox_weight->setValue(*d.weight);
+    ui->doubleSpinBox_minElevation->setValue(*d.minElevation);
     ui->spinBox_minScanTime->setValue(*d.minScan);
     ui->spinBox_maxScanTime->setValue(*d.maxScan);
     ui->spinBox_maxWaitTime->setValue(*d.maxWait);
@@ -122,6 +123,9 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
     }
     if(ui->spinBox_maxScanTime->value() != *dp.maxScan){
         para.maxScan = ui->spinBox_maxScanTime->value();
+    }
+    if(ui->doubleSpinBox_minElevation->value() != dp.minElevation){
+        para.minElevation = ui->doubleSpinBox_minElevation->value();
     }
     if(ui->doubleSpinBox_weight->value() != *dp.weight){
         para.weight = ui->doubleSpinBox_weight->value();
@@ -214,6 +218,12 @@ void stationParametersDialog::on_pushButton_load_clicked()
             ui->spinBox_minScanTime->setValue(*sp.minScan);
         }else{
             ui->spinBox_minScanTime->setValue(*dp.minScan);
+        }
+
+        if(sp.minElevation.is_initialized()){
+            ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
+        }else{
+            ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
         }
 
         if(sp.weight.is_initialized()){

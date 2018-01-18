@@ -186,10 +186,10 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
     if(!ui->availableCheckBox->isChecked()){
         para.available = false;
     }
-    if(ui->spinBox_minScanTime->value() != *dp.minScan){
+    if(ui->spinBox_minScanTime->value() != *dp.minScan && !ui->checkBox->isChecked()){
         para.minScan = ui->spinBox_minScanTime->value();
     }
-    if(ui->spinBox_maxScanTime->value() != *dp.maxScan){
+    if(ui->spinBox_maxScanTime->value() != *dp.maxScan && !ui->checkBox->isChecked()){
         para.maxScan = ui->spinBox_maxScanTime->value();
     }
     if(ui->spinBox_minNumberOfStations->value() != *dp.minNumberOfStations){
@@ -306,6 +306,20 @@ void sourceParametersDialog::on_pushButton_2_clicked()
             ui->spinBox_maxNumberOfScans->setValue(999);
         }
 
+        if(sp.fixedScanDuration.is_initialized()){
+            ui->checkBox->setChecked(true);
+            ui->spinBox_fixedScanDuration->setValue(*sp.fixedScanDuration);
+            ui->spinBox_fixedScanDuration->setEnabled(true);
+            ui->spinBox_maxScanTime->setEnabled(false);
+            ui->spinBox_minScanTime->setEnabled(false);
+        }else{
+            ui->checkBox->setChecked(false);
+            ui->spinBox_fixedScanDuration->setValue(0);
+            ui->spinBox_fixedScanDuration->setEnabled(false);
+            ui->spinBox_maxScanTime->setEnabled(true);
+            ui->spinBox_minScanTime->setEnabled(true);
+        }
+
         if(sp.tryToFocusIfObservedOnce.is_initialized()){
             ui->checkBox_focusIfObsOnce->setChecked(*sp.tryToFocusIfObservedOnce);
         }else{
@@ -377,6 +391,7 @@ void sourceParametersDialog::on_pushButton_2_clicked()
         }
         ui->listWidget_selectedIgnoreBaselines->sortItems();
 
+
         ui->lineEdit_paraName->setText(itm);
 
         if(!warningTxt.isEmpty()){
@@ -402,5 +417,16 @@ void sourceParametersDialog::on_pushButton_clicked()
                                                         boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
             os.close();
         }
+    }
+}
+
+void sourceParametersDialog::on_spinBox_evenlyDistScans_valueChanged(int arg1)
+{
+    if(arg1 == 0){
+        ui->checkBox_focusIfObsOnce->setEnabled(true);
+        ui->checkBox_focusIfObsOnce->setChecked(false);
+    }else{
+        ui->checkBox_focusIfObsOnce->setEnabled(false);
+        ui->checkBox_focusIfObsOnce->setChecked(true);
     }
 }

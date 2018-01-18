@@ -419,6 +419,12 @@ void MainWindow::displayStationSetupParameter(QString name)
         t->setVerticalHeaderItem(r,new QTableWidgetItem("max wait time [s]"));
         ++r;
     }
+    if(para.minElevation.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minElevation)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("min elevation [deg]"));
+        ++r;
+    }
     if(para.weight.is_initialized()){
         t->insertRow(r);
         t->setItem(r,0,new QTableWidgetItem(QString::number(*para.weight)));
@@ -1298,6 +1304,7 @@ void MainWindow::defaultParameters()
     sta.maxSlewtime = 600;
     sta.maxWait = 600;
     sta.weight = 1;
+    sta.minElevation = 5;
 
     auto stationTree = settings.get_child_optional("settings.station.parameters");
     if(stationTree.is_initialized()){
@@ -2488,8 +2495,7 @@ QString MainWindow::writeXML()
     bool fillinMode = ui->checkBox_fillinMode->isChecked();
     bool subnetting = ui->checkBox_subnetting->isChecked();
     bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
-    double minElevation = ui->doubleSpinBox_minElevation->value();
-    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, minElevation, station_names);
+    para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names);
 
 
     std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
@@ -4480,6 +4486,7 @@ void MainWindow::createDefaultParameterSettings()
     sta.maxSlewtime = 600;
     sta.maxWait = 600;
     sta.weight = 1;
+    sta.minElevation = 5;
     settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
 
     VieVS::ParameterSettings::ParametersSources src;
@@ -5706,9 +5713,10 @@ void MainWindow::skyCoverageTemplate()
 
     QLineSeries *upper = new QLineSeries();
     QLineSeries *lower = new QLineSeries();
+    double minElevation = 5;
     for(int az=0; az<=365; az+=5){
         upper->append(az,90);
-        lower->append(az,90-ui->doubleSpinBox_minElevation->value());
+        lower->append(az,90-minElevation);
     }
 
     QAreaSeries *area = new QAreaSeries();
@@ -5752,9 +5760,8 @@ void MainWindow::skyCoverageTemplate()
     }
 
     double d = (double)ui->horizontalSlider_skyCoverageMarkerDistance->value()/10;
-
     for (double el = 0; el <= 90; el+=d) {
-        if(el<= ui->doubleSpinBox_minElevation->value()){
+        if(el<= minElevation){
             continue;
         }
         double zd = 90-el;
@@ -5842,6 +5849,7 @@ void MainWindow::on_pushButton_skyCoverageTemplateRandom_clicked()
     obsAz.clear();
     obsEl.clear();
     obsTime.clear();
+    double minElevation = 5;
     int nobs = ui->spinBox_skyCoverageTemplateRandomObservations->value() * (double)ui->influenceTimeSpinBox->value()/3600.;
 
     for(int i=0; i<nobs; ++i){
@@ -5851,7 +5859,7 @@ void MainWindow::on_pushButton_skyCoverageTemplateRandom_clicked()
         double rn = (double)(qrand() % ((100 + 1) - 0) + 0);
 
         if(rn<58){
-            thisEl = qrand() % ((40 + 1) - (int)ui->doubleSpinBox_minElevation->value()) + (int)ui->doubleSpinBox_minElevation->value();
+            thisEl = qrand() % ((40 + 1) - (int)minElevation) + (int)minElevation;
         }else{
             double u = (double)(qrand() % ((1000 + 1) - 0) + 0);
             u = u/1000;
@@ -5868,12 +5876,13 @@ void MainWindow::on_influenceTimeSpinBox_valueChanged(int arg1)
     QTime time = QTime::currentTime();
     qsrand((uint)time.msec());
     obsTime.clear();
+    double minElevation = 5;
     int nobs = ui->spinBox_skyCoverageTemplateRandomObservations->value() * (double)ui->influenceTimeSpinBox->value()/3600.;
 
     if(nobs>obsAz.count()){
         for(int i=obsAz.count(); i<nobs; ++i){
             obsAz.append(qrand() % ((360 + 1) - 0) + 0);
-            obsEl.append(qrand() % ((90 + 1) - (int)ui->doubleSpinBox_minElevation->value()) + (int)ui->doubleSpinBox_minElevation->value());
+            obsEl.append(qrand() % ((90 + 1) - (int)minElevation) + (int)minElevation);
         }
     }else{
         for(int i=nobs; i<obsAz.count(); ++i){
@@ -5944,10 +5953,12 @@ void MainWindow::on_pushButton_addCondition_clicked()
 void MainWindow::on_pushButton_removeCondition_clicked()
 {
     auto list = ui->treeWidget_conditions->selectedItems();
-    auto itm = list.at(0);
-    delete itm;
-    for(int i=0; i<ui->treeWidget_conditions->topLevelItemCount(); ++i){
-        auto titm = ui->treeWidget_conditions->topLevelItem(i);
-        titm->setText(0,QString("%1").arg(i));
+    if(!list.empty()){
+        auto itm = list.at(0);
+        delete itm;
+        for(int i=0; i<ui->treeWidget_conditions->topLevelItemCount(); ++i){
+            auto titm = ui->treeWidget_conditions->topLevelItem(i);
+            titm->setText(0,QString("%1").arg(i));
+        }
     }
 }

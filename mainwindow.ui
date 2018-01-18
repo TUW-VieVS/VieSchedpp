@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>7</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -1934,49 +1934,6 @@ If you only want to run simulations you can deselect this to avoid error message
                 <bool>true</bool>
                </property>
               </widget>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <item>
-                <widget class="QLabel" name="label_8">
-                 <property name="text">
-                  <string>minimum elevation:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_4">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
-                 <property name="toolTip">
-                  <string>minimum allowed elevation angle</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>minimum elevation angle</string>
-                 </property>
-                 <property name="suffix">
-                  <string> [deg]</string>
-                 </property>
-                 <property name="maximum">
-                  <double>90.000000000000000</double>
-                 </property>
-                 <property name="value">
-                  <double>5.000000000000000</double>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </item>
             </layout>
            </widget>

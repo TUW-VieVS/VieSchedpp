@@ -179,6 +179,12 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->setVerticalHeaderItem(r,new QTableWidgetItem("max wait time [s]"));
             ++r;
         }
+        if(para.minElevation.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minElevation)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("min elevation [deg]"));
+            ++r;
+        }
         if(para.weight.is_initialized()){
             t->insertRow(r);
             t->setItem(r,0,new QTableWidgetItem(QString::number(*para.weight)));
@@ -238,6 +244,12 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->insertRow(r);
             t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minScan)));
             t->setVerticalHeaderItem(r,new QTableWidgetItem("min scan time [s]"));
+            ++r;
+        }
+        if(para.fixedScanDuration.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.fixedScanDuration)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("fixed scan duration [s]"));
             ++r;
         }
         if(para.maxNumberOfScans.is_initialized()){

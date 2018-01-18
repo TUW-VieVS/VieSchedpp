@@ -20,7 +20,7 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
+                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
                                 const std::vector<std::string> &stations) {
     boost::property_tree::ptree general;
 
@@ -39,7 +39,6 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
     general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
-    general.add("general.minElevation", minElevation);
 
     boost::property_tree::ptree all_stations;
     for (const auto &any: stations) {
@@ -161,6 +160,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const stri
     if (PARA.maxWait.is_initialized()) {
         parameters.add("parameters.maxWait", PARA.maxWait);
     }
+    if (PARA.minElevation.is_initialized()){
+        parameters.add("parameters.minElevation", PARA.minElevation);
+    }
 
     if (!PARA.minSNR.empty()) {
         for (const auto &any:PARA.minSNR) {
@@ -211,6 +213,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxSlewtime = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxWait") {
             para.maxWait = it.second.get_value < unsigned int > ();
+        } else if (paraName == "minElevation") {
+            para.minElevation = it.second.get_value<double>();
         } else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
             double value = it.second.get_value<double>();

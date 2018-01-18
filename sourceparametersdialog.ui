@@ -615,5 +615,37 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBox_minScanTime</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>114</x>
+     <y>474</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>201</x>
+     <y>413</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>spinBox_maxScanTime</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>472</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>202</x>
+     <y>385</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
