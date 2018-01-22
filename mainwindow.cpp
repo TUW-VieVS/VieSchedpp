@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     boost::property_tree::read_xml(iSettings,settings,boost::property_tree::xml_parser::trim_whitespace);
     readSettings();
 
+    plotSkyCoverageTemplate = false;
     setupChanged = false;
     setupStation = new QChartView;
     setupSource = new QChartView;
@@ -79,7 +80,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     selectedStationModel = new QStandardItemModel();
     selectedSourceModel = new QStandardItemModel();
-    selectedBaselineModel = new QStandardItemModel();
+    selectedBaselineModel = new QStandardItemModel(0,2,this);
+    selectedBaselineModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    selectedBaselineModel->setHeaderData(1, Qt::Horizontal, QObject::tr("distance [km]"));
 
     allSourcePlusGroupModel = new QStandardItemModel();
     allSourcePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/source_group.png"),"__all__"));
@@ -98,15 +101,30 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(selectedSourceModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(sourceListChanged()));
     connect(selectedSourceModel,SIGNAL(rowsRemoved(QModelIndex,int,int)),this,SLOT(sourceListChanged()));
 
+    connect(selectedBaselineModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(baselineListChanged()));
+    connect(selectedBaselineModel,SIGNAL(rowsRemoved(QModelIndex,int,int)),this,SLOT(baselineListChanged()));
+
     ui->treeView_allAvailabeStations->setModel(allStationProxyModel);
     ui->treeView_allAvailabeStations->setRootIsDecorated(false);
     ui->treeView_allAvailabeStations->setSortingEnabled(true);
     ui->treeView_allAvailabeStations->sortByColumn(0, Qt::AscendingOrder);
+    auto hv1 = ui->treeView_allAvailabeStations->header();
+    hv1->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     ui->treeView_allAvailabeSources->setModel(allSourceProxyModel);
     ui->treeView_allAvailabeSources->setRootIsDecorated(false);
     ui->treeView_allAvailabeSources->setSortingEnabled(true);
     ui->treeView_allAvailabeSources->sortByColumn(0, Qt::AscendingOrder);
+    auto hv2 = ui->treeView_allAvailabeSources->header();
+    hv2->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->treeView_allSelectedBaselines->setModel(selectedBaselineModel);
+    ui->treeView_allSelectedBaselines->setRootIsDecorated(false);
+    ui->treeView_allSelectedBaselines->setSortingEnabled(true);
+    ui->treeView_allSelectedBaselines->sortByColumn(0, Qt::AscendingOrder);
+    auto hv3 = ui->treeView_allSelectedBaselines->header();
+    hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
+    createBaselines = true;
 
     ui->listView_allSelectedStations->setModel(selectedStationModel);
     ui->comboBox_skedObsModes->setModel(allSkedModesModel);
@@ -175,10 +193,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_fontSize->setValue(QApplication::font().pointSize());
     ui->iconSizeSpinBox->setValue(ui->fileToolBar->iconSize().width());
 
-    auto hv1 = ui->treeWidget_setupStationWait->header();
-    hv1->setSectionResizeMode(QHeaderView::ResizeToContents);
-    auto hv2 = ui->treeWidget_setupStationAxis->header();
-    hv2->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv4 = ui->treeWidget_setupStationWait->header();
+    hv4->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv5 = ui->treeWidget_setupStationAxis->header();
+    hv5->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     connect(ui->pushButton_setupAxisAdd,SIGNAL(clicked(bool)),this,SLOT(setupStationAxisBufferAddRow()));
     connect(ui->pushButton_setupWaitAdd,SIGNAL(clicked(bool)),this,SLOT(setupStationWaitAddRow()));
@@ -200,6 +218,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->comboBox_conditions_members->setModel(allSourcePlusGroupModel);
     connect(ui->pushButton_addSourceGroup_conditions,SIGNAL(clicked(bool)), this, SLOT(addGroupSource()));
+
+    connect(ui->lineEdit_ivsMaster,SIGNAL(returnPressed()),this,SLOT(on_pushButton_clicked()));
+    connect(ui->horizontalSlider_markerSizeWorldmap,SIGNAL(valueChanged(int)),this,SLOT(markerWorldmap()));
+    connect(ui->horizontalSlider_markerSkymap,SIGNAL(valueChanged(int)),this,SLOT(markerSkymap()));
 
 }
 
@@ -359,12 +381,25 @@ void MainWindow::displayBaselineSetupMember(QString name)
         }
     }else{
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/baseline.png"),QString("Baseline: %1").arg(name)));
-        t->setRowCount(2);
+        t->setRowCount(3);
         QStringList list= name.split("-");
+
+        double distance;
+        for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
+            QString txt = selectedBaselineModel->index(i,0).data().toString();
+            if(txt == name){
+                distance = selectedBaselineModel->index(i,1).data().toDouble();
+            }
+        }
+
         t->setItem(0,0,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),list.at(0)));
         t->setItem(0,1,new QTableWidgetItem(QIcon(":/icons/icons/station.png"),list.at(1)));
+        t->setItem(0,2,new QTableWidgetItem(QString("%1").arg(distance)));
+
         t->setVerticalHeaderItem(0,new QTableWidgetItem("Station 1"));
         t->setVerticalHeaderItem(1,new QTableWidgetItem("Station 2"));
+        t->setVerticalHeaderItem(2,new QTableWidgetItem("distance [km]"));
+
     }
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -671,59 +706,69 @@ void MainWindow::on_actionGeneral_triggered()
     ui->main_stacked->setCurrentIndex(4);
 }
 
-void MainWindow::on_actionStation_triggered()
+void MainWindow::on_actionNetwork_triggered()
 {
     ui->main_stacked->setCurrentIndex(5);
 }
 
-void MainWindow::on_actionSource_triggered()
+void MainWindow::on_actionSource_List_triggered()
 {
     ui->main_stacked->setCurrentIndex(6);
 }
 
-void MainWindow::on_actionBaseline_triggered()
+void MainWindow::on_actionStation_triggered()
 {
     ui->main_stacked->setCurrentIndex(7);
 }
 
-void MainWindow::on_actionWeight_factors_triggered()
+void MainWindow::on_actionSource_triggered()
 {
     ui->main_stacked->setCurrentIndex(8);
 }
 
-void MainWindow::on_actionOutput_triggered()
+void MainWindow::on_actionBaseline_triggered()
 {
     ui->main_stacked->setCurrentIndex(9);
 }
 
-void MainWindow::on_actionRules_triggered()
+void MainWindow::on_actionWeight_factors_triggered()
 {
     ui->main_stacked->setCurrentIndex(10);
 }
 
-void MainWindow::on_actionMulti_Scheduling_triggered()
+void MainWindow::on_actionOutput_triggered()
 {
     ui->main_stacked->setCurrentIndex(11);
 }
 
-void MainWindow::on_actionSky_Coverage_triggered()
+void MainWindow::on_actionRules_triggered()
 {
     ui->main_stacked->setCurrentIndex(12);
 }
 
-void MainWindow::on_actionConditions_triggered()
+void MainWindow::on_actionMulti_Scheduling_triggered()
 {
     ui->main_stacked->setCurrentIndex(13);
 }
 
-void MainWindow::on_actionsummary_triggered()
+void MainWindow::on_actionSky_Coverage_triggered()
 {
     ui->main_stacked->setCurrentIndex(14);
 }
 
-void MainWindow::on_actionFAQ_triggered()
+void MainWindow::on_actionConditions_triggered()
 {
     ui->main_stacked->setCurrentIndex(15);
+}
+
+void MainWindow::on_actionsummary_triggered()
+{
+    ui->main_stacked->setCurrentIndex(16);
+}
+
+void MainWindow::on_actionFAQ_triggered()
+{
+    ui->main_stacked->setCurrentIndex(17);
 }
 
 void MainWindow::on_actionWhat_is_this_triggered()
@@ -856,7 +901,7 @@ void MainWindow::readStations()
     QMap<QString,QStringList > equipMap;
     QMap<QString,QStringList > positionMap;
 
-    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
+    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
     allStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
     allStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
     allStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
@@ -875,6 +920,7 @@ void MainWindow::readStations()
     allStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
     allStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
     allStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
+
 
     QFile antennaFile(antennaPath);
     if (antennaFile.open(QIODevice::ReadOnly)){
@@ -1124,8 +1170,6 @@ void MainWindow::readAllSkedObsModes()
 
 void MainWindow::plotWorldMap()
 {
-    ui->pushButton_worldmapZoomFull->setSizeIncrement(45,45);
-    ui->pushButton_worldmapZoomFull->setIconSize(ui->pushButton_worldmapZoomFull->size());
     QChart *worldChart = new QChart();
     worldChart->setAcceptHoverEvents(true);
 
@@ -1139,7 +1183,7 @@ void MainWindow::plotWorldMap()
 
             QLineSeries *coast = new QLineSeries(worldChart);
             coast->setColor(Qt::gray);
-            coast->setName("coast" + QString::number(c));
+            coast->setName("coast");
 
             while(!in.atEnd()){
                 QString line = in.readLine();
@@ -1161,15 +1205,11 @@ void MainWindow::plotWorldMap()
     availableStations = new QScatterSeries(worldChart);
     availableStations->setColor(Qt::red);
     availableStations->setMarkerSize(10);
+    availableStations->setName("availableStations");
 
     selectedStations = new QScatterSeries(worldChart);
-    QImage img(":/icons/icons/station_white.png");
-    img = img.scaled(30,30);
-    selectedStations->setBrush(QBrush(img));
-    selectedStations->setMarkerSize(30);
-    selectedStations->setPen(QColor(Qt::transparent));
-//    selectedStations->setColor(Qt::darkGreen);
-//    selectedStations->setMarkerSize(15);
+    selectedStations->setName("selectedStations");
+    markerWorldmap();
 
     worldChart->addSeries(availableStations);
     worldChart->addSeries(selectedStations);
@@ -1199,13 +1239,10 @@ void MainWindow::plotWorldMap()
     worldmap->setBackgroundBrush(QBrush(Qt::white));
     worldmap->setMouseTracking(true);
 
-    ui->verticalLayout_worldmap->addWidget(worldmap,8);
-
+    ui->horizontalLayout_worldmap->insertWidget(0,worldmap,10);
 }
 
 void MainWindow::plotSkyMap(){
-    ui->pushButton_skymapZoomFull->setSizeIncrement(45,45);
-    ui->pushButton_skymapZoomFull->setIconSize(ui->pushButton_skymapZoomFull->size());
     QChart *skyChart = new QChart();
 
     for(int ra = -180; ra<=180; ra+=60){
@@ -1246,11 +1283,30 @@ void MainWindow::plotSkyMap(){
     availableSources->setMarkerSize(10);
 
     selectedSources = new QScatterSeries(skyChart);
-    selectedSources->setColor(Qt::darkGreen);
-    selectedSources->setMarkerSize(12);
+    markerSkymap();
+
+    QLineSeries *ecliptic = new QLineSeries(skyChart);
+    ecliptic->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
+    double e = qDegreesToRadians(23.4);
+    for(int i=-180; i<=180; i+=5){
+        double l = qDegreesToRadians((double)i);
+        double b = 0;
+        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l));
+//        lambda-=M_PI;
+        double phi = qAsin(qSin(b)*qCos(e) + qCos(b)*qSin(e)*qSin(l));
+
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+        ecliptic->append(x,y);
+    }
 
     skyChart->addSeries(availableSources);
     skyChart->addSeries(selectedSources);
+    skyChart->addSeries(ecliptic);
 
     connect(availableSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
     connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
@@ -1290,7 +1346,7 @@ void MainWindow::plotSkyMap(){
     skymap->setMouseTracking(true);
 
 
-    ui->verticalLayout_skymap->addWidget(skymap,8);
+    ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
 }
 
 
@@ -1425,70 +1481,173 @@ void MainWindow::defaultParameters()
 
     clearSetup(true,true,true);
 
-    bool waitTimeMissing = false;
     boost::optional<int> setup = settings.get_optional<int>("settings.station.waitTimes.setup");
     if(setup.is_initialized()){
         ui->SpinBox_setup->setValue(*setup);
-    }else{
-        waitTimeMissing = true;
     }
     boost::optional<int> source = settings.get_optional<int>("settings.station.waitTimes.source");
     if(source.is_initialized()){
         ui->SpinBox_source->setValue(*source);
-    }else{
-        waitTimeMissing = true;
     }
     boost::optional<int> tape = settings.get_optional<int>("settings.station.waitTimes.tape");
     if(tape.is_initialized()){
         ui->SpinBox_tape->setValue(*tape);
-    }else{
-        waitTimeMissing = true;
     }
     boost::optional<int> calibration = settings.get_optional<int>("settings.station.waitTimes.calibration");
     if(calibration.is_initialized()){
         ui->SpinBox_calibration->setValue(*calibration);
-    }else{
-        waitTimeMissing = true;
     }
     boost::optional<int> corsynch = settings.get_optional<int>("settings.station.waitTimes.corsynch");
     if(corsynch.is_initialized()){
         ui->SpinBox_corrSynch->setValue(*corsynch);
-    }else{
-        waitTimeMissing = true;
-    }
-    if(waitTimeMissing){
-        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default station wait times in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
     }
 
 
-    bool bufferMissing = false;
-    boost::optional<int> ax1low = settings.get_optional<int>("settings.station.cableWrapBuffers.axis1LowOffset");
+    boost::optional<double> ax1low = settings.get_optional<double>("settings.station.cableWrapBuffers.axis1LowOffset");
     if(ax1low.is_initialized()){
         ui->DoubleSpinBox_axis1low->setValue(*ax1low);
-    }else{
-        bufferMissing = true;
     }
-    boost::optional<int> ax1up = settings.get_optional<int>("settings.station.cableWrapBuffers.axis1UpOffset");
+    boost::optional<double> ax1up = settings.get_optional<double>("settings.station.cableWrapBuffers.axis1UpOffset");
     if(ax1up.is_initialized()){
         ui->DoubleSpinBox_axis1up->setValue(*ax1up);
-    }else{
-        bufferMissing = true;
     }
-    boost::optional<int> ax2low = settings.get_optional<int>("settings.station.cableWrapBuffers.axis2LowOffset");
+    boost::optional<double> ax2low = settings.get_optional<double>("settings.station.cableWrapBuffers.axis2LowOffset");
     if(ax2low.is_initialized()){
         ui->DoubleSpinBox_axis2low->setValue(*ax2low);
-    }else{
-        bufferMissing = true;
     }
-    boost::optional<int> ax2up = settings.get_optional<int>("settings.station.cableWrapBuffers.axis2UpOffset");
+    boost::optional<double> ax2up = settings.get_optional<double>("settings.station.cableWrapBuffers.axis2UpOffset");
     if(ax2up.is_initialized()){
         ui->DoubleSpinBox_axis2up->setValue(*ax2up);
-    }else{
-        bufferMissing = true;
     }
-    if(bufferMissing){
-        QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default station axis limit buffer in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
+
+    boost::optional<std::string> skdMode = settings.get_optional<std::string>("settings.mode.skdMode");
+    if(skdMode.is_initialized()){
+        ui->comboBox_skedObsModes->setCurrentText(QString::fromStdString(*skdMode));
     }
+
+    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
+    if(subnetting.is_initialized()){
+        ui->checkBox_subnetting->setChecked(*subnetting);
+    }
+    boost::optional<bool> fillinmode = settings.get_optional<bool>("settings.general.fillinmode");
+    if(fillinmode.is_initialized()){
+        ui->checkBox_fillinMode->setChecked(*fillinmode);
+    }
+    boost::optional<bool> fillinmodeInfluenceOnSchedule = settings.get_optional<bool>("settings.general.fillinmodeInfluenceOnSchedule");
+    if(fillinmodeInfluenceOnSchedule.is_initialized()){
+        ui->checkBox_fillinModeInfluence->setChecked(*fillinmodeInfluenceOnSchedule);
+    }
+
+    boost::optional<double> influenceDistance = settings.get_optional<double>("settings.skyCoverage.influenceDistance");
+    if(influenceDistance.is_initialized()){
+        ui->influenceDistanceDoubleSpinBox->setValue(*influenceDistance);
+    }
+    boost::optional<int> influenceInterval = settings.get_optional<int>("settings.skyCoverage.influenceInterval");
+    if(influenceInterval.is_initialized()){
+        ui->influenceTimeSpinBox->setValue(*influenceInterval);
+    }
+    boost::optional<double> maxTwinTelecopeDistance = settings.get_optional<double>("settings.skyCoverage.maxTwinTelecopeDistance");
+    if(maxTwinTelecopeDistance.is_initialized()){
+        ui->maxDistanceForCombiningAntennasDoubleSpinBox->setValue(*maxTwinTelecopeDistance);
+    }
+    boost::optional<std::string> distanceType = settings.get_optional<std::string>("settings.skyCoverage.distanceType");
+    if(distanceType.is_initialized()){
+        ui->comboBox_skyCoverageDistanceType->setCurrentText(QString::fromStdString(*distanceType));
+    }
+    boost::optional<std::string> timeType = settings.get_optional<std::string>("settings.skyCoverage.timeType");
+    if(timeType.is_initialized()){
+        ui->comboBox_skyCoverageTimeType->setCurrentText(QString::fromStdString(*timeType));
+    }
+
+    boost::optional<bool> skyCoverageChecked = settings.get_optional<bool>("settings.weightFactor.skyCoverageChecked");
+    if(skyCoverageChecked.is_initialized()){
+        ui->checkBox_weightCoverage->setChecked(*skyCoverageChecked);
+        ui->doubleSpinBox_weightSkyCoverage->setEnabled(*skyCoverageChecked);
+    }
+    boost::optional<bool> numberOfObservationsChecked = settings.get_optional<bool>("settings.weightFactor.numberOfObservationsChecked");
+    if(numberOfObservationsChecked.is_initialized()){
+        ui->checkBox_weightNobs->setChecked(*numberOfObservationsChecked);
+        ui->doubleSpinBox_weightNumberOfObservations->setEnabled(*numberOfObservationsChecked);
+    }
+    boost::optional<bool> durationChecked = settings.get_optional<bool>("settings.weightFactor.durationChecked");
+    if(durationChecked.is_initialized()){
+        ui->checkBox_weightDuration->setChecked(*durationChecked);
+        ui->doubleSpinBox_weightDuration->setEnabled(*durationChecked);
+    }
+    boost::optional<bool> averageSourcesChecked = settings.get_optional<bool>("settings.weightFactor.averageSourcesChecked");
+    if(averageSourcesChecked.is_initialized()){
+        ui->checkBox_weightAverageSources->setChecked(*averageSourcesChecked);
+        ui->doubleSpinBox_weightAverageSources->setEnabled(*averageSourcesChecked);
+    }
+    boost::optional<bool> averageStationsChecked = settings.get_optional<bool>("settings.weightFactor.averageStationsChecked");
+    if(averageStationsChecked.is_initialized()){
+        ui->checkBox_weightAverageStations->setChecked(*averageStationsChecked);
+        ui->doubleSpinBox_weightAverageStations->setEnabled(*averageStationsChecked);
+    }
+    boost::optional<bool> weightDeclinationChecked = settings.get_optional<bool>("settings.weightFactor.weightDeclinationChecked");
+    if(weightDeclinationChecked.is_initialized()){
+        ui->checkBox_weightLowDeclination->setChecked(*weightDeclinationChecked);
+        ui->doubleSpinBox_weightLowDec->setEnabled(*weightDeclinationChecked);
+        ui->doubleSpinBox_weightLowDecStart->setEnabled(*weightDeclinationChecked);
+        ui->doubleSpinBox_weightLowDecEnd->setEnabled(*weightDeclinationChecked);
+        ui->label_weightLowDecEnd->setEnabled(*weightDeclinationChecked);
+        ui->label_weightLowDecStart->setEnabled(*weightDeclinationChecked);
+    }
+    boost::optional<bool> weightLowElevationChecked = settings.get_optional<bool>("settings.weightFactor.weightLowElevationChecked");
+    if(weightLowElevationChecked.is_initialized()){
+        ui->checkBox_weightLowElevation->setChecked(*weightLowElevationChecked);
+        ui->doubleSpinBox_weightLowEl->setEnabled(*weightLowElevationChecked);
+        ui->doubleSpinBox_weightLowElStart->setEnabled(*weightLowElevationChecked);
+        ui->doubleSpinBox_weightLowElEnd->setEnabled(*weightLowElevationChecked);
+        ui->label_weightLowElStart->setEnabled(*weightLowElevationChecked);
+        ui->label_weightLowElEnd->setEnabled(*weightLowElevationChecked);
+    }
+
+    boost::optional<double> skyCoverage = settings.get_optional<double>("settings.weightFactor.skyCoverage");
+    if(skyCoverage.is_initialized()){
+        ui->doubleSpinBox_weightSkyCoverage->setValue(*skyCoverage);
+    }
+    boost::optional<double> numberOfObservations = settings.get_optional<double>("settings.weightFactor.numberOfObservations");
+    if(numberOfObservations.is_initialized()){
+        ui->doubleSpinBox_weightNumberOfObservations->setValue(*numberOfObservations);
+    }
+    boost::optional<double> duration = settings.get_optional<double>("settings.weightFactor.duration");
+    if(duration.is_initialized()){
+        ui->doubleSpinBox_weightDuration->setValue(*duration);
+    }
+    boost::optional<double> averageSources = settings.get_optional<double>("settings.weightFactor.averageSources");
+    if(averageSources.is_initialized()){
+        ui->doubleSpinBox_weightAverageSources->setValue(*averageSources);
+    }
+    boost::optional<double> averageStations = settings.get_optional<double>("settings.weightFactor.averageStations");
+    if(averageStations.is_initialized()){
+        ui->doubleSpinBox_weightAverageStations->setValue(*averageStations);
+    }
+    boost::optional<double> weightDeclination = settings.get_optional<double>("settings.weightFactor.weightDeclination");
+    if(weightDeclination.is_initialized()){
+        ui->doubleSpinBox_weightLowDec->setValue(*weightDeclination);
+    }
+    boost::optional<double> declinationStartWeight = settings.get_optional<double>("settings.weightFactor.declinationStartWeight");
+    if(declinationStartWeight.is_initialized()){
+        ui->doubleSpinBox_weightLowDecStart->setValue(*declinationStartWeight);
+    }
+    boost::optional<double> declinationFullWeight = settings.get_optional<double>("settings.weightFactor.declinationFullWeight");
+    if(declinationFullWeight.is_initialized()){
+        ui->doubleSpinBox_weightLowDecEnd->setValue(*declinationFullWeight);
+    }
+    boost::optional<double> weightLowElevation = settings.get_optional<double>("settings.weightFactor.weightLowElevation");
+    if(weightLowElevation.is_initialized()){
+        ui->doubleSpinBox_weightLowEl->setValue(*weightLowElevation);
+    }
+    boost::optional<double> lowElevationStartWeight = settings.get_optional<double>("settings.weightFactor.lowElevationStartWeight");
+    if(lowElevationStartWeight.is_initialized()){
+        ui->doubleSpinBox_weightLowElStart->setValue(*lowElevationStartWeight);
+    }
+    boost::optional<double> lowElevationFullWeight = settings.get_optional<double>("settings.weightFactor.lowElevationFullWeight");
+    if(lowElevationFullWeight.is_initialized()){
+        ui->doubleSpinBox_weightLowElEnd->setValue(*lowElevationFullWeight);
+    }
+
 
 }
 
@@ -1528,7 +1687,10 @@ void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &inde
     }
 
 
-    createBaselineModel();
+    if(createBaselines){
+        createBaselineModel();
+    }
+
     ui->treeWidget_multiSchedSelected->clear();
     for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
         ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
@@ -1644,7 +1806,9 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
         }
 
         allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
-        createBaselineModel();
+        if(createBaselines){
+            createBaselineModel();
+        }
     }
     ui->lineEdit_allStationsFilter->setFocus();
     ui->lineEdit_allStationsFilter->selectAll();
@@ -1949,11 +2113,6 @@ void MainWindow::readSkedCatalogs()
     skdCatalogReader.initializeModesCatalogs(ui->comboBox_skedObsModes->currentText().toStdString());
 }
 
-void MainWindow::on_pushButton_worldmapZoomFull_clicked()
-{
-    worldmap->chart()->zoomReset();
-}
-
 void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &index)
 {
     int row = index.row();
@@ -1993,6 +2152,32 @@ void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index
     skyMapCallout->updateGeometry();
     skyMapCallout->show();
 }
+
+void MainWindow::on_treeView_allSelectedBaselines_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString txt = selectedBaselineModel->index(row,0).data().toString();
+    QString txt2 = selectedBaselineModel->index(row,1).data().toString();
+    txt.append("\n").append(txt2).append(" [km]");
+
+    double x,y;
+    for(int i=0; i<worldmap->chart()->series().count(); ++i){
+        if(worldmap->chart()->series().at(i)->name() == txt){
+            auto s = qobject_cast<QLineSeries *>(worldmap->chart()->series().at(i));
+            x = (s->at(0).x()+s->at(1).x())/2;
+            y = (s->at(0).y()+s->at(1).y())/2;
+            break;
+        }
+    }
+
+
+    worldMapCallout->setText(txt);
+    worldMapCallout->setAnchor(QPointF(x,y));
+    worldMapCallout->setZValue(11);
+    worldMapCallout->updateGeometry();
+    worldMapCallout->show();
+}
+
 
 
 void MainWindow::worldmap_hovered(QPointF point, bool state)
@@ -3009,14 +3194,10 @@ void MainWindow::readSettings()
 
     std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
     ui->lineEdit_outputPath->setText(QString::fromStdString(outputDirectory));
-    std::string outputExpName = settings.get<std::string>("settings.output.experiment_name","");
-    ui->experimentNameLineEdit->setText(QString::fromStdString(outputExpName));
     std::string outputScheduler = settings.get<std::string>("settings.output.scheduler","");
     ui->schedulerLineEdit->setText(QString::fromStdString(outputScheduler));
     std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
     ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
-    std::string outputExpDesc = settings.get<std::string>("settings.output.experiment_descrtiption","");
-    ui->plainTextEdit_experimentDescription->setPlainText(QString::fromStdString(outputExpDesc));
 
 
     // bands - mode
@@ -3654,7 +3835,7 @@ void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDat
 
 void MainWindow::createBaselineModel()
 {
-    selectedBaselineModel->clear();
+    selectedBaselineModel->removeRows(0,selectedBaselineModel->rowCount());
 
     allBaselinePlusGroupModel->setRowCount(1);
     for(const auto& any:groupBl){
@@ -3668,10 +3849,121 @@ void MainWindow::createBaselineModel()
             bl.append("-").append(selectedStationModel->index(j,0).data().toString());
             allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
             int row = selectedBaselineModel->rowCount();
+
             selectedBaselineModel->insertRow(row);
             selectedBaselineModel->setItem(row,new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
         }
     }
+
+    auto series = worldmap->chart()->series();
+    QAbstractSeries *tmpSel;
+    QAbstractSeries *tmpAva;
+    int nn = series.count();
+    for(int i=0; i<nn; ++i){
+        QString name = series.at(i)->name();
+        if(name.size() >=5 && name.left(5) == "coast"){
+            continue;
+        }
+        if(name == "selectedStations"){
+            tmpSel = series.at(i);
+            worldmap->chart()->removeSeries(series.at(i));
+            continue;
+        }
+        if(name == "availableStations"){
+            tmpAva = series.at(i);
+            worldmap->chart()->removeSeries(series.at(i));
+            continue;
+        }
+        worldmap->chart()->removeSeries(series.at(i));
+        delete(series.at(i));
+    }
+
+    for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
+        QString txt = selectedBaselineModel->item(i,0)->text();
+        QStringList stas = txt.split("-");
+        double lat1, lat2, lon1, lon2, x1,y1,z1,x2,y2,z2;
+
+        bool found1 = false;
+        bool found2 = false;
+        for(int j=0; j<allStationModel->rowCount(); ++j){
+            auto thisSta = allStationModel->item(j,0)->text();
+            if(thisSta == stas.at(0)){
+                lon1 = allStationModel->index(j,3).data().toDouble();
+                lat1 = allStationModel->index(j,2).data().toDouble();
+                x1 = allStationModel->index(j, 16).data().toDouble();
+                y1 = allStationModel->index(j, 17).data().toDouble();
+                z1 = allStationModel->index(j, 18).data().toDouble();
+
+                found1 = true;
+            }else if(thisSta == stas.at(1)){
+                lon2 = allStationModel->index(j,3).data().toDouble();
+                lat2 = allStationModel->index(j,2).data().toDouble();
+                x2 = allStationModel->index(j, 16).data().toDouble();
+                y2 = allStationModel->index(j, 17).data().toDouble();
+                z2 = allStationModel->index(j, 18).data().toDouble();
+
+                found2 = true;
+            }
+
+            if(found1 && found2){
+                break;
+            }
+        }
+        double dist = qRound(qSqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1))/1000);
+//        selectedBaselineModel->setItem(i,1,new QStandardItem());
+        selectedBaselineModel->setData(selectedBaselineModel->index(i, 1), dist);
+
+        if(lon1>lon2){
+            auto tmp1 = lon1;
+            lon1 = lon2;
+            lon2 = tmp1;
+            auto tmp2 = lat1;
+            lat1 = lat2;
+            lat2 = tmp2;
+        }
+
+        if(qAbs(lon2-lon1)<180){
+            QLineSeries *bl = new QLineSeries(worldmap->chart());
+            bl->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl->append(lon1,lat1);
+            bl->append(lon2,lat2);
+            bl->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+            worldmap->chart()->addSeries(bl);
+        }else{
+
+            double dx = 180-qAbs(lon1)+180-qAbs(lon2);
+            double dy = lat2-lat1;
+
+            QLineSeries *bl1 = new QLineSeries(worldmap->chart());
+            bl1->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl1->append(lon1,lat1);
+            double fracx = (180-qAbs(lon1))/dx;
+            double fracy = dy*fracx;
+            bl1->append(-180,lat1+fracy);
+            bl1->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl1,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+
+            QLineSeries *bl2 = new QLineSeries(worldmap->chart());
+            bl2->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl2->append(lon2,lat2);
+            bl2->append(180,lat2-(dy-fracy));
+            bl2->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl2,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+
+            if(qAbs(lon1)>qAbs(lon2)){
+                worldmap->chart()->addSeries(bl2);
+                worldmap->chart()->addSeries(bl1);
+            }else{
+                worldmap->chart()->addSeries(bl1);
+                worldmap->chart()->addSeries(bl2);
+            }
+        }
+    }
+    worldmap->chart()->addSeries(tmpAva);
+    worldmap->chart()->addSeries(tmpSel);
+
+    worldmap->chart()->createDefaultAxes();
 }
 
 
@@ -4351,12 +4643,6 @@ void MainWindow::worldmap_clicked(QPointF point)
     bool x = true;
 }
 
-void MainWindow::on_pushButton_skymapZoomFull_clicked()
-{
-    skymap->chart()->axisX()->setRange(-2.85,2.85);
-    skymap->chart()->axisY()->setRange(-1.45,1.45);
-}
-
 void MainWindow::on_pushButton_18_clicked()
 {
     QClipboard *clipboard = QApplication::clipboard();
@@ -4414,25 +4700,25 @@ void MainWindow::on_pushButton_25_clicked()
 
 void MainWindow::on_pushButton_5_clicked()
 {    
-    QString path = "settings.general.name";
-    QString value = ui->nameLineEdit->text();
-    QString name = "user name";
+    QStringList path {"settings.general.name"};
+    QStringList value {ui->nameLineEdit->text()};
+    QString name = "Default user name changed!";
     changeDefaultSettings(path,value,name);
 }
 
 void MainWindow::on_pushButton_6_clicked()
 {    
-    QString path = "settings.general.email";
-    QString value = ui->emailLineEdit->text();
-    QString name = "email address";
+    QStringList path {"settings.general.email"};
+    QStringList value {ui->emailLineEdit->text()};
+    QString name = "Default user email address changed!";
     changeDefaultSettings(path,value,name);
 }
 
 void MainWindow::on_pushButton_17_clicked()
 {    
-    QString path = "settings.general.pathToScheduler";
-    QString value = ui->pathToSchedulerLineEdit->text();
-    QString name = "path to scheduler executable";
+    QStringList path {"settings.general.pathToScheduler"};
+    QStringList value {ui->pathToSchedulerLineEdit->text()};
+    QString name = "Default path to scheduler executable changed!";
     changeDefaultSettings(path,value,name);
 }
 
@@ -4462,54 +4748,38 @@ void MainWindow::on_pushButton_saveCatalogPathes_clicked()
 
 void MainWindow::on_pushButton_26_clicked()
 {
-    QString path = "settings.output.directory";
-    QString value = ui->lineEdit_outputPath->text();
-    QString name = "output path";
+    QStringList path {"settings.output.directory"};
+    QStringList value {ui->lineEdit_outputPath->text()};
+    QString name = "Default output path changed!";
     changeDefaultSettings(path,value,name);
 }
 
-void MainWindow::changeDefaultSettings(QString path, QString value, QString name)
+void MainWindow::changeDefaultSettings(QStringList path, QStringList value, QString name)
 {
-    settings.put(path.toStdString(),value.toStdString());
+    for(int i=0; i<path.count(); ++i){
+        settings.put(path.at(i).toStdString(),value.at(i).toStdString());
+    }
     std::ofstream os;
     os.open("settings.xml");
     boost::property_tree::xml_parser::write_xml(os, settings,
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
     os.close();
-    QString txt = "Your default ";
-    txt.append(name).append(" is changed to:\n").append(value).append("!");
-    QMessageBox::information(this,"Default settings changed",txt);
-}
-
-void MainWindow::on_pushButton_24_clicked()
-{
-    QString path = "settings.output.experiment_descrtiption";
-    QString value = ui->plainTextEdit_experimentDescription->toPlainText();
-    QString name = "experiment description";
-    changeDefaultSettings(path,value,name);
+    QMessageBox::information(this,"Default settings changed",name);
 }
 
 void MainWindow::on_pushButton_23_clicked()
 {
-    QString path = "settings.output.scheduler";
-    QString value = ui->schedulerLineEdit->text();
-    QString name = "scheduler";
+    QStringList path {"settings.output.scheduler"};
+    QStringList value {ui->schedulerLineEdit->text()};
+    QString name = "Default scheduler changed!";
     changeDefaultSettings(path,value,name);
 }
 
 void MainWindow::on_pushButton_22_clicked()
 {
-    QString path = "settings.output.correlator";
-    QString value = ui->correlatorLineEdit->text();
-    QString name = "correlator";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_27_clicked()
-{
-    QString path = "settings.output.experiment_name";
-    QString value = ui->experimentNameLineEdit->text();
-    QString name = "experiment name";
+    QStringList path {"settings.output.correlator"};
+    QStringList value {ui->correlatorLineEdit->text()};
+    QString name = "Default correlator changed!";
     changeDefaultSettings(path,value,name);
 }
 
@@ -5117,6 +5387,12 @@ void MainWindow::sourceListChanged()
     ui->label_sourceList_selected->setText(QString("selected: %1").arg(size));
 }
 
+void MainWindow::baselineListChanged()
+{
+    int size = selectedBaselineModel->rowCount();
+    ui->label_network_baselines->setText(QString("baselines: %1").arg(size));
+}
+
 void MainWindow::on_comboBox_nThreads_currentTextChanged(const QString &arg1)
 {
     if(arg1 == "manual"){
@@ -5703,6 +5979,7 @@ void MainWindow::on_spinBox_statistics_show_valueChanged(int arg1)
 
 void MainWindow::setupSkyCoverageTemplatePlot()
 {
+    plotSkyCoverageTemplate = true;
     skyCoverageTemplateView = new QChartView(this);
     QPolarChart *chart = new QPolarChart();
 
@@ -5743,138 +6020,138 @@ void MainWindow::setupSkyCoverageTemplatePlot()
 
 void MainWindow::skyCoverageTemplate()
 {
-    auto chart = skyCoverageTemplateView->chart();
-    chart->removeAllSeries();
+    if(plotSkyCoverageTemplate){
+        auto chart = skyCoverageTemplateView->chart();
+        chart->removeAllSeries();
 
-    QLineSeries *upper = new QLineSeries();
-    QLineSeries *lower = new QLineSeries();
-    double minElevation = 5;
-    for(int az=0; az<=365; az+=5){
-        upper->append(az,90);
-        lower->append(az,90-minElevation);
-    }
-
-    QAreaSeries *area = new QAreaSeries();
-    area->setName("minimum elevation");
-    area->setUpperSeries(upper);
-    area->setLowerSeries(lower);
-    area->setBrush(QBrush(Qt::gray));
-    area->setOpacity(0.7);
-
-    chart->addSeries(area);
-
-    area->attachAxis(chart->axisX());
-    area->attachAxis(chart->axisY());
-
-    QVector<double> V{0.00,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00};
-    QVector<double> R{62,68,71,72,67,52,45,37,28,4,18,48,72,113,159,200,234,254,250,245,249};
-    QVector<double> G{38,51,67,85,103,122,140,156,170,182,190,197,203,205,201,193,186,193,212,232,251};
-    QVector<double> B{168,204,231,246,253,253,243,231,223,206,185,162,134,100,66,41,48,58,46,37,21};
-    int nColor = ui->horizontalSlider_skyCoverageColorResultion->value();
-    double dist = 1.0/(nColor-1);
-
-    QVector<double> Rq;
-    QVector<double> Gq;
-    QVector<double> Bq;
-    for(int i=0; i<nColor; ++i){
-        double vq = i*dist;
-        Rq.append(interpolate(V,R,vq,false));
-        Gq.append(interpolate(V,G,vq,false));
-        Bq.append(interpolate(V,B,vq,false));
-    }
-
-
-    QVector<QScatterSeries*> ss;
-    for(int i=0;i<nColor;++i){
-        QScatterSeries *tss = new QScatterSeries();
-        tss->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-        tss->setMarkerSize(ui->horizontalSlider_skyCoverageMarkerSize->value());
-        tss->setBrush(QBrush(QColor(Rq.at(i),Gq.at(i),Bq.at(i))));
-        tss->setBorderColor(QColor(Rq.at(i),Gq.at(i),Bq.at(i)));
-        ss.append(tss);
-    }
-
-    double d = (double)ui->horizontalSlider_skyCoverageMarkerDistance->value()/10;
-    for (double el = 0; el <= 90; el+=d) {
-        if(el<= minElevation){
-            continue;
-        }
-        double zd = 90-el;
-
-        double deltaAz;
-        if(el!=90){
-            deltaAz = d/qCos(qDegreesToRadians(el));
-        }else{
-            deltaAz = 360;
+        QLineSeries *upper = new QLineSeries();
+        QLineSeries *lower = new QLineSeries();
+        double minElevation = 5;
+        for(int az=0; az<=365; az+=5){
+            upper->append(az,90);
+            lower->append(az,90-minElevation);
         }
 
-        for (double az = 0; az < 360; az+=deltaAz) {
+        QAreaSeries *area = new QAreaSeries();
+        area->setName("minimum elevation");
+        area->setUpperSeries(upper);
+        area->setLowerSeries(lower);
+        area->setBrush(QBrush(Qt::gray));
+        area->setOpacity(0.7);
 
-            double score = 1;
-            for(int i=0; i<obsTime.count(); ++i){
-                int deltaTime = obsTime.at(0)-obsTime.at(i);
+        chart->addSeries(area);
 
-                double el1 = qDegreesToRadians(el);
-                double el2 = qDegreesToRadians(obsEl.at(i));
-                double az1 = qDegreesToRadians(az);
-                double az2 = qDegreesToRadians(obsAz.at(i));
+        area->attachAxis(chart->axisX());
+        area->attachAxis(chart->axisY());
 
-                double tmp = (qSin(el1) * qSin(el2) + qCos(el1) * qCos(el2) * qCos(az2-az1));
-                double deltaDistance = qRadiansToDegrees(qAcos(tmp));
-                double scoreDistance;
-                double scoreTime;
+        QVector<double> V{0.00,0.05,0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.90,0.95,1.00};
+        QVector<double> R{62,68,71,72,67,52,45,37,28,4,18,48,72,113,159,200,234,254,250,245,249};
+        QVector<double> G{38,51,67,85,103,122,140,156,170,182,190,197,203,205,201,193,186,193,212,232,251};
+        QVector<double> B{168,204,231,246,253,253,243,231,223,206,185,162,134,100,66,41,48,58,46,37,21};
+        int nColor = ui->horizontalSlider_skyCoverageColorResultion->value();
+        double dist = 1.0/(nColor-1);
 
-                if(deltaDistance >= ui->influenceDistanceDoubleSpinBox->value()){
-                    scoreDistance = 0;
-                }else if(ui->comboBox_skyCoverageDistanceType->currentText() == "cosine"){
-                    scoreDistance = .5+.5*qCos(deltaDistance * M_PI / ui->influenceDistanceDoubleSpinBox->value());
-                }else if(ui->comboBox_skyCoverageDistanceType->currentText() == "linear"){
-                    scoreDistance = 1-deltaDistance/ui->influenceDistanceDoubleSpinBox->value();
-                }else{
-                    scoreDistance = 1;
-                }
+        QVector<double> Rq;
+        QVector<double> Gq;
+        QVector<double> Bq;
+        for(int i=0; i<nColor; ++i){
+            double vq = i*dist;
+            Rq.append(interpolate(V,R,vq,false));
+            Gq.append(interpolate(V,G,vq,false));
+            Bq.append(interpolate(V,B,vq,false));
+        }
 
-                if(deltaTime >= ui->influenceTimeSpinBox->value()){
-                    scoreTime = 0;
-                }else if(ui->comboBox_skyCoverageTimeType->currentText() == "cosine"){
-                    scoreTime = .5+.5*qCos(deltaTime * M_PI / ui->influenceTimeSpinBox->value());
-                }else if(ui->comboBox_skyCoverageTimeType->currentText() == "linear"){
-                    scoreTime = 1-(double)deltaTime/(double)ui->influenceTimeSpinBox->value();
-                }else{
-                    scoreTime = 1;
-                }
 
-                double thisScore = 1-(scoreDistance*scoreTime);
-                if(thisScore<score){
-                    score=thisScore;
-                }
+        QVector<QScatterSeries*> ss;
+        for(int i=0;i<nColor;++i){
+            QScatterSeries *tss = new QScatterSeries();
+            tss->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+            tss->setMarkerSize(ui->horizontalSlider_skyCoverageMarkerSize->value());
+            tss->setBrush(QBrush(QColor(Rq.at(i),Gq.at(i),Bq.at(i))));
+            tss->setBorderColor(QColor(Rq.at(i),Gq.at(i),Bq.at(i)));
+            ss.append(tss);
+        }
+
+        double d = (double)ui->horizontalSlider_skyCoverageMarkerDistance->value()/10;
+        for (double el = 0; el <= 90; el+=d) {
+            if(el<= minElevation){
+                continue;
+            }
+            double zd = 90-el;
+
+            double deltaAz;
+            if(el!=90){
+                deltaAz = d/qCos(qDegreesToRadians(el));
+            }else{
+                deltaAz = 360;
             }
 
-            int idx = score*(nColor-1);
-            ss.at(idx)->append(az,zd);
+            for (double az = 0; az < 360; az+=deltaAz) {
+
+                double score = 1;
+                for(int i=0; i<obsTime.count(); ++i){
+                    int deltaTime = obsTime.at(0)-obsTime.at(i);
+
+                    double el1 = qDegreesToRadians(el);
+                    double el2 = qDegreesToRadians(obsEl.at(i));
+                    double az1 = qDegreesToRadians(az);
+                    double az2 = qDegreesToRadians(obsAz.at(i));
+
+                    double tmp = (qSin(el1) * qSin(el2) + qCos(el1) * qCos(el2) * qCos(az2-az1));
+                    double deltaDistance = qRadiansToDegrees(qAcos(tmp));
+                    double scoreDistance;
+                    double scoreTime;
+
+                    if(deltaDistance >= ui->influenceDistanceDoubleSpinBox->value()){
+                        scoreDistance = 0;
+                    }else if(ui->comboBox_skyCoverageDistanceType->currentText() == "cosine"){
+                        scoreDistance = .5+.5*qCos(deltaDistance * M_PI / ui->influenceDistanceDoubleSpinBox->value());
+                    }else if(ui->comboBox_skyCoverageDistanceType->currentText() == "linear"){
+                        scoreDistance = 1-deltaDistance/ui->influenceDistanceDoubleSpinBox->value();
+                    }else{
+                        scoreDistance = 1;
+                    }
+
+                    if(deltaTime >= ui->influenceTimeSpinBox->value()){
+                        scoreTime = 0;
+                    }else if(ui->comboBox_skyCoverageTimeType->currentText() == "cosine"){
+                        scoreTime = .5+.5*qCos(deltaTime * M_PI / ui->influenceTimeSpinBox->value());
+                    }else if(ui->comboBox_skyCoverageTimeType->currentText() == "linear"){
+                        scoreTime = 1-(double)deltaTime/(double)ui->influenceTimeSpinBox->value();
+                    }else{
+                        scoreTime = 1;
+                    }
+
+                    double thisScore = 1-(scoreDistance*scoreTime);
+                    if(thisScore<score){
+                        score=thisScore;
+                    }
+                }
+
+                int idx = score*(nColor-1);
+                ss.at(idx)->append(az,zd);
+            }
         }
+
+        for(int i=nColor-1; i>=0; --i){
+            chart->addSeries(ss.at(i));
+            ss.at(i)->attachAxis(chart->axisX());
+            ss.at(i)->attachAxis(chart->axisY());
+        }
+
+        QScatterSeries *obs = new QScatterSeries();
+        obs->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+        obs->setMarkerSize(12);
+        obs->setBrush(QBrush(Qt::red));
+        obs->setBorderColor(Qt::red);
+        for(int i=0;i<obsTime.count();++i){
+            obs->append(obsAz.at(i),90-obsEl.at(i));
+        }
+
+        chart->addSeries(obs);
+        obs->attachAxis(chart->axisX());
+        obs->attachAxis(chart->axisY());
     }
-
-    for(int i=nColor-1; i>=0; --i){
-        chart->addSeries(ss.at(i));
-        ss.at(i)->attachAxis(chart->axisX());
-        ss.at(i)->attachAxis(chart->axisY());
-    }
-
-    QScatterSeries *obs = new QScatterSeries();
-    obs->setMarkerShape(QScatterSeries::MarkerShapeCircle);
-    obs->setMarkerSize(12);
-    obs->setBrush(QBrush(Qt::red));
-    obs->setBorderColor(Qt::red);
-    for(int i=0;i<obsTime.count();++i){
-        obs->append(obsAz.at(i),90-obsEl.at(i));
-    }
-
-    chart->addSeries(obs);
-    obs->attachAxis(chart->axisX());
-    obs->attachAxis(chart->axisY());
-
-
 }
 
 void MainWindow::on_pushButton_skyCoverageTemplateRandom_clicked()
@@ -5998,3 +6275,408 @@ void MainWindow::on_pushButton_removeCondition_clicked()
     }
 }
 
+
+
+void MainWindow::on_dateTimeEdit_sessionStart_dateChanged(const QDate &date)
+{
+    int doy = date.dayOfYear();
+    ui->spinBox_doy->setValue(doy);
+}
+
+
+void MainWindow::on_spinBox_doy_valueChanged(int arg1)
+{
+    QDate x = ui->dateTimeEdit_sessionStart->date();
+    int y = x.year();
+    x.setDate(y,1,1);
+    x = x.addDays(arg1-1);
+    ui->dateTimeEdit_sessionStart->setDate(x);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QString txt = ui->lineEdit_ivsMaster->text();
+    QString errorText = "";
+    QStringList t = txt.split("|");
+    if(t.size()>=0){
+        QString sessionName = t.at(0);
+        ui->plainTextEdit_experimentDescription->setPlainText(sessionName);
+    }
+    if(t.size()>=1){
+        QString sessionName = t.at(1);
+        ui->experimentNameLineEdit->setText(sessionName);
+    }
+    if(t.size()>=3){
+        QString doys = t.at(3);
+        bool ok;
+        int doy = doys.toInt(&ok);
+        if(ok){
+            ui->spinBox_doy->setValue(doy);
+        }else{
+            errorText.append("cannot convert DOY\n");
+        }
+    }
+    if(t.size()>=4){
+        QString time = t.at(4);
+        QStringList ts = time.split(":");
+        int hour, min;
+
+        if(ts.size()==2){
+            bool okh, okm;
+            hour = ts.at(0).toInt(&okh);
+            min = ts.at(1).toInt(&okm);
+            if(okh && okm){
+                ui->dateTimeEdit_sessionStart->setTime(QTime(hour,min,0,0));
+            }else{
+                errorText.append("cannot convert TIME\n");
+            }
+        }
+    }
+    if(t.size()>=5){
+        QString durs = t.at(5);
+        bool ok;
+        int dur = durs.toInt(&ok);
+        if(ok){
+            ui->doubleSpinBox_sessionDuration->setValue(dur);
+        }else{
+            errorText.append("cannot convert DUR\n");
+        }
+    }
+    if(t.size()>=6){
+        createBaselines = false;
+
+        QString stas = t.at(6);
+        stas = stas.trimmed();
+        QStringList tmp = stas.split(" ");
+        stas = tmp.at(0);
+        if(stas.size()%2==0){
+            int n = selectedStationModel->rowCount();
+            for(int i=0; i<n; ++i){
+                QModelIndex index = selectedStationModel->index(0,0);
+                on_listView_allSelectedStations_clicked(index);
+            }
+
+            allStationProxyModel->setFilterRegExp("");
+            for(int i=0; i<stas.size(); i+=2){
+                QString sta = stas.mid(i,2).toUpper();
+                bool found = false;
+                for(int j=0; j<allStationProxyModel->rowCount(); ++j){
+                    QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
+                    if(itsta == sta){
+                        QModelIndex index = allStationProxyModel->index(j,0);
+                        on_treeView_allAvailabeStations_clicked(index);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    errorText.append(QString("unknown station %1\n").arg(sta));
+                }
+            }
+
+        }else{
+            errorText.append("odd number of characters in two letter codes\n");
+        }
+        createBaselines = true;
+        createBaselineModel();
+    }
+    if(t.size()>=7){
+        QString sked = t.at(7);
+        ui->schedulerLineEdit->setText(sked);
+    }
+    if(t.size()>=8){
+        QString corr = t.at(8);
+        ui->correlatorLineEdit->setText(corr);
+    }
+
+    if(errorText.size() != 0){
+        QMessageBox::warning(this,"errors while reading session master line",errorText);
+    }
+}
+
+void MainWindow::markerWorldmap()
+{
+    if(ui->radioButton_marker_worldmap->isChecked()){
+        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
+        selectedStations->setPen(QColor(Qt::white));
+    }else{
+        QImage img(":/icons/icons/station_white.png");
+        img = img.scaled(ui->horizontalSlider_markerSizeWorldmap->value(),ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setBrush(QBrush(img));
+        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setPen(QColor(Qt::transparent));
+    }
+}
+
+void MainWindow::markerSkymap()
+{
+    if(ui->radioButton_markerSkymap->isChecked()){
+        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
+        selectedSources->setPen(QColor(Qt::white));
+    }else{
+        QImage img(":/icons/icons/source_white.png");
+        img = img.scaled(ui->horizontalSlider_markerSkymap->value(),ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setBrush(QBrush(img));
+        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setPen(QColor(Qt::transparent));
+    }
+
+}
+
+void MainWindow::on_radioButton_imageSkymap_toggled(bool checked)
+{
+    if(checked){
+        ui->horizontalSlider_markerSkymap->setValue(30);
+        auto series = skymap->chart()->series();
+        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        tmp->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
+
+    }else{
+        ui->horizontalSlider_markerSkymap->setValue(15);
+        auto series = skymap->chart()->series();
+        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        tmp->setPen(QPen(QBrush(Qt::blue),3,Qt::DashLine));
+        selectedSources->setPen(QColor(Qt::transparent));
+    }
+    markerSkymap();
+}
+
+void MainWindow::on_radioButton_imageWorldmap_toggled(bool checked)
+{
+    if(checked){
+        ui->horizontalSlider_markerSizeWorldmap->setValue(30);
+    }else{
+        ui->horizontalSlider_markerSizeWorldmap->setValue(15);
+    }
+    markerWorldmap();
+}
+
+void MainWindow::on_checkBox_showEcliptic_clicked(bool checked)
+{
+    if(checked){
+        auto series = skymap->chart()->series();
+        series.back()->setVisible(true);
+    }else{
+        auto series = skymap->chart()->series();
+        series.back()->setVisible(false);
+    }
+}
+
+void MainWindow::baselineHovered(QPointF point, bool flag)
+{
+    if (flag) {
+        auto tmp = sender();
+        auto x = qobject_cast<QLineSeries *>(tmp);
+        QString name = x->name();
+        QString text = QString("%1").arg(name);
+        worldMapCallout->setText(text);
+        worldMapCallout->setAnchor(point);
+        worldMapCallout->setZValue(11);
+        worldMapCallout->updateGeometry();
+        worldMapCallout->show();
+    } else {
+        worldMapCallout->hide();
+    }
+}
+
+
+void MainWindow::on_checkBox_showBaselines_clicked(bool checked)
+{
+    auto series = worldmap->chart()->series();
+    for(int i=0; i<series.count(); ++i){
+        QString name = series.at(i)->name();
+        if(name.size() >=5 && name.left(5) == "coast"){
+            continue;
+        }
+        if(name == "selectedStations"){
+            continue;
+        }
+        if(name == "availableStations"){
+            continue;
+        }
+        if(checked){
+            series.at(i)->setVisible(true);
+        }else{
+            series.at(i)->setVisible(false);
+        }
+    }
+}
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    QStringList path {"settings.mode.skdMode"};
+    QStringList value {ui->comboBox_skedObsModes->currentText()};
+    QString name = "Default skd observing mode changed";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    QStringList path {"settings.general.subnetting"};
+    QStringList value;
+    if(ui->checkBox_subnetting->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.fillinmode";
+    if(ui->checkBox_fillinMode->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.fillinmodeInfluenceOnSchedule";
+    if(ui->checkBox_fillinModeInfluence->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    QString name = "Default general parameters changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_9_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.weightFactor.skyCoverageChecked";
+    if(ui->checkBox_weightCoverage->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.skyCoverage";
+    value << QString("%1").arg(ui->doubleSpinBox_weightSkyCoverage->value());
+
+    path << "settings.weightFactor.numberOfObservationsChecked";
+    if(ui->checkBox_weightNobs->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.numberOfObservations";
+    value << QString("%1").arg(ui->doubleSpinBox_weightNumberOfObservations->value());
+
+    path << "settings.weightFactor.durationChecked";
+    if(ui->checkBox_weightDuration->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.duration";
+    value << QString("%1").arg(ui->doubleSpinBox_weightDuration->value());
+
+    path << "settings.weightFactor.averageSourcesChecked";
+    if(ui->checkBox_weightAverageSources->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.averageSources";
+    value << QString("%1").arg(ui->doubleSpinBox_weightAverageSources->value());
+
+    path << "settings.weightFactor.averageStationsChecked";
+    if(ui->checkBox_weightAverageStations->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.averageStations";
+    value << QString("%1").arg(ui->doubleSpinBox_weightAverageStations->value());
+
+    path << "settings.weightFactor.weightDeclinationChecked";
+    if(ui->checkBox_weightLowDeclination->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.weightDeclination";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDec->value());
+    path << "settings.weightFactor.declinationStartWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecStart->value());
+    path << "settings.weightFactor.declinationFullWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecEnd->value());
+
+    path << "settings.weightFactor.weightLowElevationChecked";
+    if(ui->checkBox_weightLowElevation->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.weightLowElevation";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowEl->value());
+    path << "settings.weightFactor.lowElevationStartWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowElStart->value());
+    path << "settings.weightFactor.lowElevationFullWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowElEnd->value());
+
+    QString name = "Default weight factors changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.skyCoverage.influenceDistance";
+    value << QString("%1").arg(ui->influenceDistanceDoubleSpinBox->value());
+    path << "settings.skyCoverage.influenceInterval";
+    value << QString("%1").arg(ui->influenceTimeSpinBox->value());
+    path << "settings.skyCoverage.distanceType";
+    value << ui->comboBox_skyCoverageDistanceType->currentText();
+    path << "settings.skyCoverage.timeType";
+    value << ui->comboBox_skyCoverageTimeType->currentText();
+    path << "settings.skyCoverage.maxTwinTelecopeDistance";
+    value << QString("%1").arg(ui->maxDistanceForCombiningAntennasDoubleSpinBox->value());
+
+    QString name = "Default sky coverage parametrization changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.station.waitTimes.setup";
+    value << QString("%1").arg(ui->SpinBox_setup->value());
+    path << "settings.station.waitTimes.source";
+    value << QString("%1").arg(ui->SpinBox_source->value());
+    path << "settings.station.waitTimes.tape";
+    value << QString("%1").arg(ui->SpinBox_tape->value());
+    path << "settings.station.waitTimes.calibration";
+    value << QString("%1").arg(ui->SpinBox_calibration->value());
+    path << "settings.station.waitTimes.corsynch";
+    value << QString("%1").arg(ui->SpinBox_corrSynch->value());
+
+    QString name = "Default wait times changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.station.cableWrapBuffers.axis1LowOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis1low->value());
+    path << "settings.station.cableWrapBuffers.axis1UpOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis1up->value());
+    path << "settings.station.cableWrapBuffers.axis2LowOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis2low->value());
+    path << "settings.station.cableWrapBuffers.axis2UpOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis2up->value());
+
+    QString name = "Default cable wrap buffers changed!";
+    changeDefaultSettings(path,value,name);
+}

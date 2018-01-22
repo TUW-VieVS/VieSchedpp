@@ -14,11 +14,11 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_46">
+   <layout class="QVBoxLayout" name="verticalLayout_16">
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -61,38 +61,38 @@
            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Welcome to VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Please read the following &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:16pt; font-weight:600;&quot;&gt;Welcome to VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:14pt;&quot;&gt;Please read the following &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:14pt; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:14pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reference:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use our software and you write a paper, it would be nice if you would cite us. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more informations look at our &lt;span style=&quot; font-weight:600;&quot;&gt;reference page &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-sign-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;Reference:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;If you use our software and you write a paper, it would be nice if you would cite us. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;For more informations look at our &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;reference page &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-sign-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flowchart:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;Flowchart:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;1. Set up the pathes to your &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;2. Select your &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;3. Choose your session &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;time&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;, &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;station network&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; and &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;4. Define your &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;parameter&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; setup &lt;/span&gt;&lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;5. Define your &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;, output &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; and select other desired features&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need more &lt;span style=&quot; font-weight:600;&quot;&gt;help&lt;/span&gt;  press &lt;span style=&quot; font-weight:600;&quot;&gt;F1&lt;/span&gt; or click the help icon &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to enter the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode and than select the item that you do not understand. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need general help for a window click the icon at the tool bar during &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a item has no &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; description or the description is unclear and the tooltip and statustip does not provide all necessary information eighter please tell us and we will add some more details. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For some frequently asked questions we provide a &lt;span style=&quot; font-weight:600;&quot;&gt;FAQ&lt;/span&gt; page &lt;img src=&quot;:/icons/icons/documentation.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;Help:&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;If you need more &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;help&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;  press &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;F1&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; or click the help icon &lt;/span&gt;&lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; to enter the &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; mode and than select the item that you do not understand. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;If you need general help for a window click the icon at the tool bar during &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; mode.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;If a item has no &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; description or the description is unclear and the tooltip and statustip does not provide all necessary information eighter please tell us and we will add some more details. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;For some frequently asked questions we provide a &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;FAQ&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; page &lt;/span&gt;&lt;img src=&quot;:/icons/icons/documentation.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;alpha version&lt;/span&gt;! &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Although a checking routine runs at the end of each created schedule, it might be advisable to double check your schedule via a different software package like &lt;span style=&quot; font-weight:600;&quot;&gt;SKED&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;SKED check &lt;/span&gt;command or &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS checking routines&lt;/span&gt;. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;This software is still in &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;alpha version&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;! &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;Although a checking routine runs at the end of each created schedule, it might be advisable to double check your schedule via a different software package like &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;SKED&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; with the &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;SKED check &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;command or &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;VieVS&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt; with the &lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;VieVS checking routines&lt;/span&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Missing Features GUI:&lt;/span&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;load function&lt;/span&gt;&lt;/li&gt;
-&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;calibration block min SNR&lt;/li&gt;
-&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;sky coverage types&lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot;&gt;Missing Features GUI:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;load function&lt;/span&gt;&lt;/li&gt;
+&lt;li style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;calibration block min SNR&lt;/li&gt;
+&lt;li style=&quot; font-family:'Ubuntu'; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;sky coverage types&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -754,7 +754,7 @@ p, li { white-space: pre-wrap; }
              <x>0</x>
              <y>0</y>
              <width>983</width>
-             <height>697</height>
+             <height>705</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -786,6 +786,9 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to antenna.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -828,6 +831,9 @@ p, li { white-space: pre-wrap; }
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to equip.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -869,6 +875,9 @@ p, li { white-space: pre-wrap; }
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to position.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -909,6 +918,9 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to mask.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -960,6 +972,9 @@ p, li { white-space: pre-wrap; }
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to source.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -1000,6 +1015,9 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to flux.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -1061,6 +1079,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to modes.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -1101,6 +1122,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to freq.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -1143,6 +1167,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to tracks.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -1183,6 +1210,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to loif.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -1225,6 +1255,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to rec.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -1266,6 +1299,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    <property name="text">
                     <string/>
                    </property>
+                   <property name="placeholderText">
+                    <string>path to rx.cat file</string>
+                   </property>
                   </widget>
                  </item>
                  <item>
@@ -1306,6 +1342,9 @@ If you only want to run simulations you can deselect this to avoid error message
                    </property>
                    <property name="text">
                     <string/>
+                   </property>
+                   <property name="placeholderText">
+                    <string>path to hdpos.cat file</string>
                    </property>
                   </widget>
                  </item>
@@ -1355,7 +1394,7 @@ If you only want to run simulations you can deselect this to avoid error message
                  <string>save all pathes</string>
                 </property>
                 <property name="text">
-                 <string> save</string>
+                 <string/>
                 </property>
                 <property name="icon">
                  <iconset resource="myresources.qrc">
@@ -1397,7 +1436,7 @@ If you only want to run simulations you can deselect this to avoid error message
           <property name="checked">
            <bool>true</bool>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_29">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
             <widget class="QLabel" name="label_26">
              <property name="text">
@@ -1407,6 +1446,23 @@ If you only want to run simulations you can deselect this to avoid error message
            </item>
            <item>
             <widget class="QComboBox" name="comboBox_skedObsModes"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_7">
+             <property name="toolTip">
+              <string>save as default name</string>
+             </property>
+             <property name="statusTip">
+              <string>save as default name</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="myresources.qrc">
+               <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="horizontalSpacer_7">
@@ -1695,44 +1751,109 @@ If you only want to run simulations you can deselect this to avoid error message
        </layout>
       </widget>
       <widget class="QWidget" name="general">
-       <layout class="QVBoxLayout" name="verticalLayout_15" stretch="1,6">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="2,3,0">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
+         <layout class="QGridLayout" name="gridLayout_8">
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="experimentNameLineEdit">
+            <property name="toolTip">
+             <string>enter experiment name here</string>
+            </property>
+            <property name="statusTip">
+             <string>experiment name</string>
+            </property>
+            <property name="inputMask">
+             <string/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>e.g.: R1823</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+            <property name="toolTip">
+             <string>enter experiment description here</string>
+            </property>
+            <property name="statusTip">
+             <string>experiment description</string>
+            </property>
+            <property name="placeholderText">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>read</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_ivsMaster">
+            <property name="placeholderText">
+             <string>e.g.: IVS-R1823 |R1823 |JAN02|  2|17:00|24|FtHtIsKeKkNyWnYg                                             |NASA|WASH|18JAN17|1.0 | XA |NASA|  14 |1823|</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_66">
+            <property name="text">
+             <string>import settings</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="experimentNameLabel">
+            <property name="text">
+             <string>session code</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="experimentDesctiptionLabel">
+            <property name="text">
+             <string>session desctiption</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="Line" name="line_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <item>
-           <widget class="QGroupBox" name="groupBox">
-            <property name="title">
-             <string>session start</string>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>time</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="1,5,1">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_15">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_5">
-               <item>
-                <widget class="QLabel" name="label_6">
-                 <property name="text">
-                  <string>start:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="1">
                 <widget class="QDateTimeEdit" name="dateTimeEdit_sessionStart">
                  <property name="toolTip">
                   <string>select session start date</string>
@@ -1761,7 +1882,7 @@ If you only want to run simulations you can deselect this to avoid error message
                   <string>dd.MM.yy HH:mm</string>
                  </property>
                  <property name="calendarPopup">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="currentSectionIndex">
                   <number>0</number>
@@ -1771,38 +1892,21 @@ If you only want to run simulations you can deselect this to avoid error message
                  </property>
                 </widget>
                </item>
-               <item>
-                <widget class="QLabel" name="label_10">
-                 <property name="text">
-                  <string>UTC</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_6">
-               <item>
+               <item row="2" column="0">
                 <widget class="QLabel" name="label_7">
                  <property name="text">
                   <string>duration: </string>
                  </property>
                 </widget>
                </item>
-               <item>
-                <spacer name="horizontalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_8">
+                 <property name="text">
+                  <string>day of year:</string>
                  </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
+                </widget>
                </item>
-               <item>
+               <item row="2" column="1">
                 <widget class="QDoubleSpinBox" name="doubleSpinBox_sessionDuration">
                  <property name="minimumSize">
                   <size>
@@ -1830,6 +1934,23 @@ If you only want to run simulations you can deselect this to avoid error message
                  </property>
                 </widget>
                </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="spinBox_doy">
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>366</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>start:</string>
+                 </property>
+                </widget>
+               </item>
               </layout>
              </item>
              <item>
@@ -1846,89 +1967,51 @@ If you only want to run simulations you can deselect this to avoid error message
               </spacer>
              </item>
             </layout>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_9">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>general Setup</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_32">
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>224</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCalendarWidget" name="calendarWidget">
+             <property name="gridVisible">
+              <bool>false</bool>
+             </property>
+             <property name="horizontalHeaderFormat">
+              <enum>QCalendarWidget::ShortDayNames</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>general</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_32">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_8">
-               <item>
-                <widget class="QCheckBox" name="checkBox_fillinMode">
-                 <property name="toolTip">
-                  <string>allow fillin mode</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>allow fillin mode</string>
-                 </property>
-                 <property name="text">
-                  <string>fillin mode</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="checkBox_fillinModeInfluence">
-                 <property name="toolTip">
-                  <string>should fillin mode scans influence schedule</string>
-                 </property>
-                 <property name="statusTip">
-                  <string>should fillin mode scans influence schedule</string>
-                 </property>
-                 <property name="text">
-                  <string>influence schedule</string>
-                 </property>
-                 <property name="checked">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_subnetting">
+              <widget class="QCheckBox" name="checkBox_fillinMode">
                <property name="toolTip">
-                <string>allow subnetting</string>
+                <string>allow fillin mode</string>
                </property>
                <property name="statusTip">
-                <string>allow subnetting</string>
-               </property>
-               <property name="whatsThis">
-                <string/>
+                <string>allow fillin mode</string>
                </property>
                <property name="text">
-                <string>subnetting</string>
+                <string>fillin mode</string>
                </property>
                <property name="checked">
                 <bool>true</bool>
@@ -1936,83 +2019,154 @@ If you only want to run simulations you can deselect this to avoid error message
               </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer_14">
+              <widget class="QCheckBox" name="checkBox_fillinModeInfluence">
+               <property name="toolTip">
+                <string>should fillin mode scans influence schedule</string>
+               </property>
+               <property name="statusTip">
+                <string>should fillin mode scans influence schedule</string>
+               </property>
+               <property name="text">
+                <string>influence schedule</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_3">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>20</width>
-                 <height>40</height>
+                 <width>40</width>
+                 <height>20</height>
                 </size>
                </property>
               </spacer>
              </item>
+             <item>
+              <widget class="QPushButton" name="pushButton_8">
+               <property name="toolTip">
+                <string>save as default name</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default name</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
             </layout>
-           </widget>
-          </item>
-         </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_subnetting">
+             <property name="toolTip">
+              <string>allow subnetting</string>
+             </property>
+             <property name="statusTip">
+              <string>allow subnetting</string>
+             </property>
+             <property name="whatsThis">
+              <string/>
+             </property>
+             <property name="text">
+              <string>subnetting</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QTabWidget" name="tabWidget_2">
-          <property name="currentIndex">
-           <number>1</number>
+         <spacer name="verticalSpacer_14">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QWidget" name="tab">
-           <attribute name="title">
-            <string>stations</string>
-           </attribute>
-           <layout class="QHBoxLayout" name="horizontalLayout_75" stretch="1,1,4">
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>126</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+       <zorder>groupBox</zorder>
+       <zorder>groupBox_2</zorder>
+       <zorder>verticalSpacer_14</zorder>
+       <zorder></zorder>
+       <zorder>line_7</zorder>
+      </widget>
+      <widget class="QWidget" name="page_worldmap">
+       <layout class="QVBoxLayout" name="verticalLayout_57" stretch="1,2">
+        <item>
+         <widget class="QSplitter" name="splitter_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="layoutWidget_7">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>available</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QTreeView" name="treeView_allAvailabeStations">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>List of all available stations
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>available</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeView_allAvailabeStations">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>List of all available stations
 Click on station to select it</string>
-                </property>
-                <property name="statusTip">
-                 <string>available stations</string>
-                </property>
-                <property name="editTriggers">
-                 <set>QAbstractItemView::NoEditTriggers</set>
-                </property>
-                <property name="dragEnabled">
-                 <bool>false</bool>
-                </property>
-                <property name="alternatingRowColors">
-                 <bool>true</bool>
+              </property>
+              <property name="statusTip">
+               <string>available stations</string>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="dragEnabled">
+               <bool>false</bool>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Filter:</string>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_2">
-                <item>
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Filter:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="lineEdit_allStationsFilter"/>
-                </item>
-               </layout>
+               <widget class="QLineEdit" name="lineEdit_allStationsFilter"/>
               </item>
              </layout>
             </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0">
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
+             <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
               <item>
                <widget class="QLabel" name="label_network_selected">
                 <property name="text">
@@ -2069,98 +2223,168 @@ Click on station to deselect it</string>
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_worldmap">
+             <layout class="QVBoxLayout" name="verticalLayout_61">
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_30">
-                <item>
-                 <spacer name="horizontalSpacer_18">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_worldmapZoomFull">
-                  <property name="toolTip">
-                   <string>zoom all</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>zoom all</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/zoom-fit-best-3.png</normaloff>:/icons/icons/zoom-fit-best-3.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QLabel" name="label_network_baselines">
+                <property name="text">
+                 <string>baselines </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTreeView" name="treeView_allSelectedBaselines">
+                <property name="mouseTracking">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_worldmap" stretch="0">
+          <item>
+           <widget class="QGroupBox" name="groupBox_7">
+            <property name="title">
+             <string>plot options</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_60">
+             <item>
+              <widget class="QRadioButton" name="radioButton_imageWorldmap">
+               <property name="text">
+                <string>show image</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_marker_worldmap">
+               <property name="text">
+                <string>show marker</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="horizontalSlider_markerSizeWorldmap">
+               <property name="minimum">
+                <number>10</number>
+               </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
+               <property name="value">
+                <number>30</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_showBaselines">
+               <property name="text">
+                <string>show baselines</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_16">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>279</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_3">
+       <layout class="QVBoxLayout" name="verticalLayout_58" stretch="1,2">
+        <item>
+         <widget class="QSplitter" name="splitter_6">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="layoutWidget_11">
+           <layout class="QVBoxLayout" name="verticalLayout_43">
+            <item>
+             <widget class="QLabel" name="label_30">
+              <property name="text">
+               <string>available</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeView_allAvailabeSources">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>List of all available sources
+Click on source to select it</string>
+              </property>
+              <property name="statusTip">
+               <string>available sources</string>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="dragEnabled">
+               <bool>false</bool>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_80">
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="text">
+                 <string>Filter:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_allStationsFilter_3"/>
               </item>
              </layout>
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>sources</string>
-           </attribute>
-           <layout class="QHBoxLayout" name="horizontalLayout_83" stretch="1,1,4">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_43">
-              <item>
-               <widget class="QLabel" name="label_30">
-                <property name="text">
-                 <string>available</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QTreeView" name="treeView_allAvailabeSources">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>List of all available sources
-Click on source to select it</string>
-                </property>
-                <property name="statusTip">
-                 <string>available sources</string>
-                </property>
-                <property name="editTriggers">
-                 <set>QAbstractItemView::NoEditTriggers</set>
-                </property>
-                <property name="dragEnabled">
-                 <bool>false</bool>
-                </property>
-                <property name="alternatingRowColors">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_80">
-                <item>
-                 <widget class="QLabel" name="label_34">
-                  <property name="text">
-                   <string>Filter:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="lineEdit_allStationsFilter_3"/>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QHBoxLayout" name="horizontalLayout_98" stretch="1,1,5">
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_42">
               <item>
@@ -2245,40 +2469,97 @@ Click on source to deselect it</string>
              </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_skymap">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_81">
-                <item>
-                 <spacer name="horizontalSpacer_36">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_skymapZoomFull">
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/zoom-fit-best-3.png</normaloff>:/icons/icons/zoom-fit-best-3.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
+             <widget class="QGroupBox" name="groupBox_6">
+              <property name="title">
+               <string>additional filters</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_41">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_skymap" stretch="0">
+          <item>
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="title">
+             <string>plot options</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_59">
+             <item>
+              <widget class="QRadioButton" name="radioButton_imageSkymap">
+               <property name="text">
+                <string>show image</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radioButton_markerSkymap">
+               <property name="text">
+                <string>show marker</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="horizontalSlider_markerSkymap">
+               <property name="minimum">
+                <number>10</number>
+               </property>
+               <property name="maximum">
+                <number>50</number>
+               </property>
+               <property name="value">
+                <number>25</number>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_showEcliptic">
+               <property name="text">
+                <string>show ecliptic</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_15">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -2635,7 +2916,7 @@ Click on source to deselect it</string>
            <attribute name="title">
             <string>Wait times</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,10">
+           <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,5">
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_21">
               <item>
@@ -2645,6 +2926,23 @@ Click on source to deselect it</string>
                 </property>
                 <item row="1" column="0">
                  <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <item>
+                   <widget class="QPushButton" name="pushButton_11">
+                    <property name="toolTip">
+                     <string>save as default name</string>
+                    </property>
+                    <property name="statusTip">
+                     <string>save as default name</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset resource="myresources.qrc">
+                      <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                    </property>
+                   </widget>
+                  </item>
                   <item>
                    <spacer name="horizontalSpacer_14">
                     <property name="orientation">
@@ -2906,123 +3204,240 @@ Click on source to deselect it</string>
            <attribute name="title">
             <string>Axis limit buffer</string>
            </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,10">
+           <layout class="QVBoxLayout" name="verticalLayout_64">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0">
+             <layout class="QVBoxLayout" name="verticalLayout_46" stretch="1,5">
               <item>
-               <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,3">
-                <property name="horizontalSpacing">
-                 <number>20</number>
-                </property>
-                <item row="0" column="0">
-                 <layout class="QFormLayout" name="formLayout_17">
+               <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0">
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_3" columnstretch="1,3">
+                  <property name="horizontalSpacing">
+                   <number>20</number>
+                  </property>
                   <item row="0" column="0">
-                   <widget class="QLabel" name="axis1LowLabel_3">
-                    <property name="text">
-                     <string>axis 1 low</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis1low">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.500000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>5.000000000000000</double>
-                    </property>
-                   </widget>
+                   <layout class="QFormLayout" name="formLayout_17">
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="axis1LowLabel_3">
+                      <property name="text">
+                       <string>axis 1 low</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis1low">
+                      <property name="suffix">
+                       <string> [deg]</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.500000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>5.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="axis2LowLabel_5">
+                      <property name="text">
+                       <string>axis 1 up</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis1up">
+                      <property name="suffix">
+                       <string> [deg]</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.500000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>5.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLabel" name="axis2LowLabel_6">
+                      <property name="text">
+                       <string>axis 2 low</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis2low">
+                      <property name="suffix">
+                       <string> [deg]</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.500000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QLabel" name="axis2UpLabel_3">
+                      <property name="text">
+                       <string>axis 2 up</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis2up">
+                      <property name="suffix">
+                       <string> [deg]</string>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.500000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="0" colspan="2">
+                     <widget class="Line" name="line_9">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="0">
+                     <widget class="QLabel" name="label_17">
+                      <property name="text">
+                       <string>member</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <layout class="QHBoxLayout" name="horizontalLayout_42">
+                      <item>
+                       <widget class="QComboBox" name="comboBox_stationSettingMember_axis"/>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_addGroupStationCable">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="myresources.qrc">
+                          <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
                   </item>
                   <item row="1" column="0">
-                   <widget class="QLabel" name="axis2LowLabel_5">
-                    <property name="text">
-                     <string>axis 1 up</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis1up">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.500000000000000</double>
-                    </property>
-                    <property name="value">
-                     <double>5.000000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="axis2LowLabel_6">
-                    <property name="text">
-                     <string>axis 2 low</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis2low">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.500000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="axis2UpLabel_3">
-                    <property name="text">
-                     <string>axis 2 up</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QDoubleSpinBox" name="DoubleSpinBox_axis2up">
-                    <property name="suffix">
-                     <string> [deg]</string>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.500000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0" colspan="2">
-                   <widget class="Line" name="line_9">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QLabel" name="label_17">
-                    <property name="text">
-                     <string>member</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_42">
+                   <layout class="QHBoxLayout" name="horizontalLayout_19">
                     <item>
-                     <widget class="QComboBox" name="comboBox_stationSettingMember_axis"/>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_addGroupStationCable">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
+                     <widget class="QPushButton" name="pushButton_12">
+                      <property name="toolTip">
+                       <string>save as default name</string>
+                      </property>
+                      <property name="statusTip">
+                       <string>save as default name</string>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
                       <property name="icon">
                        <iconset resource="myresources.qrc">
-                        <normaloff>:/icons/icons/station_group_plus.png</normaloff>:/icons/icons/station_group_plus.png</iconset>
+                        <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <spacer name="horizontalSpacer_23">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pushButton_setupAxisAdd">
+                      <property name="text">
+                       <string>add</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="0" column="1">
+                   <layout class="QVBoxLayout" name="verticalLayout_10">
+                    <item>
+                     <widget class="QLabel" name="label_24">
+                      <property name="text">
+                       <string>defined</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QTreeWidget" name="treeWidget_setupStationAxis">
+                      <column>
+                       <property name="text">
+                        <string>member</string>
+                       </property>
+                      </column>
+                      <column>
+                       <property name="text">
+                        <string>axis 1 low</string>
+                       </property>
+                      </column>
+                      <column>
+                       <property name="text">
+                        <string>axis 1 up</string>
+                       </property>
+                      </column>
+                      <column>
+                       <property name="text">
+                        <string>axis 2 low</string>
+                       </property>
+                      </column>
+                      <column>
+                       <property name="text">
+                        <string>axis 2 up</string>
+                       </property>
+                      </column>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item row="1" column="1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_23">
+                    <item>
+                     <spacer name="horizontalSpacer_24">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pushButton_16">
+                      <property name="text">
+                       <string>remove selected</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -3030,118 +3445,22 @@ Click on source to deselect it</string>
                   </item>
                  </layout>
                 </item>
-                <item row="1" column="0">
-                 <layout class="QHBoxLayout" name="horizontalLayout_19">
-                  <item>
-                   <spacer name="horizontalSpacer_23">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pushButton_setupAxisAdd">
-                    <property name="text">
-                     <string>add</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="myresources.qrc">
-                      <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="0" column="1">
-                 <layout class="QVBoxLayout" name="verticalLayout_10">
-                  <item>
-                   <widget class="QLabel" name="label_24">
-                    <property name="text">
-                     <string>defined</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QTreeWidget" name="treeWidget_setupStationAxis">
-                    <column>
-                     <property name="text">
-                      <string>member</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>axis 1 low</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>axis 1 up</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>axis 2 low</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>axis 2 up</string>
-                     </property>
-                    </column>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item row="1" column="1">
-                 <layout class="QHBoxLayout" name="horizontalLayout_23">
-                  <item>
-                   <spacer name="horizontalSpacer_24">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="pushButton_16">
-                    <property name="text">
-                     <string>remove selected</string>
-                    </property>
-                    <property name="icon">
-                     <iconset resource="myresources.qrc">
-                      <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                </layout>
               </item>
+              <item>
+               <spacer name="verticalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>388</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>388</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -3816,7 +4135,7 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="weightFactors">
-       <layout class="QVBoxLayout" name="verticalLayout_7">
+       <layout class="QVBoxLayout" name="verticalLayout_62">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_45">
           <item>
@@ -4203,6 +4522,40 @@ Click on source to deselect it</string>
            </layout>
           </item>
           <item>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QPushButton" name="pushButton_9">
+              <property name="toolTip">
+               <string>save as default name</string>
+              </property>
+              <property name="statusTip">
+               <string>save as default name</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
            <spacer name="horizontalSpacer_11">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -4388,40 +4741,7 @@ Click on source to deselect it</string>
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="0" column="0">
              <layout class="QGridLayout" name="gridLayout_2">
-              <item row="1" column="0">
-               <widget class="QLabel" name="experimentDesctiptionLabel">
-                <property name="text">
-                 <string>experiment desctiption</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1">
-               <widget class="QLineEdit" name="experimentNameLineEdit">
-                <property name="toolTip">
-                 <string>enter experiment name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>experiment name</string>
-                </property>
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="experimentNameLabel">
-                <property name="text">
-                 <string>experiment name</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
                <widget class="QLineEdit" name="schedulerLineEdit">
                 <property name="toolTip">
                  <string>enter scheduler name here</string>
@@ -4432,36 +4752,26 @@ Click on source to deselect it</string>
                 <property name="text">
                  <string/>
                 </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
-                <property name="toolTip">
-                 <string>enter experiment description here</string>
-                </property>
-                <property name="statusTip">
-                 <string>experiment description</string>
-                </property>
                 <property name="placeholderText">
-                 <string/>
+                 <string>e.g.: VIEN</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
+              <item row="0" column="0">
                <widget class="QLabel" name="schedulerLabel">
                 <property name="text">
                  <string>scheduler</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
+              <item row="1" column="0">
                <widget class="QLabel" name="correlatorLabel">
                 <property name="text">
                  <string>correlator</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
+              <item row="1" column="2">
                <widget class="QPushButton" name="pushButton_22">
                 <property name="toolTip">
                  <string>save as default email addres</string>
@@ -4478,7 +4788,7 @@ Click on source to deselect it</string>
                 </property>
                </widget>
               </item>
-              <item row="3" column="1">
+              <item row="1" column="1">
                <widget class="QLineEdit" name="correlatorLineEdit">
                 <property name="toolTip">
                  <string>enter correlator name here</string>
@@ -4489,9 +4799,12 @@ Click on source to deselect it</string>
                 <property name="text">
                  <string/>
                 </property>
+                <property name="placeholderText">
+                 <string>e.g.: VIEN</string>
+                </property>
                </widget>
               </item>
-              <item row="2" column="2">
+              <item row="0" column="2">
                <widget class="QPushButton" name="pushButton_23">
                 <property name="toolTip">
                  <string>save as default email addres</string>
@@ -4508,41 +4821,20 @@ Click on source to deselect it</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="pushButton_24">
-                <property name="toolTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="pushButton_27">
-                <property name="toolTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
              </layout>
+            </item>
+            <item row="1" column="0">
+             <spacer name="verticalSpacer_17">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -4750,8 +5042,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>983</width>
+             <height>705</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -5813,145 +6105,196 @@ Click on source to deselect it</string>
        </layout>
       </widget>
       <widget class="QWidget" name="sky_coverage">
-       <layout class="QHBoxLayout" name="horizontalLayout_46" stretch="1,2">
+       <layout class="QHBoxLayout" name="horizontalLayout_30">
         <item>
-         <layout class="QFormLayout" name="formLayout_12">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>distance type</string>
-            </property>
-           </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_63">
+          <item>
+           <layout class="QFormLayout" name="formLayout_12">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>distance type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="comboBox_skyCoverageDistanceType">
+              <item>
+               <property name="text">
+                <string>cosine</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>linear</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>constant</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="influenceDistanceLabel">
+              <property name="text">
+               <string>influence distance</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QDoubleSpinBox" name="influenceDistanceDoubleSpinBox">
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+              <property name="minimum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>180.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>30.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_27">
+              <property name="text">
+               <string>time type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="comboBox_skyCoverageTimeType">
+              <item>
+               <property name="text">
+                <string>cosine</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>linear</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>constant</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="influenceTimeLabel">
+              <property name="text">
+               <string>influence time</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="influenceTimeSpinBox">
+              <property name="suffix">
+               <string> [s]</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>86400</number>
+              </property>
+              <property name="singleStep">
+               <number>600</number>
+              </property>
+              <property name="value">
+               <number>3600</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="maxDistanceForCombiningAntennasLabel">
+              <property name="text">
+               <string>max distance for combining antennas</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QDoubleSpinBox" name="maxDistanceForCombiningAntennasDoubleSpinBox">
+              <property name="suffix">
+               <string> [m]</string>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>50000.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>5000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox_skyCoverageDistanceType">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_29">
             <item>
-             <property name="text">
-              <string>cosine</string>
-             </property>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
-             <property name="text">
-              <string>linear</string>
-             </property>
+             <widget class="QPushButton" name="pushButton_10">
+              <property name="toolTip">
+               <string>save as default name</string>
+              </property>
+              <property name="statusTip">
+               <string>save as default name</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+              </property>
+             </widget>
             </item>
-            <item>
-             <property name="text">
-              <string>constant</string>
-             </property>
-            </item>
-           </widget>
+           </layout>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="influenceDistanceLabel">
-            <property name="text">
-             <string>influence distance</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="influenceDistanceDoubleSpinBox">
-            <property name="suffix">
-             <string> [deg]</string>
-            </property>
-            <property name="minimum">
-             <double>1.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>180.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>5.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>30.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_27">
-            <property name="text">
-             <string>time type</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="comboBox_skyCoverageTimeType">
-            <item>
-             <property name="text">
-              <string>cosine</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>linear</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>constant</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="influenceTimeLabel">
-            <property name="text">
-             <string>influence time</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QSpinBox" name="influenceTimeSpinBox">
-            <property name="suffix">
-             <string> [s]</string>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>86400</number>
-            </property>
-            <property name="singleStep">
-             <number>600</number>
-            </property>
-            <property name="value">
-             <number>3600</number>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="maxDistanceForCombiningAntennasLabel">
-            <property name="text">
-             <string>max distance for combining antennas</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QDoubleSpinBox" name="maxDistanceForCombiningAntennasDoubleSpinBox">
-            <property name="suffix">
-             <string> [m]</string>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <double>50000.000000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>1000.000000000000000</double>
-            </property>
-            <property name="value">
-             <double>5000.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="Line" name="line">
+          <item>
+           <spacer name="verticalSpacer_19">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Vertical</enum>
             </property>
-           </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -6694,54 +7037,54 @@ Click on source to deselect it</string>
            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:14pt; font-weight:600;&quot;&gt;FAQ:&lt;/span&gt;&lt;/p&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;FAQ:&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:12pt; font-weight:600;&quot;&gt;I have a question, whom should I contact?&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you have a question about VieVS Scheduler please read the following FAQs first. Also check there exists additional information via the &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; mode. You can enter the &amp;quot;What is this?&amp;quot; mode by pressing the &lt;/span&gt;&lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; icon at your help toolbar or by pressing F1. After entering the &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; mode try to click the item that you need help with. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you still have questions please feel free to contact us via: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;I have a question, whom should I contact?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If you have a question about VieVS Scheduler please read the following FAQs first. Also check there exists additional information via the &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; mode. You can enter the &amp;quot;What is this?&amp;quot; mode by pressing the &lt;/span&gt;&lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; icon at your help toolbar or by pressing F1. After entering the &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; mode try to click the item that you need help with. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If you still have questions please feel free to contact us via: &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Where can I change the default parameters?&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Browse to your binary files and open the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;There you can change the following default values:&lt;/span&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;station.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; This are the default station parameters that covers the whole time span and is parent of all other parameters&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;source.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default source parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;&lt;/ul&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;baseline.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default baseline parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.waitTimes:&lt;/span&gt; Default values for station wait times&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.cableWrapBuffers:&lt;/span&gt; Default values for cable wrap buffers&lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;You can manually edit these parameters and they will get loaded the next time you open VieVS Scheduler. Please note that some of the default parameters are necessary and if they are not provided some hard coded default values will be taken.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Where can I change the default parameters?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Browse to your binary files and open the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;There you can change the following default values:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-style:italic;&quot;&gt;station.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; This are the default station parameters that covers the whole time span and is parent of all other parameters&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;source.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default source parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;&lt;/ul&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;baseline.parameters.parameter name=&amp;quot;default&amp;quot;:&lt;/span&gt; This are the default baseline parameters that covers the whole time span and is parent of all other parameters&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.waitTimes:&lt;/span&gt; Default values for station wait times&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;station.cableWrapBuffers:&lt;/span&gt; Default values for cable wrap buffers&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;You can manually edit these parameters and they will get loaded the next time you open VieVS Scheduler. Please note that some of the default parameters are necessary and if they are not provided some hard coded default values will be taken.&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Where can I remove my saved parameters or groups?&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Everything you saved is stored in the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Your stored parameters are located in:&lt;/span&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.parameters&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.parameters&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.parameters&lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;You saved groups are located in: &lt;/span&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.groups&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.groups&lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.groups&lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;The name is always provided as a attribute. You can manually edit this file and delete some parameters or groups. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Be careful not to delete the default parameters! Otherwise some hard coded internal values will be taken! &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Where can I remove my saved parameters or groups?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Everything you saved is stored in the settings.xml file (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; page).&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Your stored parameters are located in:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.parameters&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.parameters&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.parameters&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;You saved groups are located in: &lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.station.groups&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.source.groups&lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;settings.baseline.groups&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;The name is always provided as a attribute. You can manually edit this file and delete some parameters or groups. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Be careful not to delete the default parameters! Otherwise some hard coded internal values will be taken! &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;My GUI is crashing, what should I do? &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Did you manually change the settings.xml file? (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; page) &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If yes it is maybe due to a wrong xml format. Delete your settings.xml file and restart VieVS Scheduler. If this does not solve the problem please write us an email to: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;My GUI is crashing, what should I do? &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Did you manually change the settings.xml file? (you can find the path to this file on the settings &lt;/span&gt;&lt;img src=&quot;:/icons/icons/emblem-system-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; page) &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If yes it is maybe due to a wrong xml format. Delete your settings.xml file and restart VieVS Scheduler. If this does not solve the problem please write us an email to: &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Why is feature xy not implemented?&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you have great ideas for missing features please tell us via: &lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; and we will discuss it. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2';&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Why is feature xy not implemented?&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If you have great ideas for missing features please tell us via: &lt;/span&gt;&lt;span style=&quot; font-size:11pt; font-style:italic; text-decoration: underline;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; and we will discuss it. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-weight:600;&quot;&gt;Why does my minimum SNR not change? &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;There are four places where you specify a minimum SNR: &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;  &lt;/span&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;band policy &lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;parameter station &lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;paramter source &lt;/li&gt;
-&lt;li style=&quot; font-family:'MS Shell Dlg 2';&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;parameter baseline&lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;During the scheduling the software looks for each considered baseline which minimum SNR is required for the observed source, for the considered baseline, for each of the two participating stations and what is the backup value from the band policy. It will then calulate the required scan duration with the maximum value of these minimun required SNRs.  &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;The value in band policy is required as a backup in the case you do not specify any min SNR information in the parameters. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;If you want to lower the minimum SNR make sure to also change the backup value in band policy. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'MS Shell Dlg 2';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Why does my minimum SNR not change? &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;There are four places where you specify a minimum SNR: &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;  &lt;/span&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;band policy &lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;parameter station &lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;paramter source &lt;/li&gt;
+&lt;li style=&quot; font-size:11pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;parameter baseline&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;During the scheduling the software looks for each considered baseline which minimum SNR is required for the observed source, for the considered baseline, for each of the two participating stations and what is the backup value from the band policy. It will then calulate the required scan duration with the maximum value of these minimun required SNRs.  &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;The value in band policy is required as a backup in the case you do not specify any min SNR information in the parameters. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;If you want to lower the minimum SNR make sure to also change the backup value in band policy. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -6783,6 +7126,8 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionInput"/>
    <addaction name="actionMode"/>
    <addaction name="actionGeneral"/>
+   <addaction name="actionNetwork"/>
+   <addaction name="actionSource_List"/>
    <addaction name="separator"/>
    <addaction name="actionStation"/>
    <addaction name="actionSource"/>
@@ -6830,7 +7175,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>1021</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menubasic">
@@ -6848,6 +7193,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionInput"/>
     <addaction name="actionMode"/>
     <addaction name="actionGeneral"/>
+    <addaction name="actionNetwork"/>
+    <addaction name="actionSource_List"/>
     <addaction name="menuSetup_2"/>
     <addaction name="actionWeight_factors"/>
     <addaction name="actionOutput"/>
@@ -6976,7 +7323,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionGeneral">
    <property name="icon">
     <iconset resource="myresources.qrc">
-     <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+     <normaloff>:/icons/icons/view-pim-calendar.png</normaloff>:/icons/icons/view-pim-calendar.png</iconset>
    </property>
    <property name="text">
     <string>General</string>
@@ -7161,8 +7508,279 @@ p, li { white-space: pre-wrap; }
     <string>Conditions</string>
    </property>
   </action>
+  <action name="actionNetwork">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+   </property>
+   <property name="text">
+    <string>Network</string>
+   </property>
+  </action>
+  <action name="actionSource_List">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/source_list.png</normaloff>:/icons/icons/source_list.png</iconset>
+   </property>
+   <property name="text">
+    <string>Source List</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>textEdit</tabstop>
+  <tabstop>spinBox_fontSize</tabstop>
+  <tabstop>fontComboBox_font</tabstop>
+  <tabstop>iconSizeSpinBox</tabstop>
+  <tabstop>treeWidget_2</tabstop>
+  <tabstop>nameLineEdit</tabstop>
+  <tabstop>pushButton_5</tabstop>
+  <tabstop>emailLineEdit</tabstop>
+  <tabstop>pushButton_6</tabstop>
+  <tabstop>pathToGUILineEdit</tabstop>
+  <tabstop>pushButton_18</tabstop>
+  <tabstop>pathToSchedulerLineEdit</tabstop>
+  <tabstop>pushButton_browseAntenna_2</tabstop>
+  <tabstop>pushButton_17</tabstop>
+  <tabstop>defaultSettingsFileLineEdit</tabstop>
+  <tabstop>pushButton_19</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>lineEdit_pathAntenna</tabstop>
+  <tabstop>pushButton_browseAntenna</tabstop>
+  <tabstop>lineEdit_pathEquip</tabstop>
+  <tabstop>pushButton_browseEquip</tabstop>
+  <tabstop>lineEdit_pathPosition</tabstop>
+  <tabstop>pushButton_browsePosition</tabstop>
+  <tabstop>lineEdit_pathMask</tabstop>
+  <tabstop>pushButton_browseMask</tabstop>
+  <tabstop>lineEdit_pathSource</tabstop>
+  <tabstop>pushButton_browseSource</tabstop>
+  <tabstop>lineEdit_pathFlux</tabstop>
+  <tabstop>pushButton_browseFlux</tabstop>
+  <tabstop>groupBox_17</tabstop>
+  <tabstop>lineEdit_pathModes</tabstop>
+  <tabstop>pushButton_browsModes</tabstop>
+  <tabstop>lineEdit_pathFreq</tabstop>
+  <tabstop>pushButton_browseFreq</tabstop>
+  <tabstop>lineEdit_pathTracks</tabstop>
+  <tabstop>pushButton_browseTracks</tabstop>
+  <tabstop>lineEdit_pathLoif</tabstop>
+  <tabstop>pushButton_browseLoif</tabstop>
+  <tabstop>lineEdit_pathRec</tabstop>
+  <tabstop>pushButton_browseRec</tabstop>
+  <tabstop>lineEdit_pathRx</tabstop>
+  <tabstop>pushButton_browseRx</tabstop>
+  <tabstop>lineEdit_pathHdpos</tabstop>
+  <tabstop>pushButton_browseHdpos</tabstop>
+  <tabstop>pushButton_saveCatalogPathes</tabstop>
+  <tabstop>groupBox_modeSked</tabstop>
+  <tabstop>comboBox_skedObsModes</tabstop>
+  <tabstop>pushButton_7</tabstop>
+  <tabstop>groupBox_modeCustom</tabstop>
+  <tabstop>sampleRateDoubleSpinBox</tabstop>
+  <tabstop>sampleBitsSpinBox</tabstop>
+  <tabstop>pushButton_loadMode</tabstop>
+  <tabstop>pushButton_saveMode</tabstop>
+  <tabstop>tableWidget_modeCustonBand</tabstop>
+  <tabstop>pushButton_modeCustomAddBAnd</tabstop>
+  <tabstop>tableWidget_ModesPolicy</tabstop>
+  <tabstop>lineEdit_ivsMaster</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>experimentNameLineEdit</tabstop>
+  <tabstop>plainTextEdit_experimentDescription</tabstop>
+  <tabstop>dateTimeEdit_sessionStart</tabstop>
+  <tabstop>spinBox_doy</tabstop>
+  <tabstop>doubleSpinBox_sessionDuration</tabstop>
+  <tabstop>calendarWidget</tabstop>
+  <tabstop>checkBox_fillinMode</tabstop>
+  <tabstop>checkBox_fillinModeInfluence</tabstop>
+  <tabstop>pushButton_8</tabstop>
+  <tabstop>checkBox_subnetting</tabstop>
+  <tabstop>treeView_allAvailabeStations</tabstop>
+  <tabstop>lineEdit_allStationsFilter</tabstop>
+  <tabstop>listView_allSelectedStations</tabstop>
+  <tabstop>pushButton_saveNetwork</tabstop>
+  <tabstop>pushButton_loadNetwork</tabstop>
+  <tabstop>treeView_allSelectedBaselines</tabstop>
+  <tabstop>radioButton_imageWorldmap</tabstop>
+  <tabstop>radioButton_marker_worldmap</tabstop>
+  <tabstop>horizontalSlider_markerSizeWorldmap</tabstop>
+  <tabstop>checkBox_showBaselines</tabstop>
+  <tabstop>treeView_allAvailabeSources</tabstop>
+  <tabstop>lineEdit_allStationsFilter_3</tabstop>
+  <tabstop>listView_allSelectedSources</tabstop>
+  <tabstop>pushButton_13</tabstop>
+  <tabstop>pushButton_15</tabstop>
+  <tabstop>pushButton_saveSourceList</tabstop>
+  <tabstop>pushButton_loadSourceList</tabstop>
+  <tabstop>radioButton_imageSkymap</tabstop>
+  <tabstop>radioButton_markerSkymap</tabstop>
+  <tabstop>horizontalSlider_markerSkymap</tabstop>
+  <tabstop>checkBox_showEcliptic</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>comboBox_stationSettingMember</tabstop>
+  <tabstop>pushButton_addGroupStationSetup</tabstop>
+  <tabstop>ComboBox_parameterStation</tabstop>
+  <tabstop>pushButton_stationParameter</tabstop>
+  <tabstop>DateTimeEdit_startParameterStation</tabstop>
+  <tabstop>DateTimeEdit_endParameterStation</tabstop>
+  <tabstop>comboBox_parameterStationTransition</tabstop>
+  <tabstop>pushButton_3</tabstop>
+  <tabstop>tableWidget_setupStation</tabstop>
+  <tabstop>treeWidget_setupStation</tabstop>
+  <tabstop>pushButton_4</tabstop>
+  <tabstop>comboBox_setupStation</tabstop>
+  <tabstop>comboBox_sourceSettingMember</tabstop>
+  <tabstop>pushButton_addGroupSourceSetup</tabstop>
+  <tabstop>ComboBox_parameterSource</tabstop>
+  <tabstop>pushButton_sourceParameter</tabstop>
+  <tabstop>DateTimeEdit_startParameterSource</tabstop>
+  <tabstop>DateTimeEdit_endParameterSource</tabstop>
+  <tabstop>comboBox_parameterSourceTransition</tabstop>
+  <tabstop>pushButton_addSetupSource</tabstop>
+  <tabstop>tableWidget_setupSource</tabstop>
+  <tabstop>treeWidget_setupSource</tabstop>
+  <tabstop>pushButton_removeSetupSource</tabstop>
+  <tabstop>comboBox_setupSource</tabstop>
+  <tabstop>comboBox_baselineSettingMember</tabstop>
+  <tabstop>pushButton_addGroupBaselineSetup</tabstop>
+  <tabstop>ComboBox_parameterBaseline</tabstop>
+  <tabstop>pushButton__baselineParameter</tabstop>
+  <tabstop>DateTimeEdit_startParameterBaseline</tabstop>
+  <tabstop>DateTimeEdit_endParameterBaseline</tabstop>
+  <tabstop>comboBox_parameterBaselineTransition</tabstop>
+  <tabstop>pushButton_addSetupBaseline</tabstop>
+  <tabstop>tableWidget_setupBaseline</tabstop>
+  <tabstop>treeWidget_setupBaseline</tabstop>
+  <tabstop>pushButton_removeSetupBaseline</tabstop>
+  <tabstop>comboBox_setupBaseline</tabstop>
+  <tabstop>checkBox_weightCoverage</tabstop>
+  <tabstop>doubleSpinBox_weightSkyCoverage</tabstop>
+  <tabstop>checkBox_weightNobs</tabstop>
+  <tabstop>doubleSpinBox_weightNumberOfObservations</tabstop>
+  <tabstop>checkBox_weightDuration</tabstop>
+  <tabstop>doubleSpinBox_weightDuration</tabstop>
+  <tabstop>checkBox_weightAverageSources</tabstop>
+  <tabstop>doubleSpinBox_weightAverageSources</tabstop>
+  <tabstop>checkBox_weightAverageStations</tabstop>
+  <tabstop>doubleSpinBox_weightAverageStations</tabstop>
+  <tabstop>checkBox_weightLowDeclination</tabstop>
+  <tabstop>doubleSpinBox_weightLowDec</tabstop>
+  <tabstop>doubleSpinBox_weightLowDecStart</tabstop>
+  <tabstop>doubleSpinBox_weightLowDecEnd</tabstop>
+  <tabstop>checkBox_weightLowElevation</tabstop>
+  <tabstop>doubleSpinBox_weightLowEl</tabstop>
+  <tabstop>doubleSpinBox_weightLowElStart</tabstop>
+  <tabstop>doubleSpinBox_weightLowElEnd</tabstop>
+  <tabstop>checkBox_outputSkdFile</tabstop>
+  <tabstop>checkBox_outputVex</tabstop>
+  <tabstop>checkBox_outputNGSFile</tabstop>
+  <tabstop>checkBox_outputStatisticsFile</tabstop>
+  <tabstop>checkBox_outputSourceGroupStatFile</tabstop>
+  <tabstop>checkBox_outputSkyCoverageFile</tabstop>
+  <tabstop>lineEdit_outputPath</tabstop>
+  <tabstop>pushButton_26</tabstop>
+  <tabstop>checkBox_outputAddTimestamp</tabstop>
+  <tabstop>tabWidget_4</tabstop>
+  <tabstop>schedulerLineEdit</tabstop>
+  <tabstop>pushButton_23</tabstop>
+  <tabstop>correlatorLineEdit</tabstop>
+  <tabstop>pushButton_22</tabstop>
+  <tabstop>experimentNameLineEdit_2</tabstop>
+  <tabstop>pushButton_31</tabstop>
+  <tabstop>schedulerLineEdit_2</tabstop>
+  <tabstop>pushButton_29</tabstop>
+  <tabstop>correlatorLineEdit_2</tabstop>
+  <tabstop>pushButton_28</tabstop>
+  <tabstop>correlatorLineEdit_3</tabstop>
+  <tabstop>pushButton_30</tabstop>
+  <tabstop>comboBox_stationSettingMember_axis</tabstop>
+  <tabstop>treeWidget_setupStationAxis</tabstop>
+  <tabstop>pushButton_setupWaitAdd</tabstop>
+  <tabstop>scrollArea_2</tabstop>
+  <tabstop>spinBox_scanSequenceCadence</tabstop>
+  <tabstop>groupBox_scanSequence</tabstop>
+  <tabstop>pushButton_addSourceGroup_Sequence</tabstop>
+  <tabstop>tableWidget_scanSequence</tabstop>
+  <tabstop>groupBox_CalibratorBlock</tabstop>
+  <tabstop>radioButton_calibratorTime</tabstop>
+  <tabstop>spinBox_calibratorTime</tabstop>
+  <tabstop>radioButton_calibratorScanSequence</tabstop>
+  <tabstop>spinBox_calibratorScanSequence</tabstop>
+  <tabstop>comboBox_calibratorBlock_calibratorSources</tabstop>
+  <tabstop>pushButton_addSourceGroup_Calibrator</tabstop>
+  <tabstop>spinBox_calibrator_maxScanSequence</tabstop>
+  <tabstop>radioButton_2</tabstop>
+  <tabstop>spinBox_calibratorFixedScanLength</tabstop>
+  <tabstop>radioButton</tabstop>
+  <tabstop>tableWidget_2</tabstop>
+  <tabstop>radioButton_3</tabstop>
+  <tabstop>doubleSpinBox_calibratorLowElStart</tabstop>
+  <tabstop>doubleSpinBox_calibratorLowElEnd</tabstop>
+  <tabstop>doubleSpinBox_calibratorHighElStart</tabstop>
+  <tabstop>doubleSpinBox_calibratorHighElEnd</tabstop>
+  <tabstop>groupBox_multiScheduling</tabstop>
+  <tabstop>tabWidget_3</tabstop>
+  <tabstop>treeWidget_multiSched</tabstop>
+  <tabstop>pushButton_addGroupStationWait</tabstop>
+  <tabstop>pushButton_addGroupStationSetup_2</tabstop>
+  <tabstop>pushButton_addGroupsourceSetup_2</tabstop>
+  <tabstop>pushButton_addGroupBaselineSetup_2</tabstop>
+  <tabstop>pushButton_multiSchedAddSelected</tabstop>
+  <tabstop>treeWidget_multiSchedSelected</tabstop>
+  <tabstop>pushButton_25</tabstop>
+  <tabstop>comboBox_skyCoverageDistanceType</tabstop>
+  <tabstop>influenceDistanceDoubleSpinBox</tabstop>
+  <tabstop>comboBox_skyCoverageTimeType</tabstop>
+  <tabstop>influenceTimeSpinBox</tabstop>
+  <tabstop>maxDistanceForCombiningAntennasDoubleSpinBox</tabstop>
+  <tabstop>spinBox_skyCoverageTemplateRandomObservations</tabstop>
+  <tabstop>horizontalSlider_skyCoverageMarkerSize</tabstop>
+  <tabstop>horizontalSlider_skyCoverageMarkerDistance</tabstop>
+  <tabstop>horizontalSlider_skyCoverageColorResultion</tabstop>
+  <tabstop>pushButton_skyCoverageTemplateRandom</tabstop>
+  <tabstop>comboBox_conditions_members</tabstop>
+  <tabstop>pushButton_addSourceGroup_conditions</tabstop>
+  <tabstop>spinBox_condtionsMinNumScans</tabstop>
+  <tabstop>spinBox_conditionsMinNumBaselines</tabstop>
+  <tabstop>pushButton_addCondition</tabstop>
+  <tabstop>comboBox_conditions_combinations</tabstop>
+  <tabstop>treeWidget_conditions</tabstop>
+  <tabstop>pushButton_removeCondition</tabstop>
+  <tabstop>listWidget_statistics</tabstop>
+  <tabstop>pushButton_addStatistic</tabstop>
+  <tabstop>pushButton_removeStatistic</tabstop>
+  <tabstop>treeWidget_statisticGeneral</tabstop>
+  <tabstop>treeWidget_statisticStation</tabstop>
+  <tabstop>treeWidget_statisticSource</tabstop>
+  <tabstop>radioButton_statistics_absolute</tabstop>
+  <tabstop>radioButton_statistics_relative</tabstop>
+  <tabstop>checkBox_statistics_removeMinimum</tabstop>
+  <tabstop>spinBox_statistics_show</tabstop>
+  <tabstop>lineEdit_faqSearch</tabstop>
+  <tabstop>textEdit_faq</tabstop>
+  <tabstop>DoubleSpinBox_axis1up</tabstop>
+  <tabstop>pushButton_14</tabstop>
+  <tabstop>SpinBox_corrSynch</tabstop>
+  <tabstop>treeWidget_setupStationWait</tabstop>
+  <tabstop>DoubleSpinBox_axis1low</tabstop>
+  <tabstop>comboBox_jobSchedule</tabstop>
+  <tabstop>comboBox_nThreads</tabstop>
+  <tabstop>spinBox_nCores</tabstop>
+  <tabstop>spinBox_chunkSize</tabstop>
+  <tabstop>comboBox_threadPlace</tabstop>
+  <tabstop>DoubleSpinBox_axis2low</tabstop>
+  <tabstop>pushButton_16</tabstop>
+  <tabstop>pushButton_setupAxisAdd</tabstop>
+  <tabstop>SpinBox_tape</tabstop>
+  <tabstop>SpinBox_calibration</tabstop>
+  <tabstop>SpinBox_setup</tabstop>
+  <tabstop>comboBox_stationSettingMember_wait</tabstop>
+  <tabstop>SpinBox_source</tabstop>
+  <tabstop>pushButton_addGroupStationCable</tabstop>
+  <tabstop>DoubleSpinBox_axis2up</tabstop>
+ </tabstops>
  <resources>
   <include location="myresources.qrc"/>
  </resources>
@@ -7174,12 +7792,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>663</x>
-     <y>389</y>
+     <x>639</x>
+     <y>323</y>
     </hint>
     <hint type="destinationlabel">
-     <x>966</x>
-     <y>393</y>
+     <x>970</x>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -7190,28 +7808,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>423</y>
+     <x>610</x>
+     <y>351</y>
     </hint>
     <hint type="destinationlabel">
-     <x>931</x>
-     <y>526</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightLowDeclination</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightLowDec</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>266</y>
+     <x>833</x>
+     <y>470</y>
     </hint>
    </hints>
   </connection>
@@ -7222,28 +7824,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>263</y>
+     <x>40</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>59</x>
-     <y>298</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightLowDeclination</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_weightLowDecEnd</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>330</y>
+     <x>40</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -7254,28 +7840,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>263</y>
+     <x>40</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
-     <x>334</x>
-     <y>298</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightLowDeclination</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightLowDecEnd</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>263</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>330</y>
+     <x>248</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>
@@ -7286,12 +7856,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>359</y>
+     <x>40</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>334</x>
-     <y>362</y>
+     <x>248</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightLowDeclination</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightLowDecEnd</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>276</y>
     </hint>
    </hints>
   </connection>
@@ -7302,44 +7888,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>359</y>
+     <x>40</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>59</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightLowElevation</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_weightLowElEnd</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>359</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>59</x>
-     <y>426</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightLowElevation</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightLowElStart</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>359</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>394</y>
+     <x>40</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -7350,12 +7904,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>359</y>
+     <x>40</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
-     <x>334</x>
-     <y>426</y>
+     <x>248</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -7366,92 +7920,76 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>231</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>234</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightAverageSources</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightAverageSources</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>199</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>202</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_weightDuration</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightDuration</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>59</x>
-     <y>167</y>
+     <x>40</x>
+     <y>195</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
-     <y>146</y>
+     <y>198</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_weightNobs</sender>
+   <sender>checkBox_weightLowElevation</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightNumberOfObservations</receiver>
+   <receiver>label_weightLowElEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>117</y>
+     <x>40</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>354</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightLowDeclination</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightLowDec</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>221</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
-     <y>120</y>
+     <y>224</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_weightCoverage</sender>
+   <sender>checkBox_weightLowDeclination</sender>
    <signal>clicked(bool)</signal>
-   <receiver>doubleSpinBox_weightSkyCoverage</receiver>
+   <receiver>label_weightLowDecEnd</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>91</y>
+     <x>40</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>276</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightLowElevation</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightLowElStart</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>299</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
-     <y>94</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_calibratorTime</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>spinBox_calibratorTime</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>579</x>
-     <y>176</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>967</x>
-     <y>179</y>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -7462,12 +8000,140 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>646</x>
-     <y>208</y>
+     <x>628</x>
+     <y>172</y>
     </hint>
     <hint type="destinationlabel">
-     <x>967</x>
-     <y>211</y>
+     <x>971</x>
+     <y>175</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightNobs</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightNumberOfObservations</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>calendarWidget</sender>
+   <signal>clicked(QDate)</signal>
+   <receiver>dateTimeEdit_sessionStart</receiver>
+   <slot>setDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>849</x>
+     <y>498</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>389</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>experimentNameLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>plainTextEdit_experimentDescription</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>518</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>401</x>
+     <y>216</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightAverageSources</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightAverageSources</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>169</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightDuration</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightDuration</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_calibratorTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_calibratorTime</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>577</x>
+     <y>146</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>971</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weightCoverage</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>doubleSpinBox_weightSkyCoverage</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>94</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEdit_sessionStart</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>calendarWidget</receiver>
+   <slot>setSelectedDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>195</x>
+     <y>389</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>990</x>
+     <y>521</y>
     </hint>
    </hints>
   </connection>

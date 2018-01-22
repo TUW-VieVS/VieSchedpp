@@ -54,6 +54,9 @@
         <file>icons/office-chart-bar.png</file>
         <file>icons/QtProject-creator-icon.png</file>
         <file>icons/conditions.png</file>
+        <file>icons/view-pim-calendar.png</file>
+        <file>icons/source_list.png</file>
+        <file>icons/source_white.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>

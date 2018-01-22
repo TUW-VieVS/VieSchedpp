@@ -165,8 +165,6 @@ private slots:
 
     void on_fontComboBox_font_currentFontChanged(const QFont &f);
 
-    void on_pushButton_worldmapZoomFull_clicked();
-
     void on_treeView_allAvailabeStations_entered(const QModelIndex &index);
 
     void worldmap_hovered(QPointF point, bool state);
@@ -283,8 +281,6 @@ private slots:
 
     void on_listView_allSelectedSources_entered(const QModelIndex &index);
 
-    void on_pushButton_skymapZoomFull_clicked();
-
     void on_pushButton_18_clicked();
 
     void on_pushButton_19_clicked();
@@ -315,14 +311,11 @@ private slots:
 
     void on_pushButton_26_clicked();
 
-    void changeDefaultSettings(QString path, QString value, QString name);
-    void on_pushButton_24_clicked();
+    void changeDefaultSettings(QStringList path, QStringList value, QString name);
 
     void on_pushButton_23_clicked();
 
     void on_pushButton_22_clicked();
-
-    void on_pushButton_27_clicked();
 
     void createDefaultParameterSettings();
 
@@ -353,6 +346,8 @@ private slots:
     void networkSizeChanged();
 
     void sourceListChanged();
+
+    void baselineListChanged();
 
     void on_comboBox_nThreads_currentTextChanged(const QString &arg1);
 
@@ -395,6 +390,44 @@ private slots:
 
     void on_lineEdit_allStationsFilter_3_textChanged(const QString &arg1);
 
+    void on_actionNetwork_triggered();
+
+    void on_actionSource_List_triggered();
+
+    void on_dateTimeEdit_sessionStart_dateChanged(const QDate &date);
+
+    void on_spinBox_doy_valueChanged(int arg1);
+
+    void on_pushButton_clicked();
+
+    void markerWorldmap();
+
+    void markerSkymap();
+
+    void on_radioButton_imageSkymap_toggled(bool checked);
+
+    void on_radioButton_imageWorldmap_toggled(bool checked);
+
+    void on_checkBox_showEcliptic_clicked(bool checked);
+
+    void baselineHovered(QPointF point ,bool flag);
+
+    void on_treeView_allSelectedBaselines_entered(const QModelIndex &index);
+
+    void on_checkBox_showBaselines_clicked(bool checked);
+
+    void on_pushButton_7_clicked();
+
+    void on_pushButton_8_clicked();
+
+    void on_pushButton_9_clicked();
+
+    void on_pushButton_10_clicked();
+
+    void on_pushButton_11_clicked();
+
+    void on_pushButton_12_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
@@ -410,6 +443,7 @@ private:
     QStandardItemModel *selectedStationModel;
     QStandardItemModel *selectedSourceModel;
     QStandardItemModel *selectedBaselineModel;
+    bool createBaselines;
 
     QStandardItemModel *allSourcePlusGroupModel;
     QStandardItemModel *allStationPlusGroupModel;
@@ -426,6 +460,7 @@ private:
     QChartView *setupBaseline;
     QChartView *statisticsView;
     QChartView *skyCoverageTemplateView;
+    bool plotSkyCoverageTemplate;
 
     QScatterSeries *availableStations;
     QScatterSeries *selectedStations;
