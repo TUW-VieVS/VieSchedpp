@@ -3262,6 +3262,12 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
         }else{
             ui->helpToolBar->hide();
         }
+    } else if (item->text(0) == "Analysis"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->analysisToolBar->show();
+        }else{
+            ui->analysisToolBar->hide();
+        }
     } else if(item->text(0) == "Welcome"){
         auto actions = ui->fileToolBar->actions();
         for(const auto &any:actions){
@@ -3372,6 +3378,28 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
                 }
             }
         }
+    } else if(item->text(0) == "Network"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Network"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Source List"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Source List"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
     } else if(item->text(0) == "Parameter Stations"){
         auto actions = ui->basicToolBar->actions();
         for(const auto &any:actions){
@@ -3460,6 +3488,17 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
                 }
             }
         }
+    } else if(item->text(0) == "Conditions"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Conditions"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
     } else if(item->text(0) == "What is this?"){
         auto actions = ui->helpToolBar->actions();
         for(const auto &any:actions){
@@ -3471,10 +3510,21 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
                 }
             }
         }
-    } else if(item->text(0) == "Current Release"){
+    } else if(item->text(0) == "FAQ"){
         auto actions = ui->helpToolBar->actions();
         for(const auto &any:actions){
-            if(any->text() == "Current Release"){
+            if(any->text() == "FAQ"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Current Reference"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Current Reference"){
                 if(item->checkState(0) == Qt::Checked){
                     any->setVisible(true);
                 }else{
@@ -3497,6 +3547,17 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
         auto actions = ui->helpToolBar->actions();
         for(const auto &any:actions){
             if(any->text() == "About Qt"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Statistics"){
+        auto actions = ui->analysisToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Statistics"){
                 if(item->checkState(0) == Qt::Checked){
                     any->setVisible(true);
                 }else{
