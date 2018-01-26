@@ -268,6 +268,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.minFlux.is_initialized()) {
         parameters.add("parameters.minFlux", PARA.minFlux);
     }
+    if (PARA.minElevation.is_initialized()){
+        parameters.add("parameters.minElevation", PARA.minElevation);
+    }
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
@@ -358,6 +361,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.fixedScanDuration = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxNumberOfScans") {
             para.maxNumberOfScans = it.second.get_value < unsigned int > ();
+        } else if (paraName == "minElevation") {
+            para.minElevation = it.second.get_value < unsigned int > ();
         } else if (paraName == "tryToFocusIfObservedOnce") {
             para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
         } else if (paraName == "minSNR") {

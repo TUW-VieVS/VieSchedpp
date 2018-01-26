@@ -674,7 +674,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                     break;
                 }
 
-                bool flag = thisStation.isVisible(moving_pv);
+                bool flag = thisStation.isVisible(moving_pv, source.getPARA().minElevation);
                 if(!flag){
                     scanValid = removeStation(ista, source);
                     if (!scanValid) {
@@ -706,7 +706,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 continue;
             }
 
-            bool flag = thisStation.isVisible(moving_pv);
+            bool flag = thisStation.isVisible(moving_pv, source.getPARA().minElevation);
             if(!flag){
                 scanValid = removeStation(ista, source);
                 if (!scanValid) {
@@ -786,7 +786,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 100 * nscans;
+            this_score *= 5;
         }
     }
 
@@ -858,7 +858,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 100 * nscans;
+            this_score *= 5;
         }
     }
 
@@ -929,7 +929,7 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 100 * nscans;
+            this_score *= 5;
         }
     }
 
@@ -1195,7 +1195,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
                 // calculate azimuth and elevation at end of scan
                 thisStation.calcAzEl(source, fillinScanEnd);
 
-                bool visible = thisStation.isVisible(fillinScanEnd);
+                bool visible = thisStation.isVisible(fillinScanEnd, source.getPARA().minElevation);
                 if (!visible) {
                     bool valid = removeStation(pv_id, source);
                     if (!valid) {

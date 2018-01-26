@@ -52,6 +52,7 @@ namespace VieVS{
             unsigned int maxScan = 20; ///< maximum allowed scan time in seconds
             unsigned int minScan = 600; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
+            double minElevation = 0;
             bool tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
@@ -99,6 +100,7 @@ namespace VieVS{
                 of << "    maxScan:          " << maxScan << "\n";
                 of << "    minScan:          " << minScan << "\n";
                 of << "    weight:           " << weight << "\n";
+                of << "    minElevation      " << minElevation << "\n";
                 of << "    maxNumberOfScans: " << maxNumberOfScans << "\n";
                 if(fixedScanDuration.is_initialized()){
                     of << "    fixedScanDuration " << *fixedScanDuration << "\n";
@@ -328,7 +330,11 @@ namespace VieVS{
          */
         void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
             Source::events_ = EVENTS;
-            Source::nextEvent_ = EVENTS[0].time;
+            Source::nextEvent_ = 0;
+        }
+
+        void setNextEvent(unsigned int nextEvent) {
+            Source::nextEvent_ = nextEvent;
         }
 
         /**

@@ -506,8 +506,14 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 
         unsigned int scanTime = scan.getTimes().maxTime() - scan.getTimes().getEndOfCalibrationTime(0);
 
+        string ftlc;
+        if(skdCatalogReader.getFreqTwoLetterCode().empty()){
+            ftlc = "SX";
+        }else{
+            ftlc = skdCatalogReader.getFreqTwoLetterCode();
+        }
         of << boost::format("%-8s %3d %s PREOB  %s  %8d MIDOB         0 POSTOB ")
-              % srcName %preob %skdCatalogReader.getFreqTwoLetterCode() %TimeSystem::ptime2string_doy(start) %scanTime;
+              % srcName %preob %ftlc %TimeSystem::ptime2string_doy(start) %scanTime;
 
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);
@@ -535,57 +541,71 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
     of << "$CODES\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    unsigned long nchannels = skd.getChannelNumber2band().size();
-    const std::map<std::string, char> &olc = skd.getOneLetterCode();
+    if(!ObservationMode::manual) {
 
-    for (const auto &trackId:skd.getTracksIds()) {
+        unsigned long nchannels = skd.getChannelNumber2band().size();
+        const std::map<std::string, char> &olc = skd.getOneLetterCode();
 
-        //output first line!
-        of << "F " << skd.getFreqName() << " " << skd.getFreqTwoLetterCode();
-        for (const auto &any:skd.getStaName2tracksMap()) {
-            if (any.second == trackId) {
-                of << " " << any.first;
+        for (const auto &trackId:skd.getTracksIds()) {
+
+            //output first line!
+            of << "F " << skd.getFreqName() << " " << skd.getFreqTwoLetterCode();
+            for (const auto &any:skd.getStaName2tracksMap()) {
+                if (any.second == trackId) {
+                    of << " " << any.first;
+                }
+            }
+            of << "\n";
+
+            //output C block
+            for (int i = 1; i < nchannels + 1; ++i) {
+                of << "C " << skd.getFreqTwoLetterCode() << " " << skd.getChannelNumber2band().at(i) << " "
+                   << skd.getChannelNumber2skyFreq().at(i) << " "
+                   << skd.getChannelNumber2phaseCalFrequency().at(i) << " "
+                   << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " MK341:"
+                   << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth() << " "
+                   << skd.getTracksId2channelNumber2tracksMap().at(trackId).at(i) << "\n";
+            }
+
+        }
+        for (const auto &sta:stations) {
+            if (skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()) {
+                cerr << "WARNING: skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
+                     << sta.getName() << " MISSING in this mode!;\n";
+                of << "* F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName()
+                   << " MISSING in this mode!\n";
             }
         }
-        of << "\n";
 
-        //output C block
-        for (int i = 1; i < nchannels + 1; ++i) {
-            of << "C " << skd.getFreqTwoLetterCode() << " " << skd.getChannelNumber2band().at(i) << " "
-               << skd.getChannelNumber2skyFreq().at(i) << " "
-               << skd.getChannelNumber2phaseCalFrequency().at(i) << " " << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " MK341:"
-               << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth() << " "
-               << skd.getTracksId2channelNumber2tracksMap().at(trackId).at(i) << "\n";
+        of << "R " << skd.getFreqTwoLetterCode() << " " << skd.getSampleRate() << "\n";
+        of << "B " << skd.getFreqTwoLetterCode() << "\n";
+
+        for (const auto &staName:skd.getStaNames()) {
+            const auto &loifId = skd.getStaName2loifId().at(staName);
+            const vector<string> loif = skd.getLoifId2loifInfo().at(loifId);
+            for (auto any:loif) {
+                any = boost::algorithm::trim_copy(any);
+                vector<string> splitVector;
+                boost::split(splitVector, any, boost::is_space(), boost::token_compress_on);
+                string nr = splitVector[1];
+                string IF = splitVector[2];
+                string band = splitVector[3];
+                string freq = splitVector[4];
+                string sideBand = splitVector[5];
+
+                of << boost::format("L %c %2s %2s %2s %8s %3s %s\n") % olc.at(staName) % skd.getFreqTwoLetterCode() %
+                      band % IF % freq % nr % sideBand;
+            }
+
         }
 
-    }
-    for (const auto &sta:stations){
-        if(skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()){
-            cerr << "WARNING: skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!;\n";
-            of << "* F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName() << " MISSING in this mode!\n";
+    }else{
+        of << "manual observing mode used!\n";
+        of << "    bits:     " << ObservationMode::bits << "\n";
+        of << "    channels: " << ObservationMode::sampleRate << "\n";
+        for (const auto &any: ObservationMode::bands){
+            of << "    band: " << any << " nChannels: " << ObservationMode::nChannels[any] << " wavelength: " << ObservationMode::wavelength[any] <<"\n";
         }
     }
-
-    of << "R " << skd.getFreqTwoLetterCode() << " " << skd.getSampleRate() << "\n";
-    of << "B " << skd.getFreqTwoLetterCode() << "\n";
-
-    for (const auto &staName:skd.getStaNames()) {
-        const auto &loifId = skd.getStaName2loifId().at(staName);
-        const vector<string> loif = skd.getLoifId2loifInfo().at(loifId);
-        for (auto any:loif) {
-            any = boost::algorithm::trim_copy(any);
-            vector<string> splitVector;
-            boost::split(splitVector, any, boost::is_space(), boost::token_compress_on);
-            string nr = splitVector[1];
-            string IF = splitVector[2];
-            string band = splitVector[3];
-            string freq = splitVector[4];
-            string sideBand = splitVector[5];
-
-            of << boost::format("L %c %2s %2s %2s %8s %3s %s\n") % olc.at(staName) % skd.getFreqTwoLetterCode() % band % IF % freq % nr % sideBand;
-        }
-
-    }
-
 }
 

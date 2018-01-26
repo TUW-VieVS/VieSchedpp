@@ -1062,6 +1062,7 @@ void Initializer::initializeSources() noexcept {
     parentPARA.minRepeat = 1800;
     parentPARA.maxScan = 9999;
     parentPARA.minScan = 1;
+    parentPARA.minElevation = 0;
     parentPARA.tryToFocusIfObservedOnce = false;
 
     for (const auto &any:ObservationMode::bands) {
@@ -1159,6 +1160,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             if (newPARA.maxScan.is_initialized()) {
                 combinedPARA.maxScan = *newPARA.maxScan;
             }
+            if (newPARA.maxNumberOfScans.is_initialized()) {
+                combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
+            }
             if (newPARA.maxNumberOfScans.is_initialized() && !newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
@@ -1170,6 +1174,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             }
             if (newPARA.fixedScanDuration.is_initialized()) {
                 combinedPARA.fixedScanDuration = *newPARA.fixedScanDuration;
+            }
+            if (newPARA.minElevation.is_initialized()){
+                combinedPARA.minElevation = *newPARA.minElevation*deg2rad;
             }
 
             if (!newPARA.ignoreStations.empty()) {
@@ -1663,10 +1670,12 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
+
             const string &name = it.second.get_value<string>();
             reader.initializeModesCatalogs(name);
             ObservationMode::sampleRate = reader.getSampleRate();
             ObservationMode::bits = reader.getBits();
+            ObservationMode::manual = false;
 
             const auto &chan2band = reader.getChannelNumber2band();
             vector<string> bands;
@@ -1741,25 +1750,28 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
             ObservationMode::sampleRate = it.second.get_value<double>();
         } else if(it.first == "bits"){
             ObservationMode::bits = it.second.get_value<unsigned int>();
-        } else if(it.first == "band"){
-            double wavelength;
-            unsigned int channels;
-            string name;
+        } else if(it.first == "bands"){
+            ObservationMode::manual = true;
+            for(const auto &itt: it.second){
+                double wavelength;
+                unsigned int channels;
+                string name;
 
-            for (const auto &it_band:it.second){
+                for (const auto &it_band:itt.second){
 
-                if(it_band.first == "<xmlattr>"){
-                    name = it_band.second.get_child("name").data();
-                }else if(it_band.first == "wavelength"){
-                    wavelength = it_band.second.get_value<double>();
-                }else if(it_band.first == "chanels"){
-                    channels = it_band.second.get_value<unsigned int>();
+                    if(it_band.first == "<xmlattr>"){
+                        name = it_band.second.get_child("name").data();
+                    }else if(it_band.first == "wavelength"){
+                        wavelength = it_band.second.get_value<double>();
+                    }else if(it_band.first == "chanels"){
+                        channels = it_band.second.get_value<unsigned int>();
+                    }
                 }
-            }
-            ObservationMode::bands.push_back(name);
+                ObservationMode::bands.push_back(name);
 
-            ObservationMode::nChannels[name] = channels;
-            ObservationMode::wavelength[name] = wavelength;
+                ObservationMode::nChannels[name] = channels;
+                ObservationMode::wavelength[name] = wavelength;
+            }
         }else if(it.first == "bandPolicies"){
 
             for (const auto &it_bandPolicies:it.second){
@@ -2927,7 +2939,7 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
             stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
 
             // check if source is up from station
-            bool flag = stations_[staid].isVisible(p);
+            bool flag = stations_[staid].isVisible(p, source.getPARA().minElevation);
             if(flag){
                 ++visible;
             }else{

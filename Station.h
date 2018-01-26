@@ -366,7 +366,7 @@ namespace VieVS{
          * @param p pointing vector which holds time information and will be filled with azimuth and elevation information
          * @return true if station is visible
          */
-        bool isVisible(const PointingVector &p) const noexcept;
+        bool isVisible(const PointingVector &p, double minElevationSource) const noexcept;
 
         /**
          * @brief calculate slew time between current pointing vector and this pointing vector
@@ -424,7 +424,7 @@ namespace VieVS{
          */
         void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
             Station::events_ = EVENTS;
-            Station::nextEvent_ = EVENTS[0].time;
+            Station::nextEvent_ = 0;
         }
 
 

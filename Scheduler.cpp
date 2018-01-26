@@ -264,7 +264,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
 
             thisSta.calcAzEl(thisSource, p);
 
-            bool flag = thisSta.isVisible(p);
+            bool flag = thisSta.isVisible(p, thisSource.getPARA().minElevation);
             if (flag){
                 visibleSta++;
                 endOfLastScans.push_back(lastScanLookup[ista]);
@@ -576,7 +576,8 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
 
     bool flag = false;
     for (auto &any:sources_) {
-        flag = flag || any.checkForNewEvent(time, hard_break, output, bodyLog);
+        bool flag2 = any.checkForNewEvent(time, hard_break, output, bodyLog);
+        flag = flag || flag2;
     }
     if (flag) {
         unsigned int nsrc = countAvailableSources();
@@ -895,7 +896,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             station.calcAzEl(source, pv_new_start);
 
             // check if source is up from station
-            bool flag = station.isVisible(pv_new_start);
+            bool flag = station.isVisible(pv_new_start, source.getPARA().minElevation);
             if(!flag){
                 continue;
             }
@@ -1051,7 +1052,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             station.calcAzEl(source, pv_new_end);
 
             // check if source is up from station
-            flag = station.isVisible(pv_new_end);
+            flag = station.isVisible(pv_new_end, source.getPARA().minElevation);
             if(!flag){
                 continue;
             }
@@ -1118,6 +1119,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     }
     if(newScheduleNecessary && excludedScans>0){
         of << "new schedule with reduced source list necessary\n";
+        CalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
         of << "==========================================================================================\n";
         if(sourcesLeft<50){
@@ -1146,6 +1148,8 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             any.clearObservations();
         }
         bool dummy = false;
+        vector<vector<unsigned int> > nextEvent(stations_.size(), vector<unsigned int>(stations_.size(), 0));
+        Baseline::nextEvent = nextEvent;
         Baseline::checkForNewEvent(0,dummy,0,of);
 
 

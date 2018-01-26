@@ -49,7 +49,7 @@ namespace VieVS {
     }
 }
 
-bool Station::isVisible(const PointingVector &p) const noexcept {
+bool Station::isVisible(const PointingVector &p, double minElevationSource = 0) const noexcept {
     bool visible = true;
     if(p.getEl()<parameters_.minElevation){
         visible = false;
@@ -314,6 +314,7 @@ void Station::applyNextEvent(std::ofstream &out) noexcept{
 }
 
 void Station::clearObservations() {
+    nextEvent_ = 0;
     checkForNewEvent();
 
     currentPositionVector_ = PointingVector();

@@ -6,6 +6,8 @@
 
 double VieVS::ObservationMode::sampleRate = 0;
 unsigned int VieVS::ObservationMode::bits = 0;
+bool VieVS::ObservationMode::manual = true;
+
 std::unordered_map<std::string,unsigned int> VieVS::ObservationMode::nChannels {};
 std::unordered_map<std::string,double> VieVS::ObservationMode::wavelength {};
 

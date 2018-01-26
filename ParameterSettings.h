@@ -80,7 +80,7 @@ namespace VieVS {
             boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
             boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
             boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
-
+            boost::optional<double> minElevation;
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 

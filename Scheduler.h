@@ -165,6 +165,7 @@ namespace VieVS{
         unsigned long nSingleScansConsidered; ///< considered single source scans
         unsigned long nSubnettingScansConsidered; ///< considered subnetting scans
         unsigned long nFillinScansConsidered; ///< considered fillin scans
+        unsigned long nBaselinesConsidered; ///< considered baselines
 
 
         /**

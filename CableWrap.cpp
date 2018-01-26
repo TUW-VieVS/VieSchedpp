@@ -249,15 +249,18 @@ void CableWrap::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old
 std::string CableWrap::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
     double az = pointingVector.getAz();
 
-    if (az <= nUp_ && az >= nLow_) {
+    if(cableWrapType_ == CableWrapType::AZEL){
+        if (az <= nUp_ && az >= nLow_) {
+            return "-";
+        }
+        if (az <= cUp_ && az >= cLow_) {
+            return "C";
+        }
+        if (az <= wUp_ && az >= wLow_) {
+            return "W";
+        }
+    }else{
         return "-";
     }
-    if (az <= cUp_ && az >= cLow_) {
-        return "C";
-    }
-    if (az <= wUp_ && az >= wLow_) {
-        return "W";
-    }
-    return "?";
 }
 

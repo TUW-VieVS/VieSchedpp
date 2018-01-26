@@ -608,23 +608,42 @@ void Output::writeStatisticsPerSourceGroup() {
         cout << txt;
     }
 
+    vector<string> interestedSrcGroups;
+    const auto & tmp = xml_.get_child_optional("master.output.sourceGroupsForStatistic");
+    if(tmp.is_initialized()){
+        for(const auto &any :*tmp){
+            if(any.first == "name"){
+                interestedSrcGroups.push_back(any.second.get_value<string>());
+            }
+        }
+        if(interestedSrcGroups.empty()){
+            return;
+        }
+    }else{
+        return;
+    }
+
     ofstream of(path_+fileName);
 
     auto nsrc = sources_.size();
     vector<double> sWeight;
+    vector<unsigned int> nscansTarget;
     vector<unsigned int> targetScans;
+    vector<double> minRepeat;
     vector<vector<pair<boost::posix_time::ptime,boost::posix_time::ptime>>> visibleTimes(nsrc);
     bool hardBreak = false;
     ofstream dummy;
     for(auto src:sources_){
+        src.setNextEvent(0);
         src.checkForNewEvent(0, hardBreak, false, dummy);
         sWeight.push_back(src.getPARA().weight);
-        auto tmp = src.getPARA().tryToObserveXTimesEvenlyDistributed;
-        if(tmp.is_initialized() ){
-            targetScans.push_back(*tmp);
+        if(src.getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized()){
+            nscansTarget.push_back(*src.getPARA().tryToObserveXTimesEvenlyDistributed);
         }else{
-            targetScans.push_back(0);
+            nscansTarget.push_back(0);
         }
+        minRepeat.push_back(static_cast<double>(src.getPARA().minRepeat)/3600.0);
+        targetScans.push_back(src.getPARA().maxNumberOfScans);
         auto visTimes = minutesVisible(src);
 
         int start = 0;
@@ -694,7 +713,6 @@ void Output::writeStatisticsPerSourceGroup() {
         }
     }
 
-
     of << "* Columns:\n";
     of << "*     1  : Name\n";
     of << "*     2  : Id\n";
@@ -714,6 +732,9 @@ void Output::writeStatisticsPerSourceGroup() {
     of << "*             number of stations\n";
     of << "*     end: source visibility time (estimated with parameters at session start)\n";
     for(const auto &group: group_source){
+        if(find(interestedSrcGroups.begin(),interestedSrcGroups.end(),group.first) == interestedSrcGroups.end()){
+            continue;
+        }
         of << "*\n";
         of << "* ========================== GROUP: "<< group.first <<" ==========================\n";
         of << "*\n";
@@ -735,12 +756,7 @@ void Output::writeStatisticsPerSourceGroup() {
                         ++nscansCalibrator;
                     }
                 }
-                unsigned long nscansTarget = 0;
-                if(src.getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized()){
-                    nscansTarget = *src.getPARA().tryToObserveXTimesEvenlyDistributed;
-                }
-
-                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget %(static_cast<double>(src.getPARA().minRepeat)/3600.0);
+                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget[srcid] %minRepeat[srcid];
                 for (int i=0; i<scanTime[srcid].size(); ++i){
                     unsigned int ttt = scanTime[srcid][i];
 
@@ -840,7 +856,7 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
             stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
 
             // check if source is up from station
-            bool flag = stations_[staid].isVisible(p);
+            bool flag = stations_[staid].isVisible(p, source.getPARA().minElevation);
             if(flag){
                 ++visible;
             }else{
@@ -875,7 +891,7 @@ void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalog
     if(xml_.get<bool>("master.output.createVEX",false)) {
         writeVex(skdCatalogReader);
     }
-    if(xml_.get<bool>("master.output.createSrcGrp",false)) {
+    if(xml_.get<bool>("master.output.createSourceGroupStatistics",false)) {
         writeStatisticsPerSourceGroup();
     }
 

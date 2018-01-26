@@ -106,7 +106,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
             PointingVector &thisPointingVector = singleScans_[i].referencePointingVector(j);
             thisPointingVector.setTime(singleScans_[i].getTimes().getEndOfIdleTime(j));
             stations[staid].calcAzEl(thisSource, thisPointingVector);
-            bool visible = stations[staid].isVisible(thisPointingVector);
+            bool visible = stations[staid].isVisible(thisPointingVector, sources[singleScans_[i].getSourceId()].getPARA().minElevation);
             unsigned int slewtime = numeric_limits<unsigned int>::max();
 
             if (visible){

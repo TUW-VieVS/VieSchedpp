@@ -43,6 +43,7 @@ namespace VieVS{
 
         static double sampleRate; ///< sample rate of one channel
         static unsigned int bits; ///< number of recorded bits
+        static bool manual;
 
         static std::vector<std::string> bands; ///< list of all bands
         static std::unordered_map<std::string, double> minSNR;
