@@ -332,7 +332,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
     out << "scan duration (without corsynch):\n";
     for (int i = 0; i < hist.size(); ++i) {
-        out << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
+        out << boost::format("%3d-%3d (%3d) | ") % bins[i] % (bins[i + 1] - 1) %hist[i];
         double percent = 100 * static_cast<double>(hist[i]) / static_cast<double>(maxScanDurations.size());
         percent = round(percent);
         for (int j = 0; j < percent; ++j) {
@@ -731,12 +731,27 @@ void Output::writeStatisticsPerSourceGroup() {
     of << "*                 '#': calibrator scan\n";
     of << "*             number of stations\n";
     of << "*     end: source visibility time (estimated with parameters at session start)\n";
+
+    map<string,vector<int>> srcgrpstat;
+    map<string,vector<int>> srcgrpgeneralstat;
+
+    of << "*\n";
+    of << "* ============================= GROUP BASED STATISTICS =============================\n";
+
     for(const auto &group: group_source){
         if(find(interestedSrcGroups.begin(),interestedSrcGroups.end(),group.first) == interestedSrcGroups.end()){
             continue;
         }
+        vector<int> nscansPerGroup(nMaxScans+1,0);
+        int sumTotalScans = 0;
+        int sumScans = 0;
+        int sumFillinModeScans = 0;
+        int sumCalibratorScans = 0;
+
+        int baselines = 0;
+
         of << "*\n";
-        of << "* ========================== GROUP: "<< group.first <<" ==========================\n";
+        of << "* ----------------------------- GROUP: "<< group.first <<" -----------------------------\n";
         of << "*\n";
         for(const auto &src: sources_) {
             int srcid = src.getId();
@@ -746,6 +761,7 @@ void Output::writeStatisticsPerSourceGroup() {
                 unsigned long nscansStd = 0;
                 unsigned long nscansFillin = 0;
                 unsigned long nscansCalibrator = 0;
+                ++nscansPerGroup[nscans];
 
                 for(int i=0; i<nscans; ++i) {
                     if(flag[srcid][i] == ' ') {
@@ -756,7 +772,12 @@ void Output::writeStatisticsPerSourceGroup() {
                         ++nscansCalibrator;
                     }
                 }
-                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget[srcid] %minRepeat[srcid];
+                sumTotalScans += nscans;
+                sumScans += nscansStd;
+                sumFillinModeScans += nscansFillin;
+                sumCalibratorScans += nscansCalibrator;
+
+                of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ||, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget[srcid] %minRepeat[srcid];
                 for (int i=0; i<scanTime[srcid].size(); ++i){
                     unsigned int ttt = scanTime[srcid][i];
 
@@ -768,14 +789,69 @@ void Output::writeStatisticsPerSourceGroup() {
                 for (unsigned long i=scanTime[srcid].size(); i < nMaxScans; ++i){
                     of << "          , ";
                 }
-                for(int i=0; i<visibleTimes[srcid].size(); ++i){
-                    of << "[" << TimeSystem::ptime2string(visibleTimes[srcid][i].first).substr(11,5)
-                       << " - " << TimeSystem::ptime2string(visibleTimes[srcid][i].second).substr(11,5) << "], ";
+                of << "||, ";
+                for (auto &i : visibleTimes[srcid]) {
+                    of << "[" << TimeSystem::ptime2string(i.first).substr(11,5)
+                       << " - " << TimeSystem::ptime2string(i.second).substr(11,5) << "], ";
                 }
                 of << "\n";
             }
         }
+        srcgrpstat[group.first] = nscansPerGroup;
+        srcgrpgeneralstat[group.first] = vector<int> {sumTotalScans, sumScans, sumFillinModeScans, sumCalibratorScans};
     }
+
+    of << "*\n";
+    of << "* ============================= SESSION SUMMARY =============================\n";
+    of << "*\n";
+    of << " # scans: " << scans_.size() <<"\n";
+    unsigned int xxxstdScans = 0;
+    unsigned int xxxfiScans = 0;
+    unsigned int xxxcalScans = 0;
+    for(const auto &persource:flag){
+        for(const auto &perscan:persource){
+            if(perscan == ' '){
+                ++xxxstdScans;
+            }else if(perscan == '*'){
+                ++xxxfiScans;
+            }else if(perscan == '#'){
+                ++xxxcalScans;
+            }
+        }
+    }
+    of << "   # standard scans:    " << xxxstdScans <<"\n";
+    of << "   # fillin mode scans: " << xxxfiScans  <<"\n";
+    of << "   # calibrator scans:  " << xxxcalScans <<"\n";
+
+    of << "*\n";
+    of << "* ============================= GROUP BASED SUMMARY =============================\n";
+
+    for(const auto &any:srcgrpstat){
+        const string &grpName = any.first;
+        const auto &scans = any.second;
+        const auto &sum = srcgrpgeneralstat[grpName];
+
+        of << "*\n";
+        of << "* ----------------------------- SUMMARY GROUP: "<< grpName <<" -----------------------------\n";
+        of << "*\n";
+        of << boost::format(" # total scans:         %4d\n") %sum[0];
+        of << boost::format("   # standard scans:    %4d\n") %sum[1];
+        of << boost::format("   # fillin mode scans: %4d\n") %sum[2];
+        of << boost::format("   # calibrator scans:  %4d\n") %sum[3];
+        of << "* \n";
+
+        bool first = false;
+        for (unsigned long i= scans.size() - 1; i >= 0; --i) {
+            if (first || scans[i] != 0) {
+                of << boost::format(" %3d sources are observed in %4d scans\n") % scans[i] % i;
+                first = true;
+            }
+            if(i==0){
+                break;
+            }
+        }
+    }
+
 }
 
 
@@ -891,9 +967,39 @@ void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalog
     if(xml_.get<bool>("master.output.createVEX",false)) {
         writeVex(skdCatalogReader);
     }
+    if(xml_.get<bool>("master.output.createOperationsNotes",false)) {
+        writeOperationsNotes();
+    }
     if(xml_.get<bool>("master.output.createSourceGroupStatistics",false)) {
         writeStatisticsPerSourceGroup();
     }
 
+}
+
+void Output::writeOperationsNotes() {
+    string expName = xml_.get("master.output.experimentName","schedule");
+    string fileName = expName;
+    if (iSched_ == 0) {
+        fileName.append("_operationsNotes.txt");
+        string txt = (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
+        cout << txt;
+    } else {
+        fileName.append((boost::format("V%03d_operationsNotes.txt") % (iSched_)).str());
+        string txt = (boost::format("version %d: operationsNotes skd file: %s;\n") %iSched_ % fileName).str();
+        cout << txt;
+    }
+
+    ofstream of(path_+fileName);
+
+    of << "Session Notes for: " << expName << "\n";
+
+    of << "        exper description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
+    of << "        scheduler name: " << xml_.get("master.created.name","unknown") << "\n";
+    of << "        target correlator: " << xml_.get("master.created.email","unknown") << "\n";
+    auto st = TimeSystem::startTime;
+    of << "        exper nominal start: " << TimeSystem::ptime2string_doy_units(st) << "\n";
+    auto et = TimeSystem::endTime;
+    of << "        exper nominal stop: " << TimeSystem::ptime2string_doy_units(et) << "\n";
+    of << "        created with: new VieVS Scheduler\n";
 }
 

@@ -148,6 +148,7 @@ namespace VieVS{
 
         std::vector<unsigned int> minutesVisible(const Source &source);
 
+        void writeOperationsNotes();
     };
 }
 
