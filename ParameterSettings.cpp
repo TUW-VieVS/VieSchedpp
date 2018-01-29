@@ -265,6 +265,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.weight.is_initialized()) {
         parameters.add("parameters.weight", PARA.weight);
     }
+    if (PARA.minElevation.is_initialized()) {
+        parameters.add("parameters.minElevation", PARA.minElevation);
+    }
 
     if (PARA.minScan.is_initialized()) {
         parameters.add("parameters.minScan", PARA.minScan);
@@ -288,9 +291,6 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
-    }
-    if (PARA.minNumberOfStations.is_initialized()) {
-        parameters.add("parameters.minNumberOfStations", *PARA.minNumberOfStations);
     }
     if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
         parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
@@ -354,6 +354,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.available = it.second.get_value<bool>();
         } else if (paraName == "weight") {
             para.weight = it.second.get_value<double>();
+        } else if (paraName == "minElevation") {
+            para.minElevation = it.second.get_value<double>();
         } else if (paraName == "minScan") {
             para.minScan = it.second.get_value < unsigned
             int > ();
@@ -731,7 +733,7 @@ void ParameterSettings::conditions(std::vector<string> members, std::vector<int>
         condition.add("condition.members",members.at(i));
         condition.add("condition.minScans",minScans.at(i));
         condition.add("condition.minBaselines",minBaselines.at(i));
-        conditions.add_child("conditions.condition",condition.get_child("condition"));
+        conditions.add_child("optimization.condition",condition.get_child("condition"));
     }
     master_.add_child("master.optimization",conditions.get_child("optimization"));
 }
@@ -834,8 +836,8 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, bool createSrcGrp,
-                          bool createSkyCoverage) {
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
+                          bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);
     output.add("output.experimentDescription", experimentDescription);
@@ -845,11 +847,22 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     output.add("output.createNGS", createNGS);
     output.add("output.createSKD", createSKD);
     output.add("output.createVEX", createVEX);
+    output.add("output.createOperationsNotes", operNotes);
     output.add("output.createSourceGroupStatistics", createSrcGrp);
+    if(createSrcGrp){
+        boost::property_tree::ptree all_groups;
+        for (const auto &any: srcGroupsForStatistic) {
+            boost::property_tree::ptree tmp;
+            tmp.add("name", any);
+            all_groups.add_child("sourceGroupsForStatistic.name", tmp.get_child("name"));
+        }
+        if(!all_groups.empty()){
+            output.add_child("output.sourceGroupsForStatistic", all_groups.get_child("sourceGroupsForStatistic"));
+        }
+    }
     output.add("output.createSkyCoverage", createSkyCoverage);
-
+    
     master_.add_child("master.output", output.get_child("output"));
-
 }
 
 void ParameterSettings::ruleScanSequence(unsigned int cadence, const vector<unsigned int> &modulo,

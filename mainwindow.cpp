@@ -210,8 +210,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->lineEdit_faqSearch,SIGNAL(textChanged(QString)),this,SLOT(on_pushButton_faqSearch_clicked()));
 
-    ui->spinBox_scanSequenceCadence->setValue(2);
-    ui->spinBox_scanSequenceCadence->setMinimum(2);
+    ui->spinBox_scanSequenceCadence->setValue(1);
+    ui->spinBox_scanSequenceCadence->setMinimum(1);
 
     setupStatisticView();
     setupSkyCoverageTemplatePlot();
@@ -558,6 +558,12 @@ void MainWindow::displaySourceSetupParameter(QString name){
         t->insertRow(r);
         t->setItem(r,0,new QTableWidgetItem(QString::number(*para.weight)));
         t->setVerticalHeaderItem(r,new QTableWidgetItem("weight"));
+        ++r;
+    }
+    if(para.minElevation.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minElevation)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("minimum elevation [deg]"));
         ++r;
     }
     if(para.fixedScanDuration.is_initialized()){
@@ -1085,7 +1091,6 @@ void MainWindow::readSources()
 {
     QString sourcePath = ui->lineEdit_pathSource->text();
 
-
     allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
     allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
     allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
@@ -1140,7 +1145,6 @@ void MainWindow::readSources()
     plotSkyMap();
     skyMapCallout = new Callout(skymap->chart());
     skyMapCallout->hide();
-
 }
 
 void MainWindow::readAllSkedObsModes()
@@ -1402,6 +1406,7 @@ void MainWindow::defaultParameters()
     src.minFlux = 0.05;
     src.maxNumberOfScans = 999;
     src.minNumberOfStations = 2;
+    src.minElevation = 0;
 
     auto sourceTree = settings.get_child_optional("settings.source.parameters");
     if(sourceTree.is_initialized()){
@@ -1422,6 +1427,8 @@ void MainWindow::defaultParameters()
                         src.minRepeat = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "minFlux"){
                         src.minFlux = it2.second.get_value<double>();
+                    } else if (paraName == "minElevation"){
+                        src.minElevation = it2.second.get_value<double>();
                     } else if (paraName == "maxNumberOfScans"){
                         src.maxNumberOfScans = it2.second.get_value<double>();
                     } else if (paraName == "minNumberOfStations"){
@@ -1437,7 +1444,6 @@ void MainWindow::defaultParameters()
     }else{
         QMessageBox::warning(this,"Missing default parameters!","You have no entry for your default source parameters in settings.xml file! Internal backup values are used!",QMessageBox::Ok);
     }
-
     VieVS::ParameterSettings::ParametersBaselines bl;
     bl.ignore = false;
     bl.maxScan = 600;
@@ -2728,7 +2734,14 @@ QString MainWindow::writeXML()
     bool skd = ui->checkBox_outputSkdFile->isChecked();
     bool srcGrp = ui->checkBox_outputSourceGroupStatFile->isChecked();
     bool skyCov = ui->checkBox_outputSkyCoverageFile->isChecked();
-    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, vex, srcGrp, skyCov);
+    bool operNotes = ui->checkBox_outputOperationsNotes->isChecked();
+    std::vector<std::string> srcGroupsForStatistic;
+    for(int i=0; i<ui->treeWidget_srcGroupForStatistics->topLevelItemCount(); ++i){
+        if(ui->treeWidget_srcGroupForStatistics->topLevelItem(i)->checkState(0) == Qt::Checked){
+            srcGroupsForStatistic.push_back(ui->treeWidget_srcGroupForStatistics->topLevelItem(i)->text(0).toStdString());
+        }
+    }
+    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, vex, operNotes, srcGrp, srcGroupsForStatistic, skyCov);
 
     std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
     std::string equip = ui->lineEdit_pathEquip->text().toStdString();
@@ -3640,7 +3653,10 @@ void MainWindow::addGroupSource()
         if(sender() == ui->pushButton_addSourceGroup_Calibrator){
             ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(r);
         }
-
+        QTreeWidgetItem *itm = new QTreeWidgetItem();
+        itm->setText(0,QString::fromStdString(stdname));
+        itm->setCheckState(0,Qt::Unchecked);
+        ui->treeWidget_srcGroupForStatistics->addTopLevelItem(itm);
     }
     delete(dial);
 }

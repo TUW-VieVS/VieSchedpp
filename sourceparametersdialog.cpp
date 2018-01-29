@@ -210,6 +210,9 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
     if(ui->weightDoubleSpinBox->value() != *dp.weight){
         para.weight = ui->weightDoubleSpinBox->value();
     }
+    if(ui->doubleSpinBox_minElevation->value() != *dp.minElevation){
+        para.minElevation = ui->doubleSpinBox_minElevation->value();
+    }
     if(ui->checkBox->isChecked()){
         para.fixedScanDuration = ui->spinBox_fixedScanDuration->value();
     }
@@ -336,6 +339,12 @@ void sourceParametersDialog::on_pushButton_2_clicked()
             ui->weightDoubleSpinBox->setValue(*sp.weight);
         }else{
             ui->weightDoubleSpinBox->setValue(*dp.weight);
+        }
+
+        if(sp.minElevation.is_initialized()){
+            ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
+        }else{
+            ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
         }
 
         QVector<QString> bands;

@@ -165,7 +165,7 @@ void AddGroupDialog::on_pushButton_Load_clicked()
         ui->listWidget_selected->clear();
         for(const auto&any:members){
             auto list = all->findItems(any);
-            if(list.size() == 1){
+            if(list.size() >= 1){
                 ui->listWidget_selected->addItem(list.at(0)->text());
             }else{
                 warningTxt.append("    unknown member: ").append(any).append("!\n");

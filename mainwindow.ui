@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>1</number>
+       <number>11</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -829,8 +829,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>247</width>
+             <height>611</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -4668,88 +4668,128 @@ Click on source to deselect it</string>
           <property name="title">
            <string>Output files</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_27">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
-            <layout class="QVBoxLayout" name="verticalLayout_8">
+            <widget class="QCheckBox" name="checkBox_outputSkdFile">
+             <property name="toolTip">
+              <string>create skd file</string>
+             </property>
+             <property name="statusTip">
+              <string>create skd file</string>
+             </property>
+             <property name="text">
+              <string>create skd file</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputVex">
+             <property name="text">
+              <string>create vex file</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputNGSFile">
+             <property name="toolTip">
+              <string>create empty ngs file</string>
+             </property>
+             <property name="statusTip">
+              <string>create empty ngs file</string>
+             </property>
+             <property name="text">
+              <string>create ngs file</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputStatisticsFile">
+             <property name="toolTip">
+              <string>create statistics file</string>
+             </property>
+             <property name="statusTip">
+              <string>create statistics file</string>
+             </property>
+             <property name="text">
+              <string>create session statistics file (skdsum)</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputOperationsNotes">
+             <property name="text">
+              <string>create operations notes</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputSourceGroupStatFile">
+             <property name="text">
+              <string>create source group based statistics file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_31" stretch="1,2">
              <item>
-              <widget class="QCheckBox" name="checkBox_outputSkdFile">
-               <property name="toolTip">
-                <string>create skd file</string>
+              <widget class="QTreeWidget" name="treeWidget_srcGroupForStatistics">
+               <property name="enabled">
+                <bool>false</bool>
                </property>
-               <property name="statusTip">
-                <string>create skd file</string>
-               </property>
-               <property name="text">
-                <string>create skd file</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
+               <column>
+                <property name="text">
+                 <string>choose group</string>
+                </property>
+               </column>
+               <item>
+                <property name="text">
+                 <string>__all__</string>
+                </property>
+                <property name="checkState">
+                 <enum>Unchecked</enum>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBox_outputVex">
-               <property name="text">
-                <string>create vex file</string>
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
-               <property name="checked">
-                <bool>true</bool>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputNGSFile">
-               <property name="toolTip">
-                <string>create empty ngs file</string>
-               </property>
-               <property name="statusTip">
-                <string>create empty ngs file</string>
-               </property>
-               <property name="text">
-                <string>create ngs file</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputStatisticsFile">
-               <property name="toolTip">
-                <string>create statistics file</string>
-               </property>
-               <property name="statusTip">
-                <string>create statistics file</string>
-               </property>
-               <property name="text">
-                <string>create session statistics file (skdsum)</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputSourceGroupStatFile">
-               <property name="text">
-                <string>create source group based statistics file</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_outputSkyCoverageFile">
-               <property name="toolTip">
-                <string>create sky coverage file</string>
-               </property>
-               <property name="statusTip">
-                <string>create sky coverage file</string>
-               </property>
-               <property name="text">
-                <string>create sky coverage file</string>
-               </property>
-              </widget>
+              </spacer>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_outputSkyCoverageFile">
+             <property name="toolTip">
+              <string>create sky coverage file</string>
+             </property>
+             <property name="statusTip">
+              <string>create sky coverage file</string>
+             </property>
+             <property name="text">
+              <string>create sky coverage file</string>
+             </property>
+            </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_74">
@@ -4806,303 +4846,258 @@ Click on source to deselect it</string>
          </widget>
         </item>
         <item>
-         <widget class="QTabWidget" name="tabWidget_4">
-          <property name="currentIndex">
-           <number>0</number>
+         <widget class="QGroupBox" name="groupBox_9">
+          <property name="title">
+           <string>Additional Information</string>
           </property>
-          <widget class="QWidget" name="tab_5">
-           <attribute name="title">
-            <string>skd and vex</string>
-           </attribute>
-           <layout class="QGridLayout" name="gridLayout_5">
-            <item row="0" column="0">
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="schedulerLineEdit">
-                <property name="toolTip">
-                 <string>enter scheduler name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>scheduler</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="placeholderText">
-                 <string>e.g.: VIEN</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="schedulerLabel">
-                <property name="text">
-                 <string>scheduler</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="correlatorLabel">
-                <property name="text">
-                 <string>correlator</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="pushButton_22">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="correlatorLineEdit">
-                <property name="toolTip">
-                 <string>enter correlator name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="placeholderText">
-                 <string>e.g.: VIEN</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="pushButton_23">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default scheduler</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0">
-             <spacer name="verticalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="tab_6">
-           <attribute name="title">
-            <string>vex</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_50">
-            <item>
-             <layout class="QGridLayout" name="gridLayout_6">
-              <item row="2" column="0">
-               <widget class="QLabel" name="correlatorLabel_2">
-                <property name="text">
-                 <string>contact name</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_39">
-                <property name="text">
-                 <string>contact email</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
-               <widget class="QPushButton" name="pushButton_28">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="schedulerLabel_2">
-                <property name="text">
-                 <string>PI email</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="schedulerLineEdit_2">
-                <property name="toolTip">
-                 <string>enter scheduler name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>scheduler</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="experimentNameLabel_2">
-                <property name="text">
-                 <string>PI name</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="correlatorLineEdit_2">
-                <property name="toolTip">
-                 <string>enter correlator name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLineEdit" name="experimentNameLineEdit_2">
-                <property name="toolTip">
-                 <string>enter experiment name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>experiment name</string>
-                </property>
-                <property name="inputMask">
-                 <string/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QPushButton" name="pushButton_31">
-                <property name="toolTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as experiment name</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="pushButton_29">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default scheduler</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QLineEdit" name="correlatorLineEdit_3">
-                <property name="toolTip">
-                 <string>enter correlator name here</string>
-                </property>
-                <property name="statusTip">
-                 <string>correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QPushButton" name="pushButton_30">
-                <property name="toolTip">
-                 <string>save as default email addres</string>
-                </property>
-                <property name="statusTip">
-                 <string>save as default correlator</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_11">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="0" column="0">
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="schedulerLineEdit">
+               <property name="toolTip">
+                <string>enter scheduler name here</string>
+               </property>
+               <property name="statusTip">
+                <string>scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="placeholderText">
+                <string>e.g.: VIEN</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLabel" name="schedulerLabel">
+               <property name="text">
+                <string>scheduler</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="correlatorLabel">
+               <property name="text">
+                <string>correlator</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="pushButton_22">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="placeholderText">
+                <string>e.g.: VIEN</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="2">
+              <widget class="QPushButton" name="pushButton_23">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="experimentNameLineEdit_2">
+               <property name="toolTip">
+                <string>enter experiment name here</string>
+               </property>
+               <property name="statusTip">
+                <string>experiment name</string>
+               </property>
+               <property name="inputMask">
+                <string/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="schedulerLabel_2">
+               <property name="text">
+                <string>PI email</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit_3">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QPushButton" name="pushButton_31">
+               <property name="toolTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="statusTip">
+                <string>save as experiment name</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QPushButton" name="pushButton_29">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="2">
+              <widget class="QPushButton" name="pushButton_30">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_39">
+               <property name="text">
+                <string>contact email</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="correlatorLabel_2">
+               <property name="text">
+                <string>contact name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QLineEdit" name="correlatorLineEdit_2">
+               <property name="toolTip">
+                <string>enter correlator name here</string>
+               </property>
+               <property name="statusTip">
+                <string>correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="experimentNameLabel_2">
+               <property name="text">
+                <string>PI name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLineEdit" name="schedulerLineEdit_2">
+               <property name="toolTip">
+                <string>enter scheduler name here</string>
+               </property>
+               <property name="statusTip">
+                <string>scheduler</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QPushButton" name="pushButton_28">
+               <property name="toolTip">
+                <string>save as default email addres</string>
+               </property>
+               <property name="statusTip">
+                <string>save as default correlator</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="myresources.qrc">
+                 <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QPlainTextEdit" name="plainTextEdit"/>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLabel" name="label_10">
+               <property name="text">
+                <string>notes</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_6">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>246</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -5118,8 +5113,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -7754,23 +7749,13 @@ p, li { white-space: pre-wrap; }
   <tabstop>checkBox_outputNGSFile</tabstop>
   <tabstop>checkBox_outputStatisticsFile</tabstop>
   <tabstop>checkBox_outputSourceGroupStatFile</tabstop>
-  <tabstop>checkBox_outputSkyCoverageFile</tabstop>
   <tabstop>lineEdit_outputPath</tabstop>
   <tabstop>pushButton_26</tabstop>
   <tabstop>checkBox_outputAddTimestamp</tabstop>
-  <tabstop>tabWidget_4</tabstop>
   <tabstop>schedulerLineEdit</tabstop>
   <tabstop>pushButton_23</tabstop>
   <tabstop>correlatorLineEdit</tabstop>
   <tabstop>pushButton_22</tabstop>
-  <tabstop>experimentNameLineEdit_2</tabstop>
-  <tabstop>pushButton_31</tabstop>
-  <tabstop>schedulerLineEdit_2</tabstop>
-  <tabstop>pushButton_29</tabstop>
-  <tabstop>correlatorLineEdit_2</tabstop>
-  <tabstop>pushButton_28</tabstop>
-  <tabstop>correlatorLineEdit_3</tabstop>
-  <tabstop>pushButton_30</tabstop>
   <tabstop>comboBox_stationSettingMember_axis</tabstop>
   <tabstop>treeWidget_setupStationAxis</tabstop>
   <tabstop>pushButton_setupWaitAdd</tabstop>
@@ -7868,12 +7853,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>639</x>
-     <y>323</y>
+     <x>663</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>970</x>
-     <y>327</y>
+     <x>966</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -7884,8 +7869,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>610</x>
-     <y>351</y>
+     <x>623</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>833</x>
@@ -7900,12 +7885,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>221</y>
+     <x>60</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>250</y>
+     <x>60</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -7916,12 +7901,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>221</y>
+     <x>60</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>250</y>
+     <x>334</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -7932,12 +7917,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>299</y>
+     <x>60</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>302</y>
+     <x>334</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -7948,12 +7933,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>221</y>
+     <x>60</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>276</y>
+     <x>334</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -7964,12 +7949,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>299</y>
+     <x>60</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>328</y>
+     <x>60</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -7980,12 +7965,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>299</y>
+     <x>60</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>354</y>
+     <x>334</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -7996,12 +7981,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>195</y>
+     <x>60</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>198</y>
+     <x>334</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -8012,12 +7997,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>299</y>
+     <x>60</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>354</y>
+     <x>60</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -8028,12 +8013,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>221</y>
+     <x>60</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>224</y>
+     <x>334</x>
+     <y>266</y>
     </hint>
    </hints>
   </connection>
@@ -8044,12 +8029,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>221</y>
+     <x>60</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>40</x>
-     <y>276</y>
+     <x>60</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -8060,12 +8045,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>299</y>
+     <x>60</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>328</y>
+     <x>334</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -8076,12 +8061,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>628</x>
-     <y>172</y>
+     <x>646</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>971</x>
-     <y>175</y>
+     <x>967</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -8140,12 +8125,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>169</y>
+     <x>60</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>172</y>
+     <x>334</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -8156,8 +8141,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>143</y>
+     <x>60</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
@@ -8172,12 +8157,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>577</x>
-     <y>146</y>
+     <x>579</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>971</x>
-     <y>149</y>
+     <x>967</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -8210,6 +8195,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>990</x>
      <y>521</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_outputSourceGroupStatFile</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>treeWidget_srcGroupForStatistics</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>213</x>
+     <y>241</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>209</x>
+     <y>260</y>
     </hint>
    </hints>
   </connection>

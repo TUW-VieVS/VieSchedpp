@@ -74,6 +74,7 @@ namespace VieVS {
 
             boost::optional<unsigned int> minNumberOfStations; ///< minimum number of stations for a scan
             boost::optional<double> minFlux; ///< minimum flux density required for this source in jansky
+            boost::optional<double> minElevation;
             boost::optional<unsigned int> minRepeat; ///< minimum time between two observations of this source in seconds
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
             boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
@@ -402,8 +403,8 @@ namespace VieVS {
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
                     const std::string &scheduler,
-                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool srcGrp,
-                    bool createSkyCoverage);
+                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool operNotes, bool srcGrp,
+                    const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 
 
         /**
