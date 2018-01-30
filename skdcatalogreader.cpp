@@ -83,10 +83,13 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         }
 
                         // look if a key already exists, if not add it.
-                        if (all.find(key) != all.end()) {
+                        if (all.find(key) == all.end()) {
+                            all.insert(pair<string, vector<string>>(key, splitVector));
+                            int asdf = all.size();
+                            int asdf2 = all.size();
+                        } else {
                             cerr << "    Duplicated element of '" << key << "' in " << filepath << "\n";
                         }
-                        all.insert(pair<string, vector<string>>(key, splitVector));
                     }
                 }
             }

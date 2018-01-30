@@ -46,6 +46,8 @@
 #include "addbanddialog.h"
 #include "savetosettingsdialog.h"
 
+#include <windows.h>
+
 QT_CHARTS_USE_NAMESPACE
 
 namespace Ui {

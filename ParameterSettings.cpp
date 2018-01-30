@@ -836,7 +836,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, 
                           bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);

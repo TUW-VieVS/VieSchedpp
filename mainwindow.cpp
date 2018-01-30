@@ -1091,6 +1091,7 @@ void MainWindow::readSources()
 {
     QString sourcePath = ui->lineEdit_pathSource->text();
 
+
     allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
     allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
     allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
@@ -1145,6 +1146,7 @@ void MainWindow::readSources()
     plotSkyMap();
     skyMapCallout = new Callout(skymap->chart());
     skyMapCallout->hide();
+
 }
 
 void MainWindow::readAllSkedObsModes()
@@ -3146,7 +3148,7 @@ QString MainWindow::writeXML()
     if(path.right(1) != "/"){
         path.append("/");
     }
-    QString ename = QString::fromStdString(experimentName);
+    QString ename = QString::fromStdString(experimentName).trimmed();
     ename.simplified();
     ename.replace(" ","_");
     if(ui->checkBox_outputAddTimestamp->isChecked()){
@@ -3164,7 +3166,7 @@ QString MainWindow::writeXML()
     QMessageBox mb;
     QMessageBox::StandardButton reply = mb.information(this,"parameter file created",QString("A new parameter file was created and saved at: \n").append(path),QMessageBox::Open,QMessageBox::Ok);
     if(reply == QMessageBox::Open){
-        QDesktopServices::openUrl(QUrl(mydir.path()));
+        QDesktopServices::openUrl(QUrl(mydir.absolutePath()));
     }
     return path;
 }
@@ -5433,19 +5435,29 @@ void MainWindow::on_actionRun_triggered()
         }else{
             tabifyDockWidget(dockWidgets.at(0),dw);
         }
-        QString program = ui->pathToSchedulerLineEdit->text();
-        QStringList arguments;
-        arguments << fullPath;
+
 
         QProcess *start = new QProcess(this);
-        start->start(program,arguments);
+        #ifdef Q_OS_WIN
+            QString program = ui->pathToSchedulerLineEdit->text();
+            start->start("cmd.exe",
+                         QStringList() << "/c" << program << "\""+fullPath+"\"",
+                         QIODevice::ReadWrite | QIODevice::Text);
+
+        #elif
+            QString program = ui->pathToSchedulerLineEdit->text();
+            QStringList arguments;
+            arguments << fullPath;
+            start->start(program,arguments);
+        #endif
+
         connect(start,SIGNAL(readyReadStandardOutput()),tb,SLOT(readyReadStandardOutput()));
         connect(start,SIGNAL(readyReadStandardError()),tb,SLOT(readyReadStandardError()));
 
         if(start->waitForStarted()){
             QMessageBox::information(this,"Scheduling started!","Starting scheduling " + fullPath +"!");
         }else{
-            QMessageBox::warning(this,"Scheduling failed to start!","Could not start process:\n" + program +"\nwith arguments:\n" + arguments.at(0));
+            QMessageBox::warning(this,"Scheduling failed to start!","Could not start process:\n" + program +"\nwith arguments:\n" + fullPath);
         }
     }
 }
