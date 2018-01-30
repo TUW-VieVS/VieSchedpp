@@ -332,7 +332,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
     out << "scan duration (without corsynch):\n";
     for (int i = 0; i < hist.size(); ++i) {
-        out << boost::format("%3d-%3d (%3d) | ") % bins[i] % (bins[i + 1] - 1) %hist[i];
+        out << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
         double percent = 100 * static_cast<double>(hist[i]) / static_cast<double>(maxScanDurations.size());
         percent = round(percent);
         for (int j = 0; j < percent; ++j) {
@@ -993,13 +993,16 @@ void Output::writeOperationsNotes() {
 
     of << "Session Notes for: " << expName << "\n";
 
-    of << "        exper description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
-    of << "        scheduler name: " << xml_.get("master.created.name","unknown") << "\n";
-    of << "        target correlator: " << xml_.get("master.created.email","unknown") << "\n";
-    auto st = TimeSystem::startTime;
-    of << "        exper nominal start: " << TimeSystem::ptime2string_doy_units(st) << "\n";
-    auto et = TimeSystem::endTime;
-    of << "        exper nominal stop: " << TimeSystem::ptime2string_doy_units(et) << "\n";
-    of << "        created with: new VieVS Scheduler\n";
+    of << "    experiment description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
+    of << "    scheduler name        : " << xml_.get("master.created.name","unknown") << "\n";
+    of << "    scheduler email       : " << xml_.get("master.created.email","unknown") << "\n";
+    of << "    creation time (local) : " << xml_.get("master.created.time","unknown") << "\n";
+    of << "    created with: new VieVS Scheduler\n\n";
+
+    of << ".-------------------.\n";
+    of << "| scheduling setup: |\n";
+    of << "'-------------------'\n";
+    boost::property_tree::xml_parser::write_xml(of, xml_, boost::property_tree::xml_writer_make_settings<string>('\t', 1));
+    of << "==================\n";
 }
 
