@@ -33,66 +33,73 @@ ParameterSetup::ParameterSetup(const std::string &parameterName, const std::stri
 }
 
 
-bool ParameterSetup::isValidChild(const ParameterSetup &other) const {
+int ParameterSetup::isValidChild(const ParameterSetup &other) const {
     const std::vector<std::string> &otherMembers = other.getMembers();
 
     unsigned int otherStart = other.start_;
     unsigned int otherEnd = other.end_;
 
-    if (members_.empty()) {
-        bool valid = otherStart >= start_ && otherEnd <= end_;
-        if (!valid) {
-            return false;
-        }
-    } else {
-        for (const auto &any:members_) {
-            if (find(otherMembers.begin(), otherMembers.end(), any) != otherMembers.end()) {
-                bool valid = otherStart >= start_ && otherEnd <= end_;
-                if (!valid) {
-                    return false;
-                }
-            }
+    if(other.getMemberName() == "__all__" && memberName_ != "__all__"){
+        return 1;
+    }
+
+    bool valid = otherStart >= start_ && otherEnd <= end_;
+    if (!valid) {
+        return 2;
+    }
+
+    for (const auto &any:otherMembers) {
+        if (memberName_ != "__all__" && find(members_.begin(), members_.end(), any) == members_.end()) {
+            return 3;
         }
     }
-    return true;
+    return 0;
 }
 
-bool ParameterSetup::isValidSibling(const ParameterSetup &other) const {
+int ParameterSetup::isValidSibling(const ParameterSetup &other) const {
 
-    const std::vector<std::string> &otherMembers = other.getMembers();
     unsigned int otherStart = other.start_;
     unsigned int otherEnd = other.end_;
+    bool seperate = otherEnd <= start_ || otherStart >= end_;
+    if(seperate){
+        return 0;
+    }
+
+    if(memberName_ == "__all__" || other.getMemberName() == "__all__"){
+        return 4;
+    }
+
+    const std::vector<std::string> &otherMembers = other.getMembers();
 
     if (members_.empty() || otherMembers.empty()) {
-        return false;
+        return 5;
     }
 
     for (const auto &any:members_) {
         if (find(otherMembers.begin(), otherMembers.end(), any) != otherMembers.end()) {
-            bool valid = otherEnd <= start_ || otherStart >= end_;
-            if (!valid) {
-                return false;
-            }
+            return 6;
         }
     }
 
-    return true;
+    return 0;
 }
 
-bool ParameterSetup::addChild(const ParameterSetup &child) {
+int ParameterSetup::addChild(const ParameterSetup &child) {
 
-    if (!isValidChild(child)) {
-        return false;
+    int errorCode = isValidChild(child);
+    if (errorCode != 0) {
+        return errorCode;
     }
     for (const auto &any: childrens_) {
-        if (!any.isValidSibling(child)) {
-            return false;
+        errorCode = any.isValidSibling(child);
+        if (errorCode != 0) {
+            return errorCode;
         }
     }
 
     childrens_.push_back(child);
 
-    return true;
+    return errorCode;
 }
 
 
@@ -104,13 +111,32 @@ ParameterSetup::search(int thisLevel, int level, const std::string &parameterNam
         return *this;
     }else{
         for(auto &any: childrens_){
-            auto ans = any.search(++thisLevel, level, parameterName, memberName, members, transition, start, end);
+            auto ans = any.search(thisLevel+1, level, parameterName, memberName, members, transition, start, end);
             if(ans.is_initialized()){
                 return ans;
             }
         }
     }
     return boost::none;
+}
+
+bool ParameterSetup::deleteChild(int thisLevel, int level, const string &parameterName, const string &memberName, const std::vector<string> &members, ParameterSetup::Transition transition, unsigned int start, unsigned int end)
+{
+    int i=0;
+    for(auto &any: childrens_){
+        if(thisLevel+1 == level && any.isEqual(parameterName,memberName,members,transition,start,end)){
+            childrens_.erase(childrens_.begin()+i);
+            return true;
+        }
+        ++i;
+    }
+    bool found = false;
+    for(auto &any: childrens_){
+        found = any.deleteChild(thisLevel+1,level,parameterName,memberName,members,transition,start,end);
+        if(found == true){
+            return found;
+        }
+    }
 }
 
 bool

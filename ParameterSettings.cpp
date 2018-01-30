@@ -20,8 +20,9 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                                const std::vector<std::string> &stations) {
+                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
+                                const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
+                                const std::vector<std::string> &srcNames) {
     boost::property_tree::ptree general;
 
     int smonth = startTime.date().month();
@@ -32,14 +33,13 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
 
     int emonth = endTime.date().month();
     string endTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                         % endTime.date().year() %emonth %endTime.date().day()
-                         % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
+                           % endTime.date().year() %emonth %endTime.date().day()
+                           % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
     general.add("general.endTime", endTimeStr);
 
     general.add("general.subnetting", subnetting);
     general.add("general.fillinmode", fillinmode);
     general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
-    general.add("general.minElevation", minElevation);
 
     boost::property_tree::ptree all_stations;
     for (const auto &any: stations) {
@@ -49,6 +49,21 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     }
     if(!all_stations.empty()){
         general.add_child("general.stations", all_stations.get_child("stations"));
+    }
+
+    if(!srcNames.empty()){
+        boost::property_tree::ptree all_sources;
+        for (const auto &any: srcNames) {
+            boost::property_tree::ptree tmp;
+            tmp.add("source", any);
+            all_sources.add_child("sources.source", tmp.get_child("source"));
+        }
+
+        if(useSourcesFromParameter_otherwiseIgnore){
+            general.add_child("general.onlyUseListedSources", all_sources.get_child("sources"));
+        }else{
+            general.add_child("general.ignoreListedSources", all_sources.get_child("sources"));
+        }
     }
 
 //    master_.insert(master_.begin(),general.get_child("general"));
@@ -214,10 +229,9 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxSlewtime = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxWait") {
             para.maxWait = it.second.get_value < unsigned int > ();
-        } else if (paraName == "minElevation"){
+        } else if (paraName == "minElevation") {
             para.minElevation = it.second.get_value<double>();
-        }
-        else if (paraName == "minSNR") {
+        } else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
             double value = it.second.get_value<double>();
             para.minSNR[bandName] = value;
@@ -251,6 +265,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.weight.is_initialized()) {
         parameters.add("parameters.weight", PARA.weight);
     }
+    if (PARA.minElevation.is_initialized()) {
+        parameters.add("parameters.minElevation", PARA.minElevation);
+    }
 
     if (PARA.minScan.is_initialized()) {
         parameters.add("parameters.minScan", PARA.minScan);
@@ -267,9 +284,6 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     }
     if (PARA.minFlux.is_initialized()) {
         parameters.add("parameters.minFlux", PARA.minFlux);
-    }
-    if (PARA.minElevation.is_initialized()){
-        parameters.add("parameters.minElevation", PARA.minElevation);
     }
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
@@ -343,6 +357,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.available = it.second.get_value<bool>();
         } else if (paraName == "weight") {
             para.weight = it.second.get_value<double>();
+        } else if (paraName == "minElevation") {
+            para.minElevation = it.second.get_value<double>();
         } else if (paraName == "minScan") {
             para.minScan = it.second.get_value < unsigned
             int > ();
@@ -361,8 +377,6 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.fixedScanDuration = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxNumberOfScans") {
             para.maxNumberOfScans = it.second.get_value < unsigned int > ();
-        } else if (paraName == "minElevation") {
-            para.minElevation = it.second.get_value < unsigned int > ();
         } else if (paraName == "tryToFocusIfObservedOnce") {
             para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
         } else if (paraName == "minSNR") {
@@ -709,6 +723,24 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
+void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination)
+{
+    boost::property_tree::ptree conditions;
+    if(andForCombination){
+        conditions.add("optimization.combination","and");
+    }else{
+        conditions.add("optimization.combination","or");
+    }
+    for(int i=0; i<members.size(); ++i){
+        boost::property_tree::ptree condition;
+        condition.add("condition.members",members.at(i));
+        condition.add("condition.minScans",minScans.at(i));
+        condition.add("condition.minBaselines",minBaselines.at(i));
+        conditions.add_child("optimization.condition",condition.get_child("condition"));
+    }
+    master_.add_child("master.optimization",conditions.get_child("optimization"));
+}
+
 void ParameterSettings::mode(const std::string &skdMode) {
     boost::property_tree::ptree mode;
     mode.add("mode.skdMode", skdMode);
@@ -807,8 +839,8 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, bool createSrcGrp,
-                          bool createSkyCoverage) {
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, 
+                          bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);
     output.add("output.experimentDescription", experimentDescription);
@@ -818,7 +850,19 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     output.add("output.createNGS", createNGS);
     output.add("output.createSKD", createSKD);
     output.add("output.createVEX", createVEX);
+    output.add("output.createOperationsNotes", operNotes);
     output.add("output.createSourceGroupStatistics", createSrcGrp);
+    if(createSrcGrp){
+        boost::property_tree::ptree all_groups;
+        for (const auto &any: srcGroupsForStatistic) {
+            boost::property_tree::ptree tmp;
+            tmp.add("name", any);
+            all_groups.add_child("sourceGroupsForStatistic.name", tmp.get_child("name"));
+        }
+        if(!all_groups.empty()){
+            output.add_child("output.sourceGroupsForStatistic", all_groups.get_child("sourceGroupsForStatistic"));
+        }
+    }
     output.add("output.createSkyCoverage", createSkyCoverage);
 
     master_.add_child("master.output", output.get_child("output"));
@@ -908,3 +952,7 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 
 }
+
+
+
+

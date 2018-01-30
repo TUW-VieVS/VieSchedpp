@@ -68,6 +68,8 @@ set(SOURCE_FILES
         Subcon.h
         TimeSystem.cpp
         TimeSystem.h
+        VieVS_Scheduler.h
+        VieVS_Scheduler.cpp
         WeightFactors.cpp
         WeightFactors.h Vex.cpp Vex.h Skd.cpp Skd.h)
 

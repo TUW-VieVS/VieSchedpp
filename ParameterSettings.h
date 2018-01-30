@@ -55,7 +55,7 @@ namespace VieVS {
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
             boost::optional<unsigned int> minScan; ///< minimum required scan time
-            boost::optional<double> minElevation;
+            boost::optional<double> minElevation; ///< minimum elevation of parameter
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
@@ -149,8 +149,9 @@ namespace VieVS {
          * @param stations list of all stations
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule, double minElevation,
-                     const std::vector<std::string> &stations);
+                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
+                     const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
+                     const std::vector<std::string> &srcNames);
 
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
@@ -323,6 +324,8 @@ namespace VieVS {
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
+        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination);
+
         /**
          * @brief custom mode block in parameter.xml
          *
@@ -403,8 +406,8 @@ namespace VieVS {
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
                     const std::string &scheduler,
-                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool srcGrp,
-                    bool createSkyCoverage);
+                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool operNotes, bool srcGrp,
+                    const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 
 
         /**

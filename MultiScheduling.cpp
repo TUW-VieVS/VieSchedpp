@@ -3,7 +3,7 @@
 //
 
 #include "MultiScheduling.h"
-#include "WeightFactors.h"
+
 
 using namespace std;
 using namespace VieVS;
@@ -1073,8 +1073,12 @@ boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
         boost::property_tree::ptree pt_tmp;
         for (const auto &any:start_) {
             boost::property_tree::ptree value;
-            value.add("start.value", any);
-            pt_tmp.add_child("start.value", value.get_child("start"));
+            int month = any.date().month();
+            std::string dateStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                   % any.date().year() %month %any.date().day()
+                                   % any.time_of_day().hours() %any.time_of_day().minutes() %any.time_of_day().seconds()).str();
+            value.add("start.value", dateStr);
+            pt_tmp.add_child("start.value", value.get_child("start.value"));
         }
         pt.add_child("multisched.start", pt_tmp.get_child("start"));
     }
@@ -1084,8 +1088,8 @@ boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
         std::vector<bool> tmp{true, false};
         for (const auto &any:tmp) {
             boost::property_tree::ptree value;
-            value.add("subnetting.value", "true");
-            pt_tmp.add_child("subnetting.value", value.get_child("subnetting"));
+            value.add("subnetting.value", any);
+            pt_tmp.add_child("subnetting.value", value.get_child("subnetting.value"));
         }
         pt.add_child("multisched.subnetting", pt_tmp.get_child("subnetting"));
     }
@@ -1095,8 +1099,8 @@ boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
         std::vector<bool> tmp{true, false};
         for (const auto &any:tmp) {
             boost::property_tree::ptree value;
-            value.add("fillinmode.value", "true");
-            pt_tmp.add_child("fillinmode.value", value.get_child("fillinmode"));
+            value.add("fillinmode.value", any);
+            pt_tmp.add_child("fillinmode.value", value.get_child("fillinmode.value"));
         }
         pt.add_child("multisched.fillinmode", pt_tmp.get_child("fillinmode"));
     }
