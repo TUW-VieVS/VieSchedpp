@@ -46,6 +46,7 @@ namespace VieVS {
      */
     class Initializer {
         friend class Scheduler;
+        friend class SkdReader;
     public:
 
         /**
@@ -78,6 +79,9 @@ namespace VieVS {
         struct PRECALC {
             std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
         };
+
+
+        Initializer();
 
         /**
          * @brief empty default constructor.

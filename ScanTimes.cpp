@@ -116,6 +116,12 @@ void ScanTimes::alignStartTimes() noexcept {
     }
 }
 
+void ScanTimes::setStartTime(unsigned int scanStart) noexcept {
+    for (int i = 0; i < endOfSlewTime_.size(); ++i) {
+        endOfCalibrationTime_[i] = scanStart;
+    }
+}
+
 void ScanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
         endOfScanTime_[i] = endOfCalibrationTime_[i]+scanTimes[i];
@@ -147,5 +153,6 @@ unsigned int ScanTimes::scanStart() const noexcept {
     }
     return min;
 }
+
 
 

@@ -1290,4 +1290,9 @@ void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
     times_.addScanTimes(scanDuration);
 }
 
+void Scan::setScanTimes(unsigned int scanStart, const vector<unsigned int> &scanDurations) {
+    times_.setStartTime(scanStart);
+    times_.addScanTimes(scanDurations);
+}
+
 

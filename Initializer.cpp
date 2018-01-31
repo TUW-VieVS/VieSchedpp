@@ -11,6 +11,10 @@
 using namespace std;
 using namespace VieVS;
 
+Initializer::Initializer() {
+
+}
+
 Initializer::Initializer(const std::string &path) {
     ifstream is(path);
     boost::property_tree::read_xml(is, xml_);
@@ -43,15 +47,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
     unsigned long nant;
     int counter = 0;
 
-    vector<string> sel_stations;
-    boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
-    auto it = ptree_stations.begin();
-    while (it != ptree_stations.end()) {
-        auto item = it->second.data();
-        sel_stations.push_back(item);
-        ++it;
-    }
-    vector<string> selectedStations = sel_stations;
+    const vector<string> &selectedStations = reader.getStaNames();
 
 
     if (!selectedStations.empty()) {
@@ -3028,4 +3024,5 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
         }
     }
 }
+
 

@@ -144,6 +144,8 @@ namespace VieVS{
                         PointingVector &new_pointingVector) const noexcept;
 
 
+        void unwrapAzInSection(PointingVector &pv, char section) const noexcept;
+
         std::string cableWrapFlag(const PointingVector &pointingVector) const noexcept;
 
         /**

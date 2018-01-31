@@ -175,6 +175,8 @@ namespace VieVS {
          */
         void alignStartTimes() noexcept;
 
+        void setStartTime(unsigned int scanStart) noexcept ;
+
         /**
          * @brief updates the slewtime of one element
          *

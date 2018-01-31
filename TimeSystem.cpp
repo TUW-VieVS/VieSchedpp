@@ -50,8 +50,7 @@ boost::posix_time::ptime VieVS::TimeSystem::string2ptime(std::string timeStr) {
     auto hour = boost::lexical_cast<int>(timeStr.substr(11,2));
     auto minute = boost::lexical_cast<int>(timeStr.substr(14,2));
     auto second = boost::lexical_cast<int>(timeStr.substr(17,2));
-    ptime = boost::posix_time::ptime(boost::gregorian::date(year,month,day),boost::posix_time::time_duration(hour,minute,second));
-    return ptime;
+    return {boost::gregorian::date(year,month,day),boost::posix_time::time_duration(hour,minute,second)};
 }
 
 std::string VieVS::TimeSystem::date2string(boost::posix_time::ptime ptime) {
@@ -65,6 +64,22 @@ std::string VieVS::TimeSystem::ptime2string_doy(boost::posix_time::ptime ptime) 
     std::string dateStr = (boost::format("%02d%03d%02d%02d%02d") % (ptime.date().year()%100) % ptime.date().day_of_year() %
                             ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
     return dateStr;
+}
+
+boost::posix_time::ptime VieVS::TimeSystem::string_doy2ptime(std::string timeStr){
+    unsigned long i =0;
+    if(timeStr.length() == 13){
+        i = 2;
+    }
+    auto year = boost::lexical_cast<unsigned short>(timeStr.substr(0,2+i));
+    if(i==0){
+        year +=2000;
+    }
+    auto doy = boost::lexical_cast<unsigned short>(timeStr.substr(2+i,3));
+    auto hour = boost::lexical_cast<int>(timeStr.substr(5+i,2));
+    auto minute = boost::lexical_cast<int>(timeStr.substr(7+i,2));
+    auto second = boost::lexical_cast<int>(timeStr.substr(9+i,2));
+    return {boost::gregorian::date(year,1,1)+boost::gregorian::days(doy-1),boost::posix_time::time_duration(hour,minute,second)};
 }
 
 std::string VieVS::TimeSystem::ptime2string_units(boost::posix_time::ptime ptime) {

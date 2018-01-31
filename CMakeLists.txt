@@ -71,7 +71,13 @@ set(SOURCE_FILES
         VieVS_Scheduler.h
         VieVS_Scheduler.cpp
         WeightFactors.cpp
-        WeightFactors.h Vex.cpp Vex.h Skd.cpp Skd.h)
+        WeightFactors.h
+        Vex.cpp
+        Vex.h
+        Skd.cpp
+        Skd.h
+        SkdReader.cpp
+        SkdReader.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

@@ -49,6 +49,20 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
         }
     }
 
+    bool fromSkdFile = false;
+    string skdFlag;
+    if(filepath.length() > 4 && filepath.substr(filepath.length()-4) == ".skd") {
+        fromSkdFile = true;
+        switch (type) {
+            case CATALOG::antenna:
+            case CATALOG::position:
+            case CATALOG::equip:
+            case CATALOG::mask: {skdFlag = "$STATIONS"; break; }
+            case CATALOG::source:{skdFlag = "$SOURCES"; break; }
+            case CATALOG::flux:{skdFlag = "$FLUX"; break; }
+        }
+    }
+
     // read in CATALOG. antenna, position and equip use the same routine
     switch (type) {
         case CATALOG::antenna:
@@ -62,17 +76,46 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
-
+                // if read from skd file read until you reach flag
+                if(fromSkdFile){
+                    while(getline(fid,line)){
+                        if(line == skdFlag){
+                            break;
+                        }
+                    }
+                }
+                std::map<string,string> eqId2staName;
                 // loop through file
                 while (getline(fid, line)) {
                     if (line.length() > 0 && line.at(0) != '*') {
-
                         // trim leading and trailing blanks
                         line = boost::algorithm::trim_copy(line);
+                        if(line.at(0) == '$'){
+                            break;
+                        }
 
-                        // split vector
                         vector<string> splitVector;
                         boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+
+                        if(fromSkdFile && type == CATALOG::antenna && line.at(0)!='A'){
+                            continue;
+                        }
+                        if(fromSkdFile && type == CATALOG::position && line.at(0)!='P'){
+                            continue;
+                        }
+                        if(fromSkdFile && type == CATALOG::equip && line.at(0)!='T'){
+                            if( line.at(0) == 'A'){
+                                eqId2staName[splitVector[15]] = splitVector[2];
+                            }
+                            continue;
+                        }
+                        if(fromSkdFile && type != CATALOG::source){
+                            splitVector.erase(splitVector.begin());
+                        }
+                        if(fromSkdFile && type == CATALOG::equip){
+                            splitVector.insert(splitVector.begin(),eqId2staName[splitVector[indexOfKey-1]]);
+                        }
+
 
                         // get key and convert it to upper case for case insensitivity
                         string key = boost::algorithm::to_upper_copy(splitVector[indexOfKey]);
@@ -104,14 +147,27 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
+                // if read from skd file read until you reach flag
+                if(fromSkdFile){
+                    while(getline(fid,line)){
+                        if(line == skdFlag){
+                            break;
+                        }
+                    }
+                }
                 vector<string> splitVector_total;
 
                 // loop through CATALOG
                 while (getline(fid, line)) {
                     if (line.length() > 0 && line.at(0) != '*') {
-
                         // trim leading and trailing blanks
                         line = boost::algorithm::trim_copy(line);
+                        if(line.at(0) == '$'){
+                            break;
+                        }
+                        if(fromSkdFile && line.at(0) != 'H'){
+                            continue;
+                        }
 
                         // if first element is not an '-' this line belongs to new station mask
                         if (line.at(0) != '-' && !splitVector_total.empty()) {
@@ -149,8 +205,16 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             } else {
                 string line;
                 vector<string> lines;
+                // if read from skd file read until you reach flag
+                if(fromSkdFile){
+                    while(getline(fid,line)){
+                        if(line == skdFlag){
+                            break;
+                        }
+                    }
+                }
                 vector<string> splitVector_total;
-                string station;
+                string sourceName;
 
                 // get first entry
                 while (true) {
@@ -158,7 +222,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     line = boost::algorithm::trim_copy(line);
                     if (line.length() > 0 && line.at(0) != '*') {
                         boost::split(splitVector_total, line, boost::is_space(), boost::token_compress_on);
-                        station = splitVector_total[indexOfKey];
+                        sourceName = splitVector_total[indexOfKey];
                         lines.push_back(line);
                         break;
                     }
@@ -168,26 +232,29 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 while (getline(fid, line)) {
                     // trim leading and trailing blanks
                     line = boost::algorithm::trim_copy(line);
+                    if(line.at(0) == '$'){
+                        break;
+                    }
 
                     if (line.length() > 0 && line.at(0) != '*') {
                         vector<string> splitVector;
                         boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
                         string newStation = splitVector[indexOfKey];
 
-                        if (newStation == station) {
+                        if (newStation == sourceName) {
                             lines.push_back(line);
                             splitVector_total.insert(splitVector_total.end(), splitVector.begin(), splitVector.end());
                         } else {
-                            all.insert(pair<string, vector<string>>(station, lines));
+                            all.insert(pair<string, vector<string>>(sourceName, lines));
                             lines.clear();
                             lines.push_back(line);
-                            station = newStation;
+                            sourceName = newStation;
                             splitVector_total = splitVector;
                         }
 
                     }
                 }
-                all.insert(pair<string, vector<string>>(station, splitVector_total));
+                all.insert(pair<string, vector<string>>(sourceName, lines));
             }
             break;
         }

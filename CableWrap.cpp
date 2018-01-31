@@ -264,3 +264,37 @@ std::string CableWrap::cableWrapFlag(const PointingVector &pointingVector) const
     }
 }
 
+void CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexcept{
+    double az = pv.getAz();
+
+    if (cableWrapType_ == CableWrapType::AZEL) {
+        if(section == '-') {
+            while(az>nLow_){
+                az -= 2*pi;
+            }
+            az +=2*pi;
+            if(az>nUp_){
+                cerr << "azimuth error! Flag: '-' limits: "<< nLow_*rad2deg << " - " << nUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+            }
+        }else if(section == 'C'){
+            while(az>cLow_){
+                az -= 2*pi;
+            }
+            az +=2*pi;
+            if(az>cUp_){
+                cerr << "azimuth error! Flag: '-' limits: "<< cLow_*rad2deg << " - " << cUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+            }
+        }else if(section == 'W'){
+            while(az>wLow_){
+                az -= 2*pi;
+            }
+            az +=2*pi;
+            if(az>wUp_){
+                cerr << "azimuth error! Flag: '-' limits: "<< wLow_*rad2deg << " - " << wUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+            }
+        }
+    }
+
+    pv.setAz(az);
+}
+

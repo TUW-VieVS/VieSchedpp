@@ -457,6 +457,8 @@ namespace VieVS{
         void output(unsigned long observed_scan_nr, const std::vector<Station> &stations, const Source &source,
                     std::ofstream &of) const noexcept;
 
+        void setScanTimes(unsigned int scanStart, const std::vector<unsigned int> &scanDurations);
+
     private:
         unsigned long nsta_; ///< number of stations in this scan
         int srcid_; ///< observed source id
