@@ -29,19 +29,20 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-//        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/parameters.xml";
-        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/AUA037V035.skd";
+        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/parameters.xml";
+//        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/AUA037V035.skd";
     }
 
     if(argc == 2){
         auto start = std::chrono::high_resolution_clock::now();
         std::cout << "Processing file: " << file << ";\n";
-//        VieVS::VieVS_Scheduler mainScheduler(file);
-//        mainScheduler.run();
+        VieVS::VieVS_Scheduler mainScheduler(file);
+        mainScheduler.run();
 
-        VieVS::SkdReader myReader(file);
-        myReader.createObjects();
-        myReader.createScans();
+//        VieVS::SkdReader myReader(file);
+//        myReader.createObjects();
+//        myReader.createScans();
+//        myReader.copyScanMembersToObjects();
 
 
         auto finish = std::chrono::high_resolution_clock::now();

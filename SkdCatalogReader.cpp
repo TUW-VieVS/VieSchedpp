@@ -232,11 +232,11 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 while (getline(fid, line)) {
                     // trim leading and trailing blanks
                     line = boost::algorithm::trim_copy(line);
-                    if(line.at(0) == '$'){
-                        break;
-                    }
-
                     if (line.length() > 0 && line.at(0) != '*') {
+                        if(line.at(0) == '$'){
+                            break;
+                        }
+
                         vector<string> splitVector;
                         boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
                         string newStation = splitVector[indexOfKey];

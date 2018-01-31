@@ -23,6 +23,8 @@ namespace VieVS{
 
         void createScans();
 
+        void copyScanMembersToObjects();
+
     private:
         std::string filename_;
 

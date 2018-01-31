@@ -99,6 +99,7 @@ void SkdReader::createObjects() {
     sources_ = init.sources_;
     for (int i = 0; i < stations_.size(); ++i) {
         skyCoverages_.emplace_back(vector<int>{i},i);
+        stations_[i].setSkyCoverageId(i);
     }
     unsigned long nsta = stations_.size();
     for(auto&any:stations_){
@@ -211,7 +212,31 @@ void SkdReader::createScans() {
             Scan scan(pv,eols,Scan::ScanType::single);
             scan.setScanTimes(time,durations);
 
+
             scans_.push_back(move(scan));
         }
     }
+}
+
+void SkdReader::copyScanMembersToObjects() {
+    for(const auto &scan:scans_){
+        int srcid = scan.getSourceId();
+        unsigned long nbl = (scan.getNSta()*(scan.getNSta()-1))/2;
+
+        for (int i = 0; i < scan.getNSta(); ++i) {
+            const PointingVector &pv = scan.getPointingVector(i);
+            int staid = pv.getStaid();
+            const PointingVector &pv_end = scan.getPointingVector(i);
+            stations_[staid].update(nbl, pv, pv_end, true);
+
+            int skyCoverageId = stations_[staid].getSkyCoverageID();
+            skyCoverages_[skyCoverageId].update(pv, pv_end);
+        }
+
+        unsigned int latestTime = scan.maxTime();
+        Source &thisSource = sources_[srcid];
+        thisSource.update(nbl, latestTime, true);
+
+    }
+
 }
