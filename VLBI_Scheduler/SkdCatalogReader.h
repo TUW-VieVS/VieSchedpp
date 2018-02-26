@@ -229,10 +229,10 @@ namespace VieVS {
         /**
          * @brief getter for channel tracks info
          *
-         * @return map with channel number as key and tracks infor as value
+         * @return map with tracks name as key and map with channel number as key and tracks infor as value as value
          */
-        const std::map<int, std::string> &getChannelNumber2tracksMap() const {
-            return channelNumber2tracksMap_;
+        const std::map<std::string,std::map<int, std::string> >  &getTracksId2channelNumber2tracksMap() const {
+            return tracksId2channelNumber2tracksMap_;
         }
 
         /**
@@ -351,7 +351,7 @@ namespace VieVS {
 
         std::map<std::string, int> tracksId2fanoutMap_; ///< map with track name as key and fanout as value
         std::map<std::string, int> tracksId2bitsMap_; ///< map with track name as key and number of sampled bits as value
-        std::map<int, std::string> channelNumber2tracksMap_; ///< map with channel number as key and tracks info as value
+        std::map<std::string,std::map<int, std::string> > tracksId2channelNumber2tracksMap_; ///< map with channel number as key and tracks info as value
 
         std::string freqTwoLetterCode_; ///< two letter frequency code
         std::string rxName_; ///< rx name

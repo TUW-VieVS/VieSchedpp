@@ -75,8 +75,8 @@ void ParameterSettings::created(const boost::posix_time::ptime &time, string nam
     boost::property_tree::ptree created;
     int smonth = time.date().month();
     string timeString = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                           % time.date().year() %smonth %time.date().day()
-                           % time.time_of_day().hours() %time.time_of_day().minutes() %time.time_of_day().seconds()).str();
+                         % time.date().year() %smonth %time.date().day()
+                         % time.time_of_day().hours() %time.time_of_day().minutes() %time.time_of_day().seconds()).str();
     created.add("created.time", timeString);
     created.add("created.name", name);
     created.add("created.email", email);
@@ -291,6 +291,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
+    }
+    if (PARA.minNumberOfStations.is_initialized()) {
+        parameters.add("parameters.minNumberOfStations", *PARA.minNumberOfStations);
     }
     if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
         parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
@@ -861,8 +864,9 @@ ParameterSettings::output(const string &experimentName, const string &experiment
         }
     }
     output.add("output.createSkyCoverage", createSkyCoverage);
-    
+
     master_.add_child("master.output", output.get_child("output"));
+
 }
 
 void ParameterSettings::ruleScanSequence(unsigned int cadence, const vector<unsigned int> &modulo,

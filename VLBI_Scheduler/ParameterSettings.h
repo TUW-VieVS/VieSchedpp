@@ -60,6 +60,7 @@ namespace VieVS {
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
             std::vector<std::string> ignoreSourcesString; ///< list of all source names which should be ignored
+            std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
         };
 
         /**
@@ -74,19 +75,21 @@ namespace VieVS {
 
             boost::optional<unsigned int> minNumberOfStations; ///< minimum number of stations for a scan
             boost::optional<double> minFlux; ///< minimum flux density required for this source in jansky
-            boost::optional<double> minElevation;
             boost::optional<unsigned int> minRepeat; ///< minimum time between two observations of this source in seconds
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
             boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
             boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
             boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
-
+            boost::optional<double> minElevation;
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
+            std::vector<int> ignoreStations; ///< list of all station names which should be ignored
             std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
+            std::vector<std::pair<int,int>> ignoreBaselines; ///< list of all baseline names which should be ignore
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
+            std::vector<int> requiredStations; ///< list of station names which are required for a scan to this source
         };
 
         /**
@@ -358,8 +361,8 @@ namespace VieVS {
          * @param sourceBackupValue source backup model value
          */
         void mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
-                       ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
-                       ObservationModeBackup sourceBackup, double sourceBackupValue);
+                             ObservationModeBackup stationBackup, double stationBackupValue, ObservationModeProperty source,
+                             ObservationModeBackup sourceBackup, double sourceBackupValue);
 
         /**
          * @brief multisched block in parameter.xml

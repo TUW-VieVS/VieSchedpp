@@ -2,7 +2,7 @@
 // Created by matth on 17.09.2017.
 //
 
-#include "skdcatalogreader.h"
+#include "SkdCatalogReader.h"
 
 using namespace VieVS;
 using namespace std;
@@ -59,7 +59,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
 
@@ -68,7 +68,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     if (line.length() > 0 && line.at(0) != '*') {
 
                         // trim leading and trailing blanks
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
 
                         // split vector
                         vector<string> splitVector;
@@ -85,10 +85,8 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         // look if a key already exists, if not add it.
                         if (all.find(key) == all.end()) {
                             all.insert(pair<string, vector<string>>(key, splitVector));
-                            int asdf = all.size();
-                            int asdf2 = all.size();
                         } else {
-                            cerr << "    Duplicated element of '" << key << "' in " << filepath << "\n";
+                            cerr << "WARNING: Duplicated element of '" << key << "' in " << filepath << ";\n";
                         }
                     }
                 }
@@ -103,7 +101,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
                 vector<string> splitVector_total;
@@ -113,7 +111,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     if (line.length() > 0 && line.at(0) != '*') {
 
                         // trim leading and trailing blanks
-                        boost::trim(line);
+                        line = boost::algorithm::trim_copy(line);
 
                         // if first element is not an '-' this line belongs to new station mask
                         if (line.at(0) != '-' && !splitVector_total.empty()) {
@@ -147,7 +145,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "    Unable to open " << filepath << " file!\n";
+                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
             } else {
                 string line;
                 vector<string> lines;
@@ -157,7 +155,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // get first entry
                 while (true) {
                     getline(fid, line);
-                    boost::trim(line);
+                    line = boost::algorithm::trim_copy(line);
                     if (line.length() > 0 && line.at(0) != '*') {
                         boost::split(splitVector_total, line, boost::is_space(), boost::token_compress_on);
                         station = splitVector_total[indexOfKey];
@@ -169,7 +167,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // loop through CATALOG
                 while (getline(fid, line)) {
                     // trim leading and trailing blanks
-                    boost::trim(line);
+                    line = boost::algorithm::trim_copy(line);
 
                     if (line.length() > 0 && line.at(0) != '*') {
                         vector<string> splitVector;
@@ -269,7 +267,7 @@ void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
     string line;
     while (getline(fmodes, line)) {
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-            boost::trim(line);
+            line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
             boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
@@ -290,43 +288,39 @@ void SkdCatalogReader::readRecCatalog() {
     ifstream frec(recPath_);
     string line;
     while (getline(frec, line)) {
-        try{
-            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                boost::trim(line);
-                vector<string> splitVector;
-                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+            line = boost::algorithm::trim_copy(line);
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
-                if (splitVector[0] == recName_) {
-                    while (getline(frec, line)) {
-                        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                            boost::trim(line);
-                            if (line[0] != '-') {
-                                break;
+            if (splitVector[0] == recName_) {
+                while (getline(frec, line)) {
+                    if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                        line = boost::algorithm::trim_copy(line);
+                        if (line[0] != '-') {
+                            break;
+                        }
+
+                        vector<string> splitVector2;
+                        boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
+
+                        string thisStaName = splitVector2[1];
+                        if (find(staNames_.begin(), staNames_.end(), thisStaName) != staNames_.end()) {
+                            staName2hdposMap_[thisStaName] = splitVector2[2];
+                            staName2tracksMap_[thisStaName] = splitVector2[3];
+                            if (find(tracksIds_.begin(), tracksIds_.end(), splitVector2[3]) == tracksIds_.end()) {
+                                tracksIds_.push_back(splitVector2[3]);
                             }
 
-                            vector<string> splitVector2;
-                            boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
-
-                            string thisStaName = splitVector2[1];
-                            if (find(staNames_.begin(), staNames_.end(), thisStaName) != staNames_.end()) {
-                                staName2hdposMap_[thisStaName] = splitVector2[2];
-                                staName2tracksMap_[thisStaName] = splitVector2[3];
-                                if (find(tracksIds_.begin(), tracksIds_.end(), splitVector2[3]) == tracksIds_.end()) {
-                                    tracksIds_.push_back(splitVector2[3]);
-                                }
-
-                                staName2recFormatMap_[thisStaName] = splitVector2[4];
-                                if (splitVector2.size() > 5) {
-                                    cout << "WARNING: barrel_roll and max_bw information ignored for station "
-                                         << thisStaName << " in rec.cat";
-                                }
+                            staName2recFormatMap_[thisStaName] = splitVector2[4];
+                            if (splitVector2.size() > 5) {
+                                cout << "WARNING: barrel_roll and max_bw information ignored for station "
+                                     << thisStaName << " in rec.cat" << ";" << endl;
                             }
                         }
                     }
                 }
             }
-        }catch(...){
-
         }
     }
     frec.close();
@@ -337,39 +331,35 @@ void SkdCatalogReader::readTracksCatalog() {
         ifstream ftracks(tracksPath_);
         string line;
         while (getline(ftracks, line)) {
-            try{
-                if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                    boost::trim(line);
-                    vector<string> splitVector;
-                    boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                line = boost::algorithm::trim_copy(line);
+                vector<string> splitVector;
+                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
-                    if (splitVector[0] == tracksId) {
-                        tracksId2fanoutMap_[tracksId] = boost::lexical_cast<int>(splitVector[1]);
-                        unsigned int bits = boost::lexical_cast<unsigned int>(splitVector[2]);
-                        if(bits_ == 0){
-                            bits_ = bits;
-                        } else if(bits_ != bits){
-                            cerr << "Number of recorded bits is different for different track ids\n";
-                        }
-                        tracksId2bitsMap_[tracksId] = bits;
+                if (splitVector[0] == tracksId) {
+                    tracksId2fanoutMap_[tracksId] = boost::lexical_cast<int>(splitVector[1]);
+                    auto bits = boost::lexical_cast<unsigned int>(splitVector[2]);
+                    if(bits_ == 0){
+                        bits_ = bits;
+                    } else if(bits_ != bits){
+                        cerr << "ERROR: Number of recorded bits is different for different track ids;\n";
+                    }
+                    tracksId2bitsMap_[tracksId] = bits;
 
-                        while (getline(ftracks, line)) {
-                            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                                boost::trim(line);
-                                if (line[0] != '-') {
-                                    break;
-                                }
-
-                                vector<string> splitVector2;
-                                boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
-                                int channelNumber = boost::lexical_cast<int>(splitVector2[1]);
-                                channelNumber2tracksMap_[channelNumber] = splitVector2[2];
+                    while (getline(ftracks, line)) {
+                        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                            line = boost::algorithm::trim_copy(line);
+                            if (line[0] != '-') {
+                                break;
                             }
+
+                            vector<string> splitVector2;
+                            boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
+                            auto channelNumber = boost::lexical_cast<int>(splitVector2[1]);
+                            tracksId2channelNumber2tracksMap_[tracksId][channelNumber] = splitVector2[2];
                         }
                     }
                 }
-            }catch(...){
-
             }
         }
         ftracks.close();
@@ -380,42 +370,38 @@ void SkdCatalogReader::readFreqCatalog() {
     ifstream ffreq(freqPath_);
     string line;
     while (getline(ffreq, line)) {
-        try{
-            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                boost::trim(line);
-                vector<string> splitVector;
-                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+            line = boost::algorithm::trim_copy(line);
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
-                if (splitVector[0] == freqName_) {
-                    freqTwoLetterCode_ = splitVector[1];
-                    rxName_ = splitVector[3];
+            if (splitVector[0] == freqName_) {
+                freqTwoLetterCode_ = splitVector[1];
+                rxName_ = splitVector[3];
 
-                    while (getline(ffreq, line)) {
-                        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                            boost::trim(line);
-                            if (line[0] != '-') {
-                                break;
-                            }
-
-                            vector<string> splitVector2;
-                            boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
-
-                            string channelNumberStr = splitVector2[5];
-                            int channelNumber = boost::lexical_cast<int>(
-                                    channelNumberStr.substr(2, channelNumberStr.size() - 2));
-
-                            channelNumber2band_[channelNumber] = splitVector2[1];
-                            channelNumber2polarization_[channelNumber] = splitVector2[2];
-                            channelNumber2skyFreq_[channelNumber] = splitVector2[3];
-                            channelNumber2sideBand_[channelNumber] = splitVector2[4];
-                            channelNumber2BBC_[channelNumber] = splitVector2[6];
-                            channelNumber2phaseCalFrequency_[channelNumber] = splitVector2[7];
+                while (getline(ffreq, line)) {
+                    if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                        line = boost::algorithm::trim_copy(line);
+                        if (line[0] != '-') {
+                            break;
                         }
+
+                        vector<string> splitVector2;
+                        boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
+
+                        string channelNumberStr = splitVector2[5];
+                        auto channelNumber = boost::lexical_cast<int>(
+                                channelNumberStr.substr(2, channelNumberStr.size() - 2));
+
+                        channelNumber2band_[channelNumber] = splitVector2[1];
+                        channelNumber2polarization_[channelNumber] = splitVector2[2];
+                        channelNumber2skyFreq_[channelNumber] = splitVector2[3];
+                        channelNumber2sideBand_[channelNumber] = splitVector2[4];
+                        channelNumber2BBC_[channelNumber] = splitVector2[6];
+                        channelNumber2phaseCalFrequency_[channelNumber] = splitVector2[7];
                     }
                 }
             }
-        }catch(...){
-
         }
     }
     ffreq.close();
@@ -425,39 +411,35 @@ void SkdCatalogReader::readRxCatalog() {
     ifstream frx(rxPath_);
     string line;
     while (getline(frx, line)) {
-        try{
-            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                boost::trim(line);
-                vector<string> splitVector;
-                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+            line = boost::algorithm::trim_copy(line);
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
-                if (splitVector[0] == rxName_) {
-                    while (getline(frx, line)) {
-                        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                            boost::trim(line);
-                            if (line[0] != '-') {
-                                break;
+            if (splitVector[0] == rxName_) {
+                while (getline(frx, line)) {
+                    if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                        line = boost::algorithm::trim_copy(line);
+                        if (line[0] != '-') {
+                            break;
+                        }
+
+                        vector<string> splitVector2;
+                        boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
+
+
+                        string thisStaName = splitVector2[1];
+                        if (find(staNames_.begin(), staNames_.end(), thisStaName) != staNames_.end()) {
+
+                            if (find(loifIds_.begin(), loifIds_.end(), splitVector2[2]) == loifIds_.end()) {
+                                loifIds_.push_back(splitVector2[2]);
                             }
 
-                            vector<string> splitVector2;
-                            boost::split(splitVector2, line, boost::is_space(), boost::token_compress_on);
-
-
-                            string thisStaName = splitVector2[1];
-                            if (find(staNames_.begin(), staNames_.end(), thisStaName) != staNames_.end()) {
-
-                                if (find(loifIds_.begin(), loifIds_.end(), splitVector2[2]) == loifIds_.end()) {
-                                    loifIds_.push_back(splitVector2[2]);
-                                }
-
-                                staName2loifId_[thisStaName] = splitVector2[2];
-                            }
+                            staName2loifId_[thisStaName] = splitVector2[2];
                         }
                     }
                 }
             }
-        }catch(...){
-
         }
     }
     frx.close();
@@ -466,34 +448,30 @@ void SkdCatalogReader::readRxCatalog() {
 void SkdCatalogReader::readLoifCatalog() {
     string line;
     for (const auto &loifId:loifIds_) {
-        try{
-            ifstream floif(loifPath_);
-            while (getline(floif, line)) {
-                if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                    boost::trim(line);
-                    vector<string> splitVector;
-                    boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+        ifstream floif(loifPath_);
+        while (getline(floif, line)) {
+            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                line = boost::algorithm::trim_copy(line);
+                vector<string> splitVector;
+                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
 
-                    if (splitVector[0] == loifId) {
-                        vector<string> loifInfo;
+                if (splitVector[0] == loifId) {
+                    vector<string> loifInfo;
 
-                        while (getline(floif, line)) {
-                            if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
-                                boost::trim(line);
-                                if (line[0] != '-') {
-                                    loifId2loifInfo_[loifId] = loifInfo;
-                                    break;
-                                }
-                                loifInfo.push_back(line);
+                    while (getline(floif, line)) {
+                        if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
+                            line = boost::algorithm::trim_copy(line);
+                            if (line[0] != '-') {
+                                loifId2loifInfo_[loifId] = loifInfo;
+                                break;
                             }
+                            loifInfo.push_back(line);
                         }
                     }
                 }
             }
-            floif.close();
-        }catch(...){
-
         }
+        floif.close();
     }
 
 }
@@ -508,10 +486,10 @@ void SkdCatalogReader::saveOneLetterCode() {
         auto tmp = ant.at(staName);
         char oneLetterCode = tmp[0][0];
         if (charsUsed.find(oneLetterCode) != charsUsed.end()) {
-            cout << "One letter code " << oneLetterCode << " of station " << staName << " already used!";
+            cout << "WARGNING: One letter code " << oneLetterCode << " of station " << staName << " already used!";
             for (char l = 'A'; l <= 'Z'; ++l) {
                 if (charsUsed.find(l) == charsUsed.end()) {
-                    cout << "--> using \"" << l << "\" insted!\n";
+                    cout << "--> using \"" << l << "\" insted!; \n";
                     oneLetterCode = l;
                     break;
                 }

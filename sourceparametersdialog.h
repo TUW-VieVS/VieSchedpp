@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
-#include <ParameterSettings.h>
+#include <VLBI_Scheduler/ParameterSettings.h>
 #include <settingsloadwindow.h>
 
 namespace Ui {

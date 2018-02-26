@@ -223,6 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->horizontalSlider_markerSizeWorldmap,SIGNAL(valueChanged(int)),this,SLOT(markerWorldmap()));
     connect(ui->horizontalSlider_markerSkymap,SIGNAL(valueChanged(int)),this,SLOT(markerSkymap()));
 
+    initializeInspector();
 }
 
 MainWindow::~MainWindow()
@@ -5428,6 +5429,8 @@ void MainWindow::on_actionRun_triggered()
         myTextBrowser *tb = new myTextBrowser(dw);
         dw->setWidget(tb);
 
+
+
         QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
 
         if(dockWidgets.size() == 1){
@@ -5443,8 +5446,7 @@ void MainWindow::on_actionRun_triggered()
             start->start("cmd.exe",
                          QStringList() << "/c" << program << "\""+fullPath+"\"",
                          QIODevice::ReadWrite | QIODevice::Text);
-
-        #elif
+        #else
             QString program = ui->pathToSchedulerLineEdit->text();
             QStringList arguments;
             arguments << fullPath;
@@ -6768,4 +6770,12 @@ void MainWindow::on_pushButton_12_clicked()
 
     QString name = "Default cable wrap buffers changed!";
     changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::initializeInspector()
+{
+    ui->splitter_10->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_9->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_7->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
 }

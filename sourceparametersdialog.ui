@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>750</width>
-    <height>765</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_15">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
@@ -61,503 +61,758 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,1">
-     <property name="spacing">
-      <number>15</number>
-     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,1">
      <item>
-      <layout class="QFormLayout" name="formLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="availableLabel">
-         <property name="text">
-          <string>available</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="availableCheckBox">
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="minSNRLabel">
-         <property name="text">
-          <string>minSNR</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QTableWidget" name="tableWidget_minSNR">
-         <attribute name="horizontalHeaderStretchLastSection">
-          <bool>true</bool>
-         </attribute>
-         <row>
-          <property name="text">
-           <string>X</string>
-          </property>
-         </row>
-         <row>
-          <property name="text">
-           <string>S</string>
-          </property>
-         </row>
-         <column>
-          <property name="text">
-           <string>SNR</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="maxSlewTimeLabel">
-         <property name="text">
-          <string>min number of stations</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="spinBox_minNumberOfStations">
-         <property name="suffix">
-          <string/>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="value">
-          <number>2</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="maxWaitTimeLabel">
-         <property name="text">
-          <string>min flux </string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_minFlux">
-         <property name="suffix">
-          <string> [Jy]</string>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>min repeat time</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="spinBox_minRepeatTime">
-         <property name="suffix">
-          <string> [s]</string>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="singleStep">
-          <number>600</number>
-         </property>
-         <property name="value">
-          <number>1800</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>max scan time</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QSpinBox" name="spinBox_maxScanTime">
-         <property name="suffix">
-          <string> [s]</string>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="singleStep">
-          <number>60</number>
-         </property>
-         <property name="value">
-          <number>600</number>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>min scan time</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QSpinBox" name="spinBox_minScanTime">
-         <property name="suffix">
-          <string> [s]</string>
-         </property>
-         <property name="prefix">
-          <string/>
-         </property>
-         <property name="maximum">
-          <number>9999</number>
-         </property>
-         <property name="singleStep">
-          <number>10</number>
-         </property>
-         <property name="value">
-          <number>20</number>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>max number of scans</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QSpinBox" name="spinBox_maxNumberOfScans">
-         <property name="maximum">
-          <number>999</number>
-         </property>
-         <property name="value">
-          <number>999</number>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>focus if observed once</string>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="QCheckBox" name="checkBox_focusIfObsOnce">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>evenly distributed scans</string>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="1">
-        <widget class="QSpinBox" name="spinBox_evenlyDistScans">
-         <property name="maximum">
-          <number>999</number>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="0">
-        <widget class="QLabel" name="weightLabel">
-         <property name="text">
-          <string>weight</string>
-         </property>
-        </widget>
-       </item>
-       <item row="12" column="1">
-        <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-         <property name="value">
-          <double>1.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="QSpinBox" name="spinBox_fixedScanDuration">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="suffix">
-          <string> [s]</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="singleStep">
-          <number>60</number>
-         </property>
-         <property name="value">
-          <number>120</number>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QCheckBox" name="checkBox">
-         <property name="text">
-          <string>fixed scan duration</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_20">
-         <property name="text">
-          <string>min elevation</string>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
-         <property name="suffix">
-          <string> [deg]</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAsNeeded</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>346</width>
+          <height>1086</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>available</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QRadioButton" name="radioButton_available_yes">
+              <property name="text">
+               <string>yes</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_available_no">
+              <property name="text">
+               <string>no</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>general</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QFormLayout" name="formLayout_5">
+            <item row="1" column="0">
+             <widget class="QLabel" name="maxSlewTimeLabel">
+              <property name="text">
+               <string>min number of stations</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="spinBox_minNumberOfStations">
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+              <property name="value">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="maxWaitTimeLabel">
+              <property name="text">
+               <string>min flux </string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_minFlux">
+              <property name="suffix">
+               <string> [Jy]</string>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>max number of scans</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QSpinBox" name="spinBox_maxNumberOfScans">
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+              <property name="value">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>min elevation</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="weightLabel">
+              <property name="text">
+               <string>weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_10">
+           <property name="title">
+            <string>fixed minimum time between scans</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>time</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spinBox_minRepeatTime">
+              <property name="suffix">
+               <string> [s]</string>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+              <property name="singleStep">
+               <number>600</number>
+              </property>
+              <property name="value">
+               <number>1800</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_9">
+           <property name="title">
+            <string>variable minimum time between scans</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>target number of scans</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinBox_evenlyDistScans">
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="minimum">
+               <number>2</number>
+              </property>
+              <property name="maximum">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>minimum time </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="spinBox">
+              <property name="suffix">
+               <string> [s]</string>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>99999</number>
+              </property>
+              <property name="singleStep">
+               <number>600</number>
+              </property>
+              <property name="value">
+               <number>1800</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>variable scan duration</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>max scan time</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QSpinBox" name="spinBox_maxScanTime">
+                <property name="suffix">
+                 <string> [s]</string>
+                </property>
+                <property name="maximum">
+                 <number>9999</number>
+                </property>
+                <property name="singleStep">
+                 <number>60</number>
+                </property>
+                <property name="value">
+                 <number>600</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>min scan time</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QSpinBox" name="spinBox_minScanTime">
+                <property name="suffix">
+                 <string> [s]</string>
+                </property>
+                <property name="prefix">
+                 <string/>
+                </property>
+                <property name="maximum">
+                 <number>9999</number>
+                </property>
+                <property name="singleStep">
+                 <number>10</number>
+                </property>
+                <property name="value">
+                 <number>20</number>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_5">
+              <property name="title">
+               <string>target SNR</string>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <widget class="QTableWidget" name="tableWidget_minSNR">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>120</height>
+                  </size>
+                 </property>
+                 <attribute name="horizontalHeaderStretchLastSection">
+                  <bool>true</bool>
+                 </attribute>
+                 <row>
+                  <property name="text">
+                   <string>X</string>
+                  </property>
+                 </row>
+                 <row>
+                  <property name="text">
+                   <string>S</string>
+                  </property>
+                 </row>
+                 <column>
+                  <property name="text">
+                   <string>SNR</string>
+                  </property>
+                 </column>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="title">
+            <string>fixed scan duration</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QFormLayout" name="formLayout_4">
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinBox_fixedScanDuration">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="suffix">
+               <string> [s]</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>1000</number>
+              </property>
+              <property name="singleStep">
+               <number>60</number>
+              </property>
+              <property name="value">
+               <number>120</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_21">
+              <property name="text">
+               <string>duration</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_6">
+           <property name="title">
+            <string>increase weight if observed once</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>factor</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="doubleSpinBox_factor">
+                <property name="value">
+                 <double>1.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_8">
+              <property name="title">
+               <string>occurency</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_12">
+               <item>
+                <widget class="QRadioButton" name="radioButton_increaseWeight_perScan">
+                 <property name="text">
+                  <string>per scan</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_increaseWeight_once">
+                 <property name="text">
+                  <string>once</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_7">
+              <property name="title">
+               <string>type</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_13">
+               <item>
+                <widget class="QRadioButton" name="radioButton_2">
+                 <property name="text">
+                  <string>additive</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton">
+                 <property name="text">
+                  <string>multiplicative</string>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
      </item>
      <item>
-      <layout class="QFormLayout" name="formLayout_2">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>ignore stations:</string>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QGroupBox" name="groupBox_11">
+         <property name="title">
+          <string>ignore stations</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_12">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>available</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListView" name="listView_ignoreStations">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QLabel" name="label_12">
+                  <property name="text">
+                   <string>Filter:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_ignoreStations">
+                  <property name="inputMask">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>selected</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="listWidget_selectedIgnoreStations">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>available</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListView" name="listView_ignoreStations">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QLabel" name="label_12">
-               <property name="text">
-                <string>Filter:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_ignoreStations">
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>selected</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListWidget" name="listWidget_selectedIgnoreStations">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>required stations:</string>
+       <item>
+        <widget class="QGroupBox" name="groupBox_12">
+         <property name="title">
+          <string>required stations</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_13">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>available</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListView" name="listView_requiredStations">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <widget class="QLabel" name="label_15">
+                  <property name="text">
+                   <string>Filter:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_filterRequiredStations">
+                  <property name="inputMask">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>selected</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="listWidget_selectedRequiredStations">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QLabel" name="label_14">
-             <property name="text">
-              <string>available</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListView" name="listView_requiredStations">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QLabel" name="label_15">
-               <property name="text">
-                <string>Filter:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_filterRequiredStations">
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>selected</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListWidget" name="listWidget_selectedRequiredStations">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>ignore baselines:</string>
+       <item>
+        <widget class="QGroupBox" name="groupBox_13">
+         <property name="title">
+          <string>ignore baselines</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_14">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>available</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListView" name="listView_ignoreBaselines">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <item>
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
+                   <string>Filter:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_filter_ignoreBaselines">
+                  <property name="inputMask">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_7">
+              <item>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>selected</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListWidget" name="listWidget_selectedIgnoreBaselines">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+         <zorder></zorder>
+         <zorder></zorder>
         </widget>
-       </item>
-       <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_6">
-           <item>
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>available</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListView" name="listView_ignoreBaselines">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QLabel" name="label_18">
-               <property name="text">
-                <string>Filter:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="lineEdit_filter_ignoreBaselines">
-               <property name="inputMask">
-                <string/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QLabel" name="label_19">
-             <property name="text">
-              <string>selected</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListWidget" name="listWidget_selectedIgnoreBaselines">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
        </item>
       </layout>
      </item>
@@ -612,54 +867,5 @@
  <resources>
   <include location="myresources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>spinBox_fixedScanDuration</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>143</x>
-     <y>480</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>243</x>
-     <y>478</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>spinBox_minScanTime</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>114</x>
-     <y>474</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>201</x>
-     <y>413</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>spinBox_maxScanTime</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>54</x>
-     <y>472</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>202</x>
-     <y>385</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

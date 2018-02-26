@@ -3,6 +3,8 @@
 //
 
 #include "MultiScheduling.h"
+
+
 using namespace std;
 using namespace VieVS;
 
@@ -30,13 +32,13 @@ void MultiScheduling::setStation_maxSlewtime(const std::string &new_id, const st
         auto tmp = stationGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched station_maxSlewtime: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -62,13 +64,13 @@ void MultiScheduling::setStation_maxWait(const std::string &new_id, const std::v
         auto tmp = stationGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched stationMaxWait_: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched stationMaxWait_: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched stationMaxWait_: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched stationMaxWait_: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -94,13 +96,13 @@ void MultiScheduling::setStation_maxScan(const std::string &new_id, const std::v
         auto tmp = stationGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched station_maxScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched station_maxScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched station_maxScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched station_maxScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -126,13 +128,13 @@ void MultiScheduling::setStation_minScan(const std::string &new_id, const std::v
         auto tmp = stationGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched station_minScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched station_minScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched station_minScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched station_minScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -159,13 +161,13 @@ MultiScheduling::setStation_weight(const std::string &new_id, const std::vector<
         auto tmp = stationGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched station_weight: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched station_weight: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched station_weight: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched station_weight: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -192,14 +194,13 @@ MultiScheduling::setSource_minNumberOfStations(const std::string &new_id, const 
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << member
-                          << std::endl;
+                std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_minNumberOfStations: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -226,13 +227,13 @@ MultiScheduling::setSource_minFlux(const std::string &new_id, const std::vector<
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_minFlux: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched source_minFlux: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_minFlux: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_minFlux: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -258,13 +259,13 @@ void MultiScheduling::setSource_minRepeat(const std::string &new_id, const std::
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_minRepeat: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched source_minRepeat: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_minRepeat: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_minRepeat: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -290,13 +291,13 @@ void MultiScheduling::setSource_maxScan(const std::string &new_id, const std::ve
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_maxScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched source_maxScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_maxScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_maxScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -322,13 +323,13 @@ void MultiScheduling::setSource_minScan(const std::string &new_id, const std::ve
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_minScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched source_minScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_minScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_minScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -354,13 +355,13 @@ void MultiScheduling::setSource_weight(const std::string &new_id, const std::vec
         auto tmp = sourceGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched source_weight: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched source_weight: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched source_weight: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched source_weight: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -386,13 +387,13 @@ void MultiScheduling::setBaseline_maxScan(const std::string &new_id, const std::
         auto tmp = baselineGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched baseline_maxScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -418,13 +419,13 @@ void MultiScheduling::setBaseline_minScan(const std::string &new_id, const std::
         auto tmp = baselineGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched baseline_minScan: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched baseline_minScan: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched baseline_minScan: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched baseline_minScan: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -450,13 +451,13 @@ void MultiScheduling::setBaseline_weight(const std::string &new_id, const std::v
         auto tmp = baselineGroups_[new_id];
         for (const auto &member:tmp) {
             if (find(alreadyFound.begin(), alreadyFound.end(), member) != alreadyFound.end()) {
-                std::cout << "ERROR: multisched baseline_weight: double use of ID " << member << std::endl;
+                std::cout << "ERROR: multisched baseline_weight: double use of ID " << member << ";" << std::endl;
                 std::terminate();
             }
         }
     } else {
         if (find(alreadyFound.begin(), alreadyFound.end(), new_id) != alreadyFound.end()) {
-            std::cout << "ERROR: multisched baseline_weight: double use of ID " << new_id << std::endl;
+            std::cout << "ERROR: multisched baseline_weight: double use of ID " << new_id << ";" << std::endl;
             std::terminate();
         }
     }
@@ -476,20 +477,73 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         counter.push_back(2);
     }
 
-    if (!weightSkyCoverage_.empty()) {
-        counter.push_back(weightSkyCoverage_.size());
+    vector<vector<double> > weightFactors;
+    if(!weightSkyCoverage_.empty() ||
+            !weightNumberOfObservations_.empty() ||
+            !weightDuration_.empty() ||
+            !weightAverageSources_.empty() ||
+            !weightAverageStations_.empty()) {
+
+        if (weightSkyCoverage_.empty()) {
+            weightSkyCoverage_.push_back(VieVS::WeightFactors::weightSkyCoverage);
+        }
+        if (weightNumberOfObservations_.empty()) {
+            weightNumberOfObservations_.push_back(VieVS::WeightFactors::weightNumberOfObservations);
+        }
+        if (weightDuration_.empty()) {
+            weightDuration_.push_back(VieVS::WeightFactors::weightDuration);
+        }
+        if (weightAverageSources_.empty()) {
+            weightAverageSources_.push_back(VieVS::WeightFactors::weightAverageSources);
+        }
+        if (weightAverageStations_.empty()) {
+            weightAverageStations_.push_back(VieVS::WeightFactors::weightAverageStations);
+        }
+
+        for (double wsky: weightSkyCoverage_) {
+            for (double wobs: weightNumberOfObservations_) {
+                for (double wdur: weightDuration_) {
+                    for (double wasrc: weightAverageSources_) {
+                        for (double wsta: weightAverageStations_) {
+                            double sum = wsky + wobs + wdur + wasrc + wsta;
+
+                            if(sum == 0){
+                                continue;
+                            }
+
+                            vector<double> wf {wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wsta/sum};
+                            weightFactors.push_back(wf);
+                        }
+                    }
+                }
+            }
+        }
+
+        int i1 = 0;
+        while (i1 < weightFactors.size()) {
+            const vector<double> &v1 = weightFactors[i1];
+            int i2 = i1 + 1;
+
+            while (i2 < weightFactors.size()) {
+                const vector<double> &v2 = weightFactors[i2];
+                int equal = 0;
+                for (int i3 = 0; i3 < v1.size(); ++i3) {
+                    if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                        ++equal;
+                    }
+                }
+                if (equal == v1.size()) {
+                    weightFactors.erase(next(weightFactors.begin(), i2));
+                } else {
+                    ++i2;
+                }
+            }
+            ++i1;
+        }
     }
-    if (!weightNumberOfObservations_.empty()) {
-        counter.push_back(weightNumberOfObservations_.size());
-    }
-    if (!weightDuration_.empty()) {
-        counter.push_back(weightDuration_.size());
-    }
-    if (!weightAverageSources_.empty()) {
-        counter.push_back(weightAverageSources_.size());
-    }
-    if (!weightAverageStations_.empty()) {
-        counter.push_back(weightAverageStations_.size());
+
+    if (!weightFactors.empty()) {
+        counter.push_back(weightFactors.size());
     }
 
     if (!stationMaxSlewtime_.empty()) {
@@ -620,76 +674,21 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         n_before = n_block;
     }
 
-    if (!weightSkyCoverage_.empty()) {
-        unsigned long n_this = weightSkyCoverage_.size();
+    if (!weightFactors.empty()) {
+        unsigned long n_this = weightFactors.size();
         unsigned long n_block = n_before * n_this;
         unsigned int n_items = n_total / n_block;
         unsigned int c = 0;
         for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightSkyCoverage_[i_block % n_this];
+            auto thisValue = weightFactors[i_block % n_this];
 
             for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightSkyCoverage = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightNumberOfObservations_.empty()) {
-        unsigned long n_this = weightNumberOfObservations_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightNumberOfObservations_[i_block % n_this];
+                allPARA[c].weightSkyCoverage = thisValue[0];
+                allPARA[c].weightNumberOfObservations = thisValue[1];
+                allPARA[c].weightDuration = thisValue[2];
+                allPARA[c].weightAverageSources = thisValue[3];
+                allPARA[c].weightAverageStations = thisValue[4];
 
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightNumberOfObservations = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightDuration_.empty()) {
-        unsigned long n_this = weightDuration_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightDuration_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightDuration = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightAverageSources_.empty()) {
-        unsigned long n_this = weightAverageSources_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightAverageSources_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightAverageSources = thisValue;
-                ++c;
-            }
-        }
-        n_before = n_block;
-    }
-    if (!weightAverageStations_.empty()) {
-        unsigned long n_this = weightAverageStations_.size();
-        unsigned long n_block = n_before * n_this;
-        unsigned int n_items = n_total / n_block;
-        unsigned int c = 0;
-        for (int i_block = 0; i_block < n_block; ++i_block) {
-            auto thisValue = weightAverageStations_[i_block % n_this];
-
-            for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightAverageStations = thisValue;
                 ++c;
             }
         }

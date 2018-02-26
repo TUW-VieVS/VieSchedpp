@@ -106,10 +106,10 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
 
     std::string name = txt.toStdString();
 
-    if(!ui->availableCheckBox->isChecked()){
+    if(ui->radioButton_available_no->isChecked()){
         para.available = false;
     }
-    if(ui->tagalongCheckBox->isChecked()){
+    if(ui->radioButton_tagalong_yes->isChecked()){
         para.tagalong = true;
     }
     if(ui->spinBox_maxSlewTime->value() != *dp.maxSlewtime){
@@ -185,15 +185,15 @@ void stationParametersDialog::on_pushButton_load_clicked()
         VieVS::ParameterSettings::ParametersStations sp = paras.at(idx);
 
         if(sp.available.is_initialized()){
-            ui->availableCheckBox->setChecked(*sp.available);
+            ui->radioButton_available_yes->setChecked(*sp.available);
         }else{
-            ui->availableCheckBox->setChecked(true);
+            ui->radioButton_available_yes->setChecked(true);
         }
 
         if(sp.tagalong.is_initialized()){
-            ui->tagalongCheckBox->setChecked(*sp.tagalong);
+            ui->radioButton_tagalong_yes->setChecked(*sp.tagalong);
         }else{
-            ui->tagalongCheckBox->setChecked(false);
+            ui->radioButton_tagalong_no->setChecked(false);
         }
 
         if(sp.maxSlewtime.is_initialized()){

@@ -17,6 +17,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/format.hpp>
 #include "ParameterGroup.h"
+#include "WeightFactors.h"
 
 namespace VieVS {
     /**

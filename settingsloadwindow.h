@@ -2,7 +2,7 @@
 #define SETTINGSLOADWINDOW_H
 
 #include <QDialog>
-#include "ParameterSettings.h"
+#include "VLBI_Scheduler/ParameterSettings.h"
 #include <QListWidgetItem>
 #include <QMessageBox>
 namespace Ui {

@@ -35,18 +35,14 @@
 #include "multischededitdialogint.h"
 #include "multischededitdialogdouble.h"
 #include "multischededitdialogdatetime.h"
-#include "skdcatalogreader.h"
 #include "callout.h"
-#include "ParameterSettings.h"
 #include "addgroupdialog.h"
 #include "baselineparametersdialog.h"
 #include "stationparametersdialog.h"
 #include "sourceparametersdialog.h"
-#include "MultiScheduling.h"
 #include "addbanddialog.h"
 #include "savetosettingsdialog.h"
-
-#include <windows.h>
+#include "VLBI_Scheduler/VieVS_Scheduler.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -429,6 +425,8 @@ private slots:
     void on_pushButton_11_clicked();
 
     void on_pushButton_12_clicked();
+
+    void initializeInspector();
 
 private:
     Ui::MainWindow *ui;

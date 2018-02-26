@@ -26,50 +26,110 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #INCLUDEPATH += /home/mschartn/boost_1_64_0/
 #LIBS += "-LC:/home/mschartn/boost_1_64_0//stage/lib/"
 INCLUDEPATH += C:/boost/
-LIBS += "-LC:/boost/stage/lib/"
+LIBS += "-LC:/boost/stage/lib/" \
+         /home/mschartn/programming/scheduling_GUI/VLBI_Scheduler/libsofa_c.a
 
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    skdcatalogreader.cpp \
     chartview.cpp \
     callout.cpp \
     multischededitdialogint.cpp \
     multischededitdialogdouble.cpp \
     multischededitdialogdatetime.cpp \
-    ParameterGroup.cpp \
-    ParameterSettings.cpp \
-    ParameterSetup.cpp \
     addgroupdialog.cpp \
     stationparametersdialog.cpp \
     sourceparametersdialog.cpp \
     baselineparametersdialog.cpp \
-    MultiScheduling.cpp \
     settingsloadwindow.cpp \
     addbanddialog.cpp \
     savetosettingsdialog.cpp \
-    mytextbrowser.cpp
+    mytextbrowser.cpp \
+    VLBI_Scheduler/Antenna.cpp \
+    VLBI_Scheduler/Baseline.cpp \
+    VLBI_Scheduler/CableWrap.cpp \
+    VLBI_Scheduler/CalibratorBlock.cpp \
+    VLBI_Scheduler/Earth.cpp \
+    VLBI_Scheduler/Equipment.cpp \
+    VLBI_Scheduler/FillinmodeEndposition.cpp \
+    VLBI_Scheduler/Flux.cpp \
+    VLBI_Scheduler/HorizonMask.cpp \
+    VLBI_Scheduler/Initializer.cpp \
+    VLBI_Scheduler/LookupTable.cpp \
+    VLBI_Scheduler/MultiScheduling.cpp \
+    VLBI_Scheduler/Nutation.cpp \
+    VLBI_Scheduler/ObservationMode.cpp \
+    VLBI_Scheduler/Output.cpp \
+    VLBI_Scheduler/ParameterGroup.cpp \
+    VLBI_Scheduler/ParameterSettings.cpp \
+    VLBI_Scheduler/ParameterSetup.cpp \
+    VLBI_Scheduler/PointingVector.cpp \
+    VLBI_Scheduler/Position.cpp \
+    VLBI_Scheduler/Scan.cpp \
+    VLBI_Scheduler/ScanTimes.cpp \
+    VLBI_Scheduler/Scheduler.cpp \
+    VLBI_Scheduler/Skd.cpp \
+    VLBI_Scheduler/SkdCatalogReader.cpp \
+    VLBI_Scheduler/SkyCoverage.cpp \
+    VLBI_Scheduler/Source.cpp \
+    VLBI_Scheduler/Station.cpp \
+    VLBI_Scheduler/Subcon.cpp \
+    VLBI_Scheduler/TimeSystem.cpp \
+    VLBI_Scheduler/Vex.cpp \
+    VLBI_Scheduler/WeightFactors.cpp \
+    VLBI_Scheduler/VieVS_Scheduler.cpp
 
 HEADERS += \
         mainwindow.h \
-    skdcatalogreader.h \
     chartview.h \
     callout.h \
     multischededitdialogint.h \
     multischededitdialogdouble.h \
     multischededitdialogdatetime.h \
-    ParameterGroup.h \
-    ParameterSettings.h \
-    ParameterSetup.h \
     addgroupdialog.h \
     stationparametersdialog.h \
     sourceparametersdialog.h \
     baselineparametersdialog.h \
-    MultiScheduling.h \
     settingsloadwindow.h \
     addbanddialog.h \
     savetosettingsdialog.h \
-    mytextbrowser.h
+    mytextbrowser.h \
+    VLBI_Scheduler/Antenna.h \
+    VLBI_Scheduler/Baseline.h \
+    VLBI_Scheduler/CableWrap.h \
+    VLBI_Scheduler/CalibratorBlock.h \
+    VLBI_Scheduler/Constants.h \
+    VLBI_Scheduler/Earth.h \
+    VLBI_Scheduler/Equipment.h \
+    VLBI_Scheduler/FillinmodeEndposition.h \
+    VLBI_Scheduler/Flux.h \
+    VLBI_Scheduler/HorizonMask.h \
+    VLBI_Scheduler/Initializer.h \
+    VLBI_Scheduler/LookupTable.h \
+    VLBI_Scheduler/MultiScheduling.h \
+    VLBI_Scheduler/Nutation.h \
+    VLBI_Scheduler/ObservationMode.h \
+    VLBI_Scheduler/Output.h \
+    VLBI_Scheduler/ParameterGroup.h \
+    VLBI_Scheduler/ParameterSettings.h \
+    VLBI_Scheduler/ParameterSetup.h \
+    VLBI_Scheduler/PointingVector.h \
+    VLBI_Scheduler/Position.h \
+    VLBI_Scheduler/Scan.h \
+    VLBI_Scheduler/ScanTimes.h \
+    VLBI_Scheduler/Scheduler.h \
+    VLBI_Scheduler/Skd.h \
+    VLBI_Scheduler/SkdCatalogReader.h \
+    VLBI_Scheduler/SkyCoverage.h \
+    VLBI_Scheduler/sofa.h \
+    VLBI_Scheduler/sofam.h \
+    VLBI_Scheduler/Source.h \
+    VLBI_Scheduler/Station.h \
+    VLBI_Scheduler/Subcon.h \
+    VLBI_Scheduler/TimeSystem.h \
+    VLBI_Scheduler/Vex.h \
+    VLBI_Scheduler/WeightFactors.h \
+    VLBI_Scheduler/VieVS_Scheduler.h
 
 FORMS += \
         mainwindow.ui \
@@ -86,3 +146,7 @@ FORMS += \
 
 RESOURCES += \
     myresources.qrc
+
+DISTFILES += \
+    VLBI_Scheduler/libsofa_c.a \
+    VLBI_Scheduler/CMakeLists.txt

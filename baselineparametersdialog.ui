@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>296</width>
-    <height>341</height>
+    <width>250</width>
+    <height>512</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
@@ -61,114 +61,140 @@
     </widget>
    </item>
    <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="availableLabel">
-       <property name="text">
-        <string>ignore</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QCheckBox" name="CheckBox_ignore">
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="minSNRLabel">
-       <property name="text">
-        <string>minSNR</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QTableWidget" name="tableWidget_SNR">
-       <attribute name="horizontalHeaderStretchLastSection">
-        <bool>true</bool>
-       </attribute>
-       <row>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>ignore</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QRadioButton" name="radioButton">
         <property name="text">
-         <string>X</string>
+         <string>yes</string>
         </property>
-       </row>
-       <row>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_2">
         <property name="text">
-         <string>S</string>
+         <string>no</string>
         </property>
-       </row>
-       <column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>general</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>SNR</string>
+         <string>weight</string>
         </property>
-       </column>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>max scan time</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QSpinBox" name="spinBox_maxScan">
-       <property name="suffix">
-        <string> [s]</string>
-       </property>
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="singleStep">
-        <number>60</number>
-       </property>
-       <property name="value">
-        <number>600</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>min scan time</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSpinBox" name="spinBox_minScan">
-       <property name="suffix">
-        <string> [s]</string>
-       </property>
-       <property name="maximum">
-        <number>9999</number>
-       </property>
-       <property name="singleStep">
-        <number>10</number>
-       </property>
-       <property name="value">
-        <number>20</number>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>weight</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>1.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-    </layout>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>scan time</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>max scan time</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSpinBox" name="spinBox_maxScan">
+          <property name="suffix">
+           <string> [s]</string>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="singleStep">
+           <number>60</number>
+          </property>
+          <property name="value">
+           <number>600</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>min scan time</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="spinBox_minScan">
+          <property name="suffix">
+           <string> [s]</string>
+          </property>
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+          <property name="singleStep">
+           <number>10</number>
+          </property>
+          <property name="value">
+           <number>20</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tableWidget_SNR">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>120</height>
+         </size>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <row>
+         <property name="text">
+          <string>X</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>S</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>SNR</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="Line" name="line">
