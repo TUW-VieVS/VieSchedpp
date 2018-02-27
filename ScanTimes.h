@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <limits>
+#include "PointingVector.h"
 
 namespace VieVS {
 
@@ -210,6 +211,10 @@ namespace VieVS {
          * @return scan start time
          */
         unsigned int scanStart() const noexcept;
+
+        void addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
+                                unsigned int slewtime, unsigned int currentTime, unsigned int setup,
+                                unsigned int source, unsigned int tape, unsigned int calibration);
 
     private:
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan

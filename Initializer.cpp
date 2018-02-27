@@ -2968,6 +2968,8 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
     } else if (threads == "auto"){
         nThreads = 4;
     }
+    //TODO:
+    nThreads = 1;
 
     jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
     chunkSize = xml_.get<int>("master.multiCore.chunkSize",1);

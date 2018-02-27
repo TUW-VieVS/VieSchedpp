@@ -723,12 +723,23 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
     return true;
 }
 
-void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
-                              const vector<Baseline> &baselines) {
+void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end, const std::vector<Baseline> &baselines,
+                              unsigned int slewtime, const Station &station) {
     pointingVectors_.push_back(pv_start);
     pointingVectorsEndtime_.push_back(pv_end);
+    ++nsta_;
     for(auto &any:baselines){
         baselines_.push_back(any);
+    }
+    if(station.getPARA().firstScan){
+        times_.addTagalongStation(pv_start, pv_end, 0, 0, 0, 0, 0, 0);
+    }else{
+        times_.addTagalongStation(pv_start, pv_end, slewtime,
+                                  station.getCurrentTime(),
+                                  station.getWaittimes().setup,
+                                  station.getWaittimes().source,
+                                  station.getWaittimes().tape,
+                                  station.getWaittimes().calibration);
     }
 }
 
@@ -786,7 +797,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 5;
+            this_score *= 10;
         }
     }
 
@@ -858,7 +869,7 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 5;
+            this_score *= 10;
         }
     }
 
@@ -929,7 +940,7 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 5;
+            this_score *= 10;
         }
     }
 

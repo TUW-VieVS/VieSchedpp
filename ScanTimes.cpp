@@ -154,5 +154,18 @@ unsigned int ScanTimes::scanStart() const noexcept {
     return min;
 }
 
+void ScanTimes::addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
+                                   unsigned int slewtime, unsigned int currentTime, unsigned int setup, unsigned int source, unsigned int tape,
+                                   unsigned int calibration) {
+    endOfLastScan_.push_back(currentTime);
+    endOfSetupTime_.push_back(currentTime+setup);
+    endOfSourceTime_.push_back(currentTime+setup+source);
+    endOfSlewTime_.push_back(currentTime+setup+source+slewtime);
+    endOfIdleTime_.push_back(pv_start.getTime()-calibration-tape);
+    endOfTapeTime_.push_back(pv_start.getTime()-calibration);
+    endOfCalibrationTime_.push_back(pv_start.getTime());
+    endOfScanTime_.push_back(pv_end.getTime());
+}
+
 
 

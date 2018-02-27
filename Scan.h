@@ -412,8 +412,8 @@ namespace VieVS{
          * @param pv_end pointing vector at end time
          * @param baselines all baselines
          */
-        void addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
-                                const std::vector<Baseline> &baselines);
+        void addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end, const std::vector<Baseline> &baselines,
+                                        unsigned int slewtime, const Station &station);
 
         /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
