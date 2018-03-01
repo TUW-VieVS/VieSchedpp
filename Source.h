@@ -35,9 +35,20 @@ namespace VieVS{
     */
     class Source {
     public:
+
         /**
          * @brief source parameters
          */
+        enum class TryToFocusOccurrency {
+            once,
+            perScan
+        };
+
+        enum class TryToFocusType {
+            additive,
+            multiplicative
+        };
+
         struct Parameters {
             bool available = true; ///< flag is source is available
             bool globalAvailable = true;
@@ -53,9 +64,15 @@ namespace VieVS{
             unsigned int minScan = 600; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
             double minElevation = 0;
+
             bool tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
+            boost::optional<double> tryToFocusFactor;
+            boost::optional<TryToFocusOccurrency> tryToFocusOccurrency;
+            boost::optional<TryToFocusType> tryToFocusType;
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
+            boost::optional<unsigned int> tryToObserveXTimesMinRepeat;
+
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored

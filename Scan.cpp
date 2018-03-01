@@ -797,7 +797,19 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10;
+            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += *source.getPARA().tryToFocusFactor;
+                }else{
+                    this_score *= *source.getPARA().tryToFocusFactor;
+                }
+            }else{
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
+                }else{
+                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
+                }
+            }
         }
     }
 
@@ -869,7 +881,19 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10;
+            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += *source.getPARA().tryToFocusFactor;
+                }else{
+                    this_score *= *source.getPARA().tryToFocusFactor;
+                }
+            }else{
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
+                }else{
+                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
+                }
+            }
         }
     }
 
@@ -940,7 +964,19 @@ void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, con
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
-            this_score *= 10;
+            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += *source.getPARA().tryToFocusFactor;
+                }else{
+                    this_score *= *source.getPARA().tryToFocusFactor;
+                }
+            }else{
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
+                }else{
+                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
+                }
+            }
         }
     }
 

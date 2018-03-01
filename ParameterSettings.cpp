@@ -33,8 +33,8 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
 
     int emonth = endTime.date().month();
     string endTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                           % endTime.date().year() %emonth %endTime.date().day()
-                           % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
+                         % endTime.date().year() %emonth %endTime.date().day()
+                         % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
     general.add("general.endTime", endTimeStr);
 
     general.add("general.subnetting", subnetting);
@@ -288,6 +288,7 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
+        parameters.add("parameters.tryToObserveXTimesMinRepeat", *PARA.tryToObserveXTimesMinRepeat);
     }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
@@ -297,6 +298,17 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     }
     if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
         parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
+        parameters.add("parameters.tryToFocusFactor", *PARA.tryToFocusFactor);
+        if(*PARA.tryToFocusOccurrency == TryToFocusOccurrency::once){
+            parameters.add("parameters.tryToFocusOccurrency", "once");
+        }else{
+            parameters.add("parameters.tryToFocusOccurrency", "perScan");
+        }
+        if(*PARA.tryToFocusType == TryToFocusType::additive){
+            parameters.add("parameters.tryToFocusType", "additive");
+        }else{
+            parameters.add("parameters.tryToFocusType", "multiplicative");
+        }
     }
 
     for (const auto &any:PARA.minSNR) {
@@ -373,12 +385,28 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.minFlux = it.second.get_value<double>();
         } else if (paraName == "tryToObserveXTimesEvenlyDistributed") {
             para.tryToObserveXTimesEvenlyDistributed = it.second.get_value<unsigned int>();
+        } else if (paraName == "tryToObserveXTimesMinRepeat"){
+            para.tryToObserveXTimesMinRepeat = it.second.get_value<unsigned int>();
         } else if (paraName == "fixedScanDuration") {
             para.fixedScanDuration = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxNumberOfScans") {
             para.maxNumberOfScans = it.second.get_value < unsigned int > ();
         } else if (paraName == "tryToFocusIfObservedOnce") {
             para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
+        } else if (paraName == "tryToFocusFactor") {
+            para.tryToFocusFactor = it.second.get_value<double>();
+        } else if (paraName == "tryToFocusOccurrency") {
+            if(it.second.data() == "once"){
+                para.tryToFocusOccurrency = TryToFocusOccurrency::once;
+            }else{
+                para.tryToFocusOccurrency = TryToFocusOccurrency::perScan;
+            }
+        } else if (paraName == "tryToFocusType") {
+            if(it.second.data() == "additive"){
+                para.tryToFocusType = TryToFocusType::additive;
+            }else{
+                para.tryToFocusType = TryToFocusType::multiplicative;
+            }
         } else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
             double value = it.second.get_value<double>();
@@ -839,7 +867,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, 
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
                           bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);

@@ -1159,14 +1159,26 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             if (newPARA.maxNumberOfScans.is_initialized()) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
-            if (newPARA.maxNumberOfScans.is_initialized() && !newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
+            if (newPARA.maxNumberOfScans.is_initialized()) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
-            if (newPARA.tryToFocusIfObservedOnce.is_initialized() && !newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
+            if (newPARA.tryToFocusIfObservedOnce.is_initialized()) {
                 combinedPARA.tryToFocusIfObservedOnce = *newPARA.tryToFocusIfObservedOnce;
+                combinedPARA.tryToFocusFactor = *newPARA.tryToFocusFactor;
+                if(*newPARA.tryToFocusOccurrency == ParameterSettings::TryToFocusOccurrency::once){
+                    combinedPARA.tryToFocusOccurrency = Source::TryToFocusOccurrency::once;
+                }else{
+                    combinedPARA.tryToFocusOccurrency = Source::TryToFocusOccurrency::perScan;
+                }
+                if(*newPARA.tryToFocusType == ParameterSettings::TryToFocusType::additive){
+                    combinedPARA.tryToFocusType = Source::TryToFocusType::additive;
+                }else{
+                    combinedPARA.tryToFocusType = Source::TryToFocusType::multiplicative;
+                }
             }
             if (newPARA.tryToObserveXTimesEvenlyDistributed.is_initialized()) {
                 combinedPARA.tryToObserveXTimesEvenlyDistributed = *newPARA.tryToObserveXTimesEvenlyDistributed;
+                combinedPARA.tryToObserveXTimesMinRepeat = *newPARA.tryToObserveXTimesMinRepeat;
             }
             if (newPARA.fixedScanDuration.is_initialized()) {
                 combinedPARA.fixedScanDuration = *newPARA.fixedScanDuration;
@@ -1246,7 +1258,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
 
             unsigned int minutes = minutesVisible(thisSource,combinedPARA,start,end);
             unsigned int minRepeat = (60*minutes)/(combinedPARA.maxNumberOfScans);
-            unsigned int minRepeatOther = combinedPARA.minRepeat;
+            unsigned int minRepeatOther = *combinedPARA.tryToObserveXTimesMinRepeat;
             if(minRepeat < minRepeatOther){
                 minRepeat = minRepeatOther;
             }
