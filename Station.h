@@ -434,6 +434,7 @@ namespace VieVS{
          */
         void checkForNewEvent() noexcept;
 
+        bool checkForTagalongMode(unsigned int time) noexcept;
 
         /**
          * @brief this function checks if it is time to change the parameters
@@ -445,7 +446,7 @@ namespace VieVS{
          * @param bodyLog output stream object
          * @param tagalong flag if station should be scheduled in tagalong mode
          */
-        void checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept;
+        void checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream &out) noexcept;
 
         /**
          * @brief changes parameters to next setup

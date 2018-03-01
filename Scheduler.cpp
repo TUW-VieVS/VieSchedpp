@@ -566,12 +566,16 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
 bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyLog) noexcept {
     bool hard_break = false;
 
-    for (auto &any:stations_) {
-        bool tagalong = false;
-        any.checkForNewEvent(time, hard_break, bodyLog, tagalong);
+    for (auto &any:stations_){
+        bool tagalong = any.checkForTagalongMode(time);
         if(tagalong){
+            bodyLog << "TAGALONG for station " << any.getName() << " required!\n";
             startTagelongMode(any, bodyLog);
         }
+    }
+
+    for (auto &any:stations_) {
+        any.checkForNewEvent(time, hard_break, bodyLog);
     }
 
     bool flag = false;
@@ -1074,7 +1078,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
         }
     }
 
-    station.applyNextEvent(bodyLog);
+//    station.applyNextEvent(bodyLog);
 }
 
 bool Scheduler::checkOptimizationConditions(ofstream &of) {

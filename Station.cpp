@@ -270,19 +270,13 @@ void Station::checkForNewEvent() noexcept {
     }
 }
 
-void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream & out, bool &tagalong) noexcept {
+void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream &out) noexcept {
 
     while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
         bool oldAvailable = parameters_.available;
-        bool oldTagalong = parameters_.tagalong;
-        if(!oldTagalong){
-            parameters_ = events_[nextEvent_].PARA;
 
-        } else {
-            out << "TAGALONG for station " << name_ << " required!\n";
-            tagalong = true;
-            return;
-        }
+        parameters_ = events_[nextEvent_].PARA;
+
         hardBreak = hardBreak || !events_[nextEvent_].softTransition;
         bool newAvailable = parameters_.available;
 
@@ -300,6 +294,16 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
     }
 }
 
+bool Station::checkForTagalongMode(unsigned int time) noexcept{
+    bool tagalong = parameters_.tagalong;
+    if(tagalong){
+        if(nextEvent_ < events_.size() && events_[nextEvent_].time <= time){
+            return true;
+        }
+    }
+    return false;
+}
+
 void Station::applyNextEvent(std::ofstream &out) noexcept{
     unsigned int nextEventTimes = events_[nextEvent_].time;
     while (nextEvent_ < events_.size() && events_[nextEvent_].time <= nextEventTimes) {
@@ -312,6 +316,7 @@ void Station::applyNextEvent(std::ofstream &out) noexcept{
     }
 
 }
+
 
 void Station::clearObservations() {
     nextEvent_ = 0;
@@ -328,4 +333,5 @@ void Station::clearObservations() {
 
     parameters_.firstScan=true;
 }
+
 
