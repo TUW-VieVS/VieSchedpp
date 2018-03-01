@@ -1485,11 +1485,11 @@ void MainWindow::defaultParameters()
                     if (paraName == "<xmlattr>") {
                         continue;
                     } else if (paraName == "weight") {
-                        src.weight = it2.second.get_value<double>();
+                        bl.weight = it2.second.get_value<double>();
                     } else if (paraName == "minScan") {
-                        src.minScan = it2.second.get_value < unsigned int > ();
+                        bl.minScan = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "maxScan") {
-                        src.maxScan = it2.second.get_value < unsigned int > ();
+                        bl.maxScan = it2.second.get_value < unsigned int > ();
                     } else {
                         QString txt = "Ignoring parameter: ";
                         txt.append(QString::fromStdString(paraName)).append(" in baseline default parameters!\nCheck settings.xml file!");
@@ -4967,7 +4967,7 @@ void MainWindow::createDefaultParameterSettings()
 {
     VieVS::ParameterSettings::ParametersStations sta;
     sta.maxScan = 600;
-    sta.minScan = 20;
+    sta.minScan = 30;
     sta.maxSlewtime = 600;
     sta.maxWait = 600;
     sta.weight = 1;
@@ -4976,7 +4976,7 @@ void MainWindow::createDefaultParameterSettings()
 
     VieVS::ParameterSettings::ParametersSources src;
     src.minRepeat = 1800;
-    src.minScan = 20;
+    src.minScan = 30;
     src.maxScan = 600;
     src.weight = 1;
     src.minFlux = 0.05;
@@ -4986,7 +4986,7 @@ void MainWindow::createDefaultParameterSettings()
 
     VieVS::ParameterSettings::ParametersBaselines bl;
     bl.maxScan = 600;
-    bl.minScan = 20;
+    bl.minScan = 30;
     bl.weight = 1;
     settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));    
     settings.add("settings.station.waitTimes.setup",0);

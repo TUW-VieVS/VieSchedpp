@@ -288,7 +288,7 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
-        parameters.add("parameters.tryToObserveMinRepeat", *PARA.tryToObserveXTimesMinRepeat);
+        parameters.add("parameters.tryToObserveXTimesMinRepeat", *PARA.tryToObserveXTimesMinRepeat);
     }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
@@ -385,12 +385,28 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.minFlux = it.second.get_value<double>();
         } else if (paraName == "tryToObserveXTimesEvenlyDistributed") {
             para.tryToObserveXTimesEvenlyDistributed = it.second.get_value<unsigned int>();
+        } else if (paraName == "tryToObserveXTimesMinRepeat"){
+            para.tryToObserveXTimesMinRepeat = it.second.get_value<unsigned int>();
         } else if (paraName == "fixedScanDuration") {
             para.fixedScanDuration = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxNumberOfScans") {
             para.maxNumberOfScans = it.second.get_value < unsigned int > ();
         } else if (paraName == "tryToFocusIfObservedOnce") {
             para.tryToFocusIfObservedOnce = it.second.get_value<bool>();
+        } else if (paraName == "tryToFocusFactor") {
+            para.tryToFocusFactor = it.second.get_value<double>();
+        } else if (paraName == "tryToFocusOccurrency") {
+            if(it.second.data() == "once"){
+                para.tryToFocusOccurrency = TryToFocusOccurrency::once;
+            }else{
+                para.tryToFocusOccurrency = TryToFocusOccurrency::perScan;
+            }
+        } else if (paraName == "tryToFocusType") {
+            if(it.second.data() == "additive"){
+                para.tryToFocusType = TryToFocusType::additive;
+            }else{
+                para.tryToFocusType = TryToFocusType::multiplicative;
+            }
         } else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
             double value = it.second.get_value<double>();

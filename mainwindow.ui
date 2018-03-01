@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>9</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -829,8 +829,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>247</width>
-             <height>611</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -1864,8 +1864,9 @@ If you only want to run simulations you can deselect this to avoid error message
           </item>
           <item row="0" column="2">
            <widget class="QPushButton" name="pushButton">
-            <property name="text">
-             <string>read</string>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/dialog-ok-2.png</normaloff>:/icons/icons/dialog-ok-2.png</iconset>
             </property>
            </widget>
           </item>
@@ -2739,6 +2740,10 @@ Click on source to deselect it</string>
                      <widget class="QPushButton" name="pushButton_parameterStation_edit">
                       <property name="text">
                        <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
                       </property>
                      </widget>
                     </item>
@@ -3636,6 +3641,10 @@ Click on source to deselect it</string>
                   <property name="text">
                    <string/>
                   </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -3973,8 +3982,21 @@ Click on source to deselect it</string>
                 </item>
                 <item>
                  <widget class="QPushButton" name="pushButton_parameterBaseline_edit">
-                  <property name="text">
-                   <string/>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>1</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>20</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="myresources.qrc">
+                    <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -5134,8 +5156,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
