@@ -28,6 +28,10 @@ public:
 
     void addDefaultParameters(VieVS::ParameterSettings::ParametersSources defaultPara);
 
+    void addSelectedParameters(VieVS::ParameterSettings::ParametersSources para, QString paraName);
+
+    void changeParameters(VieVS::ParameterSettings::ParametersSources sp);
+
     std::pair<std::string, VieVS::ParameterSettings::ParametersSources> getParameters();
 
 private slots:
@@ -58,6 +62,14 @@ private slots:
     void on_pushButton_clicked();
 
     void on_spinBox_evenlyDistScans_valueChanged(int arg1);
+
+    void on_groupBox_10_toggled(bool arg1);
+
+    void on_groupBox_9_toggled(bool arg1);
+
+    void on_groupBox_variableScanDuration_toggled(bool arg1);
+
+    void on_groupBox_fixedScanDuration_toggled(bool arg1);
 
 private:
     Ui::sourceParametersDialog *ui;

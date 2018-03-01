@@ -76,7 +76,7 @@
              <string>yes</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -84,6 +84,16 @@
            <widget class="QRadioButton" name="radioButton_available_no">
             <property name="text">
              <string>no</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_available_parent">
+            <property name="text">
+             <string>from parent</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -107,6 +117,16 @@
            <widget class="QRadioButton" name="radioButton_tagalong_no">
             <property name="text">
              <string>no</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_tagalong_parent">
+            <property name="text">
+             <string>from parent</string>
             </property>
             <property name="checked">
              <bool>true</bool>

@@ -428,6 +428,12 @@ private slots:
 
     void initializeInspector();
 
+    void on_pushButton_parameterStation_edit_clicked();
+
+    void on_pushButton_parameterSource_edit_clicked();
+
+    void on_pushButton_parameterBaseline_edit_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

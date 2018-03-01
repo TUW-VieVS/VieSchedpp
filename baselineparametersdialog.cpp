@@ -26,6 +26,68 @@ void baselineParametersDialog::addDefaultParameters(VieVS::ParameterSettings::Pa
     ui->spinBox_minScan->setValue(*d.minScan);
     ui->spinBox_maxScan->setValue(*d.maxScan);
 }
+
+void baselineParametersDialog::addSelectedParameters(VieVS::ParameterSettings::ParametersBaselines para, QString paraName)
+{
+    changeParameters(para);
+    ui->lineEdit_paraName->setText(paraName);
+    ui->lineEdit_paraName->setEnabled(false);
+}
+
+void baselineParametersDialog::changeParameters(VieVS::ParameterSettings::ParametersBaselines sp)
+{
+    QString warningTxt;
+    if(sp.ignore.is_initialized()){
+        if(*sp.ignore){
+            ui->radioButton_ignore_yes->setChecked(true);
+        }else{
+            ui->radioButton_ignore_no->setChecked(true);
+        }
+    }else{
+        ui->radioButton_ignore_parent->setChecked(true);
+    }
+
+    if(sp.maxScan.is_initialized()){
+        ui->spinBox_minScan->setValue(*sp.maxScan);
+    }else{
+        ui->spinBox_minScan->setValue(*dp.maxScan);
+    }
+
+    if(sp.minScan.is_initialized()){
+        ui->spinBox_maxScan->setValue(*sp.minScan);
+    }else{
+        ui->spinBox_maxScan->setValue(*dp.minScan);
+    }
+
+    if(sp.weight.is_initialized()){
+        ui->doubleSpinBox_weight->setValue(*sp.weight);
+    }else{
+        ui->doubleSpinBox_weight->setValue(*dp.weight);
+    }
+
+    QVector<QString> bands;
+    for(int i=0; i<ui->tableWidget_SNR->rowCount(); ++i){
+        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(i,0))->setValue(0);
+        bands.push_back(ui->tableWidget_SNR->verticalHeaderItem(i)->text());
+    }
+
+    for(const auto &any:sp.minSNR){
+        QString name = QString::fromStdString(any.first);
+        double val = any.second;
+        int idx = bands.indexOf(name);
+        if(idx != -1){
+            qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(idx,0))->setValue(val);
+        }else{
+            warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
+        }
+    }
+    if(!warningTxt.isEmpty()){
+        QString txt = "The following errors occurred while loading the parameters:\n";
+        txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
+        QMessageBox::warning(this,"Unknown parameters!",txt);
+    }
+}
+
 std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> baselineParametersDialog::getParameters()
 {
     VieVS::ParameterSettings::ParametersBaselines para;
@@ -37,8 +99,12 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> baselinePa
 
     std::string name = txt.toStdString();
 
-    if(ui->CheckBox_ignore->isChecked()){
-        para.ignore = true;
+    if(!ui->radioButton_ignore_parent->isChecked()){
+        if(ui->radioButton_ignore_yes->isChecked()){
+            para.ignore = true;
+        }else{
+            para.ignore = false;
+        }
     }
     if(ui->spinBox_minScan->value() != *dp.minScan){
         para.minScan = ui->spinBox_minScan->value();
@@ -54,6 +120,13 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> baselinePa
         if(w->value()!=0){
             para.minSNR[ui->tableWidget_SNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
         }
+    }
+
+    if(name == "default"){
+        para.ignore = false;
+        para.weight = ui->doubleSpinBox_weight->value();
+        para.minScan = ui->spinBox_minScan->value();
+        para.maxScan = ui->spinBox_maxScan->value();
     }
 
     return std::make_pair(name,para);
@@ -104,60 +177,15 @@ void baselineParametersDialog::on_pushButton_load_clicked()
     dial->setBaselineParameters(names,paras);
     int result = dial->exec();
     if(result == QDialog::Accepted){
-        QString warningTxt;
 
         QString itm = dial->selectedItem();
         int idx = dial->selectedIdx();
         VieVS::ParameterSettings::ParametersBaselines sp = paras.at(idx);
 
-        if(sp.ignore.is_initialized()){
-            ui->CheckBox_ignore->setChecked(*sp.ignore);
-        }else{
-            ui->CheckBox_ignore->setChecked(false);
-        }
-
-        if(sp.maxScan.is_initialized()){
-            ui->spinBox_minScan->setValue(*sp.maxScan);
-        }else{
-            ui->spinBox_minScan->setValue(*dp.maxScan);
-        }
-
-        if(sp.minScan.is_initialized()){
-            ui->spinBox_maxScan->setValue(*sp.minScan);
-        }else{
-            ui->spinBox_maxScan->setValue(*dp.minScan);
-        }
-
-        if(sp.weight.is_initialized()){
-            ui->doubleSpinBox_weight->setValue(*sp.weight);
-        }else{
-            ui->doubleSpinBox_weight->setValue(*dp.weight);
-        }
-
-        QVector<QString> bands;
-        for(int i=0; i<ui->tableWidget_SNR->rowCount(); ++i){
-            qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(i,0))->setValue(0);
-            bands.push_back(ui->tableWidget_SNR->verticalHeaderItem(i)->text());
-        }
-
-        for(const auto &any:sp.minSNR){
-            QString name = QString::fromStdString(any.first);
-            double val = any.second;
-            int idx = bands.indexOf(name);
-            if(idx != -1){
-                qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(idx,0))->setValue(val);
-            }else{
-                warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
-            }
-        }
+        changeParameters(sp);
 
         ui->lineEdit_paraName->setText(itm);
 
-        if(!warningTxt.isEmpty()){
-            QString txt = "The following errors occurred while loading the parameters:\n";
-            txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
-            QMessageBox::warning(this,"Unknown parameters!",txt);
-        }
     }
 }
 

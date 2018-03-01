@@ -24,6 +24,10 @@ public:
 
     void addDefaultParameters(VieVS::ParameterSettings::ParametersStations defaultPara);
 
+    void addSelectedParameters(VieVS::ParameterSettings::ParametersStations para, QString paraName);
+
+    void changeParameters(VieVS::ParameterSettings::ParametersStations sp);
+
     void addSourceNames(QStandardItemModel *sources);
 
     std::pair<std::string, VieVS::ParameterSettings::ParametersStations> getParameters();

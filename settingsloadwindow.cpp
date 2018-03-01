@@ -288,12 +288,36 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->setItem(r,0,new QTableWidgetItem(boolText));
             t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
             ++r;
+
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToFocusFactor)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight by factor"));
+            ++r;
+
+            t->insertRow(r);
+            QString occurrencyText = *para.tryToFocusOccurrency == VieVS::ParameterSettings::TryToFocusOccurrency::once ? "once" : "per scan";
+            t->setItem(r,0,new QTableWidgetItem(occurrencyText));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+            ++r;
+
+            t->insertRow(r);
+            QString typeText = *para.tryToFocusType == VieVS::ParameterSettings::TryToFocusType::additive ? "additive" : "multiplicative";
+            t->setItem(r,0,new QTableWidgetItem(typeText));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+            ++r;
+
         }
         if(para.tryToObserveXTimesEvenlyDistributed.is_initialized()){
             t->insertRow(r);
             t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToObserveXTimesEvenlyDistributed)));
             t->setVerticalHeaderItem(r,new QTableWidgetItem("eavenly distributed scans over time"));
             ++r;
+
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToObserveXTimesMinRepeat)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("min time between two scans [s]"));
+            ++r;
+
         }
         if(para.minSNR.size() >0 ){
             for(const auto& any: para.minSNR){

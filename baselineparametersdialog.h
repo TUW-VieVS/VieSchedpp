@@ -22,6 +22,10 @@ public:
 
     void addDefaultParameters(VieVS::ParameterSettings::ParametersBaselines defaultPara);
 
+    void addSelectedParameters(VieVS::ParameterSettings::ParametersBaselines para, QString paraName);
+
+    void changeParameters(VieVS::ParameterSettings::ParametersBaselines sp);
+
     std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> getParameters();
 
 private slots:

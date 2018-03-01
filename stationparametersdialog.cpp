@@ -47,6 +47,110 @@ void stationParametersDialog::addDefaultParameters(VieVS::ParameterSettings::Par
     ui->spinBox_maxSlewTime->setValue(*d.maxSlewtime);
 }
 
+void stationParametersDialog::addSelectedParameters(VieVS::ParameterSettings::ParametersStations para, QString paraName)
+{
+    changeParameters(para);
+    ui->lineEdit->setText(paraName);
+    ui->lineEdit->setEnabled(false);
+}
+
+void stationParametersDialog::changeParameters(VieVS::ParameterSettings::ParametersStations sp)
+{
+
+    QString warningTxt;
+    if(sp.available.is_initialized()){
+        if(*sp.available){
+            ui->radioButton_available_yes->setChecked(true);
+        }else{
+            ui->radioButton_available_no->setChecked(true);
+        }
+    }else{
+        ui->radioButton_available_parent->setChecked(true);
+    }
+
+    if(sp.tagalong.is_initialized()){
+        if(*sp.tagalong){
+            ui->radioButton_tagalong_yes->setChecked(true);
+        }else{
+            ui->radioButton_tagalong_no->setChecked(true);
+        }
+    }else{
+        ui->radioButton_tagalong_parent->setChecked(true);
+    }
+
+    if(sp.maxSlewtime.is_initialized()){
+        ui->spinBox_maxSlewTime->setValue(*sp.maxSlewtime);
+    }else{
+        ui->spinBox_maxSlewTime->setValue(*dp.maxSlewtime);
+    }
+
+    if(sp.maxWait.is_initialized()){
+        ui->spinBox_maxWaitTime->setValue(*sp.maxWait);
+    }else{
+        ui->spinBox_maxWaitTime->setValue(*dp.maxWait);
+    }
+
+    if(sp.maxScan.is_initialized()){
+        ui->spinBox_maxScanTime->setValue(*sp.maxScan);
+    }else{
+        ui->spinBox_maxScanTime->setValue(*dp.maxScan);
+    }
+
+    if(sp.minScan.is_initialized()){
+        ui->spinBox_minScanTime->setValue(*sp.minScan);
+    }else{
+        ui->spinBox_minScanTime->setValue(*dp.minScan);
+    }
+
+    if(sp.minElevation.is_initialized()){
+        ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
+    }else{
+        ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
+    }
+
+    if(sp.weight.is_initialized()){
+        ui->doubleSpinBox_weight->setValue(*sp.weight);
+    }else{
+        ui->doubleSpinBox_weight->setValue(*dp.weight);
+    }
+
+    QVector<QString> bands;
+    for(int i=0; i<ui->tableWidget_SNR->rowCount(); ++i){
+        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(i,0))->setValue(0);
+        bands.push_back(ui->tableWidget_SNR->verticalHeaderItem(i)->text());
+    }
+
+    for(const auto &any:sp.minSNR){
+        QString name = QString::fromStdString(any.first);
+        double val = any.second;
+        int idx = bands.indexOf(name);
+        if(idx != -1){
+            qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(idx,0))->setValue(val);
+        }else{
+            warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
+        }
+    }
+
+    ui->listWidget_selectedIgnoreSources->clear();
+    for(const auto &any:sp.ignoreSourcesString){
+        QString name = QString::fromStdString(any);
+        auto list = sources->findItems(name);
+        if(list.size()==1){
+            ui->listWidget_selectedIgnoreSources->insertItem(ui->listWidget_selectedIgnoreSources->count(),name);
+        }else{
+            warningTxt.append("    unknown source: ").append(name).append(" which should be ignored!\n");
+        }
+    }
+    ui->listWidget_selectedIgnoreSources->sortItems();
+
+    if(!warningTxt.isEmpty()){
+        QString txt = "The following errors occurred while loading the parameters:\n";
+        txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
+        QMessageBox::warning(this,"Unknown parameters!",txt);
+    }
+
+}
+
 void stationParametersDialog::addSourceNames(QStandardItemModel *otherSources)
 {
     for(int i=0; i<otherSources->rowCount();++i){
@@ -106,11 +210,20 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
 
     std::string name = txt.toStdString();
 
-    if(ui->radioButton_available_no->isChecked()){
-        para.available = false;
+    if(!ui->radioButton_available_parent->isChecked()){
+        if(ui->radioButton_available_yes->isChecked()){
+            para.available = true;
+        }else{
+            para.available = false;
+        }
     }
-    if(ui->radioButton_tagalong_yes->isChecked()){
-        para.tagalong = true;
+    if(!ui->radioButton_tagalong_parent->isChecked()){
+        if(ui->radioButton_tagalong_yes->isChecked()){
+            para.tagalong = true;
+        }else{
+            para.tagalong = false;
+        }
+
     }
     if(ui->spinBox_maxSlewTime->value() != *dp.maxSlewtime){
         para.maxSlewtime = ui->spinBox_maxSlewTime->value();
@@ -138,6 +251,16 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
         if(w->value()!=0){
             para.minSNR[ui->tableWidget_SNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
         }
+    }
+
+    if(name == "default"){
+        para.available = true;
+        para.weight = ui->doubleSpinBox_weight->value();
+        para.minElevation = ui->doubleSpinBox_minElevation->value();
+        para.minScan = ui->spinBox_minScanTime->value();
+        para.maxScan = ui->spinBox_maxScanTime->value();
+        para.maxWait = ui->spinBox_maxWaitTime->value();
+        para.maxSlewtime = ui->spinBox_maxSlewTime->value();
     }
 
     return std::make_pair(name,para);
@@ -178,95 +301,15 @@ void stationParametersDialog::on_pushButton_load_clicked()
     dial->setStationParameters(names,paras);
     int result = dial->exec();
     if(result == QDialog::Accepted){
-        QString warningTxt;
 
         QString itm = dial->selectedItem();
         int idx = dial->selectedIdx();
         VieVS::ParameterSettings::ParametersStations sp = paras.at(idx);
 
-        if(sp.available.is_initialized()){
-            ui->radioButton_available_yes->setChecked(*sp.available);
-        }else{
-            ui->radioButton_available_yes->setChecked(true);
-        }
+        changeParameters(sp);
 
-        if(sp.tagalong.is_initialized()){
-            ui->radioButton_tagalong_yes->setChecked(*sp.tagalong);
-        }else{
-            ui->radioButton_tagalong_no->setChecked(false);
-        }
-
-        if(sp.maxSlewtime.is_initialized()){
-            ui->spinBox_maxSlewTime->setValue(*sp.maxSlewtime);
-        }else{
-            ui->spinBox_maxSlewTime->setValue(*dp.maxSlewtime);
-        }
-
-        if(sp.maxWait.is_initialized()){
-            ui->spinBox_maxWaitTime->setValue(*sp.maxWait);
-        }else{
-            ui->spinBox_maxWaitTime->setValue(*dp.maxWait);
-        }
-
-        if(sp.maxScan.is_initialized()){
-            ui->spinBox_maxScanTime->setValue(*sp.maxScan);
-        }else{
-            ui->spinBox_maxScanTime->setValue(*dp.maxScan);
-        }
-
-        if(sp.minScan.is_initialized()){
-            ui->spinBox_minScanTime->setValue(*sp.minScan);
-        }else{
-            ui->spinBox_minScanTime->setValue(*dp.minScan);
-        }
-
-        if(sp.minElevation.is_initialized()){
-            ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
-        }else{
-            ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
-        }
-
-        if(sp.weight.is_initialized()){
-            ui->doubleSpinBox_weight->setValue(*sp.weight);
-        }else{
-            ui->doubleSpinBox_weight->setValue(*dp.weight);
-        }
-
-        QVector<QString> bands;
-        for(int i=0; i<ui->tableWidget_SNR->rowCount(); ++i){
-            qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(i,0))->setValue(0);
-            bands.push_back(ui->tableWidget_SNR->verticalHeaderItem(i)->text());
-        }
-
-        for(const auto &any:sp.minSNR){
-            QString name = QString::fromStdString(any.first);
-            double val = any.second;
-            int idx = bands.indexOf(name);
-            if(idx != -1){
-                qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(idx,0))->setValue(val);
-            }else{
-                warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
-            }
-        }
-
-        ui->listWidget_selectedIgnoreSources->clear();
-        for(const auto &any:sp.ignoreSourcesString){
-            QString name = QString::fromStdString(any);
-            auto list = sources->findItems(name);
-            if(list.size()==1){
-                ui->listWidget_selectedIgnoreSources->insertItem(ui->listWidget_selectedIgnoreSources->count(),name);
-            }else{
-                warningTxt.append("    unknown source: ").append(name).append(" which should be ignored!\n");
-            }
-        }
-        ui->listWidget_selectedIgnoreSources->sortItems();
         ui->lineEdit->setText(itm);
 
-        if(!warningTxt.isEmpty()){
-            QString txt = "The following errors occurred while loading the parameters:\n";
-            txt.append(warningTxt).append("These parameters were ignored!\nPlease double check parameters again!");
-            QMessageBox::warning(this,"Unknown parameters!",txt);
-        }
     }
 
 

@@ -579,12 +579,35 @@ void MainWindow::displaySourceSetupParameter(QString name){
         t->setItem(r,0,new QTableWidgetItem(boolText));
         t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
         ++r;
+
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToFocusFactor)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight by factor"));
+        ++r;
+
+        t->insertRow(r);
+        QString occurrencyText = *para.tryToFocusOccurrency == VieVS::ParameterSettings::TryToFocusOccurrency::once ? "once" : "per scan";
+        t->setItem(r,0,new QTableWidgetItem(occurrencyText));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+        ++r;
+
+        t->insertRow(r);
+        QString typeText = *para.tryToFocusType == VieVS::ParameterSettings::TryToFocusType::additive ? "additive" : "multiplicative";
+        t->setItem(r,0,new QTableWidgetItem(typeText));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+        ++r;
     }
     if(para.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         t->insertRow(r);
         t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToObserveXTimesEvenlyDistributed)));
         t->setVerticalHeaderItem(r,new QTableWidgetItem("eavenly distributed scans over time"));
         ++r;
+
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.tryToObserveXTimesMinRepeat)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("min time between two scans [s]"));
+        ++r;
+
     }
     if(para.minSNR.size() >0 ){
         for(const auto& any: para.minSNR){
@@ -653,7 +676,7 @@ void MainWindow::displayBaselineSetupParameter(QString name)
         t->insertRow(r);
         QString boolText = *para.ignore ? "true" : "false";
         t->setItem(r,0,new QTableWidgetItem(boolText));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore"));
         ++r;
     }
     if(para.maxScan.is_initialized()){
@@ -3727,6 +3750,31 @@ void MainWindow::on_pushButton_stationParameter_clicked()
     delete(dial);
 }
 
+void MainWindow::on_pushButton_parameterStation_edit_clicked()
+{
+    stationParametersDialog *dial = new stationParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+    dial->addSourceNames(allSourcePlusGroupModel);
+    dial->addDefaultParameters(paraSta["default"]);
+    dial->addSelectedParameters(paraSta[ui->ComboBox_parameterStation->currentText().toStdString()],ui->ComboBox_parameterStation->currentText());
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersStations parameter = res.second;
+
+        paraSta[name] = parameter;
+
+    }
+    delete(dial);
+}
+
+
 void MainWindow::on_pushButton_sourceParameter_clicked()
 {
     sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
@@ -3755,6 +3803,33 @@ void MainWindow::on_pushButton_sourceParameter_clicked()
     delete(dial);
 }
 
+void MainWindow::on_pushButton_parameterSource_edit_clicked()
+{
+    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    dial->addStationModel(allStationPlusGroupModel);
+    dial->addBaselineModel(allBaselinePlusGroupModel);
+    dial->addDefaultParameters(paraSrc["default"]);
+    dial->addSelectedParameters(paraSrc[ui->ComboBox_parameterSource->currentText().toStdString()],ui->ComboBox_parameterSource->currentText());
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersSources> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersSources parameter = res.second;
+
+        paraSrc[name] = parameter;
+
+    }
+    delete(dial);
+}
+
+
 void MainWindow::on_pushButton__baselineParameter_clicked()
 {
     baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
@@ -3778,6 +3853,31 @@ void MainWindow::on_pushButton__baselineParameter_clicked()
 
     }
     delete(dial);
+}
+
+void MainWindow::on_pushButton_parameterBaseline_edit_clicked()
+{
+    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
+    dial->addDefaultParameters(paraBl["default"]);
+    dial->addSelectedParameters(paraBl[ui->ComboBox_parameterBaseline->currentText().toStdString()],ui->ComboBox_parameterBaseline->currentText());
+
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
+
+        paraBl[name] = parameter;
+
+    }
+    delete(dial);
+
 }
 
 
@@ -6779,3 +6879,6 @@ void MainWindow::initializeInspector()
     ui->splitter_7->setSizes(QList<int>({INT_MAX, INT_MAX}));
     ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
 }
+
+
+
