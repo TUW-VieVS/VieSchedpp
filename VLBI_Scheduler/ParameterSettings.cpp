@@ -288,6 +288,7 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
+        parameters.add("parameters.tryToObserveMinRepeat", *PARA.tryToObserveXTimesMinRepeat);
     }
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
@@ -297,6 +298,17 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     }
     if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
         parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
+        parameters.add("parameters.tryToFocusFactor", *PARA.tryToFocusFactor);
+        if(*PARA.tryToFocusOccurrency == TryToFocusOccurrency::once){
+            parameters.add("parameters.tryToFocusOccurrency", "once");
+        }else{
+            parameters.add("parameters.tryToFocusOccurrency", "perScan");
+        }
+        if(*PARA.tryToFocusType == TryToFocusType::additive){
+            parameters.add("parameters.tryToFocusType", "additive");
+        }else{
+            parameters.add("parameters.tryToFocusType", "multiplicative");
+        }
     }
 
     for (const auto &any:PARA.minSNR) {
