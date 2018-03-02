@@ -679,6 +679,7 @@ void Output::writeStatisticsPerSourceGroup() {
     vector<vector<unsigned long> > scanNsta(nsrc);
     vector<vector<unsigned long> > scanNbl(nsrc);
     vector<vector<char> > flag(nsrc);
+    vector<vector<unsigned int> > scanTimePerStation(nsrc,vector<unsigned int>(stations_.size(),0));
 
     for(const auto &scan:scans_){
         int srcid = scan.getSourceId();
@@ -703,6 +704,11 @@ void Output::writeStatisticsPerSourceGroup() {
                 break;
             }
         }
+        for(int i=0; i<scan.getNSta(); ++i){
+            int staid = scan.getPointingVector(i).getStaid();
+            unsigned int duration = scan.getTimes().getEndOfScanTime(i)-scan.getTimes().getEndOfCalibrationTime(i);
+            scanTimePerStation[srcid][staid]+=duration;
+        }
     }
 
     unsigned long nMaxScans = 0;
@@ -723,7 +729,7 @@ void Output::writeStatisticsPerSourceGroup() {
     of << "*     7  : weight at start of session\n";
     of << "*     8  : target scans\n";
     of << "*     9  : minimum source repeat time [h] (at session start)\n";
-    of << "*     10+: list of scans containing:\n";
+    of << "*     11+: list of scans containing:\n";
     of << "*             scan start time (UTC)\n";
     of << "*             scan flag:\n";
     of << "*                 ' ': single source or subnetting scan\n";
@@ -734,6 +740,7 @@ void Output::writeStatisticsPerSourceGroup() {
 
     map<string,vector<int>> srcgrpstat;
     map<string,vector<int>> srcgrpgeneralstat;
+    map<string,vector<unsigned int>> srcGrpStationScanTime;
 
     of << "*\n";
     of << "* ============================= GROUP BASED STATISTICS =============================\n";
@@ -743,6 +750,7 @@ void Output::writeStatisticsPerSourceGroup() {
             continue;
         }
         vector<int> nscansPerGroup(nMaxScans+1,0);
+        vector<unsigned int> groupScanTimePerStation(stations_.size(),0);
         int sumTotalScans = 0;
         int sumScans = 0;
         int sumFillinModeScans = 0;
@@ -777,6 +785,10 @@ void Output::writeStatisticsPerSourceGroup() {
                 sumFillinModeScans += nscansFillin;
                 sumCalibratorScans += nscansCalibrator;
 
+                for(int i=0; i<stations_.size(); ++i){
+                    groupScanTimePerStation[i] += scanTimePerStation[srcid][i];
+                }
+
                 of << boost::format("%8s, %4d, %4d, %4d, %4d, %4d, %6.2f, %4d, %5.2f, ||, ") %src.getName() %src.getId() %nscans %nscansStd %nscansFillin %nscansCalibrator %sWeight[srcid] %nscansTarget[srcid] %minRepeat[srcid];
                 for (int i=0; i<scanTime[srcid].size(); ++i){
                     unsigned int ttt = scanTime[srcid][i];
@@ -797,8 +809,10 @@ void Output::writeStatisticsPerSourceGroup() {
                 of << "\n";
             }
         }
+
         srcgrpstat[group.first] = nscansPerGroup;
         srcgrpgeneralstat[group.first] = vector<int> {sumTotalScans, sumScans, sumFillinModeScans, sumCalibratorScans};
+        srcGrpStationScanTime[group.first] = groupScanTimePerStation;
     }
 
     of << "*\n";
@@ -822,6 +836,22 @@ void Output::writeStatisticsPerSourceGroup() {
     of << "   # standard scans:    " << xxxstdScans <<"\n";
     of << "   # fillin mode scans: " << xxxfiScans  <<"\n";
     of << "   # calibrator scans:  " << xxxcalScans <<"\n";
+
+    vector<unsigned int> xxxstps(stations_.size(),0);
+    for(const auto &stps: scanTimePerStation){
+        for(int i=0; i<stations_.size(); ++i){
+            xxxstps[i]+=stps[i];
+        }
+    }
+    of << "* \n";
+    of << "observing time per station:\n";
+    for (int i=0; i<stations_.size(); ++i){
+        const string name = stations_[i].getName();
+        unsigned int seconds = xxxstps[i];
+        double percent = (static_cast<double>(seconds)/ static_cast<double>(TimeSystem::duration))*100;
+        of << boost::format("    %8s: %8d [s]  (%5.1f [%%])\n") %name %seconds %percent;
+    }
+
 
     of << "*\n";
     of << "* ============================= GROUP BASED SUMMARY =============================\n";
@@ -849,6 +879,15 @@ void Output::writeStatisticsPerSourceGroup() {
             if(i==0){
                 break;
             }
+        }
+
+        of << "* \n";
+        of << "observing time per station:\n";
+        for (int i=0; i<stations_.size(); ++i){
+            const string name = stations_[i].getName();
+            unsigned int seconds = srcGrpStationScanTime[grpName][i];
+            double percent = (static_cast<double>(seconds)/ static_cast<double>(TimeSystem::duration))*100;
+            of << boost::format("    %8s: %8d [s]  (%5.1f [%%])\n") %name %seconds %percent;
         }
     }
 

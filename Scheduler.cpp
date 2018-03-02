@@ -949,89 +949,96 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                 double gmst = iauGmst82(date1, date2);
 
                 unsigned int maxScanDuration = 0;
+                if(source.getPARA().fixedScanDuration.is_initialized()){
+                    maxScanDuration = *source.getPARA().fixedScanDuration;
+                }else {
 
-                for (auto &band:ObservationMode::bands) {
+                    for (auto &band:ObservationMode::bands) {
 
-                    double SEFD_src = source.observedFlux(band, gmst, stations_[staid1].dx(staid2), stations_[staid1].dy(staid2),
-                                                          stations_[staid1].dz(staid2));
+                        double SEFD_src = source.observedFlux(band, gmst, stations_[staid1].dx(staid2),
+                                                              stations_[staid1].dy(staid2),
+                                                              stations_[staid1].dz(staid2));
 
-                    double SEFD_sta1;
-                    double SEFD_sta2;
-                    if(stations_[staid1].getEquip().hasElevationDependentSEFD()){
-                        double el;
-                        if(!swapped){
-                            el = pv_new_start.getEl();
-                        }else{
-                            el = otherPv.getEl();
+                        double SEFD_sta1;
+                        double SEFD_sta2;
+                        if (stations_[staid1].getEquip().hasElevationDependentSEFD()) {
+                            double el;
+                            if (!swapped) {
+                                el = pv_new_start.getEl();
+                            } else {
+                                el = otherPv.getEl();
+                            }
+                            SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el);
+                        } else {
+                            SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band);
                         }
-                        SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el);
-                    }else{
-                        SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band);
-                    }
 
-                    if(stations_[staid2].getEquip().hasElevationDependentSEFD()){
-                        double el;
-                        if(!swapped){
-                            el = otherPv.getEl();
-                        }else{
-                            el = pv_new_start.getEl();
+                        if (stations_[staid2].getEquip().hasElevationDependentSEFD()) {
+                            double el;
+                            if (!swapped) {
+                                el = otherPv.getEl();
+                            } else {
+                                el = pv_new_start.getEl();
+                            }
+                            SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el);
+                        } else {
+                            SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band);
                         }
-                        SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el);
-                    }else{
-                        SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band);
-                    }
 
-                    double minSNR_sta1 = stations_[staid1].getPARA().minSNR.at(band);
-                    double minSNR_sta2 = stations_[staid2].getPARA().minSNR.at(band);
+                        double minSNR_sta1 = stations_[staid1].getPARA().minSNR.at(band);
+                        double minSNR_sta2 = stations_[staid2].getPARA().minSNR.at(band);
 
-                    double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
+                        double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
 
-                    double minSNR_src = source.getPARA().minSNR.at(band);
+                        double minSNR_src = source.getPARA().minSNR.at(band);
 
-                    double maxminSNR = minSNR_src;
-                    if (minSNR_sta1>maxminSNR){
-                        maxminSNR = minSNR_sta1;
-                    }
-                    if (minSNR_sta2>maxminSNR){
-                        maxminSNR = minSNR_sta2;
-                    }
-                    if (minSNR_bl>maxminSNR){
-                        maxminSNR = minSNR_bl;
-                    }
+                        double maxminSNR = minSNR_src;
+                        if (minSNR_sta1 > maxminSNR) {
+                            maxminSNR = minSNR_sta1;
+                        }
+                        if (minSNR_sta2 > maxminSNR) {
+                            maxminSNR = minSNR_sta2;
+                        }
+                        if (minSNR_bl > maxminSNR) {
+                            maxminSNR = minSNR_bl;
+                        }
 
-                    double maxCorSynch1 = stations_[staid1].getWaittimes().corsynch;
-                    double maxCorSynch = maxCorSynch1;
-                    double maxCorSynch2 = stations_[staid2].getWaittimes().corsynch;
-                    if (maxCorSynch2 > maxCorSynch){
-                        maxCorSynch = maxCorSynch2;
-                    }
+                        double maxCorSynch1 = stations_[staid1].getWaittimes().corsynch;
+                        double maxCorSynch = maxCorSynch1;
+                        double maxCorSynch2 = stations_[staid2].getWaittimes().corsynch;
+                        if (maxCorSynch2 > maxCorSynch) {
+                            maxCorSynch = maxCorSynch2;
+                        }
 
-                    double anum = (1.75*maxminSNR / SEFD_src);
-                    double anu1 = SEFD_sta1*SEFD_sta2;
-                    double anu2 = ObservationMode::sampleRate * 1.0e6 * ObservationMode::nChannels[band] * ObservationMode::bits;
+                        double anum = (1.75 * maxminSNR / SEFD_src);
+                        double anu1 = SEFD_sta1 * SEFD_sta2;
+                        double anu2 = ObservationMode::sampleRate * 1.0e6 * ObservationMode::nChannels[band] *
+                                      ObservationMode::bits;
 
-                    double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
-                    new_duration = ceil(new_duration);
-                    auto new_duration_uint = static_cast<unsigned int>(new_duration);
+                        double new_duration = anum * anum * anu1 / anu2 + maxCorSynch;
+                        new_duration = ceil(new_duration);
+                        auto new_duration_uint = static_cast<unsigned int>(new_duration);
 
-                    unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
-                    if(new_duration_uint<minScanBl){
-                        new_duration_uint = minScanBl;
-                    }
-                    unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
+                        unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
+                        if (new_duration_uint < minScanBl) {
+                            new_duration_uint = minScanBl;
+                        }
+                        unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
 
-                    if(new_duration_uint>maxScanBl){
-                        continue;
-                    }
+                        if (new_duration_uint > maxScanBl) {
+                            continue;
+                        }
 
-                    if (new_duration_uint > maxScanDuration) {
-                        maxScanDuration = new_duration_uint;
-                    }
+                        if (new_duration_uint > maxScanDuration) {
+                            maxScanDuration = new_duration_uint;
+                        }
 
-                    unsigned int maxScanTime = scan.getPointingVectors_endtime(i).getTime() - scan.getPointingVector(i).getTime();
+                        unsigned int maxScanTime =
+                                scan.getPointingVectors_endtime(i).getTime() - scan.getPointingVector(i).getTime();
 
-                    if (maxScanDuration > maxScanTime){
-                        maxScanDuration = maxScanTime;
+                        if (maxScanDuration > maxScanTime) {
+                            maxScanDuration = maxScanTime;
+                        }
                     }
                 }
                 bl.setScanDuration(maxScanDuration);
@@ -1088,6 +1095,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     int excludedBaselines = 0;
     of << "checking optimization conditions... ";
     int consideredSources = 0;
+    bool lastExcluded = false;
     for(int i=0; i<sources_.size(); ++i){
         auto &thisSource = sources_[i];
 
@@ -1112,8 +1120,13 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             exclude = !(scansValid || baselinesValid);
         }
 
-
         if(exclude){
+            if(lastExcluded){
+                lastExcluded = false;
+                continue;
+            }else {
+                lastExcluded = true;
+            }
             excludedScans += thisSource.getNTotalScans();
             excludedBaselines += thisSource.getNbls();
             excludedSources.push_back(i);
