@@ -3013,6 +3013,12 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
             if(any.first == "combination"){
                 bool tmp = any.second.get_value<string>() == "and";
                 parameters_.andAsConditionCombination = tmp;
+            }else if(any.first == "maxNumberOfIterations"){
+                parameters_.maxNumberOfIterations = any.second.get_value<unsigned int>();
+            }else if(any.first == "numberOfGentleSourceReductions"){
+                parameters_.numberOfGentleSourceReductions = any.second.get_value<unsigned int>();
+            }else if(any.first == "minNumberOfSourcesToReduce"){
+                parameters_.minNumberOfSourcesToReduce = any.second.get_value<unsigned int>();
             }else if(any.first == "condition"){
                 string member = any.second.get<string>("members");
                 auto scans = any.second.get<unsigned int>("minScans");

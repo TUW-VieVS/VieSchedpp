@@ -33,8 +33,8 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
 
     int emonth = endTime.date().month();
     string endTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                         % endTime.date().year() %emonth %endTime.date().day()
-                         % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
+                           % endTime.date().year() %emonth %endTime.date().day()
+                           % endTime.time_of_day().hours() %endTime.time_of_day().minutes() %endTime.time_of_day().seconds()).str();
     general.add("general.endTime", endTimeStr);
 
     general.add("general.subnetting", subnetting);
@@ -751,7 +751,9 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
-void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination)
+void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans, std::vector<int> minBaselines,
+                                   bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
+                                   int minNumberOfSourcesToReduce)
 {
     boost::property_tree::ptree conditions;
     if(andForCombination){
@@ -759,6 +761,9 @@ void ParameterSettings::conditions(std::vector<string> members, std::vector<int>
     }else{
         conditions.add("optimization.combination","or");
     }
+    conditions.add("optimization.maxNumberOfIterations",maxNumberOfIterations);
+    conditions.add("optimization.numberOfGentleSourceReductions",numberOfGentleSourceReductions);
+    conditions.add("optimization.minNumberOfSourcesToReduce",minNumberOfSourcesToReduce);
     for(int i=0; i<members.size(); ++i){
         boost::property_tree::ptree condition;
         condition.add("condition.members",members.at(i));
@@ -867,7 +872,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
+                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, 
                           bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     output.add("output.experimentName", experimentName);

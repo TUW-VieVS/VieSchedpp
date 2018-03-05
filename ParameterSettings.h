@@ -63,6 +63,7 @@ namespace VieVS {
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
         };
 
+
         enum class TryToFocusOccurrency {
             once,
             perScan
@@ -338,7 +339,9 @@ namespace VieVS {
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
-        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination);
+        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
+                        bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
+                        int minNumberOfSourcesToReduce);
 
         /**
          * @brief custom mode block in parameter.xml

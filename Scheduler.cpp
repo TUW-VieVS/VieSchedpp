@@ -18,13 +18,19 @@ using namespace VieVS;
 Scheduler::Scheduler() = default;
 
 Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, sources_{std::move(init.sources_)},
-                                          skyCoverages_{std::move(init.skyCoverages_)}, xml_{std::move(init.xml_)} {
+                                          skyCoverages_{std::move(init.skyCoverages_)}, xml_{init.xml_} {
 
     parameters_.subnetting = init.parameters_.subnetting;
     parameters_.fillinmode = init.parameters_.fillinmode;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
+
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
+    parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
+    parameters_.maxNumberOfIterations = init.parameters_.maxNumberOfIterations;
+    parameters_.numberOfGentleSourceReductions = init.parameters_.numberOfGentleSourceReductions;
+
     parameters_.writeSkyCoverageData = false;
+
 
 
     preCalculated_.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
@@ -142,13 +148,12 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
         }
     }
 
-    bool everythingOk = check(bodyLog);
-    if (!everythingOk) {
+    if (!check(bodyLog)) {
         cout << "ERROR: there was an error while checking the schedule (see log file)\n";
     }
 
-    bool rerun = checkOptimizationConditions(bodyLog);
-    if(rerun){
+    if(checkOptimizationConditions(bodyLog)){
+        ++parameters_.currentIteration;
         start(bodyLog);
     }
 
@@ -1113,7 +1118,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             baselinesValid = false;
         }
 
-        bool exclude = true;
+        bool exclude;
         if(parameters_.andAsConditionCombination){
             exclude = !(scansValid && baselinesValid);
         }else{
@@ -1121,11 +1126,13 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         if(exclude){
-            if(lastExcluded){
-                lastExcluded = false;
-                continue;
-            }else {
-                lastExcluded = true;
+            if(parameters_.currentIteration <= parameters_.numberOfGentleSourceReductions){
+                if(lastExcluded){
+                    lastExcluded = false;
+                    continue;
+                }else {
+                    lastExcluded = true;
+                }
             }
             excludedScans += thisSource.getNTotalScans();
             excludedBaselines += thisSource.getNbls();
@@ -1134,6 +1141,16 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             thisSource.referencePARA().setGlobalAvailable(false);
         }
     }
+    if(parameters_.currentIteration>parameters_.maxNumberOfIterations){
+        newScheduleNecessary = false;
+        of << "max number of iterations reached ";
+    }
+    if(excludedSources.size() < parameters_.minNumberOfSourcesToReduce){
+        newScheduleNecessary = false;
+        of << "only " << excludedSources.size() <<
+           " sources have to be excluded (minimum = " << parameters_.minNumberOfSourcesToReduce << ") ";
+    }
+
     if(newScheduleNecessary && excludedScans>0){
         of << "new schedule with reduced source list necessary\n";
         CalibratorBlock::nextBlock = 0;
@@ -1171,7 +1188,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
 
 
     }else{
-        of << "everything ok!\n";
+        of << "no new schedule needed!\n";
         newScheduleNecessary = false;
     }
     return newScheduleNecessary;

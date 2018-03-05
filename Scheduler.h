@@ -42,6 +42,11 @@ namespace VieVS{
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
 
             bool andAsConditionCombination = true;
+            unsigned int currentIteration = 0;
+            unsigned int maxNumberOfIterations = 999;
+            unsigned int numberOfGentleSourceReductions = 0;
+            unsigned int minNumberOfSourcesToReduce = 0;
+
 
             bool writeSkyCoverageData = false; ///< flag if sky coverage data should be printed to file
         };

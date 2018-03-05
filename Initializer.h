@@ -70,7 +70,12 @@ namespace VieVS {
             std::vector<std::string> selectedStations; ///< list of all selected station for this session from .xml file
 
             double minAngleBetweenSubnettingSources = 120 * deg2rad; ///< minimum angle between subnetting sources in radians
+            unsigned int maxNumberOfIterations = 999;
+            unsigned int numberOfGentleSourceReductions = 0;
+            unsigned int minNumberOfSourcesToReduce = 0;
+
             bool andAsConditionCombination = true;
+
         };
 
         /**
