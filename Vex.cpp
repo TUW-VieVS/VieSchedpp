@@ -33,6 +33,7 @@ void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Sourc
                 boost::trim_copy(xml.get("master.output.contactEmail","")),
                 boost::trim_copy(xml.get("master.created.name","")),
                 boost::trim_copy(xml.get("master.created.email","")),
+                boost::trim_copy(xml.get("master.output.notes","")),
                 boost::trim_copy(xml.get("master.output.correlator","unknown")));
 
     station_block(stations, skdCatalogReader);
@@ -64,7 +65,7 @@ void Vex::global_block(const std::string &expName) {
 
 void Vex::exper_block(const std::string &expName, const std::string &expDescription, const std::string &piName,
                       const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
-                      const std::string &schedulerName, const std::string &schedulerEmail,
+                      const std::string &schedulerName, const std::string &schedulerEmail, const std::string &notes,
                       const std::string &targetCorrelator) {
     of << "*=========================================================================================================\n";
     of << "$EXPER;\n";
@@ -96,6 +97,9 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
     }
     if(!schedulerEmail.empty()){
         of << "        scheduler_email = " << schedulerEmail << eol;
+    }
+    if(!notes.empty()){
+        of << "*       notes = " << notes << eol;
     }
 
     of << "        target_correlator = " << targetCorrelator << eol;

@@ -47,7 +47,7 @@ namespace VieVS {
                          const std::string &piName, const std::string &piEmail,
                          const std::string &contactName, const std::string &contactEmail,
                          const std::string &schedulerName, const std::string &schedulerEmail,
-                         const std::string &targetCorrelator);
+                         const std::string &notes, const std::string &targetCorrelator);
 
 
 

@@ -24,20 +24,20 @@ void Skd::writeSkd(const std::vector<Station>& stations,
     of << "* ###  it is still in experimental stage! Please double check that file is correct!                    ###\n";
     of << "* ###  if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at                        ###\n";
     of << "* ########################################################################################################\n";
-    if(xml.get_value_optional<std::string>("master.output.piName").is_initialized()){
-        of << "* PI name:       " << *xml.get_value_optional<std::string>("master.output.piName") << "\n";
+    if(xml.get_optional<std::string>("master.output.piName").is_initialized()){
+        of << "* PI name:       " << *xml.get_optional<std::string>("master.output.piName") << "\n";
     }
-    if(xml.get_value_optional<std::string>("master.output.piEmail").is_initialized()){
-        of << "* PI email:      " << *xml.get_value_optional<std::string>("master.output.piEmail") << "\n";
+    if(xml.get_optional<std::string>("master.output.piEmail").is_initialized()){
+        of << "* PI email:      " << *xml.get_optional<std::string>("master.output.piEmail") << "\n";
     }
-    if(xml.get_value_optional<std::string>("master.output.contactName").is_initialized()){
-        of << "* contact name:  " << *xml.get_value_optional<std::string>("master.output.contactName") << "\n";
+    if(xml.get_optional<std::string>("master.output.contactName").is_initialized()){
+        of << "* contact name:  " << *xml.get_optional<std::string>("master.output.contactName") << "\n";
     }
-    if(xml.get_value_optional<std::string>("master.output.contactEmail").is_initialized()){
-        of << "* contact email: " << *xml.get_value_optional<std::string>("master.output.contactEmail") << "\n";
+    if(xml.get_optional<std::string>("master.output.contactEmail").is_initialized()){
+        of << "* contact email: " << *xml.get_optional<std::string>("master.output.contactEmail") << "\n";
     }
-    if(xml.get_value_optional<std::string>("master.output.notes").is_initialized()){
-        of << "* notes:         " << *xml.get_value_optional<std::string>("master.output.notes") << "\n";
+    if(xml.get_optional<std::string>("master.output.notes").is_initialized()){
+        of << "* notes:         " << *xml.get_optional<std::string>("master.output.notes") << "\n";
     }
 
     skd_PARAM(stations,xml,skdCatalogReader);
