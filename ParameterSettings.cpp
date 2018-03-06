@@ -872,13 +872,46 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 
 void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
-                          const string &correlator, bool createSummary, bool createNGS, bool createSKD, bool createVEX, 
+                          const string &correlator, const string &piName, const string &piEmail, const string &contactName,
+                          const string &contactEmail, const string &notes, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
                           bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
-    output.add("output.experimentName", experimentName);
-    output.add("output.experimentDescription", experimentDescription);
-    output.add("output.scheduler", scheduler);
-    output.add("output.correlator", correlator);
+    if(experimentName.empty()){
+        output.add("output.experimentName", "dummy");
+    }else{
+        output.add("output.experimentName", experimentName);
+    }
+    if(experimentDescription.empty()){
+        output.add("output.experimentDescription", "no further description");
+    }else{
+        output.add("output.experimentDescription", experimentDescription);
+    }
+    if(scheduler.empty()){
+        output.add("output.scheduler", "unknown");
+    }else{
+        output.add("output.scheduler", scheduler);
+    }
+    if(correlator.empty()){
+        output.add("output.correlator", "unknown");
+    }else{
+        output.add("output.correlator", correlator);
+    }
+    if(!piName.empty()){
+        output.add("output.piName",piName);
+    }
+    if(!piEmail.empty()){
+        output.add("output.piEmail",piEmail);
+    }
+    if(!contactName.empty()){
+        output.add("output.contactName",contactName);
+    }
+    if(!contactEmail.empty()){
+        output.add("output.contactEmail",contactEmail);
+    }
+    if(!notes.empty()){
+        output.add("output.notes",notes);
+    }
+
     output.add("output.createSummary", createSummary);
     output.add("output.createNGS", createNGS);
     output.add("output.createSKD", createSKD);

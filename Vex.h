@@ -43,8 +43,11 @@ namespace VieVS {
 
         void global_block(const std::string &expName);
 
-        void exper_block(const std::string &expName, const std::string &expDescription, const std::string &schedulerName,
-                         const std::string &schedulerEmail, const std::string &targetCorrelator);
+        void exper_block(const std::string &expName, const std::string &expDescription,
+                         const std::string &piName, const std::string &piEmail,
+                         const std::string &contactName, const std::string &contactEmail,
+                         const std::string &schedulerName, const std::string &schedulerEmail,
+                         const std::string &targetCorrelator);
 
 
 

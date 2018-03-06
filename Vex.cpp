@@ -25,11 +25,15 @@ void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Sourc
 
     global_block(xml.get("master.output.experimentName","schedule"));
 
-    exper_block(boost::trim_copy(xml.get("master.output.experimentName","schedule")),
-                boost::trim_copy(xml.get("master.output.experimentDescription","schedule")),
-                boost::trim_copy(xml.get("master.created.name","UNKNOWN")),
-                boost::trim_copy(xml.get("master.created.email","UNKNOWN")),
-                boost::trim_copy(xml.get("master.output.correlator","UNKNOWN")));
+    exper_block(boost::trim_copy(xml.get("master.output.experimentName","dummy")),
+                boost::trim_copy(xml.get("master.output.experimentDescription","no further description")),
+                boost::trim_copy(xml.get("master.output.piName","")),
+                boost::trim_copy(xml.get("master.output.piEmail","")),
+                boost::trim_copy(xml.get("master.output.contactName","")),
+                boost::trim_copy(xml.get("master.output.contactEmail","")),
+                boost::trim_copy(xml.get("master.created.name","")),
+                boost::trim_copy(xml.get("master.created.email","")),
+                boost::trim_copy(xml.get("master.output.correlator","unknown")));
 
     station_block(stations, skdCatalogReader);
     mode_block(stations,skdCatalogReader);
@@ -58,21 +62,43 @@ void Vex::global_block(const std::string &expName) {
     of << "    ref $EXPER = " << expName << eol;
 }
 
-void Vex::exper_block(const std::string &expName, const std::string &expDescription, const std::string &schedulerName,
-                      const std::string &schedulerEmail, const std::string &targetCorrelator) {
+void Vex::exper_block(const std::string &expName, const std::string &expDescription, const std::string &piName,
+                      const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
+                      const std::string &schedulerName, const std::string &schedulerEmail,
+                      const std::string &targetCorrelator) {
     of << "*=========================================================================================================\n";
     of << "$EXPER;\n";
     of << "*=========================================================================================================\n";
     of << "    def " << expName << eol;
     of << "        exper_name = " << boost::replace_all_copy(expName," ","_") << eol;
     of << "        exper_description = " << boost::replace_all_copy(expDescription," ","_") << eol;
-    of << "        scheduler_name = " << boost::replace_all_copy(schedulerName," ","_") << eol;
-    of << "        scheduler_email = " << schedulerEmail << eol;
-    of << "        target_correlator = " << targetCorrelator << eol;
     auto st = TimeSystem::startTime;
     of << "        exper_nominal_start = " << TimeSystem::ptime2string_doy_units(st) << eol;
     auto et = TimeSystem::endTime;
     of << "        exper_nominal_stop = " << TimeSystem::ptime2string_doy_units(et) << eol;
+
+    if(!piName.empty()){
+        of << "        PI_name = " << boost::replace_all_copy(piName," ","_") << eol;
+    }
+    if(!piEmail.empty()){
+        of << "        PI_email = " << piEmail << eol;
+    }
+
+    if(!contactName.empty()){
+        of << "        contact_name = " << boost::replace_all_copy(contactName," ","_") << eol;
+    }
+    if(!contactEmail.empty()){
+        of << "        contact_email = " << contactEmail << eol;
+    }
+
+    if(!schedulerName.empty()){
+        of << "        scheduler_name = " << boost::replace_all_copy(schedulerName," ","_") << eol;
+    }
+    if(!schedulerEmail.empty()){
+        of << "        scheduler_email = " << schedulerEmail << eol;
+    }
+
+    of << "        target_correlator = " << targetCorrelator << eol;
     of << "    enddef;\n";
 }
 
