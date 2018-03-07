@@ -144,7 +144,7 @@ namespace VieVS{
                         PointingVector &new_pointingVector) const noexcept;
 
 
-        void unwrapAzInSection(PointingVector &pv, char section) const noexcept;
+        bool unwrapAzInSection(PointingVector &pv, char section) const noexcept;
 
         std::string cableWrapFlag(const PointingVector &pointingVector) const noexcept;
 
@@ -187,6 +187,12 @@ namespace VieVS{
 
         double getAxis2Up() const {
             return axis2Up_;
+        }
+
+        std::pair<double, double> getLimits(char section) const;
+
+        CableWrapType getCableWrapType() const {
+            return cableWrapType_;
         }
 
     private:

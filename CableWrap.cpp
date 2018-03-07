@@ -264,9 +264,9 @@ std::string CableWrap::cableWrapFlag(const PointingVector &pointingVector) const
     }
 }
 
-void CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexcept{
+bool CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexcept{
     double az = pv.getAz();
-
+    bool flag = false;
     if (cableWrapType_ == CableWrapType::AZEL) {
         if(section == '-') {
             while(az>nLow_){
@@ -274,7 +274,8 @@ void CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexce
             }
             az +=2*pi;
             if(az>nUp_){
-                cerr << "azimuth error! Flag: '-' limits: "<< nLow_*rad2deg << " - " << nUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+                flag = true;
+//                cerr << "azimuth error! Flag: '-' limits: "<< nLow_*rad2deg << " - " << nUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
             }
         }else if(section == 'C'){
             while(az>cLow_){
@@ -282,7 +283,8 @@ void CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexce
             }
             az +=2*pi;
             if(az>cUp_){
-                cerr << "azimuth error! Flag: '-' limits: "<< cLow_*rad2deg << " - " << cUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+                flag = true;
+//                cerr << "azimuth error! Flag: '-' limits: "<< cLow_*rad2deg << " - " << cUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
             }
         }else if(section == 'W'){
             while(az>wLow_){
@@ -290,11 +292,34 @@ void CableWrap::unwrapAzInSection(PointingVector &pv, char section) const noexce
             }
             az +=2*pi;
             if(az>wUp_){
-                cerr << "azimuth error! Flag: '-' limits: "<< wLow_*rad2deg << " - " << wUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
+                flag = true;
+//                cerr << "azimuth error! Flag: '-' limits: "<< wLow_*rad2deg << " - " << wUp_*rad2deg << " calculated:" << az*rad2deg << "\n";
             }
         }
     }
 
     pv.setAz(az);
+    return flag;
+}
+
+pair<double, double> CableWrap::getLimits(char section) const {
+    double lim1, lim2;
+
+    if (cableWrapType_ == CableWrapType::AZEL) {
+        if(section == '-') {
+            lim1 = nLow_;
+            lim2 = nUp_;
+        }else if(section == 'C'){
+            lim1 = cLow_;
+            lim2 = cUp_;
+        }else {
+            lim1 = wLow_;
+            lim2 = wUp_;
+        }
+    }else{
+        lim1 = axis1Low_;
+        lim2 = axis1Up_;
+    }
+    return {lim1,lim2};
 }
 

@@ -76,8 +76,8 @@ set(SOURCE_FILES
         Vex.h
         Skd.cpp
         Skd.h
-        SkdReader.cpp
-        SkdReader.h)
+        SkdParser.cpp
+        SkdParser.h LogParser.cpp LogParser.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

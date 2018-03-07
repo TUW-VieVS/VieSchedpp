@@ -150,8 +150,8 @@ namespace VieVS{
         int srcid_; ///< source id
         double az_; ///< azimth
         double el_; ///< elevation
-        double ha_; ///< declination
-        double dc_; ///< local hour angle
+        double ha_{0}; ///< declination
+        double dc_{0}; ///< local hour angle
         unsigned int time_; ///< time in seconds since session start for which azimth and elevation is calculated
     };
 }

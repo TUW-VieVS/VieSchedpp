@@ -490,28 +490,28 @@ namespace VieVS{
 
     private:
         std::string name_; ///< station name
-        int id_; ///< station id
+        int id_{-1}; ///< station id
         Antenna antenna_; ///< station antenna
         CableWrap cableWrap_; ///< station cable wrap
         Position position_; ///< station position
         Equipment equip_; ///< station equipment
         HorizonMask mask_; ///< station horizon mask
-        int skyCoverageId_; ///< station sky coverage id
+        int skyCoverageId_{-1}; ///< station sky coverage id
 
         Parameters parameters_; ///< station parameters
         WaitTimes waitTimes_; ///< station wait times
         PreCalculated preCalculated_; ///< precalculated values
 
         std::vector<Event> events_; ///< list of all events
-        unsigned int nextEvent_; ///< index of next evend
+        unsigned int nextEvent_{0}; ///< index of next evend
 
         PointingVector currentPositionVector_; ///< current pointing vector
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
 
-        int nScans_; ///< number of participated scans
-        int nBaselines_; ///< number of observed baselines
+        int nScans_{0}; ///< number of participated scans
+        int nBaselines_{0}; ///< number of observed baselines
     };
 }
 #endif /* STATION_H */

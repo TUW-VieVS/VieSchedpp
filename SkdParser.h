@@ -13,17 +13,19 @@
 #include "Initializer.h"
 
 namespace VieVS{
-    class SkdReader {
+    class SkdParser {
     public:
-        SkdReader() = default;
+        SkdParser() = default;
 
-        explicit SkdReader(const std::string &filename);
+        explicit SkdParser(const std::string &filename);
 
         void createObjects();
 
         void createScans();
 
         void copyScanMembersToObjects();
+
+        std::vector<unsigned int> getScheduledSlewTimes(const std::string &station);
 
     private:
         std::string filename_;

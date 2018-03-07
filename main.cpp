@@ -1,6 +1,7 @@
 #include <chrono>
 #include "VieVS_Scheduler.h"
-#include "SkdReader.h"
+#include "SkdParser.h"
+#include "LogParser.h"
 
 /**
  * @file main.cpp
@@ -35,14 +36,21 @@ int main(int argc, char *argv[])
 
     if(argc == 2){
         auto start = std::chrono::high_resolution_clock::now();
-        std::cout << "Processing file: " << file << ";\n";
-        VieVS::VieVS_Scheduler mainScheduler(file);
-        mainScheduler.run();
 
-//        VieVS::SkdReader myReader(file);
-//        myReader.createObjects();
-//        myReader.createScans();
-//        myReader.copyScanMembersToObjects();
+        // V1: standard usage:
+//        std::cout << "Processing file: " << file << ";\n";
+//        VieVS::VieVS_Scheduler mainScheduler(file);
+//        mainScheduler.run();
+
+        // V2: parse skd and log files
+        VieVS::SkdParser mySkdParser("/data/NewSchedulingSoftware/aua037/aua037.skd");
+        mySkdParser.createObjects();
+        mySkdParser.createScans();
+        mySkdParser.copyScanMembersToObjects();
+        VieVS::LogParser htLogParser("/data/NewSchedulingSoftware/aua037/aua037ht.log");
+        htLogParser.parseLogFile();
+        htLogParser.addScheduledSlewTimes(mySkdParser.getScheduledSlewTimes("HART15M"));
+        htLogParser.output("/data/NewSchedulingSoftware/aua037/times_ht.txt");
 
 
         auto finish = std::chrono::high_resolution_clock::now();

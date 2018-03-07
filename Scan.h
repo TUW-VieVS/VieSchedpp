@@ -457,7 +457,10 @@ namespace VieVS{
         void output(unsigned long observed_scan_nr, const std::vector<Station> &stations, const Source &source,
                     std::ofstream &of) const noexcept;
 
-        void setScanTimes(unsigned int scanStart, const std::vector<unsigned int> &scanDurations);
+        void setScanTimes(const std::vector<unsigned int> &eols, const std::vector<unsigned int> &slewTime,
+                          unsigned int scanStart, const std::vector<unsigned int> &scanDurations);
+
+        void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
 
     private:
         unsigned long nsta_; ///< number of stations in this scan

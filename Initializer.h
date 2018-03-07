@@ -46,7 +46,7 @@ namespace VieVS {
      */
     class Initializer {
         friend class Scheduler;
-        friend class SkdReader;
+        friend class SkdParser;
     public:
 
         /**
