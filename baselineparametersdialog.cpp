@@ -31,6 +31,12 @@ void baselineParametersDialog::addSelectedParameters(VieVS::ParameterSettings::P
 {
     changeParameters(para);
     ui->lineEdit_paraName->setText(paraName);
+    if(paraName == "default"){
+        ui->groupBox_ignore->setCheckable(false);
+        ui->checkBox->setChecked(true);
+        ui->checkBox->setEnabled(false);
+        ui->groupBox_scanTime->setCheckable(false);
+    }
     ui->lineEdit_paraName->setEnabled(false);
 }
 
@@ -43,26 +49,32 @@ void baselineParametersDialog::changeParameters(VieVS::ParameterSettings::Parame
         }else{
             ui->radioButton_ignore_no->setChecked(true);
         }
+        ui->groupBox_ignore->setChecked(true);
     }else{
-        ui->radioButton_ignore_parent->setChecked(true);
+        ui->groupBox_ignore->setChecked(false);
     }
 
+    if(sp.weight.is_initialized()){
+        ui->doubleSpinBox_weight->setValue(*sp.weight);
+        ui->checkBox->setEnabled(true);
+    }else{
+        ui->doubleSpinBox_weight->setValue(*dp.weight);
+        ui->checkBox->setEnabled(false);
+    }
+
+    ui->groupBox_scanTime->setChecked(false);
     if(sp.maxScan.is_initialized()){
         ui->spinBox_minScan->setValue(*sp.maxScan);
+        ui->groupBox_scanTime->setChecked(true);
     }else{
         ui->spinBox_minScan->setValue(*dp.maxScan);
     }
 
     if(sp.minScan.is_initialized()){
         ui->spinBox_maxScan->setValue(*sp.minScan);
+        ui->groupBox_scanTime->setChecked(true);
     }else{
         ui->spinBox_maxScan->setValue(*dp.minScan);
-    }
-
-    if(sp.weight.is_initialized()){
-        ui->doubleSpinBox_weight->setValue(*sp.weight);
-    }else{
-        ui->doubleSpinBox_weight->setValue(*dp.weight);
     }
 
     QVector<QString> bands;
@@ -76,6 +88,7 @@ void baselineParametersDialog::changeParameters(VieVS::ParameterSettings::Parame
         double val = any.second;
         int idx = bands.indexOf(name);
         if(idx != -1){
+            ui->groupBox_scanTime->setChecked(true);
             qobject_cast<QDoubleSpinBox*>(ui->tableWidget_SNR->cellWidget(idx,0))->setValue(val);
         }else{
             warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
@@ -99,34 +112,27 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> baselinePa
 
     std::string name = txt.toStdString();
 
-    if(!ui->radioButton_ignore_parent->isChecked()){
+    if(ui->groupBox_ignore->isChecked() || !ui->groupBox_ignore->isCheckable()){
         if(ui->radioButton_ignore_yes->isChecked()){
             para.ignore = true;
         }else{
             para.ignore = false;
         }
     }
-    if(ui->spinBox_minScan->value() != *dp.minScan){
+    if(ui->groupBox_scanTime->isChecked() || !ui->groupBox_scanTime->isCheckable()){
         para.minScan = ui->spinBox_minScan->value();
-    }
-    if(ui->spinBox_maxScan->value() != *dp.maxScan){
         para.maxScan = ui->spinBox_maxScan->value();
-    }
-    if(ui->doubleSpinBox_weight->value() != *dp.weight){
-        para.weight = ui->doubleSpinBox_weight->value();
-    }
-    for(int i = 0; i<ui->tableWidget_SNR->rowCount(); ++i){
-        QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_SNR->cellWidget(i,0));
-        if(w->value()!=0){
-            para.minSNR[ui->tableWidget_SNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
+
+        for(int i = 0; i<ui->tableWidget_SNR->rowCount(); ++i){
+            QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_SNR->cellWidget(i,0));
+            if(w->value()!=0){
+                para.minSNR[ui->tableWidget_SNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
+            }
         }
     }
 
-    if(name == "default"){
-        para.ignore = false;
+    if(ui->doubleSpinBox_weight->isEnabled()){
         para.weight = ui->doubleSpinBox_weight->value();
-        para.minScan = ui->spinBox_minScan->value();
-        para.maxScan = ui->spinBox_maxScan->value();
     }
 
     return std::make_pair(name,para);
@@ -185,7 +191,6 @@ void baselineParametersDialog::on_pushButton_load_clicked()
         changeParameters(sp);
 
         ui->lineEdit_paraName->setText(itm);
-
     }
 }
 

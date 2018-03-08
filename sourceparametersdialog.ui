@@ -17,6 +17,19 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>select parameters you want to add:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -77,19 +90,19 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-323</y>
-          <width>326</width>
-          <height>1080</height>
+          <y>0</y>
+          <width>297</width>
+          <height>880</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="groupBox_available">
            <property name="title">
             <string>available</string>
            </property>
            <property name="checkable">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="checked">
             <bool>false</bool>
@@ -100,8 +113,11 @@
               <property name="text">
                <string>yes</string>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
               <property name="checked">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -109,16 +125,6 @@
              <widget class="QRadioButton" name="radioButton_available_no">
               <property name="text">
                <string>no</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="radioButton_available_parent">
-              <property name="text">
-               <string>from parent</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -137,15 +143,11 @@
             <bool>false</bool>
            </property>
            <layout class="QFormLayout" name="formLayout_5">
-            <item row="1" column="0">
-             <widget class="QLabel" name="maxSlewTimeLabel">
-              <property name="text">
-               <string>min number of stations</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="spinBox_minNumberOfStations">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="suffix">
                <string/>
               </property>
@@ -157,15 +159,11 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="maxWaitTimeLabel">
-              <property name="text">
-               <string>min flux </string>
-              </property>
-             </widget>
-            </item>
             <item row="2" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_minFlux">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="suffix">
                <string> [Jy]</string>
               </property>
@@ -174,15 +172,11 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>max number of scans</string>
-              </property>
-             </widget>
-            </item>
             <item row="3" column="1">
              <widget class="QSpinBox" name="spinBox_maxNumberOfScans">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="suffix">
                <string/>
               </property>
@@ -194,34 +188,61 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="label_20">
-              <property name="text">
-               <string>min elevation</string>
-              </property>
-             </widget>
-            </item>
             <item row="4" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="suffix">
                <string> [deg]</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="weightLabel">
-              <property name="text">
-               <string>weight</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="1">
              <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
               </property>
               <property name="value">
                <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="checkBox_weight">
+              <property name="text">
+               <string>weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkBox_minNumberOfStations">
+              <property name="text">
+               <string>min number of stations</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="checkBox_minFlux">
+              <property name="text">
+               <string>min flux</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QCheckBox" name="checkBox_maxNumberOfScans">
+              <property name="text">
+               <string>max number of scans</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="checkBox_minElevation">
+              <property name="text">
+               <string>min elevation</string>
               </property>
              </widget>
             </item>
@@ -402,6 +423,9 @@
            <property name="checkable">
             <bool>true</bool>
            </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <item>
              <widget class="QLabel" name="label_10">
@@ -528,21 +552,11 @@
              </layout>
             </item>
             <item>
-             <widget class="QGroupBox" name="groupBox_8">
+             <widget class="QGroupBox" name="groupBox">
               <property name="title">
                <string>occurrency</string>
               </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_12">
-               <item>
-                <widget class="QRadioButton" name="radioButton_increaseWeight_perScan">
-                 <property name="text">
-                  <string>per scan</string>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                </widget>
-               </item>
+              <layout class="QHBoxLayout" name="horizontalLayout_15">
                <item>
                 <widget class="QRadioButton" name="radioButton_increaseWeight_once">
                  <property name="text">
@@ -550,6 +564,16 @@
                  </property>
                  <property name="checked">
                   <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QRadioButton" name="radioButton_increaseWeight_perScan">
+                 <property name="text">
+                  <string>per scan</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -592,9 +616,15 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_10">
        <item>
-        <widget class="QGroupBox" name="groupBox_11">
+        <widget class="QGroupBox" name="groupBox_ignoreStations">
          <property name="title">
           <string>ignore stations</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
@@ -668,9 +698,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_12">
+        <widget class="QGroupBox" name="groupBox_requiredStations">
          <property name="title">
           <string>required stations</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_13">
           <item>
@@ -744,9 +780,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_13">
+        <widget class="QGroupBox" name="groupBox_ignoreBaselines">
          <property name="title">
           <string>ignore baselines</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_14">
           <item>
@@ -873,5 +915,86 @@
  <resources>
   <include location="myresources.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBox_weight</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>weightDoubleSpinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>66</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>195</x>
+     <y>150</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minNumberOfStations</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_minNumberOfStations</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>123</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_maxNumberOfScans</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_maxNumberOfScans</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>226</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>194</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minElevation</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_minElevation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>249</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>255</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minFlux</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_minFlux</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>78</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>208</x>
+     <y>202</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

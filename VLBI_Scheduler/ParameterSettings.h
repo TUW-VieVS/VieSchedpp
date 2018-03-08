@@ -339,7 +339,9 @@ namespace VieVS {
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
-        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines, bool andForCombination);
+        void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
+                        bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
+                        int minNumberOfSourcesToReduce);
 
         /**
          * @brief custom mode block in parameter.xml
@@ -420,8 +422,9 @@ namespace VieVS {
          * @param createSkyCoverage create sky coverage file
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
-                    const std::string &scheduler,
-                    const std::string &correlator, bool createSummary, bool createNGS, bool createSKD, bool vex, bool operNotes, bool srcGrp,
+                    const std::string &scheduler, const std::string &correlator, const std::string &piName,
+                    const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
+                    const std::string &notes, bool createSummary, bool createNGS, bool createSKD, bool vex, bool operNotes, bool srcGrp,
                     const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 
 

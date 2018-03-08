@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>18</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -1593,7 +1593,7 @@ If you only want to run simulations you can deselect this to avoid error message
                     <double>1000.000000000000000</double>
                    </property>
                    <property name="value">
-                    <double>8.000000000000000</double>
+                    <double>32.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -1607,13 +1607,13 @@ If you only want to run simulations you can deselect this to avoid error message
                  <item row="1" column="1">
                   <widget class="QSpinBox" name="sampleBitsSpinBox">
                    <property name="minimum">
-                    <number>1</number>
+                    <number>2</number>
                    </property>
                    <property name="maximum">
                     <number>2</number>
                    </property>
                    <property name="value">
-                    <number>1</number>
+                    <number>2</number>
                    </property>
                   </widget>
                  </item>
@@ -2651,7 +2651,7 @@ Click on source to deselect it</string>
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tabWidgetPage1">
            <attribute name="title">
@@ -3002,7 +3002,7 @@ Click on source to deselect it</string>
           </widget>
           <widget class="QWidget" name="tabWidgetPage2">
            <attribute name="title">
-            <string>Wait times</string>
+            <string>Times</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_6" stretch="1,5">
             <item>
@@ -4977,7 +4977,7 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="experimentNameLineEdit_2">
+              <widget class="QLineEdit" name="lineEdit_PIName">
                <property name="toolTip">
                 <string>enter experiment name here</string>
                </property>
@@ -5000,7 +5000,7 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLineEdit" name="correlatorLineEdit_3">
+              <widget class="QLineEdit" name="lineEdit_contactEmail">
                <property name="toolTip">
                 <string>enter correlator name here</string>
                </property>
@@ -5078,7 +5078,7 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="correlatorLineEdit_2">
+              <widget class="QLineEdit" name="lineEdit_contactName">
                <property name="toolTip">
                 <string>enter correlator name here</string>
                </property>
@@ -5098,7 +5098,7 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="schedulerLineEdit_2">
+              <widget class="QLineEdit" name="lineEdit_PIEmail">
                <property name="toolTip">
                 <string>enter scheduler name here</string>
                </property>
@@ -5128,7 +5128,7 @@ Click on source to deselect it</string>
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QPlainTextEdit" name="plainTextEdit"/>
+              <widget class="QPlainTextEdit" name="plainTextEdit_notes"/>
              </item>
              <item row="6" column="0">
               <widget class="QLabel" name="label_10">
@@ -6659,6 +6659,13 @@ Click on source to deselect it</string>
               </item>
              </layout>
             </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="Line" name="line_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
             <item row="5" column="0">
              <widget class="QLabel" name="label_64">
               <property name="text">
@@ -6680,12 +6687,58 @@ Click on source to deselect it</string>
               </item>
              </widget>
             </item>
-            <item row="4" column="0" colspan="2">
-             <widget class="Line" name="line_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+            <item row="7" column="0">
+             <widget class="QLabel" name="label_70">
+              <property name="text">
+               <string>max number of iterations</string>
               </property>
              </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QSpinBox" name="spinBox_maxNumberOfIterations">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="singleStep">
+               <number>1</number>
+              </property>
+              <property name="value">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QCheckBox" name="checkBox_gentleSourceReduction">
+              <property name="text">
+               <string>gentle source reduction</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QSpinBox" name="spinBox_gentleSourceReduction">
+              <property name="suffix">
+               <string> iterations</string>
+              </property>
+              <property name="prefix">
+               <string>for </string>
+              </property>
+              <property name="maximum">
+               <number>10</number>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_71">
+              <property name="text">
+               <string>stop if number of reduced sources below </string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QSpinBox" name="spinBox_minNumberOfReducedSources"/>
             </item>
            </layout>
           </item>
@@ -7118,6 +7171,9 @@ Click on source to deselect it</string>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_99">
           <item>
+           <widget class="QLineEdit" name="lineEdit_3"/>
+          </item>
+          <item>
            <widget class="QPushButton" name="pushButton_27">
             <property name="text">
              <string>browse</string>
@@ -7125,9 +7181,9 @@ Click on source to deselect it</string>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_69">
+           <widget class="QPushButton" name="pushButton_37">
             <property name="text">
-             <string>&lt;-- click to open .skd file!</string>
+             <string>read</string>
             </property>
            </widget>
           </item>
@@ -7174,7 +7230,7 @@ Click on source to deselect it</string>
                </widget>
                <widget class="QTabWidget" name="tabWidget_2">
                 <property name="currentIndex">
-                 <number>1</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="tab">
                  <attribute name="title">
@@ -7352,7 +7408,7 @@ Click on source to deselect it</string>
           </widget>
           <widget class="QTabWidget" name="tabWidget_11">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_9">
             <attribute name="title">
@@ -7566,6 +7622,297 @@ Click on source to deselect it</string>
             </spacer>
            </item>
           </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2">
+       <layout class="QVBoxLayout" name="verticalLayout_73" stretch="0,1,5">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_103" stretch="2,1">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_71">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_100">
+              <item>
+               <widget class="QLabel" name="label_72">
+                <property name="text">
+                 <string>read skd file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_32">
+                <property name="text">
+                 <string>browse</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_33">
+                <property name="text">
+                 <string>read</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_101">
+              <item>
+               <widget class="QLabel" name="label_73">
+                <property name="text">
+                 <string>read log file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEdit_2"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_35">
+                <property name="text">
+                 <string>browse</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_34">
+                <property name="text">
+                 <string>read</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_70">
+            <item>
+             <spacer name="horizontalSpacer_42">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_102">
+              <item>
+               <spacer name="horizontalSpacer_43">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_74">
+                <property name="text">
+                 <string>station:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_36">
+                <property name="text">
+                 <string>combine</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="plainTextEdit_2"/>
+        </item>
+        <item>
+         <widget class="QSplitter" name="splitter_11">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QTabWidget" name="tabWidget_5">
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <widget class="QWidget" name="tab_11">
+            <attribute name="title">
+             <string>input file</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_75">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_106">
+               <item>
+                <widget class="QLineEdit" name="lineEdit_5"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_39">
+                 <property name="text">
+                  <string>search</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPlainTextEdit" name="plainTextEdit"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_12">
+            <attribute name="title">
+             <string>log file</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_72">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_105">
+               <item>
+                <widget class="QLineEdit" name="lineEdit_4"/>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_38">
+                 <property name="text">
+                  <string>search</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPlainTextEdit" name="plainTextEdit_3"/>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+          <widget class="QTabWidget" name="tabWidget_6">
+           <property name="currentIndex">
+            <number>1</number>
+           </property>
+           <widget class="QWidget" name="tab_13">
+            <attribute name="title">
+             <string>table</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_74">
+             <item>
+              <widget class="QTableWidget" name="tableWidget">
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
+               <attribute name="horizontalHeaderCascadingSectionResizes">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+                <bool>true</bool>
+               </attribute>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>false</bool>
+               </attribute>
+               <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+                <bool>false</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string>scan</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>source</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>error flag</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>slew (sched)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>slew (diff)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>preob (sched)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>preob (diff)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>New Column</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>scan (log)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>scan (sched)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>scan (diff)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>idle (log)</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>idle (diff)</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_14">
+            <attribute name="title">
+             <string>plot</string>
+            </attribute>
+           </widget>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -8353,12 +8700,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>109</y>
+     <x>631</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>109</y>
+     <x>821</x>
+     <y>393</y>
     </hint>
    </hints>
   </connection>
@@ -8369,12 +8716,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>109</y>
+     <x>623</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>109</y>
+     <x>820</x>
+     <y>500</y>
     </hint>
    </hints>
   </connection>
@@ -8385,12 +8732,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>87</y>
+     <x>39</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -8401,12 +8748,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>87</y>
+     <x>277</x>
+     <y>298</y>
     </hint>
    </hints>
   </connection>
@@ -8417,12 +8764,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>91</y>
+     <x>277</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -8433,12 +8780,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>89</y>
+     <x>277</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -8449,12 +8796,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>93</y>
+     <x>39</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -8465,12 +8812,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>95</y>
+     <x>277</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -8481,12 +8828,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>84</y>
+     <x>39</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>84</y>
+     <x>277</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -8497,12 +8844,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>95</y>
+     <x>39</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -8513,12 +8860,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>86</y>
+     <x>277</x>
+     <y>266</y>
     </hint>
    </hints>
   </connection>
@@ -8529,12 +8876,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -8545,12 +8892,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>359</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>93</y>
+     <x>277</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -8561,12 +8908,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>109</y>
+     <x>631</x>
+     <y>208</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>109</y>
+     <x>761</x>
+     <y>211</y>
     </hint>
    </hints>
   </connection>
@@ -8577,12 +8924,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>78</y>
+     <x>39</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>78</y>
+     <x>277</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -8593,12 +8940,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>99</y>
+     <x>631</x>
+     <y>473</y>
     </hint>
     <hint type="destinationlabel">
-     <x>59</x>
-     <y>99</y>
+     <x>176</x>
+     <y>401</y>
     </hint>
    </hints>
   </connection>
@@ -8609,12 +8956,12 @@ p, li { white-space: pre-wrap; }
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>83</y>
+     <x>229</x>
+     <y>144</y>
     </hint>
     <hint type="destinationlabel">
-     <x>70</x>
-     <y>85</y>
+     <x>229</x>
+     <y>236</y>
     </hint>
    </hints>
   </connection>
@@ -8625,12 +8972,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>82</y>
+     <x>39</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>82</y>
+     <x>277</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -8641,12 +8988,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>39</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>80</y>
+     <x>277</x>
+     <y>170</y>
     </hint>
    </hints>
   </connection>
@@ -8657,12 +9004,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>372</x>
-     <y>109</y>
+     <x>579</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>109</y>
+     <x>761</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -8673,12 +9020,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>76</y>
+     <x>39</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>76</y>
+     <x>277</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
@@ -8689,12 +9036,12 @@ p, li { white-space: pre-wrap; }
    <slot>setSelectedDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>99</y>
+     <x>176</x>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
-     <x>96</x>
-     <y>99</y>
+     <x>631</x>
+     <y>473</y>
     </hint>
    </hints>
   </connection>
@@ -8705,12 +9052,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>96</y>
+     <x>117</x>
+     <y>278</y>
     </hint>
     <hint type="destinationlabel">
-     <x>80</x>
-     <y>94</y>
+     <x>111</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -8743,6 +9090,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>89</x>
      <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_gentleSourceReduction</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_gentleSourceReduction</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>248</x>
+     <y>296</y>
     </hint>
    </hints>
   </connection>

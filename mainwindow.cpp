@@ -2751,9 +2751,14 @@ QString MainWindow::writeXML()
 
 
     std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
-    std::string experimentDescription = ui->plainTextEdit_experimentDescription->toPlainText().toStdString();
+    std::string experimentDescription = ui->plainTextEdit_experimentDescription->toPlainText().simplified().toStdString();
     std::string scheduler = ui->schedulerLineEdit->text().toStdString();
     std::string correlator = ui->correlatorLineEdit->text().toStdString();
+    std::string piName = ui->lineEdit_PIName->text().toStdString();
+    std::string piEmail = ui->lineEdit_PIEmail->text().toStdString();
+    std::string contactName = ui->lineEdit_contactName->text().toStdString();
+    std::string contactEmail = ui->lineEdit_contactEmail->text().toStdString();
+    std::string notes = ui->plainTextEdit_notes->toPlainText().replace("\n","\n* ").toStdString();
     bool statistics = ui->checkBox_outputStatisticsFile->isChecked();
     bool vex = ui->checkBox_outputVex->isChecked();
     bool ngs = ui->checkBox_outputNGSFile->isChecked();
@@ -2767,7 +2772,8 @@ QString MainWindow::writeXML()
             srcGroupsForStatistic.push_back(ui->treeWidget_srcGroupForStatistics->topLevelItem(i)->text(0).toStdString());
         }
     }
-    para.output(experimentName, experimentDescription, scheduler, correlator, statistics, ngs, skd, vex, operNotes, srcGrp, srcGroupsForStatistic, skyCov);
+    para.output(experimentName, experimentDescription, scheduler, correlator, piName, piEmail, contactName,
+                contactEmail, notes, statistics, ngs, skd, vex, operNotes, srcGrp, srcGroupsForStatistic, skyCov);
 
     std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
     std::string equip = ui->lineEdit_pathEquip->text().toStdString();
@@ -2987,7 +2993,10 @@ QString MainWindow::writeXML()
         if(ui->comboBox_conditions_combinations->currentText() == "and"){
             andForCombination = true;
         }
-        para.conditions(members, minScans, minBaselines, andForCombination);
+        int minNumberOfReducedSources = ui->spinBox_minNumberOfReducedSources->value();
+        int maxNumberOfIterations = ui->spinBox_maxNumberOfIterations->value();
+        int numberOfGentleSourceReductions = ui->spinBox_gentleSourceReduction->value();
+        para.conditions(members, minScans, minBaselines, andForCombination, maxNumberOfIterations, numberOfGentleSourceReductions, minNumberOfReducedSources);
     }
 
     if (ui->groupBox_multiScheduling->isChecked() && ui->treeWidget_multiSchedSelected->topLevelItemCount()>0){
@@ -3858,14 +3867,15 @@ void MainWindow::on_pushButton__baselineParameter_clicked()
 void MainWindow::on_pushButton_parameterBaseline_edit_clicked()
 {
     baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
-    dial->addDefaultParameters(paraBl["default"]);
-    dial->addSelectedParameters(paraBl[ui->ComboBox_parameterBaseline->currentText().toStdString()],ui->ComboBox_parameterBaseline->currentText());
-
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
     }
     dial->addBandNames(bands);
+
+    dial->addDefaultParameters(paraBl["default"]);
+    dial->addSelectedParameters(paraBl[ui->ComboBox_parameterBaseline->currentText().toStdString()],ui->ComboBox_parameterBaseline->currentText());
+
 
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -6880,5 +6890,39 @@ void MainWindow::initializeInspector()
     ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
 }
 
+void MainWindow::on_spinBox_maxNumberOfIterations_valueChanged(int arg1)
+{
+    ui->spinBox_gentleSourceReduction->setMaximum(arg1);
+}
 
+void MainWindow::on_pushButton_31_clicked()
+{
+    QStringList path {"settings.output.piName"};
+    QStringList value {ui->lineEdit_PIName->text()};
+    QString name = "Default pi name changed!";
+    changeDefaultSettings(path,value,name);
+}
 
+void MainWindow::on_pushButton_29_clicked()
+{
+    QStringList path {"settings.output.piEmail"};
+    QStringList value {ui->lineEdit_PIEmail->text()};
+    QString name = "Default pi email changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_28_clicked()
+{
+    QStringList path {"settings.output.contactName"};
+    QStringList value {ui->lineEdit_contactName->text()};
+    QString name = "Default contact name changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_30_clicked()
+{
+    QStringList path {"settings.output.contactEmail"};
+    QStringList value {ui->lineEdit_contactEmail->text()};
+    QString name = "Default contact email changed!";
+    changeDefaultSettings(path,value,name);
+}

@@ -79,6 +79,31 @@ void sourceParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Par
 {
     changeParameters(para);
     ui->lineEdit_paraName->setText(paraName);
+    if(paraName == "default"){
+        ui->groupBox_available->setCheckable(false);
+
+        ui->checkBox_maxNumberOfScans->setChecked(true);
+        ui->checkBox_maxNumberOfScans->setEnabled(false);
+        ui->checkBox_minElevation->setChecked(true);
+        ui->checkBox_minElevation->setEnabled(false);
+        ui->checkBox_minFlux->setChecked(true);
+        ui->checkBox_minFlux->setEnabled(false);
+        ui->checkBox_minNumberOfStations->setChecked(true);
+        ui->checkBox_minNumberOfStations->setEnabled(false);
+        ui->checkBox_weight->setChecked(true);
+        ui->checkBox_weight->setEnabled(false);
+
+        ui->groupBox_variableScanDuration->setCheckable(false);
+        ui->groupBox_fixedScanDuration->setCheckable(false);
+        ui->groupBox_fixedScanDuration->setEnabled(false);
+        ui->groupBox_9->setCheckable(false);
+        ui->groupBox_9->setEnabled(false);
+        ui->groupBox_10->setCheckable(false);
+        ui->groupBox_increaseWeightIfObservedOnce->setCheckable(false);
+        ui->groupBox_increaseWeightIfObservedOnce->setEnabled(false);
+
+
+    }
     ui->lineEdit_paraName->setEnabled(false);
 }
 
@@ -91,53 +116,68 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
         }else{
             ui->radioButton_available_no->setChecked(true);
         }
+        ui->groupBox_available->setChecked(true);
     }else{
-        ui->radioButton_available_parent->setChecked(true);
+        ui->groupBox_available->setChecked(false);
     }
+
 
     if(sp.minNumberOfStations.is_initialized()){
         ui->spinBox_minNumberOfStations->setValue(*sp.minNumberOfStations);
+        ui->checkBox_minNumberOfStations->setChecked(true);
     }else{
-        ui->spinBox_minNumberOfStations->setValue(2);
+        ui->spinBox_minNumberOfStations->setValue(*dp.minNumberOfStations);
+        ui->checkBox_minNumberOfStations->setChecked(false);
     }
 
     if(sp.minFlux.is_initialized()){
         ui->doubleSpinBox_minFlux->setValue(*sp.minFlux);
+        ui->checkBox_minFlux->setChecked(true);
     }else{
         ui->doubleSpinBox_minFlux->setValue(*dp.minFlux);
+        ui->checkBox_minFlux->setChecked(false);
     }
+
+    if(sp.maxNumberOfScans.is_initialized()){
+        ui->spinBox_maxNumberOfScans->setValue(*sp.maxNumberOfScans);
+        ui->checkBox_maxNumberOfScans->setChecked(true);
+    }else{
+        ui->spinBox_maxNumberOfScans->setValue(999);
+        ui->checkBox_maxNumberOfScans->setChecked(false);
+    }
+
+    if(sp.weight.is_initialized()){
+        ui->weightDoubleSpinBox->setValue(*sp.weight);
+        ui->checkBox_weight->setChecked(true);
+    }else{
+        ui->weightDoubleSpinBox->setValue(*dp.weight);
+        ui->checkBox_weight->setChecked(false);
+    }
+
+    if(sp.minElevation.is_initialized()){
+        ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
+        ui->checkBox_minElevation->setChecked(true);
+    }else{
+        ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
+        ui->checkBox_minElevation->setChecked(false);
+    }
+
 
     if(sp.minRepeat.is_initialized()){
         ui->spinBox_minRepeatTime->setValue(*sp.minRepeat);
         ui->groupBox_10->setChecked(true);
     }else{
         ui->spinBox_minRepeatTime->setValue(*dp.minRepeat);
+        ui->groupBox_10->setChecked(false);
     }
 
-    if(sp.maxScan.is_initialized()){
-        ui->spinBox_maxScanTime->setValue(*sp.maxScan);
+    if(sp.tryToObserveXTimesEvenlyDistributed.is_initialized()){
+        ui->spinBox_evenlyDistScans->setValue(*sp.tryToObserveXTimesEvenlyDistributed);
+        ui->spinBox_variableRepeatMinTime->setValue(*sp.tryToObserveXTimesMinRepeat);
+        ui->groupBox_9->setChecked(true);
     }else{
-        ui->spinBox_maxScanTime->setValue(*dp.maxScan);
-    }
-
-    if(sp.minScan.is_initialized()){
-        ui->spinBox_minScanTime->setValue(*sp.minScan);
-    }else{
-        ui->spinBox_minScanTime->setValue(*dp.minScan);
-    }
-
-    if(sp.maxNumberOfScans.is_initialized()){
-        ui->spinBox_maxNumberOfScans->setValue(*sp.maxNumberOfScans);
-    }else{
-        ui->spinBox_maxNumberOfScans->setValue(999);
-    }
-
-    if(sp.fixedScanDuration.is_initialized()){
-        ui->groupBox_fixedScanDuration->setChecked(true);
-        ui->spinBox_fixedScanDuration->setValue(*sp.fixedScanDuration);
-    }else{
-        ui->groupBox_variableScanDuration->setChecked(true);
-        ui->spinBox_fixedScanDuration->setValue(300);
+        ui->spinBox_evenlyDistScans->setValue(0);
+        ui->groupBox_9->setChecked(false);
     }
 
     if(sp.tryToFocusIfObservedOnce.is_initialized()){
@@ -157,49 +197,55 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
         ui->groupBox_increaseWeightIfObservedOnce->setChecked(false);
     }
 
-    if(sp.tryToObserveXTimesEvenlyDistributed.is_initialized()){
-        ui->spinBox_evenlyDistScans->setValue(*sp.tryToObserveXTimesEvenlyDistributed);
-        ui->spinBox_variableRepeatMinTime->setValue(*sp.tryToObserveXTimesMinRepeat);
-        ui->groupBox_9->setChecked(true);
-    }else{
-        ui->spinBox_evenlyDistScans->setValue(0);
-    }
 
-    if(sp.weight.is_initialized()){
-        ui->weightDoubleSpinBox->setValue(*sp.weight);
-    }else{
-        ui->weightDoubleSpinBox->setValue(*dp.weight);
-    }
 
-    if(sp.minElevation.is_initialized()){
-        ui->doubleSpinBox_minElevation->setValue(*sp.minElevation);
+    ui->groupBox_variableScanDuration->setChecked(false);
+    if(sp.maxScan.is_initialized()){
+        ui->spinBox_maxScanTime->setValue(*sp.maxScan);
+        ui->groupBox_variableScanDuration->setChecked(true);
     }else{
-        ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
+        ui->spinBox_maxScanTime->setValue(*dp.maxScan);
     }
-
+    if(sp.minScan.is_initialized()){
+        ui->spinBox_minScanTime->setValue(*sp.minScan);
+        ui->groupBox_variableScanDuration->setChecked(true);
+    }else{
+        ui->spinBox_minScanTime->setValue(*dp.minScan);
+    }
     QVector<QString> bands;
     for(int i=0; i<ui->tableWidget_minSNR->rowCount(); ++i){
         qobject_cast<QDoubleSpinBox*>(ui->tableWidget_minSNR->cellWidget(i,0))->setValue(0);
         bands.push_back(ui->tableWidget_minSNR->verticalHeaderItem(i)->text());
     }
-
     for(const auto &any:sp.minSNR){
         QString name = QString::fromStdString(any.first);
         double val = any.second;
         int idx = bands.indexOf(name);
         if(idx != -1){
             qobject_cast<QDoubleSpinBox*>(ui->tableWidget_minSNR->cellWidget(idx,0))->setValue(val);
+            ui->groupBox_variableScanDuration->setChecked(true);
         }else{
             warningTxt.append("    unknown band name: ").append(name).append(" for minimum SNR!\n");
         }
     }
 
+    if(sp.fixedScanDuration.is_initialized()){
+        ui->spinBox_fixedScanDuration->setValue(*sp.fixedScanDuration);
+        ui->groupBox_fixedScanDuration->setChecked(true);
+    }else{
+        ui->spinBox_fixedScanDuration->setValue(300);
+        ui->groupBox_fixedScanDuration->setChecked(false);
+    }
+
+
     ui->listWidget_selectedIgnoreStations->clear();
+    ui->groupBox_ignoreStations->setChecked(false);
     for(const auto &any:sp.ignoreStationsString){
         QString name = QString::fromStdString(any);
         auto list = stations->findItems(name);
         if(list.size()==1){
             ui->listWidget_selectedIgnoreStations->insertItem(ui->listWidget_selectedIgnoreStations->count(),name);
+            ui->groupBox_ignoreStations->setChecked(true);
         }else{
             warningTxt.append("    unknown station: ").append(name).append(" which should be ignored!\n");
         }
@@ -207,11 +253,13 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
     ui->listWidget_selectedIgnoreStations->sortItems();
 
     ui->listWidget_selectedRequiredStations->clear();
+    ui->groupBox_requiredStations->setChecked(false);
     for(const auto &any:sp.requiredStationsString){
         QString name = QString::fromStdString(any);
         auto list = stations->findItems(name);
         if(list.size()==1){
             ui->listWidget_selectedRequiredStations->insertItem(ui->listWidget_selectedRequiredStations->count(),name);
+            ui->groupBox_requiredStations->setChecked(true);
         }else{
             warningTxt.append("    unknown station: ").append(name).append(" which should be required!\n");
         }
@@ -219,11 +267,13 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
     ui->listWidget_selectedRequiredStations->sortItems();
 
     ui->listWidget_selectedIgnoreBaselines->clear();
+    ui->groupBox_ignoreBaselines->setChecked(false);
     for(const auto &any:sp.ignoreBaselinesString){
         QString name = QString::fromStdString(any);
         auto list = baseline->findItems(name);
         if(list.size()==1){
             ui->listWidget_selectedIgnoreBaselines->insertItem(ui->listWidget_selectedIgnoreBaselines->count(),name);
+            ui->groupBox_ignoreBaselines->setChecked(true);
         }else{
             warningTxt.append("    unknown baseline: ").append(name).append(" which should be ignored!\n");
         }
@@ -347,7 +397,7 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
 
     std::string name = txt.toStdString();
 
-    if(!ui->radioButton_available_parent->isChecked()){
+    if(ui->groupBox_available->isChecked() || !ui->groupBox_available->isCheckable()){
         if(ui->radioButton_available_yes->isChecked()){
             para.available = true;
         }else{
@@ -355,51 +405,31 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
         }
     }
 
-    if(ui->groupBox_variableScanDuration->isChecked()){
-        if(ui->spinBox_minScanTime->value() != *dp.minScan){
-            para.minScan = ui->spinBox_minScanTime->value();
-        }
-        if(ui->spinBox_maxScanTime->value() != *dp.maxScan){
-            para.maxScan = ui->spinBox_maxScanTime->value();
-        }
-        for(int i = 0; i<ui->tableWidget_minSNR->rowCount(); ++i){
-            QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_minSNR->cellWidget(i,0));
-            if(w->value()!=0){
-                para.minSNR[ui->tableWidget_minSNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
-            }
-        }
-    }
-    if(ui->groupBox_fixedScanDuration->isChecked()){
-        para.fixedScanDuration = ui->spinBox_fixedScanDuration->value();
-    }
-
-    if(ui->spinBox_minNumberOfStations->value() != *dp.minNumberOfStations){
+    if(ui->spinBox_minNumberOfStations->isEnabled()){
         para.minNumberOfStations = ui->spinBox_minNumberOfStations->value();
     }
-    if(ui->doubleSpinBox_minFlux->value() != *dp.minFlux){
+    if(ui->doubleSpinBox_minFlux->isEnabled()){
         para.minFlux = ui->doubleSpinBox_minFlux->value();
     }
-    if(ui->spinBox_maxNumberOfScans->value() != *dp.maxNumberOfScans){
+    if(ui->spinBox_maxNumberOfScans->isEnabled()){
         para.maxNumberOfScans = ui->spinBox_maxNumberOfScans->value();
+    }
+    if(ui->weightDoubleSpinBox->isEnabled()){
+        para.weight = ui->weightDoubleSpinBox->value();
+    }
+    if(ui->doubleSpinBox_minElevation->isEnabled()){
+        para.minElevation = ui->doubleSpinBox_minElevation->value();
     }
 
     if(ui->groupBox_9->isChecked()){
         para.tryToObserveXTimesEvenlyDistributed = ui->spinBox_evenlyDistScans->value();
         para.tryToObserveXTimesMinRepeat = ui->spinBox_variableRepeatMinTime->value();
     }
-    if(ui->groupBox_10->isChecked()){
-        if(ui->spinBox_minRepeatTime->value() != *dp.minRepeat){
-            para.minRepeat = ui->spinBox_minRepeatTime->value();
-        }
+    if(ui->groupBox_10->isChecked() || !ui->groupBox_10->isCheckable()){
+        para.minRepeat = ui->spinBox_minRepeatTime->value();
     }
 
 
-    if(ui->weightDoubleSpinBox->value() != *dp.weight){
-        para.weight = ui->weightDoubleSpinBox->value();
-    }
-    if(ui->doubleSpinBox_minElevation->value() != *dp.minElevation){
-        para.minElevation = ui->doubleSpinBox_minElevation->value();
-    }
     if(ui->groupBox_increaseWeightIfObservedOnce->isChecked()){
         para.tryToFocusIfObservedOnce = true;
         para.tryToFocusFactor = ui->doubleSpinBox_factor->value();
@@ -414,27 +444,39 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
             para.tryToFocusType = VieVS::ParameterSettings::TryToFocusType::multiplicative;
         }
     }
-    for(int i = 0; i<ui->listWidget_selectedIgnoreStations->count(); ++i){
-        para.ignoreStationsString.push_back(ui->listWidget_selectedIgnoreStations->item(i)->text().toStdString());
-    }
-    for(int i = 0; i<ui->listWidget_selectedRequiredStations->count(); ++i){
-        para.requiredStationsString.push_back(ui->listWidget_selectedRequiredStations->item(i)->text().toStdString());
-    }
-    for(int i = 0; i<ui->listWidget_selectedIgnoreBaselines->count(); ++i){
-        para.ignoreBaselinesString.push_back(ui->listWidget_selectedIgnoreBaselines->item(i)->text().toStdString());
-    }
 
-    if(name == "default"){
-        para.available = true;
-        para.minRepeat = ui->spinBox_minRepeatTime->value();
+    if(ui->groupBox_variableScanDuration->isChecked() || !ui->groupBox_variableScanDuration->isCheckable()){
         para.minScan = ui->spinBox_minScanTime->value();
         para.maxScan = ui->spinBox_maxScanTime->value();
-        para.weight = ui->weightDoubleSpinBox->value();
-        para.maxNumberOfScans = ui->spinBox_maxNumberOfScans->value();
-        para.minFlux = ui->doubleSpinBox_minFlux->value();
-        para.minElevation = ui->doubleSpinBox_minElevation->value();
-        para.minNumberOfStations = ui->spinBox_minNumberOfStations->value();
+        for(int i = 0; i<ui->tableWidget_minSNR->rowCount(); ++i){
+            QDoubleSpinBox *w = qobject_cast<QDoubleSpinBox*> (ui->tableWidget_minSNR->cellWidget(i,0));
+            if(w->value()!=0){
+                para.minSNR[ui->tableWidget_minSNR->verticalHeaderItem(i)->text().toStdString()] = w->value();
+            }
+        }
     }
+    if(ui->groupBox_fixedScanDuration->isChecked()){
+        para.fixedScanDuration = ui->spinBox_fixedScanDuration->value();
+    }
+
+    if(ui->groupBox_ignoreStations->isChecked()){
+        for(int i = 0; i<ui->listWidget_selectedIgnoreStations->count(); ++i){
+            para.ignoreStationsString.push_back(ui->listWidget_selectedIgnoreStations->item(i)->text().toStdString());
+        }
+    }
+
+    if(ui->groupBox_requiredStations->isChecked()){
+        for(int i = 0; i<ui->listWidget_selectedRequiredStations->count(); ++i){
+            para.requiredStationsString.push_back(ui->listWidget_selectedRequiredStations->item(i)->text().toStdString());
+        }
+    }
+
+    if(ui->groupBox_ignoreBaselines->isChecked()){
+        for(int i = 0; i<ui->listWidget_selectedIgnoreBaselines->count(); ++i){
+            para.ignoreBaselinesString.push_back(ui->listWidget_selectedIgnoreBaselines->item(i)->text().toStdString());
+        }
+    }
+
     return std::make_pair(name,para);
 }
 
@@ -494,28 +536,36 @@ void sourceParametersDialog::on_pushButton_clicked()
 void sourceParametersDialog::on_spinBox_evenlyDistScans_valueChanged(int arg1)
 {
     if(arg1 == 0){
-        ui->groupBox_increaseWeightIfObservedOnce->setChecked(true);
-    }else{
         ui->groupBox_increaseWeightIfObservedOnce->setChecked(false);
+    }else{
+        ui->groupBox_increaseWeightIfObservedOnce->setChecked(true);
     }
 }
 
 void sourceParametersDialog::on_groupBox_10_toggled(bool arg1)
 {
-    ui->groupBox_9->setChecked(!arg1);
+    if(arg1){
+        ui->groupBox_9->setChecked(!arg1);
+    }
 }
 
 void sourceParametersDialog::on_groupBox_9_toggled(bool arg1)
 {
-    ui->groupBox_10->setChecked(!arg1);
+    if(arg1){
+        ui->groupBox_10->setChecked(!arg1);
+    }
 }
 
 void sourceParametersDialog::on_groupBox_variableScanDuration_toggled(bool arg1)
 {
-    ui->groupBox_fixedScanDuration->setChecked(!arg1);
+    if(arg1){
+        ui->groupBox_fixedScanDuration->setChecked(!arg1);
+    }
 }
 
 void sourceParametersDialog::on_groupBox_fixedScanDuration_toggled(bool arg1)
 {
-    ui->groupBox_variableScanDuration->setChecked(!arg1);
+    if(arg1){
+        ui->groupBox_variableScanDuration->setChecked(!arg1);
+    }
 }

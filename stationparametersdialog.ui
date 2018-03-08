@@ -17,6 +17,19 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
+      <widget class="QLabel" name="label_3">
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>select parameters you want to add:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -65,9 +78,15 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="groupBox_available">
          <property name="title">
           <string>available</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
@@ -76,7 +95,7 @@
              <string>yes</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -87,23 +106,19 @@
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_available_parent">
-            <property name="text">
-             <string>from parent</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_3">
+        <widget class="QGroupBox" name="groupBox_tagalong">
          <property name="title">
           <string>tagalong</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
@@ -119,16 +134,6 @@
              <string>no</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_tagalong_parent">
-            <property name="text">
-             <string>from parent</string>
-            </property>
-            <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
@@ -142,15 +147,11 @@
           <string>general</string>
          </property>
          <layout class="QFormLayout" name="formLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>weight</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="singleStep">
              <double>0.100000000000000</double>
             </property>
@@ -159,15 +160,11 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="maxSlewTimeLabel">
-            <property name="text">
-             <string>max slew time</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="spinBox_maxSlewTime">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="suffix">
              <string> [s]</string>
             </property>
@@ -179,18 +176,14 @@
             </property>
             <property name="value">
              <number>600</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="maxWaitTimeLabel">
-            <property name="text">
-             <string>max wait time</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="QSpinBox" name="spinBox_maxWaitTime">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="suffix">
              <string> [s]</string>
             </property>
@@ -205,20 +198,44 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>min elevation</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="1">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="suffix">
              <string> [deg]</string>
             </property>
             <property name="value">
              <double>5.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBox_weight">
+            <property name="text">
+             <string>weight</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBox_maxSlewTime">
+            <property name="text">
+             <string>max slew time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBox_maxWaitTime">
+            <property name="text">
+             <string>max wait time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="checkBox_minElevation">
+            <property name="text">
+             <string>min elevation</string>
             </property>
            </widget>
           </item>
@@ -243,9 +260,15 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
+        <widget class="QGroupBox" name="groupBox_scanTime">
          <property name="title">
           <string>scan time</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
@@ -330,9 +353,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_5">
+        <widget class="QGroupBox" name="groupBox_ignoreSources">
          <property name="title">
           <string>ignore sources</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
@@ -459,6 +488,70 @@
     <hint type="destinationlabel">
      <x>361</x>
      <y>571</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_weight</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_weight</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>194</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>137</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_maxSlewTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_maxSlewTime</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>217</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_maxWaitTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_maxWaitTime</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>248</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>141</x>
+     <y>249</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minElevation</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_minElevation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>160</x>
+     <y>274</y>
     </hint>
    </hints>
   </connection>

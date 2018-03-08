@@ -434,6 +434,16 @@ private slots:
 
     void on_pushButton_parameterBaseline_edit_clicked();
 
+    void on_spinBox_maxNumberOfIterations_valueChanged(int arg1);
+
+    void on_pushButton_31_clicked();
+
+    void on_pushButton_29_clicked();
+
+    void on_pushButton_28_clicked();
+
+    void on_pushButton_30_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
