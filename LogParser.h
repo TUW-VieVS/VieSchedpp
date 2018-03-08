@@ -9,6 +9,7 @@
 #include <fstream>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
+#include "TimeSystem.h"
 
 namespace VieVS {
     class LogParser {
@@ -17,10 +18,26 @@ namespace VieVS {
             bool error = false;
             std::string scanName;
             std::string sourceName;
-            boost::posix_time::ptime slewStart;
-            boost::posix_time::ptime slewEnd;
-            double realSlewTime;
-            unsigned int scheduledSlewTime = 0;
+
+            boost::optional<boost::posix_time::ptime> slewStart;
+            boost::optional<boost::posix_time::ptime> slewEnd;
+
+            boost::optional<boost::posix_time::ptime> preobStart;
+            boost::optional<boost::posix_time::ptime> preobEnd;
+
+            boost::optional<boost::posix_time::ptime> recordOn;
+            boost::optional<boost::posix_time::ptime> recordOff;
+
+            double realSlewTime = 0;
+            double realPreobTime = 0;
+            double realScanTime = 0;
+            double realIdleTime = 0;
+
+            int scheduledSlewTime = 0;
+            int scheduledPreobTime = 0;
+            int scheduledIdleTime = 0;
+            int scheduledScanTime = 0;
+
         };
 
         LogParser() = default;
@@ -31,10 +48,10 @@ namespace VieVS {
 
         void output(const std::string &outfile);
 
-        bool addScheduledSlewTimes(const std::vector<unsigned int> &slewTimes);
+        bool addScheduledTimes(const std::vector<std::vector<unsigned int>> &times);
 
     private:
-        bool addedScheduledSlewTimes_ = false;
+        bool addedScheduledTimes_ = false;
 
         std::string filename_;
 

@@ -25,10 +25,11 @@ namespace VieVS{
 
         void copyScanMembersToObjects();
 
-        std::vector<unsigned int> getScheduledSlewTimes(const std::string &station);
+        std::vector<std::vector<unsigned int>> getScheduledTimes(const std::string &station);
 
     private:
         std::string filename_;
+        unsigned int fieldSystemTimes_ = 0;
 
         SkdCatalogReader skd_;
         std::vector<Station> stations_; ///< all stations

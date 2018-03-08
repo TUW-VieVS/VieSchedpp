@@ -22,6 +22,8 @@ void SkdParser::createObjects() {
         vector <string> splitVector;
         string line;
         bool found = false;
+        bool sourceFound = false;
+        bool tapeFound = false;
         // loop through file
         int counter = 0;
         while (getline(fid, line)) {
@@ -45,7 +47,24 @@ void SkdParser::createObjects() {
                     return;
                 }
             }
-
+            if(!sourceFound && trimmed.find("SOURCE") != trimmed.npos){
+                boost::split(splitVector, trimmed, boost::is_space(), boost::token_compress_on);
+                for(int i=0;i<splitVector.size();++i){
+                    if(splitVector[i] == "SOURCE"){
+                        fieldSystemTimes_ += boost::lexical_cast<unsigned int>(splitVector[i+1]);
+                    }
+                }
+                sourceFound = true;
+            }
+            if(!tapeFound && trimmed.find("TAPETM") != trimmed.npos){
+                boost::split(splitVector, trimmed, boost::is_space(), boost::token_compress_on);
+                for(int i=0;i<splitVector.size();++i){
+                    if(splitVector[i] == "TAPETM"){
+                        fieldSystemTimes_ += boost::lexical_cast<unsigned int>(splitVector[i+1]);
+                    }
+                }
+                tapeFound = true;
+            }
 
             if(trimmed == "$STATIONS") {
                 while (getline(fid, line)){
@@ -72,7 +91,8 @@ void SkdParser::createObjects() {
     }
     fid.close();
 
-    TimeSystem::mjdStart = TimeSystem::startTime.date().modjulian_day();
+    int sec_ = TimeSystem::startTime.time_of_day().total_seconds();
+    TimeSystem::mjdStart = TimeSystem::startTime.date().modjulian_day() + sec_ / 86400.0;
 
     boost::posix_time::time_duration a = TimeSystem::endTime - TimeSystem::startTime;
     int sec = a.total_seconds();
@@ -184,6 +204,7 @@ void SkdParser::createScans() {
             vector<PointingVector> pv_end;
             vector<unsigned int>thisEols(nsta,0);
             vector<unsigned int>slewTimes(nsta,0);
+//            vector<unsigned int>idleTimes(nsta,0);
             for(int i=0; i<nsta; ++i){
                 char olc = oneLetterCode[i];
                 char cwflag = cableWrapFlags[i];
@@ -229,20 +250,47 @@ void SkdParser::createScans() {
                 thisSta.getCableWrap().unwrapAzNearAz(p_end,p.getAz());
                 pv_end.push_back(p_end);
 
-                thisEols[staid] = eols[staid];
+                thisEols[i] = eols[staid];
                 eols[staid] = p_end.getTime();
 
-                if(firstScan){
-                    firstScan = false;
-                }else{
+                if(!firstScan){
                     unsigned int thisSlewTime = thisSta.slewTime(p);
-                    slewTimes[staid] = thisSlewTime;
+                    slewTimes[i] = thisSlewTime;
+//                    idleTimes[i] = (time-preob)-(thisEols[i]+fieldSystemTimes_+thisSlewTime);
                 }
                 thisSta.setCurrentPointingVector(p_end);
             }
 
             Scan scan(pv,thisEols,Scan::ScanType::single);
-            scan.setScanTimes(thisEols,slewTimes,time,durations);
+            bool valid;
+            if(firstScan){
+                firstScan = false;
+                valid = scan.setScanTimes(thisEols,0,slewTimes,0,time,durations);
+            }else{
+                valid = scan.setScanTimes(thisEols,fieldSystemTimes_,slewTimes,preob,time,durations);
+            }
+
+            if(!valid){
+                const auto &tmp = scan.getTimes();
+                for (int i = 0; i < nsta; ++i) {
+                    if(tmp.getEndOfIdleTime(i)<tmp.getEndOfSlewTime(i)){
+                        unsigned int eost = tmp.getEndOfSlewTime(i);
+                        unsigned int eoit = tmp.getEndOfIdleTime(i);
+                        boost::posix_time::ptime eostp = TimeSystem::toPosixTime(eost);
+                        boost::posix_time::ptime eoitp = TimeSystem::toPosixTime(eoit);
+
+                        cerr << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
+                                %stations_[scan.getPointingVector(i).getStaid()].getName()
+                                %counter
+                                %sources_[scan.getPointingVector(i).getSrcid()].getName()
+                                %TimeSystem::ptime2string_doy(scanStart)
+                                %TimeSystem::ptime2string_doy(eostp)
+                                %TimeSystem::ptime2string_doy(eoitp)
+                                %(eost-eoit);
+                    }
+                }
+            }
+
             scan.setPointingVectorsEndtime(pv_end);
 
             scans_.push_back(scan);
@@ -274,8 +322,9 @@ void SkdParser::copyScanMembersToObjects() {
 
 }
 
-std::vector<unsigned int> SkdParser::getScheduledSlewTimes(const string &station) {
-    vector<unsigned int> slewTimes;
+std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &station) {
+    vector<vector<unsigned int>> times;
+
     int staid = -1;
     for(int i=0; i<stations_.size(); ++i){
         if(station == stations_[i].getName()){
@@ -285,20 +334,20 @@ std::vector<unsigned int> SkdParser::getScheduledSlewTimes(const string &station
     }
     if(staid == -1){
         cerr << "ERROR: get scheduled slew times: station name "<< station << "unknown!;\n";
-    }else{
-        for(const auto &scan:scans_){
+    }else {
+        for (const auto &scan:scans_) {
             int idx = -1;
-            for(int i=0; i<scan.getNSta(); ++i){
+            for (int i = 0; i < scan.getNSta(); ++i) {
                 const auto &pv = scan.getPointingVector(i);
-                if(pv.getStaid() == staid){
+                if (pv.getStaid() == staid) {
                     idx = i;
                     break;
                 }
             }
-            if(idx != -1){
-                slewTimes.push_back(scan.getTimes().getEndOfSlewTime(idx)-scan.getTimes().getEndOfSourceTime(idx));
+            if (idx != -1) {
+                times.emplace_back(vector<unsigned int>{scan.getTimes().getSlewTime(idx), scan.getTimes().getIdleTime(idx), scan.getTimes().getPreobTime(idx), scan.getTimes().getScanTime(idx)});
             }
         }
     }
-    return slewTimes;
+    return times;
 }

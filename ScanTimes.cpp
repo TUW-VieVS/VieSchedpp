@@ -167,5 +167,17 @@ void ScanTimes::addTagalongStation(const VieVS::PointingVector &pv_start, const 
     endOfScanTime_.push_back(pv_end.getTime());
 }
 
+bool ScanTimes::substractPreobTimeFromStartTime(unsigned int preob) {
+    bool error = false;
+    for(int i=0; i<endOfScanTime_.size(); ++i){
+        endOfTapeTime_[i] = endOfCalibrationTime_[i]-preob;
+        endOfIdleTime_[i] = endOfTapeTime_[i];
+        if(endOfIdleTime_[i] < endOfSlewTime_[i]){
+            error = true;
+        }
+    }
+    return error;
+}
+
 
 

@@ -96,3 +96,7 @@ std::string VieVS::TimeSystem::ptime2string_doy_units(boost::posix_time::ptime p
     return dateStr;
 }
 
+boost::posix_time::ptime VieVS::TimeSystem::toPosixTime(unsigned int time) {
+    return TimeSystem::startTime + boost::posix_time::seconds(time);
+}
+

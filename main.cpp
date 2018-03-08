@@ -47,9 +47,10 @@ int main(int argc, char *argv[])
         mySkdParser.createObjects();
         mySkdParser.createScans();
         mySkdParser.copyScanMembersToObjects();
+
         VieVS::LogParser htLogParser("/data/NewSchedulingSoftware/aua037/aua037ht.log");
         htLogParser.parseLogFile();
-        htLogParser.addScheduledSlewTimes(mySkdParser.getScheduledSlewTimes("HART15M"));
+        htLogParser.addScheduledTimes(mySkdParser.getScheduledTimes("HART15M"));
         htLogParser.output("/data/NewSchedulingSoftware/aua037/times_ht.txt");
 
 

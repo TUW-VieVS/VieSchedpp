@@ -1337,15 +1337,17 @@ void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
     times_.addScanTimes(scanDuration);
 }
 
-void Scan::setScanTimes(const vector<unsigned int> &eols, const vector<unsigned int> &slewTime,
+bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSystemTime,
+                        const vector<unsigned int> &slewTime, unsigned int preob,
                         unsigned int scanStart, const vector<unsigned int> &scanDurations) {
     times_.setEndOfLastScan(eols);
     for(int i=0; i<slewTime.size(); ++i){
-        times_.addTimes(i,0,00,slewTime.at(i),0,0);
+        times_.addTimes(i,0,fieldSystemTime,slewTime.at(i),0,0);
     }
-
     times_.setStartTime(scanStart);
+    bool valid = times_.substractPreobTimeFromStartTime(preob);
     times_.addScanTimes(scanDurations);
+    return valid;
 }
 
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {

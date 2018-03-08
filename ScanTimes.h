@@ -148,6 +148,20 @@ namespace VieVS {
             return endOfCalibrationTime_[idx];
         }
 
+        const unsigned int getSlewTime(int idx) const noexcept{
+            return endOfSlewTime_[idx]-endOfSourceTime_[idx];
+        }
+        const unsigned int getIdleTime(int idx) const noexcept{
+            return endOfIdleTime_[idx]-endOfSlewTime_[idx];
+        }
+        const unsigned int getPreobTime(int idx) const noexcept{
+            return endOfCalibrationTime_[idx]-endOfTapeTime_[idx];
+        }
+        const unsigned int getScanTime(int idx) const noexcept{
+            return endOfScanTime_[idx]-endOfCalibrationTime_[idx];
+        }
+
+
         /**
          * @brief all times for one station
          *
@@ -215,6 +229,8 @@ namespace VieVS {
         void addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
                                 unsigned int slewtime, unsigned int currentTime, unsigned int setup,
                                 unsigned int source, unsigned int tape, unsigned int calibration);
+
+        bool substractPreobTimeFromStartTime(unsigned int preob);
 
     private:
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan
