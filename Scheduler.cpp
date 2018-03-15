@@ -14,11 +14,11 @@
 #include "Scheduler.h"
 using namespace std;
 using namespace VieVS;
+int Scheduler::nextId = 0;
 
-Scheduler::Scheduler() = default;
-
-Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, sources_{std::move(init.sources_)},
-                                          skyCoverages_{std::move(init.skyCoverages_)}, xml_{init.xml_} {
+Scheduler::Scheduler(Initializer &init): VieVS_Object(nextId++), stations_{std::move(init.stations_)},
+                                         sources_{std::move(init.sources_)},
+                                         skyCoverages_{std::move(init.skyCoverages_)}, xml_{init.xml_} {
 
     parameters_.subnetting = init.parameters_.subnetting;
     parameters_.fillinmode = init.parameters_.fillinmode;
@@ -30,8 +30,6 @@ Scheduler::Scheduler(Initializer &init) : stations_{std::move(init.stations_)}, 
     parameters_.numberOfGentleSourceReductions = init.parameters_.numberOfGentleSourceReductions;
 
     parameters_.writeSkyCoverageData = false;
-
-
 
     preCalculated_.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
 
@@ -672,7 +670,7 @@ void Scheduler::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
 void Scheduler::printHorizonMasksForDebugging() {
     for (const auto &any: stations_) {
         ofstream o("hmask_" + any.getName() + ".txt");
-        PointingVector p;
+        PointingVector p(-1,-1);
         p.setTime(0);
         for (int az = -360; az < 0; ++az) {
             for (int el = 0; el < 20; ++el) {

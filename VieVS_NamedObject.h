@@ -37,8 +37,6 @@ namespace VieVS{
             return name_ == name || alternativeName_ == name;
         }
 
-
-
     protected:
         std::string name_ = "";
         std::string alternativeName_ = "";

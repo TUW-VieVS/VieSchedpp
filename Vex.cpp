@@ -6,10 +6,8 @@
 
 using namespace std;
 using namespace VieVS;
-
-VieVS::Vex::Vex() = default;
-
-Vex::Vex(const string &file){
+int Vex::nextId=0;
+Vex::Vex(const string &file): VieVS_Object(nextId++){
     of = ofstream(file);
     of << "VEX_rev = 1.5;\n";
     of << "* ########################################################################################################\n";
@@ -320,7 +318,7 @@ void Vex::source_block(const std::vector<Source> &sources) {
         of << "    def " << any.getName() << eol;
         of << "        source_type = star" << eol;
         of << "        source_name = " << any.getName() << eol;
-        if(!any.getAlternativeName().empty()){
+        if(!any.hasAlternativeName()){
             of << "        IAU_name = " << any.getAlternativeName() << eol;
         }else{
             of << "        IAU_name = " << any.getName() << eol;

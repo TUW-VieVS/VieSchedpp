@@ -953,7 +953,6 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
 
     vector<int> reqSta = parameters.requiredStations;
     vector<int> ignSta = parameters.ignoreStations;
-    int srcid = source.getId();
 
     for(unsigned int t = 0; t<TimeSystem::duration; t+=60){
         unsigned int visible = 0;
@@ -965,7 +964,7 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
                 continue;
             }
 
-            PointingVector p(staid,srcid);
+            PointingVector p(staid,source.getId());
             p.setTime(t);
 
             stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);

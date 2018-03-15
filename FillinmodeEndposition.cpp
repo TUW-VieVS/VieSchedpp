@@ -6,18 +6,16 @@
 using namespace std;
 using namespace VieVS;
 
-FillinmodeEndposition::FillinmodeEndposition() {
-
-}
+int FillinmodeEndposition::nextId = 0;
 
 FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
-                                                   const std::vector<Station> &stations) {
+                                                   const std::vector<Station> &stations): VieVS_Object(nextId) {
 
     unsigned long nsta = stations.size();
 
     stationUnused_ = std::vector<char>(nsta, true);
     stationPossible_ = std::vector<char>(nsta, true);
-    finalPosition_ = vector<PointingVector>(nsta);
+    finalPosition_.reserve(nsta);
     for (int i = 0; i < nsta; ++i) {
         finalPosition_[i] = PointingVector(i, numeric_limits<int>::max());
     }

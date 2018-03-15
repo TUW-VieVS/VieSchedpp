@@ -28,7 +28,6 @@ namespace VieVS{
      */
     class SkyCoverage:public VieVS_Object {
     public:
-        static int nextId;
         static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
         static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
         static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
@@ -108,6 +107,8 @@ namespace VieVS{
         void update(const PointingVector &start, const PointingVector &end) noexcept;
 
     private:
+        static int nextId;
+
         unsigned long nStations_; ///< number of stations that belong to this sky coverage
         std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage
 

@@ -26,12 +26,8 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 12.08.2017
      */
-    class FillinmodeEndposition {
+    class FillinmodeEndposition: public VieVS_Object {
     public:
-        /**
-         * @brief empty default constructor
-        */
-        FillinmodeEndposition();
 
         /**
          * @brief constructor
@@ -89,6 +85,8 @@ namespace VieVS {
         }
 
     private:
+        static int nextId;
+
         std::vector<char> stationUnused_; ///< true if station is unused in the following next scans (no end position)
         std::vector<char> stationPossible_; ///< true if it is possible to use this station for fillin mode (with endposition)
         std::vector<PointingVector> finalPosition_; ///< final required end position of all stations

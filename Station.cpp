@@ -33,7 +33,8 @@ int VieVS::Station::nextId = 0;
 Station::Station(string sta_name, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
                  const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask):
         VieVS_NamedObject(sta_name,nextId++), antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
-        equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}, nScans_{0}, nBaselines_{0}{
+        equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}, nScans_{0}, nBaselines_{0},
+        currentPositionVector_{PointingVector(nextId-1,-1)}{
     std::replace(name_.begin(), name_.end(), '-', '_');
 }
 
@@ -325,7 +326,7 @@ void Station::clearObservations() {
     nextEvent_ = 0;
     checkForNewEvent();
 
-    currentPositionVector_ = PointingVector();
+    currentPositionVector_ = PointingVector(getId(),-1);
     currentPositionVector_.setTime(0);
 
     pointingVectorsStart_.clear();

@@ -10,10 +10,12 @@
 
 using namespace std;
 using namespace VieVS;
+int Initializer::nextId = 0;
 
-Initializer::Initializer() = default;
+Initializer::Initializer():VieVS_Object(nextId++){
+}
 
-Initializer::Initializer(const std::string &path) {
+Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
     boost::property_tree::read_xml(is, xml_);
 }
@@ -262,12 +264,11 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             }
         }
 
-        Equipment thisEquip;
+        Equipment thisEquip(SEFDs);
         if(elSEFD){
-            thisEquip = Equipment(SEFDs, SEFD_y, SEFD_c0, SEFD_c1);
-        }else{
-            thisEquip = Equipment(SEFDs);
+            thisEquip.setElevationDependentSEFD(SEFD_y, SEFD_c0, SEFD_c1);
         }
+
 
         stations_.emplace_back(name,
                                Antenna(type, offset, diam, rate1, con1, rate2, con2),
@@ -448,7 +449,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 
 
             if (flagFlux){
-                flux[thisBand] = srcFlux;
+                flux.emplace(make_pair(thisBand,srcFlux));
             }else{
                 cerr << "ERROR: error reading flux info of: "<< name << ";\n";
             }
@@ -466,7 +467,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     Flux tmp("B");
                     tmp.setWavelength(ObservationMode::wavelength[bandName]);
                     tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                    flux[bandName] = tmp;
+                    flux.emplace(make_pair(bandName,tmp));
                 }
             }
         }
@@ -496,14 +497,14 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                         Flux tmp("B");
                         tmp.setWavelength(ObservationMode::wavelength[bandName]);
                         tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(min * ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                        flux[bandName] = tmp;
+                        flux.emplace(make_pair(bandName,tmp));
                     }
                     if(ObservationMode::stationBackup[bandName] == ObservationMode::Backup::maxValueTimes){
                         Flux tmp("B");
                         tmp.setWavelength(ObservationMode::wavelength[bandName]);
                         tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(max * ObservationMode::stationBackupValue[bandName]),"13000.0"});
 
-                        flux[bandName] = tmp;
+                        flux.emplace(make_pair(bandName,tmp));
                     }
                 }
             }
@@ -652,7 +653,7 @@ void Initializer::initializeStations() noexcept {
         auto &iss = any.second.ignoreSourcesString;
         for (const auto &iss_n:iss) {
             for (const auto &src:sources_) {
-                if (src.getName() == iss_n) {
+                if (src.hasName(iss_n)) {
                     any.second.ignoreSources.push_back(src.getId());
                     break;
                 }
@@ -765,7 +766,7 @@ void Initializer::initializeStations() noexcept {
 
             for (const auto &any: waitTimesNow) {
                 for (auto &sta:stations_) {
-                    if (any == sta.getName()) {
+                    if (sta.hasName(any)) {
                         Station::WaitTimes wtimes;
                         wtimes.setup = it.second.get<double>("setup");
                         wtimes.source = it.second.get<double>("source");
@@ -813,7 +814,7 @@ void Initializer::initializeStations() noexcept {
 
             for (const auto &any: cableNow) {
                 for (auto &sta:stations_) {
-                    if (any == sta.getName()) {
+                    if (sta.hasName(any)) {
                         auto axis1Low = it.second.get<double>("axis1LowOffset");
                         auto axis1Up = it.second.get<double>("axis1UpOffset");
                         auto axis2Low = it.second.get<double>("axis2LowOffset");
@@ -1001,7 +1002,7 @@ void Initializer::initializeSources() noexcept {
         auto &iss = any.second.ignoreStationsString;
         for(const auto &iss_n:iss) {
             for(const auto &sta:stations_){
-                if(sta.getName() == iss_n){
+                if(sta.hasName(iss_n)){
                     any.second.ignoreStations.push_back(sta.getId());
                     break;
                 }
@@ -1010,7 +1011,7 @@ void Initializer::initializeSources() noexcept {
         auto &iss2 = any.second.requiredStationsString;
         for(const auto &iss_n:iss2) {
             for(const auto &sta:stations_){
-                if(sta.getName() == iss_n){
+                if(sta.hasName(iss_n)){
                     any.second.requiredStations.push_back(sta.getId());
                     break;
                 }
@@ -1023,7 +1024,7 @@ void Initializer::initializeSources() noexcept {
             string station1 = splitVec[0];
             int staid1;
             for (int i = 0; i < stations_.size(); ++i) {
-                if (station1 == stations_[i].getName()) {
+                if (stations_[i].hasName(station1)) {
                     staid1 = i;
                     break;
                 }
@@ -1031,7 +1032,7 @@ void Initializer::initializeSources() noexcept {
             string station2 = splitVec[1];
             int staid2;
             for (int i = 0; i < stations_.size(); ++i) {
-                if (station2 == stations_[i].getName()) {
+                if (stations_[i].hasName(station2)) {
                     staid2 = i;
                     break;
                 }
@@ -1973,14 +1974,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
-                        if (thisStation.getName() == thisName) {
+                        if (thisStation.hasName(thisName)) {
                             thisStation.referencePARA().maxSlewtime = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
-                    if (thisStation.getName() == name) {
+                    if (thisStation.hasName(name)) {
                         thisStation.referencePARA().maxSlewtime = any.second;
                     }
                 }
@@ -1994,14 +1995,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
-                        if (thisStation.getName() == thisName) {
+                        if (thisStation.hasName(thisName)) {
                             thisStation.referencePARA().weight = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
-                    if (thisStation.getName() == name) {
+                    if (thisStation.hasName(name)) {
                         thisStation.referencePARA().weight = any.second;
                     }
                 }
@@ -2015,14 +2016,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
-                        if (thisStation.getName() == thisName) {
+                        if (thisStation.hasName(thisName)) {
                             thisStation.referencePARA().maxWait = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
-                    if (thisStation.getName() == name) {
+                    if (thisStation.hasName(name)) {
                         thisStation.referencePARA().maxWait = any.second;
                     }
                 }
@@ -2036,14 +2037,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
-                        if (thisStation.getName() == thisName) {
+                        if (thisStation.hasName(thisName)) {
                             thisStation.referencePARA().minScan = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
-                    if (thisStation.getName() == name) {
+                    if (thisStation.hasName(name)) {
                         thisStation.referencePARA().minScan = any.second;
                     }
                 }
@@ -2057,14 +2058,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
-                        if (thisStation.getName() == thisName) {
+                        if (thisStation.hasName(thisName)) {
                             thisStation.referencePARA().maxScan = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
-                    if (thisStation.getName() == name) {
+                    if (thisStation.hasName(name)) {
                         thisStation.referencePARA().maxScan = any.second;
                     }
                 }
@@ -2079,14 +2080,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().minNumberOfStations = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().minNumberOfStations = any.second;
                     }
                 }
@@ -2100,14 +2101,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().minFlux = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().minFlux = any.second;
                     }
                 }
@@ -2121,14 +2122,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().minRepeat = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().minRepeat = any.second;
                     }
                 }
@@ -2142,14 +2143,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().weight = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().weight = any.second;
                     }
                 }
@@ -2163,14 +2164,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().minScan = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().minScan = any.second;
                     }
                 }
@@ -2184,14 +2185,14 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
-                        if (thisSource.getName() == thisName) {
+                        if (thisSource.hasName(thisName)) {
                             thisSource.referencePARA().maxScan = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
-                    if (thisSource.getName() == name) {
+                    if (thisSource.hasName(name)) {
                         thisSource.referencePARA().maxScan = any.second;
                     }
                 }
@@ -2212,9 +2213,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                     int staid0;
                     int staid1;
                     for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].getName() == sta0) {
+                        if (stations_[i].hasName(sta0)) {
                             staid0 = i;
-                        } else if (stations_[i].getName() == sta1) {
+                        } else if (stations_[i].hasName(sta1)) {
                             staid1 = i;
                         }
                     }
@@ -2232,9 +2233,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 int staid0;
                 int staid1;
                 for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].getName() == sta0) {
+                    if (stations_[i].hasName(sta0)) {
                         staid0 = i;
-                    } else if (stations_[i].getName() == sta1) {
+                    } else if (stations_[i].hasName(sta1)) {
                         staid1 = i;
                     }
                 }
@@ -2259,9 +2260,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                     int staid0;
                     int staid1;
                     for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].getName() == sta0) {
+                        if (stations_[i].hasName(sta0)) {
                             staid0 = i;
-                        } else if (stations_[i].getName() == sta1) {
+                        } else if (stations_[i].hasName(sta1)) {
                             staid1 = i;
                         }
                     }
@@ -2279,9 +2280,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 int staid0;
                 int staid1;
                 for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].getName() == sta0) {
+                    if (stations_[i].hasName(sta0)) {
                         staid0 = i;
-                    } else if (stations_[i].getName() == sta1) {
+                    } else if (stations_[i].hasName(sta1)) {
                         staid1 = i;
                     }
                 }
@@ -2306,9 +2307,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                     int staid0;
                     int staid1;
                     for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].getName() == sta0) {
+                        if (stations_[i].hasName(sta0)) {
                             staid0 = i;
-                        } else if (stations_[i].getName() == sta1) {
+                        } else if (stations_[i].hasName(sta1)) {
                             staid1 = i;
                         }
                     }
@@ -2326,9 +2327,9 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 int staid0;
                 int staid1;
                 for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].getName() == sta0) {
+                    if (stations_[i].hasName(sta0)) {
                         staid0 = i;
-                    } else if (stations_[i].getName() == sta1) {
+                    } else if (stations_[i].hasName(sta1)) {
                         staid1 = i;
                     }
                 }
@@ -2926,7 +2927,6 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
 
     vector<int> reqSta = parameters.requiredStations;
     vector<int> ignSta = parameters.ignoreStations;
-    int srcid = source.getId();
 
     for(unsigned int t = start; t<end; t+=60){
         unsigned int visible = 0;
@@ -2938,7 +2938,7 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
                 continue;
             }
 
-            PointingVector p(staid,srcid);
+            PointingVector p(staid,source.getId());
             p.setTime(t);
 
             stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
@@ -3031,7 +3031,7 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
                     }
                 } else {
                     for(auto &source:sources_){
-                        if(source.getName() == member){
+                        if(source.hasName(member)){
                             source.referenceCondition().minNumScans = scans;
                             source.referenceCondition().minNumBaselines = bls;
                         }

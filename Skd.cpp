@@ -6,9 +6,9 @@
 using namespace std;
 using namespace VieVS;
 
-Skd::Skd() = default;;
+int Skd::nextId = 0;
 
-Skd::Skd(const string &file) {
+Skd::Skd(const string &file): VieVS_Object(nextId++) {
     of = ofstream(file);
 }
 

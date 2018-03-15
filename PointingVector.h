@@ -13,6 +13,7 @@
 #include <boost/date_time.hpp>
 
 #include "Constants.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -22,12 +23,12 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 06.07.2017
      */
-    class PointingVector {
+    class PointingVector: public VieVS_Object {
     public:
         /**
          * @brief empty default constructor
          */
-        PointingVector();
+//        PointingVector();
 
         /**
          * @brief constructor
@@ -146,6 +147,8 @@ namespace VieVS{
         };
         
     private:
+        static int nextId;
+
         int staid_; ///< station id
         int srcid_; ///< source id
         double az_; ///< azimth

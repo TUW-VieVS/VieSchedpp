@@ -14,9 +14,11 @@
 #include "PointingVector.h"
 using namespace std;
 using namespace VieVS;
+int PointingVector::nextId = 0;
 
-PointingVector::PointingVector() = default;
+//PointingVector::PointingVector():VieVS_Object(nextId++), staid_{-1}, srcid_{-1}{
+//}
 
-PointingVector::PointingVector(int staid, int srcid): staid_{staid}, srcid_{srcid}{
+PointingVector::PointingVector(int staid, int srcid):VieVS_Object(nextId++), staid_{staid}, srcid_{srcid}{
 }
 

@@ -23,9 +23,8 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 07.12.2017
      */
-    class Vex {
+    class Vex: public VieVS_Object {
     public:
-        Vex();
 
         explicit Vex(const std::string &file);
 
@@ -37,6 +36,8 @@ namespace VieVS {
 
 
     private:
+        static int nextId;
+
         std::ofstream of;
         std::string eol = ";\n";
         std::map<int,int> channelNr2Bbc_;

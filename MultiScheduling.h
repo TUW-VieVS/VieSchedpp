@@ -18,6 +18,7 @@
 #include <boost/format.hpp>
 #include "ParameterGroup.h"
 #include "WeightFactors.h"
+#include "VieVS_Object.h"
 
 namespace VieVS {
     /**
@@ -27,7 +28,7 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 03.09.2017
      */
-    class MultiScheduling {
+    class MultiScheduling: public VieVS_Object {
     public:
 
         /**
@@ -498,6 +499,8 @@ namespace VieVS {
         boost::property_tree::ptree createPropertyTree() const;
 
     private:
+        static int nextId;
+
         std::unordered_map<std::string, std::vector<std::string> > stationGroups_; ///< used station groups
         std::unordered_map<std::string, std::vector<std::string> > sourceGroups_; ///< used source groups
         std::unordered_map<std::string, std::vector<std::string> > baselineGroups_; ///< used baseline groups

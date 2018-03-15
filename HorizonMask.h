@@ -14,6 +14,7 @@
 
 #include "Constants.h"
 #include "PointingVector.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -23,8 +24,9 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class HorizonMask {
+    class HorizonMask: public VieVS_Object {
     public:
+
         /**
          * @brief horizon mask type
          */
@@ -33,11 +35,6 @@ namespace VieVS{
             line, ///< line function
             none ///< no mask
         };
-
-        /**
-         * @brief empty default constructor
-         */
-        HorizonMask();
 
         /**
          * @brief constructor
@@ -71,6 +68,8 @@ namespace VieVS{
         }
 
     private:
+        static int nextId;
+
         std::vector<double> azimuth_; ///< horizon mask knots in radians
         std::vector<double> elevation_; ///< minimum elevation values in radians
         Category type_; ///< horizon mask type

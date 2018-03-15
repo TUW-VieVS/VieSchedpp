@@ -14,12 +14,9 @@
 #include "HorizonMask.h"
 using namespace std;
 using namespace VieVS;
+int HorizonMask::nextId = 0;
 
-HorizonMask::HorizonMask(){
-    type_ = Category::none;
-}
-
-HorizonMask::HorizonMask(const vector<double> &el_mask_deg)
+HorizonMask::HorizonMask(const vector<double> &el_mask_deg):VieVS_Object(nextId++)
 {
     if (el_mask_deg.empty()){
         type_ = Category::none;

@@ -15,8 +15,9 @@
 
 using namespace std;
 using namespace VieVS;
+int Subcon::nextId = 0;
 
-Subcon::Subcon(): nSingleScans_{0}, nSubnettingScans_{0} {
+Subcon::Subcon(): VieVS_Object(nextId++), nSingleScans_{0}, nSubnettingScans_{0} {
 }
 
 void Subcon::addScan(const Scan &scan) noexcept {

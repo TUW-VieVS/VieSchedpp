@@ -23,10 +23,10 @@ int thread_local Scan::nextId{0};
 
 
 Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type):
-        VieVS_Object(nextId++), pointingVectors_{move(pointingVectors)}, type_{type}, score_{0} {
+        VieVS_Object(nextId++), times_{ScanTimes(static_cast<unsigned int>(pointingVectors.size()))},
+        pointingVectors_{move(pointingVectors)}, type_{type}, score_{0}{
     nsta_ = Scan::pointingVectors_.size();
     srcid_ = Scan::pointingVectors_.at(0).getSrcid();
-    times_ = ScanTimes(static_cast<unsigned int>(nsta_));
     times_.setEndOfLastScan(endOfLastScan);
     baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
@@ -552,7 +552,7 @@ double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverage
 
 bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source) noexcept {
     bool scanValid;
-    pointingVectorsEndtime_.resize(nsta_);
+    pointingVectorsEndtime_.resize(nsta_,PointingVector(-1,-1));
     // FIRST STEP: calc earliest possible slew end times for each station:
     int ista = 0;
     while (ista < nsta_) {
@@ -1232,10 +1232,9 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
 
             const Station &thisStation = stations[staid];
 
-            PointingVector fillinScanEnd;
+            PointingVector fillinScanEnd(staid, srcid_);
             if (pointingVectorsEndtime_.empty()) {
                 // create pointing vector at end of scan
-                fillinScanEnd = PointingVector(staid, srcid_);
                 fillinScanEnd.setTime(endOfFillinScan);
 
                 // calculate azimuth and elevation at end of scan

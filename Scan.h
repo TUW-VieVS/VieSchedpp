@@ -40,7 +40,6 @@ namespace VieVS{
     class Scan: public VieVS_Object {
     public:
         static thread_local unsigned int nScanSelections; ///< number of selected main scans
-        static thread_local int nextId;
 
         /**
          * @brief scan type
@@ -459,6 +458,8 @@ namespace VieVS{
         void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
 
     private:
+        static thread_local int nextId;
+
         unsigned long nsta_; ///< number of stations in this scan
         int srcid_; ///< observed source id
 

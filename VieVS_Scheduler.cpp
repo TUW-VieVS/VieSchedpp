@@ -87,66 +87,50 @@ void VieVS_Scheduler::run() {
 #endif
     for (int i = 0; i < nsched; ++i) {
 
-        VieVS::Scheduler scheduler;
 
         ofstream bodyLog;
         string threadNumberPrefix;
+
+        string fname = init.getXml().get("master.output.experimentName","schedule");
+        VieVS::Initializer newInit = init;
+
         if (flag_multiSched) {
-            VieVS::Initializer newinit = init;
+            fname.append((boost::format("V%03d") % (i+1)).str());
+        }
+        fname.append(".log");
 
-            string fname = init.getXml().get("master.output.experimentName","schedule");
-            fname.append((boost::format("V%03d.log") % (i+1)).str());
+        bodyLog.open(path+fname);
 
-            bodyLog.open(path+fname);
+        if (flag_multiSched){
 
-
-#ifdef  _OPENMP
+            #ifdef  _OPENMP
             threadNumberPrefix = (boost::format("thread %d: ") % omp_get_thread_num()).str();
-#endif
+            #endif
+
             string txt = threadNumberPrefix + (boost::format("creating multi scheduling version %d of %d;\n") % (i + 1) %
                                                nsched).str();
-
             string txt2 = (boost::format("version %d: writing log file to: %s;\n") % (i+1) % fname).str();
             cout << txt;
             cout << txt2;
-
-            newinit.initializeGeneral(bodyLog);
-
-            newinit.initializeStations();
-            newinit.initializeSources();
-            newinit.initializeBaselines();
-
-            newinit.initializeWeightFactors();
-            newinit.initializeSourceSequence();
-            newinit.initializeCalibrationBlocks( headerLog );
-
-            newinit.applyMultiSchedParameters(all_multiSched_PARA[i], bodyLog);
-
-            newinit.initializeNutation();
-            newinit.initializeEarth();
-
-
-            scheduler = VieVS::Scheduler(newinit);
-        } else {
-
-            string fname = init.getXml().get("master.output.experimentName","schedule");
-            fname.append(".log");
-            bodyLog.open(path+fname);
-
-            init.initializeGeneral(bodyLog);
-
-            init.initializeStations();
-            init.initializeSources();
-            init.initializeBaselines();
-
-            init.initializeWeightFactors();
-
-            init.initializeNutation();
-            init.initializeEarth();
-
-            scheduler = VieVS::Scheduler(init);
         }
 
+        newInit.initializeGeneral(bodyLog);
+        newInit.initializeStations();
+        newInit.initializeSources();
+        newInit.initializeBaselines();
+
+        newInit.initializeWeightFactors();
+
+        if (flag_multiSched){
+            newInit.initializeSourceSequence();
+            newInit.initializeCalibrationBlocks( bodyLog );
+            newInit.applyMultiSchedParameters(all_multiSched_PARA[i], bodyLog);
+        }
+
+        newInit.initializeNutation();
+        newInit.initializeEarth();
+
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit);
         scheduler.start(bodyLog);
         scheduler.statistics(bodyLog);
 

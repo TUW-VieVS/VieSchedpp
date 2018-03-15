@@ -6,6 +6,11 @@
 
 using namespace VieVS;
 using namespace std;
+int SkdCatalogReader::nextId = 0;
+
+SkdCatalogReader::SkdCatalogReader():VieVS_Object(nextId++),bandWidth_{0},sampleRate_{0},bits_{0} {
+}
+
 
 //TODO only save catalogs of required stations!
 std::map<std::string, std::vector<std::string>>
@@ -579,6 +584,7 @@ void SkdCatalogReader::saveTwoLetterCode() {
     }
 
 }
+
 
 
 

@@ -16,20 +16,20 @@
 using namespace std;
 using namespace VieVS;
 
-Equipment::Equipment(){}
+int Equipment::nextId=0;
 
-Equipment::Equipment(const unordered_map<string, double> &SEFDs): SEFD_{SEFDs}, elevationDependentSEFD_{false}{
-
+Equipment::Equipment(const unordered_map<string, double> &SEFDs):VieVS_Object(nextId++), SEFD_{SEFDs},
+                                                                 elevationDependentSEFD_{false}{
 }
 
-Equipment::Equipment(const std::unordered_map<std::string, double> SEFDs,
-                     const std::unordered_map<std::string, double> y, const std::unordered_map<std::string, double> c0,
-                     const std::unordered_map<std::string, double> c1):
-        SEFD_{SEFDs}, elevationDependentSEFD_{true}, y_{y}, c0_{c0}, c1_{c1}{
-
+void Equipment::setElevationDependentSEFD(const unordered_map<string, double> &SEFD_y,
+                                          const unordered_map<string, double> &SEFD_c0,
+                                          const unordered_map<string, double> &SEFD_c1) {
+    elevationDependentSEFD_ = true;
+    y_ = SEFD_y;
+    c0_ = SEFD_c0;
+    c1_ = SEFD_c1;
 }
-
-
 
 namespace VieVS{
     ostream &operator<<(ostream &out, const Equipment &equip) noexcept {
@@ -67,5 +67,6 @@ double Equipment::getSEFD(const std::string &band, double el) const noexcept {
         return SEFD_.at(band)*tmp2;
     }
 }
+
 
 

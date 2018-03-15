@@ -17,12 +17,11 @@ namespace VieVS {
     * @author Matthias Schartner
     * @date 07.12.2017
     */
-    class Skd {
+    class Skd: public VieVS_Object {
 
     public:
-        Skd();
 
-        Skd(const std::string &file);
+        explicit Skd(const std::string &file);
 
         /**
          * @brief creates a skd file
@@ -35,8 +34,9 @@ namespace VieVS {
                       const boost::property_tree::ptree &xml);
 
     private:
-        std::ofstream of;
+        static int nextId;
 
+        std::ofstream of;
 
         /**
          * @brief write skd $PARAM block

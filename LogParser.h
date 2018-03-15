@@ -10,10 +10,12 @@
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include "TimeSystem.h"
+#include "VieVS_Object.h"
 
 namespace VieVS {
-    class LogParser {
+    class LogParser: public VieVS_Object {
     public:
+
         struct LogScan{
             bool error = false;
             std::string scanName;
@@ -40,8 +42,6 @@ namespace VieVS {
 
         };
 
-        LogParser() = default;
-
         explicit LogParser(const std::string &filename);
 
         void parseLogFile();
@@ -51,6 +51,8 @@ namespace VieVS {
         bool addScheduledTimes(const std::vector<std::vector<unsigned int>> &times);
 
     private:
+        static int nextId;
+
         bool addedScheduledTimes_ = false;
 
         std::string filename_;

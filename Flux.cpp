@@ -15,14 +15,14 @@
 using namespace std;
 using namespace VieVS;
 
+int Flux::nextId = 0;
 
 double Flux::flcon1_{(pi * pi) / (4.0 * 0.6931471)}; ///< constant precalculated value for model M
 double Flux::flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
 
 
-Flux::Flux() = default;
 
-Flux::Flux(string stype){
+Flux::Flux(string stype): VieVS_Object(nextId++){
     if (stype == "B"){
         type_ = FluxType::B;
     } else if(stype == "M"){
@@ -35,7 +35,7 @@ Flux::Flux(string stype){
 bool Flux::addFluxParameters(const vector<string> &parameters) noexcept {
 
     if (this->type_ == FluxType::B){
-        int npara = parameters.size();
+        unsigned long npara = parameters.size();
         for(int i=0; i<npara; ++i){
             try{
                 if (i%2==0){
@@ -52,9 +52,9 @@ bool Flux::addFluxParameters(const vector<string> &parameters) noexcept {
             }
         }
     }else if (this->type_ == FluxType::M){
-        int npara = parameters.size();
+        unsigned long npara = parameters.size();
 
-        int nmodels = npara / 6;
+        unsigned long nmodels = npara / 6;
 
         for(unsigned int i=0; i<nmodels; ++i){
             try{

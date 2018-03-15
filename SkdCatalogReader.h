@@ -15,9 +15,10 @@
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <set>
+#include "VieVS_Object.h"
 
 namespace VieVS {
-    class SkdCatalogReader {
+    class SkdCatalogReader: VieVS_Object {
     public:
 
         /**
@@ -36,11 +37,7 @@ namespace VieVS {
         /**
          * @brief default constructor
          */
-        SkdCatalogReader() {
-            bandWidth_ = 0;
-            sampleRate_ = 0;
-            bits_ = 0;
-        };
+        SkdCatalogReader();
 
         /**
          * @brief setter for catalog pathes
@@ -308,6 +305,8 @@ namespace VieVS {
         }
 
     private:
+        static int nextId;
+
         std::vector<std::string> staNames_; ///< list of all station
 
 

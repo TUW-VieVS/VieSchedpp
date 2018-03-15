@@ -13,9 +13,8 @@
 #include "Initializer.h"
 
 namespace VieVS{
-    class SkdParser {
+    class SkdParser:VieVS_Object {
     public:
-        SkdParser() = default;
 
         explicit SkdParser(const std::string &filename);
 
@@ -28,6 +27,8 @@ namespace VieVS{
         std::vector<std::vector<unsigned int>> getScheduledTimes(const std::string &station);
 
     private:
+        static int nextId;
+
         std::string filename_;
         unsigned int fieldSystemTimes_ = 0;
 

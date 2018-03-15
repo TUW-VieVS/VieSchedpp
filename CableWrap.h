@@ -15,6 +15,7 @@
 
 #include "PointingVector.h"
 #include "Constants.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -24,9 +25,8 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class CableWrap {
+    class CableWrap: public VieVS_Object {
     public:
-
         /**
          * @brief cable wrap type
          *
@@ -42,10 +42,6 @@ namespace VieVS{
             undefined ///< undefined antenna type
         };
 
-        /**
-         * @brief empty default constructor
-         */
-        CableWrap();
 
         /**
          * @brief constructor
@@ -196,6 +192,8 @@ namespace VieVS{
         }
 
     private:
+        static int nextId;
+
         CableWrapType cableWrapType_;
 
         double axis1Low_; ///< lower limit of first axis in radians

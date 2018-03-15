@@ -31,8 +31,9 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 29.06.2017
      */
-    class Subcon {
+    class Subcon: public VieVS_Object {
     public:
+
         /**
          * @brief empty default constructor
          */
@@ -214,6 +215,8 @@ namespace VieVS{
         void changeScanTypes(Scan::ScanType type);
 
     private:
+        static int nextId;
+
         unsigned long nSingleScans_; ///< number of single source scans
         std::vector<Scan> singleScans_; ///< all single source scans
         std::vector<double> singleScanScores_; ///< score for each single source scan

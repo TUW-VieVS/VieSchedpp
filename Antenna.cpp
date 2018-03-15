@@ -14,11 +14,12 @@
 #include "Antenna.h"
 using namespace std;
 using namespace VieVS;
+int Antenna::nextId = 0;
 
 Antenna::Antenna(const std::string &type, double offset_m, double diam_m, double rate1_deg_per_min,
-                 double constantOverhead1_s, double rate2_deg_per_min, double constantOverhead2_s) :
-                 offset_{offset_m}, diam_{diam_m}, rate1_{rate1_deg_per_min*deg2rad/60}, con1_{constantOverhead1_s},
-                 rate2_{rate2_deg_per_min*deg2rad/60}, con2_{constantOverhead2_s}{
+                 double constantOverhead1_s, double rate2_deg_per_min, double constantOverhead2_s):
+        VieVS_Object(nextId++), offset_{offset_m}, diam_{diam_m}, rate1_{rate1_deg_per_min*deg2rad/60},
+        con1_{constantOverhead1_s}, rate2_{rate2_deg_per_min*deg2rad/60}, con2_{constantOverhead2_s}{
 
     if (type == "AZEL")
         axisType_ = AxisType::AZEL;

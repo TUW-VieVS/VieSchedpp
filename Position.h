@@ -13,6 +13,7 @@
 #include <iostream>
 #include <boost/format.hpp>
 #include "Constants.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -22,12 +23,8 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 23.06.2017
      */
-    class Position {
+    class Position: public VieVS_Object {
     public:
-        /**
-         * @brief empty default constructor
-         */
-        Position();
 
         /**
          * @brief constructor
@@ -102,6 +99,8 @@ namespace VieVS{
         friend std::ostream &operator<<(std::ostream &out, const Position &position) noexcept;
 
     private:
+        static int nextId;
+
         double x_; ///< x coordinate in meters
         double y_; ///< y coordinate in meters
         double z_; ///< z coordinate in meters

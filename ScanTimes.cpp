@@ -5,10 +5,8 @@
 #include "ScanTimes.h"
 using namespace std;
 using namespace VieVS;
-
-ScanTimes::ScanTimes() = default;
-
-ScanTimes::ScanTimes(unsigned int nsta) {
+int ScanTimes::nextId = 0;
+ScanTimes::ScanTimes(unsigned int nsta): VieVS_Object(nextId++) {
     endOfLastScan_.resize(nsta);
     endOfSetupTime_.resize(nsta);
     endOfSourceTime_.resize(nsta);

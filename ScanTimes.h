@@ -13,6 +13,7 @@
 #include <vector>
 #include <limits>
 #include "PointingVector.h"
+#include "VieVS_Object.h"
 
 namespace VieVS {
 
@@ -25,12 +26,8 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 29.06.2017
      */
-    class ScanTimes {
+    class ScanTimes: public VieVS_Object {
     public:
-        /**
-         * @brief empty default constructor
-         */
-        ScanTimes();
 
         /**
          * @brief constructor
@@ -233,6 +230,8 @@ namespace VieVS {
         bool substractPreobTimeFromStartTime(unsigned int preob);
 
     private:
+        static int nextId;
+
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan
         std::vector<unsigned int> endOfSetupTime_; ///< end of setup time
         std::vector<unsigned int> endOfSourceTime_; ///< end of source time

@@ -44,11 +44,10 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 28.06.2017
      */
-    class Initializer {
+    class Initializer: public VieVS_Object {
         friend class Scheduler;
         friend class SkdParser;
     public:
-
         /**
          * @brief possible group types
          */
@@ -233,6 +232,8 @@ namespace VieVS {
         void initializeOptimization(std::ofstream &ofstream);
 
     private:
+        static int nextId;
+
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
         std::vector<Station> stations_; ///< all created stations
         std::vector<Source> sources_; ///< all created sources

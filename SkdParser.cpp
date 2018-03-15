@@ -6,8 +6,9 @@
 using namespace VieVS;
 using namespace std;
 
-SkdParser::SkdParser(const std::string &filename):filename_{filename} {
+int SkdParser::nextId = 0;
 
+SkdParser::SkdParser(const std::string &filename):VieVS_Object(nextId++), filename_{filename} {
 }
 
 void SkdParser::createObjects() {
@@ -169,7 +170,7 @@ void SkdParser::createScans() {
             const string &srcName = splitVector[0];
             int srcid = -1;
             for(int i=0; i<sources_.size(); ++i){
-                if(sources_[i].getName() == srcName || sources_[i].getAlternativeName() == srcName){
+                if(sources_[i].hasName(srcName)){
                     srcid = i;
                     break;
                 }
@@ -219,7 +220,7 @@ void SkdParser::createScans() {
                 }
                 int staid = -1;
                 for (int j = 0; j < stations_.size(); ++j) {
-                    if(stations_[j].getName() == staName){
+                    if(stations_[j].hasName(staName)){
                         staid = j;
                         break;
                     }
@@ -327,7 +328,7 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
 
     int staid = -1;
     for(int i=0; i<stations_.size(); ++i){
-        if(station == stations_[i].getName()){
+        if(stations_[i].hasName(station)){
             staid = i;
             break;
         }

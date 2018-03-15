@@ -29,10 +29,11 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 28.06.2017
      */
-    class Scheduler {
+    class Scheduler: public VieVS_Object {
         friend class Output;
 
     public:
+
         /**
         * @brief general parameters used for scheduling
         */
@@ -47,7 +48,6 @@ namespace VieVS{
             unsigned int numberOfGentleSourceReductions = 0;
             unsigned int minNumberOfSourcesToReduce = 0;
 
-
             bool writeSkyCoverageData = false; ///< flag if sky coverage data should be printed to file
         };
 
@@ -57,11 +57,6 @@ namespace VieVS{
         struct PreCalculated{
             std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
         };
-
-        /**
-         * @brief empty default constructor
-         */
-        Scheduler();
 
         /**
          * @brief constructor
@@ -157,6 +152,8 @@ namespace VieVS{
         void statistics(std::ofstream &ofstream);
 
     private:
+        static int nextId;
+
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
         std::vector<Station> stations_; ///< all stations

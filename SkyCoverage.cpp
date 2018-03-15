@@ -17,6 +17,7 @@ using namespace VieVS;
 
 vector<vector<vector<float> > > VieVS::SkyCoverage::angularDistanceLookup = {};
 int VieVS::SkyCoverage::nextId = 0;
+
 double SkyCoverage::maxInfluenceTime = 3600;
 double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
 double SkyCoverage::maxTwinTelecopeDistance = 0;

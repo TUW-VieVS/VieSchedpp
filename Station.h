@@ -46,7 +46,6 @@ namespace VieVS{
     */
     class Station: public VieVS_NamedObject {
     public:
-        static int nextId;
 
         /**
          * @brief azimuth elevation calculation model
@@ -479,6 +478,7 @@ namespace VieVS{
         void clearObservations();
 
     private:
+        static int nextId;
 
         Antenna antenna_; ///< station antenna
         CableWrap cableWrap_; ///< station cable wrap

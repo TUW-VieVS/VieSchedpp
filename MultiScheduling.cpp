@@ -8,9 +8,9 @@
 using namespace std;
 using namespace VieVS;
 
+int MultiScheduling::nextId = 0;
 
-MultiScheduling::MultiScheduling() {
-
+MultiScheduling::MultiScheduling(): VieVS_Object(nextId++){
 }
 
 void MultiScheduling::setStation_maxSlewtime(const std::string &new_id, const std::vector<unsigned int> &values) {

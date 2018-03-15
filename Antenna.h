@@ -13,6 +13,7 @@
 #include <boost/format.hpp>
 
 #include "PointingVector.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
 
@@ -23,7 +24,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class Antenna {
+    class Antenna: public VieVS_Object {
     public:
         /**
          * @brief antenna type
@@ -39,11 +40,6 @@ namespace VieVS{
             undefined ///< undefined antenna type
         };
 
-
-        /**
-         * @brief empty default constructor
-         */
-        Antenna() = default;
 
         /**
          * @brief constructor
@@ -114,6 +110,8 @@ namespace VieVS{
 
 
     private:
+        static int nextId;
+
         AxisType axisType_; ///< station axis type
 
         double offset_; ///< offset of the antenna axis intersection in meters

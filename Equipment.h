@@ -15,6 +15,7 @@
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include "VieVS_Object.h"
 
 
 namespace VieVS{
@@ -25,12 +26,8 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class Equipment {
+    class Equipment: public VieVS_Object {
     public:
-        /**
-         * @brief empty default constructor
-         */
-        Equipment();
 
         /**
          * @brief constructor
@@ -39,19 +36,6 @@ namespace VieVS{
          */
         explicit Equipment(const std::unordered_map<std::string, double> &SEFDs);
 
-
-        /**
-         * @brief constructor with elevation dependent SEFD
-         *
-         * @param SEFDs SEFD per band - key is band name, value is SEFD
-         * @param y y per band - key is band name, value is y parameter
-         * @param c0 c0 per band - key is band name, value is c0 parameter
-         * @param c1 c1 per band - key is band name, value is c1 parameter
-         */
-        Equipment(const std::unordered_map<std::string, double> SEFDs,
-                  const std::unordered_map<std::string, double> y,
-                  const std::unordered_map<std::string, double> c0,
-                  const std::unordered_map<std::string, double> c1);
 
         /**
          * @brief getter function for antenna elevation dependent SEFD information
@@ -98,8 +82,14 @@ namespace VieVS{
          * @return stream object
          */
         friend std::ostream &operator<<(std::ostream &out, const Equipment &equip) noexcept;
-        
+
+        void setElevationDependentSEFD(const std::unordered_map<std::string, double> &SEFD_y,
+                                   const std::unordered_map<std::string, double> &SEFD_c0,
+                                   const std::unordered_map<std::string, double> &SEFD_c1);
+
     private:
+        static int nextId;
+
         std::unordered_map<std::string,double> SEFD_; ///< SEFD information per band
 
         bool elevationDependentSEFD_;

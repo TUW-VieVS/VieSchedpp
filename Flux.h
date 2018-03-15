@@ -14,6 +14,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Constants.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -23,7 +24,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 28.06.2017
      */
-    class Flux {
+    class Flux: public VieVS_Object {
     public:
         /**
          * @brief all possible flux information type
@@ -34,10 +35,6 @@ namespace VieVS{
             undefined ///< represents missing information
         };
 
-        /**
-         * @brief empty default constructor
-         */
-        Flux();
 
         /**
          * @brief constructor
@@ -94,6 +91,7 @@ namespace VieVS{
         double observedFlux(double u, double v) const noexcept;
 
     private:
+        static int nextId;
 
         double wavelength_; ///< wavelength of the band whose flux information is stored
 
