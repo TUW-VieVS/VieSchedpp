@@ -77,7 +77,7 @@ set(SOURCE_FILES
         Skd.cpp
         Skd.h
         SkdParser.cpp
-        SkdParser.h LogParser.cpp LogParser.h)
+        SkdParser.h LogParser.cpp LogParser.h VieVS_Object.cpp VieVS_Object.h VieVS_NamedObject.cpp VieVS_NamedObject.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

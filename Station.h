@@ -30,6 +30,7 @@
 #include "TimeSystem.h"
 
 #include "sofa.h"
+#include "VieVS_NamedObject.h"
 
 
 namespace VieVS{
@@ -43,8 +44,9 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 21.06.2017
     */
-    class Station {
+    class Station: public VieVS_NamedObject {
     public:
+        static int nextId;
 
         /**
          * @brief azimuth elevation calculation model
@@ -165,10 +167,6 @@ namespace VieVS{
             std::vector<std::vector<double> > g2l; ///< geocentric to local transformation matrix
         };
 
-        /**
-         * @brief empty default constructor
-         */
-        Station() = default;
 
         /**
          * @brief constructor
@@ -182,7 +180,7 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(const std::string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
+        Station(std::string sta_name, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
 
         /**
@@ -190,9 +188,9 @@ namespace VieVS{
          *
          * @return station id
          */
-        int getId() const {
-            return id_;
-        }
+//        int getId() const {
+//            return VieVS_Object.;
+//        }
 
         /**
          * @brief getter for parameters
@@ -236,14 +234,6 @@ namespace VieVS{
          */
         CableWrap &referenceCableWrap() noexcept {
             return cableWrap_;
-        }
-
-        /**
-         * @brief getter for station name
-         * @return station name
-         */
-        const std::string &getName() const noexcept {
-            return name_;
         }
 
         /**
@@ -489,8 +479,7 @@ namespace VieVS{
         void clearObservations();
 
     private:
-        std::string name_; ///< station name
-        int id_{-1}; ///< station id
+
         Antenna antenna_; ///< station antenna
         CableWrap cableWrap_; ///< station cable wrap
         Position position_; ///< station position

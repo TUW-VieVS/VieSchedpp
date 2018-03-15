@@ -299,8 +299,8 @@ namespace VieVS {
                            const std::unordered_map<std::string, std::vector<std::string> > &groups,
                            const Baseline::Parameters &parentPARA) noexcept;
 
-        unsigned int
-    minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start, unsigned int end);
+        unsigned int minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start,
+                                    unsigned int end);
     };
 }
 #endif /* INITIALIZER_H */

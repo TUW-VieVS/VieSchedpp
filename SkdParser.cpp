@@ -118,7 +118,7 @@ void SkdParser::createObjects() {
     stations_ = init.stations_;
     sources_ = init.sources_;
     for (int i = 0; i < stations_.size(); ++i) {
-        skyCoverages_.emplace_back(vector<int>{i},i);
+        skyCoverages_.emplace_back(vector<int>{i});
         stations_[i].setSkyCoverageId(i);
     }
     unsigned long nsta = stations_.size();

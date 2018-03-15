@@ -270,9 +270,9 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
                             new_second->setType(Scan::ScanType::subnetting);
 
                             ++nSubnettingScans_;
-                            pair<Scan, Scan> tmp;
-                            tmp.first = move(*new_first);
-                            tmp.second = move(*new_second);
+                            pair<Scan, Scan>tmp = make_pair(move(*new_first),move(*new_second));
+//                            tmp.first = ;
+//                            tmp.second = ;
                             subnettingScans_.push_back(move(tmp));
                         }
                     } while (next_permutation(std::begin(data), std::end(data)));

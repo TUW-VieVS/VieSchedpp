@@ -14,20 +14,18 @@
 #include "Source.h"
 using namespace std;
 using namespace VieVS;
-
-Source::Source() = default;
+int VieVS::Source::nextId = 0;
 
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-               unordered_map<string, Flux> src_flux, int id) :
-        name_{src_name}, name2_{src_name2}, id_{id}, ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad}, flux_{
-        std::move(src_flux)}, lastScan_{0},
-        nScans_{0}, nTotalScans_{0}, nBaselines_{0}{
+               unordered_map<string, Flux> src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
+                                                      ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad},
+                                                      flux_{std::move(src_flux)}, lastScan_{0}, nScans_{0},
+                                                      nTotalScans_{0}, nBaselines_{0}{
 
     preCalculated_.sourceInCrs.resize(3);
     preCalculated_.sourceInCrs[0] = cos(de_)*cos(ra_);
     preCalculated_.sourceInCrs[1] = cos(de_)*sin(ra_);
     preCalculated_.sourceInCrs[2] = sin(de_);
-
 }
 
 double Source::angleDistance(const Source &other) const noexcept {

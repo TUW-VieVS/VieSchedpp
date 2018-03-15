@@ -23,13 +23,16 @@
  */
 
 #include "Station.h"
+
+#include <utility>
+
 using namespace std;
 using namespace VieVS;
+int VieVS::Station::nextId = 0;
 
-
-Station::Station(const string &sta_name, int id, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
-                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask) :
-        name_{sta_name}, id_{id}, antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
+Station::Station(string sta_name, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
+                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask):
+        VieVS_NamedObject(sta_name,nextId++), antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
         equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}, nScans_{0}, nBaselines_{0}{
     std::replace(name_.begin(), name_.end(), '-', '_');
 }

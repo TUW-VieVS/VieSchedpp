@@ -21,6 +21,7 @@
 #include "Flux.h"
 #include "Constants.h"
 #include "TimeSystem.h"
+#include "VieVS_NamedObject.h"
 
 namespace VieVS{
     /**
@@ -33,8 +34,10 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 28.06.2017
     */
-    class Source {
+    class Source: public VieVS_NamedObject {
     public:
+
+        static int nextId;
 
         /**
          * @brief source parameters
@@ -184,11 +187,6 @@ namespace VieVS{
 
 
         /**
-         * @brief empty default constructor
-         */
-        Source();
-
-        /**
          * @brief constructor
          *
          * @param src_name name of the source
@@ -198,7 +196,7 @@ namespace VieVS{
          * @param src_flux flux information per band
          */
         Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-               std::unordered_map<std::string, Flux> src_flux, int id);
+               std::unordered_map<std::string, Flux> src_flux);
 
 
         /**
@@ -232,25 +230,6 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter for source name
-         *
-         * @return name of the source
-         */
-        const std::string &getName() const noexcept {
-            return name_;
-        }
-
-        /**
-         * @brief getter for alternative source name
-         *
-         * @return alternative name of the source
-         */
-        const std::string &getAlternativeName() const noexcept {
-            return name2_;
-        }
-
-
-        /**
          * @brief getter for right ascension
          *
          * @return right ascension of the source in radians
@@ -280,15 +259,6 @@ namespace VieVS{
          */
         double getDe() const noexcept {
             return de_;
-        }
-
-        /**
-         * @brief getter for id
-         *
-         * @return source id
-         */
-        int getId() const noexcept {
-            return id_;
         }
 
         /**
@@ -418,9 +388,6 @@ namespace VieVS{
         friend std::ostream &operator<<(std::ostream &out, const Source &src) noexcept;
         
     private:
-        std::string name_; ///< source name
-        std::string name2_; ///< source alternative name
-        int id_; ///< source id
         double ra_; ///< source right ascension
         double de_; ///< source declination
         std::unordered_map<std::string, Flux> flux_; ///< source flux information per band

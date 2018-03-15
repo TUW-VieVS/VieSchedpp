@@ -37,9 +37,10 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 29.06.2017
      */
-    class Scan {
+    class Scan: public VieVS_Object {
     public:
         static thread_local unsigned int nScanSelections; ///< number of selected main scans
+        static thread_local int nextId;
 
         /**
          * @brief scan type
@@ -84,11 +85,6 @@ namespace VieVS{
         bool check() {
             return pointingVectors_.size() != nsta_;
         }
-
-        /**
-         * @brief empty default constructor
-         */
-        Scan();
 
         /**
          * @brief constructor

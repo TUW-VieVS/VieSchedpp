@@ -16,14 +16,13 @@ using namespace std;
 using namespace VieVS;
 
 vector<vector<vector<float> > > VieVS::SkyCoverage::angularDistanceLookup = {};
+int VieVS::SkyCoverage::nextId = 0;
 double SkyCoverage::maxInfluenceTime = 3600;
 double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
 double SkyCoverage::maxTwinTelecopeDistance = 0;
 
-SkyCoverage::SkyCoverage() = default;
 
-SkyCoverage::SkyCoverage(const vector<int> &staids, int id)
-        : nStations_{staids.size()}, staids_{staids}, id_{id} {
+SkyCoverage::SkyCoverage(const vector<int> &staids): VieVS_Object(nextId++), nStations_{staids.size()}, staids_{staids}{
 }
 
 double SkyCoverage::calcScore(const vector<PointingVector> &pvs,

@@ -11,9 +11,7 @@
 using namespace std;
 using namespace VieVS;
 
-Initializer::Initializer() {
-
-}
+Initializer::Initializer() = default;
 
 Initializer::Initializer(const std::string &path) {
     ifstream is(path);
@@ -272,7 +270,6 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         }
 
         stations_.emplace_back(name,
-                               created,
                                Antenna(type, offset, diam, rate1, con1, rate2, con2),
                                CableWrap(axis1_low,axis1_up,axis2_low,axis2_up, type),
                                Position(x,y,z),
@@ -523,7 +520,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 name1 = commonname;
                 name2 = name;
             }
-            sources_.emplace_back(name1, name2, ra, de, flux, created);
+            sources_.emplace_back(name1, name2, ra, de, flux);
             created++;
             headerLog << boost::format("  %-8s added\n") % name;
         }
@@ -559,7 +556,7 @@ void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
     }
 
     for (int i=0; i<skyCoverageId; ++i){
-        skyCoverages_.emplace_back(stationsPerId[i],i);
+        skyCoverages_.emplace_back(stationsPerId[i]);
     }
 
     vector<int> sta2sky_(nsta);
@@ -2981,7 +2978,7 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
         nThreads = 4;
     }
     //TODO:
-    nThreads = 1;
+//    nThreads = 4;
 
     jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
     chunkSize = xml_.get<int>("master.multiCore.chunkSize",1);

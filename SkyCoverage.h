@@ -26,17 +26,13 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 29.06.2017
      */
-    class SkyCoverage {
+    class SkyCoverage:public VieVS_Object {
     public:
+        static int nextId;
         static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
         static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
         static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
         static double maxTwinTelecopeDistance; ///< maximum distance between corresponding telescopes
-
-        /**
-         * @brief empty default constructor
-         */
-        SkyCoverage();
 
         /**
          * @brief constructor
@@ -46,7 +42,7 @@ namespace VieVS{
          * @param skyCoverageInterval maximum influence time of a scan in seconds
          * @param id sky coverage id
          */
-        SkyCoverage(const std::vector<int> &staids, int id);
+        explicit SkyCoverage(const std::vector<int> &staids);
 
         /**
          * @brief getter for all station ids which belong to this sky coverage
@@ -117,8 +113,6 @@ namespace VieVS{
 
         std::vector<PointingVector> pointingVectorsStart_; ///< all pointing vectors at start of a scan
         std::vector<PointingVector> pointingVectorsEnd_; ///< all pointing vectors at end of a scan
-
-        int id_; ///< sky coverage id
     };
 }
 

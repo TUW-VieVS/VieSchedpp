@@ -18,13 +18,12 @@ using namespace VieVS;
 
 unsigned int thread_local Scan::nScanSelections{0};
 Scan::ScanSequence thread_local Scan::scanSequence;
+int thread_local Scan::nextId{0};
 
 
-Scan::Scan() = default;
 
-Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type) :
-        pointingVectors_{move(pointingVectors)},
-        type_{type}, score_{0} {
+Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type):
+        VieVS_Object(nextId++), pointingVectors_{move(pointingVectors)}, type_{type}, score_{0} {
     nsta_ = Scan::pointingVectors_.size();
     srcid_ = Scan::pointingVectors_.at(0).getSrcid();
     times_ = ScanTimes(static_cast<unsigned int>(nsta_));
@@ -32,8 +31,8 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
     baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
-Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl) :
-        srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
+Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl):
+        VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
         score_{0}, times_{move(times)}, baselines_{move(bl)}, type_{ScanType::subnetting} {
 }
 

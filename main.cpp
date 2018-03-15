@@ -38,20 +38,20 @@ int main(int argc, char *argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
         // V1: standard usage:
-//        std::cout << "Processing file: " << file << ";\n";
-//        VieVS::VieVS_Scheduler mainScheduler(file);
-//        mainScheduler.run();
+        std::cout << "Processing file: " << file << ";\n";
+        VieVS::VieVS_Scheduler mainScheduler(file);
+        mainScheduler.run();
 
         // V2: parse skd and log files
-        VieVS::SkdParser mySkdParser("/data/NewSchedulingSoftware/aua037/aua037.skd");
-        mySkdParser.createObjects();
-        mySkdParser.createScans();
-        mySkdParser.copyScanMembersToObjects();
-
-        VieVS::LogParser htLogParser("/data/NewSchedulingSoftware/aua037/aua037ht.log");
-        htLogParser.parseLogFile();
-        htLogParser.addScheduledTimes(mySkdParser.getScheduledTimes("HART15M"));
-        htLogParser.output("/data/NewSchedulingSoftware/aua037/times_ht.txt");
+//        VieVS::SkdParser mySkdParser("/data/Daten/wettzell/1stSession/v012.skd");
+//        mySkdParser.createObjects();
+//        mySkdParser.createScans();
+//        mySkdParser.copyScanMembersToObjects();
+//
+//        VieVS::LogParser htLogParser("/data/Daten/wettzell/1stSession/v012sa.log");
+//        htLogParser.parseLogFile();
+//        htLogParser.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
+//        htLogParser.output("/data/Daten/wettzell/1stSession/times_sa.txt");
 
 
         auto finish = std::chrono::high_resolution_clock::now();
