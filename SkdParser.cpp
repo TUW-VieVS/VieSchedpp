@@ -272,8 +272,8 @@ void SkdParser::createScans() {
                     if(tmp.getScanStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)){
                         unsigned int eost = tmp.getSlewEnd(i);
                         unsigned int eoit = tmp.getScanStart(i)-tmp.getPreobTime(i);
-                        boost::posix_time::ptime eostp = TimeSystem::toPosixTime(eost);
-                        boost::posix_time::ptime eoitp = TimeSystem::toPosixTime(eoit);
+                        boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
+                        boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
                         cerr << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
                                 %stations_[scan.getPointingVector(i).getStaid()].getName()

@@ -527,10 +527,9 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
             if(nextStartTime<thisEndTime){
                 bodyLog << "    ERROR: somthing went wrong!\n";
                 bodyLog << "           start time of next scan is before end time of previouse scan!\n";
-                boost::posix_time::ptime thisEndTime_ =
-                        TimeSystem::startTime + boost::posix_time::seconds(thisEndTime);
-                boost::posix_time::ptime nextStartTime_ =
-                        TimeSystem::startTime + boost::posix_time::seconds(nextStartTime);
+                boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
+                boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
+
                 bodyLog << "           end time of previouse scan: " << thisEndTime_.time_of_day() << "("
                         << thisEndTime << ")\n";
                 bodyLog << "           start time of next scan:    " << nextStartTime_.time_of_day() << "("
@@ -543,10 +542,8 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
             if(availableTime+1<min_neededTime){
                 bodyLog << "    ERROR: somthing went wrong!\n";
                 bodyLog << "           not enough available time for slewing!\n";
-                boost::posix_time::ptime thisEndTime_ =
-                        TimeSystem::startTime + boost::posix_time::seconds(thisEndTime);
-                boost::posix_time::ptime nextStartTime_ =
-                        TimeSystem::startTime + boost::posix_time::seconds(nextStartTime);
+                boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
+                boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
                 bodyLog << "               end time of previouse scan: " << thisEndTime_.time_of_day() << " ("
                         << thisEndTime << ")\n";
                 bodyLog << "               start time of next scan:    " << nextStartTime_.time_of_day() << " ("

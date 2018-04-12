@@ -1002,15 +1002,11 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         } else if (paraName == "start") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            start = static_cast<unsigned int>(sec);
+            start = TimeSystem::posixTime2InternalTime(thisStartTime);
         } else if (paraName == "end") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            end = static_cast<unsigned int>(sec);
+            end = TimeSystem::posixTime2InternalTime(thisEndTime);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
@@ -1292,15 +1288,11 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         } else if (paraName == "start") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            start = static_cast<unsigned int>(sec);
+            start = TimeSystem::posixTime2InternalTime(thisStartTime);
         } else if (paraName == "end") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            end = static_cast<unsigned int>(sec);
+            end = TimeSystem::posixTime2InternalTime(thisEndTime);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
@@ -1678,15 +1670,11 @@ void Initializer::baselineSetup(vector<vector<vector<Baseline::Event> > > &event
         } else if (paraName == "start") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisStartTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            start = static_cast<unsigned int>(sec);
+            start = TimeSystem::posixTime2InternalTime(thisStartTime);
         } else if (paraName == "end") {
             string t = it.second.get_value<string>();
             boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
-            boost::posix_time::time_duration a = thisEndTime - TimeSystem::startTime;
-            int sec = a.total_seconds();
-            end = static_cast<unsigned int>(sec);
+            end = TimeSystem::posixTime2InternalTime(thisEndTime);
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {

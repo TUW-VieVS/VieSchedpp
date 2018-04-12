@@ -496,7 +496,7 @@ void Output::writeNGS() {
             string src = sources_[bl.getSrcid()].getName();
             unsigned int time = bl.getStartTime();
 
-            boost::posix_time::ptime tmp = start + boost::posix_time::seconds(static_cast<long>(time));
+            boost::posix_time::ptime tmp = TimeSystem::internalTime2PosixTime(time);
             int year = tmp.date().year();
             int month = tmp.date().month();
             int day = tmp.date().day();
@@ -627,18 +627,16 @@ void Output::writeStatisticsPerSourceGroup() {
         targetScans.push_back(src.getPARA().maxNumberOfScans);
         auto visTimes = minutesVisible(src);
 
-        int start = 0;
-        int lastElement=0;
+        unsigned int start = 0;
+        unsigned int lastElement=0;
         for(auto const &t: visTimes){
             if(start == 0 ){
                 start = t;
                 lastElement = t;
             }else {
                 if (t - lastElement != 60) {
-                    boost::posix_time::ptime ptstart =
-                            TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(start));
-                    boost::posix_time::ptime ptend =
-                            TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(lastElement));
+                    boost::posix_time::ptime ptstart = TimeSystem::internalTime2PosixTime(start);
+                    boost::posix_time::ptime ptend = TimeSystem::internalTime2PosixTime(lastElement);
                     visibleTimes[src.getId()].emplace_back(ptstart, ptend);
                     start = 0;
                 }
@@ -646,10 +644,8 @@ void Output::writeStatisticsPerSourceGroup() {
             }
         }
         if(start != 0){
-            boost::posix_time::ptime ptstart =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(start));
-            boost::posix_time::ptime ptend =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(lastElement));
+            boost::posix_time::ptime ptstart = TimeSystem::internalTime2PosixTime(start);
+            boost::posix_time::ptime ptend = TimeSystem::internalTime2PosixTime(lastElement);
             visibleTimes[src.getId()].emplace_back(ptstart, ptend);
         }
     }
@@ -774,7 +770,7 @@ void Output::writeStatisticsPerSourceGroup() {
                 for (int i=0; i<scanTime[srcid].size(); ++i){
                     unsigned int ttt = scanTime[srcid][i];
 
-                    boost::posix_time::ptime pt = TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(ttt));
+                    boost::posix_time::ptime pt = TimeSystem::internalTime2PosixTime(ttt);
                     of << TimeSystem::ptime2string(pt).substr(11,5).append("[");
                     of << flag[srcid][i] ;
                     of << boost::format("%02d], ") % scanNsta[srcid][i];

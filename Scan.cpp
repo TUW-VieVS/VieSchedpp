@@ -1119,8 +1119,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << "| scan start | ";
     for (auto &t:scanStart) {
         if (t != maxValue) {
-            boost::posix_time::ptime thisTime =
-                    TimeSystem::startTime + boost::posix_time::seconds(static_cast<long>(t));
+            boost::posix_time::ptime thisTime = TimeSystem::internalTime2PosixTime(t);
             of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
         } else {
             of << "         | ";

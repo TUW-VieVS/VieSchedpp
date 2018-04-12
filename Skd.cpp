@@ -517,7 +517,7 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 
     for (const auto &scan:scans) {
         const string &srcName = sources[scan.getSourceId()].getName();
-        boost::posix_time::ptime start = TimeSystem::toPosixTime(scan.getTimes().getScanStart());
+        boost::posix_time::ptime start = TimeSystem::internalTime2PosixTime(scan.getTimes().getScanStart());
 
         unsigned int scanTime = scan.getTimes().getScanTime();
 

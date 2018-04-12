@@ -276,14 +276,12 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
-    boost::posix_time::ptime sessionStart = TimeSystem::startTime;
     const auto & tlc = skdCatalogReader.getTwoLetterCode();
     vector<string>scanIds;
     for(const auto &scan:scans) {
         unsigned long nsta = scan.getNSta();
         int srcid = scan.getSourceId();
-        boost::posix_time::ptime scanStart =
-                sessionStart + boost::posix_time::seconds(static_cast<long>(scan.getPointingVector(0).getTime()));
+        boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         int doy = scanStart.date().day_of_year();
         int hour = scanStart.time_of_day().hours();
         int min = scanStart.time_of_day().minutes();
@@ -291,7 +289,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         scanIds.push_back(scanId);
     }
 
-    unordered_map<string,char> suffix;
+    unordered_map<std::string, char> suffix;
     for(int i=0; i<scans.size(); ++i){
         const Scan &scan = scans[i];
         string scanId = scanIds[i];
@@ -309,8 +307,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
 
         unsigned long nsta = scan.getNSta();
         int srcid = scan.getSourceId();
-        boost::posix_time::ptime scanStart =
-                sessionStart + boost::posix_time::seconds(static_cast<long>(scan.getPointingVector(0).getTime()));
+        boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         of << "    scan " << scanId << eol;
         of << "        start = " << TimeSystem::ptime2string_doy_units(scanStart) << eol;
         of << "        mode = GEOSX.SX" << eol;
