@@ -92,7 +92,7 @@ void VieVS_Scheduler::run() {
         string threadNumberPrefix;
 
         string fname = init.getXml().get("master.output.experimentName","schedule");
-        VieVS::Initializer newInit = init;
+        VieVS::Initializer newInit = Initializer(init);
 
         if (flag_multiSched) {
             fname.append((boost::format("V%03d") % (i+1)).str());

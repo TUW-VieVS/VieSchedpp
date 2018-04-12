@@ -96,7 +96,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
     int i = 0;
     while (i < nSingleScans_) {
 
-        const Source thisSource = sources[singleScans_[i].getSourceId()];
+        const Source &thisSource = sources[singleScans_[i].getSourceId()];
         bool scanValid_slew = true;
         bool scanValid_idle = true;
         vector<unsigned  int> maxIdleTimes;

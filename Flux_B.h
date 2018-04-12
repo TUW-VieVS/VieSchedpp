@@ -17,6 +17,8 @@ namespace VieVS{
         double observedFlux(double u, double v) const noexcept override;
 
     private:
+//        Flux_B* do_clone() const override;
+
         std::vector<double> knots_; ///< baseline length of flux information (type B)
         std::vector<double> values_; ///< corresponding flux information for baseline length (type B)
     };

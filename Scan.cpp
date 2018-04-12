@@ -236,21 +236,11 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
             double SEFD_src = source.observedFlux(band, gmst, stations[staid1].dx(staid2), stations[staid1].dy(staid2),
                                                   stations[staid1].dz(staid2));
 
-            double SEFD_sta1;
-            double SEFD_sta2;
-            if(stations[staid1].getEquip().hasElevationDependentSEFD()){
-                double el = pointingVectors_[*findIdxOfStationId(staid1)].getEl();
-                SEFD_sta1 = stations[staid1].getEquip().getSEFD(band, el);
-            }else{
-                SEFD_sta1 = stations[staid1].getEquip().getSEFD(band);
-            }
+            double el1 = pointingVectors_[*findIdxOfStationId(staid1)].getEl();
+            double SEFD_sta1 = stations[staid1].getEquip().getSEFD(band, el1);
 
-            if(stations[staid2].getEquip().hasElevationDependentSEFD()){
-                double el = pointingVectors_[*findIdxOfStationId(staid2)].getEl();
-                SEFD_sta2 = stations[staid2].getEquip().getSEFD(band, el);
-            }else{
-                SEFD_sta2 = stations[staid2].getEquip().getSEFD(band);
-            }
+            double el2 = pointingVectors_[*findIdxOfStationId(staid2)].getEl();
+            double SEFD_sta2 = stations[staid2].getEquip().getSEFD(band, el2);
 
             double minSNR_sta1 = stations[staid1].getPARA().minSNR.at(band);
             double minSNR_sta2 = stations[staid2].getPARA().minSNR.at(band);

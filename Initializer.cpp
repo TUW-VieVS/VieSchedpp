@@ -12,13 +12,28 @@ using namespace std;
 using namespace VieVS;
 int Initializer::nextId = 0;
 
-Initializer::Initializer():VieVS_Object(nextId++){
-}
+Initializer::Initializer(): VieVS_Object(nextId++){
+
+};
 
 Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
     boost::property_tree::read_xml(is, xml_);
 }
+
+//Initializer::Initializer(const Initializer &other): VieVS_Object(nextId++) {
+//    xml_ = other.xml_;
+//    stations_ = other.stations_;
+//    for(const auto &any:other.sources_){
+//        sources_.push_back(any.clone());
+//    }
+//
+//    skyCoverages_ = other.skyCoverages_;
+//
+//    parameters_ = other.parameters_;
+//    preCalculated_ = other.preCalculated_;
+//
+//}
 
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
@@ -207,9 +222,9 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
                 elSEFD = true;
                 try{
                     string band = eq_cat[9];
-                    double elSEFD_y = boost::lexical_cast<double>(eq_cat.at(10));
-                    double elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(11));
-                    double elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(12));
+                    auto elSEFD_y = boost::lexical_cast<double>(eq_cat.at(10));
+                    auto elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(11));
+                    auto elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(12));
 
                     SEFD_y[band] = elSEFD_y;
                     SEFD_c0[band] = elSEFD_c0;
@@ -224,9 +239,9 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             if (eq_cat[13] == "X" || eq_cat[13] == "S"){
                 try{
                     string band = eq_cat[13];
-                    double elSEFD_y = boost::lexical_cast<double>(eq_cat.at(14));
-                    double elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(15));
-                    double elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(16));
+                    auto elSEFD_y = boost::lexical_cast<double>(eq_cat.at(14));
+                    auto elSEFD_c0 = boost::lexical_cast<double>(eq_cat.at(15));
+                    auto elSEFD_c1 = boost::lexical_cast<double>(eq_cat.at(16));
 
                     SEFD_y[band] = elSEFD_y;
                     SEFD_c0[band] = elSEFD_c0;
@@ -259,23 +274,58 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
                 }
             }
         } else {
-            if (!id_MS.compare("--")==0){
+            if (id_MS != "--"){
                 headerLog << "*** ERROR: mask CATALOG not found ***\n";
             }
         }
 
-        Equipment thisEquip(SEFDs);
-        if(elSEFD){
-            thisEquip.setElevationDependentSEFD(SEFD_y, SEFD_c0, SEFD_c1);
+        std::vector<double> hmask_az;
+        std::vector<double> hmask_el;
+        for(unsigned long i=0; i < hmask.size(); ++i){
+            if (i%2==0){
+                hmask_az.push_back(hmask.at(i)*deg2rad);
+            }else{
+                hmask_el.push_back(hmask.at(i)*deg2rad);
+            }
+        }
+
+        if (!hmask.empty() && hmask_az.back() != twopi) {
+            hmask_az.push_back(twopi);
+            hmask_el.push_back(hmask_el.back());
         }
 
 
-        stations_.emplace_back(name,
-                               Antenna(type, offset, diam, rate1, con1, rate2, con2),
-                               CableWrap(axis1_low,axis1_up,axis2_low,axis2_up, type),
-                               Position(x,y,z),
-                               std::move(thisEquip),
-                               HorizonMask(hmask));
+        shared_ptr<Antenna> antenna;
+        shared_ptr<CableWrap> cableWrap;
+        if(type == "AZEL"){
+            antenna = make_shared<Antenna_AzEl>(offset, diam, rate1, con1, rate2, con2);
+            cableWrap = make_shared<CableWrap_AzEl>(axis1_low,axis1_up,axis2_low,axis2_up);
+        }else if(type == "HADC"){
+            antenna = make_shared<Antenna_HaDc>(offset, diam, rate1, con1, rate2, con2);
+            cableWrap = make_shared<CableWrap_HaDc>(axis1_low,axis1_up,axis2_low,axis2_up);
+        }else if(type == "XYEW"){
+            antenna = make_shared<Antenna_XYew>(offset, diam, rate1, con1, rate2, con2);
+            cableWrap = make_shared<CableWrap_XYew>(axis1_low,axis1_up,axis2_low,axis2_up);
+        }
+
+        shared_ptr<Equipment> equipment;
+        if(elSEFD){
+            equipment = make_shared<Equipment_elDependent>(SEFDs, SEFD_y, SEFD_c0, SEFD_c1);
+        }else{
+            equipment = make_shared<Equipment>(SEFDs);
+        }
+
+        auto position = make_shared<Position>(x,y,z);
+
+        shared_ptr<HorizonMask> horizonMask;
+        if(!hmask_az.empty() && hmask_az.size() == hmask_el.size()){
+            horizonMask = make_shared<HorizonMask_line>(hmask_az,hmask_el);
+        } else if(!hmask_az.empty()) {
+            horizonMask = make_shared<HorizonMask_step>(hmask_az,hmask_el);
+        }
+
+        stations_.emplace_back(name, antenna, cableWrap, position, equipment, horizonMask);
+
         created++;
         headerLog << boost::format("  %-8s added\n") % name;
 
@@ -383,7 +433,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             flux_cat = fluxCatalog.at(commonname);
         }
 
-        unordered_map<string, shared_ptr<Flux> > flux;
+        unordered_map<string, unique_ptr<Flux> > flux;
 
         vector<vector<string> > flux_split;
         for (auto &i : flux_cat) {
@@ -440,7 +490,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 }
             }
 
-            shared_ptr<Flux> srcFlux;
+            unique_ptr<Flux> srcFlux;
             bool errorWhileReadingFlux = false;
 
             if(thisType == "M"){
@@ -467,7 +517,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 }
 
                 if(!errorWhileReadingFlux){
-                    srcFlux = make_shared<Flux_M>(ObservationMode::wavelength[thisBand],tflux,tmajorAxis,taxialRatio,tpositionAngle);
+                    srcFlux = make_unique<Flux_M>(ObservationMode::wavelength[thisBand],tflux,tmajorAxis,taxialRatio,tpositionAngle);
                 }
             }else{
                 std::vector<double> knots; ///< baseline length of flux information (type B)
@@ -491,7 +541,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 }
 
                 if(!errorWhileReadingFlux){
-                    srcFlux = make_shared<Flux_B>(ObservationMode::wavelength[thisBand],knots,values);
+                    srcFlux = make_unique<Flux_B>(ObservationMode::wavelength[thisBand],knots,values);
                 }
 
             }
@@ -505,7 +555,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 //            }
 
             if(!errorWhileReadingFlux){
-                flux.emplace(make_pair(thisBand,move(srcFlux)));
+                flux[thisBand] = move(srcFlux);
                 ++cflux;
             }
         }
@@ -518,10 +568,10 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     break;
                 }
                 if(ObservationMode::sourceBackup[bandName] == ObservationMode::Backup::value){
-                    shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{ObservationMode::stationBackupValue[bandName]});
-//                    tmp.setWavelength(ObservationMode::wavelength[bandName]);
-//                    tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                    flux.emplace(make_pair(bandName,move(tmp)));
+
+                    flux[bandName] = make_unique<Flux_B>(ObservationMode::wavelength[bandName],
+                                                          vector<double>{0,13000},
+                                                          vector<double>{ObservationMode::stationBackupValue[bandName]});
                 }
             }
         }
@@ -548,19 +598,16 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             for(const auto &bandName:ObservationMode::bands){
                 if(flux.find(bandName) == flux.end()){
                     if(ObservationMode::stationBackup[bandName] == ObservationMode::Backup::minValueTimes){
-                        shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{min * ObservationMode::stationBackupValue[bandName]});
-//                        Flux tmp("B");
-//                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
-//                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(min * ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                        flux.emplace(make_pair(bandName,move(tmp)));
+
+                        flux[bandName] = make_unique<Flux_B>(ObservationMode::wavelength[bandName],
+                                                              vector<double>{0,13000},
+                                                              vector<double>{min * ObservationMode::stationBackupValue[bandName]});
                     }
                     if(ObservationMode::stationBackup[bandName] == ObservationMode::Backup::maxValueTimes){
-                        shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{max * ObservationMode::stationBackupValue[bandName]});
-//                        Flux tmp("B");
-//                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
-//                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(max * ObservationMode::stationBackupValue[bandName]),"13000.0"});
 
-                        flux.emplace(make_pair(bandName,move(tmp)));
+                        flux[bandName] = make_unique<Flux_B>(ObservationMode::wavelength[bandName],
+                                                              vector<double>{0,13000},
+                                                              vector<double>{max * ObservationMode::stationBackupValue[bandName]});
                     }
                 }
             }
@@ -719,7 +766,7 @@ void Initializer::initializeStations() noexcept {
 
     vector<vector<Station::Event> > events(stations_.size());
 
-    Station::Parameters parentPARA;
+    Station::Parameters parentPARA("backup");
     parentPARA.firstScan = false;
     parentPARA.available = true;
     parentPARA.tagalong = false;
@@ -737,18 +784,10 @@ void Initializer::initializeStations() noexcept {
 
 
     for (int i = 0; i < stations_.size(); ++i) {
-        Station::Event newEvent_start;
-        newEvent_start.time = 0;
-        newEvent_start.softTransition = false;
-        newEvent_start.PARA = parentPARA;
-
+        Station::Event newEvent_start(0,false,parentPARA);
         events[i].push_back(newEvent_start);
 
-        Station::Event newEvent_end;
-        newEvent_end.time = TimeSystem::duration;
-        newEvent_end.softTransition = true;
-        newEvent_end.PARA = parentPARA;
-
+        Station::Event newEvent_end(TimeSystem::duration,true,parentPARA);
         events[i].push_back(newEvent_end);
     }
 
@@ -917,6 +956,8 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
+            combinedPARA.changeName(tmp);
+
             ParameterSettings::ParametersStations newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
@@ -995,10 +1036,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         auto &thisEvents = events[id];
 
 
-        Station::Event newEvent_start;
-        newEvent_start.time = start;
-        newEvent_start.softTransition = softTransition;
-        newEvent_start.PARA = combinedPARA;
+        Station::Event newEvent_start(start,softTransition,combinedPARA);
 
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
@@ -1007,10 +1045,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             }
         }
 
-        Station::Event newEvent_end;
-        newEvent_end.time = end;
-        newEvent_end.softTransition = true;
-        newEvent_end.PARA = parentPARA;
+        Station::Event newEvent_end(end,true,parentPARA);
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
@@ -1101,7 +1136,7 @@ void Initializer::initializeSources() noexcept {
     }
 
 
-    Source::Parameters parentPARA;
+    Source::Parameters parentPARA("default");
     parentPARA.available = true;
 
     parentPARA.weight = 1;
@@ -1123,17 +1158,11 @@ void Initializer::initializeSources() noexcept {
     vector<vector<Source::Event> > events(sources_.size());
 
     for (int i = 0; i < sources_.size(); ++i) {
-        Source::Event newEvent_start;
-        newEvent_start.time = 0;
-        newEvent_start.softTransition = false;
-        newEvent_start.PARA = parentPARA;
+        Source::Event newEvent_start(0,false,parentPARA);
 
         events[i].push_back(newEvent_start);
 
-        Source::Event newEvent_end;
-        newEvent_end.time = TimeSystem::duration;
-        newEvent_end.softTransition = true;
-        newEvent_end.PARA = parentPARA;
+        Source::Event newEvent_end(TimeSystem::duration, true, parentPARA);
 
         events[i].push_back(newEvent_end);
     }
@@ -1185,7 +1214,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
                 members.push_back(tmp);
             }
         } else if (paraName == "parameter") {
-            string tmp = it.second.data();
+            const string &tmp = it.second.data();
+            combinedPARA.changeName(tmp);
+
             ParameterSettings::ParametersSources newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
@@ -1321,10 +1352,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         auto &thisEvents = events[id];
 
 
-        Source::Event newEvent_start;
-        newEvent_start.time = start;
-        newEvent_start.softTransition = softTransition;
-        newEvent_start.PARA = combinedPARA;
+        Source::Event newEvent_start(start, softTransition, combinedPARA);
 
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
@@ -1333,10 +1361,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             }
         }
 
-        Source::Event newEvent_end;
-        newEvent_end.time = end;
-        newEvent_end.softTransition = true;
-        newEvent_end.PARA = parentPARA;
+        Source::Event newEvent_end(end, true, parentPARA);
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
@@ -3097,5 +3122,6 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
         }
     }
 }
+
 
 

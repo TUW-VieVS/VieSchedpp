@@ -150,39 +150,7 @@ void Vex::sites_block(const std::vector<Station> &stations, const SkdCatalogRead
         of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
         of << "        site_position_ref = sked_position.cat;\n";
         of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(boost::algorithm::to_upper_copy(tlc.at(name))).at(5) << eol;
-        switch (any.getMask().getType()){
-            case HorizonMask::Category::step:{
-                const auto &az = any.getMask().getAzimuth();
-                of << "        horizon_map_az = ";
-                for(int i=0; i<az.size(); ++i){
-                    of << az.at(static_cast<unsigned int>(i))*rad2deg;
-                    if(i==0){
-                        of << " deg";
-                    }
-                    if(i!=az.size()-1){
-                        of << " : ";
-                    }
-                }
-                of << eol;
-
-                of << "        horizon_map_el = ";
-                const auto &el = any.getMask().getElevation();
-                for(int i=0; i<el.size(); ++i){
-                    of << el.at(static_cast<unsigned int>(i))*rad2deg;
-                    if(i==0){
-                        of << " deg";
-                    }
-                    if(i!=el.size()-1){
-                        of << " : ";
-                    }
-                }
-                of << eol;
-
-                break;
-            }
-            case HorizonMask::Category::line:{break;}
-            case HorizonMask::Category::none:{break;}
-        }
+        any.getMask().vexOutput();
         of << "    enddef;\n";
     }
 }
@@ -195,62 +163,20 @@ void Vex::antenna_block(const std::vector<Station> &stations) {
         of << "    def " << any.getName() << eol;
         of << "*       antenna_name = " << any.getName() << eol;
         of << "        antenna_diam = " << any.getAntenna().getDiam() << " m" << eol;
-        string motion1, motion2;
-        switch(any.getAntenna().getAxisType()){
-            case Antenna::AxisType::AZEL:{
-                of << "        axis_type = az : el;\n";
-                motion1 = "az";
-                motion2 = "el";
-                break;
-            }
-            case Antenna::AxisType::HADC:{
-                of << "        axis_type = ha : dec;\n";
-                motion1 = "ha";
-                motion2 = "dec";
-                break;
-            }
-            case Antenna::AxisType::XYEW:{
-                of << "        axis_type = x : yew;\n";
-                motion1 = "x";
-                motion2 = "yew";
-                break;
-            }
-            case Antenna::AxisType::XYNS:{
-                of << "        axis_type = x : yns;\n";
-                motion1 = "x";
-                motion2 = "yns";
-                break;
-            }
-            case Antenna::AxisType::RICH:{break;}
-            case Antenna::AxisType::SEST:{break;}
-            case Antenna::AxisType::ALGO:{break;}
-            case Antenna::AxisType::undefined:{break;}
-        }
+
+        auto motions = any.getCableWrap().getMotions();
+        const string &motion1 = motions.first;
+        const string &motion2 = motions.second;
+
+        of << "        axis_type = "<< motion1 << " : " << motion2 <<";\n";
+
+
         of << "        axis_offset = " << any.getAntenna().getOffset() << " m" << eol;
         of << boost::format("        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion1 % (any.getAntenna().getRate1()*rad2deg*60) % (any.getAntenna().getCon1());
         of << boost::format("        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion2 % (any.getAntenna().getRate2()*rad2deg*60) % (any.getAntenna().getCon2());
-        if(any.getAntenna().getAxisType() == Antenna::AxisType::AZEL){
-            double azwl = any.getCableWrap().getWLow()*rad2deg;
-            double azwh = any.getCableWrap().getWUp()*rad2deg;
 
-            double aznl = any.getCableWrap().getNLow()*rad2deg;
-            double aznh = any.getCableWrap().getNUp()*rad2deg;
+        of << any.getCableWrap().vexPointingSectors();
 
-            double azcl = any.getCableWrap().getCLow()*rad2deg;
-            double azch = any.getCableWrap().getCUp()*rad2deg;
-
-            double ell  = any.getCableWrap().getAxis2Low()*rad2deg;
-            double elh  = any.getCableWrap().getAxis2Up()*rad2deg;
-            of << boost::format("        pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % azwl % azwh % motion2 % ell % elh;
-            of << boost::format("        pointing_sector = &n     : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % aznl % aznh % motion2 % ell % elh;
-            of << boost::format("        pointing_sector = &cw    : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % azcl % azch % motion2 % ell % elh;
-        }else{
-            double hal  = any.getCableWrap().getNLow()*rad2deg;
-            double hah  = any.getCableWrap().getNUp()*rad2deg;
-            double dcl  = any.getCableWrap().getAxis2Low()*rad2deg;
-            double dch  = any.getCableWrap().getAxis2Up()*rad2deg;
-            of << boost::format("        pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % hal % hah % motion2 % dcl % dch;
-        }
         of << "    enddef;\n";
     }
 }

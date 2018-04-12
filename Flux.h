@@ -53,8 +53,12 @@ namespace VieVS{
             return wavelength_;
         }
 
+//        std::unique_ptr<Flux> clone() const;
+
 
     private:
+//        virtual Flux* do_clone() const = 0;
+
         static int nextId;
 
         double wavelength_; ///< wavelength of the band whose flux information is stored

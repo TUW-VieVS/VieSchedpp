@@ -26,26 +26,7 @@ namespace VieVS{
      */
     class HorizonMask: public VieVS_Object {
     public:
-
-        /**
-         * @brief horizon mask type
-         */
-        enum class Category {
-            step, ///< step function
-            line, ///< line function
-            none ///< no mask
-        };
-
-        /**
-         * @brief constructor
-         *
-         * The information in el_mask_deg is always alternating azimuth and elevation
-         * if there is an even number of elements in el_mask_deg a line function model is used, otherwise a step
-         * function model is used.
-         *
-         * @param el_mask_deg horizon mask information in degrees
-         */
-        explicit HorizonMask(const std::vector<double> &el_mask_deg);
+        HorizonMask();
 
         /**
          * checks if a pointing vector is visible
@@ -53,26 +34,12 @@ namespace VieVS{
          * @param pv pointing vector whose azimuth and elevation is to check
          * @return true if visible, false if not visible
          */
-        bool visible(const PointingVector &pv) const noexcept;
+        virtual bool visible(const PointingVector &pv) const noexcept = 0;
 
-        const std::vector<double> &getAzimuth() const {
-            return azimuth_;
-        }
-
-        const std::vector<double> &getElevation() const {
-            return elevation_;
-        }
-
-        Category getType() const {
-            return type_;
-        }
+        virtual std::string vexOutput() const noexcept = 0;
 
     private:
         static int nextId;
-
-        std::vector<double> azimuth_; ///< horizon mask knots in radians
-        std::vector<double> elevation_; ///< minimum elevation values in radians
-        Category type_; ///< horizon mask type
     };
 }
 #endif /* HORIOZONMASK_H */

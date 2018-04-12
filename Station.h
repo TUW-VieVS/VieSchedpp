@@ -16,6 +16,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <utility>
+#include <memory>
 
 #include "Position.h"
 #include "Antenna.h"
@@ -58,7 +59,14 @@ namespace VieVS{
         /**
          * @brief station parameters
          */
-        struct Parameters{
+        class Parameters: public VieVS_NamedObject{
+        private:
+            static int nextId;
+        public:
+            explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
+
+            void changeName(const std::string &newName){ name_ = newName; }
+
             bool firstScan = false; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             bool available = true;  ///< if set to true: this station is available for a scan
             bool tagalong = false;  ///< if set to true: station is in tagalong mode
@@ -71,7 +79,6 @@ namespace VieVS{
             unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas
             unsigned int maxScan = 600; ///< maximum allowed scan time
             unsigned int minScan = 20; ///< minimum required scan time
-
 
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
 
@@ -142,13 +149,17 @@ namespace VieVS{
          * @param waittimes new wait times
          */
         void setWaitTimes(const WaitTimes &waittimes) {
-            Station::waitTimes_ = waittimes;
+            Station::waitTimes_ = std::make_shared<WaitTimes>(std::move(waittimes));
         }
 
         /**
          * @brief changes in parameters
          */
         struct Event {
+            Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
+                                                                            softTransition{softTransition},
+                                                                            PARA{std::move(PARA)}{}
+
             unsigned int time; ///< time when new parameters should be used in seconds since start
             bool softTransition; ///< transition type
             Parameters PARA; ///< new parameters
@@ -159,6 +170,15 @@ namespace VieVS{
          * @brief pre calculated values
          */
         struct PreCalculated{
+            PreCalculated(std::vector<double> distance, std::vector<double> dx, std::vector<double> dy,
+                          std::vector<double> dz):distance{std::move(distance)}, dx{std::move(dx)},
+                                                  dy{std::move(dy)}, dz{std::move(dz)}{
+                g2l.resize(3);
+                g2l[0].resize(3);
+                g2l[1].resize(3);
+                g2l[2].resize(3);
+            }
+
             std::vector<double> distance; ///< distance between stations
             std::vector<double> dx; ///< delta x of station coordinates
             std::vector<double> dy; ///< delta y of station coordinates
@@ -179,8 +199,9 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(std::string sta_name, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
-                const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask);
+        Station(std::string sta_name, std::shared_ptr<Antenna> sta_antenna, std::shared_ptr<CableWrap> sta_cableWrap,
+                std::shared_ptr<Position> sta_position, std::shared_ptr<Equipment> sta_equip,
+                std::shared_ptr<HorizonMask> sta_mask);
 
         /**
          * @brief getter for station id
@@ -215,7 +236,7 @@ namespace VieVS{
          * @return station wait times
          */
         const WaitTimes &getWaittimes() const {
-            return waitTimes_;
+            return *waitTimes_;
         }
 
 
@@ -224,7 +245,7 @@ namespace VieVS{
          * @return cable wrap of this station
          */
         const CableWrap &getCableWrap() const noexcept {
-            return cableWrap_;
+            return *cableWrap_;
         }
 
         /**
@@ -232,7 +253,7 @@ namespace VieVS{
          * @return cable wrap of this station
          */
         CableWrap &referenceCableWrap() noexcept {
-            return cableWrap_;
+            return *cableWrap_;
         }
 
         /**
@@ -248,7 +269,7 @@ namespace VieVS{
          * @return equipment objecct
          */
         const Equipment &getEquip() const noexcept {
-            return equip_;
+            return *equip_;
         }
 
         /**
@@ -257,7 +278,7 @@ namespace VieVS{
          * @return horizon mask object
          */
         const HorizonMask &getMask() const {
-            return mask_;
+            return *mask_;
         }
 
         /**
@@ -265,7 +286,7 @@ namespace VieVS{
          * @return antenna object
          */
         const Antenna &getAntenna() const noexcept {
-            return antenna_;
+            return *antenna_;
         }
 
         /**
@@ -273,7 +294,7 @@ namespace VieVS{
          * @return position object
          */
         const Position &getPosition() const noexcept {
-            return position_;
+            return *position_;
         }
 
         /**
@@ -283,7 +304,7 @@ namespace VieVS{
         * @return delta x coordinate between this two stations
         */
         double dx(int id) const noexcept {
-            return preCalculated_.dx[id];
+            return preCalculated_->dx[id];
         }
 
         /**
@@ -293,7 +314,7 @@ namespace VieVS{
         * @return delta y coordinate between this two stations
          */
         double dy(int id) const noexcept {
-            return preCalculated_.dy[id];
+            return preCalculated_->dy[id];
         }
 
         /**
@@ -303,7 +324,7 @@ namespace VieVS{
         * @return delta z coordinate between this two stations
          */
         double dz(int id) const noexcept {
-            return preCalculated_.dz[id];
+            return preCalculated_->dz[id];
         }
 
         /**
@@ -411,8 +432,8 @@ namespace VieVS{
          * @brief sets all upcoming events
          * @param EVENTS all upcoming events
          */
-        void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
-            Station::events_ = EVENTS;
+        void setEVENTS(std::vector<Event> &EVENTS) noexcept {
+            Station::events_ = std::make_shared<std::vector<Event>>(move(EVENTS));
             Station::nextEvent_ = 0;
         }
 
@@ -480,25 +501,22 @@ namespace VieVS{
     private:
         static int nextId;
 
-        Antenna antenna_; ///< station antenna
-        CableWrap cableWrap_; ///< station cable wrap
-        Position position_; ///< station position
-        Equipment equip_; ///< station equipment
-        HorizonMask mask_; ///< station horizon mask
+        std::shared_ptr<Antenna> antenna_; ///< station antenna
+        std::shared_ptr<CableWrap> cableWrap_; ///< station cable wrap
+        std::shared_ptr<Position> position_; ///< station position
+        std::shared_ptr<Equipment> equip_; ///< station equipment
+        std::shared_ptr<HorizonMask> mask_; ///< station horizon mask
+        std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
+        std::shared_ptr<PreCalculated> preCalculated_; ///< precalculated values
+        std::shared_ptr<std::vector<Event>> events_; ///< list of all events
+
+
         int skyCoverageId_{-1}; ///< station sky coverage id
-
         Parameters parameters_; ///< station parameters
-        WaitTimes waitTimes_; ///< station wait times
-        PreCalculated preCalculated_; ///< precalculated values
-
-        std::vector<Event> events_; ///< list of all events
         unsigned int nextEvent_{0}; ///< index of next evend
-
         PointingVector currentPositionVector_; ///< current pointing vector
-
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
-
         int nScans_{0}; ///< number of participated scans
         int nBaselines_{0}; ///< number of observed baselines
     };

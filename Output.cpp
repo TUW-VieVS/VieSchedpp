@@ -635,7 +635,7 @@ void Output::writeStatisticsPerSourceGroup() {
     vector<vector<pair<boost::posix_time::ptime,boost::posix_time::ptime>>> visibleTimes(nsrc);
     bool hardBreak = false;
     ofstream dummy;
-    for(auto src:sources_){
+    for(auto &src:sources_){
         src.setNextEvent(0);
         src.checkForNewEvent(0, hardBreak, false, dummy);
         sWeight.push_back(src.getPARA().weight);

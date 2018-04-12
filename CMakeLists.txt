@@ -4,80 +4,61 @@ project(VLBI_scheduler)
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES
-        Antenna.cpp
-        Antenna.h
-        Baseline.cpp
-        Baseline.h
-        CableWrap.cpp
-        CableWrap.h
-        CalibratorBlock.cpp
-        CalibratorBlock.h
+        Antenna.cpp Antenna.h
+        Baseline.cpp Baseline.h
+        CableWrap.cpp CableWrap.h
+        CalibratorBlock.cpp CalibratorBlock.h
         Constants.h
-        Earth.cpp
-        Earth.h
-        Equipment.cpp
-        Equipment.h
-        FillinmodeEndposition.cpp
-        FillinmodeEndposition.h
-        Flux.cpp
-        Flux.h
-        HorizonMask.cpp
-        HorizonMask.h
-        Initializer.cpp
-        Initializer.h
+        Earth.cpp Earth.h
+        Equipment.cpp Equipment.h
+        FillinmodeEndposition.cpp FillinmodeEndposition.h
+        Flux.cpp Flux.h
+        HorizonMask.cpp HorizonMask.h
+        Initializer.cpp Initializer.h
         libsofa_c.a
-        LookupTable.cpp
-        LookupTable.h
+        LookupTable.cpp LookupTable.h
         main.cpp
-        MultiScheduling.cpp
-        MultiScheduling.h
-        Nutation.cpp
-        Nutation.h
-        ObservationMode.cpp
-        ObservationMode.h
-        Output.cpp
-        Output.h
-        ParameterGroup.cpp
-        ParameterGroup.h
-        ParameterSettings.cpp
-        ParameterSettings.h
-        ParameterSetup.cpp
-        ParameterSetup.h
-        PointingVector.cpp
-        PointingVector.h
-        Position.cpp
-        Position.h
+        MultiScheduling.cpp MultiScheduling.h
+        Nutation.cpp Nutation.h
+        ObservationMode.cpp ObservationMode.h
+        Output.cpp Output.h
+        ParameterGroup.cpp ParameterGroup.h
+        ParameterSettings.cpp ParameterSettings.h
+        ParameterSetup.cpp ParameterSetup.h
+        PointingVector.cpp PointingVector.h
+        Position.cpp Position.h
         README.md
-        Scan.cpp
-        Scan.h
-        ScanTimes.cpp
-        ScanTimes.h
-        Scheduler.cpp
-        Scheduler.h
-        SkdCatalogReader.cpp
-        SkdCatalogReader.h
-        SkyCoverage.cpp
-        SkyCoverage.h
-        sofa.h
-        sofam.h
-        Source.cpp
-        Source.h
-        Station.cpp
-        Station.h
-        Subcon.cpp
-        Subcon.h
-        TimeSystem.cpp
-        TimeSystem.h
-        VieVS_Scheduler.h
-        VieVS_Scheduler.cpp
-        WeightFactors.cpp
-        WeightFactors.h
-        Vex.cpp
-        Vex.h
-        Skd.cpp
-        Skd.h
-        SkdParser.cpp
-        SkdParser.h LogParser.cpp LogParser.h VieVS_Object.cpp VieVS_Object.h VieVS_NamedObject.cpp VieVS_NamedObject.h Flux_B.cpp Flux_B.h Flux_M.cpp Flux_M.h)
+        Scan.cpp Scan.h
+        ScanTimes.cpp ScanTimes.h
+        Scheduler.cpp Scheduler.h
+        SkdCatalogReader.cpp SkdCatalogReader.h
+        SkyCoverage.cpp SkyCoverage.h
+        sofa.h sofam.h 
+	Source.cpp Source.h
+        Station.cpp Station.h
+        Subcon.cpp Subcon.h
+        TimeSystem.cpp TimeSystem.h
+        VieVS_Scheduler.h VieVS_Scheduler.cpp
+        WeightFactors.cpp WeightFactors.h
+        Vex.cpp Vex.h
+        Skd.cpp Skd.h
+        SkdParser.cpp SkdParser.h 
+	LogParser.cpp LogParser.h 
+	VieVS_Object.cpp 
+	VieVS_Object.h 
+	VieVS_NamedObject.cpp 
+	VieVS_NamedObject.h 
+	Flux_B.cpp Flux_B.h 
+	Flux_M.cpp Flux_M.h 
+	Antenna_AzEl.cpp Antenna_AzEl.h 
+	Antenna_HaDc.cpp Antenna_HaDc.h 
+	Antenna_XYew.cpp Antenna_XYew.h 
+	CableWrap_AzEl.cpp CableWrap_AzEl.h 
+	CableWrap_HaDc.cpp CableWrap_HaDc.h 
+	CableWrap_XYew.cpp CableWrap_XYew.h 
+	Equipment_elDependent.cpp Equipment_elDependent.h 
+	HorizonMask_line.cpp HorizonMask_line.h 
+	HorizonMask_step.cpp HorizonMask_step.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

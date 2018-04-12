@@ -8,7 +8,7 @@ using namespace VieVS;
 using namespace std;
 
 double Flux_M::flcon1_{(pi * pi) / (4.0 * 0.6931471)}; ///< constant precalculated value for model M
-double Flux_M::flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
+//double Flux_M::flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
 
 VieVS::Flux_M::Flux_M(double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
                       const std::vector<double> &axialRatio, const std::vector<double> &positionAngle):
@@ -53,4 +53,8 @@ double Flux_M::observedFlux(double u, double v) const noexcept {
     return observedFlux;
 
 }
+
+//Flux_M *Flux_M::do_clone() const {
+//    return new Flux_M(*this);
+//}
 

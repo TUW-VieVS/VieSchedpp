@@ -962,31 +962,21 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                                                               stations_[staid1].dy(staid2),
                                                               stations_[staid1].dz(staid2));
 
-                        double SEFD_sta1;
-                        double SEFD_sta2;
-                        if (stations_[staid1].getEquip().hasElevationDependentSEFD()) {
-                            double el;
-                            if (!swapped) {
-                                el = pv_new_start.getEl();
-                            } else {
-                                el = otherPv.getEl();
-                            }
-                            SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el);
+                        double el1;
+                        if (!swapped) {
+                            el1 = pv_new_start.getEl();
                         } else {
-                            SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band);
+                            el1 = otherPv.getEl();
                         }
+                        double SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el1);
 
-                        if (stations_[staid2].getEquip().hasElevationDependentSEFD()) {
-                            double el;
-                            if (!swapped) {
-                                el = otherPv.getEl();
-                            } else {
-                                el = pv_new_start.getEl();
-                            }
-                            SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el);
+                        double el2;
+                        if (!swapped) {
+                            el2 = otherPv.getEl();
                         } else {
-                            SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band);
+                            el2 = pv_new_start.getEl();
                         }
+                        double SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el2);
 
                         double minSNR_sta1 = stations_[staid1].getPARA().minSNR.at(band);
                         double minSNR_sta2 = stations_[staid2].getPARA().minSNR.at(band);

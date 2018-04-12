@@ -33,3 +33,7 @@ double VieVS::Flux_B::observedFlux(double u, double v) const noexcept {
 
     return observedFlux;
 }
+
+//VieVS::Flux_B *VieVS::Flux_B::do_clone() const {
+//    return new Flux_B(*this);
+//}

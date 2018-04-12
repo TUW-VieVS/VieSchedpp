@@ -53,7 +53,14 @@ namespace VieVS{
             multiplicative
         };
 
-        struct Parameters {
+        class Parameters: public VieVS_NamedObject {
+        private:
+            static int nextId;
+        public:
+            Parameters(const std::string name): VieVS_NamedObject(name,nextId++){}
+
+            void changeName(const std::string &newName){ name_ = newName; }
+
             bool available = true; ///< flag is source is available
             bool globalAvailable = true;
 
@@ -181,6 +188,10 @@ namespace VieVS{
          * @brief changes in parameters
          */
         struct Event {
+            Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
+                                                                            softTransition{softTransition},
+                                                                            PARA{std::move(PARA)}{}
+
             unsigned int time; ///< time when new parameters should be used in seconds since start
             bool softTransition; ///< transition type
             Parameters PARA; ///< new parameters
@@ -197,7 +208,7 @@ namespace VieVS{
          * @param src_flux flux information per band
          */
         Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-               const std::unordered_map<std::string, std::shared_ptr<Flux>> &src_flux);
+               std::unordered_map<std::string, std::unique_ptr<Flux>> &src_flux);
 
 
         /**
@@ -217,7 +228,7 @@ namespace VieVS{
         }
 
         Optimization &referenceCondition() {
-            return condition_;
+            return *condition_;
         }
 
 
@@ -227,7 +238,7 @@ namespace VieVS{
          * @return source position vector
          */
         const std::vector<double> &getSourceInCrs() const {
-            return preCalculated_.sourceInCrs;
+            return preCalculated_->sourceInCrs;
         }
 
         /**
@@ -290,7 +301,7 @@ namespace VieVS{
         }
 
         const Optimization &getOptimization() const {
-            return condition_;
+            return *condition_;
         }
 
         /**
@@ -316,9 +327,9 @@ namespace VieVS{
          *
          * @param EVENTS list of all events
          */
-        void setEVENTS(const std::vector<Event> &EVENTS) noexcept {
-            Source::events_ = EVENTS;
-            Source::nextEvent_ = 0;
+        void setEVENTS(std::vector<Event> &EVENTS) noexcept {
+            events_ = std::make_shared<std::vector<Event>>(move(EVENTS));
+            nextEvent_ = 0;
         }
 
         void setNextEvent(unsigned int nextEvent) {
@@ -387,19 +398,21 @@ namespace VieVS{
          * @return stream object
          */
         friend std::ostream &operator<<(std::ostream &out, const Source &src) noexcept;
-        
+
+//        Source clone() const;
+
     private:
+        std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<Flux>>> flux_; ///< source flux information per band
+        std::shared_ptr<std::vector<Event>> events_; ///< list of all events
+        std::shared_ptr<PreCalculated> preCalculated_; ///< pre calculated values
+        std::shared_ptr<Optimization> condition_;
+
         double ra_; ///< source right ascension
         double de_; ///< source declination
-        std::unordered_map<std::string, std::shared_ptr<Flux> > flux_; ///< source flux information per band
 
         Parameters parameters_; ///< parameters
-        PreCalculated preCalculated_; ///< pre calculated values
-        Optimization condition_;
 
-        std::vector<Event> events_; ///< list of all events
         unsigned int nextEvent_; ///< index of next event
-
         unsigned int lastScan_; ///< last scan to this source
         unsigned int nScans_; ///< number of scans to this source that have influence on scheduling algorithms
         unsigned int nTotalScans_; ///< number of total scans

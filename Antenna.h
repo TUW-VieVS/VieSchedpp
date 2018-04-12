@@ -26,20 +26,6 @@ namespace VieVS{
      */
     class Antenna: public VieVS_Object {
     public:
-        /**
-         * @brief antenna type
-         */
-        enum class AxisType {
-            AZEL, ///< azimuth elevation antenna
-            HADC, ///< hour angle declination antenna
-            XYNS, ///< x-y north south antenna
-            XYEW, ///< x-y east west antenna
-            RICH, ///< keine ahnung
-            SEST, ///< keine ahnung
-            ALGO, ///< keine ahnung
-            undefined ///< undefined antenna type
-        };
-
 
         /**
          * @brief constructor
@@ -52,17 +38,8 @@ namespace VieVS{
          * @param rate2_deg_per_min slew rate of second axis in degrees/secondds
          * @param constantOverhead2_s constant overhead for second axis slew in seconds
          */
-        Antenna(const std::string &type, double offset_m, double diam_m, double rate1_deg_per_min,
-                double constantOverhead1_s, double rate2_deg_per_min, double constantOverhead2_s);
-
-        /**
-         * @brief getter for axis type
-         *
-         * @return axis type
-         */
-        AxisType getAxisType() const {
-            return axisType_;
-        }
+        Antenna(double offset_m, double diam_m, double rate1_deg_per_min,
+                unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s);
 
         double getDiam() const {
             return diam_;
@@ -94,32 +71,15 @@ namespace VieVS{
          * @param new_pointingVector end azimuth and elevation
          * @return slewtime in seconds
          */
-        unsigned int
+        virtual unsigned int
         slewTime(const PointingVector &old_pointingVector,
-                 const PointingVector &new_pointingVector) const noexcept;
+                 const PointingVector &new_pointingVector) const noexcept = 0;
 
-        /**
-         * @brief overload of the << operator for output to stream
-         *
-         * @param out output stream object
-         * @param antenna antenna information that should be printed to stream
-         * @return stream object
-         */
-        friend std::ostream &operator<<(std::ostream &out, const Antenna &antenna) noexcept;
-
-
-
-    private:
-        static int nextId;
-
-        AxisType axisType_; ///< station axis type
-
-        double offset_; ///< offset of the antenna axis intersection in meters
-        double diam_; ///< diameter of the antenna dish in meters
-        double rate1_; ///< slew rate of first axis in radians/second
-        double con1_; ///< constant overhead for first axis slew in seconds
-        double rate2_; ///< slew rate of second axis in radians/second
-        double con2_; ///< constant overhead for second axis slew in seconds
+    protected:
+        enum class Axis {
+            axis1,
+            axis2,
+        };
 
         /**
          * @brief calculates slew time per axis
@@ -129,7 +89,17 @@ namespace VieVS{
          * @param acc acceleration
          * @return slew time in seconds
          */
-        double slewTimePerAxis(double delta, double rate, double acc) const noexcept ;
+        unsigned int slewTimePerAxis(double delta, Axis axis) const noexcept ;
+
+    private:
+        static int nextId;
+
+        double offset_; ///< offset of the antenna axis intersection in meters
+        double diam_; ///< diameter of the antenna dish in meters
+        double rate1_; ///< slew rate of first axis in radians/second
+        unsigned int con1_; ///< constant overhead for first axis slew in seconds
+        double rate2_; ///< slew rate of second axis in radians/second
+        unsigned int con2_; ///< constant overhead for second axis slew in seconds
     };
 }
 #endif /* ANTENNA_H */

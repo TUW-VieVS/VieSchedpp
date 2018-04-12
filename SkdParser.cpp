@@ -117,7 +117,7 @@ void SkdParser::createObjects() {
     init.createSources(skd_, of);
 
     stations_ = init.stations_;
-    sources_ = init.sources_;
+    sources_ = move(init.sources_);
     for (int i = 0; i < stations_.size(); ++i) {
         skyCoverages_.emplace_back(vector<int>{i});
         stations_[i].setSkyCoverageId(i);
@@ -193,7 +193,7 @@ void SkdParser::createScans() {
                 durations.push_back(boost::lexical_cast<unsigned int>(splitVector[i]));
             }
 
-            boost::posix_time::time_duration diff = scanStart-TimeSystem::startTime;
+            boost::posix_time::time_duration diff = scanStart - TimeSystem::startTime;
             int sec = diff.total_seconds();
             if (sec < 0) {
                 cerr << "ERROR: duration is less than zero seconds!;\n";
@@ -234,14 +234,9 @@ void SkdParser::createScans() {
                 thisSta.calcAzEl(thisSource,p);
                 bool error = thisSta.getCableWrap().unwrapAzInSection(p,cwflag);
                 if(error){
-                    if(thisSta.getCableWrap().getCableWrapType() == CableWrap::CableWrapType::AZEL){
-                        pair<double,double>limits = thisSta.getCableWrap().getLimits(cwflag);
-                        cerr << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) calculated: %7.2f (or %7.2f)\n")
-                                %thisSta.getName()%counter%thisSource.getName()%TimeSystem::ptime2string_doy(scanStart)%cwflag%(limits.first*rad2deg)%(limits.second*rad2deg)%(p.getAz()*rad2deg)%(p.getAz()*rad2deg-360);
-                    }else{
-                        cerr << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Non AZEL station!\n")
-                                %thisSta.getName()%counter%thisSource.getName()%TimeSystem::ptime2string_doy(scanStart);
-                    }
+                    pair<double,double>limits = thisSta.getCableWrap().getLimits(cwflag);
+                    cerr << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) calculated: %7.2f (or %7.2f)\n")
+                            %thisSta.getName()%counter%thisSource.getName()%TimeSystem::ptime2string_doy(scanStart)%cwflag%(limits.first*rad2deg)%(limits.second*rad2deg)%(p.getAz()*rad2deg)%(p.getAz()*rad2deg-360);
                 }
                 pv.push_back(p);
 

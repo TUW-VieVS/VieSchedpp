@@ -15,17 +15,24 @@
 using namespace std;
 using namespace VieVS;
 int VieVS::Source::nextId = 0;
+int VieVS::Source::Parameters::nextId = 0;
 
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-               const unordered_map<string, shared_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
-                                                      ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad},
-                                                      flux_{std::move(src_flux)}, lastScan_{0}, nScans_{0},
-                                                      nTotalScans_{0}, nBaselines_{0}{
+               unordered_map<string, unique_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
+                                                                    ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
+                                                                    lastScan_{0}, nScans_{0}, nTotalScans_{0},
+                                                                    nBaselines_{0}, parameters_{Parameters("empty")}{
 
-    preCalculated_.sourceInCrs.resize(3);
-    preCalculated_.sourceInCrs[0] = cos(de_)*cos(ra_);
-    preCalculated_.sourceInCrs[1] = cos(de_)*sin(ra_);
-    preCalculated_.sourceInCrs[2] = sin(de_);
+    flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<Flux>>>(std::move(src_flux));
+
+    PreCalculated preCalculated = PreCalculated();
+    preCalculated.sourceInCrs.resize(3);
+    preCalculated.sourceInCrs[0] = cos(de_)*cos(ra_);
+    preCalculated.sourceInCrs[1] = cos(de_)*sin(ra_);
+    preCalculated.sourceInCrs[2] = sin(de_);
+
+    preCalculated_ = make_shared<PreCalculated>(move(preCalculated));
+    condition_ = make_shared<Optimization>(Optimization());
 }
 
 double Source::angleDistance(const Source &other) const noexcept {
@@ -35,7 +42,7 @@ double Source::angleDistance(const Source &other) const noexcept {
 bool Source::isStrongEnough(double &maxFlux) const noexcept {
     maxFlux = 0;
 
-    for (auto& any: flux_){
+    for (auto& any: *flux_){
         double thisFlux = any.second->getMaximumFlux();
         if (thisFlux > maxFlux){
             maxFlux = thisFlux;
@@ -65,7 +72,7 @@ double Source::observedFlux(const string &band, double gmst, double dx, double d
     double u = dx * sin(ha) + dy * cos(ha);
     double v = dz*cos(de_) + sin(de_) * (-dx * cos(ha) + dy * sin(ha));
 
-    double flux = flux_.at(band)->observedFlux(u, v);
+    double flux = flux_->at(band)->observedFlux(u, v);
     return flux;
 }
 
@@ -80,13 +87,13 @@ void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) 
 
 bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
     bool flag = false;
-    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
+    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
         double oldMinFlux = parameters_.minFlux;
         bool oldGlobalAvailable = parameters_.globalAvailable;
-        parameters_ = events_[nextEvent_].PARA;
+        parameters_ = events_->at(nextEvent_).PARA;
         parameters_.globalAvailable = oldGlobalAvailable;
         double newMinFlux = parameters_.minFlux;
-        hardBreak = hardBreak || !events_[nextEvent_].softTransition;
+        hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
 
         if (output && time < TimeSystem::duration) {
             bodyLog << "###############################################\n";
@@ -141,3 +148,13 @@ void Source::clearObservations() {
     nextEvent_ = 0;
     checkForNewEvent(0, hardBreak, false, dummy);
 }
+
+//Source Source::clone() const{
+//    std::unordered_map<string,unique_ptr<Flux> > newFlux;
+//
+//    for(const auto &any: flux_){
+//        newFlux[any.first] = any.second->clone();
+//    }
+//
+//    return Source(name_,alternativeName_,ra_*rad2deg, de_*rad2deg, newFlux);
+//}

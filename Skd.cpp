@@ -409,10 +409,10 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
     of << "$STATIONS\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    const std::map<std::string, std::vector<std::string>> &ant = skdCatalogReader.getAntennaCatalog();
-    const std::map<std::string, std::vector<std::string>> &pos = skdCatalogReader.getPositionCatalog();
-    const std::map<std::string, std::vector<std::string>> &equ = skdCatalogReader.getEquipCatalog();
-    const std::map<std::string, std::vector<std::string>> &mas = skdCatalogReader.getMaskCatalog();
+    const map<string, vector<string> > &ant = skdCatalogReader.getAntennaCatalog();
+    const map<string, vector<string> > &pos = skdCatalogReader.getPositionCatalog();
+    const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
+    const map<string, vector<string> > &mas = skdCatalogReader.getMaskCatalog();
 
     map<string, string> posMap;
     map<string, string> equMap;
@@ -449,6 +449,7 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
     }
 
     for (const auto &any:stations) {
+
         const string &staname = any.getName();
         vector<string> atmp = ant.at(staname);
         const string &id_EQ = boost::algorithm::to_upper_copy(atmp.at(14)) + "|" + staname;
@@ -473,10 +474,8 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
                         of << any2 << " ";
                     }
                 }
-                of << endl;
+                of << "\n";
             }
-        } else {
-            of << "no hmask" << endl;
         }
     }
 }

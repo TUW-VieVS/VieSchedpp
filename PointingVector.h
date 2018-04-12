@@ -12,6 +12,7 @@
 #include <iostream>
 #include <boost/date_time.hpp>
 
+#include <limits>
 #include "Constants.h"
 #include "VieVS_Object.h"
 

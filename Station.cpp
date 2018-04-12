@@ -29,12 +29,14 @@
 using namespace std;
 using namespace VieVS;
 int VieVS::Station::nextId = 0;
+int VieVS::Station::Parameters::nextId = 0;
 
-Station::Station(string sta_name, const Antenna &sta_antenna, const CableWrap &sta_cableWrap,
-                 const Position &sta_position, const Equipment &sta_equip, const HorizonMask &sta_mask):
-        VieVS_NamedObject(sta_name,nextId++), antenna_{sta_antenna}, cableWrap_{sta_cableWrap}, position_{sta_position},
-        equip_{sta_equip}, mask_{sta_mask}, skyCoverageId_{-1}, nScans_{0}, nBaselines_{0},
-        currentPositionVector_{PointingVector(nextId-1,-1)}{
+Station::Station(std::string sta_name, std::shared_ptr<Antenna> sta_antenna, std::shared_ptr<CableWrap> sta_cableWrap,
+                 std::shared_ptr<Position> sta_position, std::shared_ptr<Equipment> sta_equip,
+                 std::shared_ptr<HorizonMask> sta_mask):
+        VieVS_NamedObject(std::move(sta_name),nextId++), antenna_{move(sta_antenna)}, cableWrap_{move(sta_cableWrap)},
+        position_{move(sta_position)}, equip_{move(sta_equip)}, mask_{move(sta_mask)}, skyCoverageId_{-1},
+        nScans_{0}, nBaselines_{0}, currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
     std::replace(name_.begin(), name_.end(), '-', '_');
 }
 
@@ -58,10 +60,10 @@ bool Station::isVisible(const PointingVector &p, double minElevationSource = 0) 
     if(p.getEl()<parameters_.minElevation){
         visible = false;
     }
-    if(visible && !mask_.visible(p)){
+    if(visible && mask_ != nullptr && !mask_->visible(p)){
         visible = false;
     }
-    if(visible && !cableWrap_.anglesInside(p)){
+    if(visible && !cableWrap_->anglesInside(p)){
         visible = false;
     }
 
@@ -121,8 +123,8 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
 
     //  Transformation
-    double v1[3] = {-omega*position_.getX(),
-                     omega*position_.getY(),
+    double v1[3] = {-omega*position_->getX(),
+                     omega*position_->getY(),
                      0};
 
     double v1R[3] = {};
@@ -163,9 +165,9 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
 
     //  source in local system
-    double g2l[3][3] = {{preCalculated_.g2l[0][0],preCalculated_.g2l[0][1],preCalculated_.g2l[0][2]},
-                        {preCalculated_.g2l[1][0],preCalculated_.g2l[1][1],preCalculated_.g2l[1][2]},
-                        {preCalculated_.g2l[2][0],preCalculated_.g2l[2][1],preCalculated_.g2l[2][2]},};
+    double g2l[3][3] = {{preCalculated_->g2l[0][0],preCalculated_->g2l[0][1],preCalculated_->g2l[0][2]},
+                        {preCalculated_->g2l[1][0],preCalculated_->g2l[1][1],preCalculated_->g2l[1][2]},
+                        {preCalculated_->g2l[2][0],preCalculated_->g2l[2][1],preCalculated_->g2l[2][2]},};
 
     double lq[3] = {};
     iauRxp(g2l,rq,lq);
@@ -182,19 +184,19 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     p.setAz(az);
     p.setEl(el);
 
-    if(antenna_.getAxisType() == Antenna::AxisType::HADC){
-        double gmst = TimeSystem::mjd2gmst(mjd);
+    // only for hadc antennas
+    double gmst = TimeSystem::mjd2gmst(mjd);
 
-        double ha = gmst + position_.getLon() - source.getRa();
-        while(ha>pi){
-            ha = ha - twopi;
-        }
-        while(ha< -pi){
-            ha = ha + twopi;
-        }
-        p.setHa(ha);
-        p.setDc(source.getDe());
+    double ha = gmst + position_->getLon() - source.getRa();
+    while(ha>pi){
+        ha = ha - twopi;
     }
+    while(ha< -pi){
+        ha = ha + twopi;
+    }
+    p.setHa(ha);
+    p.setDc(source.getDe());
+    // end of hadc part
 
     p.setTime(time);
 }
@@ -202,14 +204,10 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 void Station::preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
                            const vector<double> &dz) noexcept {
 
+    preCalculated_ = make_shared<PreCalculated>(distance,dx,dy,dz);
 
-    preCalculated_.distance = distance;
-    preCalculated_.dx = dx;
-    preCalculated_.dy = dy;
-    preCalculated_.dz = dz;
-
-    double lat = position_.getLat();
-    double lon = position_.getLon();
+    double lat = position_->getLat();
+    double lon = position_->getLon();
 
     double theta = DPI/2-lat;
 
@@ -229,26 +227,22 @@ void Station::preCalc(const vector<double> &distance, const vector<double> &dx, 
 
     iauRxr(roty,rotz,g2l);
 
-    preCalculated_.g2l.resize(3);
-    preCalculated_.g2l[0].resize(3);
-    preCalculated_.g2l[1].resize(3);
-    preCalculated_.g2l[2].resize(3);
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            preCalculated_.g2l[i][j] = g2l[i][j];
+            preCalculated_->g2l[i][j] = g2l[i][j];
         }
     }
 }
 
 double Station::distance(const Station &other) const noexcept {
-    return position_.getDistance(other.position_);
+    return position_->getDistance(*other.position_);
 }
 
 unsigned int Station::slewTime(const PointingVector &pointingVector) const noexcept {
     if (parameters_.firstScan) {
         return 0;
     } else {
-        return antenna_.slewTime(currentPositionVector_, pointingVector);
+        return antenna_->slewTime(currentPositionVector_, pointingVector);
     }
 }
 
@@ -268,24 +262,24 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
 
 void Station::checkForNewEvent() noexcept {
 
-    while (nextEvent_ < events_.size() && events_[nextEvent_].time == 0) {
-        parameters_ = events_[nextEvent_].PARA;
+    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time == 0) {
+        parameters_ = events_->at(nextEvent_).PARA;
         nextEvent_++;
     }
 }
 
 void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream &out) noexcept {
 
-    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= time) {
+    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
         bool oldAvailable = parameters_.available;
 
-        parameters_ = events_[nextEvent_].PARA;
+        parameters_ = events_->at(nextEvent_).PARA;
 
-        hardBreak = hardBreak || !events_[nextEvent_].softTransition;
+        hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
         bool newAvailable = parameters_.available;
 
         if (!oldAvailable && newAvailable) {
-            currentPositionVector_.setTime(events_[nextEvent_].time);
+            currentPositionVector_.setTime(events_->at(nextEvent_).time);
             parameters_.firstScan = true;
         }
 
@@ -301,7 +295,7 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
 bool Station::checkForTagalongMode(unsigned int time) noexcept{
     bool tagalong = parameters_.tagalong;
     if(tagalong){
-        if(nextEvent_ < events_.size() && events_[nextEvent_].time <= time){
+        if(nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time){
             return true;
         }
     }
@@ -309,9 +303,9 @@ bool Station::checkForTagalongMode(unsigned int time) noexcept{
 }
 
 void Station::applyNextEvent(std::ofstream &out) noexcept{
-    unsigned int nextEventTimes = events_[nextEvent_].time;
-    while (nextEvent_ < events_.size() && events_[nextEvent_].time <= nextEventTimes) {
-        parameters_ = events_[nextEvent_].PARA;
+    unsigned int nextEventTimes = events_->at(nextEvent_).time;
+    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= nextEventTimes) {
+        parameters_ = events_->at(nextEvent_).PARA;
 
         out << "###############################################\n";
         out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";

@@ -16,6 +16,20 @@
 #include <algorithm>
 #include <numeric>
 #include <thread>
+#include <memory>
+
+#include "Antenna_AzEl.h"
+#include "Antenna_HaDc.h"
+#include "Antenna_XYew.h"
+
+#include "CableWrap_AzEl.h"
+#include "CableWrap_HaDc.h"
+#include "CableWrap_XYew.h"
+
+#include "Equipment_elDependent.h"
+
+#include "HorizonMask_line.h"
+#include "HorizonMask_step.h"
 
 #include "Constants.h"
 #include "Station.h"
@@ -86,14 +100,19 @@ namespace VieVS {
             std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
         };
 
-
         Initializer();
-
         /**
          * @brief empty default constructor.
          */
         explicit Initializer(const std::string &path);
 
+//        Initializer(Initializer&&) = default;
+//        Initializer& operator=(Initializer&&) = default;
+//
+//        Initializer(const Initializer&);
+//        Initializer& operator=(const Initializer&) = delete;
+//
+//        virtual ~Initializer() = default;
 
         const boost::property_tree::ptree &getXml() const {
             return xml_;
