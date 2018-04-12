@@ -679,7 +679,10 @@ void Scheduler::printHorizonMasksForDebugging() {
                 p.setAz(thisAz);
                 p.setEl(thisEl);
 
-                bool flag = any.getMask().visible(p);
+                bool flag = true;
+                if(any.hasHorizonMask()){
+                    flag = any.getMask().visible(p);
+                }
                 o << flag << endl;
             }
         }

@@ -150,7 +150,10 @@ void Vex::sites_block(const std::vector<Station> &stations, const SkdCatalogRead
         of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
         of << "        site_position_ref = sked_position.cat;\n";
         of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(boost::algorithm::to_upper_copy(tlc.at(name))).at(5) << eol;
-        any.getMask().vexOutput();
+        if(any.hasHorizonMask()){
+            any.getMask().vexOutput();
+        }
+
         of << "    enddef;\n";
     }
 }

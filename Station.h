@@ -272,6 +272,10 @@ namespace VieVS{
             return *equip_;
         }
 
+        bool hasHorizonMask() const{
+            return mask_ !=  nullptr;
+        }
+
         /**
          * @brief getter for horizon mask
          *

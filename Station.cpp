@@ -49,7 +49,6 @@ namespace VieVS {
         cout << boost::format("%=36s\n") % sta.name_;
         cout << sta.position_;
         cout << "uses sky coverage id: " << sta.skyCoverageId_ << "\n";
-        cout << sta.antenna_ << sta.cableWrap_ << sta.equip_;
         cout << "------------------------------------\n";
         return out;
     }
