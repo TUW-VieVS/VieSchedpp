@@ -40,7 +40,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
 
             const Station &thisSta = stations[staid];
             if (thisSta.getPARA().firstScan) {
-                singleScans_[i].addTimes(j, 0, 0, 0, 0, 0);
+                singleScans_[i].addTimes(j, 0, 0, 0);
                 ++j;
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 continue;
@@ -59,7 +59,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
             } else {
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 const Station::WaitTimes wtimes = thisSta.getWaittimes();
-                singleScans_[i].addTimes(j, wtimes.setup, wtimes.source, slewtime, wtimes.tape, wtimes.calibration);
+                singleScans_[i].addTimes(j, wtimes.fieldSystem, slewtime, wtimes.preob);
                 ++j;
             }
         }
@@ -105,7 +105,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
         while (j < singleScans_[i].getNSta()) {
             int staid = singleScans_[i].getPointingVector(j).getStaid();
             PointingVector &thisPointingVector = singleScans_[i].referencePointingVector(j);
-            thisPointingVector.setTime(singleScans_[i].getTimes().getEndOfIdleTime(j));
+            thisPointingVector.setTime(singleScans_[i].getTimes().getScanStart(j));
             stations[staid].calcAzEl(thisSource, thisPointingVector);
             bool visible = stations[staid].isVisible(thisPointingVector, sources[singleScans_[i].getSourceId()].getPARA().minElevation);
             unsigned int slewtime = numeric_limits<unsigned int>::max();
@@ -247,8 +247,8 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
                         if (scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
                             scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations) {
 
-                            unsigned int firstTime = first.maxTime();
-                            unsigned int secondTime = second.maxTime();
+                            unsigned int firstTime = first.getTimes().getScanEnd();
+                            unsigned int secondTime = second.getTimes().getScanEnd();
                             if (firstTime > secondTime) {
                                 swap(firstTime, secondTime);
                             }
@@ -368,7 +368,7 @@ void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
     unsigned int minTime = numeric_limits<unsigned int>::max();
     for (auto &thisScan: singleScans_) {
-        unsigned int thisTime = thisScan.maxTime();
+        unsigned int thisTime = thisScan.getTimes().getScanEnd();
         if (thisTime < minTime) {
             minTime = thisTime;
         }
@@ -377,14 +377,14 @@ void Subcon::minMaxTime() noexcept {
         }
     }
     for (auto &thisScan: subnettingScans_) {
-        unsigned int thisTime1 = thisScan.first.maxTime();
+        unsigned int thisTime1 = thisScan.first.getTimes().getScanEnd();
         if (thisTime1 < minTime) {
             minTime = thisTime1;
         }
         if (thisTime1 > maxTime) {
             maxTime = thisTime1;
         }
-        unsigned int thisTime2 = thisScan.first.maxTime();
+        unsigned int thisTime2 = thisScan.first.getTimes().getScanEnd();
         if (thisTime2 < minTime) {
             minTime = thisTime2;
         }
@@ -528,8 +528,8 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
                 continue;
             }
 
-            unsigned int maxTime1 = thisScan1.maxTime();
-            unsigned int maxTime2 = thisScan2.maxTime();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
@@ -617,8 +617,8 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
 
-            unsigned int maxTime1 = thisScan1.maxTime();
-            unsigned int maxTime2 = thisScan2.maxTime();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;

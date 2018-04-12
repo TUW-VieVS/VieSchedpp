@@ -137,11 +137,10 @@ namespace VieVS{
          * @brief wait times for field system and correlator synchronization
          */
         struct WaitTimes {
-            unsigned int setup = 0; ///< time required for setup
-            unsigned int source = 5; ///< time required for source
-            unsigned int tape = 1; ///< time required for tape
-            unsigned int calibration = 10; ///< calibration time
-            unsigned int corsynch = 3; ///< additional scan time vor correlator synchronization
+            unsigned int fieldSystem = 6; ///< time required for setup
+            unsigned int preob = 10; ///< time required for source
+            unsigned int midob = 3; ///< time required for tape
+            unsigned int postob = 0; ///< calibration time
         };
 
         /**

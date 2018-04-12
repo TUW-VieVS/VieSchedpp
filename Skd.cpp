@@ -79,8 +79,8 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     auto et = TimeSystem::endTime;
     of << boost::format("END %s \n") %TimeSystem::ptime2string_doy(et);
 
-    of << boost::format("%-12s %4d ") % "CALIBRATION" % stations[0].getWaittimes().calibration;
-    of << boost::format("%-12s %4d ") % "CORSYNCH" % stations[0].getWaittimes().corsynch;
+    of << boost::format("%-12s %4d ") % "CALIBRATION" % stations[0].getWaittimes().preob;
+    of << boost::format("%-12s %4d ") % "CORSYNCH" % stations[0].getWaittimes().midob;
     of << boost::format("%-12s %4d\n") % "DURATION" % 196;
 
     of << boost::format("%-12s %4d ") % "EARLY" % 0;
@@ -96,9 +96,9 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << boost::format("%-12s %4d ") % "MODSCAN" % 1;
     of << boost::format("%-12s %4d\n") % "PARITY" % 0;
 
-    of << boost::format("%-12s %4d ") % "SETUP" % stations[0].getWaittimes().setup;
-    of << boost::format("%-12s %4d ") % "SOURCE" % stations[0].getWaittimes().source;
-    of << boost::format("%-12s %4d ") % "TAPETM" % stations[0].getWaittimes().tape;
+    of << boost::format("%-12s %4d ") % "SETUP" % 0;
+    of << boost::format("%-12s %4d ") % "SOURCE" % stations[0].getWaittimes().fieldSystem;
+    of << boost::format("%-12s %4d ") % "TAPETM" % 0;
     of << boost::format("%-12s %4d\n") % "WIDTH" % 0;
 
     of << boost::format("%-12s %4s ") % "CONFIRM" % "Y";
@@ -511,16 +511,15 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
     of << "$SKED\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    int preob = stations[0].getWaittimes().calibration;
+    int preob = stations[0].getWaittimes().preob;
 
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
 
     for (const auto &scan:scans) {
         const string &srcName = sources[scan.getSourceId()].getName();
-        boost::posix_time::ptime start = TimeSystem::startTime + boost::posix_time::seconds(
-                static_cast<long>(scan.getTimes().getEndOfCalibrationTime(0)));
+        boost::posix_time::ptime start = TimeSystem::toPosixTime(scan.getTimes().getScanStart());
 
-        unsigned int scanTime = scan.getTimes().maxTime() - scan.getTimes().getEndOfCalibrationTime(0);
+        unsigned int scanTime = scan.getTimes().getScanTime();
 
         string ftlc;
         if(skdCatalogReader.getFreqTwoLetterCode().empty()){
@@ -543,8 +542,7 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
         }
         of << "YYNN ";
         for (int i = 0; i < scan.getNSta(); ++i) {
-            unsigned int thisScanTime =
-                    scan.getTimes().getEndOfScanTime(i) - scan.getTimes().getEndOfCalibrationTime(i);
+            unsigned int thisScanTime = scan.getTimes().getScanTime(i);
             of << boost::format("%5d ") % thisScanTime;
         }
         of << "\n";

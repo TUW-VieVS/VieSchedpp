@@ -35,7 +35,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
             const PointingVector &pv = any.getPointingVector(i);
             int staid = pv.getStaid();
 
-            unsigned int thisEndOfIdleTime = any.getTimes().getEndOfCalibrationTime(i);
+            unsigned int thisEndOfIdleTime = any.getTimes().getScanStart(i);
             if (thisEndOfIdleTime < earliestScanStart[staid]) {
                 earliestScanStart[staid] = thisEndOfIdleTime;
                 finalPosition_[staid] = pv;
@@ -83,7 +83,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
         const Station &thisSta = stations[staid];
         int assumedSlewTime = 5;
         const Station::WaitTimes wtimes = thisSta.getWaittimes();
-        if (deltaT < wtimes.setup + wtimes.source + assumedSlewTime + wtimes.calibration + wtimes.tape +
+        if (deltaT < wtimes.fieldSystem + wtimes.preob + assumedSlewTime + wtimes.postob +
                      thisSta.getPARA().minScan) {
             stationPossible_[staid] = false;
         }
@@ -100,5 +100,5 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
         }
     }
 
-    numberOfPossibleStations_ = count(stationPossible_.begin(), stationPossible_.end(), true);
+    numberOfPossibleStations_ = static_cast<int>(count(stationPossible_.begin(), stationPossible_.end(), true));
 }

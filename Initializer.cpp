@@ -863,11 +863,10 @@ void Initializer::initializeStations() noexcept {
                 for (auto &sta:stations_) {
                     if (sta.hasName(any)) {
                         Station::WaitTimes wtimes;
-                        wtimes.setup = it.second.get<double>("setup");
-                        wtimes.source = it.second.get<double>("source");
-                        wtimes.tape = it.second.get<double>("tape");
-                        wtimes.calibration = it.second.get<double>("calibration");
-                        wtimes.corsynch = it.second.get<double>("corsynch");
+                        wtimes.fieldSystem = it.second.get<double>("fieldSystem");
+                        wtimes.preob = it.second.get<double>("preob");
+                        wtimes.midob = it.second.get<double>("midob");
+                        wtimes.postob = it.second.get<double>("postob");
                         sta.setWaitTimes(wtimes);
                         break;
                     }

@@ -191,7 +191,7 @@ std::vector<int> Output::displayStationStatistics(ofstream &out) {
             const PointingVector& pv =  any.getPointingVector(ista);
             int id = pv.getStaid();
             ++nscan_sta[id];
-            time_sta[id].push_back(any.maxTime());
+            time_sta[id].push_back(any.getTimes().getScanStart());
         }
         for (int ibl = 0; ibl < any.getNBl(); ++ibl){
             const Baseline &bl = any.getBaseline(ibl);
@@ -244,7 +244,7 @@ int Output::displaySourceStatistics(ofstream &out) {
         int id = any.getSourceId();
         ++nscan_src[id];
         nbl_src[id] += any.getNBl();
-        time_src[id].push_back(any.maxTime());
+        time_src[id].push_back(any.getTimes().getScanStart());
     }
     int number = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
     out << "number of scheduled sources:   " << number << "\n";
@@ -282,19 +282,13 @@ int Output::displaySourceStatistics(ofstream &out) {
 void Output::displayScanDurationStatistics(ofstream &out) {
     unsigned long nsta = stations_.size();
     out << "required scan durations:\n";
-    vector< vector< vector< unsigned int > > > bl_durations(nsta,vector<vector<unsigned int> >(nsta));
+    vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
     vector< unsigned int> maxScanDurations;
 
     for(const auto&any: scans_){
         unsigned long nbl = any.getNBl();
-        unsigned int endScan = any.maxTime();
-        unsigned int startScan = numeric_limits<unsigned int>::max();
-        for (int i = 0; i < any.getNSta(); ++i) {
-            unsigned int thisStart = any.getTimes().getEndOfCalibrationTime(i);
-            if (thisStart<startScan){
-                startScan = thisStart;
-            }
-        }
+        unsigned int endScan = any.getTimes().getScanStart();
+        unsigned int startScan = any.getTimes().getScanEnd();
 
         maxScanDurations.push_back(endScan-startScan);
 
@@ -395,7 +389,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     vector<int> calibrationTime(nstaTotal,0);
 //    vector<int> slewTime(nstaTotal,0);
 //    vector<int> idleTime(nstaTotal,0);
-    vector<int> otherTime(nstaTotal,0);
+    vector<int> fieldSystemTime(nstaTotal,0);
     vector<int> totalTime(nstaTotal,0);
 
 
@@ -405,29 +399,14 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
             int staid = any.getPointingVector(i).getStaid();
 
-            unsigned int endOfLastScan = any.getTimes().getEndOfLastScan(i);
-            unsigned int endOfSourceTime = any.getTimes().getEndOfSourceTime(i);
-            unsigned int endOfSlewTime = any.getTimes().getEndOfSlewTime(i);
-            unsigned int endOfIdleTime = any.getTimes().getEndOfIdleTime(i);
-            unsigned int endOfTapeTime = any.getTimes().getEndOfTapeTime(i);
-            unsigned int endOfCalibrationTime = any.getTimes().getEndOfCalibrationTime(i);
-            unsigned int endOfScanTime = any.getTimes().getEndOfScanTime(i);
+            int fieldSystem = any.getTimes().getFieldSystemTime(i);
+            int preob = any.getTimes().getPreobTime(i);
+            int scan = any.getTimes().getScanTime(i);
 
-            int other1 = endOfSourceTime-endOfLastScan;
-//            int slew = endOfSlewTime-endOfSourceTime;
-//            int idle = endOfIdleTime-endOfSlewTime;
-            int other2 = endOfTapeTime-endOfIdleTime;
-            int calib = endOfCalibrationTime-endOfTapeTime;
-            int scan = endOfScanTime-endOfCalibrationTime;
-
-            otherTime[staid] += other1;
-            otherTime[staid] += other2;
-//            idleTime[staid] += idle;
-//            slewTime[staid] += slew;
-            calibrationTime[staid] += calib;
-            scanTime[staid] += scan;
-            totalTime[staid] = endOfScanTime;
-
+            fieldSystemTime[staid] += any.getTimes().getFieldSystemTime(i);
+            calibrationTime[staid] += any.getTimes().getPreobTime(i);
+            scanTime[staid] += any.getTimes().getScanTime(i);
+            totalTime[staid] = any.getTimes().getScanEnd(i);
         }
     }
 
@@ -463,7 +442,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
     ofstream << "| % slew+idle time: |";
     for (int i = 0; i < nstaTotal; ++i) {
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(totalTime[i]-calibrationTime[i]-scanTime[i]-otherTime[i])/static_cast<double>(totalTime[i])*100);
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(totalTime[i]-calibrationTime[i]-scanTime[i]-fieldSystemTime[i])/static_cast<double>(totalTime[i])*100);
     }
     ofstream << "|\n";
 
@@ -475,7 +454,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
     ofstream << "| % other time:     |";
     for (int i = 0; i < nstaTotal; ++i) {
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(otherTime[i])/static_cast<double>(totalTime[i])*100);
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(fieldSystemTime[i])/static_cast<double>(totalTime[i])*100);
     }
     ofstream << "|\n";
 
@@ -708,7 +687,7 @@ void Output::writeStatisticsPerSourceGroup() {
         }
         for(int i=0; i<scan.getNSta(); ++i){
             int staid = scan.getPointingVector(i).getStaid();
-            unsigned int duration = scan.getTimes().getEndOfScanTime(i)-scan.getTimes().getEndOfCalibrationTime(i);
+            unsigned int duration = scan.getTimes().getScanTime(i);
             scanTimePerStation[srcid][staid]+=duration;
         }
     }

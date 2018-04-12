@@ -60,8 +60,8 @@ bool Scan::constructBaselines(const Source &source) noexcept {
 
             }
 
-            unsigned int startTime1 = times_.getEndOfIdleTime(i);
-            unsigned int startTime2 = times_.getEndOfIdleTime(j);
+            unsigned int startTime1 = times_.getScanStart(i);
+            unsigned int startTime2 = times_.getScanStart(j);
             if (startTime1> startTime2){
                 baselines_.emplace_back(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
                                         pointingVectors_[j].getStaid(), startTime1);
@@ -76,9 +76,8 @@ bool Scan::constructBaselines(const Source &source) noexcept {
     return valid;
 }
 
-void Scan::addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
-                         unsigned int calib) noexcept {
-    times_.addTimes(idx, setup, source, slew, tape, calib);
+void Scan::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob) noexcept {
+    times_.addTimes(idx, fieldSystem, slew, preob);
 }
 
 bool Scan::removeStation(int idx, const Source &source) noexcept {
@@ -260,9 +259,9 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
                 maxminSNR = minSNR_bl;
             }
 
-            double maxCorSynch1 = stations[staid1].getWaittimes().corsynch;
+            double maxCorSynch1 = stations[staid1].getWaittimes().midob;
             double maxCorSynch = maxCorSynch1;
-            double maxCorSynch2 = stations[staid2].getWaittimes().corsynch;
+            double maxCorSynch2 = stations[staid2].getWaittimes().midob;
             if (maxCorSynch2 > maxCorSynch){
                 maxCorSynch = maxCorSynch2;
             }
@@ -419,7 +418,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
                 } else {
                     vector<unsigned int> thisScanStartTimes(maxFluxIdx.size());
                     for (int i : maxFluxIdx) {
-                        thisScanStartTimes[(times_.getEndOfSlewTime(i))];
+                        thisScanStartTimes[(times_.getSlewEnd(i))];
                     }
 
                     long maxmaxFluxIdx = distance(thisScanStartTimes.begin(),
@@ -461,10 +460,6 @@ vector<int> Scan::getStationIds() const noexcept {
     return std::move(ids);
 }
 
-unsigned int Scan::maxTime() const noexcept {
-    return times_.maxTime();
-}
-
 double Scan::calcScore_numberOfObservations(unsigned long maxObs) const noexcept {
     unsigned long nbl = baselines_.size();
     double thisScore = static_cast<double>(nbl) / static_cast<double>(maxObs);
@@ -495,7 +490,7 @@ double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcep
 }
 
 double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
-    unsigned int thisEndTime = times_.maxTime();
+    unsigned int thisEndTime = times_.getScanEnd();
     double score = 1 - static_cast<double>(thisEndTime - minTime) / static_cast<double>(maxTime - minTime);
     return score;
 }
@@ -547,8 +542,8 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
     int ista = 0;
     while (ista < nsta_) {
         PointingVector &pv = pointingVectors_[ista];
-        unsigned int slewStart = times_.getEndOfSourceTime(ista);
-        unsigned int slewEnd = times_.getEndOfSlewTime(ista);
+        unsigned int slewStart = times_.getSlewStart(ista);
+        unsigned int slewEnd = times_.getSlewEnd(ista);
         const Station &thisStation = stations[pv.getStaid()];
 
         unsigned int oldSlewEnd = 0;
@@ -638,8 +633,8 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
         // SECOND.SECOND STEP: check if source is available during whole scan
         ista = 0;
         while (ista < nsta_ && !stationRemoved) {
-            unsigned int scanStart = times_.getEndOfCalibrationTime(ista);
-            unsigned int scanEnd = times_.getEndOfScanTime(ista);
+            unsigned int scanStart = times_.getScanStart(ista);
+            unsigned int scanEnd = times_.getScanEnd(ista);
             PointingVector &pv = pointingVectors_[ista];
             const Station &thisStation = stations[pv.getStaid()];
 
@@ -721,14 +716,12 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
         baselines_.push_back(any);
     }
     if(station.getPARA().firstScan){
-        times_.addTagalongStation(pv_start, pv_end, 0, 0, 0, 0, 0, 0);
+        times_.addTagalongStation(pv_start, pv_end, 0, 0, 0, 0);
     }else{
         times_.addTagalongStation(pv_start, pv_end, slewtime,
                                   station.getCurrentTime(),
-                                  station.getWaittimes().setup,
-                                  station.getWaittimes().source,
-                                  station.getWaittimes().tape,
-                                  station.getWaittimes().calibration);
+                                  station.getWaittimes().fieldSystem,
+                                  station.getWaittimes().preob);
     }
 }
 
@@ -1089,27 +1082,24 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     of << buffer2.str();
     unsigned int maxValue = numeric_limits<unsigned int>::max();
 
-    vector<unsigned int> slewStart(nmaxsta, maxValue);
-    vector<unsigned int> slewEnd(nmaxsta, maxValue);
-    vector<unsigned int> ideling(nmaxsta, maxValue);
+    vector<unsigned int> slewTime(nmaxsta, maxValue);
+    vector<unsigned int> idleTime(nmaxsta, maxValue);
     vector<unsigned int> scanStart(nmaxsta, maxValue);
-    vector<unsigned int> scanEnd(nmaxsta, maxValue);
+    vector<unsigned int> scanTime(nmaxsta, maxValue);
 
 
     for (int idx = 0; idx < nsta_; ++idx) {
         int staid = pointingVectors_[idx].getStaid();
-        slewStart[staid] = times_.getEndOfSourceTime(idx);
-        slewEnd[staid] = times_.getEndOfSlewTime(idx);
-        ideling[staid] = times_.getEndOfIdleTime(idx);
-        scanStart[staid] = times_.getEndOfCalibrationTime(idx);
-        scanEnd[staid] = times_.getEndOfScanTime(idx);
+        slewTime[staid] = times_.getSlewTime(idx);
+        idleTime[staid] = times_.getIdleTime(idx);
+        scanStart[staid] = times_.getScanStart(idx);
+        scanTime[staid] = times_.getScanTime(idx);
     }
 
     of << "| slew time  | ";
     for(int i = 0; i< nmaxsta; ++i){
-        if(slewStart[i] != maxValue){
-            int deltaTime = slewEnd[i]-slewStart[i];
-            of << boost::format("%8d | ") % deltaTime;
+        if(slewTime[i] != maxValue){
+            of << boost::format("%8d | ") % slewTime[i];
         }else{
             of << "         | ";
         }
@@ -1118,9 +1108,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
 
     of << "| idle time  | ";
     for(int i = 0; i< nmaxsta; ++i){
-        if(slewStart[i] != maxValue){
-            int deltaTime = ideling[i]-slewEnd[i];
-            of << boost::format("%8d | ") % deltaTime;
+        if(idleTime[i] != maxValue){
+            of << boost::format("%8d | ") % idleTime[i];
         }else{
             of << "         | ";
         }
@@ -1141,9 +1130,8 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
 
     of << "| scan time  | ";
     for(int i = 0; i< nmaxsta; ++i){
-        if(slewStart[i] != maxValue){
-            int deltaTime = scanEnd[i]-scanStart[i];
-            of << boost::format("%8d | ") % deltaTime;
+        if(scanTime[i] != maxValue){
+            of << boost::format("%8d | ") % scanTime[i];
         }else{
             of << "         | ";
         }
@@ -1215,7 +1203,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
         int staid = fillinScanStart.getStaid();
 
         // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
-        unsigned int endOfFillinScan = times_.getEndOfScanTime(pv_id);
+        unsigned int endOfFillinScan = times_.getScanEnd(pv_id);
         const PointingVector &finalPosition = pv_final_position[staid];
 
         if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
@@ -1258,7 +1246,7 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
             }
 
             const Station::WaitTimes &wtimes = thisStation.getWaittimes();
-            int time_needed = slewTime + wtimes.calibration + wtimes.setup + wtimes.source + wtimes.tape;
+            int time_needed = slewTime + wtimes.fieldSystem + wtimes.preob;
             if (time_needed > availableTime) {
                 bool valid = removeStation(pv_id, source);
                 if (!valid) {
@@ -1329,8 +1317,8 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
                         const vector<unsigned int> &slewTime, unsigned int preob,
                         unsigned int scanStart, const vector<unsigned int> &scanDurations) {
     times_.setEndOfLastScan(eols);
-    for(int i=0; i<slewTime.size(); ++i){
-        times_.addTimes(i,0,fieldSystemTime,slewTime.at(i),0,0);
+    for(int i=0; i < slewTime.size(); ++i){
+        times_.addTimes(i, fieldSystemTime, slewTime.at(static_cast<unsigned long>(i)), 0);
     }
     times_.setStartTime(scanStart);
     bool valid = times_.substractPreobTimeFromStartTime(preob);

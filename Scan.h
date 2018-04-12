@@ -251,8 +251,7 @@ namespace VieVS{
          * @param tape tape time in seconds
          * @param calib calibration time in secons
          */
-        void addTimes(int idx, unsigned int setup, unsigned int source, unsigned int slew, unsigned int tape,
-                      unsigned int calib) noexcept;
+        void addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob) noexcept;
 
         /**
          * @brief constructs all possible baselines with the pointing vectors
@@ -384,12 +383,6 @@ namespace VieVS{
                                const std::vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
                                unsigned int nMaxBl, const Source &source);
 
-        /**
-         * @brief time required for this scan
-         *
-         * @return time in seconds since session start until all stations finish scan
-         */
-        unsigned int maxTime() const noexcept;
 
         /**
          * @brief checks a scan with rigorous models

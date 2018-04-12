@@ -90,7 +90,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             Scan &bestScan1 = bestScan_pair.first;
             Scan &bestScan2 = bestScan_pair.second;
 
-            if (bestScan1.maxTime() > bestScan2.maxTime()) {
+            if (bestScan1.getTimes().getScanStart() > bestScan2.getTimes().getScanStart()) {
                 swap(bestScan1, bestScan2);
             }
             bestScans.push_back(bestScan1);
@@ -99,8 +99,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
-            if (any.maxTime() > all_maxTime) {
-                all_maxTime = any.maxTime();
+            if (any.getTimes().getScanEnd() > all_maxTime) {
+                all_maxTime = any.getTimes().getScanEnd();
             }
         }
 
@@ -261,7 +261,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
             PointingVector p(ista,isrc);
 
             const Station::WaitTimes &wtimes = thisSta.getWaittimes();
-            unsigned int time = lastScanLookup[ista] + wtimes.setup + wtimes.source + wtimes.tape + wtimes.calibration;
+            unsigned int time = lastScanLookup[ista] + wtimes.fieldSystem + wtimes.preob;
 
             p.setTime(time);
 
@@ -304,7 +304,7 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
         }
     }
 
-    unsigned int latestTime = scan.maxTime();
+    unsigned int latestTime = scan.getTimes().getScanStart();
     Source &thisSource = sources_[srcid];
     thisSource.update(nbl, latestTime, scanHasInfluence);
 
@@ -507,7 +507,7 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
         const vector<PointingVector> & end = tmp.second;
 
         const Station::WaitTimes wtimes = any.getWaittimes();
-        unsigned int constTimes = wtimes.setup + wtimes.source + wtimes.calibration + wtimes.tape;
+        unsigned int constTimes = wtimes.fieldSystem + wtimes.preob;
 
         if (end.empty()) {
             continue;
@@ -723,7 +723,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
             Scan &bestScan1 = bestScan_pair.first;
             Scan &bestScan2 = bestScan_pair.second;
 
-            if (bestScan1.maxTime() > bestScan2.maxTime()) {
+            if (bestScan1.getTimes().getScanStart() > bestScan2.getTimes().getScanStart()) {
                 swap(bestScan1, bestScan2);
             }
             bestScans.push_back(bestScan1);
@@ -783,8 +783,8 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
-            if (any.maxTime() > all_maxTime) {
-                all_maxTime = any.maxTime();
+            if (any.getTimes().getScanEnd() > all_maxTime) {
+                all_maxTime = any.getTimes().getScanEnd();
             }
         }
 
@@ -878,16 +878,13 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
     bodyLog << "Start tagalong mode for station " << station.getName() << ": \n";
 
     // get wait times
-    unsigned int stationConstTimes = station.getWaittimes().setup +
-            station.getWaittimes().calibration +
-            station.getWaittimes().source +
-            station.getWaittimes().tape;
+    unsigned int stationConstTimes = station.getWaittimes().fieldSystem + station.getWaittimes().preob + station.getWaittimes().postob;
 
     // loop through all scans
     unsigned long counter = 0;
     for(auto & scan:scans_){
         ++counter;
-        unsigned int scanStartTime = scan.getTimes().scanStart();
+        unsigned int scanStartTime = scan.getTimes().getScanStart();
         unsigned int currentStationTime = station.getCurrentTime();
 
         if(scan.getType() == Scan::ScanType::fillin){
@@ -999,9 +996,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                             maxminSNR = minSNR_bl;
                         }
 
-                        double maxCorSynch1 = stations_[staid1].getWaittimes().corsynch;
+                        double maxCorSynch1 = stations_[staid1].getWaittimes().midob;
                         double maxCorSynch = maxCorSynch1;
-                        double maxCorSynch2 = stations_[staid2].getWaittimes().corsynch;
+                        double maxCorSynch2 = stations_[staid2].getWaittimes().midob;
                         if (maxCorSynch2 > maxCorSynch) {
                             maxCorSynch = maxCorSynch2;
                         }
