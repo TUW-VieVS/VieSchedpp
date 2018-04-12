@@ -10,8 +10,6 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <vector>
-
 constexpr double pi = 3.141592653589793; ///< value of pi
 constexpr double twopi = 2 * pi; ///< value of 2 times pi
 constexpr double halfpi = pi / 2; ///< value of half pi

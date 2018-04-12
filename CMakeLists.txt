@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(VLBI_scheduler)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES
         Antenna.cpp
@@ -77,7 +77,7 @@ set(SOURCE_FILES
         Skd.cpp
         Skd.h
         SkdParser.cpp
-        SkdParser.h LogParser.cpp LogParser.h VieVS_Object.cpp VieVS_Object.h VieVS_NamedObject.cpp VieVS_NamedObject.h)
+        SkdParser.h LogParser.cpp LogParser.h VieVS_Object.cpp VieVS_Object.h VieVS_NamedObject.cpp VieVS_NamedObject.h Flux_B.cpp Flux_B.h Flux_M.cpp Flux_M.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

@@ -17,7 +17,7 @@ using namespace VieVS;
 int VieVS::Source::nextId = 0;
 
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-               unordered_map<string, Flux> src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
+               const unordered_map<string, shared_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
                                                       ra_{src_ra_deg * deg2rad}, de_{src_de_deg * deg2rad},
                                                       flux_{std::move(src_flux)}, lastScan_{0}, nScans_{0},
                                                       nTotalScans_{0}, nBaselines_{0}{
@@ -36,7 +36,7 @@ bool Source::isStrongEnough(double &maxFlux) const noexcept {
     maxFlux = 0;
 
     for (auto& any: flux_){
-        double thisFlux = any.second.getMaximumFlux();
+        double thisFlux = any.second->getMaximumFlux();
         if (thisFlux > maxFlux){
             maxFlux = thisFlux;
         }
@@ -65,7 +65,7 @@ double Source::observedFlux(const string &band, double gmst, double dx, double d
     double u = dx * sin(ha) + dy * cos(ha);
     double v = dz*cos(de_) + sin(de_) * (-dx * cos(ha) + dy * sin(ha));
 
-    double flux = flux_.at(band).observedFlux(u, v);
+    double flux = flux_.at(band)->observedFlux(u, v);
     return flux;
 }
 

@@ -284,6 +284,9 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 }
 
 void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+
+    double flcon2{pi / (3600.0 * 180.0 * 1000.0)};
+
     reader.initializeSourceCatalogs();
     const map<string, vector<string> > &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string> > &fluxCatalog = reader.getFluxCatalog();
@@ -380,12 +383,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             flux_cat = fluxCatalog.at(commonname);
         }
 
-//            if (flux_cat.size() < 6){
-//                headerLog <<"*** ERROR: "<< name << ": flux.cat to small ***\n";
-//                continue;
-//            }
-
-        unordered_map<string,Flux> flux;
+        unordered_map<string, shared_ptr<Flux> > flux;
 
         vector<vector<string> > flux_split;
         for (auto &i : flux_cat) {
@@ -442,18 +440,74 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                 }
             }
 
-            Flux srcFlux(thisType);
-            bool flagFlux = srcFlux.addFluxParameters(parameters);
+            shared_ptr<Flux> srcFlux;
+            bool errorWhileReadingFlux = false;
 
-            srcFlux.setWavelength(ObservationMode::wavelength[thisBand]);
+            if(thisType == "M"){
+                std::vector<double> tflux;
+                std::vector<double> tmajorAxis;
+                std::vector<double> taxialRatio;
+                std::vector<double> tpositionAngle;
 
+                unsigned long npara = parameters.size();
 
-            if (flagFlux){
-                flux.emplace(make_pair(thisBand,srcFlux));
+                unsigned long nmodels = npara / 6;
+                for(unsigned int i=0; i<nmodels; ++i){
+                    try{
+                        tflux.push_back(boost::lexical_cast<double>(parameters.at(i*6+0)));
+                        tmajorAxis.push_back(boost::lexical_cast<double>(parameters.at(i*6+1))* flcon2);
+                        taxialRatio.push_back(boost::lexical_cast<double>(parameters.at(i*6+2)));
+                        tpositionAngle.push_back(boost::lexical_cast<double>(parameters.at(i*6+3))*deg2rad);
+                    }
+                    catch(const std::exception& e){
+                        errorWhileReadingFlux = true;
+                        cout << "ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information;\n";
+                        break;
+                    }
+                }
+
+                if(!errorWhileReadingFlux){
+                    srcFlux = make_shared<Flux_M>(ObservationMode::wavelength[thisBand],tflux,tmajorAxis,taxialRatio,tpositionAngle);
+                }
             }else{
-                cerr << "ERROR: error reading flux info of: "<< name << ";\n";
+                std::vector<double> knots; ///< baseline length of flux information (type B)
+                std::vector<double> values; ///< corresponding flux information for baseline length (type B)
+
+                unsigned long npara = parameters.size();
+                for(int i=0; i<npara; ++i){
+                    try{
+                        if (i%2==0){
+                            knots.push_back(boost::lexical_cast<double>(parameters[i]));
+                        }
+                        else {
+                            values.push_back(boost::lexical_cast<double>(parameters[i]));
+                        }
+                    }
+                    catch(const std::exception& e){
+                        errorWhileReadingFlux = true;
+                        cout << "ERROR: reading flux information; \n";
+                        break;
+                    }
+                }
+
+                if(!errorWhileReadingFlux){
+                    srcFlux = make_shared<Flux_B>(ObservationMode::wavelength[thisBand],knots,values);
+                }
+
             }
-            ++cflux;
+
+//            bool flagFlux = srcFlux.addFluxParameters(parameters);
+//            srcFlux.setWavelength(ObservationMode::wavelength[thisBand]);
+//            if (flagFlux){
+//                flux.emplace(make_pair(thisBand,srcFlux));
+//            }else{
+//                cerr << "ERROR: error reading flux info of: "<< name << ";\n";
+//            }
+
+            if(!errorWhileReadingFlux){
+                flux.emplace(make_pair(thisBand,move(srcFlux)));
+                ++cflux;
+            }
         }
 
         bool fluxBandInfoOk = true;
@@ -464,47 +518,49 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     break;
                 }
                 if(ObservationMode::sourceBackup[bandName] == ObservationMode::Backup::value){
-                    Flux tmp("B");
-                    tmp.setWavelength(ObservationMode::wavelength[bandName]);
-                    tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                    flux.emplace(make_pair(bandName,tmp));
+                    shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{ObservationMode::stationBackupValue[bandName]});
+//                    tmp.setWavelength(ObservationMode::wavelength[bandName]);
+//                    tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(ObservationMode::stationBackupValue[bandName]),"13000.0"});
+                    flux.emplace(make_pair(bandName,move(tmp)));
                 }
             }
         }
         if(!fluxBandInfoOk){
-            cerr << "WARNING: source " << name << " required SEFD_ information missing!;\n";
+            cerr << "WARNING: source " << name << " required flux information missing!;\n";
         }
 
         if(flux.size() != ObservationMode::bands.size()){
             if(flux.empty()){
-                cerr << "ERROR: station " << name << " no SEFD_ information found to calculate backup value!;\n";
+                cerr << "ERROR: source " << name << " no flux information found to calculate backup value!;\n";
                 continue;
             }
             double max = 0;
             double min = std::numeric_limits<double>::max();
             for(const auto &any2:flux){
                 //TODO use something like .getMinimumFlux instead of .getMaximumFlux
-                if(any2.second.getMaximumFlux()<min){
-                    min = any2.second.getMaximumFlux();
+                if(any2.second->getMaximumFlux()<min){
+                    min = any2.second->getMaximumFlux();
                 }
-                if(any2.second.getMaximumFlux()>max){
-                    max = any2.second.getMaximumFlux();
+                if(any2.second->getMaximumFlux()>max){
+                    max = any2.second->getMaximumFlux();
                 }
             }
             for(const auto &bandName:ObservationMode::bands){
                 if(flux.find(bandName) == flux.end()){
                     if(ObservationMode::stationBackup[bandName] == ObservationMode::Backup::minValueTimes){
-                        Flux tmp("B");
-                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
-                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(min * ObservationMode::stationBackupValue[bandName]),"13000.0"});
-                        flux.emplace(make_pair(bandName,tmp));
+                        shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{min * ObservationMode::stationBackupValue[bandName]});
+//                        Flux tmp("B");
+//                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
+//                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(min * ObservationMode::stationBackupValue[bandName]),"13000.0"});
+                        flux.emplace(make_pair(bandName,move(tmp)));
                     }
                     if(ObservationMode::stationBackup[bandName] == ObservationMode::Backup::maxValueTimes){
-                        Flux tmp("B");
-                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
-                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(max * ObservationMode::stationBackupValue[bandName]),"13000.0"});
+                        shared_ptr<Flux_B> tmp = make_shared<Flux_B>(ObservationMode::wavelength[bandName], vector<double>{0,13000}, vector<double>{max * ObservationMode::stationBackupValue[bandName]});
+//                        Flux tmp("B");
+//                        tmp.setWavelength(ObservationMode::wavelength[bandName]);
+//                        tmp.addFluxParameters(vector<string>{"0",boost::lexical_cast<std::string>(max * ObservationMode::stationBackupValue[bandName]),"13000.0"});
 
-                        flux.emplace(make_pair(bandName,tmp));
+                        flux.emplace(make_pair(bandName,move(tmp)));
                     }
                 }
             }

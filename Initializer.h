@@ -32,6 +32,8 @@
 #include "CalibratorBlock.h"
 #include "Scan.h"
 #include "ParameterSettings.h"
+#include "Flux_B.h"
+#include "Flux_M.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"

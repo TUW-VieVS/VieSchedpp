@@ -45,7 +45,7 @@ namespace VieVS{
          *
          * @param sched scheduler
          */
-        explicit Output(Scheduler &sched, std::string path);
+        Output(Scheduler &sched, std::string path);
 
         /**
          * @brief sets the number of this schedule

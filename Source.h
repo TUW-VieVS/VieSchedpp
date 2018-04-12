@@ -17,6 +17,7 @@
 #include <utility>
 #include <boost/optional.hpp>
 #include <unordered_map>
+#include <memory>
 
 #include "Flux.h"
 #include "Constants.h"
@@ -196,7 +197,7 @@ namespace VieVS{
          * @param src_flux flux information per band
          */
         Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-               std::unordered_map<std::string, Flux> src_flux);
+               const std::unordered_map<std::string, std::shared_ptr<Flux>> &src_flux);
 
 
         /**
@@ -390,7 +391,7 @@ namespace VieVS{
     private:
         double ra_; ///< source right ascension
         double de_; ///< source declination
-        std::unordered_map<std::string, Flux> flux_; ///< source flux information per band
+        std::unordered_map<std::string, std::shared_ptr<Flux> > flux_; ///< source flux information per band
 
         Parameters parameters_; ///< parameters
         PreCalculated preCalculated_; ///< pre calculated values

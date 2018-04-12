@@ -2,17 +2,19 @@
 // Created by mschartn on 22.08.17.
 //
 
-#include <set>
 #include "Output.h"
+
+#include <utility>
+
 using namespace std;
 using namespace VieVS;
 
 Output::Output() = default;
 
-Output::Output(Scheduler &sched, std::string path) : xml_{std::move(sched.xml_)},
+Output::Output(Scheduler &sched, std::string path) : xml_{sched.xml_},
                                    stations_{std::move(sched.stations_)}, sources_{std::move(sched.sources_)},
                                    skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)},
-                                   path_{path} {
+                                   path_{std::move(path)} {
 }
 
 
