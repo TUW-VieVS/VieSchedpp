@@ -322,7 +322,8 @@ namespace VieVS {
          * @param influenceInterval maximum time influence distance in seconds
          * @param maxTwinTelecopeDistance maximum distance between twin telescopes
          */
-        void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance);
+        void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistancestring,
+                         std::string interpolationDistance, std::string interpolationTime);
 
         /**
          * @brief weightFactor block in parameter.xml

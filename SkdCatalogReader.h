@@ -18,7 +18,7 @@
 #include "VieVS_Object.h"
 
 namespace VieVS {
-    class SkdCatalogReader: VieVS_Object {
+    class SkdCatalogReader: public VieVS_Object {
     public:
 
         /**

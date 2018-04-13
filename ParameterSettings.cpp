@@ -732,11 +732,14 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 }
 
 
-void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance) {
+void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance,
+                                    string interpolationDistance, string interpolationTime) {
     boost::property_tree::ptree skyCoverage;
     skyCoverage.add("skyCoverage.influenceDistance", influenceDistance);
     skyCoverage.add("skyCoverage.influenceInterval", influenceInterval);
     skyCoverage.add("skyCoverage.maxTwinTelecopeDistance", maxTwinTelecopeDistance);
+    skyCoverage.add("skyCoverage.interpolationDistance", interpolationDistance);
+    skyCoverage.add("skyCoverage.interpolationTime", interpolationTime);
 
 
     master_.add_child("master.skyCoverage", skyCoverage.get_child("skyCoverage"));

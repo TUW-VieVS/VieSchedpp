@@ -13,7 +13,7 @@
 #include "Initializer.h"
 
 namespace VieVS{
-    class SkdParser:VieVS_Object {
+    class SkdParser: public VieVS_Object {
     public:
 
         explicit SkdParser(const std::string &filename);
