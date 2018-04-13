@@ -63,7 +63,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 //    outstream.close();
 
     while (true) {
-        Subcon subcon = createSubcon(parameters_.subnetting);
+        Subcon subcon = createSubcon(parameters_.subnetting, false, false);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
         subcon.precalcScore(stations_, sources_);
         subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
@@ -176,8 +176,8 @@ void Scheduler::statistics(ofstream &log) {
     log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered << "\n";
 }
 
-Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
-    Subcon subcon = allVisibleScans(calibrator);
+Subcon Scheduler::createSubcon(bool subnetting, bool calibrator, bool fillinmode) noexcept {
+    Subcon subcon = allVisibleScans(calibrator, fillinmode);
     subcon.calcStartTimes(stations_, sources_);
     subcon.updateAzEl(stations_, sources_);
     subcon.constructAllBaselines(sources_);
@@ -197,7 +197,7 @@ Subcon Scheduler::createSubcon(bool subnetting, bool calibrator) noexcept {
 }
 
 
-Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
+Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
     unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
@@ -217,6 +217,10 @@ Subcon Scheduler::allVisibleScans(bool calibrator) noexcept {
         Source &thisSource = sources_[isrc];
 
         if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
+            continue;
+        }
+
+        if (fillinmode && !thisSource.getPARA().availableForFillinmode) {
             continue;
         }
 
@@ -446,9 +450,9 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
 
     const std::vector<char> &stationPossible = fi_endp.getStationPossible();
     for (int i = 0; i < stations_.size(); ++i) {
-        stations_[i].referencePARA().setAvailable(stationPossible[i]);
+        stations_[i].referencePARA().available = stationPossible[i];
     }
-    Subcon subcon = createSubcon(false);
+    Subcon subcon = createSubcon(false, false, true);
     consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
     subcon.precalcScore(stations_, sources_);
     subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
@@ -481,16 +485,16 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
         fi_endp = FillinmodeEndposition(bestScans, stations_);
         const std::vector<char> &stationPossible = fi_endp.getStationPossible();
         for (int i = 0; i < stations_.size(); ++i) {
-            stations_[i].referencePARA().setAvailable(stationPossible[i]);
+            stations_[i].referencePARA().available = stationPossible[i];
         }
-        subcon = createSubcon(false);
+        subcon = createSubcon(false, false, true);
         consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
         subcon.precalcScore(stations_, sources_);
         subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
     }
 
     for (int i = 0; i < stations_.size(); ++i) {
-        stations_[i].referencePARA().setAvailable(stationAvailable[i]);
+        stations_[i].referencePARA().available = stationAvailable[i];
     }
 }
 
@@ -699,7 +703,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
     for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
 
-        Subcon subcon = createSubcon(parameters_.subnetting, true);
+        Subcon subcon = createSubcon(parameters_.subnetting, true, false);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
         subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta),
                              stations_, sources_);
@@ -875,7 +879,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
     bodyLog << "Start tagalong mode for station " << station.getName() << ": \n";
 
     // get wait times
-    unsigned int stationConstTimes = station.getWaittimes().fieldSystem + station.getWaittimes().preob + station.getWaittimes().postob;
+    unsigned int stationConstTimes = station.getWaittimes().fieldSystem + station.getWaittimes().preob;
 
     // loop through all scans
     unsigned long counter = 0;
@@ -907,13 +911,15 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
 
             station.getCableWrap().calcUnwrappedAz(station.getCurrentPointingVector(),pv_new_start);
 
-            unsigned int slewtime = station.slewTime(pv_new_start);
-//            cout << "scan: " << counter << " slew time: " << slewtime <<"\n";
-            // check if there is enough time to slew to source before scan starts
-            if (scanStartTime < currentStationTime + slewtime + stationConstTimes){
+            auto slewtime = station.slewTime(pv_new_start);
+            if (!slewtime.is_initialized()) {
                 continue;
             }
 
+            // check if there is enough time to slew to source before scan starts
+            if (scanStartTime < currentStationTime + *slewtime + stationConstTimes) {
+                continue;
+            }
 
             // loop through all other participating stations and prepare baselines
             vector<Baseline> bls;
@@ -1063,7 +1069,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                 continue;
             }
 
-            scan.addTagalongStation(pv_new_start, pv_new_end, bls, slewtime, station);
+            scan.addTagalongStation(pv_new_start, pv_new_end, bls, *slewtime, station);
             bodyLog << boost::format("possible to observe source: %-8s (scan: %4d) scan start: %5d scan end: %5d \n")
                        %source.getName() %counter %pv_new_start.getTime() %pv_new_end.getTime();
             if(station.referencePARA().firstScan){

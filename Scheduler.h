@@ -76,14 +76,14 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        Subcon createSubcon(bool subnetting, bool calibrator = false) noexcept;
+        Subcon createSubcon(bool subnetting, bool calibrator, bool fillinmode) noexcept;
 
         /**
          * @brief constructs all visible scans
          *
          * @return subcon with all visible single source scans
          */
-        Subcon allVisibleScans(bool calibrator = false) noexcept;
+        Subcon allVisibleScans(bool calibrator, bool fillinmode) noexcept;
 
 
         /**

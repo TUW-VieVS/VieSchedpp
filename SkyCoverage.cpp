@@ -15,13 +15,13 @@
 using namespace std;
 using namespace VieVS;
 
-vector<vector<vector<float> > > VieVS::SkyCoverage::angularDistanceLookup = {};
 int VieVS::SkyCoverage::nextId = 0;
 
 double SkyCoverage::maxInfluenceTime = 3600;
 double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
 double SkyCoverage::maxTwinTelecopeDistance = 0;
-
+SkyCoverage::Interpolation SkyCoverage::interpolationDistance = Interpolation::linear;
+SkyCoverage::Interpolation SkyCoverage::interpolationTime = Interpolation::linear;
 
 SkyCoverage::SkyCoverage(const vector<int> &staids): VieVS_Object(nextId++), nStations_{staids.size()}, staids_{staids}{
 }
@@ -110,40 +110,45 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
         return 1;
     }
 
-    double pv_1_el = pv_old.getEl();
-    double pv_2_el = pv_new.getEl();
-
-    double pv_1_az = pv_old.getAz();
-    double pv_2_az = pv_new.getAz();
-    if(pv_2_az>pv_1_az){
-        swap(pv_1_az,pv_2_az);
-    }
-    double delta_az = (pv_1_az - pv_2_az)*rad2deg;
-    while (delta_az>180){
-        delta_az = delta_az-360;
-    }
-
-
-    int pv_delta_az = abs(static_cast<int>(delta_az + .5)); // +.5 for rounding
-    if(pv_1_el>pv_2_el){
-        swap(pv_1_el,pv_2_el);
-    }
-    int thisEl = static_cast<int>(pv_1_el * rad2deg + .5); // +.5 for rounding
-    int pv_delta_el = static_cast<int>((pv_2_el - pv_1_el) * rad2deg + .5); // +.5 for rounding
-    float distance = SkyCoverage::angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
+    float distance = LookupTable::angularDistance(pv_new, pv_old);
 
     if (distance > SkyCoverage::maxInfluenceDistance) {
         return 1;
     }
 
-//        double scoreDistance = .5 + .5 * cos(distance * pi / maxDistDistance);
-//        double scoreTime = .5 + .5 * cos(deltaTime * pi / maxDistTime );
-    double scoreDistance =
-            .5 + .5 * (LookupTable::cosLookup[static_cast<int>(distance * pi / SkyCoverage::maxInfluenceDistance * 1000)]);
-    double scoreTime = .5 + .5 * (LookupTable::cosLookup[static_cast<int>(deltaTime * pi / SkyCoverage::maxInfluenceTime * 1000)]);
-    double thisScore = 1 - (scoreDistance * scoreTime);
+    double scoreDistance;
+    switch (interpolationDistance) {
+        case Interpolation::constant: {
+            scoreDistance = 0;
+            break;
+        }
+        case Interpolation::linear: {
+            scoreDistance = distance / maxInfluenceDistance;
+            break;
+        }
+        case Interpolation::cosine: {
+            scoreDistance = .5 + .5 * (LookupTable::cosLookup(distance * pi / maxInfluenceDistance));
+            break;
+        }
+    }
 
-    return thisScore;
+    double scoreTime;
+    switch (interpolationTime) {
+        case Interpolation::constant: {
+            scoreTime = 0;
+            break;
+        }
+        case Interpolation::linear: {
+            scoreTime = deltaTime / maxInfluenceTime;
+            break;
+        }
+        case Interpolation::cosine: {
+            scoreTime = .5 + .5 * (LookupTable::cosLookup(deltaTime * pi / maxInfluenceTime));
+            break;
+        }
+    }
+
+    return 1 - (scoreDistance * scoreTime);
 }
 
 void SkyCoverage::clearObservations() {

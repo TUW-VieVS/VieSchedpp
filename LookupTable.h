@@ -11,6 +11,11 @@
 #define LOOKUPTABLE_H
 
 #include <unordered_map>
+#include <vector>
+
+#include "Constants.h"
+
+#include "PointingVector.h"
 
 namespace VieVS {
     /**
@@ -24,10 +29,23 @@ namespace VieVS {
      * @date 02.08.2017
      */
     class LookupTable {
+    private:
+        static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
+        static std::unordered_map<int, double> sinLookupTable; ///< table for fast lookup for sine function with reduced accuracy. Key is fraction of .001 pi
+        static std::unordered_map<int, double> cosLookupTable; ///< table for fast lookup for cosine function with reuced accuracy. Key is fraction of .001 pi
+        static std::unordered_map<int, double> acosLookupTable; ///< table for fast lookup for inverse cosine function with reduced accuracy. Key is fraction of .001 pi
+
     public:
-        static std::unordered_map<int, double> sinLookup; ///< table for fast lookup for sine function with reduced accuracy. Key is fraction of .001 pi
-        static std::unordered_map<int, double> cosLookup; ///< table for fast lookup for cosine function with reuced accuracy. Key is fraction of .001 pi
-        static std::unordered_map<int, double> acosLookup; ///< table for fast lookup for inverse cosine function with reduced accuracy. Key is fraction of .001 pi
+        static void initialize();
+
+        static double sinLookup(double x);
+
+        static double cosLookup(double x);
+
+        static double acosLookup(double x);
+
+
+        static float angularDistance(const PointingVector &p1, const PointingVector &p2) noexcept;
     };
 }
 

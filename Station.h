@@ -70,35 +70,22 @@ namespace VieVS{
             bool firstScan = false; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             bool available = true;  ///< if set to true: this station is available for a scan
             bool tagalong = false;  ///< if set to true: station is in tagalong mode
+            bool availableForFillinmode = true;
+
             double weight = 1; ///< multiplicative factor of score for scans with this station
             double minElevation = 5*deg2rad; /// minimum elevation
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
             unsigned int maxSlewtime = 600; ///< maximum allowed slewtime
+            double maxSlewDistance = 175 * deg2rad;
+            double minSlewDistance = 0;
             unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas
             unsigned int maxScan = 600; ///< maximum allowed scan time
             unsigned int minScan = 20; ///< minimum required scan time
+            unsigned int maxNumberOfScans = 9999;
 
             std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
-
-            /**
-             * @brief setter for available
-             *
-             * @param flag true if station is available
-             */
-            void setAvailable(bool flag) {
-                Parameters::available = flag;
-            }
-
-            /**
-             * @brief setter for first scan
-             *
-             * @param flag true if this is the first scan for a station after down time or at beginning of schedule
-             */
-            void setFirstScan(bool flag) {
-                Parameters::firstScan = flag;
-            }
 
             /**
              * @brief output of the curren parameters to out stream
@@ -147,7 +134,7 @@ namespace VieVS{
          * @brief setter for wait times
          * @param waittimes new wait times
          */
-        void setWaitTimes(const WaitTimes &waittimes) {
+        void setWaitTimes(WaitTimes &waittimes) {
             Station::waitTimes_ = std::make_shared<WaitTimes>(std::move(waittimes));
         }
 
@@ -389,7 +376,7 @@ namespace VieVS{
          * @param pointingVector slew end position
          * @return slew time in seconds
          */
-        unsigned int slewTime(const PointingVector &pointingVector) const noexcept;
+        boost::optional<unsigned int> slewTime(const PointingVector &pointingVector) const noexcept;
 
         /**
          * @brief calculate azimuth and elevation of source at a given time

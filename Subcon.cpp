@@ -49,9 +49,9 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
 
             thisSta.getCableWrap().calcUnwrappedAz(thisSta.getCurrentPointingVector(),
                                                    singleScans_[i].referencePointingVector(j));
-            unsigned int slewtime = thisSta.slewTime(singleScans_[i].getPointingVector(j));
+            auto slewtime = thisSta.slewTime(singleScans_[i].getPointingVector(j));
 
-            if (slewtime > thisSta.getPARA().maxSlewtime) {
+            if (!slewtime.is_initialized()) {
                 scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
@@ -59,7 +59,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
             } else {
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 const Station::WaitTimes wtimes = thisSta.getWaittimes();
-                singleScans_[i].addTimes(j, wtimes.fieldSystem, slewtime, wtimes.preob);
+                singleScans_[i].addTimes(j, wtimes.fieldSystem, *slewtime, wtimes.preob);
                 ++j;
             }
         }
@@ -108,7 +108,8 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
             thisPointingVector.setTime(singleScans_[i].getTimes().getScanStart(j));
             stations[staid].calcAzEl(thisSource, thisPointingVector);
             bool visible = stations[staid].isVisible(thisPointingVector, sources[singleScans_[i].getSourceId()].getPARA().minElevation);
-            unsigned int slewtime = numeric_limits<unsigned int>::max();
+
+            boost::optional<unsigned int> slewtime;
 
             if (visible){
                 stations[staid].getCableWrap().calcUnwrappedAz(stations[staid].getCurrentPointingVector(),
@@ -116,14 +117,14 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
                 slewtime = stations[staid].slewTime(thisPointingVector);
             }
 
-            if (!visible || slewtime > stations[staid].getPARA().maxSlewtime) {
+            if (!visible || slewtime.is_initialized()) {
                 scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
                 maxIdleTimes.push_back(stations[staid].getPARA().maxWait);
-                singleScans_[i].updateSlewtime(j, slewtime);
+                singleScans_[i].updateSlewtime(j, *slewtime);
                 ++j;
             }
         }

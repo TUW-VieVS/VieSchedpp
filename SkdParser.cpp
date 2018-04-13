@@ -250,7 +250,8 @@ void SkdParser::createScans() {
                 eols[staid] = p_end.getTime();
 
                 if(!firstScan){
-                    unsigned int thisSlewTime = thisSta.slewTime(p);
+                    unsigned int thisSlewTime = thisSta.getAntenna().slewTime(thisSta.getCurrentPointingVector(), p);
+
                     slewTimes[i] = thisSlewTime;
 //                    idleTimes[i] = (time-preob)-(thisEols[i]+fieldSystemTimes_+thisSlewTime);
                 }

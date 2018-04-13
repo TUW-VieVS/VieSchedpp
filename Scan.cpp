@@ -582,8 +582,8 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 bigSlew = true;
             }
 
-            unsigned int thisSlewtime = thisStation.slewTime(pv);
-            if (thisSlewtime > thisStation.getPARA().maxSlewtime) {
+            auto thisSlewtime = thisStation.slewTime(pv);
+            if (!thisSlewtime.is_initialized()) {
                 scanValid = removeStation(ista, source);
                 if (!scanValid) {
                     return false;
@@ -591,7 +591,8 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source)
                 continue;
             }
 
-            newSlewEnd = slewStart + thisSlewtime;
+
+            newSlewEnd = slewStart + *thisSlewtime;
             if (newSlewEnd > oldSlewEnd) {
                 timeDiff = newSlewEnd - oldSlewEnd;
             } else {

@@ -48,14 +48,18 @@ namespace VieVS {
             boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             boost::optional<bool> available;  ///< if set to true: this station is available for a scan
             boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
+            boost::optional<bool> availableForFillinmode;
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
             boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
+            boost::optional<double> maxSlewDistance;
+            boost::optional<double> minSlewDistance;
             boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
             boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
             boost::optional<unsigned int> minScan; ///< minimum required scan time
             boost::optional<double> minElevation; ///< minimum elevation of parameter
+            boost::optional<unsigned int> maxNumberOfScans;
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
@@ -79,6 +83,7 @@ namespace VieVS {
          */
         struct ParametersSources {
             boost::optional<bool> available; ///< flag is source is available
+            boost::optional<bool> availableForFillinmode;
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans to this source
 
@@ -303,8 +308,8 @@ namespace VieVS {
          * @param calibration time for preobservation in seconds
          * @param corsynch time for correlator synchronization
          */
-        void stationWaitTimes(const std::string &name, unsigned int setup, unsigned int source, unsigned int tape,
-                              unsigned int calibration, unsigned int corsynch);
+        void stationWaitTimes(const std::string &name, unsigned int fieldSystem, unsigned int preob, unsigned int midob,
+                              unsigned int postob);
 
 
         void stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,

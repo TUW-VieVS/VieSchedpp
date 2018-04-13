@@ -32,7 +32,7 @@ void VieVS_Scheduler::run() {
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
 
     init.initializeObservingMode(skdCatalogReader, headerLog);
-    init.initializeLookup();
+    LookupTable::initialize();
     init.initializeSkyCoverages();
 
     init.createStations(skdCatalogReader, headerLog);

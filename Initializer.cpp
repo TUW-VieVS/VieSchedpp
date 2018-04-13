@@ -6,7 +6,6 @@
  */
 
 #include "Initializer.h"
-#include "ParameterSettings.h"
 
 using namespace std;
 using namespace VieVS;
@@ -767,14 +766,7 @@ void Initializer::initializeStations() noexcept {
     vector<vector<Station::Event> > events(stations_.size());
 
     Station::Parameters parentPARA("backup");
-    parentPARA.firstScan = false;
-    parentPARA.available = true;
-    parentPARA.tagalong = false;
-    parentPARA.maxSlewtime = 9999;
-    parentPARA.maxWait = 9999;
-    parentPARA.maxScan = 9999;
-    parentPARA.minScan = 1;
-    parentPARA.minElevation = 5*deg2rad;
+
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
         parentPARA.minSNR[name] = ObservationMode::minSNR[name];
@@ -826,7 +818,7 @@ void Initializer::initializeStations() noexcept {
         }
 
         thisStation.preCalc(distance, dx, dy, dz);
-        thisStation.referencePARA().setFirstScan(true);
+        thisStation.referencePARA().firstScan = true;
     }
 
     vector<string> waitTimesInitialized;
@@ -961,6 +953,10 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
             }
+            if (newPARA.availableForFillinmode.is_initialized()) {
+                combinedPARA.availableForFillinmode = *newPARA.availableForFillinmode;
+            }
+
             if (newPARA.tagalong.is_initialized()) {
                 combinedPARA.tagalong = *newPARA.tagalong;
             }
@@ -981,11 +977,20 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (newPARA.maxSlewtime.is_initialized()) {
                 combinedPARA.maxSlewtime = *newPARA.maxSlewtime;
             }
+            if (newPARA.maxSlewDistance.is_initialized()) {
+                combinedPARA.maxSlewDistance = *newPARA.maxSlewDistance * deg2rad;
+            }
+            if (newPARA.minSlewDistance.is_initialized()) {
+                combinedPARA.minSlewDistance = *newPARA.minSlewDistance * deg2rad;
+            }
             if (newPARA.maxWait.is_initialized()) {
                 combinedPARA.maxWait = *newPARA.maxWait;
             }
             if (newPARA.minElevation.is_initialized()){
                 combinedPARA.minElevation = *newPARA.minElevation*deg2rad;
+            }
+            if (newPARA.maxNumberOfScans.is_initialized()) {
+                combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
 
             if (!newPARA.minSNR.empty()) {
@@ -1131,19 +1136,7 @@ void Initializer::initializeSources() noexcept {
     }
 
 
-    Source::Parameters parentPARA("default");
-    parentPARA.available = true;
-
-    parentPARA.weight = 1;
-
-    parentPARA.minNumberOfStations = 2;
-    parentPARA.maxNumberOfScans = 9999;
-    parentPARA.minFlux = .01;
-    parentPARA.minRepeat = 1800;
-    parentPARA.maxScan = 9999;
-    parentPARA.minScan = 1;
-    parentPARA.minElevation = 0;
-    parentPARA.tryToFocusIfObservedOnce = false;
+    Source::Parameters parentPARA("backup");
 
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
@@ -1215,6 +1208,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             ParameterSettings::ParametersSources newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
                 combinedPARA.available = *newPARA.available;
+            }
+            if (newPARA.availableForFillinmode.is_initialized()) {
+                combinedPARA.availableForFillinmode = *newPARA.availableForFillinmode;
             }
 
             if (newPARA.weight.is_initialized()) {
@@ -1435,45 +1431,6 @@ void Initializer::initializeEarth() noexcept {
     Earth::velocity = {vearth[0], vearth[1], vearth[2]};
 }
 
-void Initializer::initializeLookup() noexcept {
-
-
-    unordered_map<int, double> sinLookup;
-    double x = 0;
-    int counter = 0;
-    while (x < pi + 0.001) {
-        double val = sin(x);
-        sinLookup.insert(make_pair(counter, val));
-        x += .001;
-        ++counter;
-    }
-    LookupTable::sinLookup = sinLookup;
-
-
-    unordered_map<int, double> cosLookup;
-    x = 0;
-    counter = 0;
-    while (x < pi + 0.001) {
-        double val = cos(x);
-        cosLookup.insert(make_pair(counter, val));
-        x += .001;
-        ++counter;
-    }
-    LookupTable::cosLookup = cosLookup;
-
-    unordered_map<int, double> acosLookup;
-    x = 0;
-    counter = 0;
-    while (x < 1) {
-        double val = acos(x);
-        acosLookup.insert(make_pair(counter, val));
-        x += .001;
-        ++counter;
-    }
-    LookupTable::acosLookup = acosLookup;
-
-}
-
 void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
     WeightFactors::weightNumberOfObservations = xml_.get<double>("master.weightFactor.numberOfObservations", 0);
@@ -1491,32 +1448,28 @@ void Initializer::initializeWeightFactors() noexcept {
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
-    unsigned int maxEl = 91;
-    unsigned int sizeAz = 181;
-    vector<vector<vector<float> > > storage;
-
-    for (unsigned int thisEl = 0; thisEl < maxEl; ++thisEl) {
-        unsigned int sizeEl = maxEl-thisEl;
-
-        vector<vector<float> > thisStorage(sizeAz,vector<float>(sizeEl,0));
-
-
-        for (int deltaAz = 0; deltaAz < sizeAz; ++deltaAz) {
-            for (int deltaEl = 0; deltaEl < sizeEl; ++deltaEl) {
-                auto tmp = static_cast<float>(sin(thisEl * deg2rad) * sin(thisEl * deg2rad + deltaEl * deg2rad) +
-                                              cos(thisEl * deg2rad) * cos(thisEl * deg2rad + deltaEl * deg2rad) *
-                                              cos(deltaAz * deg2rad));
-                float angle = acos(tmp);
-                thisStorage[deltaAz][deltaEl] = angle;
-            }
-        }
-        storage.push_back(thisStorage);
-    }
-    SkyCoverage::angularDistanceLookup = storage;
 
     SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
     SkyCoverage::maxInfluenceTime = xml_.get<double>("master.skyCoverage.skyCoverageInterval", 3600);
     SkyCoverage::maxTwinTelecopeDistance = xml_.get<double>("master.skyCoverage.maxTwinTelecopeDistance", 0);
+
+    string interpolationDistance = xml_.get<string>("master.skyCoverage.interpolationDistance", "linear");
+    if (interpolationDistance == "constant") {
+        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::constant;
+    } else if (interpolationDistance == "linear") {
+        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::linear;
+    } else if (interpolationDistance == "cosine") {
+        SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::cosine;
+    }
+
+    string interpolationTime = xml_.get<string>("master.skyCoverage.interpolationTime", "linear");
+    if (interpolationTime == "constant") {
+        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::constant;
+    } else if (interpolationTime == "linear") {
+        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::linear;
+    } else if (interpolationTime == "cosine") {
+        SkyCoverage::interpolationTime = SkyCoverage::Interpolation::cosine;
+    }
 
 }
 
@@ -1568,10 +1521,6 @@ void Initializer::initializeBaselines() noexcept {
     Baseline::PARA.minSNR = minSNR;
 
     Baseline::Parameters parentPARA;
-    parentPARA.ignore = false;
-    parentPARA.weight = 1; ///< multiplicative factor of score for scans to this source
-    parentPARA.maxScan = 9999; ///< maximum allowed scan time in seconds
-    parentPARA.minScan = 1; ///< minimum required scan time in seconds
     for (const auto &any:ObservationMode::bands) {
         const string &name = any;
         parentPARA.minSNR[name] = ObservationMode::minSNR[name];

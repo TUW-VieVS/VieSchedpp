@@ -23,8 +23,7 @@
  */
 
 #include "Station.h"
-
-#include <utility>
+#include "LookupTable.h"
 
 using namespace std;
 using namespace VieVS;
@@ -237,11 +236,21 @@ double Station::distance(const Station &other) const noexcept {
     return position_->getDistance(*other.position_);
 }
 
-unsigned int Station::slewTime(const PointingVector &pointingVector) const noexcept {
+boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVector) const noexcept {
     if (parameters_.firstScan) {
         return 0;
     } else {
-        return antenna_->slewTime(currentPositionVector_, pointingVector);
+        unsigned int slewTime = antenna_->slewTime(currentPositionVector_, pointingVector);
+
+        float distance = LookupTable::angularDistance(currentPositionVector_, pointingVector);
+
+        if (slewTime > parameters_.maxSlewtime || distance < parameters_.minSlewDistance ||
+            distance > parameters_.maxSlewDistance) {
+            return boost::none;
+        } else {
+            return slewTime;
+        }
+
     }
 }
 
@@ -280,6 +289,9 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
         if (!oldAvailable && newAvailable) {
             currentPositionVector_.setTime(events_->at(nextEvent_).time);
             parameters_.firstScan = true;
+        }
+        if (nScans_ > parameters_.maxNumberOfScans) {
+            parameters_.available = false;
         }
 
         if(time < TimeSystem::duration){

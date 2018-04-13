@@ -63,6 +63,7 @@ namespace VieVS{
 
             bool available = true; ///< flag is source is available
             bool globalAvailable = true;
+            bool availableForFillinmode = true;
 
             double weight = 1; ///< multiplicative factor of score for scans to this source
 

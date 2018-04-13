@@ -179,12 +179,6 @@ namespace VieVS {
         void initializeNutation() noexcept;
 
         /**
-         * @brief initializes lookup tables for trigonometric functions to speed up calculation.
-         * @see scorePerPointingVector()
-         */
-        void initializeLookup() noexcept;
-
-        /**
          * @brief calculates velocity of earth at start time.
          *
          * used in the calculation of azimuth and elevation.

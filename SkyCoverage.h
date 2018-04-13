@@ -28,10 +28,18 @@ namespace VieVS{
      */
     class SkyCoverage:public VieVS_Object {
     public:
-        static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
+
+        enum class Interpolation {
+            constant,
+            linear,
+            cosine,
+        };
+
         static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
         static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
         static double maxTwinTelecopeDistance; ///< maximum distance between corresponding telescopes
+        static Interpolation interpolationDistance;
+        static Interpolation interpolationTime;
 
         /**
          * @brief constructor
