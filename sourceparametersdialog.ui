@@ -91,8 +91,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>297</width>
-          <height>880</height>
+          <width>339</width>
+          <height>1153</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -123,6 +123,38 @@
             </item>
             <item>
              <widget class="QRadioButton" name="radioButton_available_no">
+              <property name="text">
+               <string>no</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_availableForFillinmode">
+           <property name="title">
+            <string>available for fillin mode</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QRadioButton" name="radioButton_availableForFillin_yes">
+              <property name="text">
+               <string>yes</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_availableForFillin_no">
               <property name="text">
                <string>no</string>
               </property>

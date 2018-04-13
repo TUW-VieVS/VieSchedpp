@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>18</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -829,8 +829,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>247</width>
+             <height>611</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -2651,7 +2651,7 @@ Click on source to deselect it</string>
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabWidgetPage1">
            <attribute name="title">
@@ -3062,63 +3062,32 @@ Click on source to deselect it</string>
                   <item row="0" column="0">
                    <widget class="QLabel" name="setupLabel_3">
                     <property name="text">
-                     <string>setup</string>
+                     <string>field system</string>
                     </property>
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QSpinBox" name="SpinBox_setup">
+                   <widget class="QSpinBox" name="SpinBox_fieldSystem">
                     <property name="suffix">
                      <string> [sec]</string>
                     </property>
                     <property name="prefix">
                      <string/>
                     </property>
+                    <property name="value">
+                     <number>6</number>
+                    </property>
                    </widget>
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="sourceLabel_3">
                     <property name="text">
-                     <string>source</string>
+                     <string>preob</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QSpinBox" name="SpinBox_source">
-                    <property name="suffix">
-                     <string> [sec]</string>
-                    </property>
-                    <property name="value">
-                     <number>5</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="tapeLabel_3">
-                    <property name="text">
-                     <string>tape</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QSpinBox" name="SpinBox_tape">
-                    <property name="suffix">
-                     <string> [sec]</string>
-                    </property>
-                    <property name="value">
-                     <number>1</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="calibrationLabel_3">
-                    <property name="text">
-                     <string>calibration</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QSpinBox" name="SpinBox_calibration">
+                   <widget class="QSpinBox" name="SpinBox_preob">
                     <property name="suffix">
                      <string> [sec]</string>
                     </property>
@@ -3127,15 +3096,15 @@ Click on source to deselect it</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
-                   <widget class="QLabel" name="corSynchLabel_3">
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="tapeLabel_3">
                     <property name="text">
-                     <string>corr. synch.</string>
+                     <string>extra midob</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1">
-                   <widget class="QSpinBox" name="SpinBox_corrSynch">
+                  <item row="2" column="1">
+                   <widget class="QSpinBox" name="SpinBox_midob">
                     <property name="suffix">
                      <string> [sec]</string>
                     </property>
@@ -3144,21 +3113,38 @@ Click on source to deselect it</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="5" column="0" colspan="2">
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="calibrationLabel_3">
+                    <property name="text">
+                     <string>postob</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QSpinBox" name="SpinBox_postob">
+                    <property name="suffix">
+                     <string> [sec]</string>
+                    </property>
+                    <property name="value">
+                     <number>0</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0" colspan="2">
                    <widget class="Line" name="line_8">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="0">
+                  <item row="5" column="0">
                    <widget class="QLabel" name="groupLabel_4">
                     <property name="text">
                      <string>member</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
+                  <item row="5" column="1">
                    <layout class="QHBoxLayout" name="horizontalLayout_15">
                     <item>
                      <widget class="QComboBox" name="comboBox_stationSettingMember_wait"/>
@@ -3214,27 +3200,22 @@ Click on source to deselect it</string>
                     </column>
                     <column>
                      <property name="text">
-                      <string>setup</string>
+                      <string>field system</string>
                      </property>
                     </column>
                     <column>
                      <property name="text">
-                      <string>source</string>
+                      <string>preob</string>
                      </property>
                     </column>
                     <column>
                      <property name="text">
-                      <string>New Column</string>
+                      <string>extra midop</string>
                      </property>
                     </column>
                     <column>
                      <property name="text">
-                      <string>calibration</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>corr. synch.</string>
+                      <string>postob</string>
                      </property>
                     </column>
                    </widget>
@@ -5156,8 +5137,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>983</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -8670,7 +8651,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>textEdit_faq</tabstop>
   <tabstop>DoubleSpinBox_axis1up</tabstop>
   <tabstop>pushButton_14</tabstop>
-  <tabstop>SpinBox_corrSynch</tabstop>
   <tabstop>treeWidget_setupStationWait</tabstop>
   <tabstop>DoubleSpinBox_axis1low</tabstop>
   <tabstop>comboBox_jobSchedule</tabstop>
@@ -8681,11 +8661,11 @@ p, li { white-space: pre-wrap; }
   <tabstop>DoubleSpinBox_axis2low</tabstop>
   <tabstop>pushButton_16</tabstop>
   <tabstop>pushButton_setupAxisAdd</tabstop>
-  <tabstop>SpinBox_tape</tabstop>
-  <tabstop>SpinBox_calibration</tabstop>
-  <tabstop>SpinBox_setup</tabstop>
+  <tabstop>SpinBox_midob</tabstop>
+  <tabstop>SpinBox_postob</tabstop>
+  <tabstop>SpinBox_fieldSystem</tabstop>
   <tabstop>comboBox_stationSettingMember_wait</tabstop>
-  <tabstop>SpinBox_source</tabstop>
+  <tabstop>SpinBox_preob</tabstop>
   <tabstop>pushButton_addGroupStationCable</tabstop>
   <tabstop>DoubleSpinBox_axis2up</tabstop>
  </tabstops>
@@ -8700,12 +8680,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>389</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>821</x>
-     <y>393</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -8716,12 +8696,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>423</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>820</x>
-     <y>500</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -8732,12 +8712,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>298</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8748,12 +8728,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>298</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8764,12 +8744,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>362</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8780,12 +8760,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>330</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8796,12 +8776,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>394</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8812,12 +8792,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>426</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8828,12 +8808,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>231</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>234</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8844,12 +8824,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>426</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8860,12 +8840,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>266</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8876,12 +8856,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>263</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>330</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8892,12 +8872,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>359</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>394</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8908,12 +8888,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>208</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>761</x>
-     <y>211</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -8924,12 +8904,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>135</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>138</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8940,12 +8920,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>473</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>176</x>
-     <y>401</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8956,12 +8936,12 @@ p, li { white-space: pre-wrap; }
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>229</x>
-     <y>144</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>236</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8972,12 +8952,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>199</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>202</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -8988,12 +8968,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>167</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>170</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -9004,12 +8984,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>579</x>
-     <y>176</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>761</x>
-     <y>179</y>
+     <x>372</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -9020,12 +9000,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>39</x>
-     <y>103</y>
+     <x>48</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>277</x>
-     <y>106</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -9036,12 +9016,12 @@ p, li { white-space: pre-wrap; }
    <slot>setSelectedDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>176</x>
-     <y>401</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>631</x>
-     <y>473</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -9052,12 +9032,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>278</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>374</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -9100,12 +9080,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>143</x>
-     <y>294</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>296</y>
+     <x>108</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>

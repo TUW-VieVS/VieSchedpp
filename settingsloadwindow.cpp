@@ -148,6 +148,13 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
             ++r;
         }
+        if(para.availableForFillinmode.is_initialized()){
+            t->insertRow(r);
+            QString boolText = *para.availableForFillinmode ? "true" : "false";
+            t->setItem(r,0,new QTableWidgetItem(boolText));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("available for fillin mode"));
+            ++r;
+        }
         if(para.tagalong.is_initialized()){
             t->insertRow(r);
             QString boolText = *para.tagalong ? "true" : "false";
@@ -173,10 +180,28 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->setVerticalHeaderItem(r,new QTableWidgetItem("max slew time [s]"));
             ++r;
         }
+        if(para.maxSlewDistance.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxSlewDistance)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("max slew distance [deg]"));
+            ++r;
+        }
+        if(para.minSlewDistance.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minSlewDistance)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("min slew distance [deg]"));
+            ++r;
+        }
         if(para.maxWait.is_initialized()){
             t->insertRow(r);
             t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxWait)));
             t->setVerticalHeaderItem(r,new QTableWidgetItem("max wait time [s]"));
+            ++r;
+        }
+        if(para.maxNumberOfScans.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxNumberOfScans)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("max number of scans"));
             ++r;
         }
         if(para.minElevation.is_initialized()){
@@ -226,6 +251,13 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             QString boolText = *para.available ? "true" : "false";
             t->setItem(r,0,new QTableWidgetItem(boolText));
             t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
+            ++r;
+        }
+        if(para.availableForFillinmode.is_initialized()){
+            t->insertRow(r);
+            QString boolText = *para.availableForFillinmode ? "true" : "false";
+            t->setItem(r,0,new QTableWidgetItem(boolText));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("available for fillin mode"));
             ++r;
         }
         if(para.minNumberOfStations.is_initialized()){
@@ -286,7 +318,7 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->insertRow(r);
             QString boolText = *para.tryToFocusIfObservedOnce ? "true" : "false";
             t->setItem(r,0,new QTableWidgetItem(boolText));
-            t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
             ++r;
 
             t->insertRow(r);
@@ -297,13 +329,13 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->insertRow(r);
             QString occurrencyText = *para.tryToFocusOccurrency == VieVS::ParameterSettings::TryToFocusOccurrency::once ? "once" : "per scan";
             t->setItem(r,0,new QTableWidgetItem(occurrencyText));
-            t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight"));
             ++r;
 
             t->insertRow(r);
             QString typeText = *para.tryToFocusType == VieVS::ParameterSettings::TryToFocusType::additive ? "additive" : "multiplicative";
             t->setItem(r,0,new QTableWidgetItem(typeText));
-            t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight"));
             ++r;
 
         }

@@ -110,6 +110,38 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_availableForFillinmode">
+         <property name="title">
+          <string>available for fillin mode</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QRadioButton" name="radioButton_availableFillin_yes">
+            <property name="text">
+             <string>yes</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="radioButton_availableFillin_no">
+            <property name="text">
+             <string>no</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBox_tagalong">
          <property name="title">
           <string>tagalong</string>
@@ -147,6 +179,13 @@
           <string>general</string>
          </property>
          <layout class="QFormLayout" name="formLayout_3">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBox_weight">
+            <property name="text">
+             <string>weight</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
             <property name="enabled">
@@ -157,6 +196,13 @@
             </property>
             <property name="value">
              <double>1.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBox_maxSlewTime">
+            <property name="text">
+             <string>max slew time</string>
             </property>
            </widget>
           </item>
@@ -179,7 +225,14 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="checkBox_maxWaitTime">
+            <property name="text">
+             <string>max wait time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
            <widget class="QSpinBox" name="spinBox_maxWaitTime">
             <property name="enabled">
              <bool>false</bool>
@@ -198,7 +251,14 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="checkBox_minElevation">
+            <property name="text">
+             <string>min elevation</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
            <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
             <property name="enabled">
              <bool>false</bool>
@@ -211,31 +271,72 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox_weight">
-            <property name="text">
-             <string>weight</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBox_maxSlewTime">
-            <property name="text">
-             <string>max slew time</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
-           <widget class="QCheckBox" name="checkBox_maxWaitTime">
+           <widget class="QCheckBox" name="checkBox_minSlewDistance">
             <property name="text">
-             <string>max wait time</string>
+             <string>min slew distance</string>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QCheckBox" name="checkBox_minElevation">
+           <widget class="QCheckBox" name="checkBox_maxSlewDistance">
             <property name="text">
-             <string>min elevation</string>
+             <string>max slew distance</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_minSlewDistance">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="suffix">
+             <string> [deg]</string>
+            </property>
+            <property name="maximum">
+             <double>360.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>5.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="doubleSpinBox_maxSlewDistance">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="suffix">
+             <string> [deg]</string>
+            </property>
+            <property name="maximum">
+             <double>360.000000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>5.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>175.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="checkBox_maxNumberOfScans">
+            <property name="text">
+             <string>max number of scans</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QSpinBox" name="spinBox_maxNumberOfScans">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximum">
+             <number>9999</number>
+            </property>
+            <property name="value">
+             <number>9999</number>
             </property>
            </widget>
           </item>
@@ -498,12 +599,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>54</x>
-     <y>194</y>
+     <x>77</x>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
-     <x>137</x>
-     <y>195</y>
+     <x>335</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>
@@ -514,12 +615,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>217</y>
+     <x>81</x>
+     <y>358</y>
     </hint>
     <hint type="destinationlabel">
-     <x>165</x>
-     <y>222</y>
+     <x>358</x>
+     <y>361</y>
     </hint>
    </hints>
   </connection>
@@ -530,12 +631,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>248</y>
+     <x>102</x>
+     <y>454</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>249</y>
+     <x>339</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -546,12 +647,60 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>266</y>
+     <x>87</x>
+     <y>486</y>
     </hint>
     <hint type="destinationlabel">
-     <x>160</x>
-     <y>274</y>
+     <x>358</x>
+     <y>489</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minSlewDistance</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_minSlewDistance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>142</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>382</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_maxSlewDistance</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_maxSlewDistance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>411</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>242</x>
+     <y>414</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_maxNumberOfScans</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_maxNumberOfScans</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>158</x>
+     <y>513</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>244</x>
+     <y>509</y>
     </hint>
    </hints>
   </connection>

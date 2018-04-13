@@ -81,6 +81,7 @@ void sourceParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Par
     ui->lineEdit_paraName->setText(paraName);
     if(paraName == "default"){
         ui->groupBox_available->setCheckable(false);
+        ui->groupBox_availableForFillinmode->setCheckable(false);
 
         ui->checkBox_maxNumberOfScans->setChecked(true);
         ui->checkBox_maxNumberOfScans->setEnabled(false);
@@ -121,6 +122,16 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
         ui->groupBox_available->setChecked(false);
     }
 
+    if(sp.availableForFillinmode.is_initialized()){
+        if(*sp.availableForFillinmode){
+            ui->radioButton_availableForFillin_yes->setChecked(true);
+        }else{
+            ui->radioButton_availableForFillin_no->setChecked(true);
+        }
+        ui->groupBox_availableForFillinmode->setChecked(true);
+    }else{
+        ui->groupBox_availableForFillinmode->setChecked(false);
+    }
 
     if(sp.minNumberOfStations.is_initialized()){
         ui->spinBox_minNumberOfStations->setValue(*sp.minNumberOfStations);
@@ -402,6 +413,13 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
             para.available = true;
         }else{
             para.available = false;
+        }
+    }
+    if(ui->groupBox_availableForFillinmode->isChecked() || !ui->groupBox_availableForFillinmode->isCheckable()){
+        if(ui->radioButton_availableForFillin_yes->isChecked()){
+            para.availableForFillinmode = true;
+        }else{
+            para.availableForFillinmode = false;
         }
     }
 

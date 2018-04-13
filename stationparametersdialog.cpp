@@ -45,6 +45,9 @@ void stationParametersDialog::addDefaultParameters(VieVS::ParameterSettings::Par
     ui->spinBox_maxScanTime->setValue(*d.maxScan);
     ui->spinBox_maxWaitTime->setValue(*d.maxWait);
     ui->spinBox_maxSlewTime->setValue(*d.maxSlewtime);
+    ui->doubleSpinBox_minSlewDistance->setValue(*d.minSlewDistance);
+    ui->doubleSpinBox_maxSlewDistance->setValue(*d.maxSlewDistance);
+    ui->spinBox_maxNumberOfScans->setValue(*d.maxNumberOfScans);
 }
 
 void stationParametersDialog::addSelectedParameters(VieVS::ParameterSettings::ParametersStations para, QString paraName)
@@ -53,6 +56,7 @@ void stationParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Pa
     ui->lineEdit->setText(paraName);
     if(paraName == "default"){
         ui->groupBox_available->setCheckable(false);
+        ui->groupBox_availableForFillinmode->setCheckable(false);
 
         ui->groupBox_tagalong->setCheckable(false);
         ui->groupBox_tagalong->setEnabled(false);
@@ -65,6 +69,12 @@ void stationParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Pa
         ui->checkBox_maxWaitTime->setEnabled(false);
         ui->checkBox_maxSlewTime->setChecked(true);
         ui->checkBox_maxSlewTime->setEnabled(false);
+        ui->checkBox_maxSlewDistance->setChecked(true);
+        ui->checkBox_maxSlewDistance->setEnabled(false);
+        ui->checkBox_minSlewDistance->setChecked(true);
+        ui->checkBox_minSlewDistance->setEnabled(false);
+        ui->checkBox_maxNumberOfScans->setChecked(true);
+        ui->checkBox_maxNumberOfScans->setEnabled(false);
 
         ui->groupBox_scanTime->setCheckable(false);
 
@@ -87,6 +97,17 @@ void stationParametersDialog::changeParameters(VieVS::ParameterSettings::Paramet
         ui->groupBox_available->setChecked(false);
     }
 
+    if(sp.availableForFillinmode.is_initialized()){
+        if(*sp.availableForFillinmode){
+            ui->radioButton_availableFillin_yes->setChecked(true);
+        }else{
+            ui->radioButton_availableFillin_no->setChecked(true);
+        }
+        ui->groupBox_availableForFillinmode->setChecked(true);
+    }else{
+        ui->groupBox_availableForFillinmode->setChecked(false);
+    }
+
     if(sp.tagalong.is_initialized()){
         if(*sp.tagalong){
             ui->radioButton_tagalong_yes->setChecked(true);
@@ -105,6 +126,20 @@ void stationParametersDialog::changeParameters(VieVS::ParameterSettings::Paramet
         ui->spinBox_maxSlewTime->setValue(*dp.maxSlewtime);
         ui->checkBox_maxSlewTime->setChecked(false);
     }
+    if(sp.maxSlewDistance.is_initialized()){
+        ui->doubleSpinBox_maxSlewDistance->setValue(*sp.maxSlewDistance);
+        ui->checkBox_maxSlewDistance->setChecked(true);
+    }else{
+        ui->doubleSpinBox_maxSlewDistance->setValue(*dp.maxSlewDistance);
+        ui->checkBox_maxSlewDistance->setChecked(false);
+    }
+    if(sp.minSlewDistance.is_initialized()){
+        ui->doubleSpinBox_minSlewDistance->setValue(*sp.minSlewDistance);
+        ui->checkBox_minSlewDistance->setChecked(true);
+    }else{
+        ui->doubleSpinBox_minSlewDistance->setValue(*dp.minSlewDistance);
+        ui->checkBox_minSlewDistance->setChecked(false);
+    }
 
     if(sp.maxWait.is_initialized()){
         ui->spinBox_maxWaitTime->setValue(*sp.maxWait);
@@ -112,6 +147,14 @@ void stationParametersDialog::changeParameters(VieVS::ParameterSettings::Paramet
     }else{
         ui->spinBox_maxWaitTime->setValue(*dp.maxWait);
         ui->checkBox_maxWaitTime->setChecked(false);
+    }
+
+    if(sp.maxNumberOfScans.is_initialized()){
+        ui->spinBox_maxNumberOfScans->setValue(*sp.maxNumberOfScans);
+        ui->checkBox_maxNumberOfScans->setChecked(true);
+    }else{
+        ui->spinBox_maxNumberOfScans->setValue(*dp.maxNumberOfScans);
+        ui->checkBox_maxNumberOfScans->setChecked(false);
     }
 
     if(sp.minElevation.is_initialized()){
@@ -250,6 +293,13 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
             para.available = false;
         }
     }
+    if(ui->groupBox_availableForFillinmode->isChecked() || !ui->groupBox_availableForFillinmode->isCheckable()){
+        if(ui->radioButton_availableFillin_yes->isChecked()){
+            para.availableForFillinmode = true;
+        }else{
+            para.availableForFillinmode = false;
+        }
+    }
     if(ui->groupBox_tagalong->isChecked()){
         if(ui->radioButton_tagalong_yes->isChecked()){
             para.tagalong = true;
@@ -262,8 +312,17 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
     if(ui->spinBox_maxSlewTime->isEnabled()){
         para.maxSlewtime = ui->spinBox_maxSlewTime->value();
     }
+    if(ui->doubleSpinBox_maxSlewDistance->isEnabled()){
+        para.maxSlewDistance = ui->doubleSpinBox_maxSlewDistance->value();
+    }
+    if(ui->doubleSpinBox_minSlewDistance->isEnabled()){
+        para.minSlewDistance = ui->doubleSpinBox_minSlewDistance->value();
+    }
     if(ui->spinBox_maxWaitTime->isEnabled() ){
         para.maxWait = ui->spinBox_maxWaitTime->value();
+    }
+    if(ui->spinBox_maxNumberOfScans->isEnabled() ){
+        para.maxNumberOfScans = ui->spinBox_maxNumberOfScans->value();
     }
     if(ui->doubleSpinBox_minElevation->isEnabled()){
         para.minElevation = ui->doubleSpinBox_minElevation->value();
@@ -272,7 +331,7 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
         para.weight = ui->doubleSpinBox_weight->value();
     }
 
-    if(ui->groupBox_scanTime->isEnabled()){
+    if(ui->groupBox_scanTime->isChecked()){
         para.minScan = ui->spinBox_minScanTime->value();
         para.maxScan = ui->spinBox_maxScanTime->value();
         for(int i = 0; i<ui->tableWidget_SNR->rowCount(); ++i){

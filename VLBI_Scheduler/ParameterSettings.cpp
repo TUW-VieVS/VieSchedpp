@@ -153,6 +153,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const stri
     if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
     }
+    if (PARA.availableForFillinmode.is_initialized()) {
+        parameters.add("parameters.availableForFillinmode", PARA.availableForFillinmode);
+    }
     if (PARA.firstScan.is_initialized()) {
         parameters.add("parameters.firstScan", PARA.firstScan);
     }
@@ -173,11 +176,20 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const stri
     if (PARA.maxSlewtime.is_initialized()) {
         parameters.add("parameters.maxSlewtime", PARA.maxSlewtime);
     }
+    if (PARA.maxSlewDistance.is_initialized()) {
+        parameters.add("parameters.maxSlewDistance", PARA.maxSlewDistance);
+    }
+    if (PARA.minSlewDistance.is_initialized()) {
+        parameters.add("parameters.minSlewDistance", PARA.minSlewDistance);
+    }
     if (PARA.maxWait.is_initialized()) {
         parameters.add("parameters.maxWait", PARA.maxWait);
     }
     if (PARA.minElevation.is_initialized()){
         parameters.add("parameters.minElevation", PARA.minElevation);
+    }
+    if (PARA.maxNumberOfScans.is_initialized()) {
+        parameters.add("parameters.maxNumberOfScans", PARA.maxNumberOfScans);
     }
 
     if (!PARA.minSNR.empty()) {
@@ -215,6 +227,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             continue;
         } else if (paraName == "available") {
             para.available = it.second.get_value<bool>();
+        } else if (paraName == "availableForFillinmode") {
+            para.availableForFillinmode = it.second.get_value<bool>();
         } else if (paraName == "tagalong") {
             para.tagalong = it.second.get_value<bool>();
         } else if (paraName == "firstScan") {
@@ -227,13 +241,19 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxScan = it.second.get_value < unsigned int > ();
         } else if (paraName == "maxSlewtime") {
             para.maxSlewtime = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxSlewDistance") {
+            para.maxSlewDistance = it.second.get_value<double>();
+        } else if (paraName == "minSlewDistance") {
+            para.minSlewDistance = it.second.get_value<double>();
         } else if (paraName == "maxWait") {
             para.maxWait = it.second.get_value < unsigned int > ();
+        } else if (paraName == "maxNumberOfScans") {
+            para.maxNumberOfScans = it.second.get_value<unsigned int>();
         } else if (paraName == "minElevation") {
             para.minElevation = it.second.get_value<double>();
         } else if (paraName == "minSNR") {
             string bandName = it.second.get_child("<xmlattr>.band").data();
-            double value = it.second.get_value<double>();
+            auto value = it.second.get_value<double>();
             para.minSNR[bandName] = value;
         } else if (paraName == "ignoreSources") {
             for (auto &it2: it.second) {
@@ -260,6 +280,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     boost::property_tree::ptree parameters;
     if (PARA.available.is_initialized()) {
         parameters.add("parameters.available", PARA.available);
+    }
+    if (PARA.availableForFillinmode.is_initialized()) {
+        parameters.add("parameters.availableForFillinmode", PARA.availableForFillinmode);
     }
 
     if (PARA.weight.is_initialized()) {
@@ -367,6 +390,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             continue;
         } else if (paraName == "available") {
             para.available = it.second.get_value<bool>();
+        } else if (paraName == "availableForFillinmode") {
+            para.availableForFillinmode = it.second.get_value<bool>();
         } else if (paraName == "weight") {
             para.weight = it.second.get_value<double>();
         } else if (paraName == "minElevation") {
@@ -523,8 +548,9 @@ void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup
 }
 
 void
-ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup, unsigned int source, unsigned int tape,
-                                    unsigned int calibration, unsigned int corsynch) {
+ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldSystem, unsigned int preob,
+                                    unsigned int midob,
+                                    unsigned int postob) {
 
     vector<string> members;
     if (groupStations_.find(name) != groupStations_.end()) {
@@ -564,11 +590,10 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int setup,
     }
 
     boost::property_tree::ptree wtimes;
-    wtimes.add("waitTime.setup", setup);
-    wtimes.add("waitTime.source", source);
-    wtimes.add("waitTime.tape", tape);
-    wtimes.add("waitTime.calibration", calibration);
-    wtimes.add("waitTime.corsynch", corsynch);
+    wtimes.add("waitTime.fieldSystem", fieldSystem);
+    wtimes.add("waitTime.preob", preob);
+    wtimes.add("waitTime.midob", midob);
+    wtimes.add("waitTime.postob", postob);
     wtimes.add("waitTime.<xmlattr>.member", name);
 
     master_.add_child("master.station.waitTimes.waitTime", wtimes.get_child("waitTime"));
@@ -707,11 +732,14 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 }
 
 
-void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance) {
+void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance,
+                                    string interpolationDistance, string interpolationTime) {
     boost::property_tree::ptree skyCoverage;
     skyCoverage.add("skyCoverage.influenceDistance", influenceDistance);
     skyCoverage.add("skyCoverage.influenceInterval", influenceInterval);
     skyCoverage.add("skyCoverage.maxTwinTelecopeDistance", maxTwinTelecopeDistance);
+    skyCoverage.add("skyCoverage.interpolationDistance", interpolationDistance);
+    skyCoverage.add("skyCoverage.interpolationTime", interpolationTime);
 
 
     master_.add_child("master.skyCoverage", skyCoverage.get_child("skyCoverage"));

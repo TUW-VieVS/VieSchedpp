@@ -424,6 +424,13 @@ void MainWindow::displayStationSetupParameter(QString name)
         t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
         ++r;
     }
+    if(para.availableForFillinmode.is_initialized()){
+        t->insertRow(r);
+        QString boolText = *para.availableForFillinmode ? "true" : "false";
+        t->setItem(r,0,new QTableWidgetItem(boolText));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("available for fillin mode"));
+        ++r;
+    }
     if(para.tagalong.is_initialized()){
         t->insertRow(r);
         QString boolText = *para.tagalong ? "true" : "false";
@@ -449,10 +456,28 @@ void MainWindow::displayStationSetupParameter(QString name)
         t->setVerticalHeaderItem(r,new QTableWidgetItem("max slew time [s]"));
         ++r;
     }
+    if(para.maxSlewDistance.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxSlewDistance)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("max slew distance [deg]"));
+        ++r;
+    }
+    if(para.minSlewDistance.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minSlewDistance)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("min slew distance [deg]"));
+        ++r;
+    }
     if(para.maxWait.is_initialized()){
         t->insertRow(r);
         t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxWait)));
         t->setVerticalHeaderItem(r,new QTableWidgetItem("max wait time [s]"));
+        ++r;
+    }
+    if(para.maxNumberOfScans.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.maxNumberOfScans)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("max number of scans"));
         ++r;
     }
     if(para.minElevation.is_initialized()){
@@ -517,6 +542,13 @@ void MainWindow::displaySourceSetupParameter(QString name){
         QString boolText = *para.available ? "true" : "false";
         t->setItem(r,0,new QTableWidgetItem(boolText));
         t->setVerticalHeaderItem(r,new QTableWidgetItem("available"));
+        ++r;
+    }
+    if(para.availableForFillinmode.is_initialized()){
+        t->insertRow(r);
+        QString boolText = *para.availableForFillinmode ? "true" : "false";
+        t->setItem(r,0,new QTableWidgetItem(boolText));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("available for fillin mode"));
         ++r;
     }
     if(para.minNumberOfStations.is_initialized()){
@@ -588,13 +620,13 @@ void MainWindow::displaySourceSetupParameter(QString name){
         t->insertRow(r);
         QString occurrencyText = *para.tryToFocusOccurrency == VieVS::ParameterSettings::TryToFocusOccurrency::once ? "once" : "per scan";
         t->setItem(r,0,new QTableWidgetItem(occurrencyText));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight"));
         ++r;
 
         t->insertRow(r);
         QString typeText = *para.tryToFocusType == VieVS::ParameterSettings::TryToFocusType::additive ? "additive" : "multiplicative";
         t->setItem(r,0,new QTableWidgetItem(typeText));
-        t->setVerticalHeaderItem(r,new QTableWidgetItem("try to focus if observed once"));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("increase weight"));
         ++r;
     }
     if(para.tryToObserveXTimesEvenlyDistributed.is_initialized()){
@@ -1385,10 +1417,14 @@ void MainWindow::defaultParameters()
 {
     VieVS::ParameterSettings::ParametersStations sta;
     sta.available = true;
+    sta.availableForFillinmode = true;
     sta.maxScan = 600;
     sta.minScan = 20;
     sta.maxSlewtime = 600;
+    sta.maxSlewDistance = 175;
+    sta.minSlewDistance = 0;
     sta.maxWait = 600;
+    sta.maxNumberOfScans = 9999;
     sta.weight = 1;
     sta.minElevation = 5;
 
@@ -1409,8 +1445,14 @@ void MainWindow::defaultParameters()
                         sta.maxScan = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "maxSlewtime") {
                         sta.maxSlewtime = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxSlewDistance") {
+                        sta.maxSlewDistance = it2.second.get_value < double > ();
+                    } else if (paraName == "minSlewDistance") {
+                        sta.minSlewDistance = it2.second.get_value < double > ();
                     } else if (paraName == "maxWait") {
                         sta.maxWait = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "maxNumberOfScans") {
+                        sta.maxNumberOfScans = it2.second.get_value < unsigned int > ();
                     } else {
                         QString txt = "Ignoring parameter: ";
                         txt.append(QString::fromStdString(paraName)).append(" in station default parameters!\nCheck settings.xml file!");
@@ -1425,6 +1467,7 @@ void MainWindow::defaultParameters()
 
     VieVS::ParameterSettings::ParametersSources src;
     src.available = true;
+    src.availableForFillinmode = true;
     src.minRepeat = 1800;
     src.minScan = 20;
     src.maxScan = 600;
@@ -1513,25 +1556,21 @@ void MainWindow::defaultParameters()
 
     clearSetup(true,true,true);
 
-    boost::optional<int> setup = settings.get_optional<int>("settings.station.waitTimes.setup");
+    boost::optional<int> setup = settings.get_optional<int>("settings.station.waitTimes.fieldSystem");
     if(setup.is_initialized()){
-        ui->SpinBox_setup->setValue(*setup);
+        ui->SpinBox_fieldSystem->setValue(*setup);
     }
-    boost::optional<int> source = settings.get_optional<int>("settings.station.waitTimes.source");
+    boost::optional<int> source = settings.get_optional<int>("settings.station.waitTimes.preob");
     if(source.is_initialized()){
-        ui->SpinBox_source->setValue(*source);
+        ui->SpinBox_preob->setValue(*source);
     }
-    boost::optional<int> tape = settings.get_optional<int>("settings.station.waitTimes.tape");
+    boost::optional<int> tape = settings.get_optional<int>("settings.station.waitTimes.midob");
     if(tape.is_initialized()){
-        ui->SpinBox_tape->setValue(*tape);
+        ui->SpinBox_midob->setValue(*tape);
     }
-    boost::optional<int> calibration = settings.get_optional<int>("settings.station.waitTimes.calibration");
+    boost::optional<int> calibration = settings.get_optional<int>("settings.station.waitTimes.postob");
     if(calibration.is_initialized()){
-        ui->SpinBox_calibration->setValue(*calibration);
-    }
-    boost::optional<int> corsynch = settings.get_optional<int>("settings.station.waitTimes.corsynch");
-    if(corsynch.is_initialized()){
-        ui->SpinBox_corrSynch->setValue(*corsynch);
+        ui->SpinBox_postob->setValue(*calibration);
     }
 
 
@@ -2818,12 +2857,11 @@ QString MainWindow::writeXML()
     for(int i=0; i<ui->treeWidget_setupStationWait->topLevelItemCount(); ++i){
         auto itm = ui->treeWidget_setupStationWait->topLevelItem(i);
         std::string name = itm->text(0).toStdString();
-        int setup = QString(itm->text(1).left(itm->text(1).count()-6)).toInt();
-        int source = QString(itm->text(2).left(itm->text(2).count()-6)).toInt();
-        int tape = QString(itm->text(3).left(itm->text(3).count()-6)).toInt();
-        int calibration = QString(itm->text(4).left(itm->text(4).count()-6)).toInt();
-        int corrSynch = QString(itm->text(5).left(itm->text(5).count()-6)).toInt();
-        para.stationWaitTimes(name,setup,source,tape,calibration,corrSynch);
+        int fieldSystem = QString(itm->text(1).left(itm->text(1).count()-6)).toInt();
+        int preob = QString(itm->text(2).left(itm->text(2).count()-6)).toInt();
+        int midob = QString(itm->text(3).left(itm->text(3).count()-6)).toInt();
+        int postob = QString(itm->text(4).left(itm->text(4).count()-6)).toInt();
+        para.stationWaitTimes(name,fieldSystem,preob,midob,postob);
     }
 
     for(int i=0; i<ui->treeWidget_setupStationAxis->topLevelItemCount(); ++i){
@@ -2839,7 +2877,9 @@ QString MainWindow::writeXML()
     double influenceDistance = ui->influenceDistanceDoubleSpinBox->value();
     double influenceTime = ui->influenceTimeSpinBox->value();
     double maxDistanceTwin = ui->maxDistanceForCombiningAntennasDoubleSpinBox->value();
-    para.skyCoverage(influenceDistance,influenceTime,maxDistanceTwin);
+    std::string interpolationDistance = ui->comboBox_skyCoverageDistanceType->currentText().toStdString();
+    std::string interpolationTime = ui->comboBox_skyCoverageTimeType->currentText().toStdString();
+    para.skyCoverage(influenceDistance,influenceTime,maxDistanceTwin, interpolationDistance, interpolationTime);
 
     double weightSkyCoverage = 0;
     if(ui->checkBox_weightCoverage->isChecked()){
@@ -4682,11 +4722,10 @@ void MainWindow::setupStationWaitAddRow()
         t->insertTopLevelItem(row,new QTreeWidgetItem());
         t->topLevelItem(row)->setText(0,name);
         t->topLevelItem(row)->setIcon(0,ic);
-        t->topLevelItem(row)->setText(1,QString::number(ui->SpinBox_setup->value()).append(" [sec]"));
-        t->topLevelItem(row)->setText(2,QString::number(ui->SpinBox_source->value()).append(" [sec]"));
-        t->topLevelItem(row)->setText(3,QString::number(ui->SpinBox_tape->value()).append(" [sec]"));
-        t->topLevelItem(row)->setText(4,QString::number(ui->SpinBox_calibration->value()).append(" [sec]"));
-        t->topLevelItem(row)->setText(5,QString::number(ui->SpinBox_corrSynch->value()).append(" [sec]"));
+        t->topLevelItem(row)->setText(1,QString::number(ui->SpinBox_fieldSystem->value()).append(" [sec]"));
+        t->topLevelItem(row)->setText(2,QString::number(ui->SpinBox_preob->value()).append(" [sec]"));
+        t->topLevelItem(row)->setText(3,QString::number(ui->SpinBox_midob->value()).append(" [sec]"));
+        t->topLevelItem(row)->setText(4,QString::number(ui->SpinBox_postob->value()).append(" [sec]"));
     }else{
         QMessageBox *ms = new QMessageBox(this);
         QString txt;
@@ -4979,7 +5018,10 @@ void MainWindow::createDefaultParameterSettings()
     sta.maxScan = 600;
     sta.minScan = 30;
     sta.maxSlewtime = 600;
+    sta.maxSlewDistance = 175;
+    sta.minSlewDistance = 0;
     sta.maxWait = 600;
+    sta.maxNumberOfScans = 9999;
     sta.weight = 1;
     sta.minElevation = 5;
     settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
@@ -6849,16 +6891,14 @@ void MainWindow::on_pushButton_11_clicked()
     QStringList path;
     QStringList value;
 
-    path << "settings.station.waitTimes.setup";
-    value << QString("%1").arg(ui->SpinBox_setup->value());
-    path << "settings.station.waitTimes.source";
-    value << QString("%1").arg(ui->SpinBox_source->value());
-    path << "settings.station.waitTimes.tape";
-    value << QString("%1").arg(ui->SpinBox_tape->value());
-    path << "settings.station.waitTimes.calibration";
-    value << QString("%1").arg(ui->SpinBox_calibration->value());
-    path << "settings.station.waitTimes.corsynch";
-    value << QString("%1").arg(ui->SpinBox_corrSynch->value());
+    path << "settings.station.waitTimes.fieldSystem";
+    value << QString("%1").arg(ui->SpinBox_fieldSystem->value());
+    path << "settings.station.waitTimes.preob";
+    value << QString("%1").arg(ui->SpinBox_preob->value());
+    path << "settings.station.waitTimes.midob";
+    value << QString("%1").arg(ui->SpinBox_midob->value());
+    path << "settings.station.waitTimes.postob";
+    value << QString("%1").arg(ui->SpinBox_postob->value());
 
     QString name = "Default wait times changed!";
     changeDefaultSettings(path,value,name);
