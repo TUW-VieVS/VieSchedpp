@@ -19,13 +19,12 @@ namespace VieVS{
             return id_>0;
         }
 
-        bool hasID(int id) const {
+        bool hasId(int id) const {
             return id_==id;
         }
 
-    protected:
+    private:
         int id_;
-
     };
 }
 

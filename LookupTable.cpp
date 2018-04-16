@@ -16,7 +16,7 @@ void LookupTable::initialize() {
 
     double x = 0;
     int counter = 0;
-    while (x < pi + 0.001) {
+    while (x < twopi + 0.001) {
         double val = sin(x);
         sinLookupTable.insert(make_pair(counter, val));
         x += .001;
@@ -25,15 +25,15 @@ void LookupTable::initialize() {
 
     x = 0;
     counter = 0;
-    while (x < pi + 0.001) {
+    while (x < twopi + 0.001) {
         double val = cos(x);
         cosLookupTable.insert(make_pair(counter, val));
         x += .001;
         ++counter;
     }
 
-    x = 0;
-    counter = 0;
+    x = -1;
+    counter = -1000;
     while (x < 1) {
         double val = acos(x);
         acosLookupTable.insert(make_pair(counter, val));

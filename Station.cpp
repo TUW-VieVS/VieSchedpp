@@ -30,13 +30,34 @@ using namespace VieVS;
 int VieVS::Station::nextId = 0;
 int VieVS::Station::Parameters::nextId = 0;
 
+void Station::Parameters::setParameters(const Station::Parameters &other) {
+    firstScan = other.firstScan;
+    available = other.available;
+    tagalong = other.tagalong;
+    availableForFillinmode = other.availableForFillinmode;
+
+    weight = other.weight;
+    minElevation = other.minElevation;
+
+    minSNR = other.minSNR;
+
+    maxSlewtime = other.maxSlewtime;
+    maxSlewDistance = other.maxSlewDistance;
+    minSlewDistance = other.minSlewDistance;
+    maxWait = other.maxWait;
+    maxScan = other.maxScan;
+    minScan = other.minScan;
+    maxNumberOfScans = other.maxNumberOfScans;
+
+    ignoreSources = other.ignoreSources;
+}
+
 Station::Station(std::string sta_name, std::shared_ptr<Antenna> sta_antenna, std::shared_ptr<CableWrap> sta_cableWrap,
                  std::shared_ptr<Position> sta_position, std::shared_ptr<Equipment> sta_equip,
                  std::shared_ptr<HorizonMask> sta_mask):
         VieVS_NamedObject(std::move(sta_name),nextId++), antenna_{move(sta_antenna)}, cableWrap_{move(sta_cableWrap)},
         position_{move(sta_position)}, equip_{move(sta_equip)}, mask_{move(sta_mask)}, skyCoverageId_{-1},
         nScans_{0}, nBaselines_{0}, currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
-    std::replace(name_.begin(), name_.end(), '-', '_');
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
@@ -45,7 +66,7 @@ void Station::setCurrentPointingVector(const PointingVector &pointingVector) noe
 
 namespace VieVS {
     ostream &operator<<(ostream &out, const Station &sta) noexcept {
-        cout << boost::format("%=36s\n") % sta.name_;
+        cout << boost::format("%=36s\n") % sta.getName();
         cout << sta.position_;
         cout << "uses sky coverage id: " << sta.skyCoverageId_ << "\n";
         cout << "------------------------------------\n";
@@ -54,18 +75,15 @@ namespace VieVS {
 }
 
 bool Station::isVisible(const PointingVector &p, double minElevationSource = 0) const noexcept {
-    bool visible = true;
-    if(p.getEl()<parameters_.minElevation){
-        visible = false;
-    }
-    if(visible && mask_ != nullptr && !mask_->visible(p)){
-        visible = false;
-    }
-    if(visible && !cableWrap_->anglesInside(p)){
-        visible = false;
-    }
 
-    return visible;
+    if(p.getEl()<parameters_.minElevation){
+        return false;
+    }
+    if(mask_ != nullptr && !mask_->visible(p)){
+        return false;
+    }
+    return cableWrap_->anglesInside(p);
+
 }
 
 void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model) const noexcept {
@@ -250,7 +268,6 @@ boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVe
         } else {
             return slewTime;
         }
-
     }
 }
 
@@ -290,13 +307,10 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
             currentPositionVector_.setTime(events_->at(nextEvent_).time);
             parameters_.firstScan = true;
         }
-        if (nScans_ > parameters_.maxNumberOfScans) {
-            parameters_.available = false;
-        }
 
         if(time < TimeSystem::duration){
             out << "###############################################\n";
-            out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+            out << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
             out << "###############################################\n";
         }
         nextEvent_++;
@@ -319,7 +333,7 @@ void Station::applyNextEvent(std::ofstream &out) noexcept{
         parameters_ = events_->at(nextEvent_).PARA;
 
         out << "###############################################\n";
-        out << "## changing parameters for station: " << boost::format("%8s") % name_ << " ##\n";
+        out << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
         out << "###############################################\n";
         nextEvent_++;
     }

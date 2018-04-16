@@ -117,7 +117,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
                 slewtime = stations[staid].slewTime(thisPointingVector);
             }
 
-            if (!visible || slewtime.is_initialized()) {
+            if (!visible || !slewtime.is_initialized()) {
                 scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
                 if(!scanValid_slew){
                     break;

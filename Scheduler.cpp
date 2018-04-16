@@ -146,6 +146,10 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
         }
     }
 
+    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+    });
+
     if (!check(bodyLog)) {
         cout << "ERROR: there was an error while checking the schedule (see log file)\n";
     }
@@ -154,9 +158,6 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
         ++parameters_.currentIteration;
         start(bodyLog);
     }
-
-
-
 
 //        if(PARA.writeSkyCoverageData){
 //            saveSkyCoverageMain();
@@ -233,7 +234,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
             continue;
         }
 
-        if (thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans) {
+        if (thisSource.getNscans() > thisSource.getPARA().maxNumberOfScans) {
             continue;
         }
 
@@ -244,6 +245,10 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
             Station &thisSta = stations_[ista];
 
             if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
+                continue;
+            }
+
+            if (thisSta.getNScans() > thisSta.getPARA().maxNumberOfScans){
                 continue;
             }
 

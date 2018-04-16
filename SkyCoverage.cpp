@@ -32,7 +32,7 @@ double SkyCoverage::calcScore(const vector<PointingVector> &pvs,
     double score = 0;
 
     for (const auto &pv_new : pvs) {
-        if (stations[pv_new.getStaid()].getSkyCoverageID() != id_) {
+        if (hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
             continue;
         }
 
@@ -57,7 +57,7 @@ double SkyCoverage::calcScore(const vector<PointingVector> &pvs, const vector<St
 
     for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
         const PointingVector &pv_new = pvs[idx_newObs];
-        if (stations[pv_new.getStaid()].getSkyCoverageID() != id_) {
+        if (hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
             continue;
         }
 
@@ -84,7 +84,7 @@ double SkyCoverage::calcScore_subcon(const vector<PointingVector> &pvs,
 
     for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
         const PointingVector &pv_new = pvs[idx_newObs];
-        if (stations[pv_new.getStaid()].getSkyCoverageID() != id_) {
+        if (hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
             continue;
         }
         score = firstScorePerPv[idx_newObs];

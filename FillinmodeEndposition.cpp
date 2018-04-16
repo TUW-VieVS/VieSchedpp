@@ -17,7 +17,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
     stationPossible_ = std::vector<char>(nsta, true);
     finalPosition_.reserve(nsta);
     for (int i = 0; i < nsta; ++i) {
-        finalPosition_[i] = PointingVector(i, numeric_limits<int>::max());
+        finalPosition_.emplace_back(i, numeric_limits<int>::max());
     }
 
     vector<unsigned int> earliestScanStart(nsta, numeric_limits<unsigned int>::max());
@@ -38,7 +38,7 @@ FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
             unsigned int thisEndOfIdleTime = any.getTimes().getScanStart(i);
             if (thisEndOfIdleTime < earliestScanStart[staid]) {
                 earliestScanStart[staid] = thisEndOfIdleTime;
-                finalPosition_[staid] = pv;
+                finalPosition_[staid] = std::move(pv);
                 stationUnused_[staid] = false;
             }
         }

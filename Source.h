@@ -57,9 +57,9 @@ namespace VieVS{
         private:
             static int nextId;
         public:
-            Parameters(const std::string name): VieVS_NamedObject(name,nextId++){}
+            explicit Parameters(const std::string &name): VieVS_NamedObject(name,nextId++){}
 
-            void changeName(const std::string &newName){ name_ = newName; }
+            void setParameters(const Parameters &other);
 
             bool available = true; ///< flag is source is available
             bool globalAvailable = true;
@@ -312,15 +312,6 @@ namespace VieVS{
          */
         unsigned int lastScanTime() const noexcept {
             return lastScan_;
-        }
-
-        /**
-         * @brief sets source id
-         *
-         * @param id new id
-         */
-        void setId(int id) noexcept {
-            Source::id_ = id;
         }
 
         /**

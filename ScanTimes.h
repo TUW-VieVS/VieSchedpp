@@ -104,7 +104,7 @@ namespace VieVS {
         const unsigned int getScanStart() const noexcept;
 
         const unsigned int getScanStart(int idx) const noexcept{
-            return endOfIdleTime_[idx];
+            return endOfPreobTime_[idx];
         }
 
         const unsigned int getScanEnd() const noexcept;

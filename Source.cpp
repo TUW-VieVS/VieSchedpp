@@ -17,6 +17,39 @@ using namespace VieVS;
 int VieVS::Source::nextId = 0;
 int VieVS::Source::Parameters::nextId = 0;
 
+void Source::Parameters::setParameters(const Source::Parameters &other) {
+    available = other.available;
+    globalAvailable = other.globalAvailable;
+    availableForFillinmode = other.availableForFillinmode;
+
+    weight = other.weight;
+
+    minSNR = other.minSNR;
+
+    minNumberOfStations = other.minNumberOfStations;
+    minFlux = other.minFlux;
+    minRepeat = other.minRepeat;
+    maxScan = other.maxScan;
+    minScan = other.minScan;
+    maxNumberOfScans = other.maxNumberOfScans;
+    minElevation = other.minElevation;
+
+    tryToFocusIfObservedOnce = other.tryToFocusIfObservedOnce;
+    tryToFocusFactor = other.tryToFocusFactor;
+    tryToFocusOccurrency = other.tryToFocusOccurrency;
+    tryToFocusType = other.tryToFocusType;
+
+    tryToObserveXTimesEvenlyDistributed = other.tryToObserveXTimesEvenlyDistributed;
+    tryToObserveXTimesMinRepeat = other.tryToObserveXTimesMinRepeat;
+
+    fixedScanDuration = other.fixedScanDuration;
+
+    ignoreStations = other.ignoreStations;
+    ignoreBaselines = other.ignoreBaselines;
+    requiredStations = other.requiredStations;
+
+}
+
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
                unordered_map<string, unique_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
                                                                     ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
@@ -53,7 +86,7 @@ bool Source::isStrongEnough(double &maxFlux) const noexcept {
 
 namespace VieVS {
     ostream &operator<<(ostream &out, const Source &src) noexcept {
-        cout << boost::format("%=36s\n") % src.name_;
+        cout << boost::format("%=36s\n") % src.getName();
         double ra_deg = src.ra_ * rad2deg;
         double de_deg = src.de_ * rad2deg;
         cout << "position:\n";
@@ -97,7 +130,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
 
         if (output && time < TimeSystem::duration) {
             bodyLog << "###############################################\n";
-            bodyLog << "## changing parameters for source: " << boost::format("%8s") % name_ << "  ##\n";
+            bodyLog << "## changing parameters for source: " << boost::format("%8s") % getName() << "  ##\n";
             bodyLog << "###############################################\n";
         }
 
@@ -107,7 +140,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
             bool strongEnough = isStrongEnough(maxFlux);
             if (!strongEnough) {
                 referencePARA().setAvailable(false);
-                bodyLog << "source: " << boost::format("%8s") % name_ << " not strong enough! (max flux = "
+                bodyLog << "source: " << boost::format("%8s") % getName() << " not strong enough! (max flux = "
                         << boost::format("%4.2f") % maxFlux << " min required flux = "
                         << boost::format("%4.2f") % parameters_.minFlux << ")\n";;
             }

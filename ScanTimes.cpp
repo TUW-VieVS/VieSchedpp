@@ -127,7 +127,7 @@ bool ScanTimes::substractPreobTimeFromStartTime(unsigned int preob) {
 
 const unsigned int ScanTimes::getScanStart() const noexcept{
     unsigned int start = numeric_limits<unsigned int>::max();
-    for(unsigned int x:endOfIdleTime_){
+    for(unsigned int x:endOfPreobTime_){
         if(x<start){
             start = x;
         }
@@ -137,7 +137,7 @@ const unsigned int ScanTimes::getScanStart() const noexcept{
 
 const unsigned int ScanTimes::getScanEnd() const noexcept{
     unsigned int end = 0;
-    for(unsigned int x:endOfIdleTime_){
+    for(unsigned int x:endOfScanTime_){
         if(x>end){
             end = x;
         }

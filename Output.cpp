@@ -287,10 +287,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
     for(const auto&any: scans_){
         unsigned long nbl = any.getNBl();
-        unsigned int endScan = any.getTimes().getScanStart();
-        unsigned int startScan = any.getTimes().getScanEnd();
-
-        maxScanDurations.push_back(endScan-startScan);
+        maxScanDurations.push_back(any.getTimes().getScanTime());
 
         for (int i = 0; i < nbl; ++i) {
             const Baseline &bl = any.getBaseline(i);
@@ -326,7 +323,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
         ++hist[i-1];
     }
 
-    out << "scan duration (without corsynch):\n";
+    out << "scan duration:\n";
     for (int i = 0; i < hist.size(); ++i) {
         out << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
         double percent = 100 * static_cast<double>(hist[i]) / static_cast<double>(maxScanDurations.size());

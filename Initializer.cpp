@@ -926,7 +926,8 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                                     const Station::Parameters &parentPARA) noexcept {
 
     vector<string> members;
-    Station::Parameters combinedPARA = parentPARA;
+    Station::Parameters combinedPARA = Station::Parameters(tree.get<string>("parameter"));
+    combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -947,7 +948,6 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             }
         } else if (paraName == "parameter") {
             string tmp = it.second.data();
-            combinedPARA.changeName(tmp);
 
             ParameterSettings::ParametersStations newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {
@@ -1182,7 +1182,8 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
                               const Source::Parameters &parentPARA) noexcept {
 
     vector<string> members;
-    Source::Parameters combinedPARA = parentPARA;
+    Source::Parameters combinedPARA = Source::Parameters( tree.get<string>("parameter"));
+    combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
     bool softTransition = true;
@@ -1203,7 +1204,6 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             }
         } else if (paraName == "parameter") {
             const string &tmp = it.second.data();
-            combinedPARA.changeName(tmp);
 
             ParameterSettings::ParametersSources newPARA = parameters.at(tmp);
             if (newPARA.available.is_initialized()) {

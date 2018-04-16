@@ -15,11 +15,9 @@ namespace VieVS{
         VieVS_NamedObject(std::string name, int id):VieVS_Object(id), name_{std::move(name)}{};
 
         VieVS_NamedObject(std::string name, std::string alternativeName, int id):
-                VieVS_Object(id), name_{std::move(name)}{
-            if(!alternativeName.empty()){
-                alternativeName_ = std::move(alternativeName);
-            }
+                VieVS_Object(id), name_{std::move(name)}, alternativeName_{std::move(alternativeName)}{
         };
+
 
         const std::string &getName() const{
             return name_;
@@ -37,7 +35,7 @@ namespace VieVS{
             return name_ == name || alternativeName_ == name;
         }
 
-    protected:
+    private:
         std::string name_ = "";
         std::string alternativeName_ = "";
     };

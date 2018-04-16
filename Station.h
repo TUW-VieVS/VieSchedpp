@@ -65,7 +65,7 @@ namespace VieVS{
         public:
             explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
 
-            void changeName(const std::string &newName){ name_ = newName; }
+            void setParameters(const Parameters &other);
 
             bool firstScan = false; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             bool available = true;  ///< if set to true: this station is available for a scan
@@ -324,6 +324,10 @@ namespace VieVS{
          */
         int getNbls() const noexcept {
             return nBaselines_;
+        }
+
+        int getNScans() const noexcept  {
+            return nScans_;
         }
 
         /**

@@ -1141,7 +1141,6 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
 
 boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &source) const noexcept {
 
-
     vector<PointingVector> pv;
     pv.reserve(ids.size());
     ScanTimes t = times_;
