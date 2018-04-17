@@ -81,16 +81,7 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
     int n_calibrator = 0;
 
     for (const auto&any:scans_){
-        Scan::ScanType thisType = any.getType();
-        switch (thisType){
-            case Scan::ScanType::single:{
-                ++n_single;
-                break;
-            }
-            case Scan::ScanType::subnetting:{
-                ++n_subnetting;
-                break;
-            }
+        switch (any.getType()){
             case Scan::ScanType::fillin:{
                 ++n_fillin;
                 break;
@@ -99,7 +90,21 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
                 ++n_calibrator;
                 break;
             }
+            case Scan::ScanType::standard:{
+                break;
+            }
         }
+        switch (any.getScanConstellation()){
+            case Scan::ScanConstellation::single:{
+                ++n_single;
+                break;
+            }
+            case Scan::ScanConstellation::subnetting:{
+                ++n_subnetting;
+                break;
+            }
+        }
+
     }
 
     out << "number of total scans:         " << n_scans << "\n";
@@ -661,20 +666,16 @@ void Output::writeStatisticsPerSourceGroup() {
         scanNsta[srcid].push_back(scan.getNSta());
         scanNbl[srcid].push_back(scan.getNBl());
         switch (scan.getType()){
-            case Scan::ScanType::single: {
-                flag[srcid].push_back(' ');
-                break;
-            }
-            case Scan::ScanType::subnetting:{
-                flag[srcid].push_back(' ');
-                break;
-            }
             case Scan::ScanType::fillin:{
                 flag[srcid].push_back('*');
                 break;
             }
             case Scan::ScanType::calibrator: {
                 flag[srcid].push_back('#');
+                break;
+            }
+            case Scan::ScanType::standard: {
+                flag[srcid].push_back(' ');
                 break;
             }
         }

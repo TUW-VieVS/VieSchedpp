@@ -76,14 +76,14 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        Subcon createSubcon(bool subnetting, bool calibrator, bool fillinmode) noexcept;
+        Subcon createSubcon(bool subnetting, Scan::ScanType type) noexcept;
 
         /**
          * @brief constructs all visible scans
          *
          * @return subcon with all visible single source scans
          */
-        Subcon allVisibleScans(bool calibrator, bool fillinmode) noexcept;
+        Subcon allVisibleScans(Scan::ScanType type) noexcept;
 
 
         /**
@@ -169,6 +169,9 @@ namespace VieVS{
         unsigned long nFillinScansConsidered; ///< considered fillin scans
         unsigned long nBaselinesConsidered; ///< considered baselines
 
+        void startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
+                                boost::optional<FillinmodeEndposition> endposition,
+                                Scan::ScanType type);
 
         /**
          * @brief checks the schedule with an independend methode

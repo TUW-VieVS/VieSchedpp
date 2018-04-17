@@ -44,11 +44,15 @@ namespace VieVS{
         /**
          * @brief scan type
          */
-        enum class ScanType {
+        enum class ScanConstellation {
             single, ///< single source scan
             subnetting, ///< subnetting scan
-            fillin, ///< fillin mode scan
-            calibrator, ///< calibrator scan
+        };
+
+        enum class ScanType {
+            standard,
+            fillin,
+            calibrator
         };
 
         /**
@@ -201,6 +205,15 @@ namespace VieVS{
          */
         ScanType getType() const noexcept {
             return type_;
+        }
+
+        /**
+         * @brief getter for scan type
+         *
+         * @return scan type
+         */
+        ScanConstellation getScanConstellation() const noexcept {
+            return constellation_;
         }
 
         /**
@@ -464,6 +477,7 @@ namespace VieVS{
         std::vector<Baseline> baselines_; ///< all observed baselines
 
         ScanType type_; ///< type of the scan
+        ScanConstellation constellation_; ///
 
         /**
          * @brief calculates the score for number of observations

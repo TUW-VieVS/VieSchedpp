@@ -258,7 +258,7 @@ void SkdParser::createScans() {
                 thisSta.setCurrentPointingVector(p_end);
             }
 
-            Scan scan(pv,thisEols,Scan::ScanType::single);
+            Scan scan(pv,thisEols,Scan::ScanType::standard);
             bool valid;
             if(firstScan){
                 firstScan = false;

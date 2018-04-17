@@ -263,13 +263,11 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
                             if (!new_first) {
                                 continue;
                             }
-                            new_first->setType(Scan::ScanType::subnetting);
 
                             boost::optional<Scan> new_second = second.copyScan(scan2sta, sources[secondSrcId]);
                             if (!new_second) {
                                 continue;
                             }
-                            new_second->setType(Scan::ScanType::subnetting);
 
                             ++nSubnettingScans_;
                             pair<Scan, Scan>tmp = make_pair(move(*new_first),move(*new_second));
@@ -285,10 +283,10 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
 }
 
 void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
-                           const vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept {
+                           const vector<SkyCoverage> &skyCoverages) noexcept {
     precalcScore(stations, sources);
     unsigned long nmaxsta = stations.size();
-    vector< vector <double> > firstScore(nsrc);
+    vector< vector <double> > firstScore(sources.size());
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
@@ -673,14 +671,5 @@ void Subcon::clearSubnettingScans() {
     subnettingScanScores_.clear();
 }
 
-void Subcon::changeScanTypes(Scan::ScanType type) {
-    for(auto &scan:singleScans_){
-        scan.setType(type);
-    }
-    for(auto &scans:subnettingScans_){
-        scans.first.setType(type);
-        scans.second.setType(type);
-    }
-}
 
 

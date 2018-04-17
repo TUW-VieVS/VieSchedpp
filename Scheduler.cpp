@@ -38,21 +38,16 @@ Scheduler::Scheduler(Initializer &init, string name): VieVS_NamedObject(move(nam
     nFillinScansConsidered = 0;
 }
 
-
-void Scheduler::start(ofstream &bodyLog) noexcept {
-
-    unsigned int nsrc = countAvailableSources();
-    bodyLog << "number of available sources: " << nsrc << "\n";
-
-    outputHeader(stations_, bodyLog);
-
+void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
+                                   boost::optional<FillinmodeEndposition> endposition,
+                                   Scan::ScanType type) {
     while (true) {
-        Subcon subcon = createSubcon(parameters_.subnetting, false, false);
+
+        Subcon subcon = createSubcon(parameters_.subnetting, type);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
-        subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
-
-
+        subcon.generateScore(stations_, sources_, skyCoverages_);
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_, sources_, skyCoverages_);
+
         if (!bestIdx_opt) {
             bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
             for(auto &any:stations_){
@@ -80,19 +75,19 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             bestScans.push_back(bestScan2);
         }
 
-        unsigned int all_maxTime = 0;
+        unsigned int maxScanEnd = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getScanEnd() > all_maxTime) {
-                all_maxTime = any.getTimes().getScanEnd();
+            if (any.getTimes().getScanEnd() > maxScanEnd) {
+                maxScanEnd = any.getTimes().getScanEnd();
             }
         }
 
-        bool hardBreak = checkForNewEvent(all_maxTime, true, bodyLog);
+        bool hardBreak = checkForNewEvent(maxScanEnd, true, bodyLog);
         if (hardBreak) {
             continue;
         }
 
-        if( all_maxTime > TimeSystem::duration){
+        if( maxScanEnd > TimeSystem::duration){
             break;
         }
 
@@ -119,7 +114,102 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
                     break;
                 }
                 case CalibratorBlock::CadenceUnit::seconds:{
-                    if(all_maxTime >= CalibratorBlock::nextBlock){
+                    if(maxScanEnd >= CalibratorBlock::nextBlock){
+                        startCalibrationBlock(bodyLog);
+                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+}
+
+void Scheduler::start(ofstream &bodyLog) noexcept {
+
+    unsigned int nsrc = countAvailableSources();
+    if(parameters_.currentIteration>0){
+        bodyLog << "Iteration number: " << parameters_.currentIteration << "\n";
+    }
+    bodyLog << "number of available sources: " << nsrc << "\n";
+
+    outputHeader(stations_, bodyLog);
+
+    while (true) {
+
+        Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::standard);
+        consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
+        subcon.generateScore(stations_, sources_, skyCoverages_);
+        boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_, sources_, skyCoverages_);
+
+        if (!bestIdx_opt) {
+            bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
+            for(auto &any:stations_){
+                PointingVector pv = any.getCurrentPointingVector();
+                pv.setTime(pv.getTime()+60);
+                any.setCurrentPointingVector(pv);
+            }
+            continue;
+        }
+        unsigned long bestIdx = *bestIdx_opt;
+        vector<Scan> bestScans;
+        if (bestIdx < subcon.getNumberSingleScans()) {
+            Scan& bestScan = subcon.referenceSingleSourceScan(bestIdx);
+            bestScans.push_back(bestScan);
+        } else {
+            unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
+            pair<Scan, Scan>& bestScan_pair = subcon.referenceSubnettingScans(thisIdx);
+            Scan &bestScan1 = bestScan_pair.first;
+            Scan &bestScan2 = bestScan_pair.second;
+
+            if (bestScan1.getTimes().getScanStart() > bestScan2.getTimes().getScanStart()) {
+                swap(bestScan1, bestScan2);
+            }
+            bestScans.push_back(bestScan1);
+            bestScans.push_back(bestScan2);
+        }
+
+        unsigned int maxScanEnd = 0;
+        for (const auto &any:bestScans) {
+            if (any.getTimes().getScanEnd() > maxScanEnd) {
+                maxScanEnd = any.getTimes().getScanEnd();
+            }
+        }
+
+        bool hardBreak = checkForNewEvent(maxScanEnd, true, bodyLog);
+        if (hardBreak) {
+            continue;
+        }
+
+        if( maxScanEnd > TimeSystem::duration){
+            break;
+        }
+
+
+        if (parameters_.fillinmode && !scans_.empty()) {
+            start_fillinMode(bestScans, bodyLog);
+        } else {
+            for (const auto &bestScan : bestScans) {
+                update(bestScan, bodyLog);
+            }
+        }
+
+        ++Scan::nScanSelections;
+        if(Scan::scanSequence.customScanSequence){
+            Scan::scanSequence.newScan();
+        }
+        if(CalibratorBlock::scheduleCalibrationBlocks){
+            switch(CalibratorBlock::cadenceUnit){
+                case CalibratorBlock::CadenceUnit::scans:{
+                    if(Scan::nScanSelections == CalibratorBlock::nextBlock){
+                        startCalibrationBlock(bodyLog);
+                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                    }
+                    break;
+                }
+                case CalibratorBlock::CadenceUnit::seconds:{
+                    if(maxScanEnd >= CalibratorBlock::nextBlock){
                         startCalibrationBlock(bodyLog);
                         CalibratorBlock::nextBlock += CalibratorBlock::cadence;
                     }
@@ -161,8 +251,8 @@ void Scheduler::statistics(ofstream &log) {
     log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered << "\n";
 }
 
-Subcon Scheduler::createSubcon(bool subnetting, bool calibrator, bool fillinmode) noexcept {
-    Subcon subcon = allVisibleScans(calibrator, fillinmode);
+Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type) noexcept {
+    Subcon subcon = allVisibleScans(type);
     subcon.calcStartTimes(stations_, sources_);
     subcon.updateAzEl(stations_, sources_);
     subcon.constructAllBaselines(sources_);
@@ -174,15 +264,11 @@ Subcon Scheduler::createSubcon(bool subnetting, bool calibrator, bool fillinmode
                                      sources_);
     }
 
-    if(calibrator){
-        subcon.changeScanTypes(Scan::ScanType::calibrator);
-    }
-
     return subcon;
 }
 
 
-Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
+Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
     unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
@@ -205,11 +291,11 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
             continue;
         }
 
-        if (fillinmode && !thisSource.getPARA().availableForFillinmode) {
+        if (type == Scan::ScanType::calibrator && !thisSource.getPARA().availableForFillinmode) {
             continue;
         }
 
-        if(calibrator && find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
+        if(type == Scan::ScanType::calibrator && find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
             continue;
         }
 
@@ -268,7 +354,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
             }
         }
         if (visibleSta >= thisSource.getPARA().minNumberOfStations) {
-            subcon.addScan(Scan(pointingVectors, endOfLastScans, Scan::ScanType::single));
+            subcon.addScan(Scan(pointingVectors, endOfLastScans, type));
         }
     }
 
@@ -377,7 +463,7 @@ Scheduler::fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
         return boost::none;
     } else {
 
-        fillin_subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+        fillin_subcon.generateScore(stations_, sources_, skyCoverages_);
 
         while (true) {
             boost::optional<unsigned long> bestIdx = fillin_subcon.rigorousScore(stations_, sources_, skyCoverages_);
@@ -440,9 +526,9 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
     for (int i = 0; i < stations_.size(); ++i) {
         stations_[i].referencePARA().available = stationPossible[i];
     }
-    Subcon subcon = createSubcon(false, false, true);
+    Subcon subcon = createSubcon(false, Scan::ScanType::fillin);
     consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
-    subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+    subcon.generateScore(stations_, sources_, skyCoverages_);
 
 
     while (!bestScans.empty()) {
@@ -474,9 +560,9 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
         for (int i = 0; i < stations_.size(); ++i) {
             stations_[i].referencePARA().available = stationPossible[i];
         }
-        subcon = createSubcon(false, false, true);
+        subcon = createSubcon(false, Scan::ScanType::fillin);
         consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
-        subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
+        subcon.generateScore(stations_, sources_, skyCoverages_);
     }
 
     for (int i = 0; i < stations_.size(); ++i) {
@@ -689,7 +775,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
     for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
 
-        Subcon subcon = createSubcon(parameters_.subnetting, true, false);
+        Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::calibrator);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
         subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta),
                              stations_, sources_);
@@ -1170,4 +1256,5 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     }
     return newScheduleNecessary;
 }
+
 

@@ -148,10 +148,9 @@ namespace VieVS{
          *
          * @param stations list of all stations
          * @param skyCoverages list of all sky coverages
-         * @param nsrc number of sources
          */
         void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                           const std::vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept;
+                           const std::vector<SkyCoverage> &skyCoverages) noexcept;
 
 
         /**
@@ -205,7 +204,6 @@ namespace VieVS{
 
         void calcCalibratorScanDuration(const std::vector<Station> &stations, const std::vector<Source> &sources);
 
-        void changeScanTypes(Scan::ScanType type);
 
     private:
         static int nextId;
