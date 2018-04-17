@@ -7,9 +7,9 @@
 using namespace VieVS;
 using namespace std;
 
-std::unordered_map<int, double> VieVS::LookupTable::sinLookupTable;
-std::unordered_map<int, double> VieVS::LookupTable::cosLookupTable;
-std::unordered_map<int, double> VieVS::LookupTable::acosLookupTable;
+std::vector<double> VieVS::LookupTable::sinLookupTable;
+std::vector<double> VieVS::LookupTable::cosLookupTable;
+std::vector<double> VieVS::LookupTable::acosLookupTable;
 vector<vector<vector<float> > > VieVS::LookupTable::angularDistanceLookup = {};
 
 void LookupTable::initialize() {
@@ -18,7 +18,7 @@ void LookupTable::initialize() {
     int counter = 0;
     while (x < twopi + 0.001) {
         double val = sin(x);
-        sinLookupTable.insert(make_pair(counter, val));
+        sinLookupTable.push_back(val);
         x += .001;
         ++counter;
     }
@@ -27,7 +27,7 @@ void LookupTable::initialize() {
     counter = 0;
     while (x < twopi + 0.001) {
         double val = cos(x);
-        cosLookupTable.insert(make_pair(counter, val));
+        cosLookupTable.push_back(val);
         x += .001;
         ++counter;
     }
@@ -36,7 +36,7 @@ void LookupTable::initialize() {
     counter = -1000;
     while (x < 1) {
         double val = acos(x);
-        acosLookupTable.insert(make_pair(counter, val));
+        acosLookupTable.push_back(val);
         x += .001;
         ++counter;
     }
@@ -71,30 +71,7 @@ void LookupTable::initialize() {
 }
 
 float LookupTable::angularDistance(const PointingVector &p1, const PointingVector &p2) noexcept {
-
-    double pv_1_el = p1.getEl();
-    double pv_2_el = p2.getEl();
-
-    double pv_1_az = p1.getAz();
-    double pv_2_az = p2.getAz();
-    if (pv_2_az > pv_1_az) {
-        swap(pv_1_az, pv_2_az);
-    }
-    double delta_az = (pv_1_az - pv_2_az) * rad2deg;
-    while (delta_az > 180) {
-        delta_az = delta_az - 360;
-    }
-
-
-    long pv_delta_az = abs(lround(delta_az)); // +.5 for rounding
-    if (pv_1_el > pv_2_el) {
-        swap(pv_1_el, pv_2_el);
-    }
-
-    auto thisEl = lround(pv_1_el * rad2deg); // +.5 for rounding
-    auto pv_delta_el = lround((pv_2_el - pv_1_el) * rad2deg); // +.5 for rounding
-
-    return angularDistanceLookup[thisEl][pv_delta_az][pv_delta_el];
+    return angularDistance(p1.getAz(), p1.getEl(), p2.getAz(), p2.getEl());
 }
 
 double LookupTable::sinLookup(double x) {
@@ -106,7 +83,28 @@ double LookupTable::cosLookup(double x) {
 }
 
 double LookupTable::acosLookup(double x) {
-    return acosLookupTable[lround(x * 1000)];
+    return acosLookupTable[lround(x * 1000)+1000];
+}
+
+float LookupTable::angularDistance(double phi1, double theta1, double phi2, double theta2) {
+    if (phi1 > phi2) {
+        swap(phi1, phi2);
+    }
+    if (theta1 > theta2) {
+        swap(theta1, theta2);
+    }
+
+    double deltaPhi_tmp = (phi2 - phi1) * rad2deg;
+    while (deltaPhi_tmp > 180) {
+        deltaPhi_tmp = deltaPhi_tmp - 360;
+    }
+
+    long deltaPhi = lround(deltaPhi_tmp);
+
+    auto thisTheta = lround(theta1 * rad2deg);
+    auto deltaTheta = lround((theta2 - theta1) * rad2deg);
+
+    return angularDistanceLookup[thisTheta][deltaPhi][deltaTheta];
 }
 
 

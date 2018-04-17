@@ -31,9 +31,9 @@ namespace VieVS {
     class LookupTable {
     private:
         static std::vector<std::vector<std::vector<float> > > angularDistanceLookup; ///< lookup table for angular distance between two points
-        static std::unordered_map<int, double> sinLookupTable; ///< table for fast lookup for sine function with reduced accuracy. Key is fraction of .001 pi
-        static std::unordered_map<int, double> cosLookupTable; ///< table for fast lookup for cosine function with reuced accuracy. Key is fraction of .001 pi
-        static std::unordered_map<int, double> acosLookupTable; ///< table for fast lookup for inverse cosine function with reduced accuracy. Key is fraction of .001 pi
+        static std::vector<double> sinLookupTable; ///< table for fast lookup for sine function with reduced accuracy. Key is fraction of .001 pi
+        static std::vector<double> cosLookupTable; ///< table for fast lookup for cosine function with reuced accuracy. Key is fraction of .001 pi
+        static std::vector<double> acosLookupTable; ///< table for fast lookup for inverse cosine function with reduced accuracy. Key is fraction of .001 pi
 
     public:
         static void initialize();
@@ -46,6 +46,8 @@ namespace VieVS {
 
 
         static float angularDistance(const PointingVector &p1, const PointingVector &p2) noexcept;
+
+        static float angularDistance(double phi1, double theta1, double phi2, double theta2) noexcept;
     };
 }
 
