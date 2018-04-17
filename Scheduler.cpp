@@ -229,12 +229,12 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
             continue;
         }
 
-        if (thisSource.lastScanTime() != 0 &&
+        if (thisSource.getNscans() > 0 &&
             currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat) {
             continue;
         }
 
-        if (thisSource.getNscans() > thisSource.getPARA().maxNumberOfScans) {
+        if (thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans) {
             continue;
         }
 
@@ -248,7 +248,7 @@ Subcon Scheduler::allVisibleScans(bool calibrator, bool fillinmode) noexcept {
                 continue;
             }
 
-            if (thisSta.getNScans() > thisSta.getPARA().maxNumberOfScans){
+            if (thisSta.getNScans() >= thisSta.getPARA().maxNumberOfScans){
                 continue;
             }
 
