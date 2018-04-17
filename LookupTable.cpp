@@ -86,7 +86,7 @@ double LookupTable::acosLookup(double x) {
     return acosLookupTable[lround(x * 1000)+1000];
 }
 
-float LookupTable::angularDistance(double phi1, double theta1, double phi2, double theta2) {
+float LookupTable::angularDistance(double phi1, double theta1, double phi2, double theta2) noexcept {
     if (phi1 > phi2) {
         swap(phi1, phi2);
     }

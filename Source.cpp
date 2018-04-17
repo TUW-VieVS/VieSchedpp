@@ -12,6 +12,7 @@
  */
 
 #include "Source.h"
+
 using namespace std;
 using namespace VieVS;
 int VieVS::Source::nextId = 0;
@@ -66,10 +67,6 @@ Source::Source(const string &src_name, const string &src_name2, double src_ra_de
 
     preCalculated_ = make_shared<PreCalculated>(move(preCalculated));
     condition_ = make_shared<Optimization>(Optimization());
-}
-
-double Source::angleDistance(const Source &other) const noexcept {
-    return acos(cos(de_)*cos(other.de_) * cos(ra_-other.ra_) + sin(de_)*sin(other.de_));
 }
 
 bool Source::isStrongEnough(double &maxFlux) const noexcept {

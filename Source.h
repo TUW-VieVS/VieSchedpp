@@ -329,14 +329,6 @@ namespace VieVS{
         }
 
         /**
-         * @brief angular distance between two sources
-         *
-         * @param other other source
-         * @return angular distance in radians
-         */
-        double angleDistance(const Source &other) const noexcept;
-
-        /**
          * checks if source is strong enough
          *
          * !!! this function changes maxFlux !!!
