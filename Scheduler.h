@@ -29,7 +29,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 28.06.2017
      */
-    class Scheduler: public VieVS_Object {
+    class Scheduler: public VieVS_NamedObject {
         friend class Output;
 
     public:
@@ -63,7 +63,7 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        explicit Scheduler(Initializer &init);
+        Scheduler(Initializer &init, std::string name);
 
         /**
          * @brief main function that starts the scheduling

@@ -97,9 +97,8 @@ void VieVS_Scheduler::run() {
         if (flag_multiSched) {
             fname.append((boost::format("V%03d") % (i+1)).str());
         }
-        fname.append(".log");
 
-        bodyLog.open(path+fname);
+        bodyLog.open(path+fname+".log");
 
         if (flag_multiSched){
 
@@ -109,7 +108,7 @@ void VieVS_Scheduler::run() {
 
             string txt = threadNumberPrefix + (boost::format("creating multi scheduling version %d of %d;\n") % (i + 1) %
                                                nsched).str();
-            string txt2 = (boost::format("version %d: writing log file to: %s;\n") % (i+1) % fname).str();
+            string txt2 = (boost::format("version %d: writing log file to: %s.log;\n") % (i+1) % fname).str();
             cout << txt;
             cout << txt2;
         }
@@ -130,15 +129,15 @@ void VieVS_Scheduler::run() {
         newInit.initializeNutation();
         newInit.initializeEarth();
 
-        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit);
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,fname);
         scheduler.start(bodyLog);
         scheduler.statistics(bodyLog);
+        bodyLog.close();
 
         unsigned long createdScans = scheduler.numberOfCreatedScans();
 
         numberOfCreatedScans += createdScans;
 
-        bodyLog.close();
 
         VieVS::Output output(scheduler,path);
         if (flag_multiSched) {

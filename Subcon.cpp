@@ -286,7 +286,7 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
 
 void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
                            const vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept {
-
+    precalcScore(stations, sources);
     unsigned long nmaxsta = stations.size();
     vector< vector <double> > firstScore(nsrc);
     for (auto &thisScan: singleScans_) {

@@ -16,7 +16,7 @@ using namespace std;
 using namespace VieVS;
 int Scheduler::nextId = 0;
 
-Scheduler::Scheduler(Initializer &init): VieVS_Object(nextId++), stations_{std::move(init.stations_)},
+Scheduler::Scheduler(Initializer &init, string name): VieVS_NamedObject(move(name),nextId++), stations_{std::move(init.stations_)},
                                          sources_{std::move(init.sources_)},
                                          skyCoverages_{std::move(init.skyCoverages_)}, xml_{init.xml_} {
 
@@ -46,26 +46,9 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     outputHeader(stations_, bodyLog);
 
-//        displaySummaryOfStaticMembersForDebugging(bodyLog);
-//        printHorizonMasksForDebugging();
-
-//    VieVS::Scan::nScanSelections = 0;
-
-//    ofstream outstream("azel.txt");
-//    for (int i = 0; i < 86400; ++i) {
-//        PointingVector p;
-//        p.setTime(i);
-//        auto thisSta = stations_.at(0);
-//        auto thisSrc = sources_.at(300);
-//        thisSta.calcAzEl(thisSrc,p);
-//        outstream << boost::format("%.15f,%.15f\n") %p.getAz() %p.getEl();
-//    }
-//    outstream.close();
-
     while (true) {
         Subcon subcon = createSubcon(parameters_.subnetting, false, false);
         consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), bodyLog);
-        subcon.precalcScore(stations_, sources_);
         subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
 
 
@@ -156,7 +139,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     if(checkOptimizationConditions(bodyLog)){
         ++parameters_.currentIteration;
-        start(bodyLog);
+        ofstream newBodyLog(getName()+"_iteration_"+to_string(parameters_.maxNumberOfIterations)+".log");
+        start(newBodyLog);
     }
 
 //        if(PARA.writeSkyCoverageData){
@@ -393,7 +377,6 @@ Scheduler::fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
         return boost::none;
     } else {
 
-        fillin_subcon.precalcScore(stations_, sources_);
         fillin_subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
 
         while (true) {
@@ -459,7 +442,6 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
     }
     Subcon subcon = createSubcon(false, false, true);
     consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
-    subcon.precalcScore(stations_, sources_);
     subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
 
 
@@ -494,7 +476,6 @@ Scheduler::start_fillinMode(vector<Scan> &bestScans, ofstream &bodyLog) noexcept
         }
         subcon = createSubcon(false, false, true);
         consideredUpdate(subcon.getNumberSingleScans(), bodyLog);
-        subcon.precalcScore(stations_, sources_);
         subcon.generateScore(stations_, sources_, skyCoverages_, sources_.size());
     }
 

@@ -153,13 +153,6 @@ namespace VieVS{
         void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                            const std::vector<SkyCoverage> &skyCoverages, unsigned long nsrc) noexcept;
 
-        /**
-         * @brief precalculate all necessary parameters to generate scores
-         *
-         * @param stations list of all stations
-         * @param sources list of all sources
-         */
-        void precalcScore(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief get minimum and maximum time required for a possible scan
@@ -230,6 +223,16 @@ namespace VieVS{
         unsigned int maxRequiredTime_; ///< maximum time required for a scan
         std::vector<double> astas_; ///< average station score for each station
         std::vector<double> asrcs_; ///< average source score for each source
+
+
+        /**
+         * @brief precalculate all necessary parameters to generate scores
+         *
+         * @param stations list of all stations
+         * @param sources list of all sources
+         */
+        void precalcScore(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+
     };
 }
 #endif /* SUBCON_H */
