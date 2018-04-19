@@ -40,8 +40,10 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     vector<vector<int> > subnettingSrcIds(nsrc);
     for (int i = 0; i < nsrc; ++i) {
         for (int j = i + 1; j < nsrc; ++j) {
-            float dist = LookupTable::angularDistance(sources_[i].getRa(),sources_[i].getDe(),
-                                                      sources_[j].getRa(),sources_[j].getDe());
+            double tmp = sin(sources_[i].getDe()) * sin(sources_[j].getDe()) + cos(sources_[i].getDe()) *
+                         cos(sources_[j].getDe()) * cos(sources_[i].getRa() - sources_[j].getRa());
+            double dist = acos(tmp);
+
             if (dist > parameters_.minAngleBetweenSubnettingSources){
                 subnettingSrcIds.at(i).push_back(j);
             }

@@ -63,7 +63,7 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        Scheduler(Initializer &init, std::string name);
+        Scheduler(Initializer &init, std::string name, std::string path);
 
         /**
          * @brief main function that starts the scheduling
@@ -76,7 +76,8 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        Subcon createSubcon(bool subnetting, Scan::ScanType type) noexcept;
+        Subcon createSubcon(bool subnetting, Scan::ScanType type,
+                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief constructs all visible scans
@@ -101,15 +102,7 @@ namespace VieVS{
          * @param n2scans number of subnetting scans
          * @param bodyLog outstream file object
          */
-        void consideredUpdate(unsigned long n1scans, unsigned long n2scans, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief updates number of considered fillin scans
-         *
-         * @param n1scans number of fillin scans
-         * @param bodyLog outstream file object
-         */
-        void consideredUpdate(unsigned long n1scans, std::ofstream &bodyLog) noexcept;
+        void consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief prints the header lines of the output table to the console
@@ -117,28 +110,6 @@ namespace VieVS{
          * @param bodyLog outstream file object
          */
         void outputHeader(const std::vector<Station> &stations, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief this function starts the fillin mode
-         *
-         * Besides calculating possible fillin scans this function also updates all selected next scans.
-         *
-         * @param bestScans list of all scans which will be scheduled next
-         * @param bodyLog outstream file object
-         */
-        void start_fillinMode(std::vector<Scan> &bestScans, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief select a fillin scan if one exists
-         *
-         * @param subcon all fillin scans which could be possible fillin scans
-         * @param fi_endp fillin end position object
-         * @param sourceWillBeScanned list of all sources which will be scanned next
-         * @param bodyLog outstream file object
-         * @return selected fillin scan
-         */
-        boost::optional<Scan> fillin_scan(Subcon &subcon, const FillinmodeEndposition &fi_endp,
-                                               const std::vector<int> &sourceWillBeScanned, std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief total number of created scans
@@ -153,6 +124,7 @@ namespace VieVS{
 
     private:
         static int nextId;
+        std::string path_;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
@@ -169,9 +141,8 @@ namespace VieVS{
         unsigned long nFillinScansConsidered; ///< considered fillin scans
         unsigned long nBaselinesConsidered; ///< considered baselines
 
-        void startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
-                                boost::optional<FillinmodeEndposition> endposition,
-                                Scan::ScanType type);
+        void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
+                                boost::optional<FillinmodeEndposition> &endposition, int depth);
 
         /**
          * @brief checks the schedule with an independend methode
@@ -231,6 +202,9 @@ namespace VieVS{
         void startTagelongMode(Station &station, std::ofstream &bodyLog);
 
         bool checkOptimizationConditions(std::ofstream &of);
+
+        void changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
+                                   FillinmodeEndposition::change change);
     };
 }
 #endif /* SCHEDULER_H */

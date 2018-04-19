@@ -45,38 +45,6 @@ void CableWrap_AzEl::unwrapAzNearAz(PointingVector &new_pointingVector, double a
     new_pointingVector.setAz(this_unaz);
 }
 
-void CableWrap_AzEl::calcUnwrappedAz(const PointingVector &old_pointingVector,
-                                     PointingVector &new_pointingVector) const noexcept {
-
-    double az_old = old_pointingVector.getAz();
-    double az_new = new_pointingVector.getAz();
-
-    double unaz_new;
-
-    while (az_new > minLow(Axis::axis1)) {
-        az_new = az_new - 2 * pi;
-    }
-    while (az_new < minLow(Axis::axis1)) {
-        az_new = az_new + 2 * pi;
-    }
-
-
-    unaz_new = az_new;
-    auto ambigurities = static_cast<int>(floor((maxUp(Axis::axis1) - unaz_new) / (2 * pi)));
-    double this_unaz = unaz_new;
-
-    for (int i = 1; i <= ambigurities; ++i) {
-        double this_unaz_new = unaz_new + i * 2 * pi;
-        if (abs(this_unaz - az_old) < abs(this_unaz_new - az_old)) {
-            break;
-        } else {
-            this_unaz = this_unaz_new;
-        }
-    }
-    new_pointingVector.setAz(this_unaz);
-
-}
-
 std::string CableWrap_AzEl::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
     double az = pointingVector.getAz();
 

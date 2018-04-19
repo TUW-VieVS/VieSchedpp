@@ -29,9 +29,6 @@ bool CableWrap_XYew::anglesInside(const PointingVector &p) const noexcept {
 void CableWrap_XYew::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old) const noexcept {
 }
 
-void CableWrap_XYew::calcUnwrappedAz(const PointingVector &old_pointingVector,
-                                     PointingVector &new_pointingVector) const noexcept {
-}
 
 std::string CableWrap_XYew::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
     return "-";

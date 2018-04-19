@@ -26,53 +26,96 @@ void Subcon::addScan(const Scan &scan) noexcept {
 }
 
 void
-Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &sources) noexcept {
+Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &sources,
+                       const boost::optional<FillinmodeEndposition> & endposition) noexcept {
 
     int i=0;
+    // loop through all scans
     while(i<nSingleScans_){
         bool scanValid_slew = true;
         bool scanValid_idle = true;
+        bool scanValid_endposition = true;
+
+        // save maximum idle times
         vector<unsigned  int> maxIdleTimes;
 
-        int j=0;
-        while(j<singleScans_[i].getNSta()){
-            int staid = singleScans_[i].getStationId(j);
+        // current scan
+        Scan &thisScan = singleScans_[i];
 
+        const Source &thisSource = sources[thisScan.getSourceId()];
+
+        // loop through all stations
+        int j=0;
+        while(j<thisScan.getNSta()){
+            int staid = thisScan.getStationId(j);
+
+            // current station
             const Station &thisSta = stations[staid];
+
+            // first scan means no field system, slew and preob time
             if (thisSta.getPARA().firstScan) {
-                singleScans_[i].addTimes(j, 0, 0, 0);
+                thisScan.addTimes(j, 0, 0, 0);
                 ++j;
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 continue;
             }
 
-
+            // unwrap azimuth and calculate slewtime
             thisSta.getCableWrap().calcUnwrappedAz(thisSta.getCurrentPointingVector(),
-                                                   singleScans_[i].referencePointingVector(j));
-            auto slewtime = thisSta.slewTime(singleScans_[i].getPointingVector(j));
+                                                   thisScan.referencePointingVector(j));
+            auto slewtime = thisSta.slewTime(thisScan.getPointingVector(j));
 
-            if (!slewtime.is_initialized()) {
-                scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
-                if(!scanValid_slew){
-                    break;
-                }
-            } else {
+            // look if slewtime is valid, if yes add field system, slew and preob times
+            if (slewtime.is_initialized()) {
                 maxIdleTimes.push_back(thisSta.getPARA().maxWait);
                 const Station::WaitTimes wtimes = thisSta.getWaittimes();
-                singleScans_[i].addTimes(j, wtimes.fieldSystem, *slewtime, wtimes.preob);
-                ++j;
+                thisScan.addTimes(j, wtimes.fieldSystem, *slewtime, wtimes.preob);
+            } else {
+                scanValid_slew = thisScan.removeStation(j, thisSource);
+                if(!scanValid_slew){
+                    break;      // scan is no longer valid
+                } else {
+                    continue;   // station was removed, continue with next station (do not increment counter!)
+                }
             }
+
+            // look if there is enough time to reach endposition (if there is any) under perfect circonstance
+            if(endposition.is_initialized()){
+                const auto &times = thisScan.getTimes();
+
+                const auto &waitTimes = thisSta.getWaittimes();
+                unsigned int minimumScanTime = max(thisSta.getPARA().minScan, thisSource.getPARA().minScan);
+
+
+                // calc possible endposition time. Assumtion: 5sec slew time, no idle time and minimum scan time
+                int possibleEndpositionTime = times.getScanStart(j) + minimumScanTime +5+ waitTimes.fieldSystem + waitTimes.preob;
+
+                // get minimum required endpositon time
+                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
+
+                // check if there is enough time left
+                if(possibleEndpositionTime > requiredEndpositionTime){
+                    scanValid_endposition = thisScan.removeStation(j, thisSource);
+                    if(!scanValid_endposition){
+                        break;      // scan is no longer valid
+                    } else {
+                        continue;   // station was removed, continue with next station (do not increment counter!)
+                    }
+                }
+            }
+            ++j;
         }
 
-        if (scanValid_slew) {
-            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes, sources[singleScans_[i].getSourceId()]);
+        if (scanValid_slew && scanValid_endposition) {
+            scanValid_idle = thisScan.checkIdleTimes(maxIdleTimes, thisSource);
         }
 
-        if (!scanValid_slew || !scanValid_idle){
+
+        if (scanValid_slew && scanValid_endposition && scanValid_idle){
+            ++i;
+        }else{
             singleScans_.erase(next(singleScans_.begin(),i));
             --nSingleScans_;
-        }else{
-            ++i;
         }
     }
 }
@@ -96,18 +139,20 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
     int i = 0;
     while (i < nSingleScans_) {
 
-        const Source &thisSource = sources[singleScans_[i].getSourceId()];
+        auto &thisScan = singleScans_[i];
+
+        const Source &thisSource = sources[thisScan.getSourceId()];
         bool scanValid_slew = true;
         bool scanValid_idle = true;
         vector<unsigned  int> maxIdleTimes;
 
         int j = 0;
-        while (j < singleScans_[i].getNSta()) {
-            int staid = singleScans_[i].getPointingVector(j).getStaid();
-            PointingVector &thisPointingVector = singleScans_[i].referencePointingVector(j);
-            thisPointingVector.setTime(singleScans_[i].getTimes().getScanStart(j));
+        while (j < thisScan.getNSta()) {
+            int staid = thisScan.getStationId(j);
+            PointingVector &thisPointingVector = thisScan.referencePointingVector(j);
+            thisPointingVector.setTime(thisScan.getTimes().getScanStart(j));
             stations[staid].calcAzEl(thisSource, thisPointingVector);
-            bool visible = stations[staid].isVisible(thisPointingVector, sources[singleScans_[i].getSourceId()].getPARA().minElevation);
+            bool visible = stations[staid].isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
             boost::optional<unsigned int> slewtime;
 
@@ -118,20 +163,20 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
             }
 
             if (!visible || !slewtime.is_initialized()) {
-                scanValid_slew = singleScans_[i].removeStation(j, sources[singleScans_[i].getSourceId()]);
+                scanValid_slew = thisScan.removeStation(j, sources[thisScan.getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
                 maxIdleTimes.push_back(stations[staid].getPARA().maxWait);
-                singleScans_[i].updateSlewtime(j, *slewtime);
+                thisScan.updateSlewtime(j, *slewtime);
                 ++j;
             }
         }
 
 
         if (scanValid_slew) {
-            scanValid_idle = singleScans_[i].checkIdleTimes(maxIdleTimes, sources[singleScans_[i].getSourceId()]);
+            scanValid_idle = thisScan.checkIdleTimes(maxIdleTimes, sources[thisScan.getSourceId()]);
         }
 
         if (!scanValid_slew || !scanValid_idle){
@@ -159,15 +204,52 @@ Subcon::calcAllBaselineDurations(const vector<Station> &stations,
     }
 }
 
-void Subcon::calcAllScanDurations(const vector<Station> &stations,
-                                       const vector<Source> &sources) noexcept {
+void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<Source> &sources,
+                                  const boost::optional<FillinmodeEndposition> & endposition) noexcept {
+    // loop through all scans
     int i=0;
     while (i<nSingleScans_){
-        Scan& thisScan = singleScans_[i];
-        int srcid = thisScan.getSourceId();
 
-        bool scanValid = thisScan.scanDuration(stations, sources[srcid]);
-        if (scanValid){
+        // current scan and source
+        Scan& thisScan = singleScans_[i];
+        const Source &thisSource = sources[thisScan.getSourceId()];
+
+        // calculate scan durations and check if they are valid
+        bool scanValid_scanDuration = thisScan.scanDuration(stations, thisSource);
+
+        // check if there is enough time to slew to endposition under perfect circumstances
+        bool scanValid_endposition = true;
+        if(endposition.is_initialized()){
+            const auto &times = thisScan.getTimes();
+
+            // loop through all stations
+            int j=0;
+            while(j<thisScan.getNSta()){
+                int staid = thisScan.getStationId(j);
+                const Station &thisSta = stations[staid];
+
+                const auto &waitTimes = thisSta.getWaittimes();
+
+                // calc possible endposition time. Assumtion: 5sec slew time, no idle time
+                int possibleEndpositionTime = times.getScanEnd(j) + waitTimes.fieldSystem + waitTimes.preob + 5;
+
+                // get minimum required endpositon time
+                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
+
+                // check if there is enough time left
+                if(possibleEndpositionTime > requiredEndpositionTime){
+                    scanValid_endposition = thisScan.removeStation(j, thisSource);
+                    if(!scanValid_endposition){
+                        break;      // scan is no longer valid
+                    } else {
+                        continue;   // station was removed, continue with next station (do not increment counter!)
+                    }
+                }
+                ++j;
+            }
+        }
+
+        if (scanValid_scanDuration && scanValid_endposition){
             ++i;
         } else {
             --nSingleScans_;
@@ -472,61 +554,71 @@ void Subcon::precalcScore(const vector<Station> &stations, const vector<Source> 
 }
 
 boost::optional<unsigned long>
-Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sources,
-                           const vector<SkyCoverage> &skyCoverages) noexcept {
+Subcon::selectBest(const vector<Station> &stations, const vector<Source> &sources,
+                   const vector<SkyCoverage> &skyCoverages,
+                   const boost::optional<FillinmodeEndposition> &endposition) noexcept {
 
+    // merge single scan scores and subnetting scores
     vector<double> scores = singleScanScores_;
     scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
 
-
-
+    // push data into queue
     std::priority_queue<std::pair<double, unsigned long> > q;
     for (unsigned long i = 0; i < scores.size(); ++i) {
         q.push(std::pair<double, unsigned long>(scores[i], i));
     }
 
+    // loop through queue
     while (true) {
         if (q.empty()) {
             return boost::none;
         }
+
+        // get index of scan(s) with highest score and remove it from list
         unsigned long idx = q.top().second;
         q.pop();
 
+        // distinguish between single source scan and subnetting scans
         if (idx < nSingleScans_) {
             unsigned long thisIdx = idx;
+
+            // get scan with highest score
             Scan &thisScan = singleScans_[thisIdx];
             const Source &thisSource = sources[thisScan.getSourceId()];
-            bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()]);
+            // make rigorous update
+            bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()], endposition);
             if (!flag) {
                 continue;
             }
+
+            // calculate score again
             thisScan.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                stations, thisSource, skyCoverages);
-            double newScore = thisScan.getScore();
 
-            q.push(make_pair(newScore, idx));
+            // push score in queue
+            q.push(make_pair(thisScan.getScore(), idx));
 
         } else {
             unsigned long thisIdx = idx - nSingleScans_;
             auto &thisScans = subnettingScans_[thisIdx];
 
+            // get scans with highest score
             Scan &thisScan1 = thisScans.first;
             const Source &thisSource1 = sources[thisScan1.getSourceId()];
-            bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()]);
+            Scan &thisScan2 = thisScans.second;
+            const Source &thisSource2 = sources[thisScan2.getSourceId()];
+
+            // make rigorous update
+            bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], endposition);
             if (!flag1) {
                 continue;
             }
-            thisScan1.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                stations, thisSource1, skyCoverages);
-            double newScore1 = thisScan1.getScore();
-
-            Scan &thisScan2 = thisScans.second;
-            const Source &thisSource2 = sources[thisScan2.getSourceId()];
-            bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()]);
+            bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], endposition);
             if (!flag2) {
                 continue;
             }
 
+            // check time differences between subnetting scans
             unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
             unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
             unsigned int deltaTime;
@@ -539,13 +631,17 @@ Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sou
                 continue;
             }
 
+            // calculate score again
+            thisScan1.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+                                stations, thisSource1, skyCoverages);
             thisScan2.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                 stations, thisSource2, skyCoverages);
-            double newScore2 = thisScan2.getScore();
-            double newScore = newScore1 + newScore2;
 
-            q.push(make_pair(newScore, idx));
+            // push score in queue
+            q.push(make_pair(thisScan1.getScore() + thisScan2.getScore(), idx));
         }
+
+        // check if newly added score is again the highest score in the queue. If yes this is/are our selected scan/scans
         unsigned long newIdx = q.top().second;
         if (newIdx == idx) {
             return idx;
@@ -669,6 +765,75 @@ void Subcon::clearSubnettingScans() {
     nSubnettingScans_ = 0;
     subnettingScans_.clear();
     subnettingScanScores_.clear();
+}
+
+void
+Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                                            const boost::optional<FillinmodeEndposition> &endposition) {
+
+    // if there is no required endposition do nothing
+    if(!endposition.is_initialized()) {
+        return;
+    }
+
+    // loop through all scans
+    int iscan = 0;
+    while (iscan < nSingleScans_) {
+        bool scanValid = true;
+
+        // current scan and source
+        auto &thisScan = singleScans_[iscan];
+        const ScanTimes &times = thisScan.getTimes();
+        const Source &thisSource = sources[thisScan.getSourceId()];
+
+        // loop through all stations
+        int istation = 0;
+        while (istation < thisScan.getNSta()) {
+
+            // current station id
+            int staid = thisScan.getStationId(istation);
+            const Station &thisSta = stations[staid];
+            const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
+
+            int possibleEndpositionTime;
+            if(endposition->hasEndposition(staid)){
+                // required endposition
+                const PointingVector &thisEndposition = endposition->getFinalPosition(staid).get();
+
+                // assume that pointing vector at scan end is same as pointing vector at scan start
+                const PointingVector &assumedSlewStart = thisScan.getPointingVector(istation);
+
+                // calculate slew time between pointing vectors
+                unsigned int slewtime = thisSta.getAntenna().slewTime(assumedSlewStart,thisEndposition);
+
+                // check if there is enough time
+                possibleEndpositionTime = times.getScanEnd(istation) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
+            }else{
+                possibleEndpositionTime = times.getScanEnd(istation);
+            }
+
+            // get minimum required endpositon time
+            int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
+
+            if(possibleEndpositionTime > requiredEndpositionTime){
+                scanValid = thisScan.removeStation(istation, thisSource);
+                if(!scanValid){
+                    break;      // scan is no longer valid
+                } else {
+                    continue;   // station was removed, continue with next station (do not increment counter!)
+                }
+            }
+            ++istation;
+        }
+
+        // if scan is valid increment scan counter, otherwise remove scan.
+        if (scanValid){
+            ++iscan;
+        }else{
+            singleScans_.erase(next(singleScans_.begin(),iscan));
+            --nSingleScans_;
+        }
+    }
 }
 
 

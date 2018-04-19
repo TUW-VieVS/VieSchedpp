@@ -20,9 +20,6 @@ bool CableWrap_HaDc::anglesInside(const PointingVector &p) const noexcept {
 void CableWrap_HaDc::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old) const noexcept {
 }
 
-void CableWrap_HaDc::calcUnwrappedAz(const PointingVector &old_pointingVector,
-                                     PointingVector &new_pointingVector) const noexcept {
-}
 
 std::string CableWrap_HaDc::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
     return "-";

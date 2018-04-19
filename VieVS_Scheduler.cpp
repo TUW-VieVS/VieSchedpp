@@ -7,6 +7,7 @@
 using namespace std;
 using namespace VieVS;
 
+
 VieVS_Scheduler::VieVS_Scheduler(const std::string &inputFile):inputFile_{inputFile} {
 
 }
@@ -98,7 +99,7 @@ void VieVS_Scheduler::run() {
             fname.append((boost::format("V%03d") % (i+1)).str());
         }
 
-        bodyLog.open(path+fname+".log");
+        bodyLog.open(path+fname+"_iteration_0"+".log");
 
         if (flag_multiSched){
 
@@ -129,10 +130,8 @@ void VieVS_Scheduler::run() {
         newInit.initializeNutation();
         newInit.initializeEarth();
 
-        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,fname);
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,fname, path);
         scheduler.start(bodyLog);
-        scheduler.statistics(bodyLog);
-        bodyLog.close();
 
         unsigned long createdScans = scheduler.numberOfCreatedScans();
 

@@ -28,8 +28,10 @@
 #include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "CalibratorBlock.h"
+#include "FillinmodeEndposition.h"
 
 namespace VieVS{
+
     /**
      * @class Scan
      * @brief representation of a VLBI scan
@@ -404,7 +406,8 @@ namespace VieVS{
          * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(const std::vector<Station> &stations, const Source &source) noexcept;
+        bool rigorousUpdate(const std::vector<Station> &stations, const Source &source,
+                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief adds observation to scan in tagalong mode
@@ -478,6 +481,16 @@ namespace VieVS{
 
         ScanType type_; ///< type of the scan
         ScanConstellation constellation_; ///
+
+        bool rigorousSlewtime(const std::vector<Station> &stations, const Source &source) noexcept;
+
+        bool rigorousScanStartTimeAlignment(const std::vector<Station> &stations, const Source &source) noexcept;
+
+        bool rigorousScanVisibility(const std::vector<Station> &stations, const Source &source, bool &stationRemoved) noexcept;
+
+        bool rigorousScanCanReachEndposition(const std::vector<Station> &station, const Source &thisSource,
+                                                     const boost::optional<FillinmodeEndposition> &endposition,
+                                                     bool &stationRemoved);
 
         /**
          * @brief calculates the score for number of observations
@@ -566,6 +579,7 @@ namespace VieVS{
          * @return score for low elevation scans
          */
         double calcScore_lowElevation();
+
     };
 }
 #endif /* SCAN_H */

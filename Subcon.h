@@ -20,7 +20,7 @@
 #include "Source.h"
 #include "Scan.h"
 #include "SkyCoverage.h"
-
+#include "FillinmodeEndposition.h"
 
 
 namespace VieVS{
@@ -100,7 +100,8 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcStartTimes(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+        void calcStartTimes(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief constructs all baselines for all single source scans in this subcon
@@ -132,7 +133,8 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcAllScanDurations(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+        void calcAllScanDurations(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                                  const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief create all subnetting scans from possible single source scans
@@ -152,6 +154,10 @@ namespace VieVS{
         void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                            const std::vector<SkyCoverage> &skyCoverages) noexcept;
 
+
+        void checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations,
+                                                 const std::vector<Source> &sources,
+                                                 const boost::optional<FillinmodeEndposition> &endposition = boost::none);
 
         /**
          * @brief get minimum and maximum time required for a possible scan
@@ -181,9 +187,10 @@ namespace VieVS{
          * @param prevHighElevationScores optinal argument if you have a calibrator block scan - previouse high elevation scores
          * @return index of best scan
          */
-        boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations,
-                                                     const std::vector<Source> &sources,
-                                                     const std::vector<SkyCoverage> &skyCoverages) noexcept;
+        boost::optional<unsigned long> selectBest(const std::vector<Station> &stations,
+                                                  const std::vector<Source> &sources,
+                                                  const std::vector<SkyCoverage> &skyCoverages,
+                                                  const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
 
 

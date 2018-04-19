@@ -8,97 +8,157 @@ using namespace VieVS;
 
 int FillinmodeEndposition::nextId = 0;
 
-FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
-                                                   const std::vector<Station> &stations): VieVS_Object(nextId) {
+//FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
+//                                                   const std::vector<Station> &stations): VieVS_Object(nextId) {
+//
+//    unsigned long nsta = stations.size();
+//
+//    stationAvailable_ = vector<char>(nsta, true);
+//    stationPossible_ = std::vector<char>(nsta, true);
+//    finalPosition_ = vector<boost::optional<PointingVector> >(nsta);
+//
+//    // if there is no subcon the earliest scan start is set to zero to be save
+//    earliestScanStart_ = numeric_limits<unsigned int>::max();
+//    if (bestScans.empty()) {
+//        earliestScanStart_ = 0;
+//    }
+//
+//    // first the earliest pointing vector of each station is searched and stored
+//    for (auto &any: bestScans) {
+//        const auto &times = any.getTimes();
+//        for (int i = 0; i < any.getNSta(); ++i) {
+//
+//            const PointingVector &pv = any.getPointingVector(i);
+//            int staid = pv.getStaid();
+//
+//            unsigned int thisScanStart = times.getScanStart(i);
+//            if(finalPosition_[staid].is_initialized()){
+//                if (thisScanStart < finalPosition_[staid]->getTime()) {
+//                    finalPosition_[staid] = pv;
+//                }
+//            }else{
+//                finalPosition_[staid] = pv;
+//            }
+//
+//            if(thisScanStart<earliestScanStart_){
+//                earliestScanStart_ = thisScanStart;
+//            }
+//        }
+//    }
+//
+//    // loop through all stations
+//    for (int staid = 0; staid < nsta; ++staid) {
+//
+//        const Station &thisStation = stations[staid];
+//
+//        // check if station is available
+//        if(!thisStation.getPARA().available){
+//            stationAvailable_[staid] = false;
+//            stationPossible_[staid] = false;
+//            continue;
+//        }
+//
+//        // get start time of this station
+//        unsigned int staStarttime = thisStation.getCurrentTime();
+//
+//        // estimat end time of this session, if there is a endposition then take this time, otherwise earliest scan start time
+//        unsigned int staEndtime = 0;
+//        if (finalPosition_[staid].is_initialized()) {
+//            staEndtime = finalPosition_[staid]->getTime();
+//        }else{
+//            staEndtime = earliestScanStart_;
+//        }
+//
+//        // calculate available time
+//        unsigned int availableTime;
+//        if (staEndtime > staStarttime) {
+//            availableTime = staEndtime - staStarttime;
+//        }else{
+//            stationPossible_[staid] = false;
+//            continue;
+//        }
+//
+//        // calculate minimum required time. Assumtion: only 5 sec slew time, min scan time and no idle time.
+//        const Station::WaitTimes wtimes = thisStation.getWaittimes();
+//        unsigned int requiredTime = wtimes.fieldSystem + wtimes.preob + 5 + wtimes.postob + thisStation.getPARA().minScan;
+//
+//        // determine if station is possible
+//        stationPossible_[staid] = availableTime > requiredTime;
+//    }
+//}
 
-    unsigned long nsta = stations.size();
-
-    stationUnused_ = std::vector<char>(nsta, true);
-    stationPossible_ = std::vector<char>(nsta, true);
-    finalPosition_.reserve(nsta);
-    for (int i = 0; i < nsta; ++i) {
-        finalPosition_.emplace_back(i, numeric_limits<int>::max());
-    }
-
-    vector<unsigned int> earliestScanStart(nsta, numeric_limits<unsigned int>::max());
-    vector<unsigned int> availableTime(nsta, numeric_limits<unsigned int>::max());
+FillinmodeEndposition::FillinmodeEndposition(int nsta) : VieVS_Object(nsta) {
+    stationAvailable_ = vector<char>(static_cast<unsigned long>(nsta), true);
+    stationPossible_ = std::vector<char>(static_cast<unsigned long>(nsta), true);
+    finalPosition_ = vector<boost::optional<PointingVector> >(static_cast<unsigned long>(nsta));
 
     // if there is no subcon the earliest scan start is set to zero to be save
-    unsigned int totalEarliestScanStart = numeric_limits<unsigned int>::max();
-    if (bestScans.empty()) {
-        totalEarliestScanStart = 0;
-    }
-
-    // first the earliest scan start of each station is searched and stored
-    for (auto &any: bestScans) {
-        for (int i = 0; i < any.getNSta(); ++i) {
-            const PointingVector &pv = any.getPointingVector(i);
-            int staid = pv.getStaid();
-
-            unsigned int thisEndOfIdleTime = any.getTimes().getScanStart(i);
-            if (thisEndOfIdleTime < earliestScanStart[staid]) {
-                earliestScanStart[staid] = thisEndOfIdleTime;
-                finalPosition_[staid] = std::move(pv);
-                stationUnused_[staid] = false;
-            }
-        }
-    }
-
-    // the total earliest scan start is searched... this is the upper limit for unused stations
-    for (int staid = 0; staid < nsta; ++staid) {
-        if (earliestScanStart[staid] < totalEarliestScanStart) {
-            totalEarliestScanStart = earliestScanStart[staid];
-        }
-    }
-
-    // used stations: available time is the time between the current position and the earliest scan time
-    for (int staid = 0; staid < nsta; ++staid) {
-        if (!stationUnused_[staid]) {
-            unsigned int staBeginning = stations[staid].getCurrentTime();
-            unsigned int staEnd = earliestScanStart[staid];
-            if (staBeginning > staEnd) {
-                availableTime[staid] = 0;
-            } else {
-                availableTime[staid] = staEnd - staBeginning;
-            }
-        }
-    }
-
-    // unused stations: available time is the time between the current position and the total earliest scan time
-    for (int staid = 0; staid < nsta; ++staid) {
-        if (stationUnused_[staid]) {
-            finalPosition_[staid].setTime(totalEarliestScanStart);
-            unsigned int staBeginning = stations[staid].getCurrentTime();
-            if (staBeginning > totalEarliestScanStart) {
-                availableTime[staid] = 0;
-            } else {
-                availableTime[staid] = totalEarliestScanStart - staBeginning;
-            }
-        }
-    }
-
-    // checks if it is possible for a station to carry out a fillin scan
-    for (int staid = 0; staid < nsta; ++staid) {
-        unsigned int deltaT = availableTime[staid];
-        const Station &thisSta = stations[staid];
-        int assumedSlewTime = 5;
-        const Station::WaitTimes wtimes = thisSta.getWaittimes();
-        if (deltaT < wtimes.fieldSystem + wtimes.preob + assumedSlewTime + wtimes.postob + thisSta.getPARA().minScan ||
-            !thisSta.getPARA().available || !thisSta.getPARA().availableForFillinmode) {
-            stationPossible_[staid] = false;
-        }
-    }
-
-    // checks if a station is not available
-    for (int staid = 0; staid < nsta; ++staid) {
-        if (stationUnused_[staid]) {
-            const Station &thisSta = stations[staid];
-            if (!thisSta.getPARA().available || !thisSta.getPARA().availableForFillinmode) {
-                stationPossible_[staid] = false;
-                availableTime[staid] = 0;
-            }
-        }
-    }
-
-    numberOfPossibleStations_ = static_cast<int>(count(stationPossible_.begin(), stationPossible_.end(), true));
+    earliestScanStart_ = numeric_limits<unsigned int>::max();
 }
+
+void FillinmodeEndposition::addPointingVectorAsEndposition(const PointingVector &pv) {
+    int staid = pv.getStaid();
+
+    // check if there is already an earlier endposition
+    if(finalPosition_[staid].is_initialized()){
+        if(pv.getTime() < finalPosition_[staid]->getTime()){
+            finalPosition_[staid] = pv;
+        }
+    }else{
+        finalPosition_[staid] = pv;
+    }
+
+    if(pv.getTime()<earliestScanStart_){
+        earliestScanStart_ = pv.getTime();
+    }
+
+}
+
+void FillinmodeEndposition::checkStationPossibility(const Station &thisStation) {
+    int staid = thisStation.getId();
+    // get start time of this station
+    unsigned int staStarttime = thisStation.getCurrentTime();
+
+    // estimat end time of this session, if there is a endposition then take this time, otherwise earliest scan start time
+    unsigned int staEndtime = 0;
+    if (finalPosition_[staid].is_initialized()) {
+        staEndtime = finalPosition_[staid]->getTime();
+    }else{
+        staEndtime = earliestScanStart_;
+    }
+
+    // calculate available time
+    unsigned int availableTime;
+    if (staEndtime > staStarttime) {
+        availableTime = staEndtime - staStarttime;
+    }else{
+        stationPossible_[staid] = false;
+        return;
+    }
+
+    // calculate minimum required time. Assumtion: only 5 sec slew time, min scan time and no idle time.
+    const Station::WaitTimes wtimes = thisStation.getWaittimes();
+    unsigned int requiredTime = wtimes.fieldSystem + wtimes.preob + 5 + wtimes.postob + thisStation.getPARA().minScan;
+
+    // determine if station is possible
+    stationPossible_[staid] = availableTime > requiredTime;
+}
+
+
+unsigned int FillinmodeEndposition::requiredEndpositionTime(int staid) const {
+
+    // check if station has a required endposition, otherwise use earliest scan start.
+    if(finalPosition_[staid].is_initialized()){
+        return finalPosition_[staid]->getTime();
+    }else{
+        return earliestScanStart_;
+    }
+}
+
+void FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &stations) {
+    for(const auto &any:stations){
+        checkStationPossibility(any);
+    }
+}
+
+

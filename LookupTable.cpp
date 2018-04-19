@@ -99,7 +99,7 @@ float LookupTable::angularDistance(double phi1, double theta1, double phi2, doub
         deltaPhi_tmp = deltaPhi_tmp - 360;
     }
 
-    long deltaPhi = lround(deltaPhi_tmp);
+    long deltaPhi = abs(lround(deltaPhi_tmp));
 
     auto thisTheta = lround(theta1 * rad2deg);
     auto deltaTheta = lround((theta2 - theta1) * rad2deg);

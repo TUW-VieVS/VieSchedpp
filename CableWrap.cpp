@@ -119,4 +119,8 @@ double CableWrap::maxUp(CableWrap::Axis axis) const {
     }
 }
 
+void CableWrap::calcUnwrappedAz(const PointingVector &old_pointingVector, PointingVector &new_pointingVector) const noexcept {
+    unwrapAzNearAz(new_pointingVector,old_pointingVector.getAz());
+}
+
 

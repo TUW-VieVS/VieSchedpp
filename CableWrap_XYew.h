@@ -16,9 +16,6 @@ namespace VieVS {
 
         void unwrapAzNearAz(PointingVector &new_pointingVector, double az_old) const noexcept override;
 
-        void calcUnwrappedAz(const PointingVector &old_pointingVector,
-                             PointingVector &new_pointingVector) const noexcept override;
-
         bool unwrapAzInSection(PointingVector &pv, char section) const noexcept override;
 
         std::string cableWrapFlag(const PointingVector &pointingVector) const noexcept override;

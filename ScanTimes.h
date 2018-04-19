@@ -158,8 +158,11 @@ namespace VieVS {
         std::vector<unsigned int> endOfFieldSystemTime_; ///< end of setup time
         std::vector<unsigned int> endOfSlewTime_; ///< end of slew time
         std::vector<unsigned int> endOfIdleTime_; ///< end of idle time
-        std::vector<unsigned int> endOfPreobTime_; ///< end of calibraiton time
+        std::vector<unsigned int> endOfPreobTime_; ///< end of preob time
         std::vector<unsigned int> endOfScanTime_; ///< end of scan time
+
+        //TODO: implement endOfPostobTime_
+        std::vector<unsigned int> endOfPostobTime_; ///< end of postob time
     };
 }
 

@@ -114,8 +114,8 @@ namespace VieVS{
          * @param old_pointingVector current antenna pointing vector
          * @param new_pointingVector new pointing vector whose azimuth should be unwrapped
          */
-        virtual void calcUnwrappedAz(const PointingVector &old_pointingVector,
-                                     PointingVector &new_pointingVector) const noexcept = 0;
+        void calcUnwrappedAz(const PointingVector &old_pointingVector,
+                                     PointingVector &new_pointingVector) const noexcept;
 
 
         virtual bool unwrapAzInSection(PointingVector &pv, char section) const noexcept = 0;
