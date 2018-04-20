@@ -117,7 +117,7 @@ namespace VieVS{
          * @return total number of created scans
          */
         unsigned long numberOfCreatedScans() {
-            return nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered;
+            return nSingleScansConsidered + 2 * nSubnettingScansConsidered;
         }
 
         void statistics(std::ofstream &ofstream);
@@ -138,8 +138,7 @@ namespace VieVS{
 
         unsigned long nSingleScansConsidered; ///< considered single source scans
         unsigned long nSubnettingScansConsidered; ///< considered subnetting scans
-        unsigned long nFillinScansConsidered; ///< considered fillin scans
-        unsigned long nBaselinesConsidered; ///< considered baselines
+        unsigned long nObservationsConsidered; ///< considered baselines
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
                                 boost::optional<FillinmodeEndposition> &endposition, int depth);

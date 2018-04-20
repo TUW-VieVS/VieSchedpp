@@ -276,6 +276,7 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
         ++nScans_;
         nBaselines_ += nbl;
     }
+    ++nTotalScans_;
     pointingVectorsStart_.push_back(start);
     pointingVectorsEnd_.push_back(end);
     currentPositionVector_ = end;
@@ -352,6 +353,7 @@ void Station::clearObservations() {
     pointingVectorsEnd_.clear();
 
     nScans_ = 0;
+    nTotalScans_ = 0;
     nBaselines_ = 0;
 
     parameters_.firstScan=true;

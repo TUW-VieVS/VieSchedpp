@@ -38,7 +38,6 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
 
     nSingleScansConsidered = 0;
     nSubnettingScansConsidered = 0;
-    nFillinScansConsidered = 0;
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
@@ -223,8 +222,7 @@ void Scheduler::statistics(ofstream &log) {
     log << "number of scheduled scans       " << scans_.size() << "\n";
     log << "considered single source scans: " << nSingleScansConsidered << "\n";
     log << "considered subnetting scans:    " << nSubnettingScansConsidered << "\n";
-    log << "considered fillin mode scans:   " << nFillinScansConsidered << "\n";
-    log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered + nFillinScansConsidered << "\n";
+    log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
 }
 
 Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
@@ -297,7 +295,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
                 continue;
             }
 
-            if (thisSta.getNScans() >= thisSta.getPARA().maxNumberOfScans){
+            if (thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans){
                 continue;
             }
 
@@ -385,15 +383,17 @@ void Scheduler::outputHeader(const vector<Station> &stations, ofstream &bodyLog)
 
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
 
-    bodyLog << "|-------------";
-    for (int i = 0; i < stations_.size() - 1; ++i) {
-        bodyLog << "-----------";
-    }
-    bodyLog << "----------| \n";
+    if(n1scans+n2scans>0){
+        bodyLog << "|-------------";
+        for (int i = 0; i < stations_.size() - 1; ++i) {
+            bodyLog << "-----------";
+        }
+        bodyLog << "----------| \n";
 
-    bodyLog << "| depth: " << depth << " considered single Scans " << n1scans << " subnetting scans " << n2scans << ":\n";
-    nSingleScansConsidered += n1scans;
-    nSubnettingScansConsidered += n2scans;
+        bodyLog << "| depth: " << depth << " considered single Scans " << n1scans << " subnetting scans " << n2scans << ":\n";
+        nSingleScansConsidered += n1scans;
+        nSubnettingScansConsidered += n2scans;
+    }
 }
 
 bool Scheduler::check(ofstream &bodyLog) noexcept {

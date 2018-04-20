@@ -330,6 +330,10 @@ namespace VieVS{
             return nScans_;
         }
 
+        int getNTotalScans() const noexcept{
+            return nTotalScans_;
+        }
+
         /**
          * @brief getter for sky coverage id
          *
@@ -512,6 +516,7 @@ namespace VieVS{
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
         int nScans_{0}; ///< number of participated scans
+        int nTotalScans_{0}; ///< number of total scans
         int nBaselines_{0}; ///< number of observed baselines
     };
 }
