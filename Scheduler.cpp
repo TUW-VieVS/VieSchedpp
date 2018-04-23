@@ -105,16 +105,17 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             }
         }
 
-        // if end time of best possible next scans is greate than end time of scan selection stop
-        if( maxScanEnd > endTime){
-            break;
-        }
-
         // check if end time triggers a new event
         bool hardBreak = checkForNewEvent(maxScanEnd, true, bodyLog);
         if (hardBreak) {
             continue;
         }
+
+        // if end time of best possible next scans is greate than end time of scan selection stop
+        if( maxScanEnd > endTime){
+            break;
+        }
+
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmode && !scans_.empty()) {
@@ -913,11 +914,18 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                         new_duration = ceil(new_duration);
                         auto new_duration_uint = static_cast<unsigned int>(new_duration);
 
-                        unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
+                        unsigned int minScanBl = std::max({Baseline::PARA.minScan[staid1][staid2],
+                                                           stations_[staid1].getPARA().minScan,
+                                                           stations_[staid2].getPARA().minScan,
+                                                           source.getPARA().minScan});
+
                         if (new_duration_uint < minScanBl) {
                             new_duration_uint = minScanBl;
                         }
-                        unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
+                        unsigned int maxScanBl = std::min({Baseline::PARA.maxScan[staid1][staid2],
+                                                           stations_[staid1].getPARA().maxScan,
+                                                           stations_[staid2].getPARA().maxScan,
+                                                           source.getPARA().maxScan});
 
                         if (new_duration_uint > maxScanBl) {
                             continue;
