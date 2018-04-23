@@ -292,7 +292,7 @@ namespace VieVS{
          * @param maxIdle maximum allowed idle time
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool checkIdleTimes(std::vector<unsigned int> maxIdle, const Source &source) noexcept;
+        bool checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &source) noexcept;
 
         /**
          * @brief calculates the scan durations per baseline
@@ -335,8 +335,8 @@ namespace VieVS{
          * @param skyCoverages sky Coverages
          * @param stations list of all VLBI stations
          */
-        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
-                       const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                       unsigned int minTime, unsigned int maxTime,
                        const std::vector<Station> &stations, const Source &source,
                        const std::vector<SkyCoverage> &skyCoverages) noexcept;
 
@@ -358,8 +358,8 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stores the score of each pointing vector without twin station influences
         */
-        void calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
-                       const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
+        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                       unsigned int minTime, unsigned int maxTime,
                        const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
                        const Source &source,
                        std::vector<double> &firstScorePerPv) noexcept;
@@ -381,7 +381,7 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
-        void calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+        void calcScore_subnetting(const std::vector<double> &astas,
                                   const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
                                   const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
                                   const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
@@ -396,7 +396,7 @@ namespace VieVS{
          */
         bool calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
                                const std::vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
-                               unsigned int nMaxBl, const Source &source);
+                               const Source &source);
 
 
         /**
@@ -580,6 +580,12 @@ namespace VieVS{
          */
         double calcScore_lowElevation();
 
+
+        double calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                                   unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                                   const Source &source);
+
+        double calcScore_secondPart(double this_score, const Source &source);
     };
 }
 #endif /* SCAN_H */

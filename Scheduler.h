@@ -41,6 +41,7 @@ namespace VieVS{
             bool subnetting = true; ///< flag if subnetting is allowed
             bool fillinmode = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
+            bool fillinmodeAPosteriori = false;
 
             bool andAsConditionCombination = true;
             unsigned int currentIteration = 0;

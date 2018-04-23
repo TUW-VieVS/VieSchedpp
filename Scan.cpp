@@ -34,7 +34,8 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
 
 Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl):
         VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
-        score_{0}, times_{move(times)}, baselines_{move(bl)}, constellation_{ScanConstellation::subnetting} {
+        score_{0}, times_{move(times)}, baselines_{move(bl)}, constellation_{ScanConstellation::subnetting},
+        type_{ScanType::standard}{
 }
 
 bool Scan::constructBaselines(const Source &source) noexcept {
@@ -152,7 +153,7 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
 }
 
 
-bool Scan::checkIdleTimes(std::vector<unsigned int> maxIdle, const Source &source) noexcept {
+bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &source) noexcept {
 
     bool scan_valid = true;
     bool idleTimeValid;
@@ -559,18 +560,18 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
         return scanValid;
     }
 
-    // SECOND STEP: check if source is available during whole scan
+    // SECOND STEP: check if source is available during whole scan and iteratively check everything
     bool stationRemoved;
     do {
         stationRemoved = false;
 
-        // SECOND.FIRST STEP: align start times to earliest possible one:
+        // align start times to earliest possible one:
         scanValid = rigorousScanStartTimeAlignment(stations, source);
         if(!scanValid){
             return scanValid;
         }
 
-        // SECOND.SECOND STEP: check if source is available during whole scan
+        // check if source is available during whole scan
         scanValid = rigorousScanVisibility(stations, source, stationRemoved);
         if(!scanValid){
             return scanValid;
@@ -579,6 +580,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
             continue;
         }
 
+        // check if end position can be reached
         scanValid = rigorousScanCanReachEndposition(stations, source, endposition, stationRemoved);
         if(!scanValid){
             return scanValid;
@@ -848,12 +850,11 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
     }
 }
 
-
-
-void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
-                     const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                     const std::vector<Station> &stations, const Source &source,
-                     const std::vector<SkyCoverage> &skyCoverages) noexcept {
+double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                                 unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                                 const Source &source) {
+    unsigned long nmaxsta = stations.size();
+    unsigned long nmaxbl = nmaxsta * (nmaxsta - 1) / 2;
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
@@ -872,236 +873,119 @@ void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vec
     if (weight_duration != 0) {
         this_score += calcScore_duration(minTime, maxTime) * weight_duration;
     }
+
+    double weightDeclination = WeightFactors::weightDeclination;
+    if (weightDeclination != 0) {
+        double dec = source.getDe();
+        double f = 0;
+        if (dec < WeightFactors::declinationStartWeight) {
+            f = 0;
+        } else if (dec > WeightFactors::declinationFullWeight) {
+            f = 1;
+        } else {
+            f = (dec - WeightFactors::declinationStartWeight) /
+                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
+        }
+        this_score += f * weightDeclination;
+    }
+
+    double weightLowElevation = WeightFactors::weightLowElevation;
+    if (weightLowElevation != 0) {
+        this_score += calcScore_lowElevation() * weightLowElevation;
+    }
+
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    return this_score;
+}
+
+double Scan::calcScore_secondPart(double this_score, const Source &source) {
+    if (source.getPARA().tryToFocusIfObservedOnce) {
+        unsigned int nscans = source.getNscans();
+        if (nscans > 0) {
+            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += *source.getPARA().tryToFocusFactor;
+                }else{
+                    this_score *= *source.getPARA().tryToFocusFactor;
+                }
+            }else{
+                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
+                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
+                }else{
+                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
+                }
+            }
+        }
+    }
+
+    if(scanSequence.customScanSequence){
+        if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
+            const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
+            if(find(target.begin(),target.end(),source.getId()) != target.end()){
+                this_score *= 100;
+            }else{
+                this_score /= 100;
+            }
+        }
+    }
+    return this_score;
+}
+
+
+void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                     unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                     const Source &source, const std::vector<SkyCoverage> &skyCoverages) noexcept {
+
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
+
+
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
         this_score += calcScore_skyCoverage(skyCoverages, stations) * weight_skyCoverage;
     }
 
-    double weightDeclination = WeightFactors::weightDeclination;
-    if (weightDeclination != 0) {
-        double dec = source.getDe();
-        double f = 0;
-        if (dec < WeightFactors::declinationStartWeight) {
-            f = 0;
-        } else if (dec > WeightFactors::declinationFullWeight) {
-            f = 1;
-        } else {
-            f = (dec - WeightFactors::declinationStartWeight) /
-                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
-        }
-        this_score += f * weightDeclination;
-    }
-
-    double weightLowElevation = WeightFactors::weightLowElevation;
-    if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * weightLowElevation;
-    }
-
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
-
-    if (source.getPARA().tryToFocusIfObservedOnce) {
-        unsigned int nscans = source.getNscans();
-        if (nscans > 0) {
-            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += *source.getPARA().tryToFocusFactor;
-                }else{
-                    this_score *= *source.getPARA().tryToFocusFactor;
-                }
-            }else{
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
-                }else{
-                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
-                }
-            }
-        }
-    }
-
-    if(scanSequence.customScanSequence){
-        if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
-            const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
-            if(find(target.begin(),target.end(),source.getId()) != target.end()){
-                this_score *= 100;
-            }else{
-                this_score /= 100;
-            }
-        }
-    }
-
-    score_ = this_score;
+    score_ = calcScore_secondPart(this_score,source);
 }
 
-void Scan::calcScore(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+void Scan::calcScore(const std::vector<double> &astas,
                      const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
                      const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
                      const Source &source,
                      std::vector<double> &firstScorePerPV) noexcept {
-    double this_score = 0;
 
-    double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
-    if (weight_numberOfObservations != 0) {
-        this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
-    }
-    double weight_averageSources = WeightFactors::weightAverageSources;
-    if (weight_averageSources != 0) {
-        this_score += calcScore_averageSources(asrcs) * weight_averageSources;
-    }
-    double weight_averageStations = WeightFactors::weightAverageStations;
-    if (weight_averageStations != 0) {
-        this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations;
-    }
-    double weight_duration = WeightFactors::weightDuration;
-    if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * weight_duration;
-    }
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
+
+
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) *
-                weight_skyCoverage;
+        this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage;
     }
 
-    double weightDeclination = WeightFactors::weightDeclination;
-    if (weightDeclination != 0) {
-        double dec = source.getDe();
-        double f = 0;
-        if (dec < WeightFactors::declinationStartWeight) {
-            f = 0;
-        } else if (dec > WeightFactors::declinationFullWeight) {
-            f = 1;
-        } else {
-            f = (dec - WeightFactors::declinationStartWeight) /
-                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
-        }
-        this_score += f * weightDeclination;
-    }
-
-    double weightLowElevation = WeightFactors::weightLowElevation;
-    if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * weightLowElevation;
-    }
-
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
-
-    if (source.getPARA().tryToFocusIfObservedOnce) {
-        unsigned int nscans = source.getNscans();
-        if (nscans > 0) {
-            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += *source.getPARA().tryToFocusFactor;
-                }else{
-                    this_score *= *source.getPARA().tryToFocusFactor;
-                }
-            }else{
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
-                }else{
-                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
-                }
-            }
-        }
-    }
-
-    if(scanSequence.customScanSequence){
-        if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
-            const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
-            if(find(target.begin(),target.end(),source.getId()) != target.end()){
-                this_score *= 100;
-            }else{
-                this_score /= 100;
-            }
-        }
-    }
-
-    score_ =  this_score;
+    score_ = calcScore_secondPart(this_score,source);
 }
 
 
-void Scan::calcScore_subnetting(unsigned long nmaxsta, unsigned long nmaxbl, const std::vector<double> &astas,
+void Scan::calcScore_subnetting(const std::vector<double> &astas,
                                 const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
                                 const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
                                 const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
-    double this_score = 0;
 
-    double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
-    if (weight_numberOfObservations != 0) {
-        this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
-    }
-    double weight_averageSources = WeightFactors::weightAverageSources;
-    if (weight_averageSources != 0) {
-        this_score += calcScore_averageSources(asrcs) * weight_averageSources * .5;
-    }
-    double weight_averageStations = WeightFactors::weightAverageStations;
-    if (weight_averageStations != 0) {
-        this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations * .5;
-    }
-    double weight_duration = WeightFactors::weightDuration;
-    if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * weight_duration * .5;
-    }
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
+
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
         this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage * .5;
     }
 
-    double weightDeclination = WeightFactors::weightDeclination;
-    if (weightDeclination != 0) {
-        double dec = source.getDe();
-        double f = 0;
-        if (dec < WeightFactors::declinationStartWeight) {
-            f = 0;
-        } else if (dec > WeightFactors::declinationFullWeight) {
-            f = 1;
-        } else {
-            f = (dec - WeightFactors::declinationStartWeight) /
-                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
-        }
-        this_score += f * weightDeclination * .5;
-    }
-
-    double weightLowElevation = WeightFactors::weightLowElevation;
-    if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * weightLowElevation * 0.5;
-    }
-
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
-
-    if (source.getPARA().tryToFocusIfObservedOnce) {
-        unsigned int nscans = source.getNscans();
-        if (nscans > 0) {
-            if(*source.getPARA().tryToFocusOccurrency == Source::TryToFocusOccurrency::once){
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += *source.getPARA().tryToFocusFactor;
-                }else{
-                    this_score *= *source.getPARA().tryToFocusFactor;
-                }
-            }else{
-                if(*source.getPARA().tryToFocusType == Source::TryToFocusType::additive){
-                    this_score += (nscans * *source.getPARA().tryToFocusFactor);
-                }else{
-                    this_score *= (nscans * *source.getPARA().tryToFocusFactor);
-                }
-            }
-        }
-    }
-
-    if(scanSequence.customScanSequence){
-        if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
-            const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
-            if(find(target.begin(),target.end(),source.getId()) != target.end()){
-                this_score *= 100;
-            }else{
-                this_score /= 100;
-            }
-        }
-    }
-
-    score_ =  this_score;
+    score_ = calcScore_secondPart(this_score,source);
 }
 
 bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
                      const vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
-                     unsigned int nMaxBl, const Source &source) {
+                     const Source &source) {
+    unsigned long nmaxsta = stations.size();
+    unsigned long nmaxbl = nmaxsta * (nmaxsta - 1) / 2;
+
     double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
@@ -1155,7 +1039,7 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 
     double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime)*.1;
 
-    double scoreBaselines = static_cast<double>(baselines_.size())/ static_cast<double>(nMaxBl)*.5;
+    double scoreBaselines = static_cast<double>(baselines_.size())/ static_cast<double>(nmaxbl)*.5;
 
     double this_score = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
 
@@ -1456,6 +1340,8 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEndtime_ = std::move(pv_end);
 }
+
+
 
 
 
