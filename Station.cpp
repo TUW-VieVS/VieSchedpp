@@ -294,7 +294,7 @@ void Station::checkForNewEvent() noexcept {
     }
 }
 
-void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream &out) noexcept {
+void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &out) noexcept {
 
     while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
         bool oldAvailable = parameters_.available;
@@ -309,7 +309,7 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream
             parameters_.firstScan = true;
         }
 
-        if(time < TimeSystem::duration){
+        if(output && time < TimeSystem::duration){
             out << "###############################################\n";
             out << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
             out << "###############################################\n";
@@ -357,6 +357,18 @@ void Station::clearObservations() {
     nBaselines_ = 0;
 
     parameters_.firstScan=true;
+}
+
+void Station::sortPointingVectors() {
+
+    sort(pointingVectorsStart_.begin(),pointingVectorsStart_.end(), [](const PointingVector &pv1, const PointingVector &pv2){
+        return pv1.getTime() < pv2.getTime();
+    });
+
+    sort(pointingVectorsEnd_.begin(),pointingVectorsEnd_.end(), [](const PointingVector &pv1, const PointingVector &pv2){
+        return pv1.getTime() < pv2.getTime();
+    });
+
 }
 
 

@@ -47,7 +47,7 @@ namespace VieVS {
 
         void checkStationPossibility(const Station &station);
 
-        void checkStationPossibility(const std::vector<Station> &station);
+        bool checkStationPossibility(const std::vector<Station> &station);
 
         bool getStationPossible(int staid) const noexcept{
             bool possible = stationPossible_[staid];
@@ -79,6 +79,11 @@ namespace VieVS {
 
         bool getStationAvailable(int staid) const noexcept {
             return stationAvailable_[staid];
+        }
+
+        bool everyStationInitialized() const noexcept{
+            return std::all_of(finalPosition_.begin(), finalPosition_.end(),
+                               [](const boost::optional<PointingVector> &p){ return p.is_initialized(); });
         }
 
 

@@ -94,7 +94,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
 
                 // check if there is enough time left
-                if(possibleEndpositionTime > requiredEndpositionTime){
+                if(possibleEndpositionTime-5 > requiredEndpositionTime){
                     scanValid_endposition = thisScan.removeStation(j, thisSource);
                     if(!scanValid_endposition){
                         break;      // scan is no longer valid
@@ -237,7 +237,7 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
 
                 // check if there is enough time left
-                if(possibleEndpositionTime > requiredEndpositionTime){
+                if(possibleEndpositionTime-5 > requiredEndpositionTime){
                     scanValid_endposition = thisScan.removeStation(j, thisSource);
                     if(!scanValid_endposition){
                         break;      // scan is no longer valid
@@ -372,7 +372,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
-        thisScan.calcScore(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
+        thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
                            stations, thisSource, firstScorePerPv);
         singleScanScores_.push_back(thisScan.getScore());
         firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
@@ -383,7 +383,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         Scan &thisScan1 = thisScans.first;
         int srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[thisScan1.getSourceId()];
-        thisScan1.calcScore_subnetting(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+        thisScan1.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        skyCoverages, stations, thisSource1,
                                        firstScore[srcid1]);
         double score1 = thisScan1.getScore();
@@ -391,7 +391,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         Scan &thisScan2 = thisScans.second;
         int srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[thisScan2.getSourceId()];
-        thisScan2.calcScore_subnetting(nmaxsta, nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+        thisScan2.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        skyCoverages, stations, thisSource2,
                                        firstScore[srcid2]);
         double score2 = thisScan2.getScore();
@@ -410,7 +410,7 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
         Scan& thisScan = singleScans_[i];
 
         bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
-                                        maxRequiredTime_, nMaxBl, sources[thisScan.getSourceId()]);
+                                        maxRequiredTime_, sources[thisScan.getSourceId()]);
         if (valid){
             ++i;
             singleScanScores_.push_back(thisScan.getScore());
@@ -425,13 +425,13 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
         Scan &thisScan1 = subnettingScans_[i].first;
 
         bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
-                                          maxRequiredTime_, nMaxBl, sources[thisScan1.getSourceId()]);
+                                          maxRequiredTime_, sources[thisScan1.getSourceId()]);
         double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].first;
 
         bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
-                                          maxRequiredTime_, nMaxBl, sources[thisScan2.getSourceId()]);
+                                          maxRequiredTime_, sources[thisScan2.getSourceId()]);
         double score2 = thisScan2.getScore();
 
         if (valid1 && valid2){
@@ -592,7 +592,7 @@ Subcon::selectBest(const vector<Station> &stations, const vector<Source> &source
             }
 
             // calculate score again
-            thisScan.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                stations, thisSource, skyCoverages);
 
             // push score in queue
@@ -632,9 +632,9 @@ Subcon::selectBest(const vector<Station> &stations, const vector<Source> &source
             }
 
             // calculate score again
-            thisScan1.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan1.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                 stations, thisSource1, skyCoverages);
-            thisScan2.calcScore(stations.size(), nMaxBaselines_, astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan2.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                 stations, thisSource2, skyCoverages);
 
             // push score in queue
@@ -678,8 +678,7 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
             flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
-                                      minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
-                                      sources[thisScan.getSourceId()]);
+                                      minRequiredTime_, maxRequiredTime_, sources[thisScan.getSourceId()]);
             if (!flag) {
                 continue;
             }
@@ -698,8 +697,7 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
             flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
-                                        minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
-                                        sources[thisScan1.getSourceId()]);
+                                        minRequiredTime_, maxRequiredTime_, sources[thisScan1.getSourceId()]);
             if (!flag1) {
                 continue;
             }
@@ -725,8 +723,7 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             }
 
             flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
-                                        minRequiredTime_, maxRequiredTime_, static_cast<unsigned int>(stations.size()),
-                                        sources[thisScan2.getSourceId()]);
+                                        minRequiredTime_, maxRequiredTime_, sources[thisScan2.getSourceId()]);
             if (!flag2) {
                 continue;
             }
@@ -815,7 +812,7 @@ Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations
             // get minimum required endpositon time
             int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
 
-            if(possibleEndpositionTime > requiredEndpositionTime){
+            if(possibleEndpositionTime-5 > requiredEndpositionTime){
                 scanValid = thisScan.removeStation(istation, thisSource);
                 if(!scanValid){
                     break;      // scan is no longer valid

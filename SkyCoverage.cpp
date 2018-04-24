@@ -39,6 +39,9 @@ double SkyCoverage::calcScore(const vector<PointingVector> &pvs,
         double min_score = 1;
 
         for (const auto &pv_old : pointingVectorsEnd_) {
+            if(pv_old.getTime()>pv_new.getTime()){
+                continue;
+            }
             double thisScore = scorePerPointingVector(pv_new, pv_old);
             if (thisScore < min_score) {
                 min_score = thisScore;
@@ -64,6 +67,9 @@ double SkyCoverage::calcScore(const vector<PointingVector> &pvs, const vector<St
         double min_score = 1;
 
         for (const auto &pv_old : pointingVectorsEnd_) {
+            if(pv_old.getTime()>pv_new.getTime()){
+                continue;
+            }
             double thisScore = scorePerPointingVector(pv_new, pv_old);
             if (thisScore < min_score) {
                 min_score = thisScore;

@@ -155,10 +155,12 @@ unsigned int FillinmodeEndposition::requiredEndpositionTime(int staid) const {
     }
 }
 
-void FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &stations) {
+bool FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &stations) {
+
     for(const auto &any:stations){
         checkStationPossibility(any);
     }
+    return count(stationPossible_.begin(),stationPossible_.end(), true) >= 2;
 }
 
 

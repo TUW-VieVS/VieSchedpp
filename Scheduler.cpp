@@ -51,7 +51,9 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
     while (true) {
         // look if station is possible with respect to endposition
         if(endposition.is_initialized()){
-            endposition->checkStationPossibility(stations_);
+            if (!endposition->checkStationPossibility(stations_)){
+                break;
+            }
         }
 
         // create a subcon with all possible next scans
@@ -130,7 +132,6 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
             for(const auto&any:bestScans){
                 for(int i=0; i<any.getNSta(); ++i){
-                    int staid = any.getPointingVector(i).getStaid();
                     newEndposition->addPointingVectorAsEndposition(any.getPointingVector(i));
                 }
             }
@@ -201,6 +202,14 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
         cout << "ERROR: there was an error while checking the schedule (see log file)\n";
     }
     statistics(bodyLog);
+
+    if(parameters_.fillinmodeAPosteriori){
+        startFillinmodeAPosteriori(bodyLog);
+        if (!check(bodyLog)) {
+            cout << "ERROR: there was an error while checking the schedule (see log file)\n";
+        }
+        statistics(bodyLog);
+    }
     bodyLog.close();
 
     if(checkOptimizationConditions(bodyLog)){
@@ -478,7 +487,7 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
     }
 
     for (auto &any:stations_) {
-        any.checkForNewEvent(time, hard_break, bodyLog);
+        any.checkForNewEvent(time, hard_break, output, bodyLog);
     }
 
     bool flag = false;
@@ -1107,6 +1116,72 @@ void Scheduler::changeStationAvailability(const boost::optional<FillinmodeEndpos
             break;
         }
     }
+}
+
+void Scheduler::startFillinmodeAPosteriori(std::ofstream &bodyLog) {
+
+    auto nMainScans = static_cast<int>(scans_.size());
+
+    for(auto &any:stations_){
+        PointingVector pv(any.getId(),-1);
+        pv.setTime(0);
+        any.setCurrentPointingVector(pv);
+        any.setNextEvent(0);
+    }
+    for(auto &any:sources_){
+        any.setNextEvent(0);
+    }
+    for (int i = 0; i < stations_.size(); ++i) {
+        for (int j = i + 1; j < stations_.size(); ++j) {
+            Baseline::nextEvent[i][j]=0;
+        }
+    }
+    checkForNewEvent(0, false, bodyLog);
+
+
+    for(int i=0; i<nMainScans-1; ++i){
+        Scan &lastScan = scans_[i];
+        boost::optional<FillinmodeEndposition> endposition(static_cast<int>(stations_.size()));
+
+        for(int k=0; k<lastScan.getNSta(); ++k){
+            const auto &pv = lastScan.getPointingVector(k);
+            int staid = pv.getStaid();
+            unsigned int time = pv.getTime();
+            Station &thisSta = stations_[staid];
+            if(time >= thisSta.getCurrentTime()){
+                thisSta.setCurrentPointingVector(lastScan.getPointingVectors_endtime(k));
+            }
+        }
+
+        for(int j=i+1; j<nMainScans; ++j){
+            const Scan &nextScan = scans_[j];
+            bool nextRequired = true;
+            for(int k=0; k<nextScan.getNSta(); ++k){
+                endposition->addPointingVectorAsEndposition(nextScan.getPointingVector(k));
+                if (endposition->everyStationInitialized()){
+                    nextRequired = false;
+                    break;
+                }
+            }
+            if(!nextRequired){
+                break;
+            }
+        }
+        unsigned int startTime = lastScan.getTimes().getScanEnd();
+        checkForNewEvent(startTime, true, bodyLog);
+
+        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, Scan::ScanType::fillin, endposition, 1);
+
+    }
+
+    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+    });
+
+    for(auto &any:stations_){
+        any.sortPointingVectors();
+    }
+
 }
 
 

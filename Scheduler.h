@@ -41,7 +41,7 @@ namespace VieVS{
             bool subnetting = true; ///< flag if subnetting is allowed
             bool fillinmode = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
-            bool fillinmodeAPosteriori = false;
+            bool fillinmodeAPosteriori = true;
 
             bool andAsConditionCombination = true;
             unsigned int currentIteration = 0;
@@ -205,6 +205,8 @@ namespace VieVS{
 
         void changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
                                    FillinmodeEndposition::change change);
+
+        void startFillinmodeAPosteriori(std::ofstream &bodyLog);
     };
 }
 #endif /* SCHEDULER_H */

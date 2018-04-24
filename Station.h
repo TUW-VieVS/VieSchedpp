@@ -454,7 +454,7 @@ namespace VieVS{
          * @param bodyLog output stream object
          * @param tagalong flag if station should be scheduled in tagalong mode
          */
-        void checkForNewEvent(unsigned int time, bool &hardBreak, std::ofstream &out) noexcept;
+        void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &out) noexcept;
 
         /**
          * @brief changes parameters to next setup
@@ -463,6 +463,9 @@ namespace VieVS{
          */
         void applyNextEvent(std::ofstream & out) noexcept;
 
+        void setNextEvent(unsigned int idx) noexcept{
+            nextEvent_ = idx;
+        }
 
         /**
          * @brief update station if used for a scan
@@ -496,6 +499,8 @@ namespace VieVS{
 
         void clearObservations();
 
+        void sortPointingVectors();
+
     private:
         static int nextId;
 
@@ -511,7 +516,7 @@ namespace VieVS{
 
         int skyCoverageId_{-1}; ///< station sky coverage id
         Parameters parameters_; ///< station parameters
-        unsigned int nextEvent_{0}; ///< index of next evend
+        unsigned int nextEvent_{0}; ///< index of next event
         PointingVector currentPositionVector_; ///< current pointing vector
         std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
         std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
