@@ -39,9 +39,10 @@ namespace VieVS{
         */
         struct Parameters {
             bool subnetting = true; ///< flag if subnetting is allowed
+            double subnettingMinNSta = 0.60;
             bool fillinmode = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
-            bool fillinmodeAPosteriori = true;
+            bool fillinmodeAPosteriori = false;
 
             bool andAsConditionCombination = true;
             unsigned int currentIteration = 0;

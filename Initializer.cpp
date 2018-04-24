@@ -44,7 +44,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
                          cos(sources_[j].getDe()) * cos(sources_[i].getRa() - sources_[j].getRa());
             double dist = acos(tmp);
 
-            if (dist > parameters_.minAngleBetweenSubnettingSources){
+            if (dist > parameters_.subnettingMinAngle){
                 subnettingSrcIds.at(i).push_back(j);
             }
         }
@@ -716,8 +716,11 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         parameters_.selectedStations = sel_stations;
 
         parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
+        parameters_.subnettingMinAngle = xml_.get<double>("master.general.subnettingMinAngle",120.)*deg2rad;
+        parameters_.subnettingMinNSta = xml_.get<double>("master.general.subnettingMinNSta",60.)/100;
         parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
-        parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule");
+        parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule",false);
+        parameters_.fillinmodeAPosteriori = xml_.get<bool>("master.general.fillinmodeAPosteriori",false);
 
     } catch (const boost::property_tree::ptree_error &e) {
         headerLog << "ERROR: reading parameters.xml file!" << endl;

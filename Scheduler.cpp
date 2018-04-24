@@ -24,8 +24,11 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
                                                                    xml_{init.xml_} {
 
     parameters_.subnetting = init.parameters_.subnetting;
+    parameters_.subnettingMinNSta = init.parameters_.subnettingMinNSta;
+
     parameters_.fillinmode = init.parameters_.fillinmode;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
+    parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -120,7 +123,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
-        if (parameters_.fillinmode && !scans_.empty()) {
+        if (parameters_.fillinmode && !parameters_.fillinmodeAPosteriori && !scans_.empty()) {
             boost::optional<FillinmodeEndposition> newEndposition(static_cast<int>(stations_.size()));
             if(endposition.is_initialized()){
                 for(int i=0; i<stations_.size();++i){
@@ -246,7 +249,7 @@ Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
     subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, endposition);
 
     if (subnetting) {
-        subcon.createSubnettingScans(preCalculated_.subnettingSrcIds, static_cast<int>(stations_.size() * 0.66),
+        subcon.createSubnettingScans(preCalculated_.subnettingSrcIds, static_cast<int>(stations_.size() * parameters_.subnettingMinNSta),
                                      sources_);
     }
     subcon.generateScore(stations_,sources_,skyCoverages_);

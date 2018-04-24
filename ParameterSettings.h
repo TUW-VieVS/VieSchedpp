@@ -169,7 +169,8 @@ namespace VieVS {
          * @param stations list of all stations
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                     bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
+                     bool subnetting, double subnettingAngle, double subnettingMinSta,
+                     bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                      const std::vector<std::string> &srcNames);
 
