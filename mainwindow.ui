@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>7</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -829,8 +829,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>247</width>
-             <height>611</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -1845,7 +1845,7 @@ If you only want to run simulations you can deselect this to avoid error message
              <string/>
             </property>
             <property name="placeholderText">
-             <string>e.g.: R1823</string>
+             <string>e.g.: R1823 (max 6 character)</string>
             </property>
            </widget>
           </item>
@@ -1909,13 +1909,6 @@ If you only want to run simulations you can deselect this to avoid error message
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox">
@@ -2076,54 +2069,194 @@ If you only want to run simulations you can deselect this to avoid error message
           <property name="title">
            <string>general</string>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_32">
+          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,1,1,0">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QCheckBox" name="checkBox_fillinMode">
-               <property name="toolTip">
-                <string>allow fillin mode</string>
-               </property>
-               <property name="statusTip">
-                <string>allow fillin mode</string>
-               </property>
-               <property name="text">
-                <string>fillin mode</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_fillinModeInfluence">
-               <property name="toolTip">
-                <string>should fillin mode scans influence schedule</string>
-               </property>
-               <property name="statusTip">
-                <string>should fillin mode scans influence schedule</string>
-               </property>
-               <property name="text">
-                <string>influence schedule</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
+            <widget class="QGroupBox" name="groupBox_fillin_mode">
+             <property name="title">
+              <string>fillin mode</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_32">
+              <item>
+               <widget class="QCheckBox" name="checkBox_fillinModeInfluence">
+                <property name="toolTip">
+                 <string>should fillin mode scans influence schedule</string>
+                </property>
+                <property name="statusTip">
+                 <string>should fillin mode scans influence schedule</string>
+                </property>
+                <property name="text">
+                 <string>influence at scan selection</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_fillinmode_duringscan">
+                <property name="text">
+                 <string>during scan selection</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_fillinmode_aposteriori">
+                <property name="text">
+                 <string>a posteriori</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_21">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_subnetting">
+             <property name="title">
+              <string>subnetting</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_76">
+              <item>
+               <layout class="QFormLayout" name="formLayout_19">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_69">
+                  <property name="text">
+                   <string>min source angle</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_subnettingDistance">
+                  <property name="suffix">
+                   <string> [deg]</string>
+                  </property>
+                  <property name="maximum">
+                   <double>180.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>120.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_75">
+                  <property name="text">
+                   <string>min participating stations</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="doubleSpinBox_subnettingMinStations">
+                  <property name="suffix">
+                   <string> [%]</string>
+                  </property>
+                  <property name="minimum">
+                   <double>0.000000000000000</double>
+                  </property>
+                  <property name="maximum">
+                   <double>100.000000000000000</double>
+                  </property>
+                  <property name="singleStep">
+                   <double>10.000000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>60.000000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_22">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_15">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="title">
+              <string>align observing time</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_77">
+              <item>
+               <widget class="QRadioButton" name="radioButton_alignStart">
+                <property name="text">
+                 <string>scan start</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_alignEnd">
+                <property name="text">
+                 <string>scan end</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_alignIndividual">
+                <property name="text">
+                 <string>individual</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_24">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_78">
              <item>
               <widget class="QPushButton" name="pushButton_8">
                <property name="toolTip">
@@ -2141,26 +2274,20 @@ If you only want to run simulations you can deselect this to avoid error message
                </property>
               </widget>
              </item>
+             <item>
+              <spacer name="verticalSpacer_23">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBox_subnetting">
-             <property name="toolTip">
-              <string>allow subnetting</string>
-             </property>
-             <property name="statusTip">
-              <string>allow subnetting</string>
-             </property>
-             <property name="whatsThis">
-              <string/>
-             </property>
-             <property name="text">
-              <string>subnetting</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
@@ -2183,7 +2310,6 @@ If you only want to run simulations you can deselect this to avoid error message
        <zorder>groupBox_2</zorder>
        <zorder>verticalSpacer_14</zorder>
        <zorder></zorder>
-       <zorder>line_7</zorder>
       </widget>
       <widget class="QWidget" name="page_worldmap">
        <layout class="QVBoxLayout" name="verticalLayout_57" stretch="1,2">
@@ -5137,8 +5263,8 @@ Click on source to deselect it</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>983</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -8492,10 +8618,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>spinBox_doy</tabstop>
   <tabstop>doubleSpinBox_sessionDuration</tabstop>
   <tabstop>calendarWidget</tabstop>
-  <tabstop>checkBox_fillinMode</tabstop>
-  <tabstop>checkBox_fillinModeInfluence</tabstop>
-  <tabstop>pushButton_8</tabstop>
-  <tabstop>checkBox_subnetting</tabstop>
   <tabstop>treeView_allAvailabeStations</tabstop>
   <tabstop>lineEdit_allStationsFilter</tabstop>
   <tabstop>listView_allSelectedStations</tabstop>

@@ -2779,9 +2779,13 @@ QString MainWindow::writeXML()
     }else{
         useSourcesFromParameter_otherwiseIgnore = true;
     }
-    bool fillinMode = ui->checkBox_fillinMode->isChecked();
-    bool subnetting = ui->checkBox_subnetting->isChecked();
+    bool fillinMode = ui->groupBox_fillin_mode->isChecked();
+    bool fillinModeAPosteriori = ui->radioButton_fillinmode_aposteriori->isChecked();
     bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
+    bool subnetting = ui->groupBox_subnetting->isChecked();
+    double subnettingAngle = ui->doubleSpinBox_subnettingDistance->value();
+    double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
+
     if(useSourcesFromParameter_otherwiseIgnore){
         para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames);
     }else{
@@ -6965,4 +6969,17 @@ void MainWindow::on_pushButton_30_clicked()
     QStringList value {ui->lineEdit_contactEmail->text()};
     QString name = "Default contact email changed!";
     changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
+{
+    if(arg1.length() >6){
+        QPalette p = ui->experimentNameLineEdit->palette();
+        p.setColor(QPalette::Base, Qt::red);
+        ui->experimentNameLineEdit->setPalette(p);
+    }else{
+        QPalette p = ui->experimentNameLineEdit->palette();
+        p.setColor(QPalette::Base, Qt::white);
+        ui->experimentNameLineEdit->setPalette(p);
+    }
 }

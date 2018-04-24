@@ -20,7 +20,8 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                bool subnetting, bool fillinmode, bool fillinmodeInfluenceOnSchedule,
+                                bool subnetting, double subnettingMinAngle, double subnettingMinNSta,
+                                bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
                                 const std::vector<std::string> &srcNames) {
     boost::property_tree::ptree general;
@@ -38,8 +39,16 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     general.add("general.endTime", endTimeStr);
 
     general.add("general.subnetting", subnetting);
+    if(subnetting){
+        general.add("general.subnettingMinAngle", subnettingMinAngle);
+        general.add("general.subnettingMinNSta", subnettingMinNSta);
+    }
+
     general.add("general.fillinmode", fillinmode);
-    general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
+    if(fillinmode){
+        general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
+        general.add("general.fillinmodeAPosteriori",fillinmodeAPosteriori);
+    }
 
     boost::property_tree::ptree all_stations;
     for (const auto &any: stations) {

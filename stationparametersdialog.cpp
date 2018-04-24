@@ -331,7 +331,7 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersStations> stationPara
         para.weight = ui->doubleSpinBox_weight->value();
     }
 
-    if(ui->groupBox_scanTime->isChecked()){
+    if(ui->groupBox_scanTime->isChecked() || !ui->groupBox_scanTime->isCheckable()){
         para.minScan = ui->spinBox_minScanTime->value();
         para.maxScan = ui->spinBox_maxScanTime->value();
         for(int i = 0; i<ui->tableWidget_SNR->rowCount(); ++i){

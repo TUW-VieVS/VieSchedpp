@@ -444,6 +444,8 @@ private slots:
 
     void on_pushButton_30_clicked();
 
+    void on_experimentNameLineEdit_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
