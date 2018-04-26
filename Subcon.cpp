@@ -20,8 +20,8 @@ int Subcon::nextId = 0;
 Subcon::Subcon(): VieVS_Object(nextId++), nSingleScans_{0}, nSubnettingScans_{0} {
 }
 
-void Subcon::addScan(const Scan &scan) noexcept {
-    singleScans_.push_back(scan);
+void Subcon::addScan(Scan &&scan) noexcept {
+    singleScans_.push_back(std::move(scan));
     nSingleScans_++;
 }
 
@@ -267,6 +267,7 @@ void Subcon::calcCalibratorScanDuration(const vector<Station> &stations, const v
 
 void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, int minStaPerSubcon,
                                    const vector<Source> &sources) noexcept {
+    subnettingScans_.clear();
     vector<int> sourceIds(nSingleScans_);
     for (int i = 0; i < nSingleScans_; ++i) {
         sourceIds[i] = singleScans_[i].getSourceId();
@@ -366,6 +367,9 @@ void Subcon::createSubnettingScans(const vector<vector<int>> &subnettingSrcIds, 
 
 void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
                            const vector<SkyCoverage> &skyCoverages) noexcept {
+    singleScanScores_.clear();
+    subnettingScanScores_.clear();
+
     precalcScore(stations, sources);
     unsigned long nmaxsta = stations.size();
     vector< vector <double> > firstScore(sources.size());
@@ -830,6 +834,12 @@ Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations
             singleScans_.erase(next(singleScans_.begin(),iscan));
             --nSingleScans_;
         }
+    }
+}
+
+void Subcon::changeType(Scan::ScanType type) {
+    for(auto &any:singleScans_){
+        any.setType(type);
     }
 }
 

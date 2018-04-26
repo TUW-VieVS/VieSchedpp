@@ -33,8 +33,8 @@ set(SOURCE_FILES
         Scheduler.cpp Scheduler.h
         SkdCatalogReader.cpp SkdCatalogReader.h
         SkyCoverage.cpp SkyCoverage.h
-        sofa.h sofam.h 
-	Source.cpp Source.h
+        sofa.h sofam.h
+        Source.cpp Source.h
         Station.cpp Station.h
         Subcon.cpp Subcon.h
         TimeSystem.cpp TimeSystem.h
@@ -42,23 +42,24 @@ set(SOURCE_FILES
         WeightFactors.cpp WeightFactors.h
         Vex.cpp Vex.h
         Skd.cpp Skd.h
-        SkdParser.cpp SkdParser.h 
-	LogParser.cpp LogParser.h 
-	VieVS_Object.cpp 
-	VieVS_Object.h 
-	VieVS_NamedObject.cpp 
-	VieVS_NamedObject.h 
-	Flux_B.cpp Flux_B.h 
-	Flux_M.cpp Flux_M.h 
-	Antenna_AzEl.cpp Antenna_AzEl.h 
-	Antenna_HaDc.cpp Antenna_HaDc.h 
-	Antenna_XYew.cpp Antenna_XYew.h 
-	CableWrap_AzEl.cpp CableWrap_AzEl.h 
-	CableWrap_HaDc.cpp CableWrap_HaDc.h 
-	CableWrap_XYew.cpp CableWrap_XYew.h 
-	Equipment_elDependent.cpp Equipment_elDependent.h 
-	HorizonMask_line.cpp HorizonMask_line.h 
-	HorizonMask_step.cpp HorizonMask_step.h)
+        SkdParser.cpp SkdParser.h
+        LogParser.cpp LogParser.h
+        VieVS_Object.cpp
+        VieVS_Object.h
+        VieVS_NamedObject.cpp
+        VieVS_NamedObject.h
+        Flux_B.cpp Flux_B.h
+        Flux_M.cpp Flux_M.h
+        Antenna_AzEl.cpp Antenna_AzEl.h
+        Antenna_HaDc.cpp Antenna_HaDc.h
+        Antenna_XYew.cpp Antenna_XYew.h
+        CableWrap_AzEl.cpp CableWrap_AzEl.h
+        CableWrap_HaDc.cpp CableWrap_HaDc.h
+        CableWrap_XYew.cpp CableWrap_XYew.h
+        Equipment_elDependent.cpp Equipment_elDependent.h
+        HorizonMask_line.cpp HorizonMask_line.h
+        HorizonMask_step.cpp HorizonMask_step.h
+        Units.cpp Units.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

@@ -18,10 +18,11 @@ using namespace VieVS;
 thread_local VieVS::Baseline::ParameterStorage VieVS::Baseline::PARA;
 std::vector<std::vector<std::vector<VieVS::Baseline::Event> > >  VieVS::Baseline::EVENTS;
 std::vector<std::vector<unsigned int> >  VieVS::Baseline::nextEvent;
+int Baseline::nextId = 0;
 
 
-Baseline::Baseline(int srcid, int staid1, int staid2, unsigned int startTime)
-        : srcid_(srcid), staid1_(staid1), staid2_(staid2), startTime_{startTime}{
+Baseline::Baseline(int srcid, int staid1, int staid2, unsigned int startTime): VieVS_Object(nextId++),
+        srcid_(srcid), staid1_(staid1), staid2_(staid2), startTime_{startTime}{
 }
 
 void

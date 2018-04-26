@@ -39,6 +39,18 @@ namespace VieVS{
          */
         PointingVector(int staid, int srcid);
 
+        PointingVector(const PointingVector &other);
+
+        PointingVector& operator=(const PointingVector& other) = default;
+
+        PointingVector(PointingVector&& other) = default;
+
+        PointingVector& operator=(PointingVector&& other) = default;
+
+        ~PointingVector() = default;
+
+        void copyValuesFromOtherPv(const PointingVector& other);
+
         /**
          * @brief getter for station id
          *

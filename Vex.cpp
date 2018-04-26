@@ -10,11 +10,6 @@ int Vex::nextId=0;
 Vex::Vex(const string &file): VieVS_Object(nextId++){
     of = ofstream(file);
     of << "VEX_rev = 1.5;\n";
-    of << "* ########################################################################################################\n";
-    of << "* ###  This Vex file was produced by the new VieVS Scheduling Software                                 ###\n";
-    of << "* ###  it is still in experimental stage! Please double check that file is correct!                    ###\n";
-    of << "* ###  if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at                        ###\n";
-    of << "* ########################################################################################################\n";
 }
 
 
@@ -97,7 +92,8 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
         of << "        scheduler_email = " << schedulerEmail << eol;
     }
     if(!notes.empty()){
-        of << "*       notes = " << notes << eol;
+        of << "        notes = \n";
+        of << boost::replace_all_copy(notes,"\\n","\n") << eol;
     }
 
     of << "        target_correlator = " << targetCorrelator << eol;

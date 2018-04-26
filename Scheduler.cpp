@@ -44,27 +44,44 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
-                                   boost::optional<FillinmodeEndposition> &endposition, int depth) {
+                                   boost::optional<FillinmodeEndposition> &opt_endposition,
+                                   boost::optional<Subcon> &opt_subcon, int depth) {
 
-    // Check if there is a required endposition. If yes change station availability with respect to endposition
-    if(endposition.is_initialized()){
-        changeStationAvailability(endposition,FillinmodeEndposition::change::start);
+    // Check if there is a required opt_endposition. If yes change station availability with respect to opt_endposition
+    if(opt_endposition.is_initialized()){
+        changeStationAvailability(opt_endposition,FillinmodeEndposition::change::start);
     }
 
     while (true) {
-        // look if station is possible with respect to endposition
-        if(endposition.is_initialized()){
-            if (!endposition->checkStationPossibility(stations_)){
+        // look if station is possible with respect to opt_endposition
+        if(opt_endposition.is_initialized()){
+            if (!opt_endposition->checkStationPossibility(stations_)){
                 break;
             }
         }
 
         // create a subcon with all possible next scans
-        Subcon subcon = createSubcon(parameters_.subnetting, type, endposition);
-        consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), depth, bodyLog);
+        Subcon subcon;
+        if(opt_subcon.is_initialized()){
+            // if you already have a subcon, check the endposition of each scan and generate subnetting scans and new score.
+            subcon = std::move(*opt_subcon);
+            opt_subcon = boost::none;
+            subcon.changeType(Scan::ScanType::fillin);
+            subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, opt_endposition);
+            if (parameters_.subnetting) {
+                subcon.createSubnettingScans(preCalculated_.subnettingSrcIds,
+                                             static_cast<int>(stations_.size() * parameters_.subnettingMinNSta),
+                                             sources_);
+            }
+            subcon.generateScore(stations_,sources_,skyCoverages_);
+
+        }else{
+            // otherwise calculate new subcon
+            subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
+        }
 
         // select the best possible next scan(s) and save them under 'bestScans'
-        boost::optional<unsigned long> bestIdx_opt = subcon.selectBest(stations_, sources_, skyCoverages_, endposition);
+        boost::optional<unsigned long> bestIdx_opt = subcon.selectBest(stations_, sources_, skyCoverages_, opt_endposition);
 
         // check if you have possible next scan
         if (!bestIdx_opt.is_initialized()) {
@@ -87,19 +104,16 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         unsigned long bestIdx = *bestIdx_opt;
         vector<Scan> bestScans;
         if (bestIdx < subcon.getNumberSingleScans()) {
-            Scan& bestScan = subcon.referenceSingleSourceScan(bestIdx);
-            bestScans.push_back(bestScan);
+            Scan bestScan = subcon.takeSingleSourceScan(bestIdx);
+            bestScans.push_back(std::move(bestScan));
         } else {
             unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-            pair<Scan, Scan>& bestScan_pair = subcon.referenceSubnettingScans(thisIdx);
-            Scan &bestScan1 = bestScan_pair.first;
-            Scan &bestScan2 = bestScan_pair.second;
+            pair<Scan, Scan> bestScan_pair = subcon.takeSubnettingScans(thisIdx);
+            Scan bestScan1 = bestScan_pair.first;
+            Scan bestScan2 = bestScan_pair.second;
 
-            if (bestScan1.getTimes().getScanStart() > bestScan2.getTimes().getScanStart()) {
-                swap(bestScan1, bestScan2);
-            }
-            bestScans.push_back(bestScan1);
-            bestScans.push_back(bestScan2);
+            bestScans.push_back(std::move(bestScan1));
+            bestScans.push_back(std::move(bestScan2));
         }
 
         // check end time of best possible next scan
@@ -121,14 +135,16 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             break;
         }
 
+        unsigned long nSingleScans = subcon.getNumberSingleScans();
+        unsigned long  nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmode && !parameters_.fillinmodeAPosteriori && !scans_.empty()) {
             boost::optional<FillinmodeEndposition> newEndposition(static_cast<int>(stations_.size()));
-            if(endposition.is_initialized()){
+            if(opt_endposition.is_initialized()){
                 for(int i=0; i<stations_.size();++i){
-                    if(endposition->hasEndposition(i)){
-                        newEndposition->addPointingVectorAsEndposition(endposition->getFinalPosition(i).get());
+                    if(opt_endposition->hasEndposition(i)){
+                        newEndposition->addPointingVectorAsEndposition(opt_endposition->getFinalPosition(i).get());
                     }
                 }
             }
@@ -139,12 +155,14 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                 }
             }
 
+            boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
-            startScanSelection(endTime, bodyLog, Scan::ScanType::fillin, newEndposition, depth+1);
+            startScanSelection(endTime, bodyLog, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
         }
 
         // update best possible scans
         for (const auto &bestScan : bestScans) {
+            consideredUpdate(nSingleScans, nSubnettingScans, depth, bodyLog);
             update(bestScan, bodyLog);
         }
 
@@ -178,8 +196,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
     }
 
     // scan selection block is over. Change station availability back to start value
-    if(endposition.is_initialized()){
-        changeStationAvailability(endposition,FillinmodeEndposition::change::end);
+    if(opt_endposition.is_initialized()){
+        changeStationAvailability(opt_endposition,FillinmodeEndposition::change::end);
     }
 
 }
@@ -192,10 +210,11 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
     }
     bodyLog << "number of available sources: " << nsrc << "\n";
 
-    outputHeader(stations_, bodyLog);
+//    outputHeader(stations_, bodyLog);
 
     boost::optional<FillinmodeEndposition> endposition = boost::none;
-    startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, 0);
+    boost::optional<Subcon> subcon = boost::none;
+    startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, subcon, 0);
 
     sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
         return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
@@ -236,11 +255,15 @@ void Scheduler::statistics(ofstream &log) {
     log << "considered single source scans: " << nSingleScansConsidered << "\n";
     log << "considered subnetting scans:    " << nSubnettingScansConsidered << "\n";
     log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
+    int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNBl(); });
+    log << "number of observations:         " << nbl << "\n";
+    log << "considered observations:        " << Baseline::numberOfCreatedBaselines() << "\n";
+
 }
 
 Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
                                const boost::optional<FillinmodeEndposition> & endposition) noexcept {
-    Subcon subcon = allVisibleScans(type);
+    Subcon subcon = allVisibleScans(type, endposition);
     subcon.calcStartTimes(stations_, sources_, endposition);
     subcon.updateAzEl(stations_, sources_);
     subcon.constructAllBaselines(sources_);
@@ -257,7 +280,7 @@ Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
 }
 
 
-Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
+Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<FillinmodeEndposition> &endposition) noexcept {
     unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
@@ -269,6 +292,11 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
         if (t > currentTime) {
             currentTime = t;
         }
+    }
+
+    set<int> observedSources;
+    if(endposition.is_initialized()){
+        observedSources = endposition->getObservedSources();
     }
 
     Subcon subcon;
@@ -286,6 +314,10 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
 
         if(type == Scan::ScanType::calibrator &&
                 find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
+            continue;
+        }
+
+        if(observedSources.find(isrc) != observedSources.end()){
             continue;
         }
 
@@ -340,7 +372,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type) noexcept {
             if (flag){
                 visibleSta++;
                 endOfLastScans.push_back(lastScanLookup[ista]);
-                pointingVectors.push_back(p);
+                pointingVectors.push_back(std::move(p));
             }
         }
         if (visibleSta >= thisSource.getPARA().minNumberOfStations) {
@@ -397,13 +429,13 @@ void Scheduler::outputHeader(const vector<Station> &stations, ofstream &bodyLog)
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
 
     if(n1scans+n2scans>0){
-        bodyLog << "|-------------";
-        for (int i = 0; i < stations_.size() - 1; ++i) {
-            bodyLog << "-----------";
-        }
-        bodyLog << "----------| \n";
-
-        bodyLog << "| depth: " << depth << " considered single Scans " << n1scans << " subnetting scans " << n2scans << ":\n";
+//        bodyLog << "|-------------";
+//        for (int i = 0; i < stations_.size() - 1; ++i) {
+//            bodyLog << "-----------";
+//        }
+//        bodyLog << "----------| \n";
+        bodyLog << "*\n";
+        bodyLog << "*   depth "<< depth << " considered: single Scans " << n1scans << " subnetting scans " << n2scans << "\n";
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
     }
@@ -615,7 +647,6 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
 
         Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::calibrator);
-        consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, bodyLog);
         subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta),
                              stations_, sources_);
 
@@ -627,19 +658,16 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         unsigned long bestIdx = *bestIdx_opt;
         vector<Scan> bestScans;
         if (bestIdx < subcon.getNumberSingleScans()) {
-            Scan& bestScan = subcon.referenceSingleSourceScan(bestIdx);
-            bestScans.push_back(bestScan);
+            Scan bestScan = subcon.takeSingleSourceScan(bestIdx);
+            bestScans.push_back(std::move(bestScan));
         } else {
             unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-            pair<Scan, Scan> &bestScan_pair = subcon.referenceSubnettingScans(thisIdx);
+            pair<Scan, Scan> bestScan_pair = subcon.takeSubnettingScans(thisIdx);
             Scan &bestScan1 = bestScan_pair.first;
             Scan &bestScan2 = bestScan_pair.second;
 
-            if (bestScan1.getTimes().getScanStart() > bestScan2.getTimes().getScanStart()) {
-                swap(bestScan1, bestScan2);
-            }
-            bestScans.push_back(bestScan1);
-            bestScans.push_back(bestScan2);
+            bestScans.push_back(std::move(bestScan1));
+            bestScans.push_back(std::move(bestScan2));
         }
 
         // update prev low elevation scores
@@ -716,6 +744,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 //            start_fillinMode(bestScans, bodyLog);
         } else {
             for (const auto &bestScan : bestScans) {
+                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, bodyLog);
                 update(bestScan, bodyLog);
             }
         }
@@ -1173,7 +1202,9 @@ void Scheduler::startFillinmodeAPosteriori(std::ofstream &bodyLog) {
         unsigned int startTime = lastScan.getTimes().getScanEnd();
         checkForNewEvent(startTime, true, bodyLog);
 
-        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, Scan::ScanType::fillin, endposition, 1);
+        boost::optional<Subcon> subcon = boost::none;
+
+        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, Scan::ScanType::fillin, endposition, subcon, 1);
 
     }
 

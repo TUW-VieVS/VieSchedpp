@@ -19,11 +19,6 @@ void Skd::writeSkd(const std::vector<Station>& stations,
                    const boost::property_tree::ptree &xml) {
 
     of << "$EXPER " << xml.get<string>("master.output.experimentName") << endl;
-    of << "* ########################################################################################################\n";
-    of << "* ###  This Skd file was produced by the new VieVS Scheduling Software                                 ###\n";
-    of << "* ###  it is still in experimental stage! Please double check that file is correct!                    ###\n";
-    of << "* ###  if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at                        ###\n";
-    of << "* ########################################################################################################\n";
     if(xml.get_optional<std::string>("master.output.piName").is_initialized()){
         of << "* PI name:       " << *xml.get_optional<std::string>("master.output.piName") << "\n";
     }
@@ -37,7 +32,11 @@ void Skd::writeSkd(const std::vector<Station>& stations,
         of << "* contact email: " << *xml.get_optional<std::string>("master.output.contactEmail") << "\n";
     }
     if(xml.get_optional<std::string>("master.output.notes").is_initialized()){
-        of << "* notes:         " << *xml.get_optional<std::string>("master.output.notes") << "\n";
+        string notes = "*";
+        notes.append(*xml.get_optional<std::string>("master.output.notes")).append("\n");
+        notes = boost::replace_all_copy(notes,"\\n","\n*");
+        of << "* notes: \n";
+        of << notes << "\n";
     }
 
     skd_PARAM(stations,xml,skdCatalogReader);

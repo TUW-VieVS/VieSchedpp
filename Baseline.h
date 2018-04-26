@@ -22,6 +22,7 @@
 #include <boost/format.hpp>
 
 #include "TimeSystem.h"
+#include "VieVS_Object.h"
 
 namespace VieVS{
     /**
@@ -31,7 +32,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 29.06.2017
      */
-    class Baseline {
+    class Baseline: public VieVS_Object {
     public:
 
         /**
@@ -162,7 +163,13 @@ namespace VieVS{
          */
         static void displaySummaryOfStaticMembersForDebugging(std::ofstream &log);
 
+        static int numberOfCreatedBaselines(){
+            return nextId-1;
+        }
+
     private:
+        static int nextId;
+
         int staid1_{}; ///< id of first antenna
         int staid2_{}; ///< id of second antenna
         int srcid_{}; ///< id of observed source

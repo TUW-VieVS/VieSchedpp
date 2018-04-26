@@ -17,7 +17,7 @@ Initializer::Initializer(): VieVS_Object(nextId++){
 
 Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
-    boost::property_tree::read_xml(is, xml_);
+    boost::property_tree::read_xml(is, xml_,boost::property_tree::xml_parser::trim_whitespace);
 }
 
 //Initializer::Initializer(const Initializer &other): VieVS_Object(nextId++) {

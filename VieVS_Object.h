@@ -23,6 +23,10 @@ namespace VieVS{
             return id_==id;
         }
 
+        void setId(int id){
+            id_ = id;
+        }
+
     private:
         int id_;
     };

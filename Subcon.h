@@ -44,7 +44,7 @@ namespace VieVS{
          *
          * @param scan scan which should be added
          */
-        void addScan(const Scan &scan) noexcept;
+        void addScan(Scan &&scan) noexcept;
 
         /**
          * @brief removes a scan from the subcon
@@ -80,8 +80,12 @@ namespace VieVS{
          * @param idx index
          * @return single source scan at this index
          */
-        Scan &referenceSingleSourceScan(unsigned long idx) noexcept {
-            return singleScans_[idx];
+        Scan takeSingleSourceScan(unsigned long idx) noexcept {
+            Scan tmp = std::move(singleScans_[idx]);
+            singleScans_.erase(singleScans_.begin()+idx);
+            singleScanScores_.erase(singleScanScores_.begin()+idx);
+            --nSingleScans_;
+            return std::move(tmp);
         }
 
         /**
@@ -90,8 +94,12 @@ namespace VieVS{
          * @param idx index
          * @return subnetting scan at this index
          */
-        std::pair<Scan, Scan> &referenceSubnettingScans(unsigned long idx) noexcept {
-            return subnettingScans_[idx];
+        std::pair<Scan, Scan> takeSubnettingScans(unsigned long idx) noexcept {
+            std::pair<Scan, Scan> tmp = std::move(subnettingScans_[idx]);
+            subnettingScans_.erase(subnettingScans_.begin()+idx);
+            subnettingScanScores_.erase(subnettingScanScores_.begin()+idx);
+            --nSubnettingScans_;
+            return std::move(tmp);
         }
 
         /**
@@ -211,6 +219,8 @@ namespace VieVS{
 
         void calcCalibratorScanDuration(const std::vector<Station> &stations, const std::vector<Source> &sources);
 
+
+        void changeType(Scan::ScanType type);
 
     private:
         static int nextId;

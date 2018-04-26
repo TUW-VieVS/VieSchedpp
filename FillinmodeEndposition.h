@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <limits>
+#include <set>
 #include "Station.h"
 
 namespace VieVS {
@@ -86,6 +87,7 @@ namespace VieVS {
                                [](const boost::optional<PointingVector> &p){ return p.is_initialized(); });
         }
 
+        std::set<int> getObservedSources() const noexcept;
 
     private:
         static int nextId;

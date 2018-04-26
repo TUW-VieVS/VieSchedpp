@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
         file = argv[1];
     }else{
         argc = 2;
-        file = R"(/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180423162515_test_fi_a_posteriori/parameters.xml)";
+        file = R"(/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180426132056_/parameters.xml)";
 //        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/AUA037V035.skd";
     }
 

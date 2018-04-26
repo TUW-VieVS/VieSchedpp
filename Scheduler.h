@@ -86,7 +86,7 @@ namespace VieVS{
          *
          * @return subcon with all visible single source scans
          */
-        Subcon allVisibleScans(Scan::ScanType type) noexcept;
+        Subcon allVisibleScans(Scan::ScanType type, const boost::optional<FillinmodeEndposition> &endposition= boost::none) noexcept;
 
 
         /**
@@ -143,7 +143,8 @@ namespace VieVS{
         unsigned long nObservationsConsidered; ///< considered baselines
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
-                                boost::optional<FillinmodeEndposition> &endposition, int depth);
+                                boost::optional<FillinmodeEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
+                                int depth);
 
         /**
          * @brief checks the schedule with an independend methode

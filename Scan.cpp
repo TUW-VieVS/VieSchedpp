@@ -756,7 +756,7 @@ bool Scan::rigorousScanVisibility(const std::vector<Station> &stations, const So
             }
 
             if (time == scanStart) {
-                pointingVectors_[ista] = moving_pv;
+                pointingVectors_[ista].copyValuesFromOtherPv(moving_pv);
             }
         }
 
@@ -1053,102 +1053,40 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 void
 Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, const Source &source,
                   ofstream &of) const noexcept {
-    unsigned long nmaxsta = stations.size();
-
-    stringstream buffer1;
-    buffer1 << "|-------------";
-    for (int i = 0; i < nmaxsta - 1; ++i) {
-        buffer1 << "-----------";
+    string type;
+    string type2;
+    switch (type_){
+        case ScanType::standard: type = "target"; break;
+        case ScanType::fillin: type = "fillin"; break;
+        case ScanType::calibrator: type = "calibrator"; break;
     }
-    buffer1 << "----------| \n";
-    of << buffer1.str();
 
-    string sname = source.getName();
-    stringstream buffer2;
-    buffer2 << boost::format("| scan %4d to source: %8s (id: %4d) ") % observed_scan_nr % sname % srcid_;
-    switch (type_) {
-        case ScanType::standard:
-            buffer2 << "(standard scan - ";
-            break;
-        case Scan::ScanType::fillin:
-            buffer2 << "(fillin mode scan - ";
-            break;
-        case Scan::ScanType::calibrator:
-            buffer2 << "(calibrator mode scan - ";
-            break;
-
-    }
     switch (constellation_){
-
-        case ScanConstellation::single:
-            buffer2 << "single source)";
-            break;
-        case ScanConstellation::subnetting:
-            buffer2 << "subnetting)";
-            break;
+        case ScanConstellation::single: type2 = "single source scan"; break;
+        case ScanConstellation::subnetting: type2 = "subnetting scan"; break;
     }
 
-    while (buffer2.str().size() < buffer1.str().size() - 3) {
-        buffer2 << " ";
-    }
-    buffer2 << "| \n";
-    of << buffer2.str();
-    unsigned int maxValue = numeric_limits<unsigned int>::max();
+    of << boost::format("Scan: no%04d  Source: %-8s (id: %3d) Ra: %s Dec %s Start_time: %s Stop_time: %s Type: %s %s (id: %d)\n")
+       % observed_scan_nr % source.getName() % source.getId() % Units::ra2dms(source.getRa()) % Units::dc2hms(source.getDe())
+       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanStart()))
+       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanEnd()))
+       % type % type2 %getId();
 
-    vector<unsigned int> slewTime(nmaxsta, maxValue);
-    vector<unsigned int> idleTime(nmaxsta, maxValue);
-    vector<unsigned int> scanStart(nmaxsta, maxValue);
-    vector<unsigned int> scanTime(nmaxsta, maxValue);
-
-
-    for (int idx = 0; idx < nsta_; ++idx) {
-        int staid = pointingVectors_[idx].getStaid();
-        slewTime[staid] = times_.getSlewTime(idx);
-        idleTime[staid] = times_.getIdleTime(idx);
-        scanStart[staid] = times_.getScanStart(idx);
-        scanTime[staid] = times_.getScanTime(idx);
-    }
-
-    of << "| slew time  | ";
-    for(int i = 0; i< nmaxsta; ++i){
-        if(slewTime[i] != maxValue){
-            of << boost::format("%8d | ") % slewTime[i];
-        }else{
-            of << "         | ";
+    for(int i=0; i<nsta_; ++i){
+        const auto &pv = pointingVectors_[i];
+        const auto &thisSta = stations[pv.getStaid()];
+        double az = pv.getAz()*rad2deg;
+        while(az<=0){
+            az+=360;
         }
-    }
-    of << "\n";
+        az = fmod(az,360);
 
-    of << "| idle time  | ";
-    for(int i = 0; i< nmaxsta; ++i){
-        if(idleTime[i] != maxValue){
-            of << boost::format("%8d | ") % idleTime[i];
-        }else{
-            of << "         | ";
-        }
+        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %3d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
+              % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) % times_.getScanTime(i)
+              % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanStart(i)))
+              % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanEnd(i)))
+              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId();
     }
-    of << "\n";
-
-    of << "| scan start | ";
-    for (auto &t:scanStart) {
-        if (t != maxValue) {
-            boost::posix_time::ptime thisTime = TimeSystem::internalTime2PosixTime(t);
-            of << TimeSystem::ptime2string(thisTime).substr(11,8) << " | ";
-        } else {
-            of << "         | ";
-        }
-    }
-    of << "\n";
-
-    of << "| scan time  | ";
-    for(int i = 0; i< nmaxsta; ++i){
-        if(scanTime[i] != maxValue){
-            of << boost::format("%8d | ") % scanTime[i];
-        }else{
-            of << "         | ";
-        }
-    }
-    of << "\n";
 }
 
 boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &source) const noexcept {

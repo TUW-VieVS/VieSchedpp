@@ -163,4 +163,17 @@ bool FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &
     return count(stationPossible_.begin(),stationPossible_.end(), true) >= 2;
 }
 
+std::set<int> FillinmodeEndposition::getObservedSources() const noexcept {
+    set<int> obsSrc;
+
+    for(int i=0; i<finalPosition_.size(); ++i){
+        auto pv = finalPosition_[i];
+        if(pv.is_initialized()){
+            obsSrc.insert(pv->getSrcid());
+        }
+    }
+
+    return std::move(obsSrc);
+}
+
 

@@ -75,10 +75,11 @@ void Output::writeStatistics(bool general, bool station, bool source, bool basel
 
 std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
     int n_scans = static_cast<int>(scans_.size());
-    int n_single = 0;
-    int n_subnetting = 0;
+    int n_standard = 0;
     int n_fillin = 0;
     int n_calibrator = 0;
+    int n_single = 0;
+    int n_subnetting = 0;
 
     for (const auto&any:scans_){
         switch (any.getType()){
@@ -91,6 +92,7 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
                 break;
             }
             case Scan::ScanType::standard:{
+                ++n_standard;
                 break;
             }
         }
@@ -108,10 +110,14 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
     }
 
     out << "number of total scans:         " << n_scans << "\n";
+    out << "-----------------------------------\n";
     out << "number of single source scans: " << n_single << "\n";
     out << "number of subnetting scans:    " << n_subnetting << "\n";
+    out << "-----------------------------------\n";
+    out << "number of standard scans:      " << n_standard << "\n";
     out << "number of fillin mode scans:   " << n_fillin << "\n";
-    out << "number of calibrator scans:    " << n_calibrator << "\n\n";
+    out << "number of calibrator scans:    " << n_calibrator << "\n";
+    out << "-----------------------------------\n\n";
 
     return std::vector<int>{n_scans,n_single,n_subnetting,n_fillin,n_calibrator};
 }
@@ -132,10 +138,9 @@ int Output::displayBaselineStatistics(ofstream &out) {
             }
             ++bl_storage[staid1][staid2];
         }
-
     }
 
-    out << "number of scheduled baselines: " << n_bl << "\n";
+    out << "number of scheduled observations: " << n_bl << "\n";
     out << ".-----------";
     for (int i = 0; i < nsta-1; ++i) {
         out << "----------";
@@ -436,7 +441,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     }
     ofstream << "|\n";
 
-    ofstream << "| % cal. time:      |";
+    ofstream << "| % preob time:     |";
     for (int i = 0; i < nstaTotal; ++i) {
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(calibrationTime[i])/static_cast<double>(totalTime[i])*100);
     }
@@ -454,7 +459,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 //    }
 //    ofstream << "|\n";
 
-    ofstream << "| % other time:     |";
+    ofstream << "| % field system:   |";
     for (int i = 0; i < nstaTotal; ++i) {
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(fieldSystemTime[i])/static_cast<double>(totalTime[i])*100);
     }
@@ -477,7 +482,7 @@ void Output::writeNGS() {
         string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%sMS_V%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (iSched_)).str();
+        fname = (boost::format("%sMS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (iSched_)).str();
         string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % iSched_ % fname).str();
         cout << txt;
     }
@@ -541,13 +546,13 @@ void Output::writeNGS() {
 
 void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = expName;
+    string fileName = boost::to_lower_copy(expName);
     if (iSched_ == 0) {
         fileName.append(".vex");
         string txt = (boost::format("writing vex file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("V%03d.vex") % (iSched_)).str());
+        fileName.append((boost::format("v%03d.vex") % (iSched_)).str());
         string txt = (boost::format("version %d: writing vex file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
@@ -559,13 +564,13 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = expName;
+    string fileName = boost::to_lower_copy(expName);
     if (iSched_ == 0) {
         fileName.append(".skd");
         string txt = (boost::format("writing skd file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("V%03d.skd") % (iSched_)).str());
+        fileName.append((boost::format("v%03d.skd") % (iSched_)).str());
         string txt = (boost::format("version %d: writing skd file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
@@ -586,7 +591,7 @@ void Output::writeStatisticsPerSourceGroup() {
         string txt = (boost::format("writing source statistics file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("V%03d_sourceStatistics.txt") % (iSched_)).str());
+        fileName.append((boost::format("v%03d_sourceStatistics.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: writing source statistics file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
@@ -1007,15 +1012,72 @@ void Output::writeOperationsNotes() {
     of << "Session Notes for: " << expName << "\n";
 
     of << "    experiment description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
-    of << "    scheduler name        : " << xml_.get("master.created.name","unknown") << "\n";
-    of << "    scheduler email       : " << xml_.get("master.created.email","unknown") << "\n";
-    of << "    creation time (local) : " << xml_.get("master.created.time","unknown") << "\n";
-    of << "    created with: new VieVS Scheduler\n\n";
+    of << "    created with          : VieSched++ \n";
+    of << "    creation time (local) : " << xml_.get("master.created.time","unknown") << "\n\n";
 
-    of << ".-------------------.\n";
-    of << "| scheduling setup: |\n";
-    of << "'-------------------'\n";
-    boost::property_tree::xml_parser::write_xml(of, xml_, boost::property_tree::xml_writer_make_settings<string>('\t', 1));
+    of << "    nominal start time    : " << xml_.get("master.general.startTime","unknown") << "\n";
+    of << "    nominal end time      : " << xml_.get("master.general.endTime","unknown") << "\n\n";
+
+    std::string piName = xml_.get("master.output.piName","");
+    if(!piName.empty()) {
+        of << "    PI  name              : " << xml_.get("master.output.piName", "") << "\n";
+    }
+    std::string piEmail = xml_.get("master.output.piEmail", "");
+    if(!piEmail.empty()) {
+        of << "    PI email              : " << xml_.get("master.output.piEmail", "") << "\n\n";
+    }
+    std::string contactName = xml_.get("master.output.contactName","");
+    if(!contactName.empty()) {
+        of << "    contact name          : " << xml_.get("master.output.contactName", "") << "\n";
+    }
+    std::string contactEmail = xml_.get("master.output.contactEmail","");
+    if(!contactEmail.empty()) {
+        of << "    contact email         : " << xml_.get("master.output.contactEmail", "") << "\n\n";
+    }
+
+    of << "    scheduler             : " << xml_.get("master.output.scheduler","unknown") << "\n";
+    of << "    scheduler name        : " << xml_.get("master.created.name","unknown") << "\n";
+    of << "    scheduler email       : " << xml_.get("master.created.email","unknown") << "\n\n";
+
+    of << "    target correlator     : " << xml_.get("output.correlator","unknown") << "\n\n";
+
+    std::string notes = xml_.get("master.output.notes","");
+    if(!notes.empty()){
+        of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
+    }
+
+    of << "Operation notes: \n";
+    of << "---------------------------------------------------------------------------------------------------------\n";
+    string newStr = boost::replace_all_copy(xml_.get("master.output.operationNotes","no additional notes"),"\\n","\n");
+    of << newStr << "\n";
+    of << "---------------------------------------------------------------------------------------------------------\n\n";
+
+    displayGeneralStatistics(of);
+    displayBaselineStatistics(of);
+    displayStationStatistics(of);
+    displaySourceStatistics(of);
+    displayScanDurationStatistics(of);
+    displayTimeStatistics(of);
+
+    WeightFactors::summary(of);
+
+    of << "Scans:\n";
+    for(unsigned long i=0; i<3; ++i){
+        const auto &thisScan = scans_[i];
+        thisScan.output(i,stations_,sources_[thisScan.getSourceId()],of);
+    }
+    of << "...\n";
+    for(unsigned long i= scans_.size() - 3; i < scans_.size(); ++i){
+        const auto &thisScan = scans_[i];
+        thisScan.output(i,stations_,sources_[thisScan.getSourceId()],of);
+    }
+
+    of << ".------------------------.\n";
+    of << "| full scheduling setup: |\n";
+    of << "'------------------------'\n";
+    boost::property_tree::xml_parser::write_xml(of, xml_,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+//    boost::property_tree::xml_parser::write_xml(of, xml_, boost::property_tree::xml_writer_make_settings<string>('\t', 1));
     of << "==================\n";
 }
 
