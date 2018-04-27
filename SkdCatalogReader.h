@@ -304,6 +304,8 @@ namespace VieVS {
             return bits_;
         }
 
+        std::string getVersion(const std::string& name) const;
+
     private:
         static int nextId;
 
@@ -366,6 +368,8 @@ namespace VieVS {
 
         std::map<std::string, std::vector<std::string> > loifId2loifInfo_; ///< map with loif name as key and loif infos as value
 
+        std::map<std::string, std::string> catalogsVersion_;
+
         /**
          * @brief This function reads a specific sked catalog file and stores the data in a map.
          *
@@ -376,7 +380,6 @@ namespace VieVS {
          * @return key is list of all Ids, value is corresponding catalog entry
          */
         std::map<std::string, std::vector<std::string>> readCatalog(CATALOG type) noexcept;
-
 
         /**
          * @brief reads modes.cat

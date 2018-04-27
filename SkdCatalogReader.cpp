@@ -89,9 +89,35 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         }
                     }
                 }
+                bool versionFound = false;
                 std::map<string,string> eqId2staName;
                 // loop through file
                 while (getline(fid, line)) {
+                    if(!versionFound && line.length() > 0){
+                        vector<string> splitVector;
+                        boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+                        if(splitVector.size()>=3){
+                            if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                                if(type == CATALOG::antenna){
+                                    catalogsVersion_["antenna"] = splitVector.at(2);
+                                    versionFound = true;
+                                }
+                                if(type == CATALOG::position){
+                                    catalogsVersion_["position"] = splitVector.at(2);
+                                    versionFound = true;
+                                }
+                                if(type == CATALOG::equip) {
+                                    catalogsVersion_["equip"] = splitVector.at(2);
+                                    versionFound = true;
+                                }
+                                if(type == CATALOG::source){
+                                    catalogsVersion_["source"] = splitVector.at(2);
+                                    versionFound = true;
+                                }
+                            }
+                        }
+                    }
+
                     if (line.length() > 0 && line.at(0) != '*') {
                         // trim leading and trailing blanks
                         line = boost::algorithm::trim_copy(line);
@@ -162,8 +188,21 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 }
                 vector<string> splitVector_total;
 
+                bool versionFound = false;
                 // loop through CATALOG
                 while (getline(fid, line)) {
+                    if(!versionFound && line.length() > 0){
+                        vector<string> splitVector;
+                        boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+                        if(splitVector.size()>=3){
+                            if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                                catalogsVersion_["mask"] = splitVector.at(2);
+                                versionFound = true;
+                            }
+                        }
+                    }
+
+
                     if (line.length() > 0 && line.at(0) != '*') {
                         // trim leading and trailing blanks
                         line = boost::algorithm::trim_copy(line);
@@ -221,10 +260,23 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 vector<string> splitVector_total;
                 string sourceName;
 
+                bool versionFound = false;
                 // get first entry
                 while (true) {
                     getline(fid, line);
                     line = boost::algorithm::trim_copy(line);
+                    if(!versionFound && line.length() > 0){
+                        vector<string> splitVector;
+                        boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+                        if(splitVector.size()>=3){
+                            if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                                catalogsVersion_["flux"] = splitVector.at(2);
+                                versionFound = true;
+                            }
+                        }
+                    }
+
+
                     if (line.length() > 0 && line.at(0) != '*') {
                         boost::split(splitVector_total, line, boost::is_space(), boost::token_compress_on);
                         sourceName = splitVector_total[indexOfKey];
@@ -337,7 +389,20 @@ void SkdCatalogReader::initializeModesCatalogs(const string &obsModeName) {
 void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
     ifstream fmodes(modesPath_);
     string line;
+    bool versionFound = false;
     while (getline(fmodes, line)) {
+        if(!versionFound && line.length() > 0){
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if(splitVector.size()>=3){
+                if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                    catalogsVersion_["modes"] = splitVector.at(2);
+                    versionFound = true;
+                }
+            }
+        }
+
+
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
             line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
@@ -359,7 +424,19 @@ void SkdCatalogReader::readModesCatalog(const string &obsModeName) {
 void SkdCatalogReader::readRecCatalog() {
     ifstream frec(recPath_);
     string line;
+    bool versionFound = false;
     while (getline(frec, line)) {
+        if(!versionFound && line.length() > 0){
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if(splitVector.size()>=3){
+                if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                    catalogsVersion_["rec"] = splitVector.at(2);
+                    versionFound = true;
+                }
+            }
+        }
+
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
             line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
@@ -402,7 +479,20 @@ void SkdCatalogReader::readTracksCatalog() {
     for (const auto &tracksId:tracksIds_) {
         ifstream ftracks(tracksPath_);
         string line;
+
+        bool versionFound = false;
         while (getline(ftracks, line)) {
+            if(!versionFound && line.length() > 0){
+                vector<string> splitVector;
+                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+                if(splitVector.size()>=3){
+                    if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                        catalogsVersion_["tracks"] = splitVector.at(2);
+                        versionFound = true;
+                    }
+                }
+            }
+
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
                 line = boost::algorithm::trim_copy(line);
                 vector<string> splitVector;
@@ -441,7 +531,20 @@ void SkdCatalogReader::readTracksCatalog() {
 void SkdCatalogReader::readFreqCatalog() {
     ifstream ffreq(freqPath_);
     string line;
+
+    bool versionFound = false;
     while (getline(ffreq, line)) {
+        if(!versionFound && line.length() > 0){
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if(splitVector.size()>=3){
+                if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                    catalogsVersion_["freq"] = splitVector.at(2);
+                    versionFound = true;
+                }
+            }
+        }
+
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
             line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
@@ -482,7 +585,20 @@ void SkdCatalogReader::readFreqCatalog() {
 void SkdCatalogReader::readRxCatalog() {
     ifstream frx(rxPath_);
     string line;
+
+    bool versionFound = false;
     while (getline(frx, line)) {
+        if(!versionFound && line.length() > 0){
+            vector<string> splitVector;
+            boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+            if(splitVector.size()>=3){
+                if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                    catalogsVersion_["rx"] = splitVector.at(2);
+                    versionFound = true;
+                }
+            }
+        }
+
         if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
             line = boost::algorithm::trim_copy(line);
             vector<string> splitVector;
@@ -521,7 +637,20 @@ void SkdCatalogReader::readLoifCatalog() {
     string line;
     for (const auto &loifId:loifIds_) {
         ifstream floif(loifPath_);
+
+        bool versionFound = false;
         while (getline(floif, line)) {
+            if(!versionFound && line.length() > 0){
+                vector<string> splitVector;
+                boost::split(splitVector, line, boost::is_space(), boost::token_compress_on);
+                if(splitVector.size()>=3){
+                    if(boost::to_lower_copy(splitVector.at(1)) == "version"){
+                        catalogsVersion_["loif"] = splitVector.at(2);
+                        versionFound = true;
+                    }
+                }
+            }
+
             if (line.length() > 0 && (line.at(0) != '*' && line.at(0) != '&' && line.at(0) != '!')) {
                 line = boost::algorithm::trim_copy(line);
                 vector<string> splitVector;
@@ -583,6 +712,14 @@ void SkdCatalogReader::saveTwoLetterCode() {
         twoLetterCode_[staName] = twoLetterCode;
     }
 
+}
+
+std::string SkdCatalogReader::getVersion(const std::string& name) const {
+    if (catalogsVersion_.find(name) != catalogsVersion_.end()){
+        return catalogsVersion_.at(name);
+    }else{
+        return "Unknown";
+    }
 }
 
 

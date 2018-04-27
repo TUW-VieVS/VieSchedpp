@@ -89,6 +89,10 @@ namespace VieVS {
 
         std::set<int> getObservedSources() const noexcept;
 
+        unsigned int getEarliestScanStart() const noexcept{
+            return earliestScanStart_;
+        }
+
     private:
         static int nextId;
 

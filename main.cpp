@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
     }else{
         argc = 2;
         file = R"(/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180426132056_/parameters.xml)";
+//        file = R"(/data/Daten/Schedules/EINT02/log/eint02wn.log)";
 //        file ="/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180129150754_AUA037/AUA037V035.skd";
     }
 
@@ -43,15 +44,25 @@ int main(int argc, char *argv[])
         mainScheduler.run();
 
         // V2: parse skd and log files
-//        VieVS::SkdParser mySkdParser("/data/Daten/wettzell/1stSession/v012.skd");
+//        VieVS::SkdParser mySkdParser("/data/Daten/Schedules/EINT02/EINT02.skd");
 //        mySkdParser.createObjects();
 //        mySkdParser.createScans();
 //        mySkdParser.copyScanMembersToObjects();
 //
-//        VieVS::LogParser htLogParser("/data/Daten/wettzell/1stSession/v012sa.log");
-//        htLogParser.parseLogFile();
-//        htLogParser.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
-//        htLogParser.output("/data/Daten/wettzell/1stSession/times_sa.txt");
+//        VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT02/log/eint02sa.log");
+//        htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
+//        htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
+//        htLogParser1.output("/data/Daten/Schedules/EINT02/log/times_sa.txt");
+//
+//        VieVS::LogParser htLogParser2("/data/Daten/Schedules/EINT02/log/eint02wz.log");
+//        htLogParser2.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
+//        htLogParser2.addScheduledTimes(mySkdParser.getScheduledTimes("WETTZELL"));
+//        htLogParser2.output("/data/Daten/Schedules/EINT02/log/times_wz.txt");
+//
+//        VieVS::LogParser htLogParser3("/data/Daten/Schedules/EINT02/log/eint02wn.log");
+//        htLogParser3.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
+//        htLogParser3.addScheduledTimes(mySkdParser.getScheduledTimes("WETTZ13N"));
+//        htLogParser3.output("/data/Daten/Schedules/EINT02/log/times_wn.txt");
 
 
         auto finish = std::chrono::high_resolution_clock::now();

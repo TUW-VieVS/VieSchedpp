@@ -103,7 +103,7 @@ namespace VieVS {
          *
          * @param of out stream
          */
-        void skd_CATALOG_USED(const boost::property_tree::ptree &xml);
+        void skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader);
 
         /**
          * @brief write skd $BROADBAND block

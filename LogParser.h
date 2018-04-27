@@ -44,7 +44,7 @@ namespace VieVS {
 
         explicit LogParser(const std::string &filename);
 
-        void parseLogFile();
+        void parseLogFile(const std::string &slewStart, const std::string &slewEnd);
 
         void output(const std::string &outfile);
 

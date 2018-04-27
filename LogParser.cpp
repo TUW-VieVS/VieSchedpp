@@ -11,7 +11,7 @@ int LogParser::nextId = 0;
 LogParser::LogParser(const std::string &filename): VieVS_Object(nextId++), filename_{filename}{
 }
 
-void LogParser::parseLogFile() {
+void LogParser::parseLogFile(const string &slewStart, const string &slewEnd) {
     ifstream fid(filename_);
     if (!fid.is_open()) {
         cerr << "ERROR: Unable to open " << filename_ << " file!;\n";
@@ -20,8 +20,6 @@ void LogParser::parseLogFile() {
         string line;
         string scanName = "scan_name=";
         string sourceName = "source=";
-        string slewStart = "#flagr#flagr/antenna,new-source";
-        string slewEnd = "#flagr#flagr/antenna,acquired";
         string preob = "preob";
         string diskon = "disk_record=on";
         string diskoff = "disk_record=off";

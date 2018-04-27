@@ -157,7 +157,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
-            startScanSelection(endTime, bodyLog, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
+            startScanSelection(newEndposition->getEarliestScanStart(), bodyLog, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
         }
 
         // update best possible scans

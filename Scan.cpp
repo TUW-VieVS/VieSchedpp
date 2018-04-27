@@ -1067,7 +1067,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     }
 
     of << boost::format("Scan: no%04d  Source: %-8s (id: %3d) Ra: %s Dec %s Start_time: %s Stop_time: %s Type: %s %s (id: %d)\n")
-       % observed_scan_nr % source.getName() % source.getId() % Units::ra2dms(source.getRa()) % Units::dc2hms(source.getDe())
+       % observed_scan_nr % source.getName() % source.getId() % Miscellaneous::ra2dms(source.getRa()) % Miscellaneous::dc2hms(source.getDe())
        % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanStart()))
        % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getScanEnd()))
        % type % type2 %getId();

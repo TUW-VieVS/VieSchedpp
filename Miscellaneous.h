@@ -11,10 +11,11 @@
 #include "Constants.h"
 
 namespace VieVS{
-    class Units {
+    class Miscellaneous {
     public:
         static std::string ra2dms(double angle) noexcept;
         static std::string dc2hms(double angle) noexcept;
+        static double wrapToPi(double angle) noexcept;
     };
 }
 

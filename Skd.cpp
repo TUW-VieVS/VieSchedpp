@@ -46,7 +46,7 @@ void Skd::writeSkd(const std::vector<Station>& stations,
     skd_MINOR();
     skd_ASTROMETRIC();
     skd_BROADBAND();
-    skd_CATALOG_USED(xml);
+    skd_CATALOG_USED(xml,skdCatalogReader);
     skd_CODES(stations,skdCatalogReader);
     skd_STATIONS(stations,skdCatalogReader);
     skd_STATWT(stations);
@@ -326,7 +326,7 @@ void Skd::skd_SRCWT(const std::vector<Source> &sources) {
     }
 }
 
-void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml) {
+void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader) {
     of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$CATALOG_USED\n";
@@ -348,21 +348,21 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml) {
     string tracks = xml.get<string>("master.catalogs.tracks");;
     string hdpos = xml.get<string>("master.catalogs.hdpos");;
 
-    of << boost::format("%-10s %13s %s\n") % "SOURCE" % "UNKNOWN" % source;
-    of << boost::format("%-10s %13s %s\n") % "FLUX" % "UNKNOWN" % flux;
+    of << boost::format("%-10s %-20s %s\n") % "SOURCE" % skdCatalogReader.getVersion("source") % source;
+    of << boost::format("%-10s %-20s %s\n") % "FLUX" % skdCatalogReader.getVersion("flux") % flux;
 
-    of << boost::format("%-10s %13s %s\n") % "ANTENNA" % "UNKNOWN" % antenna;
-    of << boost::format("%-10s %13s %s\n") % "POSITION" % "UNKNOWN" % position;
-    of << boost::format("%-10s %13s %s\n") % "EQUIP" % "UNKNOWN" % equip;
-    of << boost::format("%-10s %13s %s\n") % "MASK" % "UNKNOWN" % mask;
+    of << boost::format("%-10s %-20s %s\n") % "ANTENNA" % skdCatalogReader.getVersion("antenna") % antenna;
+    of << boost::format("%-10s %-20s %s\n") % "POSITION" % skdCatalogReader.getVersion("position") % position;
+    of << boost::format("%-10s %-20s %s\n") % "EQUIP" % skdCatalogReader.getVersion("equip") % equip;
+    of << boost::format("%-10s %-20s %s\n") % "MASK" % skdCatalogReader.getVersion("mask") % mask;
 
-    of << boost::format("%-10s %13s %s\n") % "MODES" % "UNKNOWN" % modes;
-    of << boost::format("%-10s %13s %s\n") % "FREQ" % "UNKNOWN" % freq;
-    of << boost::format("%-10s %13s %s\n") % "REC" % "UNKNOWN" % rec;
-    of << boost::format("%-10s %13s %s\n") % "RX" % "UNKNOWN" % rx;
-    of << boost::format("%-10s %13s %s\n") % "LOIF" % "UNKNOWN" % loif;
-    of << boost::format("%-10s %13s %s\n") % "TRACKS" % "UNKNOWN" % tracks;
-    of << boost::format("%-10s %13s %s\n") % "HDPOS" % "UNKNOWN" % hdpos;
+    of << boost::format("%-10s %-20s %s\n") % "MODES" % skdCatalogReader.getVersion("modes") % modes;
+    of << boost::format("%-10s %-20s %s\n") % "FREQ" % skdCatalogReader.getVersion("freq") % freq;
+    of << boost::format("%-10s %-20s %s\n") % "REC" % skdCatalogReader.getVersion("rec") % rec;
+    of << boost::format("%-10s %-20s %s\n") % "RX" % skdCatalogReader.getVersion("rx") % rx;
+    of << boost::format("%-10s %-20s %s\n") % "LOIF" % skdCatalogReader.getVersion("loif") % loif;
+    of << boost::format("%-10s %-20s %s\n") % "TRACKS" % skdCatalogReader.getVersion("tracks") % tracks;
+    of << boost::format("%-10s %-20s %s\n") % "HDPOS" % skdCatalogReader.getVersion("hdpos") % hdpos;
 
 }
 
