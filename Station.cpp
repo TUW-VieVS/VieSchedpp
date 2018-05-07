@@ -74,9 +74,12 @@ namespace VieVS {
     }
 }
 
-bool Station::isVisible(const PointingVector &p, double minElevationSource = 0) const noexcept {
+bool Station::isVisible(const PointingVector &p, double minElevationSource) const noexcept {
 
     if(p.getEl()<parameters_.minElevation){
+        return false;
+    }
+    if(p.getEl()<minElevationSource){
         return false;
     }
     if(mask_ != nullptr && !mask_->visible(p)){

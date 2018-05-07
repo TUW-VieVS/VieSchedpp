@@ -3000,7 +3000,7 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
     } else if (threads == "auto"){
         nThreads = 4;
     }
-    //TODO:
+    //TODO: proper implementation of multi scheduling
 //    nThreads = 4;
 
     jobScheduling = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
@@ -3064,6 +3064,61 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
         }
     }
 }
+
+boost::optional<VieVS::HighImpactScanDescriptor>
+Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
+    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
+    if (ctree.is_initialized()) {
+
+        of << "High impact block found!\n";
+        unsigned int interval = ctree->get("interval",60);
+        unsigned int repeat   = ctree->get("repeat",300);
+        of << "    high impact check interval: " << interval << "\n";
+        of << "    high impact repeat        : " << repeat << "\n";
+
+        boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
+        unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
+
+        boost::optional<HighImpactScanDescriptor> himp = HighImpactScanDescriptor(interval, repeat);
+        for(const auto &any: *ctree){
+            if(any.first == "targetAzEl"){
+                auto member = any.second.get<string>("member");
+                vector<int> staids;
+
+                if (groups.find(member) != groups.end()) {
+                    const vector<string> &group = groups.at(member);
+                    for(auto &station:stations_){
+                        if(find(group.begin(),group.end(),station.getName()) != group.end()){
+                            staids.push_back(station.getId());
+                        }
+                    }
+                } else {
+                    for(auto &station:stations_){
+                        if(station.hasName(member)){
+                            staids.push_back(station.getId());
+                        }
+                    }
+                }
+
+                auto az = any.second.get<double>("az");
+                auto el = any.second.get<double>("el");
+                auto margin = any.second.get<double>("margin");
+
+                of << "    target az: " << az << " el: " << el << " margin: " << margin << " station: ";
+                for(int i:staids){
+                    of << stations_[i].getName() << " ";
+                }
+                of << "\n";
+
+                himp->addAzElDescriptor(az*deg2rad,el*deg2rad,margin*deg2rad,staids);
+            }
+        }
+        return himp;
+    }else{
+        return boost::none;
+    }
+}
+
 
 
 

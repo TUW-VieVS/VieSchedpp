@@ -19,6 +19,7 @@
 #include "Subcon.h"
 #include "Constants.h"
 #include "FillinmodeEndposition.h"
+#include "Subnetting.h"
 
 namespace VieVS{
     /**
@@ -38,7 +39,7 @@ namespace VieVS{
         * @brief general parameters used for scheduling
         */
         struct Parameters {
-            bool subnetting = true; ///< flag if subnetting is allowed
+            boost::optional<Subnetting> subnetting = boost::none;
             double subnettingMinNSta = 0.60;
             bool fillinmode = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
@@ -78,7 +79,7 @@ namespace VieVS{
          * @param subnetting true if subnetting is allowed, false otherwise
          * @return subcon with all information
          */
-        Subcon createSubcon(bool subnetting, Scan::ScanType type,
+        Subcon createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
                             const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -123,6 +124,8 @@ namespace VieVS{
         }
 
         void statistics(std::ofstream &ofstream);
+
+        void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &bodyLog);
 
     private:
         static int nextId;
@@ -208,7 +211,9 @@ namespace VieVS{
         void changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
                                    FillinmodeEndposition::change change);
 
-        void startFillinmodeAPosteriori(std::ofstream &bodyLog);
+        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type);
+
+        void resetAllEvents(std::ofstream &bodyLog);
     };
 }
 #endif /* SCHEDULER_H */

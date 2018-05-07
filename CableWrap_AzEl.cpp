@@ -69,7 +69,9 @@ bool CableWrap_AzEl::unwrapAzInSection(PointingVector &pv, char section) const n
         while(az>getNLow()){
             az -= 2*pi;
         }
-        az +=2*pi;
+        while(az<getNLow()){
+            az += 2*pi;
+        }
         if(az>getNUp()){
             flag = true;
         }
@@ -77,7 +79,9 @@ bool CableWrap_AzEl::unwrapAzInSection(PointingVector &pv, char section) const n
         while(az>getCLow()){
             az -= 2*pi;
         }
-        az +=2*pi;
+        while(az<getCLow()){
+            az += 2*pi;
+        }
         if(az>getCUp()){
             flag = true;
         }
@@ -85,7 +89,9 @@ bool CableWrap_AzEl::unwrapAzInSection(PointingVector &pv, char section) const n
         while(az>getWLow()){
             az -= 2*pi;
         }
-        az +=2*pi;
+        while(az<getWLow()){
+            az += 2*pi;
+        }
         if(az>getWUp()){
             flag = true;
         }

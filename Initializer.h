@@ -48,6 +48,7 @@
 #include "ParameterSettings.h"
 #include "Flux_B.h"
 #include "Flux_M.h"
+#include "HighImpactScanDescriptor.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -247,6 +248,8 @@ namespace VieVS {
         void statisticsLogHeader(std::ofstream &ofstream);
 
         void initializeOptimization(std::ofstream &ofstream);
+
+        boost::optional<VieVS::HighImpactScanDescriptor> initializeHighImpactScanDescriptor(std::ofstream &ofstream);
 
     private:
         static int nextId;

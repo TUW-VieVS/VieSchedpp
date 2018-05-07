@@ -127,7 +127,7 @@ void Vex::station_block(const std::vector<Station> &stations, const SkdCatalogRe
         of << "        ref $DAS = " << recorder << "_recorder" << eol;
         of << "        ref $DAS = " << rack << "_DDC_rack" << eol;
         of << "        ref $DAS = " << id_name << eol;
-        of << "        ref $PHASE_CAL_DETECT = " << "STANDARD" << eol;
+        of << "        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
         of << "    enddef;\n";
     }
 }
@@ -243,7 +243,7 @@ void Vex::source_block(const std::vector<Source> &sources) {
         of << "    def " << any.getName() << eol;
         of << "        source_type = star" << eol;
         of << "        source_name = " << any.getName() << eol;
-        if(!any.hasAlternativeName()){
+        if(any.hasAlternativeName()){
             of << "        IAU_name = " << any.getAlternativeName() << eol;
         }else{
             of << "        IAU_name = " << any.getName() << eol;

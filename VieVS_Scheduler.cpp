@@ -3,6 +3,7 @@
 //
 
 #include "VieVS_Scheduler.h"
+#include "HighImpactScanDescriptor.h"
 
 using namespace std;
 using namespace VieVS;
@@ -16,6 +17,7 @@ VieVS_Scheduler::VieVS_Scheduler(const std::string &inputFile):inputFile_{inputF
 void VieVS_Scheduler::run() {
     cout << "writing header log file to: log_initializer.txt;\n";
 
+    // get path of input file
     VieVS::Initializer init(inputFile_);
     std::size_t found = inputFile_.find_last_of("/\\");
     std::string path;
@@ -25,11 +27,12 @@ void VieVS_Scheduler::run() {
         path = inputFile_.substr(0,found+1);
     }
 
-
-
+    // open headerlog and statistics file
     ofstream headerLog(path+"log_initializer.txt");
     ofstream statisticsLog(path+"statistics.csv");
+    init.statisticsLogHeader(statisticsLog);
 
+    // start initialization
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
 
     init.initializeObservingMode(skdCatalogReader, headerLog);
@@ -48,11 +51,12 @@ void VieVS_Scheduler::run() {
 
     init.initializeOptimization(headerLog);
 
+    boost::optional<HighImpactScanDescriptor> himp = init.initializeHighImpactScanDescriptor(headerLog);
+
+
+    // check if multi scheduling is selected
     bool flag_multiSched = false;
     unsigned long nsched = 1;
-
-    init.statisticsLogHeader(statisticsLog);
-
     vector<VieVS::MultiScheduling::Parameters> all_multiSched_PARA = init.readMultiSched();
     if (!all_multiSched_PARA.empty()) {
         flag_multiSched = true;
@@ -61,13 +65,12 @@ void VieVS_Scheduler::run() {
         cout << "multi scheduling found ... creating " << nsched << " schedules!;\n";
     }
 
-    headerLog.close();
 
+    headerLog.close();
     unsigned long numberOfCreatedScans = 0;
 
-
+// check if openmp is available
 #ifdef _OPENMP
-
     int nThreads = 1;
     if(flag_multiSched){
         std::string jobScheduling;
@@ -79,6 +82,7 @@ void VieVS_Scheduler::run() {
         cout << "Using OpenMP to parallize multi scheduling;\n";
         cout << (boost::format("OpenMP: starting %d threads;\n") % nThreads).str();
     }
+    // use openmp to parallelize upcoming for loop
     omp_set_num_threads(nThreads);
 #pragma omp parallel for reduction(+:numberOfCreatedScans)
 #else
@@ -86,65 +90,71 @@ void VieVS_Scheduler::run() {
             cout << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support!";
         }
 #endif
+    // create all required schedules
     for (int i = 0; i < nsched; ++i) {
-
 
         ofstream bodyLog;
         string threadNumberPrefix;
 
-        string fname = init.getXml().get("master.output.experimentName","schedule");
+        // get file name
+        string fname = boost::to_lower_copy(init.getXml().get("master.output.experimentName","schedule"));
+
+        // copy initializer (necessary for upcoming steps for multi scheduling)
         VieVS::Initializer newInit = Initializer(init);
 
+        // if you have multi schedule append version number to file name
         if (flag_multiSched) {
-            fname.append((boost::format("V%03d") % (i+1)).str());
+            fname.append((boost::format("v%03d") % (i+1)).str());
         }
 
+        // open body log file
         bodyLog.open(path+fname+"_iteration_0"+".log");
 
+        // if you have multicore support add thread number as prefix to output
         if (flag_multiSched){
-
+            // get thread number if you use openmp
             #ifdef  _OPENMP
             threadNumberPrefix = (boost::format("thread %d: ") % omp_get_thread_num()).str();
             #endif
 
-            string txt = threadNumberPrefix + (boost::format("creating multi scheduling version %d of %d;\n") % (i + 1) %
-                                               nsched).str();
-            string txt2 = (boost::format("version %d: writing log file to: %s.log;\n") % (i+1) % fname).str();
-            cout << txt;
-            cout << txt2;
+            cout << boost::format("%screating multi scheduling version %d of %d;\n") % threadNumberPrefix % (i + 1) % nsched;
+            cout << boost::format("version %d: writing log file to: %s.log;\n") % (i+1) % fname;
         }
 
+        // initialize all parameters
         newInit.initializeGeneral(bodyLog);
         newInit.initializeStations();
         newInit.initializeSources();
         newInit.initializeBaselines();
-
         newInit.initializeWeightFactors();
 
+        // re initialize some more parameters if you use multi scheduling
         if (flag_multiSched){
             newInit.initializeSourceSequence();
             newInit.initializeCalibrationBlocks( bodyLog );
             newInit.applyMultiSchedParameters(all_multiSched_PARA[i], bodyLog);
         }
 
+        // initialize time dependend parameters
         newInit.initializeNutation();
         newInit.initializeEarth();
 
+        // create scheduler and start scheduling
         VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,fname, path);
+        if(himp.is_initialized()){
+            scheduler.highImpactScans(himp.get(), bodyLog);
+        }
         scheduler.start(bodyLog);
 
-        unsigned long createdScans = scheduler.numberOfCreatedScans();
+        numberOfCreatedScans += scheduler.numberOfCreatedScans();
 
-        numberOfCreatedScans += createdScans;
-
-
+        // create output
         VieVS::Output output(scheduler,path);
         if (flag_multiSched) {
             output.setIsched(i + 1);
         } else {
             output.setIsched(0);
         }
-
         output.createAllOutputFiles(statisticsLog, skdCatalogReader);
 
 
@@ -155,7 +165,7 @@ void VieVS_Scheduler::run() {
 
     }
     statisticsLog.close();
-    cout << "everything finally finished!!!;\n";
+    cout << "everything finally finished!;\n";
     cout << "created total number of scans: " << numberOfCreatedScans << ";\n";
 
 }

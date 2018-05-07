@@ -86,7 +86,7 @@ void ScanTimes::alignStartTimes() noexcept {
 }
 
 void ScanTimes::setStartTime(unsigned int scanStart) noexcept {
-    for (unsigned int &i : endOfSlewTime_) {
+    for (unsigned int &i : endOfPreobTime_) {
         i = scanStart;
     }
 }
@@ -115,14 +115,14 @@ void ScanTimes::addTagalongStation(const VieVS::PointingVector &pv_start, const 
 }
 
 bool ScanTimes::substractPreobTimeFromStartTime(unsigned int preob) {
-    bool error = false;
+    bool valid = true;
     for(int i=0; i<endOfScanTime_.size(); ++i){
         endOfIdleTime_[i] = endOfPreobTime_[i]-preob;
         if(endOfIdleTime_[i] < endOfSlewTime_[i]){
-            error = true;
+            valid = false;
         }
     }
-    return error;
+    return valid;
 }
 
 const unsigned int ScanTimes::getScanStart() const noexcept{

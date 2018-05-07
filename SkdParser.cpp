@@ -308,7 +308,7 @@ void SkdParser::copyScanMembersToObjects() {
             stations_[staid].update(nbl, pv, pv_end, true);
 
             int skyCoverageId = stations_[staid].getSkyCoverageID();
-            skyCoverages_[skyCoverageId].update(pv, pv_end);
+            skyCoverages_[skyCoverageId].update(pv);
         }
 
         unsigned int latestTime = scan.getTimes().getScanStart();
@@ -340,7 +340,11 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
                 }
             }
             if (idx != -1) {
-                times.emplace_back(vector<unsigned int>{scan.getTimes().getSlewTime(idx), scan.getTimes().getIdleTime(idx), scan.getTimes().getPreobTime(idx), scan.getTimes().getScanTime(idx)});
+                times.emplace_back(vector<unsigned int>{
+                        scan.getTimes().getSlewTime(idx),
+                        scan.getTimes().getIdleTime(idx),
+                        scan.getTimes().getPreobTime(idx),
+                        scan.getTimes().getScanTime(idx)});
             }
         }
     }

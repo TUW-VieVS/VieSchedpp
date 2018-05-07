@@ -23,8 +23,12 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
                                                                    skyCoverages_{std::move(init.skyCoverages_)},
                                                                    xml_{init.xml_} {
 
-    parameters_.subnetting = init.parameters_.subnetting;
-    parameters_.subnettingMinNSta = init.parameters_.subnettingMinNSta;
+    if(init.parameters_.subnetting){
+        Subnetting subnetting;
+        subnetting.subnettingMinNSta = static_cast<unsigned int>(stations_.size() * init.parameters_.subnettingMinNSta);
+        subnetting.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
+        parameters_.subnetting = move(subnetting);
+    }
 
     parameters_.fillinmode = init.parameters_.fillinmode;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
@@ -36,8 +40,6 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
     parameters_.numberOfGentleSourceReductions = init.parameters_.numberOfGentleSourceReductions;
 
     parameters_.writeSkyCoverageData = false;
-
-    preCalculated_.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
 
     nSingleScansConsidered = 0;
     nSubnettingScansConsidered = 0;
@@ -69,22 +71,20 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             subcon.changeType(Scan::ScanType::fillin);
             subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, opt_endposition);
             if (parameters_.subnetting) {
-                subcon.createSubnettingScans(preCalculated_.subnettingSrcIds,
-                                             static_cast<int>(stations_.size() * parameters_.subnettingMinNSta),
-                                             sources_);
+                subcon.createSubnettingScans(*parameters_.subnetting, sources_);
             }
             subcon.generateScore(stations_,sources_,skyCoverages_);
-
         }else{
             // otherwise calculate new subcon
             subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
+            subcon.generateScore(stations_,sources_,skyCoverages_);
         }
 
         // select the best possible next scan(s) and save them under 'bestScans'
-        boost::optional<unsigned long> bestIdx_opt = subcon.selectBest(stations_, sources_, skyCoverages_, opt_endposition);
+        vector<Scan> bestScans = subcon.selectBest(stations_, sources_, skyCoverages_, opt_endposition);
 
         // check if you have possible next scan
-        if (!bestIdx_opt.is_initialized()) {
+        if (bestScans.empty()) {
             if(depth == 0){
                 // if there is no more possible scan at the outer most iteration, check 1minute later
                 bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
@@ -95,25 +95,9 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                 }
                 continue;
             }else{
-                // if there is no more possible scan an inner iteration, break this iteration
+                // if there is no more possible scan in an deep recursion, break this recursion
                 break;
             }
-        }
-
-        // update selected next possible scans
-        unsigned long bestIdx = *bestIdx_opt;
-        vector<Scan> bestScans;
-        if (bestIdx < subcon.getNumberSingleScans()) {
-            Scan bestScan = subcon.takeSingleSourceScan(bestIdx);
-            bestScans.push_back(std::move(bestScan));
-        } else {
-            unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-            pair<Scan, Scan> bestScan_pair = subcon.takeSubnettingScans(thisIdx);
-            Scan bestScan1 = bestScan_pair.first;
-            Scan bestScan2 = bestScan_pair.second;
-
-            bestScans.push_back(std::move(bestScan1));
-            bestScans.push_back(std::move(bestScan2));
         }
 
         // check end time of best possible next scan
@@ -210,42 +194,44 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
     }
     bodyLog << "number of available sources: " << nsrc << "\n";
 
-//    outputHeader(stations_, bodyLog);
-
     boost::optional<FillinmodeEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
-    startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, subcon, 0);
 
-    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
-    });
 
+    // check if you have some fixed high impact scans
+    if(scans_.empty()){
+        // no fixed scans: start creating a schedule
+        startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, subcon, 0);
+
+        // sort scans
+        sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+            return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+        });
+    } else {
+        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard);
+    }
+
+    // start fillinmode a posterior
+    if(parameters_.fillinmodeAPosteriori){
+        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin);
+    }
+
+    // check if there was an error during the session
     if (!check(bodyLog)) {
         cout << "ERROR: there was an error while checking the schedule (see log file)\n";
     }
-    statistics(bodyLog);
 
-    if(parameters_.fillinmodeAPosteriori){
-        startFillinmodeAPosteriori(bodyLog);
-        if (!check(bodyLog)) {
-            cout << "ERROR: there was an error while checking the schedule (see log file)\n";
-        }
-        statistics(bodyLog);
-    }
+    // output some statistics
+    statistics(bodyLog);
     bodyLog.close();
 
+    // check if new iteration is necessary
     if(checkOptimizationConditions(bodyLog)){
         ++parameters_.currentIteration;
         ofstream newBodyLog(path_+getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log");
+        // restart schedule
         start(newBodyLog);
     }
-
-//        if(PARA.writeSkyCoverageData){
-//            saveSkyCoverageMain();
-//            for (unsigned int i = 0; i < TimeSystem::duration; i+=30) {
-//                saveSkyCoverageData(i);
-//            }
-//        }
 
 }
 
@@ -261,7 +247,7 @@ void Scheduler::statistics(ofstream &log) {
 
 }
 
-Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
+Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
                                const boost::optional<FillinmodeEndposition> & endposition) noexcept {
     Subcon subcon = allVisibleScans(type, endposition);
     subcon.calcStartTimes(stations_, sources_, endposition);
@@ -271,11 +257,9 @@ Subcon Scheduler::createSubcon(bool subnetting, Scan::ScanType type,
     subcon.calcAllScanDurations(stations_, sources_, endposition);
     subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, endposition);
 
-    if (subnetting) {
-        subcon.createSubnettingScans(preCalculated_.subnettingSrcIds, static_cast<int>(stations_.size() * parameters_.subnettingMinNSta),
-                                     sources_);
+    if (subnetting.is_initialized()) {
+        subcon.createSubnettingScans(*subnetting, sources_);
     }
-    subcon.generateScore(stations_,sources_,skyCoverages_);
     return subcon;
 }
 
@@ -285,12 +269,9 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Fil
     unsigned long nsrc = sources_.size();
 
     unsigned int currentTime = 0;
-    vector< unsigned int> lastScanLookup;
     for (auto &station : stations_) {
-        unsigned int t = station.getCurrentTime();
-        lastScanLookup.push_back(t);
-        if (t > currentTime) {
-            currentTime = t;
+        if (station.getCurrentTime() > currentTime) {
+            currentTime = station.getCurrentTime();
         }
     }
 
@@ -302,82 +283,8 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Fil
     Subcon subcon;
 
     for (int isrc=0; isrc<nsrc; ++isrc){
-        Source &thisSource = sources_[isrc];
-
-        if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
-            continue;
-        }
-
-        if (type == Scan::ScanType::fillin && !thisSource.getPARA().availableForFillinmode) {
-            continue;
-        }
-
-        if(type == Scan::ScanType::calibrator &&
-                find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
-            continue;
-        }
-
-        if(observedSources.find(isrc) != observedSources.end()){
-            continue;
-        }
-
-        if (thisSource.getNscans() > 0 &&
-            currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat) {
-            continue;
-        }
-
-        if (thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans) {
-            continue;
-        }
-
-        unsigned int visibleSta = 0;
-        vector<PointingVector> pointingVectors;
-        vector<unsigned int> endOfLastScans;
-        for (int ista=0; ista<nsta; ++ista){
-            Station &thisSta = stations_[ista];
-
-            if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
-                continue;
-            }
-
-            if (thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans){
-                continue;
-            }
-
-            if (!thisSta.getPARA().ignoreSources.empty()) {
-                auto &PARA = thisSta.getPARA();
-                if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), isrc) != PARA.ignoreSources.end()) {
-                    continue;
-                }
-            }
-
-            if (!thisSource.getPARA().ignoreStations.empty()) {
-                const auto &PARA = thisSource.getPARA();
-                if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), ista) !=
-                    PARA.ignoreStations.end()) {
-                    continue;
-                }
-            }
-
-            PointingVector p(ista,isrc);
-
-            const Station::WaitTimes &wtimes = thisSta.getWaittimes();
-            unsigned int time = lastScanLookup[ista] + wtimes.fieldSystem + wtimes.preob;
-
-            p.setTime(time);
-
-            thisSta.calcAzEl(thisSource, p);
-
-            bool flag = thisSta.isVisible(p, thisSource.getPARA().minElevation);
-            if (flag){
-                visibleSta++;
-                endOfLastScans.push_back(lastScanLookup[ista]);
-                pointingVectors.push_back(std::move(p));
-            }
-        }
-        if (visibleSta >= thisSource.getPARA().minNumberOfStations) {
-            subcon.addScan(Scan(pointingVectors, endOfLastScans, type));
-        }
+        const Source &thisSource = sources_[isrc];
+        subcon.visibleScan(currentTime, type, stations_, thisSource, observedSources);
     }
 
     return subcon;
@@ -401,7 +308,7 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
 
         if(scanHasInfluence){
             int skyCoverageId = stations_[staid].getSkyCoverageID();
-            skyCoverages_[skyCoverageId].update(pv, pv_end);
+            skyCoverages_[skyCoverageId].update(pv);
         }
     }
 
@@ -647,8 +554,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
 
         Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::calibrator);
-        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, static_cast<unsigned int>(nsta),
-                             stations_, sources_);
+        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, stations_, sources_);
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {
@@ -1150,10 +1056,156 @@ void Scheduler::changeStationAvailability(const boost::optional<FillinmodeEndpos
     }
 }
 
-void Scheduler::startFillinmodeAPosteriori(std::ofstream &bodyLog) {
+void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type) {
 
+    // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>(scans_.size());
 
+    // reset all events
+    resetAllEvents(bodyLog);
+
+
+    // loop through all predefined scans
+    for(int i=0; i<nMainScans-1; ++i){
+
+        // look through all stations of last scan and set current pointing vector to last scan
+        Scan &lastScan = scans_[i];
+        for(int k=0; k<lastScan.getNSta(); ++k){
+            const auto &pv = lastScan.getPointingVectors_endtime(k);
+            int staid = pv.getStaid();
+            unsigned int time = pv.getTime();
+            Station &thisSta = stations_[staid];
+            if(time >= thisSta.getCurrentTime()){
+                thisSta.setCurrentPointingVector(pv);
+            }
+        }
+
+        // loop through all upcoming scans and set endposition
+        boost::optional<FillinmodeEndposition> endposition(static_cast<int>(stations_.size()));
+        for(int j=i+1; j<nMainScans; ++j){
+            const Scan &nextScan = scans_[j];
+            bool nextRequired = true;
+            for(int k=0; k<nextScan.getNSta(); ++k){
+                endposition->addPointingVectorAsEndposition(nextScan.getPointingVector(k));
+                if (endposition->everyStationInitialized()){
+                    nextRequired = false;
+                    break;
+                }
+            }
+            if(!nextRequired){
+                break;
+            }
+        }
+
+        // check if there was an new upcoming event in the meantime
+        unsigned int startTime = lastScan.getTimes().getScanEnd();
+        checkForNewEvent(startTime, true, bodyLog);
+
+        // recursively start scan selection
+        boost::optional<Subcon> subcon = boost::none;
+        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, type, endposition, subcon, 1);
+    }
+
+
+    // do the same between time at from last scan until duration with no endposition
+    // get last predefined scan and set current position of station
+    Scan &lastScan = scans_[nMainScans-1];
+    for(int k=0; k<lastScan.getNSta(); ++k){
+        const auto &pv = lastScan.getPointingVectors_endtime(k);
+        int staid = pv.getStaid();
+        unsigned int time = pv.getTime();
+        Station &thisSta = stations_[staid];
+        if(time >= thisSta.getCurrentTime()){
+            thisSta.setCurrentPointingVector(pv);
+        }
+    }
+    // check if there was an new upcoming event in the meantime
+    unsigned int startTime = lastScan.getTimes().getScanEnd();
+    checkForNewEvent(startTime, true, bodyLog);
+
+    // recursively start scan selection
+    boost::optional<Subcon> subcon = boost::none;
+    boost::optional<FillinmodeEndposition> endposition = boost::none;
+    startScanSelection(duration, bodyLog, type, endposition, subcon, 1);
+
+    // sort scans at the end
+    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+    });
+
+    // sort pointing vectors at the end
+    for(auto &any:stations_){
+        any.sortPointingVectors();
+    }
+
+}
+
+void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLog) {
+
+
+
+    bodyLog << "###############################################################################################\n";
+    bodyLog << "##                                 fixing high impact scans                                  ##\n";
+    bodyLog << "###############################################################################################\n";
+    unsigned int interval = himp.getInterval();
+    int n = TimeSystem::duration/interval;
+
+    // look for possible high impact scans
+    for(unsigned int iTime=0; iTime<n; ++iTime){
+
+        // check for new event and changes current pointing vector as well as first scan
+        unsigned int time = iTime*interval;
+        checkForNewEvent(time,true,bodyLog);
+        for(auto &thisStation:stations_){
+            PointingVector pv(thisStation.getId(),-1);
+            pv.setTime(time);
+            thisStation.setCurrentPointingVector(pv);
+            thisStation.referencePARA().firstScan = true;
+        }
+
+        // create all possible high impact scan pointing vectors for this time
+        himp.possibleHighImpactScans(iTime,stations_,sources_);
+    }
+
+    // create the actual scans
+    himp.updateHighImpactScans(stations_,sources_,parameters_.subnetting);
+
+    // select bestScans
+    vector<Scan> bestScans;
+    do{
+        bestScans = himp.highestImpactScans(stations_, sources_);
+        for(const auto& scan:bestScans){
+            if(himp.isCorrectHighImpactScan(scan,scans_)){
+                update(scan, bodyLog);
+
+                for(auto &thisStation:stations_){
+                    thisStation.referencePARA().firstScan = true;
+                }
+
+            }
+        }
+    }while(himp.hasMoreScans());
+
+    bodyLog << "###############################################################################################\n";
+    bodyLog << "##                                 start with normal scans                                   ##\n";
+    bodyLog << "###############################################################################################\n";
+
+
+    // reset all events
+    resetAllEvents(bodyLog);
+
+    for(auto &thisStation:stations_){
+        PointingVector pv(thisStation.getId(),-1);
+        pv.setTime(0);
+        thisStation.setCurrentPointingVector(pv);
+        thisStation.referencePARA().firstScan = true;
+    }
+
+}
+
+void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
+
+    // reset all events
     for(auto &any:stations_){
         PointingVector pv(any.getId(),-1);
         pv.setTime(0);
@@ -1169,52 +1221,6 @@ void Scheduler::startFillinmodeAPosteriori(std::ofstream &bodyLog) {
         }
     }
     checkForNewEvent(0, false, bodyLog);
-
-
-    for(int i=0; i<nMainScans-1; ++i){
-        Scan &lastScan = scans_[i];
-        boost::optional<FillinmodeEndposition> endposition(static_cast<int>(stations_.size()));
-
-        for(int k=0; k<lastScan.getNSta(); ++k){
-            const auto &pv = lastScan.getPointingVector(k);
-            int staid = pv.getStaid();
-            unsigned int time = pv.getTime();
-            Station &thisSta = stations_[staid];
-            if(time >= thisSta.getCurrentTime()){
-                thisSta.setCurrentPointingVector(lastScan.getPointingVectors_endtime(k));
-            }
-        }
-
-        for(int j=i+1; j<nMainScans; ++j){
-            const Scan &nextScan = scans_[j];
-            bool nextRequired = true;
-            for(int k=0; k<nextScan.getNSta(); ++k){
-                endposition->addPointingVectorAsEndposition(nextScan.getPointingVector(k));
-                if (endposition->everyStationInitialized()){
-                    nextRequired = false;
-                    break;
-                }
-            }
-            if(!nextRequired){
-                break;
-            }
-        }
-        unsigned int startTime = lastScan.getTimes().getScanEnd();
-        checkForNewEvent(startTime, true, bodyLog);
-
-        boost::optional<Subcon> subcon = boost::none;
-
-        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, Scan::ScanType::fillin, endposition, subcon, 1);
-
-    }
-
-    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
-    });
-
-    for(auto &any:stations_){
-        any.sortPointingVectors();
-    }
 
 }
 

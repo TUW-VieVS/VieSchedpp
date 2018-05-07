@@ -862,11 +862,11 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
         this_score += calcScore_numberOfObservations(nmaxbl) * weight_numberOfObservations;
     }
     double weight_averageSources = WeightFactors::weightAverageSources;
-    if (weight_averageSources != 0) {
+    if (weight_averageSources != 0 && !asrcs.empty()) {
         this_score += calcScore_averageSources(asrcs) * weight_averageSources;
     }
     double weight_averageStations = WeightFactors::weightAverageStations;
-    if (weight_averageStations != 0) {
+    if (weight_averageStations != 0 && !astas.empty()) {
         this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations;
     }
     double weight_duration = WeightFactors::weightDuration;
@@ -894,11 +894,10 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
         this_score += calcScore_lowElevation() * weightLowElevation;
     }
 
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
     return this_score;
 }
 
-double Scan::calcScore_secondPart(double this_score, const Source &source) {
+double Scan::calcScore_secondPart(double this_score, const std::vector<Station> &stations, const Source &source) {
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
@@ -918,6 +917,7 @@ double Scan::calcScore_secondPart(double this_score, const Source &source) {
         }
     }
 
+
     if(scanSequence.customScanSequence){
         if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
             const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
@@ -928,6 +928,9 @@ double Scan::calcScore_secondPart(double this_score, const Source &source) {
             }
         }
     }
+
+    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
+
     return this_score;
 }
 
@@ -944,7 +947,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
         this_score += calcScore_skyCoverage(skyCoverages, stations) * weight_skyCoverage;
     }
 
-    score_ = calcScore_secondPart(this_score,source);
+    score_ = calcScore_secondPart(this_score,stations,source);
 }
 
 void Scan::calcScore(const std::vector<double> &astas,
@@ -961,7 +964,7 @@ void Scan::calcScore(const std::vector<double> &astas,
         this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage;
     }
 
-    score_ = calcScore_secondPart(this_score,source);
+    score_ = calcScore_secondPart(this_score,stations,source);
 }
 
 
@@ -977,8 +980,18 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas,
         this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage * .5;
     }
 
-    score_ = calcScore_secondPart(this_score,source);
+    score_ = calcScore_secondPart(this_score,stations,source);
 }
+
+void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                     const Source &source, double hiscore) {
+
+    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), minTime, maxTime, stations, source);
+
+    score_ = calcScore_secondPart(this_score,stations,source)*hiscore;
+
+}
+
 
 bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
                      const vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
@@ -1245,12 +1258,12 @@ double Scan::calcScore_lowElevation() {
     for (const auto &pv:pointingVectors_) {
         double el = pv.getEl();
         double f = 0;
-        if (el < WeightFactors::lowElevationStartWeight) {
+        if (el > WeightFactors::lowElevationStartWeight) {
             f = 0;
-        } else if (el > WeightFactors::lowElevationFullWeight) {
+        } else if (el < WeightFactors::lowElevationFullWeight) {
             f = 1;
         } else {
-            f = (el - WeightFactors::lowElevationStartWeight) /
+            f = (WeightFactors::lowElevationStartWeight - el) /
                 (WeightFactors::lowElevationFullWeight - WeightFactors::lowElevationStartWeight);
         }
         score += f;
@@ -1278,6 +1291,7 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEndtime_ = std::move(pv_end);
 }
+
 
 
 

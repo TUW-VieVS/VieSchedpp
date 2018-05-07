@@ -340,13 +340,13 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCata
     string equip = xml.get<string>("master.catalogs.equip");
     string mask = xml.get<string>("master.catalogs.mask");
 
-    string modes = xml.get<string>("master.catalogs.modes");;
-    string freq = xml.get<string>("master.catalogs.freq");;
-    string rec = xml.get<string>("master.catalogs.rec");;
-    string rx = xml.get<string>("master.catalogs.rx");;
-    string loif = xml.get<string>("master.catalogs.loif");;
-    string tracks = xml.get<string>("master.catalogs.tracks");;
-    string hdpos = xml.get<string>("master.catalogs.hdpos");;
+    string modes = xml.get<string>("master.catalogs.modes");
+    string freq = xml.get<string>("master.catalogs.freq");
+    string rec = xml.get<string>("master.catalogs.rec");
+    string rx = xml.get<string>("master.catalogs.rx");
+    string loif = xml.get<string>("master.catalogs.loif");
+    string tracks = xml.get<string>("master.catalogs.tracks");
+    string hdpos = xml.get<string>("master.catalogs.hdpos");
 
     of << boost::format("%-10s %-20s %s\n") % "SOURCE" % skdCatalogReader.getVersion("source") % source;
     of << boost::format("%-10s %-20s %s\n") % "FLUX" % skdCatalogReader.getVersion("flux") % flux;

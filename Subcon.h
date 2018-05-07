@@ -21,6 +21,7 @@
 #include "Scan.h"
 #include "SkyCoverage.h"
 #include "FillinmodeEndposition.h"
+#include "Subnetting.h"
 
 
 namespace VieVS{
@@ -150,8 +151,7 @@ namespace VieVS{
          * @param subnettingSrcIds ids between all sources which could be used for subnetting
          * @param minStaPerSubcon  minimum number of stations per subconfiguration
          */
-        void createSubnettingScans(const std::vector<std::vector<int>> &subnettingSrcIds, int minStaPerSubcon,
-                                   const std::vector<Source> &sources) noexcept;
+        void createSubnettingScans(const Subnetting &subnetting, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief generate scores for all single source and subnetting scans
@@ -162,6 +162,11 @@ namespace VieVS{
         void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                            const std::vector<SkyCoverage> &skyCoverages) noexcept;
 
+        void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
+                           const std::vector<Station> &stations, const std::vector<Source> &sources);
+
+        void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                           const std::vector<std::map<int,double>> &hiscores, unsigned int interval);
 
         void checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations,
                                                  const std::vector<Source> &sources,
@@ -185,6 +190,8 @@ namespace VieVS{
          */
         void average_source_score(const std::vector<Source> &sources) noexcept;
 
+
+        std::vector<Scan> selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources);
         /**
          * @brief rigorousely updates the best scans untill the best one is found
          *
@@ -195,10 +202,9 @@ namespace VieVS{
          * @param prevHighElevationScores optinal argument if you have a calibrator block scan - previouse high elevation scores
          * @return index of best scan
          */
-        boost::optional<unsigned long> selectBest(const std::vector<Station> &stations,
-                                                  const std::vector<Source> &sources,
-                                                  const std::vector<SkyCoverage> &skyCoverages,
-                                                  const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+        std::vector<Scan> selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources,
+                                     const std::vector<SkyCoverage> &skyCoverages,
+                                     const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
 
 
 
@@ -209,8 +215,6 @@ namespace VieVS{
          */
         void clearSubnettingScans();
 
-        void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
-                                   unsigned int nsta, const std::vector<Station> &stations, const std::vector<Source> &sources);
 
         boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                                                  const std::vector<SkyCoverage> &skyCoverages,
@@ -221,6 +225,9 @@ namespace VieVS{
 
 
         void changeType(Scan::ScanType type);
+
+        void visibleScan(unsigned int currentTime, Scan::ScanType type, const std::vector<Station> &stations,
+                         const Source &thisSource, std::set<int>observedSources = std::set<int>());
 
     private:
         static int nextId;

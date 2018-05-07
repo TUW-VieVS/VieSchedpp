@@ -112,7 +112,7 @@ namespace VieVS{
          * @param start pointing vector at start of scan
          * @param end pointing vector at end of scan
          */
-        void update(const PointingVector &start, const PointingVector &end) noexcept;
+        void update(const PointingVector &pv) noexcept;
 
     private:
         static int nextId;
@@ -120,8 +120,7 @@ namespace VieVS{
         unsigned long nStations_; ///< number of stations that belong to this sky coverage
         std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage
 
-        std::vector<PointingVector> pointingVectorsStart_; ///< all pointing vectors at start of a scan
-        std::vector<PointingVector> pointingVectorsEnd_; ///< all pointing vectors at end of a scan
+        std::vector<PointingVector> pointingVectors_; ///< all pointing vectors
     };
 }
 

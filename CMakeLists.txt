@@ -59,7 +59,7 @@ set(SOURCE_FILES
         Equipment_elDependent.cpp Equipment_elDependent.h
         HorizonMask_line.cpp HorizonMask_line.h
         HorizonMask_step.cpp HorizonMask_step.h
-        Miscellaneous.cpp Miscellaneous.h HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h)
+        Miscellaneous.cpp Miscellaneous.h HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h Subnetting.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

@@ -53,6 +53,7 @@ namespace VieVS{
         };
 
         enum class ScanType {
+            highImpact,
             standard,
             fillin,
             calibrator
@@ -387,6 +388,9 @@ namespace VieVS{
                                   const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
                                   const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
 
+        void calcScore(unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                       const Source &source, double hiscore);
+
         /**
          * @brief calculates the score for a calibrator block scan
          *
@@ -586,7 +590,7 @@ namespace VieVS{
                                    unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
                                    const Source &source);
 
-        double calcScore_secondPart(double this_score, const Source &source);
+        double calcScore_secondPart(double this_score, const std::vector<Station> &stations, const Source &source);
     };
 }
 #endif /* SCAN_H */

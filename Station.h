@@ -374,7 +374,7 @@ namespace VieVS{
          * @param p pointing vector which holds time information and will be filled with azimuth and elevation information
          * @return true if station is visible
          */
-        bool isVisible(const PointingVector &p, double minElevationSource) const noexcept;
+        bool isVisible(const PointingVector &p, double minElevationSource = 0) const noexcept;
 
         /**
          * @brief calculate slew time between current pointing vector and this pointing vector
