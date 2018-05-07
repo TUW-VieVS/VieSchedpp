@@ -104,11 +104,11 @@ double HighImpactScanDescriptor::AzElDescriptor::highImpactScore(const PointingV
     int staid = pv.getStaid();
     double score = 0;
     if(std::find(staids_.begin(), staids_.end(), staid) != staids_.end()){
-        double thisAz = Miscellaneous::wrapToPi(pv.getAz());
+        double thisAz = util::wrapToPi(pv.getAz());
         double thisEl = pv.getEl();
         double dist = LookupTable::angularDistance(thisAz,thisEl,az_,el_);
         if(dist<margin_){
-            score = 1-(margin_-dist)/margin_;
+            score = (margin_-dist)/margin_;
         }
     }
     return score;
@@ -144,29 +144,33 @@ vector<Scan> HighImpactScanDescriptor::highestImpactScans(const std::vector<Stat
 bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans) {
 
     return std::all_of(scans.begin(),scans.end(),[target, minTimeBetweenScans=minTimeBetweenScans_](const Scan &scan){
-        unsigned int targetStart = target.getTimes().getScanStart();
-        unsigned int targetEnd = target.getTimes().getScanEnd();
-        unsigned int scanStart = scan.getTimes().getScanStart();
-        unsigned int scanEnd = scan.getTimes().getScanEnd();
+        unsigned int targetStart = target.getTimes().getObservingStart();
+        unsigned int targetEnd = target.getTimes().getObservingEnd();
+        unsigned int scanStart = scan.getTimes().getObservingStart();
+        unsigned int scanEnd = scan.getTimes().getObservingEnd();
 
         bool valid = true;
 
+        unsigned int diff1 = util::absDiff(targetEnd,scanStart);
+        unsigned int diff2 = util::absDiff(scanEnd,targetStart);
 
-
-        if(targetStart>=scanEnd && targetStart-scanEnd<minTimeBetweenScans){
+        // enough time in between
+        if(diff1<minTimeBetweenScans){
             valid = false;
         }
-        if(targetStart>=scanStart && targetStart-scanStart<minTimeBetweenScans){
-            valid = false;
-        }
-
-        if(targetEnd<=scanStart && scanStart-targetEnd<minTimeBetweenScans){
-            valid = false;
-        }
-        if(targetEnd<=scanEnd && targetEnd-scanEnd<minTimeBetweenScans){
+        if(diff2<minTimeBetweenScans){
             valid = false;
         }
 
+        // check if scan does not start/end during other scan
+        if(targetStart>scanStart && targetStart<scanEnd){
+            valid = false;
+        }
+        if(targetEnd>scanStart && targetEnd<scanEnd){
+            valid = false;
+        }
+
+        // check if one of those is inside the other
         if(targetStart>=scanStart && targetEnd<=scanEnd){
             valid = false;
         }
@@ -176,4 +180,8 @@ bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const
 
         return valid;
     });
+}
+
+void HighImpactScanDescriptor::updateLogfile(std::ofstream &bodyLog) {
+    bodyLog << "*   depth 0 considered: single Scans " << highImpactScans_.getNumberSingleScans() << " subnetting scans " << highImpactScans_.getNumberSubnettingScans() << "\n*\n";
 }

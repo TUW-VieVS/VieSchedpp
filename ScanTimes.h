@@ -95,22 +95,30 @@ namespace VieVS {
             return endOfPreobTime_[idx]-endOfIdleTime_[idx];
         }
 
-        const unsigned int getScanTime() const noexcept;
-
-        const unsigned int getScanTime(int idx) const noexcept{
-            return endOfScanTime_[idx]-endOfPreobTime_[idx];
-        }
-
         const unsigned int getScanStart() const noexcept;
-
-        const unsigned int getScanStart(int idx) const noexcept{
-            return endOfPreobTime_[idx];
-        }
 
         const unsigned int getScanEnd() const noexcept;
 
-        const unsigned int getScanEnd(int idx) const noexcept{
-            return endOfScanTime_[idx];
+        const unsigned int getScanDuration() const noexcept{
+            return getScanEnd() - getScanStart();
+        }
+
+        const unsigned int getObservingTime() const noexcept;
+
+        const unsigned int getObservingTime(int idx) const noexcept{
+            return endOfObservingTime_[idx]-endOfPreobTime_[idx];
+        }
+
+        const unsigned int getObservingStart() const noexcept;
+
+        const unsigned int getObservingStart(int idx) const noexcept{
+            return endOfPreobTime_[idx];
+        }
+
+        const unsigned int getObservingEnd() const noexcept;
+
+        const unsigned int getObservingEnd(int idx) const noexcept{
+            return endOfObservingTime_[idx];
         }
 
 
@@ -159,7 +167,7 @@ namespace VieVS {
         std::vector<unsigned int> endOfSlewTime_; ///< end of slew time
         std::vector<unsigned int> endOfIdleTime_; ///< end of idle time
         std::vector<unsigned int> endOfPreobTime_; ///< end of preob time
-        std::vector<unsigned int> endOfScanTime_; ///< end of scan time
+        std::vector<unsigned int> endOfObservingTime_; ///< end of scan time
 
         //TODO: implement endOfPostobTime_
         std::vector<unsigned int> endOfPostobTime_; ///< end of postob time

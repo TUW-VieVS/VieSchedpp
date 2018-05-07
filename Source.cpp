@@ -135,7 +135,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, o
         if (oldMinFlux != newMinFlux) {
             double maxFlux = 0;
             bool strongEnough = isStrongEnough(maxFlux);
-            if (!strongEnough) {
+            if (!strongEnough && output) {
                 referencePARA().setAvailable(false);
                 bodyLog << "source: " << boost::format("%8s") % getName() << " not strong enough! (max flux = "
                         << boost::format("%4.2f") % maxFlux << " min required flux = "

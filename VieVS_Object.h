@@ -5,6 +5,8 @@
 #ifndef VLBI_SCHEDULER_VIEVS_OBJECT_H
 #define VLBI_SCHEDULER_VIEVS_OBJECT_H
 
+#include <string>
+
 namespace VieVS{
     class VieVS_Object {
     public:
@@ -25,6 +27,10 @@ namespace VieVS{
 
         void setId(int id){
             id_ = id;
+        }
+
+        std::string printId() const {
+            return std::string("(id: ").append(std::to_string(id_)).append(")");
         }
 
     private:

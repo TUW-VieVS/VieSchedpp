@@ -12,7 +12,7 @@ ScanTimes::ScanTimes(unsigned int nsta): VieVS_Object(nextId++) {
     endOfSlewTime_.resize(nsta);
     endOfIdleTime_.resize(nsta);
     endOfPreobTime_.resize(nsta);
-    endOfScanTime_.resize(nsta);
+    endOfObservingTime_.resize(nsta);
 }
 
 void
@@ -36,7 +36,7 @@ void ScanTimes::removeElement(int idx) noexcept {
 //            e == endOfSlewTime_.size() &
 //            e == endOfIdleTime_.size() &
 //            e == endOfPreobTime_.size() &
-//            e == endOfScanTime_.size())){
+//            e == endOfObservingTime_.size())){
 //        bool flag = false;
 //    }
 
@@ -45,7 +45,7 @@ void ScanTimes::removeElement(int idx) noexcept {
     endOfSlewTime_.erase(next(endOfSlewTime_.begin(),idx));
     endOfIdleTime_.erase(next(endOfIdleTime_.begin(),idx));
     endOfPreobTime_.erase(next(endOfPreobTime_.begin(),idx));
-    endOfScanTime_.erase(next(endOfScanTime_.begin(),idx));
+    endOfObservingTime_.erase(next(endOfObservingTime_.begin(),idx));
 
     alignStartTimes();
 }
@@ -54,13 +54,13 @@ void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
     unsigned int currentSlewtime = endOfSlewTime_[idx] - endOfFieldSystemTime_[idx];
     if (currentSlewtime != new_slewtime) {
         unsigned int preobTime = endOfPreobTime_[idx] - endOfIdleTime_[idx];
-        unsigned int scanTime = endOfScanTime_[idx] - endOfPreobTime_[idx];
+        unsigned int scanTime = endOfObservingTime_[idx] - endOfPreobTime_[idx];
 
         int delta = new_slewtime - currentSlewtime;
         endOfSlewTime_[idx] = endOfSlewTime_[idx] + delta;
         endOfIdleTime_[idx] = endOfSlewTime_[idx] - delta;
         endOfPreobTime_[idx] = endOfIdleTime_[idx] + preobTime;
-        endOfScanTime_[idx] = endOfPreobTime_[idx] + scanTime;
+        endOfObservingTime_[idx] = endOfPreobTime_[idx] + scanTime;
     }
 
 }
@@ -77,11 +77,11 @@ void ScanTimes::alignStartTimes() noexcept {
 
     for (int i = 0; i < nsta; ++i) {
         unsigned int preobTime = endOfPreobTime_[i]-endOfIdleTime_[i];
-        unsigned int scanTime = endOfScanTime_[i]-endOfPreobTime_[i];
+        unsigned int scanTime = endOfObservingTime_[i]-endOfPreobTime_[i];
 
         endOfIdleTime_[i] = latestSlewTime;
         endOfPreobTime_[i] = endOfIdleTime_[i] + preobTime;
-        endOfScanTime_[i] = endOfPreobTime_[i] + scanTime;
+        endOfObservingTime_[i] = endOfPreobTime_[i] + scanTime;
     }
 }
 
@@ -93,13 +93,13 @@ void ScanTimes::setStartTime(unsigned int scanStart) noexcept {
 
 void ScanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
-        endOfScanTime_[i] = endOfPreobTime_[i]+scanTimes[i];
+        endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes[i];
     }
 }
 
 void ScanTimes::addScanTimes(unsigned int scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
-        endOfScanTime_[i] = endOfPreobTime_[i]+scanTimes;
+        endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes;
     }
 }
 
@@ -111,12 +111,12 @@ void ScanTimes::addTagalongStation(const VieVS::PointingVector &pv_start, const 
     endOfSlewTime_.push_back(currentTime+fieldSystem+slewtime);
     endOfIdleTime_.push_back(pv_start.getTime()-preob);
     endOfPreobTime_.push_back(pv_start.getTime());
-    endOfScanTime_.push_back(pv_end.getTime());
+    endOfObservingTime_.push_back(pv_end.getTime());
 }
 
 bool ScanTimes::substractPreobTimeFromStartTime(unsigned int preob) {
     bool valid = true;
-    for(int i=0; i<endOfScanTime_.size(); ++i){
+    for(int i=0; i<endOfObservingTime_.size(); ++i){
         endOfIdleTime_[i] = endOfPreobTime_[i]-preob;
         if(endOfIdleTime_[i] < endOfSlewTime_[i]){
             valid = false;
@@ -125,7 +125,7 @@ bool ScanTimes::substractPreobTimeFromStartTime(unsigned int preob) {
     return valid;
 }
 
-const unsigned int ScanTimes::getScanStart() const noexcept{
+const unsigned int ScanTimes::getObservingStart() const noexcept{
     unsigned int start = numeric_limits<unsigned int>::max();
     for(unsigned int x:endOfPreobTime_){
         if(x<start){
@@ -135,9 +135,9 @@ const unsigned int ScanTimes::getScanStart() const noexcept{
     return start;
 }
 
-const unsigned int ScanTimes::getScanEnd() const noexcept{
+const unsigned int ScanTimes::getObservingEnd() const noexcept{
     unsigned int end = 0;
-    for(unsigned int x:endOfScanTime_){
+    for(unsigned int x:endOfObservingTime_){
         if(x>end){
             end = x;
         }
@@ -145,8 +145,23 @@ const unsigned int ScanTimes::getScanEnd() const noexcept{
     return end;
 }
 
-const unsigned int ScanTimes::getScanTime() const noexcept{
-    return getScanEnd()-getScanStart();
+const unsigned int ScanTimes::getObservingTime() const noexcept{
+    return getObservingEnd()- getObservingStart();
+}
+
+const unsigned int ScanTimes::getScanStart() const noexcept {
+    unsigned int start = numeric_limits<unsigned int>::max();
+    for(unsigned int x:endOfLastScan_){
+        if(x<start){
+            start = x;
+        }
+    }
+    return start;
+}
+
+const unsigned int ScanTimes::getScanEnd() const noexcept {
+    // todo: postob
+    return getObservingEnd();
 }
 
 

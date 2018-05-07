@@ -88,7 +88,8 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
 
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time and minimum scan time
-                int possibleEndpositionTime = times.getScanStart(j) + minimumScanTime +5+ waitTimes.fieldSystem + waitTimes.preob;
+                int possibleEndpositionTime =
+                        times.getObservingStart(j) + minimumScanTime +5+ waitTimes.fieldSystem + waitTimes.preob;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
@@ -150,7 +151,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
         while (j < thisScan.getNSta()) {
             int staid = thisScan.getStationId(j);
             PointingVector &thisPointingVector = thisScan.referencePointingVector(j);
-            thisPointingVector.setTime(thisScan.getTimes().getScanStart(j));
+            thisPointingVector.setTime(thisScan.getTimes().getObservingStart(j));
             stations[staid].calcAzEl(thisSource, thisPointingVector);
             bool visible = stations[staid].isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
@@ -231,7 +232,7 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<
                 const auto &waitTimes = thisSta.getWaittimes();
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time
-                int possibleEndpositionTime = times.getScanEnd(j) + waitTimes.fieldSystem + waitTimes.preob + 5;
+                int possibleEndpositionTime = times.getObservingEnd(j) + waitTimes.fieldSystem + waitTimes.preob + 5;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
@@ -275,30 +276,34 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
     for (int i = 0; i < nSingleScans_; ++i) {
         int firstSrcId = sourceIds[i];
         Scan &first = singleScans_[i];
-        vector<int> secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
+        const vector<int> &secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
         for (int secondSrcId : secondSrcIds) {
-            vector<int> sta1 = first.getStationIds();
 
             auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
             if (it != sourceIds.end()) {
-                long idx = distance(sourceIds.begin(), it);
-                Scan &second = singleScans_[idx];
-                vector<int> sta2 = second.getStationIds();
-
+                long srcid = distance(sourceIds.begin(), it);
+                Scan &second = singleScans_[srcid];
 
                 vector<int> uniqueSta1;
                 vector<int> uniqueSta2;
                 vector<int> intersection;
-                for (int any: sta1) {
-                    if (find(sta2.begin(), sta2.end(), any) == sta2.end()) {
-                        uniqueSta1.push_back(any);
+
+                for (int idx=0; idx<first.getNSta(); ++idx) {
+                    const PointingVector &pv = first.getPointingVector(idx);
+                    int staid = pv.getStaid();
+
+                    if (!second.findIdxOfStationId(staid)) {
+                        uniqueSta1.push_back(staid);
                     } else {
-                        intersection.push_back(any);
+                        intersection.push_back(staid);
                     }
                 }
-                for (int any: sta2) {
-                    if (find(sta1.begin(), sta1.end(), any) == sta1.end()) {
-                        uniqueSta2.push_back(any);
+                for (int idx=0; idx<second.getNSta(); ++idx) {
+                    const PointingVector &pv = second.getPointingVector(idx);
+                    int staid = pv.getStaid();
+
+                    if (!first.findIdxOfStationId(staid)) {
+                        uniqueSta2.push_back(staid);
                     }
                 }
 
@@ -330,16 +335,12 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                         if (scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
                             scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations) {
 
-                            unsigned int firstTime = first.getTimes().getScanEnd();
-                            unsigned int secondTime = second.getTimes().getScanEnd();
-                            if (firstTime > secondTime) {
-                                swap(firstTime, secondTime);
-                            }
+                            unsigned int firstTime = first.getTimes().getObservingEnd();
+                            unsigned int secondTime = second.getTimes().getObservingEnd();
 
-                            if (secondTime - firstTime > 600) {
+                            if( util::absDiff(firstTime,secondTime) > 600) {
                                 continue;
                             }
-
 
                             boost::optional<Scan> new_first = first.copyScan(scan1sta, sources[firstSrcId]);
                             if (!new_first) {
@@ -412,7 +413,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
-        unsigned int iTime = thisScan.getTimes().getScanStart()/interval;
+        unsigned int iTime = thisScan.getTimes().getObservingStart()/interval;
         const map<int,double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
         thisScan.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource, hiscore);
@@ -424,7 +425,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         Scan &thisScan1 = thisScans.first;
         int srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[thisScan1.getSourceId()];
-        unsigned int iTime1 = thisScan1.getTimes().getScanStart()/interval;
+        unsigned int iTime1 = thisScan1.getTimes().getObservingStart()/interval;
         const map<int,double> &thisMap1 = hiscores[iTime1];
         double hiscore1 = thisMap1.at(thisSource1.getId());
         thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource1, hiscore1);
@@ -433,7 +434,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         Scan &thisScan2 = thisScans.second;
         int srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[thisScan2.getSourceId()];
-        unsigned int iTime2 = thisScan2.getTimes().getScanStart()/interval;
+        unsigned int iTime2 = thisScan2.getTimes().getObservingStart()/interval;
         const map<int,double> &thisMap2 = hiscores[iTime2];
         double hiscore2 = thisMap2.at(thisSource2.getId());
         thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource2, hiscore2);
@@ -495,7 +496,7 @@ void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
     unsigned int minTime = numeric_limits<unsigned int>::max();
     for (auto &thisScan: singleScans_) {
-        unsigned int thisTime = thisScan.getTimes().getScanEnd();
+        unsigned int thisTime = thisScan.getTimes().getObservingEnd() - thisScan.getTimes().getObservingStart();
         if (thisTime < minTime) {
             minTime = thisTime;
         }
@@ -504,14 +505,16 @@ void Subcon::minMaxTime() noexcept {
         }
     }
     for (auto &thisScan: subnettingScans_) {
-        unsigned int thisTime1 = thisScan.first.getTimes().getScanEnd();
+        unsigned int thisTime1 =
+                thisScan.first.getTimes().getScanDuration();
         if (thisTime1 < minTime) {
             minTime = thisTime1;
         }
         if (thisTime1 > maxTime) {
             maxTime = thisTime1;
         }
-        unsigned int thisTime2 = thisScan.first.getTimes().getScanEnd();
+        unsigned int thisTime2 =
+                thisScan.first.getTimes().getScanDuration();
         if (thisTime2 < minTime) {
             minTime = thisTime2;
         }
@@ -710,8 +713,8 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             }
 
             // check time differences between subnetting scans
-            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getObservingEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getObservingEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
@@ -818,8 +821,8 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
 
-            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getObservingEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getObservingEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
@@ -912,9 +915,10 @@ Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations
                 unsigned int slewtime = thisSta.getAntenna().slewTime(assumedSlewStart,thisEndposition);
 
                 // check if there is enough time
-                possibleEndpositionTime = times.getScanEnd(istation) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
+                possibleEndpositionTime =
+                        times.getObservingEnd(istation) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
             }else{
-                possibleEndpositionTime = times.getScanEnd(istation);
+                possibleEndpositionTime = times.getObservingEnd(istation);
             }
 
             // get minimum required endpositon time

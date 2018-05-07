@@ -270,9 +270,9 @@ void SkdParser::createScans() {
             if(!valid){
                 const auto &tmp = scan.getTimes();
                 for (int i = 0; i < nsta; ++i) {
-                    if(tmp.getScanStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)){
+                    if(tmp.getObservingStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)){
                         unsigned int eost = tmp.getSlewEnd(i);
-                        unsigned int eoit = tmp.getScanStart(i)-tmp.getPreobTime(i);
+                        unsigned int eoit = tmp.getObservingStart(i)-tmp.getPreobTime(i);
                         boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
                         boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
@@ -311,7 +311,7 @@ void SkdParser::copyScanMembersToObjects() {
             skyCoverages_[skyCoverageId].update(pv);
         }
 
-        unsigned int latestTime = scan.getTimes().getScanStart();
+        unsigned int latestTime = scan.getTimes().getObservingStart();
         Source &thisSource = sources_[srcid];
         thisSource.update(nbl, latestTime, true);
     }
@@ -344,7 +344,7 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
                         scan.getTimes().getSlewTime(idx),
                         scan.getTimes().getIdleTime(idx),
                         scan.getTimes().getPreobTime(idx),
-                        scan.getTimes().getScanTime(idx)});
+                        scan.getTimes().getObservingTime(idx)});
             }
         }
     }

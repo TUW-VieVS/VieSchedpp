@@ -211,7 +211,7 @@ namespace VieVS{
         void changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
                                    FillinmodeEndposition::change change);
 
-        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type);
+        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output=false);
 
         void resetAllEvents(std::ofstream &bodyLog);
     };

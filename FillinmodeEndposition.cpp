@@ -31,7 +31,7 @@ int FillinmodeEndposition::nextId = 0;
 //            const PointingVector &pv = any.getPointingVector(i);
 //            int staid = pv.getStaid();
 //
-//            unsigned int thisScanStart = times.getScanStart(i);
+//            unsigned int thisScanStart = times.getObservingStart(i);
 //            if(finalPosition_[staid].is_initialized()){
 //                if (thisScanStart < finalPosition_[staid]->getTime()) {
 //                    finalPosition_[staid] = pv;

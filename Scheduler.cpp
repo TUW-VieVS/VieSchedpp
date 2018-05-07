@@ -103,8 +103,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         // check end time of best possible next scan
         unsigned int maxScanEnd = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getScanEnd() > maxScanEnd) {
-                maxScanEnd = any.getTimes().getScanEnd();
+            if (any.getTimes().getObservingEnd() > maxScanEnd) {
+                maxScanEnd = any.getTimes().getObservingEnd();
             }
         }
 
@@ -205,14 +205,15 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
         // sort scans
         sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-            return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+            return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
         });
     } else {
-        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard);
+        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard, true);
     }
 
     // start fillinmode a posterior
     if(parameters_.fillinmodeAPosteriori){
+        bodyLog << "* --- start fillin mode a posteriori ---\n";
         startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin);
     }
 
@@ -312,7 +313,7 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
         }
     }
 
-    unsigned int latestTime = scan.getTimes().getScanStart();
+    unsigned int latestTime = scan.getTimes().getObservingStart();
     Source &thisSource = sources_[srcid];
     thisSource.update(nbl, latestTime, scanHasInfluence);
 
@@ -364,8 +365,8 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
         unsigned int constTimes = wtimes.fieldSystem + wtimes.preob;
 
         if (end.empty()) {
-            continue;
             bodyLog << "    no Scans so far!\n";
+            continue;
         }
 
         for (int i = 0; i < end.size()-1; ++i) {
@@ -384,10 +385,10 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
                 boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                 boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
 
-                bodyLog << "           end time of previouse scan: " << thisEndTime_.time_of_day() << "("
-                        << thisEndTime << ")\n";
-                bodyLog << "           start time of next scan:    " << nextStartTime_.time_of_day() << "("
-                        << nextStartTime << "\n)";
+                bodyLog << "           end time of previouse scan: " << thisEndTime_.time_of_day()
+                        << thisEnd.printId() << "\n";
+                bodyLog << "           start time of next scan:    " << nextStartTime_.time_of_day()
+                        << nextStart.printId() << "\n";
                 everythingOk = false;
                 continue;
             }
@@ -398,10 +399,10 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
                 bodyLog << "           not enough available time for slewing!\n";
                 boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                 boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
-                bodyLog << "               end time of previouse scan: " << thisEndTime_.time_of_day() << " ("
-                        << thisEndTime << ")\n";
-                bodyLog << "               start time of next scan:    " << nextStartTime_.time_of_day() << " ("
-                        << nextStartTime << ")\n";
+                bodyLog << "               end time of previouse scan: " << thisEndTime_.time_of_day()
+                        << thisEnd.printId() << "\n";
+                bodyLog << "               start time of next scan:    " << nextStartTime_.time_of_day()
+                        << nextStart.printId() << "\n";
                 bodyLog << "           available time: " << availableTime << "\n";
                 bodyLog << "               needed slew time:           " << slewtime << "\n";
                 bodyLog << "               needed constant times:      " << constTimes << "\n";
@@ -437,10 +438,9 @@ bool Scheduler::checkForNewEvent(unsigned int time, bool output, ofstream &bodyL
         bool flag2 = any.checkForNewEvent(time, hard_break, output, bodyLog);
         flag = flag || flag2;
     }
-    if (flag) {
+    if (flag && output) {
         unsigned int nsrc = countAvailableSources();
         bodyLog << "number of available sources: " << nsrc << "\n";
-
     }
 
     Baseline::checkForNewEvent(time, hard_break, output, bodyLog);
@@ -629,8 +629,8 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getScanEnd() > all_maxTime) {
-                all_maxTime = any.getTimes().getScanEnd();
+            if (any.getTimes().getObservingEnd() > all_maxTime) {
+                all_maxTime = any.getTimes().getObservingEnd();
             }
         }
 
@@ -731,7 +731,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
     unsigned long counter = 0;
     for(auto & scan:scans_){
         ++counter;
-        unsigned int scanStartTime = scan.getTimes().getScanStart();
+        unsigned int scanStartTime = scan.getTimes().getObservingStart();
         unsigned int currentStationTime = station.getCurrentTime();
 
         if(scan.getType() == Scan::ScanType::fillin){
@@ -1056,7 +1056,7 @@ void Scheduler::changeStationAvailability(const boost::optional<FillinmodeEndpos
     }
 }
 
-void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type) {
+void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output) {
 
     // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>(scans_.size());
@@ -1068,6 +1068,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     // loop through all predefined scans
     for(int i=0; i<nMainScans-1; ++i){
 
+        if(output){
+            bodyLog << "* --- start new scan selection ---\n";
+        }
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
         for(int k=0; k<lastScan.getNSta(); ++k){
@@ -1098,16 +1101,19 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
 
         // check if there was an new upcoming event in the meantime
-        unsigned int startTime = lastScan.getTimes().getScanEnd();
+        unsigned int startTime = lastScan.getTimes().getObservingEnd();
         checkForNewEvent(startTime, true, bodyLog);
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection(scans_[i+1].getTimes().getScanStart(), bodyLog, type, endposition, subcon, 1);
+        startScanSelection(scans_[i + 1].getTimes().getObservingStart(), bodyLog, type, endposition, subcon, 1);
     }
 
-
     // do the same between time at from last scan until duration with no endposition
+    if(output){
+        bodyLog << "* --- start final scan selection ---\n";
+    }
+
     // get last predefined scan and set current position of station
     Scan &lastScan = scans_[nMainScans-1];
     for(int k=0; k<lastScan.getNSta(); ++k){
@@ -1120,7 +1126,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
     }
     // check if there was an new upcoming event in the meantime
-    unsigned int startTime = lastScan.getTimes().getScanEnd();
+    unsigned int startTime = lastScan.getTimes().getObservingEnd();
     checkForNewEvent(startTime, true, bodyLog);
 
     // recursively start scan selection
@@ -1130,7 +1136,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
     // sort scans at the end
     sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getScanStart() < scan2.getTimes().getScanStart();
+        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
     });
 
     // sort pointing vectors at the end
@@ -1170,6 +1176,8 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     // create the actual scans
     himp.updateHighImpactScans(stations_,sources_,parameters_.subnetting);
 
+    himp.updateLogfile(bodyLog);
+
     // select bestScans
     vector<Scan> bestScans;
     do{
@@ -1177,6 +1185,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         for(const auto& scan:bestScans){
             if(himp.isCorrectHighImpactScan(scan,scans_)){
                 update(scan, bodyLog);
+                bodyLog << "*\n";
 
                 for(auto &thisStation:stations_){
                     thisStation.referencePARA().firstScan = true;
@@ -1185,6 +1194,11 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
             }
         }
     }while(himp.hasMoreScans());
+
+    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+    });
+
 
     bodyLog << "###############################################################################################\n";
     bodyLog << "##                                 start with normal scans                                   ##\n";

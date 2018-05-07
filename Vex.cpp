@@ -323,7 +323,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             }else if (cwskd == "W"){
                 cwvex = "&ccw";
             }
-            int duration = scan.getTimes().getScanTime(j);
+            int duration = scan.getTimes().getObservingTime(j);
             of << boost::format("        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n") % thisTlc % 0 % duration % cwvex;
         }
         of << "    endscan;\n";

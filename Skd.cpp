@@ -516,9 +516,9 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 
     for (const auto &scan:scans) {
         const string &srcName = sources[scan.getSourceId()].getName();
-        boost::posix_time::ptime start = TimeSystem::internalTime2PosixTime(scan.getTimes().getScanStart());
+        boost::posix_time::ptime start = TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingStart());
 
-        unsigned int scanTime = scan.getTimes().getScanTime();
+        unsigned int scanTime = scan.getTimes().getObservingTime();
 
         string ftlc;
         if(skdCatalogReader.getFreqTwoLetterCode().empty()){
@@ -541,7 +541,7 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
         }
         of << "YYNN ";
         for (int i = 0; i < scan.getNSta(); ++i) {
-            unsigned int thisScanTime = scan.getTimes().getScanTime(i);
+            unsigned int thisScanTime = scan.getTimes().getObservingTime(i);
             of << boost::format("%5d ") % thisScanTime;
         }
         of << "\n";
