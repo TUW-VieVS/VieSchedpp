@@ -27,7 +27,7 @@ void Subcon::addScan(Scan &&scan) noexcept {
 
 void
 Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &sources,
-                       const boost::optional<FillinmodeEndposition> & endposition) noexcept {
+                       const boost::optional<StationEndposition> & endposition) noexcept {
 
     int i=0;
     // loop through all scans
@@ -206,7 +206,7 @@ Subcon::calcAllBaselineDurations(const vector<Station> &stations,
 }
 
 void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<Source> &sources,
-                                  const boost::optional<FillinmodeEndposition> & endposition) noexcept {
+                                  const boost::optional<StationEndposition> & endposition) noexcept {
     // loop through all scans
     int i=0;
     while (i<nSingleScans_){
@@ -647,7 +647,7 @@ std::vector<Scan> Subcon::selectBest(const std::vector<Station> &stations, const
 
 vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<Source> &sources,
                                 const vector<SkyCoverage> &skyCoverages,
-                                const boost::optional<FillinmodeEndposition> &endposition) noexcept {
+                                const boost::optional<StationEndposition> &endposition) noexcept {
 
     vector<Scan> bestScans;
 
@@ -877,7 +877,7 @@ void Subcon::clearSubnettingScans() {
 
 void
 Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                                            const boost::optional<FillinmodeEndposition> &endposition) {
+                                            const boost::optional<StationEndposition> &endposition) {
 
     // if there is no required endposition do nothing
     if(!endposition.is_initialized()) {

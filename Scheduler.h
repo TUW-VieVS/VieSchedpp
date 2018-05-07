@@ -18,7 +18,7 @@
 #include "Initializer.h"
 #include "Subcon.h"
 #include "Constants.h"
-#include "FillinmodeEndposition.h"
+#include "StationEndposition.h"
 #include "Subnetting.h"
 
 namespace VieVS{
@@ -80,14 +80,14 @@ namespace VieVS{
          * @return subcon with all information
          */
         Subcon createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
-                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+                            const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief constructs all visible scans
          *
          * @return subcon with all visible single source scans
          */
-        Subcon allVisibleScans(Scan::ScanType type, const boost::optional<FillinmodeEndposition> &endposition= boost::none) noexcept;
+        Subcon allVisibleScans(Scan::ScanType type, const boost::optional<StationEndposition> &endposition= boost::none) noexcept;
 
 
         /**
@@ -146,7 +146,7 @@ namespace VieVS{
         unsigned long nObservationsConsidered; ///< considered baselines
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
-                                boost::optional<FillinmodeEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
+                                boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
                                 int depth);
 
         /**
@@ -208,8 +208,8 @@ namespace VieVS{
 
         bool checkOptimizationConditions(std::ofstream &of);
 
-        void changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
-                                   FillinmodeEndposition::change change);
+        void changeStationAvailability(const boost::optional<StationEndposition> &endposition,
+                                   StationEndposition::change change);
 
         void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output=false);
 

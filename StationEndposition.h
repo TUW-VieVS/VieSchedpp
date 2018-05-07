@@ -26,7 +26,7 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 12.08.2017
      */
-    class FillinmodeEndposition: public VieVS_Object {
+    class StationEndposition: public VieVS_Object {
     public:
 
         enum class change{
@@ -40,9 +40,9 @@ namespace VieVS {
 //         * @param bestScans list of all next scheduled scans
 //         * @param stations list of all stations
 //         */
-//        FillinmodeEndposition(const std::vector<Scan> &bestScans, const std::vector<Station> &stations);
+//        StationEndposition(const std::vector<Scan> &bestScans, const std::vector<Station> &stations);
 
-        explicit FillinmodeEndposition(int nsta);
+        explicit StationEndposition(int nsta);
 
         void addPointingVectorAsEndposition(const PointingVector &pv);
 

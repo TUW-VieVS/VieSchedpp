@@ -2,13 +2,13 @@
 // Created by matth on 12.08.2017.
 //
 
-#include "FillinmodeEndposition.h"
+#include "StationEndposition.h"
 using namespace std;
 using namespace VieVS;
 
-int FillinmodeEndposition::nextId = 0;
+int StationEndposition::nextId = 0;
 
-//FillinmodeEndposition::FillinmodeEndposition(const std::vector<Scan> &bestScans,
+//StationEndposition::StationEndposition(const std::vector<Scan> &bestScans,
 //                                                   const std::vector<Station> &stations): VieVS_Object(nextId) {
 //
 //    unsigned long nsta = stations.size();
@@ -87,7 +87,7 @@ int FillinmodeEndposition::nextId = 0;
 //    }
 //}
 
-FillinmodeEndposition::FillinmodeEndposition(int nsta) : VieVS_Object(nsta) {
+StationEndposition::StationEndposition(int nsta) : VieVS_Object(nsta) {
     stationAvailable_ = vector<char>(static_cast<unsigned long>(nsta), true);
     stationPossible_ = std::vector<char>(static_cast<unsigned long>(nsta), true);
     finalPosition_ = vector<boost::optional<PointingVector> >(static_cast<unsigned long>(nsta));
@@ -96,7 +96,7 @@ FillinmodeEndposition::FillinmodeEndposition(int nsta) : VieVS_Object(nsta) {
     earliestScanStart_ = numeric_limits<unsigned int>::max();
 }
 
-void FillinmodeEndposition::addPointingVectorAsEndposition(const PointingVector &pv) {
+void StationEndposition::addPointingVectorAsEndposition(const PointingVector &pv) {
     int staid = pv.getStaid();
 
     // check if there is already an earlier endposition
@@ -114,7 +114,7 @@ void FillinmodeEndposition::addPointingVectorAsEndposition(const PointingVector 
 
 }
 
-void FillinmodeEndposition::checkStationPossibility(const Station &thisStation) {
+void StationEndposition::checkStationPossibility(const Station &thisStation) {
     int staid = thisStation.getId();
     // get start time of this station
     unsigned int staStarttime = thisStation.getCurrentTime();
@@ -145,7 +145,7 @@ void FillinmodeEndposition::checkStationPossibility(const Station &thisStation) 
 }
 
 
-unsigned int FillinmodeEndposition::requiredEndpositionTime(int staid) const {
+unsigned int StationEndposition::requiredEndpositionTime(int staid) const {
 
     // check if station has a required endposition, otherwise use earliest scan start.
     if(finalPosition_[staid].is_initialized()){
@@ -155,7 +155,7 @@ unsigned int FillinmodeEndposition::requiredEndpositionTime(int staid) const {
     }
 }
 
-bool FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &stations) {
+bool StationEndposition::checkStationPossibility(const std::vector<Station> &stations) {
 
     for(const auto &any:stations){
         checkStationPossibility(any);
@@ -163,7 +163,7 @@ bool FillinmodeEndposition::checkStationPossibility(const std::vector<Station> &
     return count(stationPossible_.begin(),stationPossible_.end(), true) >= 2;
 }
 
-std::set<int> FillinmodeEndposition::getObservedSources() const noexcept {
+std::set<int> StationEndposition::getObservedSources() const noexcept {
     set<int> obsSrc;
 
     for(int i=0; i<finalPosition_.size(); ++i){

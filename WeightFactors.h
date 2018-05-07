@@ -11,6 +11,7 @@
 #define WEIGHTFACTORS_H
 
 #include <fstream>
+#include "Constants.h"
 
 namespace VieVS{
     /**
@@ -41,7 +42,6 @@ namespace VieVS{
          * @param of out stream object
          */
         static void summary(std::ofstream &of) {
-            double rad2deg = 180 / 3.141592653589793;
             of << "weight factors: \n";
             of << "    skyCoverage:          " << weightSkyCoverage << "\n";
             of << "    numberOfObservations: " << weightNumberOfObservations << "\n";

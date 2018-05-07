@@ -20,7 +20,7 @@
 #include "Source.h"
 #include "Scan.h"
 #include "SkyCoverage.h"
-#include "FillinmodeEndposition.h"
+#include "StationEndposition.h"
 #include "Subnetting.h"
 
 
@@ -110,7 +110,7 @@ namespace VieVS{
          * @param sources list of all sources
          */
         void calcStartTimes(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+                            const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief constructs all baselines for all single source scans in this subcon
@@ -143,7 +143,7 @@ namespace VieVS{
          * @param sources list of all sources
          */
         void calcAllScanDurations(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                                  const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+                                  const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief create all subnetting scans from possible single source scans
@@ -170,7 +170,7 @@ namespace VieVS{
 
         void checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations,
                                                  const std::vector<Source> &sources,
-                                                 const boost::optional<FillinmodeEndposition> &endposition = boost::none);
+                                                 const boost::optional<StationEndposition> &endposition = boost::none);
 
         /**
          * @brief get minimum and maximum time required for a possible scan
@@ -204,7 +204,7 @@ namespace VieVS{
          */
         std::vector<Scan> selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources,
                                      const std::vector<SkyCoverage> &skyCoverages,
-                                     const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+                                     const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
 
 

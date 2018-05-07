@@ -11,7 +11,7 @@ set(SOURCE_FILES
         Constants.h
         Earth.cpp Earth.h
         Equipment.cpp Equipment.h
-        FillinmodeEndposition.cpp FillinmodeEndposition.h
+        StationEndposition.cpp StationEndposition.h
         Flux.cpp Flux.h
         HorizonMask.cpp HorizonMask.h
         Initializer.cpp Initializer.h
@@ -59,7 +59,9 @@ set(SOURCE_FILES
         Equipment_elDependent.cpp Equipment_elDependent.h
         HorizonMask_line.cpp HorizonMask_line.h
         HorizonMask_step.cpp HorizonMask_step.h
-        HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h Subnetting.h util.h util.cpp)
+        HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h
+        Subnetting.h
+        util.h util.cpp)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

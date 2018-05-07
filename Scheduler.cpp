@@ -46,12 +46,12 @@ Scheduler::Scheduler(Initializer &init, string name, string path): VieVS_NamedOb
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
-                                   boost::optional<FillinmodeEndposition> &opt_endposition,
+                                   boost::optional<StationEndposition> &opt_endposition,
                                    boost::optional<Subcon> &opt_subcon, int depth) {
 
     // Check if there is a required opt_endposition. If yes change station availability with respect to opt_endposition
     if(opt_endposition.is_initialized()){
-        changeStationAvailability(opt_endposition,FillinmodeEndposition::change::start);
+        changeStationAvailability(opt_endposition,StationEndposition::change::start);
     }
 
     while (true) {
@@ -124,7 +124,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmode && !parameters_.fillinmodeAPosteriori && !scans_.empty()) {
-            boost::optional<FillinmodeEndposition> newEndposition(static_cast<int>(stations_.size()));
+            boost::optional<StationEndposition> newEndposition(static_cast<int>(stations_.size()));
             if(opt_endposition.is_initialized()){
                 for(int i=0; i<stations_.size();++i){
                     if(opt_endposition->hasEndposition(i)){
@@ -181,7 +181,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
     // scan selection block is over. Change station availability back to start value
     if(opt_endposition.is_initialized()){
-        changeStationAvailability(opt_endposition,FillinmodeEndposition::change::end);
+        changeStationAvailability(opt_endposition,StationEndposition::change::end);
     }
 
 }
@@ -194,7 +194,7 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
     }
     bodyLog << "number of available sources: " << nsrc << "\n";
 
-    boost::optional<FillinmodeEndposition> endposition = boost::none;
+    boost::optional<StationEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
 
 
@@ -249,7 +249,7 @@ void Scheduler::statistics(ofstream &log) {
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
-                               const boost::optional<FillinmodeEndposition> & endposition) noexcept {
+                               const boost::optional<StationEndposition> & endposition) noexcept {
     Subcon subcon = allVisibleScans(type, endposition);
     subcon.calcStartTimes(stations_, sources_, endposition);
     subcon.updateAzEl(stations_, sources_);
@@ -265,7 +265,7 @@ Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Sc
 }
 
 
-Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<FillinmodeEndposition> &endposition) noexcept {
+Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<StationEndposition> &endposition) noexcept {
     unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
@@ -1038,16 +1038,16 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     return newScheduleNecessary;
 }
 
-void Scheduler::changeStationAvailability(const boost::optional<FillinmodeEndposition> &endposition,
-                                          FillinmodeEndposition::change change) {
+void Scheduler::changeStationAvailability(const boost::optional<StationEndposition> &endposition,
+                                          StationEndposition::change change) {
     switch (change){
-        case FillinmodeEndposition::change::start:{
+        case StationEndposition::change::start:{
             for(int i=0; i<stations_.size(); ++i){
                 stations_[i].referencePARA().available = endposition->getStationPossible(i);
             }
             break;
         }
-        case FillinmodeEndposition::change::end:{
+        case StationEndposition::change::end:{
             for(int i=0; i<stations_.size(); ++i){
                 stations_[i].referencePARA().available = endposition->getStationAvailable(i);
             }
@@ -1084,7 +1084,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
 
         // loop through all upcoming scans and set endposition
-        boost::optional<FillinmodeEndposition> endposition(static_cast<int>(stations_.size()));
+        boost::optional<StationEndposition> endposition(static_cast<int>(stations_.size()));
         for(int j=i+1; j<nMainScans; ++j){
             const Scan &nextScan = scans_[j];
             bool nextRequired = true;
@@ -1131,7 +1131,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
     // recursively start scan selection
     boost::optional<Subcon> subcon = boost::none;
-    boost::optional<FillinmodeEndposition> endposition = boost::none;
+    boost::optional<StationEndposition> endposition = boost::none;
     startScanSelection(duration, bodyLog, type, endposition, subcon, 1);
 
     // sort scans at the end

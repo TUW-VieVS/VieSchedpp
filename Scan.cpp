@@ -12,7 +12,7 @@
  */
 
 #include "Scan.h"
-#include "FillinmodeEndposition.h"
+#include "StationEndposition.h"
 
 using namespace std;
 using namespace VieVS;
@@ -551,7 +551,7 @@ double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverage
 
 
 bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
-                          const boost::optional<FillinmodeEndposition> &endposition) noexcept {
+                          const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
 
     // FIRST STEP: calc earliest possible slew end times for each station:
@@ -789,7 +789,7 @@ bool Scan::rigorousScanVisibility(const std::vector<Station> &stations, const So
 }
 
 bool Scan::rigorousScanCanReachEndposition(const std::vector<Station> &stations, const Source &thisSource,
-                                           const boost::optional<FillinmodeEndposition> &endposition,
+                                           const boost::optional<StationEndposition> &endposition,
                                            bool &stationRemoved) {
     if(!endposition.is_initialized()){
         return true;

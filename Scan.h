@@ -28,7 +28,7 @@
 #include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "CalibratorBlock.h"
-#include "FillinmodeEndposition.h"
+#include "StationEndposition.h"
 #include "util.h"
 
 namespace VieVS{
@@ -412,7 +412,7 @@ namespace VieVS{
          * @return true if scan is still valid, false if scan is no longer valid
          */
         bool rigorousUpdate(const std::vector<Station> &stations, const Source &source,
-                            const boost::optional<FillinmodeEndposition> &endposition = boost::none) noexcept;
+                            const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
          * @brief adds observation to scan in tagalong mode
@@ -494,7 +494,7 @@ namespace VieVS{
         bool rigorousScanVisibility(const std::vector<Station> &stations, const Source &source, bool &stationRemoved) noexcept;
 
         bool rigorousScanCanReachEndposition(const std::vector<Station> &station, const Source &thisSource,
-                                                     const boost::optional<FillinmodeEndposition> &endposition,
+                                                     const boost::optional<StationEndposition> &endposition,
                                                      bool &stationRemoved);
 
         /**
