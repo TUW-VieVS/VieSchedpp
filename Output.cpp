@@ -18,63 +18,33 @@ Output::Output(Scheduler &sched, std::string path) : xml_{sched.xml_},
 }
 
 
-void Output::writeStatistics(bool general, bool station, bool source, bool baseline, bool duration, bool time, ofstream& statisticsLog) {
+void Output::writeSkdsum() {
 
-    string fname = xml_.get("master.output.experimentName","schedule");
+    string expName = xml_.get("master.output.experimentName","schedule");
+    string fileName = boost::to_lower_copy(expName);
     if (iSched_ == 0) {
-        fname.append("_skdsum.txt");
-        string txt = (boost::format("writing statistics to: %s;\n") % fname).str();
+        fileName.append("_skdsum.txt");
+        string txt = (boost::format("writing statistics to: %s;\n") % fileName).str();
         cout << txt;
 
     } else {
-        fname.append((boost::format("V%03d_skdsum.txt") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing statistics to: %s;\n") %iSched_ % fname).str();
+        fileName.append((boost::format("V%03d_skdsum.txt") % (iSched_)).str());
+        string txt = (boost::format("version %d: writing statistics to: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
-    ofstream out(path_+fname);
 
-    vector<int> statisticsVector{iSched_};
-
-    if (general) {
-        vector<int> v = displayGeneralStatistics(out);
-        statisticsVector.insert(statisticsVector.end(),v.begin(),v.end());
-    }
-
-    if (baseline) {
-        int v = displayBaselineStatistics(out);
-        statisticsVector.push_back(v);
-    }
-
-    if (station) {
-        vector<int> v = displayStationStatistics(out);
-        statisticsVector.insert(statisticsVector.end(),v.begin(),v.end());
-    }
-
-    if (source) {
-        int v = displaySourceStatistics(out);
-        statisticsVector.push_back(v);
-    }
-
-    if (duration) {
-        displayScanDurationStatistics(out);
-    }
-
-    if(time){
-        displayTimeStatistics(out);
-    }
+    ofstream out(path_+fileName);
+    displayGeneralStatistics(out);
+    displayBaselineStatistics(out);
+    displayStationStatistics(out);
+    displaySourceStatistics(out);
+    displayScanDurationStatistics(out);
+    displayTimeStatistics(out);
     out.close();
-
-    string oString = "";
-    for(int any:statisticsVector){
-        oString.append(std::to_string(any)).append(",");
-    }
-    oString.append("\n");
-
-    statisticsLog << oString;
 }
 
-std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
-    int n_scans = static_cast<int>(scans_.size());
+void  Output::displayGeneralStatistics(ofstream &out) {
+    auto n_scans = static_cast<int>(scans_.size());
     int n_standard = 0;
     int n_fillin = 0;
     int n_calibrator = 0;
@@ -106,7 +76,6 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
                 break;
             }
         }
-
     }
 
     out << "number of total scans:         " << n_scans << "\n";
@@ -119,10 +88,9 @@ std::vector<int>  Output::displayGeneralStatistics(ofstream &out) {
     out << "number of calibrator scans:    " << n_calibrator << "\n";
     out << "-----------------------------------\n\n";
 
-    return std::vector<int>{n_scans,n_single,n_subnetting,n_fillin,n_calibrator};
 }
 
-int Output::displayBaselineStatistics(ofstream &out) {
+void Output::displayBaselineStatistics(ofstream &out) {
     unsigned long nsta = stations_.size();
     int n_bl = 0;
     vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
@@ -188,10 +156,9 @@ int Output::displayBaselineStatistics(ofstream &out) {
     out << "-----------";
     out << "----------'\n\n";
 
-    return n_bl;
 }
 
-std::vector<int> Output::displayStationStatistics(ofstream &out) {
+void Output::displayStationStatistics(ofstream &out) {
     vector<int> nscan_sta(stations_.size());
     vector< vector<int> > time_sta(stations_.size());
     vector< int> nbl_sta(stations_.size(),0);
@@ -208,7 +175,6 @@ std::vector<int> Output::displayStationStatistics(ofstream &out) {
             ++nbl_sta[bl.getStaid1()];
             ++nbl_sta[bl.getStaid2()];
         }
-
     }
 
     out
@@ -234,17 +200,11 @@ std::vector<int> Output::displayStationStatistics(ofstream &out) {
         }
         out << boost::format("| %6d %4d |\n") % nscan_sta[i] % nbl_sta[i];
     }
-
     out
             << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
-
-    vector<int> returnVec {static_cast<int>(stations_.size())};
-    returnVec.insert(returnVec.end(),nscan_sta.begin(),nscan_sta.end());
-    returnVec.insert(returnVec.end(),nbl_sta.begin(),nbl_sta.end());
-    return returnVec;
 }
 
-int Output::displaySourceStatistics(ofstream &out) {
+void Output::displaySourceStatistics(ofstream &out) {
     out << "number of available sources:   " << sources_.size() << "\n";
     vector<unsigned int> nscan_src(sources_.size(),0);
     vector<unsigned int> nbl_src(sources_.size(),0);
@@ -286,7 +246,6 @@ int Output::displaySourceStatistics(ofstream &out) {
     }
     out
             << "'------------------------------------------------------------------------------------------------------------------------'\n\n";
-    return number;
 }
 
 void Output::displayScanDurationStatistics(ofstream &out) {
@@ -391,7 +350,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
 void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
-    int nstaTotal = static_cast<int>(stations_.size());
+    auto nstaTotal = static_cast<int>(stations_.size());
     vector<int> scanTime(nstaTotal,0);
     vector<int> calibrationTime(nstaTotal,0);
 //    vector<int> slewTime(nstaTotal,0);
@@ -452,12 +411,6 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(totalTime[i]-calibrationTime[i]-scanTime[i]-fieldSystemTime[i])/static_cast<double>(totalTime[i])*100);
     }
     ofstream << "|\n";
-
-//    ofstream << "| % idle time:  |";
-//    for (int i = 0; i < nstaTotal; ++i) {
-//        ofstream << boost::format(" %8.1f ") % (static_cast<double>(idleTime[i])/static_cast<double>(totalTime[i])*100);
-//    }
-//    ofstream << "|\n";
 
     ofstream << "| % field system:   |";
     for (int i = 0; i < nstaTotal; ++i) {
@@ -585,7 +538,7 @@ void Output::writeStatisticsPerSourceGroup() {
     unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
 
     string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = expName;
+    string fileName = boost::to_lower_copy(expName);
     if (iSched_ == 0) {
         fileName.append("_sourceStatistics.txt");
         string txt = (boost::format("writing source statistics file: %s;\n") % fileName).str();
@@ -973,8 +926,10 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
 
 void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalogReader &skdCatalogReader) {
 
+    writeStatistics(statisticsLog);
+
     if(xml_.get<bool>("master.output.createSummary",false)){
-        writeStatistics(true, true, true, true, true, true, statisticsLog);
+        writeSkdsum();
     }
     if(xml_.get<bool>("master.output.createNGS",false)) {
         writeNGS();
@@ -996,7 +951,7 @@ void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalog
 
 void Output::writeOperationsNotes() {
     string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = expName;
+    string fileName = boost::to_lower_copy(expName);
     if (iSched_ == 0) {
         fileName.append("_operationsNotes.txt");
         string txt = (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
@@ -1039,7 +994,7 @@ void Output::writeOperationsNotes() {
     of << "    scheduler name        : " << xml_.get("master.created.name","unknown") << "\n";
     of << "    scheduler email       : " << xml_.get("master.created.email","unknown") << "\n\n";
 
-    of << "    target correlator     : " << xml_.get("output.correlator","unknown") << "\n\n";
+    of << "    target correlator     : " << xml_.get("master.output.correlator","unknown") << "\n\n";
 
     std::string notes = xml_.get("master.output.notes","");
     if(!notes.empty()){
@@ -1079,5 +1034,85 @@ void Output::writeOperationsNotes() {
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
 //    boost::property_tree::xml_parser::write_xml(of, xml_, boost::property_tree::xml_writer_make_settings<string>('\t', 1));
     of << "==================\n";
+}
+
+void Output::writeStatistics(std::ofstream &statisticsLog) {
+    string oString;
+
+    auto n_scans = static_cast<int>(scans_.size());
+    int n_standard = 0;
+    int n_fillin = 0;
+    int n_calibrator = 0;
+    int n_single = 0;
+    int n_subnetting = 0;
+    int n_bl = 0;
+    vector<unsigned int> nscan_sta(stations_.size(),0);
+    vector<unsigned int> nbl_sta(stations_.size(),0);
+    vector<unsigned int> nscan_src(sources_.size(),0);
+
+    for (const auto&any:scans_){
+        switch (any.getType()){
+            case Scan::ScanType::fillin:{
+                ++n_fillin;
+                break;
+            }
+            case Scan::ScanType::calibrator:{
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::standard:{
+                ++n_standard;
+                break;
+            }
+            case Scan::ScanType::highImpact:{
+                ++n_standard;
+                break;
+            }
+        }
+        switch (any.getScanConstellation()){
+            case Scan::ScanConstellation::single:{
+                ++n_single;
+                break;
+            }
+            case Scan::ScanConstellation::subnetting:{
+                ++n_subnetting;
+                break;
+            }
+        }
+        n_bl += any.getNBl();
+        for (int ista = 0; ista < any.getNSta(); ++ista) {
+            const PointingVector& pv =  any.getPointingVector(ista);
+            int id = pv.getStaid();
+            ++nscan_sta[id];
+        }
+        for (int ibl = 0; ibl < any.getNBl(); ++ibl){
+            const Baseline &bl = any.getBaseline(ibl);
+            ++nbl_sta[bl.getStaid1()];
+            ++nbl_sta[bl.getStaid2()];
+        }
+        int id = any.getSourceId();
+        ++nscan_src[id];
+    }
+    int n_src = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
+
+
+    oString.append(std::to_string(iSched_)).append(",");
+    oString.append(std::to_string(n_scans)).append(",");
+    oString.append(std::to_string(n_single)).append(",");
+    oString.append(std::to_string(n_subnetting)).append(",");
+    oString.append(std::to_string(n_fillin)).append(",");
+    oString.append(std::to_string(n_calibrator)).append(",");
+    oString.append(std::to_string(n_bl)).append(",");
+    oString.append(std::to_string(stations_.size())).append(",");
+    for (int i = 0; i < stations_.size(); ++i) {
+        oString.append(std::to_string(nscan_sta[i])).append(",");
+    }
+    for (int i = 0; i < stations_.size(); ++i) {
+        oString.append(std::to_string(nbl_sta[i])).append(",");
+    }
+    oString.append(std::to_string(n_src)).append(",\n");
+
+    statisticsLog << oString;
+
 }
 

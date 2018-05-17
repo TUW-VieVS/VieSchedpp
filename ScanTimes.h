@@ -12,6 +12,8 @@
 
 #include <vector>
 #include <limits>
+
+#include "util.h"
 #include "PointingVector.h"
 #include "VieVS_Object.h"
 
@@ -28,6 +30,11 @@ namespace VieVS {
      */
     class ScanTimes: public VieVS_Object {
     public:
+        enum class AlignmentAnchor{
+            start,
+            end,
+            individual
+        };
 
         /**
          * @brief constructor
@@ -128,7 +135,7 @@ namespace VieVS {
          *
          * Idle times are introduced
          */
-        void alignStartTimes() noexcept;
+        void alignStartTimes(AlignmentAnchor anchor = AlignmentAnchor::start) noexcept;
 
         void setStartTime(unsigned int scanStart) noexcept ;
 

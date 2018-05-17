@@ -306,8 +306,12 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         of << "    scan " << scanId << eol;
         of << "        start = " << TimeSystem::ptime2string_doy_units(scanStart) << eol;
-        of << "        mode = GEOSX.SX" << eol;
+        of << "        mode = " << skdCatalogReader.getFreqName() << eol;
         of << "        source = " << sources.at(static_cast<unsigned long>(srcid)).getName() << eol;
+
+        const auto &times = scan.getTimes();
+        unsigned int start = times.getObservingStart();
+
         for(int j = 0; j<nsta; ++j){
             const PointingVector &pv = scan.getPointingVector(j);
             int staid = pv.getStaid();
@@ -323,8 +327,10 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             }else if (cwskd == "W"){
                 cwvex = "&ccw";
             }
-            int duration = scan.getTimes().getObservingTime(j);
-            of << boost::format("        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n") % thisTlc % 0 % duration % cwvex;
+
+            int dataGood = times.getObservingStart(j);
+            int dataObs = times.getObservingEnd(j);
+            of << boost::format("        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n") % thisTlc % (dataGood-start) % (dataObs-start) % cwvex;
         }
         of << "    endscan;\n";
     }

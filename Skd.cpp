@@ -36,7 +36,7 @@ void Skd::writeSkd(const std::vector<Station>& stations,
         notes.append(*xml.get_optional<std::string>("master.output.notes")).append("\n");
         notes = boost::replace_all_copy(notes,"\\n","\n*");
         of << "* notes: \n";
-        of << notes << "\n";
+        of << notes << "*\n*";
     }
 
     skd_PARAM(stations,xml,skdCatalogReader);
@@ -66,13 +66,13 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << "* WARNING: some of the following parameters are not compatible with VieVS Scheduling Software!\n";
     of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription") << endl;
-    of << "SCHEDULING_SOFTWARE NEW_VIE_SCHED\n";
-    of << "SOFTWARE_VERSION x.x.x\n";
+    of << "SCHEDULING_SOFTWARE VieSched++\n";
+    of << "SOFTWARE_VERSION 0.8\n";
     auto ctstr = xml.get<string>("master.created.time");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);
-    of << "SCHEDULER " << xml.get<string>("master.output.scheduler") << " ";
-    of << "CORRELATOR " << xml.get<string>("master.output.correlator") << " ";
+    of << "SCHEDULER " << xml.get("master.output.scheduler","----") << " ";
+    of << "CORRELATOR " << xml.get("master.output.correlator","----") << " ";
     auto st = TimeSystem::startTime;
     of << boost::format("START %s ") %TimeSystem::ptime2string_doy(st);
     auto et = TimeSystem::endTime;

@@ -32,7 +32,7 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
     baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
-Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl):
+Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Baseline> bl):
         VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
         score_{0}, times_{move(times)}, baselines_{move(bl)}, constellation_{ScanConstellation::subnetting},
         type_{ScanType::standard}{
@@ -41,15 +41,19 @@ Scan::Scan(vector<PointingVector> &pv, ScanTimes &times, vector<Baseline> &bl):
 bool Scan::constructBaselines(const Source &source) noexcept {
     baselines_.clear();
     bool valid = false;
+
+    // loop over all pointingVectors
     for (int i=0; i<pointingVectors_.size(); ++i){
         for (int j=i+1; j<pointingVectors_.size(); ++j){
 
             int staid1 = pointingVectors_[i].getStaid();
             int staid2 = pointingVectors_[j].getStaid();
 
+            // check if Baseline is ignored
             if(Baseline::PARA.ignore[staid1][staid2]){
                 continue;
             }
+            // check if this source has to ignore this baseline
             if (!source.getPARA().ignoreBaselines.empty()) {
                 const auto &PARA = source.getPARA();
                 if (staid1 > staid2) {
@@ -62,6 +66,7 @@ bool Scan::constructBaselines(const Source &source) noexcept {
 
             }
 
+            // add new baseline
             unsigned int startTime1 = times_.getObservingStart(i);
             unsigned int startTime2 = times_.getObservingStart(j);
             if (startTime1> startTime2){
@@ -83,11 +88,14 @@ void Scan::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsign
 }
 
 bool Scan::removeStation(int idx, const Source &source) noexcept {
+
     --nsta_;
+    // check if you have still enough stations
     if (nsta_ < source.getPARA().minNumberOfStations) {
         return false;
     }
 
+    // check if you want to remove a required station
     int staid = pointingVectors_[idx].getStaid();
     if (!source.getPARA().requiredStations.empty()) {
         const vector<int> &rsta = source.getPARA().requiredStations;
@@ -96,14 +104,16 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
         }
     }
 
+    // remove element from time
     times_.removeElement(idx);
 
+    // erase the pointing vector
     pointingVectors_.erase(next(pointingVectors_.begin(),idx));
     if (!pointingVectorsEndtime_.empty()) {
         pointingVectorsEndtime_.erase(next(pointingVectorsEndtime_.begin(),idx));
     }
 
-
+    // remove all observations with this station
     unsigned long nbl_before = baselines_.size();
     int i=0;
     while (i<baselines_.size()){
@@ -113,11 +123,13 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
             ++i;
         }
     }
+    // check if there are any observations left
     return !(nbl_before != 0 && baselines_.empty());
 }
 
 bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
 
+    // remove observation
     int staid1 = baselines_[idx_bl].getStaid1();
     int staid2 = baselines_[idx_bl].getStaid2();
     baselines_.erase(next(baselines_.begin(),idx_bl));
@@ -141,6 +153,7 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
         }
     }
 
+    // remove station if necessary
     if(counterStaid1==0){
         boost::optional<int> idx_pv = findIdxOfStationId(staid1);
         scanValid = removeStation(*idx_pv, source);
@@ -155,21 +168,25 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
 
 bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &source) noexcept {
 
+
     bool scan_valid = true;
     bool idleTimeValid;
     unsigned int latestSlewTime;
+    // check if idle time is in valid range
     do {
         idleTimeValid = true;
 
-        vector<unsigned int> eosl = times_.getEndOfSlewTime();
+        // get end of slew times
+        const vector<unsigned int> &eosl = times_.getEndOfSlewTime();
         auto it= max_element(eosl.begin(), eosl.end());
         latestSlewTime = *it;
         long idx = distance(eosl.begin(), it);
 
-        vector<unsigned int > dt(nsta_);
+        // check idle time for each station
         for (int i = 0; i < nsta_; ++i) {
-            dt[i] = latestSlewTime-eosl[i];
-            if (dt[i]>maxIdle[i]){
+            unsigned int dt = latestSlewTime-eosl[i];
+            // if idle time is too long remove station which has latest slew arrival and restart
+            if (dt>maxIdle[i]){
                 scan_valid = removeStation(idx, source);
                 if (scan_valid){
                     maxIdle.erase(next(maxIdle.begin(),idx));
@@ -183,8 +200,9 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
 
     }while(!idleTimeValid && !scan_valid);
 
+    // align start times at the end
     if(scan_valid){
-        times_.alignStartTimes();
+        times_.alignStartTimes(ScanTimes::AlignmentAnchor::start);
     }
 
     return scan_valid;
@@ -220,7 +238,7 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
     }
 
 
-    // loop through all baselines
+    // loop over all observed baselines
     int ibl = 0;
     while (ibl < baselines_.size()) {
         Baseline& thisBaseline = baselines_[ibl];
@@ -686,7 +704,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
         nsta_beginning = nsta_;
 
         // align start times
-        times_.alignStartTimes();
+        times_.alignStartTimes(ScanTimes::AlignmentAnchor::start);
         scanValid = constructBaselines(source);
         if (!scanValid) {
             return scanValid;
@@ -1076,7 +1094,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     switch (type_){
         case ScanType::highImpact: type = "high impact"; break;
         case ScanType::standard: type = "target"; break;
-        case ScanType::fillin: type = "fillin"; break;
+        case ScanType::fillin: type = "fillin mode"; break;
         case ScanType::calibrator: type = "calibrator"; break;
     }
 
@@ -1094,11 +1112,7 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
     for(int i=0; i<nsta_; ++i){
         const auto &pv = pointingVectors_[i];
         const auto &thisSta = stations[pv.getStaid()];
-        double az = pv.getAz()*rad2deg;
-        while(az<=0){
-            az+=360;
-        }
-        az = fmod(az,360);
+        double az = util::wrapToPi(pv.getAz())*rad2deg;
 
         of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %3d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
               % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
@@ -1117,6 +1131,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &
     vector<Baseline> bl;
 
     int counter = 0;
+    // add all found pointing vectors to new pointing vector vector
     for (auto &any:pointingVectors_) {
         int id = any.getStaid();
         if (find(ids.begin(), ids.end(), id) != ids.end()) {
@@ -1124,10 +1139,12 @@ boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &
         }
         ++counter;
     }
+    // check if there are enough pointing vectors
     if (pv.size() < source.getPARA().minNumberOfStations) {
         return boost::none;
     }
 
+    // check if there are some required stations for this source
     if (!source.getPARA().requiredStations.empty()) {
         const vector<int> &rsta = source.getPARA().requiredStations;
         for (auto &thisRequiredStationId:rsta) {
@@ -1137,14 +1154,15 @@ boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &
         }
     }
 
-
-    for (int i = (int) nsta_ - 1; i >= 0; --i) {
+    // remove times of pointingVectors_(original scan) which are not found (not part of pv)
+    for (auto i = static_cast<int>(nsta_ - 1); i >= 0; --i) {
         int thisId = pointingVectors_[i].getStaid();
         if (find(ids.begin(), ids.end(), thisId) == ids.end()) {
             t.removeElement(i);
         }
     }
 
+    // move all observations whose stations were found to bl
     for (const auto &baseline : baselines_) {
         const Baseline &thisBl = baseline;
         int staid1 = thisBl.getStaid1();
@@ -1159,7 +1177,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &
         return boost::none;
     }
 
-    return Scan(pv, t, bl);
+    return Scan(move(pv), move(t), move(bl));
 }
 
 
@@ -1298,13 +1316,4 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEndtime_ = std::move(pv_end);
 }
-
-
-
-
-
-
-
-
-
 

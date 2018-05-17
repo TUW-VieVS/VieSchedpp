@@ -116,7 +116,7 @@ namespace VieVS{
          * @param bl all baselines
          * @param minNumSta minimum number of stations for this scan
          */
-        Scan(std::vector<PointingVector> &pv, ScanTimes &times, std::vector<Baseline> &bl);
+        Scan(std::vector<PointingVector> pv, ScanTimes times, std::vector<Baseline> bl);
 
         /**
          * @brief sets the scan type

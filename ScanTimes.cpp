@@ -25,21 +25,6 @@ ScanTimes::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsign
 
 void ScanTimes::removeElement(int idx) noexcept {
 
-//    if(idx >= endOfLastScan_.size()){
-//        bool flag = false;
-//    }
-//
-//    unsigned long e = endOfLastScan_.size();
-//
-//    if(!(e == endOfLastScan_.size() &
-//            e == endOfFieldSystemTime_.size() &
-//            e == endOfSlewTime_.size() &
-//            e == endOfIdleTime_.size() &
-//            e == endOfPreobTime_.size() &
-//            e == endOfObservingTime_.size())){
-//        bool flag = false;
-//    }
-
     endOfLastScan_.erase(next(endOfLastScan_.begin(),idx));
     endOfFieldSystemTime_.erase(next(endOfFieldSystemTime_.begin(),idx));
     endOfSlewTime_.erase(next(endOfSlewTime_.begin(),idx));
@@ -47,41 +32,105 @@ void ScanTimes::removeElement(int idx) noexcept {
     endOfPreobTime_.erase(next(endOfPreobTime_.begin(),idx));
     endOfObservingTime_.erase(next(endOfObservingTime_.begin(),idx));
 
-    alignStartTimes();
+    alignStartTimes(ScanTimes::AlignmentAnchor::start);
 }
 
 void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
-    unsigned int currentSlewtime = endOfSlewTime_[idx] - endOfFieldSystemTime_[idx];
+    unsigned int currentSlewtime = getSlewTime(idx);
     if (currentSlewtime != new_slewtime) {
-        unsigned int preobTime = endOfPreobTime_[idx] - endOfIdleTime_[idx];
-        unsigned int scanTime = endOfObservingTime_[idx] - endOfPreobTime_[idx];
+        unsigned int preobTime = getPreobTime(idx);
+        unsigned int observingTime = getObservingTime(idx);
 
         int delta = new_slewtime - currentSlewtime;
         endOfSlewTime_[idx] = endOfSlewTime_[idx] + delta;
         endOfIdleTime_[idx] = endOfSlewTime_[idx] - delta;
         endOfPreobTime_[idx] = endOfIdleTime_[idx] + preobTime;
-        endOfObservingTime_[idx] = endOfPreobTime_[idx] + scanTime;
+        endOfObservingTime_[idx] = endOfPreobTime_[idx] + observingTime;
     }
 
 }
 
-void ScanTimes::alignStartTimes() noexcept {
+void ScanTimes::alignStartTimes(AlignmentAnchor anchor) noexcept {
     auto nsta = static_cast<int>(endOfSlewTime_.size());
 
-    unsigned int latestSlewTime = 0;
-    for (int i = 0; i < nsta; ++i) {
-        if(endOfSlewTime_[i]>latestSlewTime){
-            latestSlewTime = endOfSlewTime_[i];
+    switch(anchor){
+        case AlignmentAnchor::start:{
+            unsigned int latestSlewTime = *max_element(endOfSlewTime_.begin(),endOfSlewTime_.end());
+
+            for (int i = 0; i < nsta; ++i) {
+                unsigned int preob = getPreobTime(i);
+                unsigned int obs = getObservingTime(i);
+                endOfIdleTime_[i] = latestSlewTime;
+                endOfPreobTime_[i] = endOfIdleTime_[i] + preob;
+                endOfObservingTime_[i] = endOfPreobTime_[i] + obs;
+            }
+            break;
         }
-    }
+        case AlignmentAnchor::end:{
+            unsigned int latestObservingEnd = *max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
 
-    for (int i = 0; i < nsta; ++i) {
-        unsigned int preobTime = endOfPreobTime_[i]-endOfIdleTime_[i];
-        unsigned int scanTime = endOfObservingTime_[i]-endOfPreobTime_[i];
+            for (int i = 0; i < nsta; ++i) {
+                unsigned int preob = getPreobTime(i);
+                unsigned int obs = getObservingTime(i);
+                endOfObservingTime_[i] = latestObservingEnd;
+                endOfPreobTime_[i] = latestObservingEnd - obs;
+                endOfIdleTime_[i] = endOfPreobTime_[i] - preob;
+            }
+            break;
 
-        endOfIdleTime_[i] = latestSlewTime;
-        endOfPreobTime_[i] = endOfIdleTime_[i] + preobTime;
-        endOfObservingTime_[i] = endOfPreobTime_[i] + scanTime;
+        }
+        case AlignmentAnchor::individual:{
+            vector<int> idxs = util::sortIndexes(endOfSlewTime_);
+            unsigned int maxSlewEnd = *max_element(endOfSlewTime_.begin(),endOfSlewTime_.end());
+            auto it = max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
+            unsigned int maxObsEnd  = *it;
+            unsigned int minObsStart = getObservingStart(distance(endOfObservingTime_.begin(),it));
+
+
+            for(int i=0; i < nsta; ++i){
+                int idx = idxs[i];
+                unsigned int obs = getObservingTime(i);
+
+                unsigned int thisObsTime = getObservingTime(idx);
+                unsigned int thisPreobTime = getPreobTime(idx);
+                if(endOfObservingTime_[idx]-minObsStart<=thisObsTime){
+                    // anchor: end of observation is end of max observation time of all antennas
+                    minObsStart = maxObsEnd-thisObsTime;
+                    endOfIdleTime_[i] = minObsStart;
+                    endOfPreobTime_[i] = minObsStart+thisPreobTime;
+                    endOfObservingTime_[i] = maxObsEnd;
+
+                }else{
+                    unsigned int thisObsStart = endOfSlewTime_[idx];
+                    if(thisObsStart<maxSlewEnd){
+                        if(maxSlewEnd+thisObsTime>maxObsEnd){
+                            // anchor: end of observation is end of max observation of all stations... maybe this is never true!
+                            endOfIdleTime_[i] = maxObsEnd-thisObsTime;
+                            endOfPreobTime_[i] = maxObsEnd-thisObsTime+thisPreobTime;
+                            endOfObservingTime_[i] = maxObsEnd;
+
+                        }else{
+                            // anchor: start of observing time is maximum slew time of all antennas
+                            endOfIdleTime_[i] = maxSlewEnd;
+                            endOfPreobTime_[i] = maxSlewEnd+thisPreobTime;
+                            endOfObservingTime_[i] = maxSlewEnd+thisObsTime;
+                        }
+                    }else{
+                        // leave everything as it is (observation time is already correct)
+
+//                        endOfIdleTime_[i] = getSlewEnd(idx);
+//                        endOfPreobTime_[i] = getSlewEnd(idx)+thisPreobTime;
+//                        endOfObservingTime_[i] = getObservingEnd(idx);
+                    }
+
+                }
+
+            }
+
+
+
+            break;
+        }
     }
 }
 

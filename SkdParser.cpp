@@ -288,7 +288,7 @@ void SkdParser::createScans() {
                 }
             }
 
-            scan.setPointingVectorsEndtime(pv_end);
+            scan.setPointingVectorsEndtime(move(pv_end));
 
             scans_.push_back(scan);
             ++counter;

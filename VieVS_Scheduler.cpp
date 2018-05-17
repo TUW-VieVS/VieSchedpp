@@ -30,7 +30,6 @@ void VieVS_Scheduler::run() {
     // open headerlog and statistics file
     ofstream headerLog(path+"log_initializer.txt");
     ofstream statisticsLog(path+"statistics.csv");
-    init.statisticsLogHeader(statisticsLog);
 
     // start initialization
     VieVS::SkdCatalogReader skdCatalogReader = init.createSkdCatalogReader();
@@ -41,6 +40,7 @@ void VieVS_Scheduler::run() {
 
     init.createStations(skdCatalogReader, headerLog);
     init.createSkyCoverages(headerLog);
+    init.statisticsLogHeader(statisticsLog);
 
     init.createSources(skdCatalogReader, headerLog);
     init.precalcSubnettingSrcIds();

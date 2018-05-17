@@ -34,7 +34,6 @@ namespace VieVS{
             baseline, ///< baseline wise group
         };
 
-
         /**
          * @brief empty default constructor
          */
@@ -69,7 +68,9 @@ namespace VieVS{
          * @param time write time block
          * @param statisticsLog output log file
          */
-        void writeStatistics(bool general, bool station, bool source, bool baseline, bool duration, bool time, std::ofstream& statisticsLog);
+        void writeSkdsum();
+
+        void writeStatistics(std::ofstream &statisticsLog);
 
         /**
          * @brief create a ngs file
@@ -107,7 +108,7 @@ namespace VieVS{
          * @param out outsteam file object
          * @return vector of statistical values
          */
-        std::vector<int> displayGeneralStatistics(std::ofstream &out);
+        void displayGeneralStatistics(std::ofstream &out);
 
         /**
          * @brief displays some baseline dependent statistics of the schedule
@@ -115,7 +116,7 @@ namespace VieVS{
          * @param out outsteam file object
          * @param number of baselines
          */
-        int displayBaselineStatistics(std::ofstream &out);
+        void displayBaselineStatistics(std::ofstream &out);
 
         /**
          * @brief displays some station dependent statistics of the schedule
@@ -123,7 +124,7 @@ namespace VieVS{
          * @param out outsteam file object
          * @return vector of statistical values
          */
-        std::vector<int> displayStationStatistics(std::ofstream &out);
+        void displayStationStatistics(std::ofstream &out);
 
         /**
          * @brief displays some source dependent statistics of the schedule
@@ -131,7 +132,7 @@ namespace VieVS{
          * @param out outsteam file object
          * @param number of scheduled sources
          */
-        int displaySourceStatistics(std::ofstream &out);
+        void displaySourceStatistics(std::ofstream &out);
 
         /**
          * @brief displays some source dependent statistics of the schedule
