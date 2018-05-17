@@ -621,6 +621,9 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
             // calculate az, el for pointing vector for previouse time
             pv.setTime(oldSlewEnd);
             thisStation.calcAzEl(source,pv);
+            if(!thisStation.isVisible(pv,source.getPARA().minElevation)){
+                return false;
+            }
             thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), pv);
 
             // if you have a "big slew" unwrap the azimuth near the old azimuth

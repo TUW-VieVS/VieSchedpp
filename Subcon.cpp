@@ -988,17 +988,17 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
         const Station &thisSta = stations[ista];
 
         if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
-            return;
+            continue;
         }
 
         if (thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans){
-            return;
+            continue;
         }
 
         if (!thisSta.getPARA().ignoreSources.empty()) {
             auto &PARA = thisSta.getPARA();
             if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), isrc) != PARA.ignoreSources.end()) {
-                return;
+                continue;
             }
         }
 
@@ -1006,7 +1006,7 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
             const auto &PARA = thisSource.getPARA();
             if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), ista) !=
                 PARA.ignoreStations.end()) {
-                return;
+                continue;
             }
         }
 
