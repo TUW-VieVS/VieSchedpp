@@ -43,6 +43,7 @@
 #include "addbanddialog.h"
 #include "savetosettingsdialog.h"
 #include "VLBI_Scheduler/VieVS_Scheduler.h"
+#include "textfileviewer.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -445,6 +446,24 @@ private slots:
     void on_pushButton_30_clicked();
 
     void on_experimentNameLineEdit_textChanged(const QString &arg1);
+
+    void on_pushButton_41_clicked();
+
+    void on_pushButton_40_clicked();
+
+    void on_pushButton_addHighImpactAzEl_clicked();
+
+    void on_pushButton_removeHighImpactAzEl_clicked();
+
+    void on_actionFix_High_Impact_Scans_triggered();
+
+    void on_pushButton_readLogFile_read_clicked();
+
+    void on_pushButton_readSkdFile_read_clicked();
+
+    void on_actionLog_parser_triggered();
+
+    void on_actionSkd_Parser_triggered();
 
 private:
     Ui::MainWindow *ui;

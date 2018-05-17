@@ -911,7 +911,7 @@ void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
                           const string &contactEmail, const string &notes, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
-                          bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
+                          bool operNotes, const string &operationNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     if(experimentName.empty()){
         output.add("output.experimentName", "dummy");
@@ -947,6 +947,9 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     }
     if(!notes.empty()){
         output.add("output.notes",notes);
+    }
+    if(!operationNotes.empty()){
+        output.add("output.operationNotes",operationNotes);
     }
 
     output.add("output.createSummary", createSummary);
@@ -1053,6 +1056,29 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
 
 
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+
+}
+
+void ParameterSettings::highImpactAzEl(const std::vector<string> &members, const std::vector<double> &azs,
+                                       const std::vector<double> &els, const std::vector<double> &margins,
+                                       int interval, int repeat)
+{
+    boost::property_tree::ptree hi;
+    hi.add("highImpact.interval",interval);
+    hi.add("highImpact.repeat",repeat);
+
+    for (int i = 0; i < members.size(); ++i) {
+        boost::property_tree::ptree azEl;
+
+        azEl.add("targetAzEl.member",members[i]);
+        azEl.add("targetAzEl.az",azs[i]);
+        azEl.add("targetAzEl.el",els[i]);
+        azEl.add("targetAzEl.margin",margins[i]);
+
+        hi.add_child("highImpact.targetAzEl", azEl.get_child("targetAzEl"));
+    }
+
+    master_.add_child("master.highImpact", hi.get_child("highImpact"));
 
 }
 

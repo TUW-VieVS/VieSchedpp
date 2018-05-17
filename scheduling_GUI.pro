@@ -29,6 +29,7 @@ INCLUDEPATH += C:/boost/
 LIBS += "-LC:/boost/stage/lib/" \
          /home/mschartn/programming/scheduling_GUI/VLBI_Scheduler/libsofa_c.a
 
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
@@ -77,7 +78,8 @@ SOURCES += \
     VLBI_Scheduler/TimeSystem.cpp \
     VLBI_Scheduler/Vex.cpp \
     VLBI_Scheduler/WeightFactors.cpp \
-    VLBI_Scheduler/VieVS_Scheduler.cpp
+    VLBI_Scheduler/VieVS_Scheduler.cpp \
+    textfileviewer.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -129,7 +131,8 @@ HEADERS += \
     VLBI_Scheduler/TimeSystem.h \
     VLBI_Scheduler/Vex.h \
     VLBI_Scheduler/WeightFactors.h \
-    VLBI_Scheduler/VieVS_Scheduler.h
+    VLBI_Scheduler/VieVS_Scheduler.h \
+    textfileviewer.h
 
 FORMS += \
         mainwindow.ui \
@@ -142,7 +145,8 @@ FORMS += \
     baselineparametersdialog.ui \
     settingsloadwindow.ui \
     addbanddialog.ui \
-    savetosettingsdialog.ui
+    savetosettingsdialog.ui \
+    textfileviewer.ui
 
 RESOURCES += \
     myresources.qrc

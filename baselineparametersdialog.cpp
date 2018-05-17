@@ -64,17 +64,17 @@ void baselineParametersDialog::changeParameters(VieVS::ParameterSettings::Parame
 
     ui->groupBox_scanTime->setChecked(false);
     if(sp.maxScan.is_initialized()){
-        ui->spinBox_minScan->setValue(*sp.maxScan);
+        ui->spinBox_maxScan->setValue(*sp.maxScan);
         ui->groupBox_scanTime->setChecked(true);
     }else{
-        ui->spinBox_minScan->setValue(*dp.maxScan);
+        ui->spinBox_maxScan->setValue(*dp.maxScan);
     }
 
     if(sp.minScan.is_initialized()){
-        ui->spinBox_maxScan->setValue(*sp.minScan);
+        ui->spinBox_minScan->setValue(*sp.minScan);
         ui->groupBox_scanTime->setChecked(true);
     }else{
-        ui->spinBox_maxScan->setValue(*dp.minScan);
+        ui->spinBox_minScan->setValue(*dp.minScan);
     }
 
     QVector<QString> bands;

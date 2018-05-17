@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setOrganizationDomain("http://hg.geo.tuwien.ac.at/");
 
-    this->setWindowTitle("VieVS Scheduler");
+    this->setWindowTitle("VieSched++");
 
     mainPath = QCoreApplication::applicationFilePath();
     QStringList mainPathSplit = mainPath.split("/");
@@ -189,6 +189,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->splitter->setStretchFactor(1,3);
     ui->splitter_5->setStretchFactor(1,3);
+    ui->splitter_4->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_6->setSizes(QList<int>({INT_MAX, INT_MAX}));
 
     ui->spinBox_fontSize->setValue(QApplication::font().pointSize());
     ui->iconSizeSpinBox->setValue(ui->fileToolBar->iconSize().width());
@@ -219,11 +221,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBox_conditions_members->setModel(allSourcePlusGroupModel);
     connect(ui->pushButton_addSourceGroup_conditions,SIGNAL(clicked(bool)), this, SLOT(addGroupSource()));
 
+    ui->comboBox_highImpactStation->setModel(allStationPlusGroupModel);
+    connect(ui->pushButton_addGroupStationHighImpactAzEl,SIGNAL(clicked(bool)), this, SLOT(addGroupStation()));
+
     connect(ui->lineEdit_ivsMaster,SIGNAL(returnPressed()),this,SLOT(on_pushButton_clicked()));
     connect(ui->horizontalSlider_markerSizeWorldmap,SIGNAL(valueChanged(int)),this,SLOT(markerWorldmap()));
     connect(ui->horizontalSlider_markerSkymap,SIGNAL(valueChanged(int)),this,SLOT(markerSkymap()));
 
     initializeInspector();
+
+    const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    ui->plainTextEdit_notes->setFont(fixedFont);
 }
 
 MainWindow::~MainWindow()
@@ -823,14 +831,29 @@ void MainWindow::on_actionConditions_triggered()
     ui->main_stacked->setCurrentIndex(15);
 }
 
-void MainWindow::on_actionsummary_triggered()
+void MainWindow::on_actionFix_High_Impact_Scans_triggered()
 {
     ui->main_stacked->setCurrentIndex(16);
 }
 
-void MainWindow::on_actionFAQ_triggered()
+void MainWindow::on_actionsummary_triggered()
 {
     ui->main_stacked->setCurrentIndex(17);
+}
+
+void MainWindow::on_actionSkd_Parser_triggered()
+{
+    ui->main_stacked->setCurrentIndex(18);
+}
+
+void MainWindow::on_actionLog_parser_triggered()
+{
+    ui->main_stacked->setCurrentIndex(19);
+}
+
+void MainWindow::on_actionFAQ_triggered()
+{
+    ui->main_stacked->setCurrentIndex(20);
 }
 
 void MainWindow::on_actionWhat_is_this_triggered()
@@ -1596,17 +1619,30 @@ void MainWindow::defaultParameters()
         ui->comboBox_skedObsModes->setCurrentText(QString::fromStdString(*skdMode));
     }
 
-    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
-    if(subnetting.is_initialized()){
-        ui->checkBox_subnetting->setChecked(*subnetting);
-    }
-    boost::optional<bool> fillinmode = settings.get_optional<bool>("settings.general.fillinmode");
-    if(fillinmode.is_initialized()){
-        ui->checkBox_fillinMode->setChecked(*fillinmode);
+    boost::optional<bool> fillin = settings.get_optional<bool>("settings.general.fillinmode");
+    if(fillin.is_initialized()){
+        ui->groupBox_fillin_mode->setChecked(*fillin);
     }
     boost::optional<bool> fillinmodeInfluenceOnSchedule = settings.get_optional<bool>("settings.general.fillinmodeInfluenceOnSchedule");
     if(fillinmodeInfluenceOnSchedule.is_initialized()){
         ui->checkBox_fillinModeInfluence->setChecked(*fillinmodeInfluenceOnSchedule);
+    }
+    boost::optional<bool> fillinmodeAPosteriori = settings.get_optional<bool>("settings.general.fillinmodeAPosteriori");
+    if(fillinmodeAPosteriori.is_initialized()){
+        ui->radioButton_fillinmode_aposteriori->setChecked(*fillinmodeAPosteriori);
+    }
+
+    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
+    if(subnetting.is_initialized()){
+        ui->groupBox_subnetting->setChecked(*subnetting);
+    }
+    boost::optional<double> subnettingMinAngle = settings.get_optional<double>("settings.general.subnettingMinAngle");
+    if(subnettingMinAngle.is_initialized()){
+        ui->doubleSpinBox_subnettingDistance->setValue(*subnettingMinAngle);
+    }
+    boost::optional<double> subnettingMinNSta = settings.get_optional<double>("settings.general.subnettingMinNSta");
+    if(subnettingMinNSta.is_initialized()){
+        ui->doubleSpinBox_subnettingMinStations->setValue(*subnettingMinNSta);
     }
 
     boost::optional<double> influenceDistance = settings.get_optional<double>("settings.skyCoverage.influenceDistance");
@@ -2787,9 +2823,9 @@ QString MainWindow::writeXML()
     double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames);
     }else{
-        para.general(start, end, subnetting, fillinMode, fillinModeInfluence, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames);
     }
 
 
@@ -2801,7 +2837,7 @@ QString MainWindow::writeXML()
     std::string piEmail = ui->lineEdit_PIEmail->text().toStdString();
     std::string contactName = ui->lineEdit_contactName->text().toStdString();
     std::string contactEmail = ui->lineEdit_contactEmail->text().toStdString();
-    std::string notes = ui->plainTextEdit_notes->toPlainText().replace("\n","\n* ").toStdString();
+    std::string notes = ui->plainTextEdit_notes->toPlainText().replace("\n","\\n").toStdString();
     bool statistics = ui->checkBox_outputStatisticsFile->isChecked();
     bool vex = ui->checkBox_outputVex->isChecked();
     bool ngs = ui->checkBox_outputNGSFile->isChecked();
@@ -2815,8 +2851,12 @@ QString MainWindow::writeXML()
             srcGroupsForStatistic.push_back(ui->treeWidget_srcGroupForStatistics->topLevelItem(i)->text(0).toStdString());
         }
     }
+    std::string operationNotes;
+    if(operNotes){
+        operationNotes = ui->plainTextEdit_operationNotes->toPlainText().replace("\n","\\n").toStdString();
+    }
     para.output(experimentName, experimentDescription, scheduler, correlator, piName, piEmail, contactName,
-                contactEmail, notes, statistics, ngs, skd, vex, operNotes, srcGrp, srcGroupsForStatistic, skyCov);
+                contactEmail, notes, statistics, ngs, skd, vex, operNotes, operationNotes, srcGrp, srcGroupsForStatistic, skyCov);
 
     std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
     std::string equip = ui->lineEdit_pathEquip->text().toStdString();
@@ -3218,6 +3258,27 @@ QString MainWindow::writeXML()
         std::string threadPlace = ui->comboBox_threadPlace->currentText().toStdString();
         para.multiCore(threads,nThreadsManual,jobScheduler,chunkSize,threadPlace);
     }
+
+    if(ui->groupBox_highImpactAzEl->isChecked() && ui->treeWidget_highImpactAzEl->topLevelItemCount()>0){
+        QTreeWidget * tree = ui->treeWidget_highImpactAzEl;
+        std::vector<std::string> members;
+        std::vector<double> azs;
+        std::vector<double> els;
+        std::vector<double> margins;
+        for(int i=0; i<tree->topLevelItemCount(); ++i){
+            QTreeWidgetItem *itm = tree->topLevelItem(i);
+            members.push_back(itm->text(0).toStdString());
+            azs.push_back(itm->text(1).toDouble());
+            els.push_back(itm->text(2).toDouble());
+            margins.push_back(itm->text(3).toDouble());
+        }
+        int interval = ui->spinBox_highImpactInterval->value();
+        int repeat = ui->spinBox_highImpactMinRepeat->value();
+
+        para.highImpactAzEl(members,azs,els,margins,interval,repeat);
+
+    }
+
     QString path = ui->lineEdit_outputPath->text();
     path = path.simplified();
     path.replace("\\\\","/");
@@ -3291,24 +3352,23 @@ void MainWindow::readSettings()
     std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
     ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
 
+    std::string piName = settings.get<std::string>("settings.output.piName","");
+    ui->lineEdit_PIName->setText(QString::fromStdString(piName));
+    std::string piEmail = settings.get<std::string>("settings.output.piEmail","");
+    ui->lineEdit_PIEmail->setText(QString::fromStdString(piEmail));
+    std::string contactName = settings.get<std::string>("settings.output.contactName","");
+    ui->lineEdit_contactName->setText(QString::fromStdString(contactName));
+    std::string contactEmail = settings.get<std::string>("settings.output.contactEmail","");
+    ui->lineEdit_contactEmail->setText(QString::fromStdString(contactEmail));
 
-    // bands - mode
+    std::string notes = settings.get<std::string>("settings.output.notes","");
+    if(!notes.empty()){
+        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(notes).replace("\\n","\n"));
+    }
+    std::string operationNotes = settings.get<std::string>("settings.output.operationNotes","");
+    ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
 
-    // selected stations
 
-    // selected source
-
-    // station group
-
-    // source group
-
-    // baseline group
-
-    // station parameters
-
-    // source parameters
-
-    // baseline parameters
 
 }
 
@@ -6544,7 +6604,7 @@ void MainWindow::on_pushButton_clicked()
 {
     QString txt = ui->lineEdit_ivsMaster->text();
     QString errorText = "";
-    QStringList t = txt.split("|");
+    QStringList t = txt.split("\t");
     if(t.size()>=0){
         QString sessionName = t.at(0);
         ui->plainTextEdit_experimentDescription->setPlainText(sessionName);
@@ -6553,18 +6613,12 @@ void MainWindow::on_pushButton_clicked()
         QString sessionName = t.at(1);
         ui->experimentNameLineEdit->setText(sessionName);
     }
-    if(t.size()>=3){
-        QString doys = t.at(3);
-        bool ok;
-        int doy = doys.toInt(&ok);
-        if(ok){
-            ui->spinBox_doy->setValue(doy);
-        }else{
-            errorText.append("cannot convert DOY\n");
+    if(t.size()>=2){
+        QString time = t.at(2);
+        if(time.size()>5){
+            time = time.right(5);
         }
-    }
-    if(t.size()>=4){
-        QString time = t.at(4);
+
         QStringList ts = time.split(":");
         int hour, min;
 
@@ -6577,26 +6631,45 @@ void MainWindow::on_pushButton_clicked()
             }else{
                 errorText.append("cannot convert TIME\n");
             }
+        }else{
+            errorText.append("cannot convert TIME\n");
+        }
+    }
+    if(t.size()>=3){
+        QString doys = t.at(3);
+        bool ok;
+        int doy = doys.toInt(&ok);
+        if(ok){
+            ui->spinBox_doy->setValue(doy);
+        }else{
+            errorText.append("cannot convert DOY\n");
+        }
+    }
+    if(t.size()>=4){
+        QString durs = t.at(4);
+        QStringList ts = durs.split(":");
+        int hour, min;
+
+        if(ts.size()==2){
+            bool okh, okm;
+            hour = ts.at(0).toInt(&okh);
+            min = ts.at(1).toInt(&okm);
+            if(okh && okm){
+                ui->doubleSpinBox_sessionDuration->setValue(hour+min/60);
+            }else{
+                errorText.append("cannot convert Duration\n");
+            }
+        }else{
+            errorText.append("cannot convert Duration\n");
         }
     }
     if(t.size()>=5){
-        QString durs = t.at(5);
-        bool ok;
-        int dur = durs.toInt(&ok);
-        if(ok){
-            ui->doubleSpinBox_sessionDuration->setValue(dur);
-        }else{
-            errorText.append("cannot convert DUR\n");
-        }
-    }
-    if(t.size()>=6){
         createBaselines = false;
 
-        QString stas = t.at(6);
-        stas = stas.trimmed();
-        QStringList tmp = stas.split(" ");
-        stas = tmp.at(0);
-        if(stas.size()%2==0){
+        QString tmp = t.at(5);
+        tmp = tmp.trimmed();
+        QStringList stas = tmp.split("  ");
+        if(stas.size() >= 2){
             int n = selectedStationModel->rowCount();
             for(int i=0; i<n; ++i){
                 QModelIndex index = selectedStationModel->index(0,0);
@@ -6604,8 +6677,8 @@ void MainWindow::on_pushButton_clicked()
             }
 
             allStationProxyModel->setFilterRegExp("");
-            for(int i=0; i<stas.size(); i+=2){
-                QString sta = stas.mid(i,2).toUpper();
+            for(int i=0; i<stas.size(); ++i){
+                QString sta = stas.at(i).toUpper();
                 bool found = false;
                 for(int j=0; j<allStationProxyModel->rowCount(); ++j){
                     QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
@@ -6620,9 +6693,8 @@ void MainWindow::on_pushButton_clicked()
                     errorText.append(QString("unknown station %1\n").arg(sta));
                 }
             }
-
         }else{
-            errorText.append("odd number of characters in two letter codes\n");
+            errorText.append("error while reading stations\n");
         }
         createBaselines = true;
         createBaselineModel();
@@ -6764,14 +6836,21 @@ void MainWindow::on_pushButton_8_clicked()
 {
     QStringList path {"settings.general.subnetting"};
     QStringList value;
-    if(ui->checkBox_subnetting->isChecked()){
+    if(ui->groupBox_subnetting->isChecked()){
         value << "true";
     }else{
         value << "false";
     }
 
+    path << "settings.general.subnettingMinAngle";
+    value << QString::number(ui->doubleSpinBox_subnettingDistance->value());
+
+    path << "settings.general.subnettingMinNSta";
+    value << QString::number(ui->doubleSpinBox_subnettingMinStations->value());
+
+
     path << "settings.general.fillinmode";
-    if(ui->checkBox_fillinMode->isChecked()){
+    if(ui->groupBox_fillin_mode->isChecked()){
         value << "true";
     }else{
         value << "false";
@@ -6783,6 +6862,14 @@ void MainWindow::on_pushButton_8_clicked()
     }else{
         value << "false";
     }
+
+    path << "settings.general.fillinmodeAPosteriori";
+    if(ui->radioButton_fillinmode_aposteriori->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
     QString name = "Default general parameters changed!";
     changeDefaultSettings(path,value,name);
 
@@ -6983,3 +7070,79 @@ void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
         ui->experimentNameLineEdit->setPalette(p);
     }
 }
+
+void MainWindow::on_pushButton_41_clicked()
+{
+    QStringList path {"settings.output.notes"};
+    QStringList value {ui->plainTextEdit_notes->toPlainText().replace("\n","\\n")};
+    QString name = "Default notes changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_40_clicked()
+{
+    QStringList path {"settings.output.operationNotes"};
+    QStringList value {ui->plainTextEdit_operationNotes->toPlainText().replace("\n","\\n")};
+    QString name = "Default operation notes changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_addHighImpactAzEl_clicked()
+{
+    QString members = ui->comboBox_highImpactStation->currentText();
+    bool isGroup = groupSta.find(members.toStdString() ) != groupSrc.end();
+
+    double az = ui->doubleSpinBox_highImpactAzimuth->value();
+    double el = ui->doubleSpinBox_highImpactElevation->value();
+    double margin = ui->doubleSpinBox_highImpactMargin->value();
+
+    QIcon ic;
+    QTreeWidgetItem *c = new QTreeWidgetItem();
+    if(isGroup || members == '__all__'){
+        ic = QIcon(":/icons/icons/station_group_2.png");
+    }else{
+        ic = QIcon(":/icons/icons/station.png");
+    }
+
+    c->setIcon(0,ic);
+    c->setText(0,members);
+    c->setText(1,QString("%1").arg(az));
+    c->setText(2,QString("%1").arg(el));
+    c->setText(3,QString("%1").arg(margin));
+
+    ui->treeWidget_highImpactAzEl->addTopLevelItem(c);
+
+}
+
+void MainWindow::on_pushButton_removeHighImpactAzEl_clicked()
+{
+    auto list = ui->treeWidget_highImpactAzEl->selectedItems();
+    if(!list.empty()){
+        auto itm = list.at(0);
+        delete itm;
+    }
+}
+
+
+void MainWindow::on_pushButton_readLogFile_read_clicked()
+{
+    QString path = ui->lineEdit_logFilePath->text().trimmed();
+    textfileViewer* myViewer = new textfileViewer(this);
+    myViewer->setTextFile(path, textfileViewer::Type::log);
+    myViewer->show();
+}
+
+void MainWindow::on_pushButton_readSkdFile_read_clicked()
+{
+    QString path = ui->lineEdit_skdFilePath->text().trimmed();
+    textfileViewer* myViewer = new textfileViewer(this);
+    if(path.right(3) == "skd"){
+        myViewer->setTextFile(path, textfileViewer::Type::skd);
+    }else if(path.right(3) == "vex"){
+        myViewer->setTextFile(path, textfileViewer::Type::vex);
+    }else{
+        myViewer->setTextFile(path, textfileViewer::Type::undefined);
+    }
+    myViewer->show();
+}
+
