@@ -9,6 +9,9 @@ textfileViewer::textfileViewer(QWidget *parent) :
     ui(new Ui::textfileViewer)
 {
     ui->setupUi(this);
+
+//    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL,Qt::SHIFT,Qt::Key_Down), parent);
+//    QObject::connect(shortcut, SIGNAL(activated()), ui->pushButton_jumpBack, SLOT(click()));
 }
 
 textfileViewer::~textfileViewer()
@@ -32,21 +35,17 @@ bool textfileViewer::setTextFile(QString path, Type type)
 
     switch (type) {
     case Type::log:
-        ui->radioButton_log->setChecked(true);
-        ui->dockWidget_navigate->setVisible(false);
+        ui->pushButton_jumpBack->setVisible(false);
+        ui->dockWidget_navigate->setVisible(true);
         break;
     case Type::skd:
-        ui->radioButton_skd->setChecked(true);
+        ui->pushButton_jumpBack->setVisible(false);
         ui->dockWidget_navigate->setVisible(true);
         break;
     case Type::vex:
-        ui->radioButton_vex->setChecked(true);
         ui->dockWidget_navigate->setVisible(true);
         break;
     default:
-        ui->radioButton_log->setChecked(false);
-        ui->radioButton_skd->setChecked(false);
-        ui->radioButton_vex->setChecked(false);
         break;
     }
 
@@ -56,146 +55,271 @@ bool textfileViewer::setTextFile(QString path, Type type)
     if(!file.exists()){
         return false;
     }
-    QString line;
     ui->textBrowser_view->clear();
+    QTreeWidget* tree = ui->treeWidget_navigation;
+
     QMessageBox info;
 
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        QTextStream stream(&file);
-        int i=1;
+    std::ifstream ifs (path.toStdString(), std::ifstream::in);
 
-        qDebug() << QTime::currentTime().toString() << "read file\n";
-        std::ifstream ifs(path.toStdString(), std::ifstream::in);
-        std::string content;
-        std::string sline;
-        while(std::getline(ifs,sline)){
-            content.append(sline).append("\n");
-        }
-
-        QTextCursor cursor = ui->textBrowser_view->textCursor();
-        cursor.setPosition(0);
-        ui->textBrowser_view->setTextCursor(cursor);
-
-        if(type == Type::skd || type == Type::vex){
-            qDebug() << QTime::currentTime().toString() << "link navigation bar\n";
-            addNavigation(content,std::regex("(^|\n)(\\$\\w*)"));
-        }
-        ui->textBrowser_view->setText(QString::fromStdString(std::move(content)));
-
-        if(type == Type::vex){
-            QString html = ui->textBrowser_view->toHtml();
-            qDebug() << QTime::currentTime().toString() << "link blocks\n";
-            linkBlocks();
-        }
-
-        qDebug() << QTime::currentTime().toString() << "highlight\n";
-        highlight();
-        qDebug() << QTime::currentTime().toString() << "finished\n";
-        info.close();
-        ui->textBrowser_view->setUndoRedoEnabled(true);
+    std::regex head;
+    if(type == Type::vex){
+        head = std::regex("\\s*(\\$\\w*);", std::regex::optimize);
+    }else if(type == Type::skd){
+        head = std::regex("(\\$\\w*)", std::regex::optimize);
+    }else if(type == Type::log){
+        head = std::regex("scan_name=([^,]*)");
     }
+    std::string line;
+    std::getline(ifs,line);
+
+    int i=0;
+    while (ifs.good()){
+        std::string prefix;
+        std::smatch m;
+
+        if(std::regex_match(line,m,head)){
+            prefix = m.str(1);
+            tree->insertTopLevelItem(tree->topLevelItemCount(),new QTreeWidgetItem(QStringList() << QString::fromStdString(prefix)));
+            line = std::regex_replace(line,head,"<a id=\"$1\"/><font color=\"#FF00FF\">$0</font>");
+        }
+
+        std::string content = "<PRE>";
+        content.append(line).append("<br>");
+        while (std::getline(ifs,line)) {
+            ++i;
+            if(std::regex_match(line,m,head)){
+                break;
+            }else{
+                content.append(line).append("<br>");
+            }
+        }
+
+        content.append("</PRE>");
+        switch (type) {
+        case Type::log:
+            content = highlight_log(content);
+            break;
+        case Type::skd:
+            content = highlight_skd(content);
+            break;
+        case Type::vex:
+            content = addAnchors(prefix, content);
+            content = addReferences(prefix, content);
+            content = highlight_vex(prefix, content);
+            break;
+        default:
+            break;
+        }
+        ui->textBrowser_view->insertHtml(QString::fromStdString(content));
+    }
+
+
+    QTextCursor cursor = ui->textBrowser_view->textCursor();
+    cursor.setPosition(0);
+    ui->textBrowser_view->setTextCursor(cursor);
     return true;
 }
 
-void textfileViewer::on_radioButton_skd_toggled(bool checked)
+std::string textfileViewer::addAnchors(const std::string &prefix, const std::string &content)
 {
-    if(checked){
-        clearHighlight();
-        addHighlight("^\\$\\w*",QColor(255,0,255));
-        addHighlight("^\\*.*",QColor(0,125,0));
-        addHighlight("\\d{11}",QColor(0,255,255));
-    }
-}
-
-void textfileViewer::on_radioButton_vex_toggled(bool checked)
-{
-    if(checked){
-        clearHighlight();
-
-        addHighlight("^\\$\\w*",QColor(255,0,255));
-        addHighlight("\\sdef[^;]*",QColor(0,255,255));
-        addHighlight("\\senddef",QColor(0,255,255));
-        addHighlight("\\sref\\s+[^\\s]*",QColor(57,255,20));
-        addHighlight("\\sscan[^;]*",QColor(255,204,0));
-        addHighlight("\\sendscan",QColor(255,204,0));
-        addHighlight("&\\w*",QColor(255,0,20));
-        addHighlight("^\\*.*",QColor(0,125,0));
+    if(prefix != "$SCHED"){
+        std::regex r("\\s(def\\s+)([^;]*)");
+        std::string replace = "<a id=\""+prefix+"_$2\"/>"
+                                                "<font color=\"#00FFFF\">"
+                                                "$0"
+                                                "</font>";
+        return std::regex_replace(content,r,replace);
+    }else{
+        return content;
     }
 
 }
 
-void textfileViewer::on_radioButton_log_toggled(bool checked)
+std::string textfileViewer::addReferences(const std::string &prefix, const std::string &content)
 {
-    if(checked){
-        clearHighlight();
-        addHighlight("#antcn#Commanding to a new source/new offsets",QColor(0,255,0));
-        addHighlight("#flagr#flagr/antenna,new-source",QColor(0,255,0));
-        addHighlight("#flagr#flagr/antenna,acquired",QColor(0,255,0));
+    std::string newContent;
+    if(prefix == "$GLOBAL"){
+        std::regex ref("(ref\\s+)(\\$[^\\s]*)(\\s*=\\s*)([^;\\s:]*)");
+        std::string replace = "<font color=\"#39FF14\">"
+                                "$1"
+                              "</font>"
+                              "<a href=\"#$2\">"
+                                "<font color=\"#39FF14\">"
+                                  "$2"
+                                "</font>"
+                              "</a>"
+                              "$3"
+                              "<a href=\"#$2_$4\">"
+                                "<font color=\"#FFFFFF\">"
+                                  "$4"
+                                "</font>"
+                              "</a>";
+        newContent = regex_replace(content,ref,replace);
+    }else if(prefix == "$STATION"){
+        std::regex ref("(ref\\s+)(\\$[^\\s]*)(\\s*=\\s*)([^;\\s:]*)");
+        std::string replace = "<font color=\"#39FF14\">"
+                                "$1"
+                              "</font>"
+                              "<a href=\"#$2\">"
+                                "<font color=\"#39FF14\">"
+                                  "$2"
+                                "</font>"
+                              "</a>"
+                              "$3"
+                              "<a href=\"#$2_$4\">"
+                                "<font color=\"#FFFFFF\">"
+                                  "$4"
+                                "</font>"
+                              "</a>";
+        newContent = regex_replace(content,ref,replace);
+
+    }else if(prefix == "$MODE"){
+        std::regex tlc("(\\s*:\\s*)(\\w{2})");
+        std::string replace = "$1"
+                              "<a href=\"#$STATION_$2\">"
+                                "<font color=\"#FFFFFF\">"
+                                  "$2"
+                                "</font>"
+                              "</a>";
+        newContent = regex_replace(content,tlc,replace);
+
+        std::regex ref("(ref\\s+)(\\$[^\\s]*)(\\s*=\\s*)([^;\\s:]*)");
+        std::string replace2= "<font color=\"#39FF14\">"
+                                "$1"
+                              "</font>"
+                              "<a href=\"#$2\">"
+                                "<font color=\"#39FF14\">"
+                                  "$2"
+                                "</font>"
+                              "</a>"
+                              "$3"
+                              "<a href=\"#$2_$4\">"
+                                "<font color=\"#FFFFFF\">"
+                                  "$4"
+                                "</font>"
+                              "</a>";
+        newContent = regex_replace(newContent,ref,replace2);
 
 
-        addHighlight("disk_record(.*)",QColor(0,0,255));
-        addHighlight("data_valid=(.*)",QColor(0,0,255));
+    }else if(prefix == "$SCHED"){
+        std::regex source("(source\\s*=\\s*)([^;\\s]*)");
+        std::string replace = "$1"
+                              "<a href=\"#$SOURCE_$2\">"
+                                "<font color=\"#FFFFFF\">"
+                                  "$2"
+                                "</font>"
+                              "</a>";
+        newContent = regex_replace(content,source,replace);
 
-        addHighlight("preob",QColor(255,0,255));
-        addHighlight("midob",QColor(255,0,255));
-        addHighlight("postob",QColor(255,0,255));
+        std::regex station("(station\\s*=\\s*)([^;\\s]*)");
+        std::string replace2 = "$1"
+                               "<a href=\"#$STATION_$2\">"
+                                 "<font color=\"#FFFFFF\">"
+                                   "$2"
+                                 "</font>"
+                               "</a>";
+        newContent = regex_replace(newContent,station,replace2);
 
-        addHighlight("scan_name=(.*)",QColor(0,255,255));
-        addHighlight("source=(.*)",QColor(0,255,255));
+        std::regex mode("(mode\\s*=\\s*)([^;\\s]*)");
+        std::string replace3 = "$1"
+                               "<a href=\"#$MODE_$2\">"
+                                 "<font color=\"#FFFFFF\">"
+                                   "$2"
+                                 "</font>"
+                               "</a>";
+        newContent = regex_replace(newContent,mode,replace3);
 
-        addHighlight("ERROR(.*)",QColor(255,0,0));
-        addHighlight("/onsource/SLEWING",QColor(255,0,0));
-
-        addHighlight("/onsource/TRACKING",QColor(255,255,0));
-        addHighlight("Az,.{6},El,.{5}",QColor(255,255,0));
-
-        addHighlight("WARNING(.*)",QColor(255,153,0));
-
-        addHighlight("!\\d{4}\\.\\d{3}.\\d{2}:\\d{2}:\\d{2}",QColor(204,255,051));
+    }else{
+        return content;
     }
+    return newContent;
 }
 
-void textfileViewer::clearHighlight()
+std::string textfileViewer::highlight_vex(const std::string &prefix, const std::string &content)
 {
-    ui->treeWidget_highlights->clear();
-}
+    std::string newContent;
+    if(prefix == "$SCHED"){
+        std::regex scan("[\\s|>]scan[^;]*");
+        newContent = regex_replace(content,scan,"<font color=\"#FFCC00\">$0</font>");
+        std::regex endScan("[\\s|>]endscan");
+        newContent = regex_replace(newContent,endScan,"<font color=\"#FFCC00\">$0</font>");
 
-void textfileViewer::addHighlight(QString txt, QColor color)
-{
-    QTreeWidget* tree = ui->treeWidget_highlights;
+        std::regex link("&\\w*");
+        newContent = regex_replace(newContent,link,"<font color=\"#FF0014\">$0</font>");
 
-    QTreeWidgetItem *c = new QTreeWidgetItem();
-    c->setText(0,txt);
-    c->setText(1,"");
-    c->setBackgroundColor(1,color);
-    tree->addTopLevelItem(c);
-}
+    }else{
+        std::regex enddef("[\\s|>]enddef");
+        newContent = regex_replace(content,enddef,"<font color=\"#00FFFF\">$0</font>");
 
-void textfileViewer::highlight()
-{
-    QTreeWidget* tree = ui->treeWidget_highlights;
-    QTextDocument *document = ui->textBrowser_view->document();
-
-    for(int i=0; i<tree->topLevelItemCount(); ++i){
-        QString searchString = tree->topLevelItem(i)->text(0);
-
-        QTextCursor highlightCursor(document);
-        QTextCursor cursor(document);
-
-        QTextCharFormat plainFormat(highlightCursor.charFormat());
-        QTextCharFormat colorFormat = plainFormat;
-        colorFormat.setForeground(tree->topLevelItem(i)->backgroundColor(1));
-
-        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
-            highlightCursor = document->find(QRegularExpression(searchString), highlightCursor);
-
-            if (!highlightCursor.isNull()) {
-                highlightCursor.mergeCharFormat(colorFormat);
-            }
+        if(prefix == "$ANTENNA" || prefix == "$BBC" || prefix == "$IF" || prefix == "$TRACKS" || prefix == "$FREQ" || prefix == "$PHASE_CAL_DETECT"){
+            std::regex link("&\\w*");
+            newContent = regex_replace(newContent,link,"<font color=\"#FF0000\">$0</font>");
         }
     }
+
+    std::regex comments("(\\*.*?)(<br>)");
+
+    newContent = regex_replace(newContent,comments,"<font color=\"#007D00\">$1</font>$2");
+    return newContent;
 }
 
+std::string textfileViewer::highlight_skd(const std::string &content)
+{
+    std::regex comments("(\\*.*?)(<br>)");
+    return regex_replace(content,comments,"<font color=\"#007D00\">$1</font>$2");
+}
+
+std::string textfileViewer::highlight_log(const std::string &content)
+{
+    std::regex r("source=[^,]*");
+    std::string newContent = regex_replace(content,r,"<font color=\"#FF00FF\">$0</font>");
+
+    r = std::regex("scan_name=([^,]*)");
+    auto words_begin = std::sregex_iterator(content.begin(), content.end(), r);
+    auto words_end = std::sregex_iterator();
+    for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+        std::smatch match = *i;
+        std::string prefix = match.str(1);
+        ui->treeWidget_navigation->insertTopLevelItem(ui->treeWidget_navigation->topLevelItemCount(),new QTreeWidgetItem(QStringList() << QString::fromStdString(prefix)));
+    }
+    newContent = std::regex_replace(newContent,r,"<a id=\"$1\"/><font color=\"#FF00FF\">$0</font>");
+
+    r = std::regex("preob");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FFFF\">$0</font>");
+    r = std::regex("midob");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FFFF\">$0</font>");
+
+    r = std::regex("postob");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FFFF\">$0</font>");
+    r = std::regex("disk_record=[^<]*");
+    newContent = regex_replace(newContent,r,"<font color=\"#0000FF\">$0</font>");
+    r = std::regex("data_valid=[^<]*");
+    newContent = regex_replace(newContent,r,"<font color=\"#0000FF\">$0</font>");
+
+    r = std::regex("#antcn#Commanding to a new source/new offsets");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FF00\">$0</font>");
+    r = std::regex("#flagr#flagr[^<]*");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FF00\">$0</font>");
+    r = std::regex("/onsource/TRACKING");
+    newContent = regex_replace(newContent,r,"<font color=\"#00FF00\">$0</font>");
+
+    r = std::regex("ERROR[^<]*");
+    newContent = regex_replace(newContent,r,"<font color=\"#FF0000\">$0</font>");
+    r = std::regex("/onsource/SLEWING");
+    newContent = regex_replace(newContent,r,"<font color=\"#FF0000\">$0</font>");
+
+    r = std::regex("Az,.{6},El,.{5}");
+    newContent = regex_replace(newContent,r,"<font color=\"#FFFF00\">$0</font>");
+
+    r = std::regex("WARNING[^<]*");
+    newContent = regex_replace(newContent,r,"<font color=\"#FF9900\">$0</font>");
+
+    r = std::regex("!\\d{4}\\.\\d{3}.\\d{2}:\\d{2}:\\d{2}");
+    newContent = regex_replace(newContent,r,"<font color=\"#CCFF33\">$0</font>");
+
+    return newContent;
+}
 
 void textfileViewer::on_lineEdit_search_editingFinished()
 {
@@ -231,215 +355,62 @@ void textfileViewer::on_lineEdit_search_editingFinished()
 
 }
 
-void textfileViewer::addNavigation(const std::string &content, const std::regex &regexStr)
-{
-    QTreeWidget* tree = ui->treeWidget_navigation;
-
-    auto words_begin = std::sregex_iterator(content.begin(), content.end(), regexStr);
-
-    for (std::sregex_iterator i = words_begin; i != std::sregex_iterator(); ++i) {
-        std::smatch match = *i;
-        std::string str = match.str(2);
-
-        int pos = match.position();
-        tree->insertTopLevelItem(tree->topLevelItemCount(),new QTreeWidgetItem(QStringList() << QString::fromStdString(str)));
-        navigationPosition.push_back(pos);
-    }
-}
-
-void textfileViewer::linkBlocks()
-{
-    QTextDocument *document = ui->textBrowser_view->document();
-
-
-
-    QTextCursor cursor(document);
-    QRegularExpression regex("(\\sdef\\s+)([^;]*)");
-    QRegularExpression regextmp("(def\\s+)([^;]*)");
-
-    while (!cursor.isNull() && !cursor.atEnd()) {
-        if (!cursor.isNull()) {
-            cursor = document->find(regex, cursor);
-
-            if (!cursor.isNull()) {
-                int n = cursor.selectedText().length();
-                cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,1);
-                cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::MoveAnchor,1);
-                cursor.movePosition(QTextCursor::NextCharacter,QTextCursor::KeepAnchor,n-1);
-                QString txt = cursor.selectedText();
-                QString def = regextmp.match(txt).captured(2);
-                QString pre = regextmp.match(txt).captured(1);
-
-                int pos = cursor.position();
-                QString keyword = linkKeyword(def,pos);
-
-                cursor.removeSelectedText();
-
-                QString newText = "<a id=\""+keyword+"\"></a>"+def+"";
-                cursor.insertHtml(regextmp.match(txt).captured(1)+newText);
-
-                linkMap[keyword] = pos;
-            }
-        }
-    }
-
-    QTextCursor cursor1(document);
-    QRegularExpression regex1("ref\\s+(\\$[^\\s]*)\\s*=\\s*([^;\\s:]*)(\\s*[:\\s*(\\w*)\\s*]*)");
-
-    while (!cursor1.isNull() && !cursor1.atEnd()) {
-        if (!cursor1.isNull()) {
-            cursor1 = document->find(regex1, cursor1);
-
-            if (!cursor1.isNull()) {
-                QString txt = cursor1.selectedText();
-                QString block = regex1.match(txt).captured(1);
-                QString name = regex1.match(txt).captured(2);
-
-                QString link = block.right(block.size()-1).append(name);
-                QString txtLeft;
-                QString newText = "<a href=\"#"+link+"\" style=\"color: rgb(255,255,255)\">"+name+"</a>";
-                if(regex1.captureCount() == 3){
-                    QString stations = regex1.match(txt).captured(3);
-                    QRegularExpression re("(\\s*:\\s*)(\\w*)");
-                    QRegularExpressionMatchIterator i = re.globalMatch(stations);
-                    while (i.hasNext()) {
-                        QRegularExpressionMatch match = i.next();
-                        QString between = match.captured(1);
-                        QString id = "STATION";
-                        id.append(match.captured(2));
-                        QString sta = "<a href=\"#"+id+"\" style=\"color: rgb(255,255,255)\">"+match.captured(2)+"</a>";
-                        newText.append(between).append(sta);
-                    }
-
-                    txtLeft = txt.left(txt.size()-name.size()-stations.size());
-                }else{
-                    txtLeft = txt.left(txt.size()-name.size());
-                }
-                cursor1.removeSelectedText();
-                cursor1.insertHtml(txtLeft+newText);
-            }
-        }
-    }
-
-
-    QTextCursor cursor2(document);
-    QRegularExpression regex2("source\\s*=\\s*([^;\\s]*)");
-    while (!cursor2.isNull() && !cursor2.atEnd()) {
-        if (!cursor2.isNull()) {
-            cursor2 = document->find(regex2, cursor2);
-
-            if (!cursor2.isNull()) {
-                QString txt = cursor2.selectedText();
-                QString name = regex2.match(txt).captured(1);
-
-                QString txtLeft = txt.left(txt.size()-name.size());
-
-                QString link = QString("SOURCE").append(name);
-                QString newText = "<a href=\"#"+link+"\" style=\"color: rgb(255,255,255)\">"+name+"</a>";
-
-                cursor2.removeSelectedText();
-                cursor2.insertHtml(txtLeft+newText);
-            }
-        }
-    }
-
-    QTextCursor cursor3(document);
-    QRegularExpression regex3("station\\s*=\\s*([^;\\s]*)");
-    while (!cursor3.isNull() && !cursor3.atEnd()) {
-        if (!cursor3.isNull()) {
-            cursor3 = document->find(regex3, cursor3);
-
-            if (!cursor3.isNull()) {
-                QString txt = cursor3.selectedText();
-                QString name = regex3.match(txt).captured(1);
-
-                QString txtLeft = txt.left(txt.size()-name.size());
-
-                QString link = QString("STATION").append(name);
-                QString newText = "<a href=\"#"+link+"\" style=\"color: rgb(255,255,255)\">"+name+"</a>";
-
-                cursor3.removeSelectedText();
-                cursor3.insertHtml(txtLeft+newText);
-            }
-        }
-    }
-
-    QTextCursor cursor4(document);
-    QRegularExpression regex4("mode\\s*=\\s*([^;\\s]*)");
-    while (!cursor4.isNull() && !cursor4.atEnd()) {
-        if (!cursor4.isNull()) {
-            cursor4 = document->find(regex4, cursor4);
-
-            if (!cursor4.isNull()) {
-                QString txt = cursor4.selectedText();
-                QString name = regex4.match(txt).captured(1);
-
-                QString txtLeft = txt.left(txt.size()-name.size());
-
-                QString link = QString("MODE").append(name);
-                QString newText = "<a href=\"#"+link+"\" style=\"color: rgb(255,255,255)\">"+name+"</a>";
-
-                cursor4.removeSelectedText();
-                cursor4.insertHtml(txtLeft+newText);
-            }
-        }
-    }
-
-}
-
-QString textfileViewer::linkKeyword(QString word, int pos)
-{
-    QString prefix;
-    for(int i=1; i<navigationPosition.size(); ++i){
-        if(navigationPosition[i]>pos){
-            prefix = ui->treeWidget_navigation->topLevelItem(i-1)->text(0);
-            break;
-        }
-        if(i==navigationPosition.size()-1){
-            prefix = ui->treeWidget_navigation->topLevelItem(i)->text(0);
-        }
-    }
-    QString keyword = prefix.right(prefix.size()-1).append(word);
-    return keyword;
-}
-
-void textfileViewer::addedLink(int pos)
-{
-    for(int i=0; i<navigationPosition.size(); ++i){
-        if(navigationPosition[i]>pos){
-            navigationPosition[i]+=15;
-        }
-    }
-}
-
 
 void textfileViewer::on_treeWidget_navigation_clicked(const QModelIndex &index)
 {
-    int pos = navigationPosition[index.row()];
-
-    QTextDocument *document = ui->textBrowser_view->document();
-    QTextCursor cursor(document);
-
-
+    QTextCursor cursor = ui->textBrowser_view->cursorForPosition(QPoint(0, 0));
+    lastPosition_ = cursor.position();
     cursor.movePosition(QTextCursor::End);
     ui->textBrowser_view->setTextCursor(cursor);
-    cursor.setPosition(pos);
-    ui->textBrowser_view->setTextCursor(cursor);
-
+    QString txt = ui->treeWidget_navigation->topLevelItem(index.row())->text(0);
+    ui->textBrowser_view->scrollToAnchor(txt);
 }
 
 void textfileViewer::on_textBrowser_view_anchorClicked(const QUrl &arg1)
 {
-//    QString link = arg1.url(QUrl::StripTrailingSlash);
-//    if(linkMap.find(link) != linkMap.end()){
-//        int pos = linkMap[link];
+    QTextCursor cursor = ui->textBrowser_view->cursorForPosition(QPoint(0, 0));
+    lastPosition_ = cursor.position();
+    cursor.movePosition(QTextCursor::End);
+    ui->textBrowser_view->setTextCursor(cursor);
 
-//        QTextDocument *document = ui->textBrowser_view->document();
-//        QTextCursor cursor(document);
 
-//        cursor.movePosition(QTextCursor::End);
-//        ui->textBrowser_view->setTextCursor(cursor);
-//        cursor.setPosition(pos);
-//        ui->textBrowser_view->setTextCursor(cursor);
-//    }
+}
+
+void textfileViewer::on_pushButton_jumpBack_clicked()
+{
+
+    QTextCursor cursor = ui->textBrowser_view->cursorForPosition(QPoint(0, 0));
+    int tmp = lastPosition_;
+    lastPosition_ = cursor.position();
+    cursor.movePosition(QTextCursor::End);
+    ui->textBrowser_view->setTextCursor(cursor);
+    cursor.setPosition(tmp);
+    ui->textBrowser_view->setTextCursor(cursor);
+}
+
+void textfileViewer::on_actionSave_triggered()
+{
+    QFileInfo file (ui->label_fname->text());
+
+    QFileDialog fileDialog(this, "Save as...");
+    fileDialog.setDirectory(file.dir());
+    fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+
+    fileDialog.setDefaultSuffix(file.suffix());
+    if (fileDialog.exec() != QDialog::Accepted){
+        return;
+    }
+
+    const QString fileName = fileDialog.selectedFiles().first();
+
+    QTextDocumentWriter writer(fileName);
+    bool success = writer.write(ui->textBrowser_view->document());
+    if (success) {
+        ui->textBrowser_view->document()->setModified(false);
+        statusBar()->showMessage(tr("Wrote \"%1\"").arg(QDir::toNativeSeparators(fileName)));
+    } else {
+        statusBar()->showMessage(tr("Could not write to file \"%1\"")
+                                 .arg(QDir::toNativeSeparators(fileName)));
+    }
+
 }

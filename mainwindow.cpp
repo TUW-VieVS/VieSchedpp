@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
-    QCoreApplication::setApplicationName("VieVS Scheduler");
+    QCoreApplication::setApplicationName("VieSched++");
     QCoreApplication::setApplicationVersion("v0.8");
     ui->label_version->setText("Version: " + QCoreApplication::applicationVersion());
     ui->label_version->setFont(QFont(QApplication::font().family(),8));
@@ -855,6 +855,12 @@ void MainWindow::on_actionFAQ_triggered()
 {
     ui->main_stacked->setCurrentIndex(20);
 }
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QApplication::aboutQt();
+}
+
 
 void MainWindow::on_actionWhat_is_this_triggered()
 {
@@ -7145,4 +7151,5 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
     }
     myViewer->show();
 }
+
 

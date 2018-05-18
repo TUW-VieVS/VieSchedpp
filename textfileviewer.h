@@ -8,10 +8,11 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QTime>
-#include <iostream>
+#include <QFileDialog>
+#include <QTextDocumentWriter>
 #include <fstream>
-
 #include <regex>
+#include <QShortcut>
 
 namespace Ui {
 class textfileViewer;
@@ -35,41 +36,33 @@ public:
     bool setTextFile(QString path, Type type);
 
 private slots:
-    void on_radioButton_skd_toggled(bool checked);
-
-    void on_radioButton_vex_toggled(bool checked);
-
-    void on_radioButton_log_toggled(bool checked);
-
     void on_actionview_triggered();
 
     void on_actionhighlight_triggered();
 
     void on_lineEdit_search_editingFinished();
 
-    void addNavigation(const std::string &content, const std::regex &regexStr);
-
-    void linkBlocks();
 
     void on_treeWidget_navigation_clicked(const QModelIndex &index);
 
     void on_textBrowser_view_anchorClicked(const QUrl &arg1);
 
+    void on_pushButton_jumpBack_clicked();
+
+    void on_actionSave_triggered();
+
 private:
     Ui::textfileViewer *ui;
+    int lastPosition_;
 
-    QVector<int> navigationPosition;
-    QMap<QString, int> linkMap;
+    std::string addAnchors(const std::string &prefix, const std::string & content);
 
-    void clearHighlight();
+    std::string addReferences(const std::string &prefix, const std::string & content);
 
-    void addHighlight(QString txt, QColor color);
+    std::string highlight_vex(const std::string &prefix,  const std::string & content);
+    std::string highlight_skd(const std::string & content);
+    std::string highlight_log(const std::string & content);
 
-    void highlight();
-
-    QString linkKeyword(QString word, int pos);
-
-    void addedLink(int pos);
 };
 
 #endif // TEXTFILEVIEWER_H

@@ -465,6 +465,8 @@ private slots:
 
     void on_actionSkd_Parser_triggered();
 
+    void on_actionAbout_Qt_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

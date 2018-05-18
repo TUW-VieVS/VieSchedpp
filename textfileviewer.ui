@@ -30,7 +30,42 @@
       <widget class="QWidget" name="view">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,5,0,0,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,0,5,0,5,0,0,1">
+          <item>
+           <widget class="QPushButton" name="pushButton_jumpBack">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/edit-redo-7.png</normaloff>:/icons/icons/edit-redo-7.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
           <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
@@ -89,8 +124,11 @@
           <property name="lineWrapMode">
            <enum>QTextEdit::NoWrap</enum>
           </property>
+          <property name="readOnly">
+           <bool>false</bool>
+          </property>
           <property name="textInteractionFlags">
-           <set>Qt::TextBrowserInteraction</set>
+           <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
           </property>
           <property name="openExternalLinks">
            <bool>false</bool>
@@ -99,164 +137,6 @@
            <bool>true</bool>
           </property>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="highlight">
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QRadioButton" name="radioButton_log">
-            <property name="text">
-             <string>log</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_skd">
-            <property name="text">
-             <string>skd</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="radioButton_vex">
-            <property name="text">
-             <string>vex</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>key word</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_keyword"/>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_color"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_add">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="myresources.qrc">
-              <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <widget class="QTreeWidget" name="treeWidget_highlights">
-            <column>
-             <property name="text">
-              <string notr="true">key word</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>color</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_remove">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="myresources.qrc">
-                <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_colorize">
-            <property name="text">
-             <string>Highlight</string>
-            </property>
-            <property name="icon">
-             <iconset resource="myresources.qrc">
-              <normaloff>:/icons/icons/dialog-ok-2.png</normaloff>:/icons/icons/dialog-ok-2.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -281,6 +161,7 @@
     <addaction name="actionclose"/>
     <addaction name="actionhighlight"/>
     <addaction name="actionopen_in_folder"/>
+    <addaction name="actionSave"/>
    </widget>
    <addaction name="menufile"/>
   </widget>
@@ -360,6 +241,7 @@
    </attribute>
    <addaction name="actionview"/>
    <addaction name="actionclose"/>
+   <addaction name="actionSave"/>
    <addaction name="actionopen_in_folder"/>
    <addaction name="actionhighlight"/>
   </widget>
@@ -381,6 +263,11 @@
   <action name="actionhighlight">
    <property name="text">
     <string>Highlight</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
    </property>
   </action>
  </widget>
