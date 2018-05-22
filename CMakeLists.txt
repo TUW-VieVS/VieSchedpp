@@ -6,10 +6,10 @@ set(CMAKE_CXX_STANDARD 14)
 set(SOURCE_FILES
         Antenna.cpp Antenna.h
         Baseline.cpp Baseline.h
+        AstronomicalParameters.cpp AstronomicalParameters.h
         CableWrap.cpp CableWrap.h
         CalibratorBlock.cpp CalibratorBlock.h
         Constants.h
-        Earth.cpp Earth.h
         Equipment.cpp Equipment.h
         StationEndposition.cpp StationEndposition.h
         Flux.cpp Flux.h
@@ -19,7 +19,6 @@ set(SOURCE_FILES
         LookupTable.cpp LookupTable.h
         main.cpp
         MultiScheduling.cpp MultiScheduling.h
-        Nutation.cpp Nutation.h
         ObservationMode.cpp ObservationMode.h
         Output.cpp Output.h
         ParameterGroup.cpp ParameterGroup.h

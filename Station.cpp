@@ -57,7 +57,7 @@ Station::Station(std::string sta_name, std::shared_ptr<Antenna> sta_antenna, std
                  std::shared_ptr<HorizonMask> sta_mask):
         VieVS_NamedObject(std::move(sta_name),nextId++), antenna_{move(sta_antenna)}, cableWrap_{move(sta_cableWrap)},
         position_{move(sta_position)}, equip_{move(sta_equip)}, mask_{move(sta_mask)}, skyCoverageId_{-1},
-        nScans_{0}, nBaselines_{0}, currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
+        currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
@@ -109,21 +109,21 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
     if (model == AzelModel::rigorous) {
         unsigned int nut_precalc_idx = 0;
-        while (Nutation::nutTime[nut_precalc_idx + 1] < time) {
+        while (AstronomicalParameters::earth_nutTime[nut_precalc_idx + 1] < time) {
             ++nut_precalc_idx;
         }
-        int delta = Nutation::nutTime[1] - Nutation::nutTime[0];
+        int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
 
-        unsigned int deltaTime = time - Nutation::nutTime[nut_precalc_idx];
+        unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[nut_precalc_idx];
 
-        double x = Nutation::nutX[nut_precalc_idx] +
-                   (Nutation::nutX[nut_precalc_idx + 1] - Nutation::nutX[nut_precalc_idx]) / delta *
+        double x = AstronomicalParameters::earth_nutX[nut_precalc_idx] +
+                   (AstronomicalParameters::earth_nutX[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutX[nut_precalc_idx]) / delta *
                    deltaTime;
-        double y = Nutation::nutY[nut_precalc_idx] +
-                   (Nutation::nutY[nut_precalc_idx + 1] - Nutation::nutY[nut_precalc_idx]) / delta *
+        double y = AstronomicalParameters::earth_nutY[nut_precalc_idx] +
+                   (AstronomicalParameters::earth_nutY[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutY[nut_precalc_idx]) / delta *
                    deltaTime;
-        double s = Nutation::nutS[nut_precalc_idx] +
-                   (Nutation::nutS[nut_precalc_idx + 1] - Nutation::nutS[nut_precalc_idx]) / delta *
+        double s = AstronomicalParameters::earth_nutS[nut_precalc_idx] +
+                   (AstronomicalParameters::earth_nutS[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutS[nut_precalc_idx]) / delta *
                    deltaTime;
 
 
@@ -154,9 +154,9 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     double k1a[3] = {};
     double k1a_t1[3];
     if (model == AzelModel::rigorous) {
-        k1a_t1[0] = (Earth::velocity[0] + v1[0]) / CMPS;
-        k1a_t1[1] = (Earth::velocity[1] + v1[1]) / CMPS;
-        k1a_t1[2] = (Earth::velocity[2] + v1[2]) / CMPS;
+        k1a_t1[0] = (AstronomicalParameters::earth_velocity[0] + v1[0]) / CMPS;
+        k1a_t1[1] = (AstronomicalParameters::earth_velocity[1] + v1[1]) / CMPS;
+        k1a_t1[2] = (AstronomicalParameters::earth_velocity[2] + v1[2]) / CMPS;
     }else{
         k1a_t1[0] = 0;
         k1a_t1[1] = 0;
@@ -274,14 +274,12 @@ boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVe
     }
 }
 
-void Station::update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept {
+void Station::update(unsigned long nbl, const PointingVector &end, bool addToStatistics) noexcept {
     if(addToStatistics){
         ++nScans_;
         nBaselines_ += nbl;
     }
     ++nTotalScans_;
-    pointingVectorsStart_.push_back(start);
-    pointingVectorsEnd_.push_back(end);
     currentPositionVector_ = end;
 
     if (parameters_.firstScan) {
@@ -289,16 +287,9 @@ void Station::update(unsigned long nbl, const PointingVector &start, const Point
     }
 }
 
-void Station::checkForNewEvent() noexcept {
+bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
 
-    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time == 0) {
-        parameters_ = events_->at(nextEvent_).PARA;
-        nextEvent_++;
-    }
-}
-
-void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &out) noexcept {
-
+    bool flag = false;
     while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
         bool oldAvailable = parameters_.available;
 
@@ -311,14 +302,10 @@ void Station::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, 
             currentPositionVector_.setTime(events_->at(nextEvent_).time);
             parameters_.firstScan = true;
         }
-
-        if(output && time < TimeSystem::duration){
-            out << "###############################################\n";
-            out << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
-            out << "###############################################\n";
-        }
         nextEvent_++;
+        flag = true;
     }
+    return flag;
 }
 
 bool Station::checkForTagalongMode(unsigned int time) noexcept{
@@ -347,13 +334,11 @@ void Station::applyNextEvent(std::ofstream &out) noexcept{
 
 void Station::clearObservations() {
     nextEvent_ = 0;
-    checkForNewEvent();
+    bool hardBreak;
+    checkForNewEvent(0,hardBreak);
 
     currentPositionVector_ = PointingVector(getId(),-1);
     currentPositionVector_.setTime(0);
-
-    pointingVectorsStart_.clear();
-    pointingVectorsEnd_.clear();
 
     nScans_ = 0;
     nTotalScans_ = 0;
@@ -362,16 +347,5 @@ void Station::clearObservations() {
     parameters_.firstScan=true;
 }
 
-void Station::sortPointingVectors() {
-
-    sort(pointingVectorsStart_.begin(),pointingVectorsStart_.end(), [](const PointingVector &pv1, const PointingVector &pv2){
-        return pv1.getTime() < pv2.getTime();
-    });
-
-    sort(pointingVectorsEnd_.begin(),pointingVectorsEnd_.end(), [](const PointingVector &pv1, const PointingVector &pv2){
-        return pv1.getTime() < pv2.getTime();
-    });
-
-}
 
 

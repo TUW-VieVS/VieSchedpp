@@ -133,7 +133,7 @@ namespace VieVS{
          * @return scan duration in seconds
          */
         unsigned int getScanDuration() const noexcept {
-            return scanDuration_;
+            return observingTime_;
         }
 
         /**
@@ -142,7 +142,7 @@ namespace VieVS{
          * @param scanDuration scan duration in seconds
          */
         void setScanDuration(unsigned int scanDuration) noexcept {
-            Baseline::scanDuration_ = scanDuration;
+            Baseline::observingTime_ = scanDuration;
         }
 
         /**
@@ -175,7 +175,7 @@ namespace VieVS{
         int srcid_{}; ///< id of observed source
         unsigned int startTime_{}; ///< start time of observion in seconds since session start
 
-        unsigned int scanDuration_{}; ///< required scan duration in seconds
+        unsigned int observingTime_{}; ///< required scan duration in seconds
 
     };
 }

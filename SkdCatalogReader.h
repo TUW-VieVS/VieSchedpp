@@ -52,6 +52,8 @@ namespace VieVS {
                                   const std::string &rec, const std::string &rx, const std::string &source,
                                   const std::string &tracks);
 
+        void setCatalogFilePathes(const std::string &skdFile);
+
         /**
          * @brief reads all source specific catalogs
          */

@@ -23,6 +23,7 @@
 #include "Constants.h"
 #include "TimeSystem.h"
 #include "VieVS_NamedObject.h"
+#include "AstronomicalParameters.h"
 
 namespace VieVS{
     /**
@@ -76,6 +77,7 @@ namespace VieVS{
             unsigned int minScan = 600; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
             double minElevation = 0;
+            double minSunDistance = 4*deg2rad;
 
             bool tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
             boost::optional<double> tryToFocusFactor;
@@ -198,6 +200,10 @@ namespace VieVS{
             Parameters PARA; ///< new parameters
         };
 
+        struct Statistics{
+            std::vector<unsigned int> scanStartTimes;
+            int totalObservingTime{0};
+        };
 
         /**
          * @brief constructor
@@ -336,7 +342,9 @@ namespace VieVS{
          * @param maxFlux maximum flux density of this source (will be calculated)
          * @return true if source is strong enough, otherwise false
          */
-        bool isStrongEnough(double &maxFlux) const noexcept;
+        double getMaxFlux() const noexcept;
+
+        double getSunDistance() const noexcept;
 
         /**
          * @brief observed flux density per band
@@ -360,7 +368,7 @@ namespace VieVS{
          * @param bodyLog out stream object
          * @return true if a new event was found
          */
-        bool checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
+        bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
 
 
         /**
@@ -383,24 +391,32 @@ namespace VieVS{
          */
         friend std::ostream &operator<<(std::ostream &out, const Source &src) noexcept;
 
-//        Source clone() const;
+        void setStatistics(const Statistics &stat){
+            statistics_ = stat;
+        }
+
+        const Statistics &getStatistics() const {
+            return statistics_;
+        }
+
 
     private:
         std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<Flux>>> flux_; ///< source flux information per band
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
         std::shared_ptr<PreCalculated> preCalculated_; ///< pre calculated values
         std::shared_ptr<Optimization> condition_;
+        Statistics statistics_;
 
         double ra_; ///< source right ascension
         double de_; ///< source declination
 
         Parameters parameters_; ///< parameters
 
-        unsigned int nextEvent_; ///< index of next event
-        unsigned int lastScan_; ///< last scan to this source
-        unsigned int nScans_; ///< number of scans to this source that have influence on scheduling algorithms
-        unsigned int nTotalScans_; ///< number of total scans
-        unsigned long nBaselines_; ///< number of observed baselines to this source
+        unsigned int nextEvent_{0}; ///< index of next event
+        unsigned int lastScan_{0}; ///< last scan to this source
+        unsigned int nScans_{0}; ///< number of scans to this source that have influence on scheduling algorithms
+        unsigned int nTotalScans_{0}; ///< number of total scans
+        unsigned long nBaselines_{0}; ///< number of observed baselines to this source
     };
     
     

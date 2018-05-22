@@ -300,6 +300,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.minElevation.is_initialized()) {
         parameters.add("parameters.minElevation", PARA.minElevation);
     }
+    if (PARA.minSunDistance.is_initialized()) {
+        parameters.add("parameters.minSunDistance", PARA.minSunDistance);
+    }
 
     if (PARA.minScan.is_initialized()) {
         parameters.add("parameters.minScan", PARA.minScan);
@@ -405,6 +408,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.weight = it.second.get_value<double>();
         } else if (paraName == "minElevation") {
             para.minElevation = it.second.get_value<double>();
+        } else if (paraName == "minSunDistance") {
+            para.minSunDistance = it.second.get_value<double>();
         } else if (paraName == "minScan") {
             para.minScan = it.second.get_value < unsigned
             int > ();
@@ -681,8 +686,7 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
     auto esecond = boost::lexical_cast<int>(endstr.substr(17,2));
     boost::posix_time::ptime end = boost::posix_time::ptime(boost::gregorian::date(eyear,emonth,eday),boost::posix_time::time_duration(ehour,eminute,esecond));
 
-    boost::posix_time::time_duration a = end - start;
-    int sec = a.total_seconds();
+    int sec = util::duration(start,end);
     auto duration = static_cast<unsigned int>(sec);
 
     if (!setup.getChildren().empty()) {

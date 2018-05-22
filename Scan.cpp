@@ -12,7 +12,6 @@
  */
 
 #include "Scan.h"
-#include "StationEndposition.h"
 
 using namespace std;
 using namespace VieVS;
@@ -202,7 +201,7 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
 
     // align start times at the end
     if(scan_valid){
-        times_.alignStartTimes(ScanTimes::AlignmentAnchor::start);
+        times_.alignStartTimes();
     }
 
     return scan_valid;
@@ -704,7 +703,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
         nsta_beginning = nsta_;
 
         // align start times
-        times_.alignStartTimes(ScanTimes::AlignmentAnchor::start);
+        times_.alignStartTimes();
         scanValid = constructBaselines(source);
         if (!scanValid) {
             return scanValid;
@@ -1114,13 +1113,14 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
         const auto &thisSta = stations[pv.getStaid()];
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
-        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %3d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
+        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
               % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
                 times_.getObservingTime(i)
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingStart(i)))
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingEnd(i)))
               % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId();
     }
+    of << "*\n";
 }
 
 boost::optional<Scan> Scan::copyScan(const std::vector<int> &ids, const Source &source) const noexcept {
@@ -1315,5 +1315,32 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
 
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEndtime_ = std::move(pv_end);
+}
+
+void Scan::createDummyObservations() {
+    for(int i=0; i<nsta_; ++i) {
+        int staid1 = pointingVectors_[i].getStaid();
+        unsigned int dur1 = times_.getObservingTime(i);
+        for (int j = i + 1; j < nsta_; ++j) {
+            int staid2 = pointingVectors_[j].getStaid();
+            unsigned int dur2 = times_.getObservingTime(j);
+
+            unsigned int dur = std::max(dur1, dur2);
+
+            Baseline bl(staid1, staid2, srcid_, times_.getObservingStart());
+            bl.setScanDuration(dur);
+            baselines_.push_back(std::move(bl));
+        }
+    }
+}
+
+unsigned long Scan::getNBl(int staid) const noexcept {
+    unsigned long n=0;
+    for(const auto &any:baselines_){
+        if(any.getStaid1() == staid || any.getStaid2() == staid){
+            ++n;
+        }
+    }
+    return n;
 }
 

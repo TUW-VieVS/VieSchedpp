@@ -135,7 +135,7 @@ namespace VieVS {
          *
          * Idle times are introduced
          */
-        void alignStartTimes(AlignmentAnchor anchor = AlignmentAnchor::start) noexcept;
+        void alignStartTimes() noexcept;
 
         void setStartTime(unsigned int scanStart) noexcept ;
 
@@ -166,8 +166,13 @@ namespace VieVS {
 
         bool substractPreobTimeFromStartTime(unsigned int preob);
 
+        static void setAlignmentAnchor(AlignmentAnchor newAnchor){
+            anchor = newAnchor;
+        }
+
     private:
         static int nextId;
+        static AlignmentAnchor anchor;
 
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan
         std::vector<unsigned int> endOfFieldSystemTime_; ///< end of setup time

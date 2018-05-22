@@ -348,6 +348,11 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
     int created = 0;
     headerLog << "Create Sources:\n";
 
+    vector<string> src_created;
+    vector<string> src_ignored;
+    vector<string> src_fluxInformationNotFound;
+    vector<string> src_failed;
+
 
     vector<string> sel_sources;
     const auto &ptree_useSources = xml_.get_child_optional("master.general.onlyUseListedSources");
@@ -377,6 +382,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 
         if (any.second.size() < 8){
             headerLog << "*** ERROR: " << any.first << ": source.cat to small ***\n";
+            src_failed.push_back(name);
             continue;
         }
         string commonname = any.second.at(1);
@@ -387,13 +393,13 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
         if(!sel_sources.empty()){
             if(find(sel_sources.begin(),sel_sources.end(),name) == sel_sources.end() &&
                find(sel_sources.begin(),sel_sources.end(),commonname) == sel_sources.end()){
-                headerLog << boost::format("  %8s ignored\n")%name;
+                src_ignored.push_back(name);
                 continue;
             }
         }else{
             if(find(ignore_sources.begin(),ignore_sources.end(),name) != ignore_sources.end() ||
                find(ignore_sources.begin(),ignore_sources.end(),commonname) != ignore_sources.end()){
-                headerLog << boost::format("  %8s ignored\n")%name;
+                src_ignored.push_back(name);
                 continue;
             }
         }
@@ -403,7 +409,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
         bool foundCommName = (!commonname.empty() && fluxCatalog.find(commonname) != fluxCatalog.end());
 
         if ( !foundName && !foundCommName){
-            headerLog << "*** WARNING: source " << name << ": flux information not found ***\n";
+            src_fluxInformationNotFound.push_back(name);
             continue;
         }
 
@@ -419,7 +425,8 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             de_s   = boost::lexical_cast<double>(any.second.at(7));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << " ***\n";
+            src_failed.push_back(name);
+            headerLog << "*** ERROR: reading right ascension and declination for " << name << " ***\n";
             continue;
         }
         double ra = 15*(ra_h + ra_m/60 + ra_s/3600);
@@ -486,8 +493,9 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                         parameters.insert(parameters.end(), flux_split[i].begin()+3, flux_split[i].end());
                         alreadyConsidered.push_back(i);
                     }else {
-                        cerr << "ERROR: Source:" << name << "Flux: " << thisBand << ";\n";
-                        cerr << "ERROR:   You can not mix B and M flux information for one band!;\n";
+                        src_failed.push_back(name);
+                        cerr << "ERROR: Source:" << name << "Flux: " << thisBand
+                             << " You can not mix B and M flux information for one band!;\n";
                     }
                 }
             }
@@ -513,6 +521,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     }
                     catch(const std::exception& e){
                         errorWhileReadingFlux = true;
+                        src_failed.push_back(name);
                         cout << "ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information;\n";
                         break;
                     }
@@ -537,6 +546,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
                     }
                     catch(const std::exception& e){
                         errorWhileReadingFlux = true;
+                        src_failed.push_back(name);
                         cout << "ERROR: reading flux information; \n";
                         break;
                     }
@@ -583,6 +593,7 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 
         if(flux.size() != ObservationMode::bands.size()){
             if(flux.empty()){
+                src_failed.push_back(name);
                 cerr << "ERROR: source " << name << " no flux information found to calculate backup value!;\n";
                 continue;
             }
@@ -628,10 +639,16 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
             }
             sources_.emplace_back(name1, name2, ra, de, flux);
             created++;
-            headerLog << boost::format("  %-8s added\n") % name;
+            src_created.push_back(name);
         }
     }
     headerLog << "Finished! " << created << " of " << nsrc << " sources created\n\n";
+
+    util::outputObjectList("Created sources",src_created,headerLog);
+    util::outputObjectList("ignored sources",src_ignored,headerLog);
+    util::outputObjectList("failed because of missing flux information",src_fluxInformationNotFound,headerLog);
+    util::outputObjectList("failed to create source",src_failed,headerLog);
+
 }
 
 void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
@@ -692,8 +709,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         headerLog << "end time:" << TimeSystem::ptime2string(endTime) << "\n";
 
 
-        boost::posix_time::time_duration a = endTime - startTime;
-        int sec = a.total_seconds();
+        int sec = util::duration(startTime,endTime);
         if (sec < 0) {
             cerr << "ERROR: duration is less than zero seconds!;\n";
         }
@@ -721,6 +737,17 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
         parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule",false);
         parameters_.fillinmodeAPosteriori = xml_.get<bool>("master.general.fillinmodeAPosteriori",false);
+
+        std::string anchor = xml_.get<std::string>("master.general.scanAlignment","start");
+        if(anchor == "start"){
+            ScanTimes::setAlignmentAnchor(ScanTimes::AlignmentAnchor::start);
+        }else if(anchor == "end"){
+            ScanTimes::setAlignmentAnchor(ScanTimes::AlignmentAnchor::end);
+        }else if(anchor == "individual"){
+            ScanTimes::setAlignmentAnchor(ScanTimes::AlignmentAnchor::individual);
+        }else{
+            headerLog << "ERROR: cannot read scan alignment type:" << anchor << endl;
+        }
 
     } catch (const boost::property_tree::ptree_error &e) {
         headerLog << "ERROR: reading parameters.xml file!" << endl;
@@ -808,7 +835,7 @@ void Initializer::initializeStations() noexcept {
         thisStation.setCurrentPointingVector(pV);
         thisStation.setEVENTS(events[i]);
         bool hardBreak = false;
-        thisStation.checkForNewEvent();
+        thisStation.checkForNewEvent(0, hardBreak);
 
         vector<double> distance(nsta);
         vector<double> dx(nsta);
@@ -1173,8 +1200,7 @@ void Initializer::initializeSources() noexcept {
 
     for (auto &any:sources_) {
         bool hardBreak = false;
-        ofstream dummy;
-        any.checkForNewEvent(0, hardBreak, false, dummy);
+        any.checkForNewEvent(0, hardBreak);
     }
 
 
@@ -1267,6 +1293,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             }
             if (newPARA.minElevation.is_initialized()){
                 combinedPARA.minElevation = *newPARA.minElevation*deg2rad;
+            }
+            if (newPARA.minSunDistance.is_initialized()){
+                combinedPARA.minSunDistance = *newPARA.minSunDistance*deg2rad;
             }
 
             if (!newPARA.ignoreStations.empty()) {
@@ -1392,14 +1421,26 @@ void Initializer::displaySummary(ofstream &headerLog) noexcept {
     }
 }
 
-void Initializer::initializeNutation() noexcept {
+void Initializer::initializeAstronomicalParameteres() noexcept{
+    // earth velocity
+    double date1 = 2400000.5;
+    double date2 = TimeSystem::mjdStart+static_cast<double>(TimeSystem::duration)/2/86400;
+    double pvh[2][3];
+    double pvb[2][3];
+    iauEpv00(date1, date2, pvh, pvb);
+    double aud2ms = DAU / DAYSEC;
+    double vearth[3] = {aud2ms * pvb[1][0],
+                        aud2ms * pvb[1][1],
+                        aud2ms * pvb[1][2]};
+    AstronomicalParameters::earth_velocity = {vearth[0], vearth[1], vearth[2]};
+
+    // earth nutation
     vector<unsigned int> nut_t;
     vector<double> nut_x;
     vector<double> nut_y;
     vector<double> nut_s;
 
-    double date1 = 2400000.5;
-    double date2 = TimeSystem::mjdStart;
+    date2 = TimeSystem::mjdStart;
 
     unsigned int counter = 0;
     unsigned int frequency = 3600;
@@ -1418,24 +1459,53 @@ void Initializer::initializeNutation() noexcept {
         ++counter;
     } while (refTime < TimeSystem::duration + 3600);
 
-    Nutation::nutX = nut_x;
-    Nutation::nutY = nut_y;
-    Nutation::nutS = nut_s;
-    Nutation::nutTime = nut_t;
+    AstronomicalParameters::earth_nutX = nut_x;
+    AstronomicalParameters::earth_nutY = nut_y;
+    AstronomicalParameters::earth_nutS = nut_s;
+    AstronomicalParameters::earth_nutTime = nut_t;
+
+    //sunPosition
+    double mjd = TimeSystem::mjdStart+static_cast<double>(TimeSystem::duration)/2/86400;
+    // NUMBER OF DAYS SINCE J2000.0
+    double days = mjd - 51544.5;
+    // MEAN SOLAR LONGITUDE
+    double slon = 280.460 + 0.9856474 * days;
+    slon = fmod(slon, 360);
+    if (slon < 1.0d-3){
+        slon = slon + 360.0;
+    }
+    // MEAN ANOMALY OF THE SUN
+    double sanom = 357.528 + 0.9856003 * days;
+    sanom = sanom * pi / 180.0;
+    sanom = fmod(sanom, 2*pi);
+    if (sanom < 1.0d-3){
+        sanom = sanom + 2 * pi;
+    }
+    // ECLIPTIC LONGITUDE AND OBLIQUITY OF THE ECLIPTIC
+    double ecllon = slon + 1.915 * sin(sanom) + 0.020 * sin(2*sanom);
+    ecllon = ecllon * pi / 180.0;
+    ecllon = fmod(ecllon, 2*pi);
+    double quad = ecllon / (0.5*pi);
+    double iquad = floor(1 + quad);
+    double obliq = 23.439 - 0.0000004 * days;
+    obliq = obliq * pi / 180.0;
+    // RIGHT ASCENSION AND DECLINATION
+    // (RA IS IN SAME QUADRANT AS ECLIPTIC LONGITUDE)
+    double sunra = atan(cos(obliq)*tan(ecllon));
+    if (iquad == 2){
+        sunra = sunra + pi;
+    }else if(iquad == 3){
+        sunra = sunra + pi;
+    }else if(iquad == 4){
+        sunra = sunra + 2*pi;
+    }
+    double sunde = asin(sin(obliq) * sin(ecllon));
+    AstronomicalParameters::sun_radc = {sunra, sunde};
+
+
+
 }
 
-void Initializer::initializeEarth() noexcept {
-    double date1 = 2400000.5;
-    double date2 = TimeSystem::mjdStart;
-    double pvh[2][3];
-    double pvb[2][3];
-    iauEpv00(date1, date2, pvh, pvb);
-    double aud2ms = DAU / DAYSEC;
-    double vearth[3] = {aud2ms * pvb[1][0],
-                        aud2ms * pvb[1][1],
-                        aud2ms * pvb[1][2]};
-    Earth::velocity = {vearth[0], vearth[1], vearth[2]};
-}
 
 void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);

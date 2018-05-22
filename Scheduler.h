@@ -66,7 +66,10 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        Scheduler(Initializer &init, std::string name, std::string path);
+        Scheduler(Initializer &init, std::string path, std::string name);
+
+        Scheduler(std::string name, std::vector<Station> stations, std::vector<Source> sources,
+                  std::vector<SkyCoverage> skyCoverages, std::vector<Scan> scans, boost::property_tree::ptree xml);
 
         /**
          * @brief main function that starts the scheduling
@@ -141,9 +144,9 @@ namespace VieVS{
         Parameters parameters_; ///< general scheduling parameters
         PreCalculated preCalculated_; ///< pre calculated values
 
-        unsigned long nSingleScansConsidered; ///< considered single source scans
-        unsigned long nSubnettingScansConsidered; ///< considered subnetting scans
-        unsigned long nObservationsConsidered; ///< considered baselines
+        unsigned long nSingleScansConsidered = 0; ///< considered single source scans
+        unsigned long nSubnettingScansConsidered = 0; ///< considered subnetting scans
+        unsigned long nObservationsConsidered = 0; ///< considered baselines
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
                                 boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
@@ -164,14 +167,14 @@ namespace VieVS{
          * @param bodyLog outstream file object
          * @return true if a hard break was found
          */
-        bool checkForNewEvent(unsigned int time, bool output, std::ofstream &bodyLog) noexcept;
+        bool checkForNewEvents(unsigned int time, bool output, std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief calculates number of available sources
          *
          * @return number of available sources
          */
-        unsigned int countAvailableSources() noexcept;
+        void listSourceOverview(std::ofstream &log) noexcept;
 
         /**
          * @brief saves sky coverage data

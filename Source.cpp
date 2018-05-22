@@ -54,8 +54,7 @@ void Source::Parameters::setParameters(const Source::Parameters &other) {
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
                unordered_map<string, unique_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
                                                                     ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
-                                                                    lastScan_{0}, nScans_{0}, nTotalScans_{0},
-                                                                    nBaselines_{0}, parameters_{Parameters("empty")}{
+                                                                    parameters_{Parameters("empty")}{
 
     flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<Flux>>>(std::move(src_flux));
 
@@ -69,8 +68,8 @@ Source::Source(const string &src_name, const string &src_name2, double src_ra_de
     condition_ = make_shared<Optimization>(Optimization());
 }
 
-bool Source::isStrongEnough(double &maxFlux) const noexcept {
-    maxFlux = 0;
+double Source::getMaxFlux() const noexcept {
+    double maxFlux = 0;
 
     for (auto& any: *flux_){
         double thisFlux = any.second->getMaximumFlux();
@@ -78,7 +77,15 @@ bool Source::isStrongEnough(double &maxFlux) const noexcept {
             maxFlux = thisFlux;
         }
     }
-    return maxFlux > parameters_.minFlux;
+    return maxFlux;
+}
+
+double Source::getSunDistance() const noexcept{
+    double sunRa = AstronomicalParameters::sun_radc[0];
+    double sunDe = AstronomicalParameters::sun_radc[1];
+
+    double tmp = sin(sunDe) * sin(de_) + cos(sunDe) * cos(de_) * cos(sunRa - ra_);
+    return acos(tmp);
 }
 
 namespace VieVS {
@@ -115,34 +122,21 @@ void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) 
     ++nTotalScans_;
 }
 
-bool Source::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, ofstream &bodyLog) noexcept {
+bool Source::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
     bool flag = false;
     while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
         double oldMinFlux = parameters_.minFlux;
         bool oldGlobalAvailable = parameters_.globalAvailable;
         parameters_ = events_->at(nextEvent_).PARA;
         parameters_.globalAvailable = oldGlobalAvailable;
-        double newMinFlux = parameters_.minFlux;
+
         hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
-
-        if (output && time < TimeSystem::duration) {
-            bodyLog << "###############################################\n";
-            bodyLog << "## changing parameters for source: " << boost::format("%8s") % getName() << "  ##\n";
-            bodyLog << "###############################################\n";
-        }
-
         nextEvent_++;
-        if (oldMinFlux != newMinFlux) {
-            double maxFlux = 0;
-            bool strongEnough = isStrongEnough(maxFlux);
-            if (!strongEnough && output) {
-                referencePARA().setAvailable(false);
-                bodyLog << "source: " << boost::format("%8s") % getName() << " not strong enough! (max flux = "
-                        << boost::format("%4.2f") % maxFlux << " min required flux = "
-                        << boost::format("%4.2f") % parameters_.minFlux << ")\n";;
-            }
-            flag = true;
+
+        if(getMaxFlux() < parameters_.minFlux){
+            parameters_.available = false;
         }
+        flag = true;
     }
     return flag;
 }
@@ -176,7 +170,7 @@ void Source::clearObservations() {
     bool hardBreak = false;
     ofstream dummy;
     nextEvent_ = 0;
-    checkForNewEvent(0, hardBreak, false, dummy);
+    checkForNewEvent(0, hardBreak);
 }
 
 //Source Source::clone() const{

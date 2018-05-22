@@ -34,7 +34,7 @@ double VieVS::TimeSystem::mjd2gmst(double mjd) {
     return fmod(theta,twopi);
 }
 
-std::string VieVS::TimeSystem::ptime2string(boost::posix_time::ptime ptime) {
+std::string VieVS::TimeSystem::ptime2string(const boost::posix_time::ptime &ptime) {
     int month = ptime.date().month();
     std::string dateStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
                            % ptime.date().year() %month %ptime.date().day()
@@ -53,14 +53,14 @@ boost::posix_time::ptime VieVS::TimeSystem::string2ptime(std::string timeStr) {
     return {boost::gregorian::date(year,month,day),boost::posix_time::time_duration(hour,minute,second)};
 }
 
-std::string VieVS::TimeSystem::date2string(boost::posix_time::ptime ptime) {
+std::string VieVS::TimeSystem::date2string(const boost::posix_time::ptime &ptime) {
     std::string dateStr = (boost::format("%04d%3s%02d")
                            % ptime.date().year() %ptime.date().month() %ptime.date().day()).str();
     dateStr = boost::to_upper_copy(dateStr);
     return dateStr;
 }
 
-std::string VieVS::TimeSystem::ptime2string_doy(boost::posix_time::ptime ptime) {
+std::string VieVS::TimeSystem::ptime2string_doy(const boost::posix_time::ptime &ptime) {
     std::string dateStr = (boost::format("%02d%03d%02d%02d%02d") % (ptime.date().year()%100) % ptime.date().day_of_year() %
                             ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
     return dateStr;
@@ -82,7 +82,7 @@ boost::posix_time::ptime VieVS::TimeSystem::string_doy2ptime(std::string timeStr
     return {boost::gregorian::date(year,1,1)+boost::gregorian::days(doy-1),boost::posix_time::time_duration(hour,minute,second)};
 }
 
-std::string VieVS::TimeSystem::ptime2string_units(boost::posix_time::ptime ptime) {
+std::string VieVS::TimeSystem::ptime2string_units(const boost::posix_time::ptime &ptime) {
     int month = ptime.date().month();
     std::string dateStr = (boost::format("%04dy%02md%02dd%02dh%02dm%02ds")
                            % ptime.date().year() %month %ptime.date().day()
@@ -90,7 +90,7 @@ std::string VieVS::TimeSystem::ptime2string_units(boost::posix_time::ptime ptime
     return dateStr;
 }
 
-std::string VieVS::TimeSystem::ptime2string_doy_units(boost::posix_time::ptime ptime) {
+std::string VieVS::TimeSystem::ptime2string_doy_units(const boost::posix_time::ptime &ptime) {
     std::string dateStr = (boost::format("%04dy%03dd%02dh%02dm%02ds") % ptime.date().year() % ptime.date().day_of_year() %
                            ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
     return dateStr;
@@ -100,9 +100,8 @@ boost::posix_time::ptime VieVS::TimeSystem::internalTime2PosixTime(unsigned int 
     return TimeSystem::startTime + boost::posix_time::seconds(time);
 }
 
-unsigned int VieVS::TimeSystem::posixTime2InternalTime(boost::posix_time::ptime ptime) {
-    boost::posix_time::time_duration a = ptime - TimeSystem::startTime;
-    int sec = a.total_seconds();
+unsigned int VieVS::TimeSystem::posixTime2InternalTime(const boost::posix_time::ptime &ptime) {
+    int sec = util::duration(TimeSystem::startTime, ptime);
 
     return static_cast<unsigned int>(sec);
 }

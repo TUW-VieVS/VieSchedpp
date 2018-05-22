@@ -35,8 +35,7 @@
 #include "Station.h"
 #include "Source.h"
 #include "SkyCoverage.h"
-#include "Nutation.h"
-#include "Earth.h"
+#include "AstronomicalParameters.h"
 #include "LookupTable.h"
 #include "WeightFactors.h"
 #include "ObservationMode.h"
@@ -173,21 +172,7 @@ namespace VieVS {
          */
         void initializeSources() noexcept;
 
-        /**
-         * @brief calculates the nutation with the IAU2006a model in one hour steps
-         *
-         * This values are than used for interpolation of nuation in the calculation of each azimuth and elevation.
-         * @see getAzEl
-         */
-        void initializeNutation() noexcept;
-
-        /**
-         * @brief calculates velocity of earth at start time.
-         *
-         * used in the calculation of azimuth and elevation.
-         * @see updateAzEl()
-         */
-        void initializeEarth() noexcept;
+        void initializeAstronomicalParameteres() noexcept ;
 
         /**
          * @brief initializes the weight factors

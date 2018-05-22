@@ -13,6 +13,7 @@
 
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
+#include "util.h"
 
 namespace VieVS {
     /**
@@ -37,16 +38,16 @@ namespace VieVS {
          */
         static double mjd2gmst(double mjd);
 
-        static std::string ptime2string(boost::posix_time::ptime ptime);
-        static std::string ptime2string_units(boost::posix_time::ptime ptime);
-        static std::string ptime2string_doy(boost::posix_time::ptime ptime);
+        static std::string ptime2string(const boost::posix_time::ptime &ptime);
+        static std::string ptime2string_units(const boost::posix_time::ptime &ptime);
+        static std::string ptime2string_doy(const boost::posix_time::ptime &ptime);
         static boost::posix_time::ptime string_doy2ptime(std::string);
-        static std::string ptime2string_doy_units(boost::posix_time::ptime ptime);
+        static std::string ptime2string_doy_units(const boost::posix_time::ptime &ptime);
         static boost::posix_time::ptime string2ptime(std::string);
-        static std::string date2string(boost::posix_time::ptime ptime);
+        static std::string date2string(const boost::posix_time::ptime &ptime);
 
         static boost::posix_time::ptime internalTime2PosixTime(unsigned int time);
-        static unsigned int posixTime2InternalTime(boost::posix_time::ptime ptime);
+        static unsigned int posixTime2InternalTime(const boost::posix_time::ptime &ptime);
     };
 }
 

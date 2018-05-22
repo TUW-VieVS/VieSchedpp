@@ -136,11 +136,10 @@ void VieVS_Scheduler::run() {
         }
 
         // initialize time dependend parameters
-        newInit.initializeNutation();
-        newInit.initializeEarth();
+        newInit.initializeAstronomicalParameteres();
 
         // create scheduler and start scheduling
-        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,fname, path);
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,path,fname);
         if(himp.is_initialized()){
             scheduler.highImpactScans(himp.get(), bodyLog);
         }

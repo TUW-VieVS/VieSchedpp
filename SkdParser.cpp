@@ -95,8 +95,7 @@ void SkdParser::createObjects() {
     int sec_ = TimeSystem::startTime.time_of_day().total_seconds();
     TimeSystem::mjdStart = TimeSystem::startTime.date().modjulian_day() + sec_ / 86400.0;
 
-    boost::posix_time::time_duration a = TimeSystem::endTime - TimeSystem::startTime;
-    int sec = a.total_seconds();
+    int sec = util::duration(TimeSystem::startTime,TimeSystem::endTime);
     if (sec < 0) {
         cerr << "ERROR: duration is less than zero seconds!;\n";
     }
@@ -105,7 +104,7 @@ void SkdParser::createObjects() {
 
 
     skd_.setStationNames(staNames);
-    skd_.setCatalogFilePathes(filename_,filename_,filename_,"","","",filename_,"",filename_,"","",filename_,"");
+    skd_.setCatalogFilePathes(filename_);
 
     ofstream of;
     of.close();
@@ -127,9 +126,7 @@ void SkdParser::createObjects() {
         any.preCalc(vector<double>(nsta,0),vector<double>(nsta,0),vector<double>(nsta,0),vector<double>(nsta,0));
     }
 
-    init.initializeNutation();
-    init.initializeEarth();
-
+    init.initializeAstronomicalParameteres();
 }
 
 void SkdParser::createScans() {
@@ -193,8 +190,7 @@ void SkdParser::createScans() {
                 durations.push_back(boost::lexical_cast<unsigned int>(splitVector[i]));
             }
 
-            boost::posix_time::time_duration diff = scanStart - TimeSystem::startTime;
-            int sec = diff.total_seconds();
+            int sec = util::duration(TimeSystem::startTime,scanStart);
             if (sec < 0) {
                 cerr << "ERROR: duration is less than zero seconds!;\n";
             }
@@ -290,6 +286,8 @@ void SkdParser::createScans() {
 
             scan.setPointingVectorsEndtime(move(pv_end));
 
+            scan.createDummyObservations();
+
             scans_.push_back(scan);
             ++counter;
         }
@@ -299,18 +297,19 @@ void SkdParser::createScans() {
 void SkdParser::copyScanMembersToObjects() {
     for(const auto &scan:scans_){
         int srcid = scan.getSourceId();
-        unsigned long nbl = (scan.getNSta()*(scan.getNSta()-1))/2;
 
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);
             int staid = pv.getStaid();
             const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
-            stations_[staid].update(nbl, pv, pv_end, true);
+            unsigned long nbl = scan.getNBl(staid);
+            stations_[staid].update(nbl, pv_end, true);
 
             int skyCoverageId = stations_[staid].getSkyCoverageID();
             skyCoverages_[skyCoverageId].update(pv);
         }
 
+        unsigned long nbl = (scan.getNSta()*(scan.getNSta()-1))/2;
         unsigned int latestTime = scan.getTimes().getObservingStart();
         Source &thisSource = sources_[srcid];
         thisSource.update(nbl, latestTime, true);
@@ -349,4 +348,30 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
         }
     }
     return times;
+}
+
+Scheduler SkdParser::createScheduler() {
+
+    boost::property_tree::ptree xml;
+    xml.add("general.startTime",TimeSystem::ptime2string(TimeSystem::startTime));
+    xml.add("general.endTime",TimeSystem::ptime2string(TimeSystem::endTime));
+
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    xml.add("created.time",now);
+
+    string fname;
+    std::size_t found = filename_.find_last_of("/\\");
+    std::string path;
+    if(found == std::string::npos){
+        fname = filename_;
+    }else{
+        fname = filename_.substr(found+1);
+    }
+
+    xml.add("output.experimentName",fname);
+    string description = string("created from skd file: ").append(fname);
+
+    xml.add("output.experimentDescription",description);
+
+    return Scheduler(filename_,stations_,sources_,skyCoverages_,scans_, xml);
 }

@@ -6,6 +6,8 @@
 using namespace std;
 using namespace VieVS;
 int ScanTimes::nextId = 0;
+ScanTimes::AlignmentAnchor ScanTimes::anchor = ScanTimes::AlignmentAnchor::start;
+
 ScanTimes::ScanTimes(unsigned int nsta): VieVS_Object(nextId++) {
     endOfLastScan_.resize(nsta);
     endOfFieldSystemTime_.resize(nsta);
@@ -32,7 +34,7 @@ void ScanTimes::removeElement(int idx) noexcept {
     endOfPreobTime_.erase(next(endOfPreobTime_.begin(),idx));
     endOfObservingTime_.erase(next(endOfObservingTime_.begin(),idx));
 
-    alignStartTimes(ScanTimes::AlignmentAnchor::start);
+    alignStartTimes();
 }
 
 void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
@@ -50,7 +52,7 @@ void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
 
 }
 
-void ScanTimes::alignStartTimes(AlignmentAnchor anchor) noexcept {
+void ScanTimes::alignStartTimes() noexcept {
     auto nsta = static_cast<int>(endOfSlewTime_.size());
 
     switch(anchor){

@@ -26,9 +26,8 @@
 #include "Source.h"
 #include "PointingVector.h"
 #include "Constants.h"
-#include "Nutation.h"
-#include "Earth.h"
 #include "TimeSystem.h"
+#include "AstronomicalParameters.h"
 
 #include "sofa.h"
 #include "VieVS_NamedObject.h"
@@ -172,6 +171,14 @@ namespace VieVS{
             std::vector<std::vector<double> > g2l; ///< geocentric to local transformation matrix
         };
 
+        struct Statistics{
+            std::vector<unsigned int> scanStartTimes;
+            int totalObservingTime{0};
+            int totalSlewTime{0};
+            int totalIdleTime{0};
+            int totalFieldSystemTime{0};
+            int totalPreobTime{0};
+        };
 
         /**
          * @brief constructor
@@ -436,12 +443,6 @@ namespace VieVS{
         }
 
 
-        /**
-         * @brief this function applies all changes of parameters at the start of session
-         *
-         */
-        void checkForNewEvent() noexcept;
-
         bool checkForTagalongMode(unsigned int time) noexcept;
 
         /**
@@ -454,7 +455,7 @@ namespace VieVS{
          * @param bodyLog output stream object
          * @param tagalong flag if station should be scheduled in tagalong mode
          */
-        void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &out) noexcept;
+        bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
 
         /**
          * @brief changes parameters to next setup
@@ -475,31 +476,17 @@ namespace VieVS{
          * @param end pointing vector at end time
          * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
-        void update(unsigned long nbl, const PointingVector &start, const PointingVector &end, bool addToStatistics) noexcept;
-
-
-        /**
-         * @brief returns all pointing vectors which were observed
-         *
-         * This function is usually at the end of the schedule to check if everything is right.
-         *
-         * @return first elements are start pointing vectors, second elements are end pointing vectors
-         */
-        std::pair<const std::vector<PointingVector> &, const std::vector<PointingVector> &> getAllScans() const noexcept {
-            return {pointingVectorsStart_,pointingVectorsEnd_};
-        };
-
-        void addPointingVectorStart(const PointingVector &pv){
-            pointingVectorsStart_.push_back(pv);
-        }
-
-        void addPointingVectorEnd(const PointingVector &pv){
-            pointingVectorsEnd_.push_back(pv);
-        }
+        void update(unsigned long nbl, const PointingVector &end, bool addToStatistics) noexcept;
 
         void clearObservations();
 
-        void sortPointingVectors();
+        void setStatistics(const Statistics &stat){
+            statistics_ = stat;
+        }
+
+        const Statistics &getStatistics() const {
+            return statistics_;
+        }
 
     private:
         static int nextId;
@@ -513,13 +500,12 @@ namespace VieVS{
         std::shared_ptr<PreCalculated> preCalculated_; ///< precalculated values
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
+        Statistics statistics_;
 
         int skyCoverageId_{-1}; ///< station sky coverage id
         Parameters parameters_; ///< station parameters
-        unsigned int nextEvent_{0}; ///< index of next event
         PointingVector currentPositionVector_; ///< current pointing vector
-        std::vector<PointingVector> pointingVectorsStart_; ///< all observed pointing vectors at scan start
-        std::vector<PointingVector> pointingVectorsEnd_; ///< all observed pointing vectors at scan end
+        unsigned int nextEvent_{0}; ///< index of next event
         int nScans_{0}; ///< number of participated scans
         int nTotalScans_{0}; ///< number of total scans
         int nBaselines_{0}; ///< number of observed baselines

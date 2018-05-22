@@ -6,6 +6,7 @@
 #define UTILITY_H
 
 #include <boost/format.hpp>
+#include <boost/date_time.hpp>
 #include <cmath>
 #include <vector>
 #include <numeric>
@@ -19,6 +20,8 @@ namespace VieVS::util{
     std::string dc2hms(double angle);
 
     double wrapToPi(double angle);
+
+    int duration(const boost::posix_time::ptime &start, const boost::posix_time::ptime &end);
 
     template<typename T>
     T absDiff(const T&a, const T&b) {
@@ -38,6 +41,8 @@ namespace VieVS::util{
 
         return idx;
     }
+
+    void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &log);
 
 
 }

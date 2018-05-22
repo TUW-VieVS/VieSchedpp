@@ -134,6 +134,10 @@ namespace VieVS{
          */
         void displaySourceStatistics(std::ofstream &out);
 
+        void displayNstaStatistics(std::ofstream &out);
+
+        void displayAstronomicalParameters(std::ofstream &out);
+
         /**
          * @brief displays some source dependent statistics of the schedule
          *

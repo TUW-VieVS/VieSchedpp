@@ -441,6 +441,8 @@ namespace VieVS{
             return baselines_.size();
         }
 
+        unsigned long getNBl(int staid) const noexcept;
+
         /**
          * @brief checks if parts of this scan can be used as a fillin mode scan
          *
@@ -470,6 +472,8 @@ namespace VieVS{
                           unsigned int preob, unsigned int scanStart, const std::vector<unsigned int> &scanDurations);
 
         void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
+
+        void createDummyObservations();
 
     private:
         static thread_local int nextId;

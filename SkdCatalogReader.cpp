@@ -364,6 +364,24 @@ void SkdCatalogReader::setCatalogFilePathes(const std::string &antenna, const st
     loifPath_ = loif;
 
 }
+void SkdCatalogReader::setCatalogFilePathes(const std::string &skdFile){
+
+    sourcePath_ = skdFile;
+    fluxPath_ = skdFile;
+
+    antennaPath_ = skdFile;
+    positionPath_ = skdFile;
+    equipPath_ = skdFile;
+    maskPath_ = skdFile;
+
+    modesPath_ = "";
+    recPath_ = "";
+    tracksPath_ = "";
+    freqPath_ = "";
+    rxPath_ = "";
+    loifPath_ = "";
+
+}
 
 
 void SkdCatalogReader::initializeSourceCatalogs() {

@@ -118,9 +118,6 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 
     const std::map<std::string, std::string> &twoLetterCode = skdCatalogReader.getTwoLetterCode();
 
-    string antennaCat = xml.get<string>("master.catalogs.antenna");
-    string equipCat = xml.get<string>("master.catalogs.equip");
-
     const map<string, vector<string> > &ant = skdCatalogReader.getAntennaCatalog();
     const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
 

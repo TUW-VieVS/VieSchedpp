@@ -6,11 +6,7 @@
 #define SKDREADER_H
 
 #include "SkdCatalogReader.h"
-#include "Station.h"
-#include "Source.h"
-#include "Scan.h"
-#include "SkyCoverage.h"
-#include "Initializer.h"
+#include "Scheduler.h"
 
 namespace VieVS{
     class SkdParser: public VieVS_Object {
@@ -24,6 +20,8 @@ namespace VieVS{
 
         void copyScanMembersToObjects();
 
+        Scheduler createScheduler();
+
         std::vector<std::vector<unsigned int>> getScheduledTimes(const std::string &station);
 
     private:
@@ -33,6 +31,7 @@ namespace VieVS{
         unsigned int fieldSystemTimes_ = 0;
 
         SkdCatalogReader skd_;
+
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
         std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages
