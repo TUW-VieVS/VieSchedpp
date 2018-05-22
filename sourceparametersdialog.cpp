@@ -72,6 +72,7 @@ void sourceParametersDialog::addDefaultParameters(VieVS::ParameterSettings::Para
     ui->spinBox_maxNumberOfScans->setValue(*d.maxNumberOfScans);
     ui->doubleSpinBox_minFlux->setValue(*d.minFlux);
     ui->doubleSpinBox_minElevation->setValue(*d.minElevation);
+    ui->doubleSpinBox_minSunDistance->setValue(*d.minSunDistance);
     ui->spinBox_minNumberOfStations->setValue(*d.minNumberOfStations);
 }
 
@@ -87,6 +88,8 @@ void sourceParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Par
         ui->checkBox_maxNumberOfScans->setEnabled(false);
         ui->checkBox_minElevation->setChecked(true);
         ui->checkBox_minElevation->setEnabled(false);
+        ui->checkBox_minSunDistance->setChecked(true);
+        ui->checkBox_minSunDistance->setEnabled(false);
         ui->checkBox_minFlux->setChecked(true);
         ui->checkBox_minFlux->setEnabled(false);
         ui->checkBox_minNumberOfStations->setChecked(true);
@@ -171,6 +174,14 @@ void sourceParametersDialog::changeParameters(VieVS::ParameterSettings::Paramete
     }else{
         ui->doubleSpinBox_minElevation->setValue(*dp.minElevation);
         ui->checkBox_minElevation->setChecked(false);
+    }
+
+    if(sp.minSunDistance.is_initialized()){
+        ui->doubleSpinBox_minSunDistance->setValue(*sp.minSunDistance);
+        ui->checkBox_minSunDistance->setChecked(true);
+    }else{
+        ui->doubleSpinBox_minSunDistance->setValue(*dp.minSunDistance);
+        ui->checkBox_minSunDistance->setChecked(false);
     }
 
 
@@ -437,6 +448,9 @@ std::pair<std::string, VieVS::ParameterSettings::ParametersSources> sourceParame
     }
     if(ui->doubleSpinBox_minElevation->isEnabled()){
         para.minElevation = ui->doubleSpinBox_minElevation->value();
+    }
+    if(ui->doubleSpinBox_minSunDistance->isEnabled()){
+        para.minSunDistance = ui->doubleSpinBox_minSunDistance->value();
     }
 
     if(ui->groupBox_9->isChecked()){

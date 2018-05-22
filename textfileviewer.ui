@@ -43,13 +43,19 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="pushButton_writemode">
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset resource="myresources.qrc">
-              <normaloff>:/icons/icons/edit-redo-7.png</normaloff>:/icons/icons/edit-redo-7.png</iconset>
+              <normaloff>:/icons/icons/draw-line-2.png</normaloff>:/icons/icons/draw-line-2.png</iconset>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -125,16 +131,10 @@
            <enum>QTextEdit::NoWrap</enum>
           </property>
           <property name="readOnly">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-          </property>
-          <property name="openExternalLinks">
-           <bool>false</bool>
-          </property>
-          <property name="openLinks">
-           <bool>true</bool>
+           <set>Qt::TextBrowserInteraction</set>
           </property>
          </widget>
         </item>
@@ -150,7 +150,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menufile">

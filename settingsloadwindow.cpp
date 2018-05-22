@@ -314,6 +314,12 @@ void settingsLoadWindow::refreshList(QListWidgetItem *itm)
             t->setVerticalHeaderItem(r,new QTableWidgetItem("min elevation [deg]"));
             ++r;
         }
+        if(para.minSunDistance.is_initialized()){
+            t->insertRow(r);
+            t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minSunDistance)));
+            t->setVerticalHeaderItem(r,new QTableWidgetItem("min sun distance [deg]"));
+            ++r;
+        }
         if(para.tryToFocusIfObservedOnce.is_initialized()){
             t->insertRow(r);
             QString boolText = *para.tryToFocusIfObservedOnce ? "true" : "false";

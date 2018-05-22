@@ -23,7 +23,7 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
                                 bool subnetting, double subnettingMinAngle, double subnettingMinNSta,
                                 bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
-                                const std::vector<std::string> &srcNames) {
+                                const std::vector<std::string> &srcNames, const std::string &scanAlignment) {
     boost::property_tree::ptree general;
 
     int smonth = startTime.date().month();
@@ -75,7 +75,8 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
         }
     }
 
-//    master_.insert(master_.begin(),general.get_child("general"));
+    general.add("general.scanAlignment",scanAlignment);
+
     master_.add_child("master.general", general.get_child("general"));
 }
 
@@ -300,6 +301,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.minElevation.is_initialized()) {
         parameters.add("parameters.minElevation", PARA.minElevation);
     }
+    if (PARA.minSunDistance.is_initialized()) {
+        parameters.add("parameters.minSunDistance", PARA.minSunDistance);
+    }
 
     if (PARA.minScan.is_initialized()) {
         parameters.add("parameters.minScan", PARA.minScan);
@@ -405,6 +409,8 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
             para.weight = it.second.get_value<double>();
         } else if (paraName == "minElevation") {
             para.minElevation = it.second.get_value<double>();
+        } else if (paraName == "minSunDistance") {
+            para.minSunDistance = it.second.get_value<double>();
         } else if (paraName == "minScan") {
             para.minScan = it.second.get_value < unsigned
             int > ();
@@ -697,12 +703,24 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 
         unsigned int thisStart = setup.getStart();
         if (thisStart != 0) {
-            root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisStart);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.start", stmp);
         }
 
         unsigned int thisEnd = setup.getEnd();
         if (thisEnd < duration) {
-            root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisEnd);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.end", stmp);
         }
 
         if (setup.getTransition() != ParameterSetup::Transition::soft) {
@@ -725,12 +743,24 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
         root.add("root.parameter", setup.getParameterName());
         unsigned int thisStart = setup.getStart();
         if (thisStart != 0) {
-            root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisStart);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.start", stmp);
         }
 
         unsigned int thisEnd = setup.getEnd();
         if (thisEnd < duration) {
-            root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisEnd);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.end", stmp);
         }
         if (setup.getTransition() != ParameterSetup::Transition::soft) {
             root.add("root.transition", "hard");

@@ -51,6 +51,8 @@ private slots:
 
     void on_actionSave_triggered();
 
+    void on_pushButton_writemode_toggled(bool checked);
+
 private:
     Ui::textfileViewer *ui;
     int lastPosition_;

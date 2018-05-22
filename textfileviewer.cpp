@@ -10,8 +10,7 @@ textfileViewer::textfileViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL,Qt::SHIFT,Qt::Key_Down), parent);
-//    QObject::connect(shortcut, SIGNAL(activated()), ui->pushButton_jumpBack, SLOT(click()));
+    ui->pushButton_jumpBack->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_Down));
 }
 
 textfileViewer::~textfileViewer()
@@ -414,3 +413,13 @@ void textfileViewer::on_actionSave_triggered()
     }
 
 }
+
+void textfileViewer::on_pushButton_writemode_toggled(bool checked)
+{
+    if(checked){
+        ui->textBrowser_view->setReadOnly(false);
+    }else{
+        ui->textBrowser_view->setReadOnly(true);
+    }
+}
+

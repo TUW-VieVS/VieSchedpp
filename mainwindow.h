@@ -220,11 +220,11 @@ private slots:
 
     void on_ComboBox_parameterStation_currentTextChanged(const QString &arg1);
 
-    void displayStationSetupParameterFromPlot();
+    void displayStationSetupParameterFromPlot(QPointF,bool);
 
-    void displaySourceSetupParameterFromPlot();
+    void displaySourceSetupParameterFromPlot(QPointF,bool);
 
-    void displayBaselineSetupParameterFromPlot();
+    void displayBaselineSetupParameterFromPlot(QPointF,bool);
 
     void on_comboBox_setupStation_currentTextChanged(const QString &arg1);
 
@@ -509,6 +509,9 @@ private:
     Callout *worldMapCallout;
     Callout *skyMapCallout;
     Callout *statisticsCallout;
+    Callout *stationSetupCallout;
+    Callout *sourceSetupCallout;
+    Callout *baselineSetupCallout;
 
     QVector<double> obsAz;
     QVector<double> obsEl;
@@ -559,6 +562,8 @@ private:
     void displaySourceSetupParameter(QString name);
 
     void displayBaselineSetupParameter(QString name);
+
+    void displaySetupCallout(QPointF,bool);
 
     int plotParameter(QChart* targetChart, QTreeWidgetItem *item, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map);
 

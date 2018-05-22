@@ -100,6 +100,7 @@ namespace VieVS {
             boost::optional<TryToFocusOccurrency> tryToFocusOccurrency;
             boost::optional<TryToFocusType> tryToFocusType;
             boost::optional<double> minElevation;
+            boost::optional<double> minSunDistance;
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
             boost::optional<unsigned int> tryToObserveXTimesMinRepeat;
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
@@ -172,7 +173,7 @@ namespace VieVS {
                      bool subnetting, double subnettingAngle, double subnettingMinSta,
                      bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
-                     const std::vector<std::string> &srcNames);
+                     const std::vector<std::string> &srcNames, const std::string &scanAlignment);
 
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 

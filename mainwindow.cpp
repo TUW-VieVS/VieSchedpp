@@ -49,8 +49,16 @@ MainWindow::MainWindow(QWidget *parent) :
     setupSource = new QChartView;
     setupBaseline = new QChartView;
     prepareSetupPlot(setupStation, ui->verticalLayout_28);
+    stationSetupCallout = new Callout(setupStation->chart());
+    stationSetupCallout->hide();
+
     prepareSetupPlot(setupSource, ui->verticalLayout_36);
+    sourceSetupCallout = new Callout(setupSource->chart());
+    sourceSetupCallout->hide();
+
     prepareSetupPlot(setupBaseline, ui->verticalLayout_40);
+    baselineSetupCallout = new Callout(setupBaseline->chart());
+    baselineSetupCallout->hide();
 
     QPushButton *savePara = new QPushButton(QIcon(":/icons/icons/document-export.png"),"",this);
     savePara->setToolTip("save parameter file");
@@ -607,6 +615,12 @@ void MainWindow::displaySourceSetupParameter(QString name){
         t->setVerticalHeaderItem(r,new QTableWidgetItem("minimum elevation [deg]"));
         ++r;
     }
+    if(para.minSunDistance.is_initialized()){
+        t->insertRow(r);
+        t->setItem(r,0,new QTableWidgetItem(QString::number(*para.minSunDistance)));
+        t->setVerticalHeaderItem(r,new QTableWidgetItem("minimum sun distance [deg]"));
+        ++r;
+    }
     if(para.fixedScanDuration.is_initialized()){
         t->insertRow(r);
         t->setItem(r,0,new QTableWidgetItem(QString::number(*para.fixedScanDuration)));
@@ -749,7 +763,6 @@ void MainWindow::displayBaselineSetupParameter(QString name)
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
-
 
 void MainWindow::on_actionWelcome_triggered()
 {
@@ -1505,6 +1518,7 @@ void MainWindow::defaultParameters()
     src.maxNumberOfScans = 999;
     src.minNumberOfStations = 2;
     src.minElevation = 0;
+    src.minSunDistance = 4;
 
     auto sourceTree = settings.get_child_optional("settings.source.parameters");
     if(sourceTree.is_initialized()){
@@ -1527,6 +1541,8 @@ void MainWindow::defaultParameters()
                         src.minFlux = it2.second.get_value<double>();
                     } else if (paraName == "minElevation"){
                         src.minElevation = it2.second.get_value<double>();
+                    } else if (paraName == "minSunDistance"){
+                        src.minSunDistance = it2.second.get_value<double>();
                     } else if (paraName == "maxNumberOfScans"){
                         src.maxNumberOfScans = it2.second.get_value<double>();
                     } else if (paraName == "minNumberOfStations"){
@@ -2827,11 +2843,17 @@ QString MainWindow::writeXML()
     bool subnetting = ui->groupBox_subnetting->isChecked();
     double subnettingAngle = ui->doubleSpinBox_subnettingDistance->value();
     double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
+    std::string scanAlignment = "start";
+    if(ui->radioButton_alignEnd->isChecked()){
+        scanAlignment = "end";
+    }else if(ui->radioButton_alignIndividual->isChecked()){
+        scanAlignment = "individual";
+    }
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment);
     }else{
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinMode, fillinModeInfluence, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment);
     }
 
 
@@ -4519,10 +4541,12 @@ void MainWindow::on_treeWidget_setupBaseline_itemEntered(QTreeWidgetItem *item, 
 void MainWindow::prepareSetupPlot(QChartView *figure, QVBoxLayout *container)
 {
     QChart *chart = new QChart();
+    figure->setChart(chart);
 
     QLineSeries *series = new QLineSeries();
     QDateTime start = ui->DateTimeEdit_startParameterStation->dateTime();
     QDateTime end = ui->DateTimeEdit_endParameterStation->dateTime();
+
 
     series->append(start.toMSecsSinceEpoch(),-5);
     series->append(end.toMSecsSinceEpoch(),-5);
@@ -4533,21 +4557,23 @@ void MainWindow::prepareSetupPlot(QChartView *figure, QVBoxLayout *container)
     QDateTimeAxis *axisX = new QDateTimeAxis;
     axisX->setTitleText("time");
     axisX->setFormat("hh:mm");
+    axisX->setRange(start,end);
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
     QValueAxis *axisY = new QValueAxis;
     axisY->setTitleText("Parameters");
-    axisY->setTickCount(10);
+    axisY->setTickCount(1);
+    axisY->setRange(-10,10);
     chart->addAxis(axisY,Qt::AlignLeft);
     series->attachAxis(axisY);
 
     figure->setRenderHint(QPainter::Antialiasing);
-    container->addWidget(figure,10);
+    container->insertWidget(1,figure,1);
     axisY->hide();
     axisX->show();
     chart->legend()->hide();
-    figure->setChart(chart);
+
 }
 
 void MainWindow::drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw)
@@ -4626,11 +4652,11 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     series->attachAxis(axes.at(0));
 
     if(chart == setupStation->chart()){
-        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displayStationSetupParameterFromPlot()));
+        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displayStationSetupParameterFromPlot(QPointF,bool)));
     }else if(chart == setupSource->chart()){
-        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displaySourceSetupParameterFromPlot()));
+        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displaySourceSetupParameterFromPlot(QPointF,bool)));
     }else if(chart == setupBaseline->chart()){
-        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displayBaselineSetupParameterFromPlot()));
+        connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(displayBaselineSetupParameterFromPlot(QPointF,bool)));
     }
 
     for(int i=0; i<root->childCount(); ++i ){
@@ -4653,7 +4679,6 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     return plot;
 }
 
-
 void MainWindow::on_comboBox_stationSettingMember_currentTextChanged(const QString &arg1)
 {
     displayStationSetupMember(arg1);
@@ -4670,22 +4695,70 @@ void MainWindow::on_comboBox_baselineSettingMember_currentTextChanged(const QStr
 }
 
 
-void MainWindow::displayStationSetupParameterFromPlot(){
+void MainWindow::displayStationSetupParameterFromPlot(QPointF point, bool flag){
     QLineSeries* series = qobject_cast<QLineSeries*>(sender());
     QString name = series->name();
     displayStationSetupParameter(name);
+
+    if(flag){
+        stationSetupCallout->setAnchor(point);
+        QDateTime st = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
+        QDateTime et = QDateTime::fromMSecsSinceEpoch(series->at(series->count()-1).x());
+        QString txt = QString("Parameter: ").append(name);
+        txt.append("\nfrom: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        txt.append("\nuntil: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        stationSetupCallout->setText(txt);
+        stationSetupCallout->setZValue(11);
+        stationSetupCallout->updateGeometry();
+        stationSetupCallout->show();
+    }else{
+        stationSetupCallout->hide();
+    }
+
 }
 
-void MainWindow::displaySourceSetupParameterFromPlot(){
+void MainWindow::displaySourceSetupParameterFromPlot(QPointF point, bool flag){
     QLineSeries* series = qobject_cast<QLineSeries*>(sender());
     QString name = series->name();
     displaySourceSetupParameter(name);
+    if(flag){
+        sourceSetupCallout->setAnchor(point);
+        QDateTime st = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
+        QDateTime et = QDateTime::fromMSecsSinceEpoch(series->at(series->count()-1).x());
+        QString txt = QString("Parameter: ").append(name);
+        txt.append("\nfrom: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        txt.append("\nuntil: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        sourceSetupCallout->setText(txt);
+        sourceSetupCallout->setZValue(11);
+        sourceSetupCallout->updateGeometry();
+        sourceSetupCallout->show();
+    }else{
+        sourceSetupCallout->hide();
+    }
+
+
 }
 
-void MainWindow::displayBaselineSetupParameterFromPlot(){
+void MainWindow::displayBaselineSetupParameterFromPlot(QPointF point, bool flag){
     QLineSeries* series = qobject_cast<QLineSeries*>(sender());
     QString name = series->name();
     displayBaselineSetupParameter(name);
+    if(flag){
+        baselineSetupCallout->setAnchor(point);
+        QDateTime st = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
+        QDateTime et = QDateTime::fromMSecsSinceEpoch(series->at(series->count()-1).x());
+        QString txt = QString("Parameter: ").append(name);
+        txt.append("\nfrom: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        txt.append("\nuntil: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        baselineSetupCallout->setText(txt);
+        baselineSetupCallout->setZValue(11);
+        baselineSetupCallout->updateGeometry();
+        baselineSetupCallout->show();
+    }else{
+        baselineSetupCallout->hide();
+    }
+
+
 }
 
 void MainWindow::on_ComboBox_parameterStation_currentTextChanged(const QString &arg1)
@@ -5098,12 +5171,14 @@ void MainWindow::createDefaultParameterSettings()
 
     VieVS::ParameterSettings::ParametersSources src;
     src.minRepeat = 1800;
-    src.minScan = 30;
+    src.minScan = 20;
     src.maxScan = 600;
     src.weight = 1;
     src.minFlux = 0.05;
     src.maxNumberOfScans = 999;
     src.minNumberOfStations = 2;
+    src.minElevation = 0;
+    src.minSunDistance = 4;
     settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
 
     VieVS::ParameterSettings::ParametersBaselines bl;

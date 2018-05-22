@@ -91,8 +91,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>339</width>
-          <height>1153</height>
+          <width>297</width>
+          <height>962</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -175,6 +175,33 @@
             <bool>false</bool>
            </property>
            <layout class="QFormLayout" name="formLayout_5">
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="checkBox_weight">
+              <property name="text">
+               <string>weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="checkBox_minNumberOfStations">
+              <property name="text">
+               <string>min number of stations</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="spinBox_minNumberOfStations">
               <property name="enabled">
@@ -191,6 +218,13 @@
               </property>
              </widget>
             </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="checkBox_minFlux">
+              <property name="text">
+               <string>min flux</string>
+              </property>
+             </widget>
+            </item>
             <item row="2" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_minFlux">
               <property name="enabled">
@@ -201,6 +235,13 @@
               </property>
               <property name="singleStep">
                <double>0.100000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QCheckBox" name="checkBox_maxNumberOfScans">
+              <property name="text">
+               <string>max number of scans</string>
               </property>
              </widget>
             </item>
@@ -220,6 +261,13 @@
               </property>
              </widget>
             </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="checkBox_minElevation">
+              <property name="text">
+               <string>min elevation</string>
+              </property>
+             </widget>
+            </item>
             <item row="4" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
               <property name="enabled">
@@ -230,51 +278,23 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="weightDoubleSpinBox">
+            <item row="5" column="0">
+             <widget class="QCheckBox" name="checkBox_minSunDistance">
+              <property name="text">
+               <string>min sun distance</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_minSunDistance">
               <property name="enabled">
                <bool>false</bool>
               </property>
-              <property name="singleStep">
-               <double>0.100000000000000</double>
+              <property name="maximum">
+               <double>180.000000000000000</double>
               </property>
               <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="checkBox_weight">
-              <property name="text">
-               <string>weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QCheckBox" name="checkBox_minNumberOfStations">
-              <property name="text">
-               <string>min number of stations</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QCheckBox" name="checkBox_minFlux">
-              <property name="text">
-               <string>min flux</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QCheckBox" name="checkBox_maxNumberOfScans">
-              <property name="text">
-               <string>max number of scans</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
-             <widget class="QCheckBox" name="checkBox_minElevation">
-              <property name="text">
-               <string>min elevation</string>
+               <double>4.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -955,12 +975,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>147</y>
+     <x>84</x>
+     <y>212</y>
     </hint>
     <hint type="destinationlabel">
-     <x>195</x>
-     <y>150</y>
+     <x>288</x>
+     <y>215</y>
     </hint>
    </hints>
   </connection>
@@ -971,12 +991,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>123</x>
-     <y>173</y>
+     <x>143</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>187</x>
-     <y>173</y>
+     <x>288</x>
+     <y>241</y>
     </hint>
    </hints>
   </connection>
@@ -987,12 +1007,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>226</y>
+     <x>108</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>194</x>
-     <y>227</y>
+     <x>288</x>
+     <y>293</y>
     </hint>
    </hints>
   </connection>
@@ -1003,12 +1023,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>249</y>
+     <x>114</x>
+     <y>316</y>
     </hint>
     <hint type="destinationlabel">
-     <x>193</x>
-     <y>255</y>
+     <x>288</x>
+     <y>319</y>
     </hint>
    </hints>
   </connection>
@@ -1019,12 +1039,28 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>201</y>
+     <x>89</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>208</x>
-     <y>202</y>
+     <x>288</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_minSunDistance</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>doubleSpinBox_minSunDistance</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>
