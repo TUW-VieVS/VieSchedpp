@@ -95,14 +95,16 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         // convert all IDs to upper case for case insensitivity
         string id_PO = boost::algorithm::to_upper_copy(any.second.at(13));
         string id_EQ = boost::algorithm::to_upper_copy(any.second.at(14));
+        id_EQ.append("|").append(name);
         string id_MS = boost::algorithm::to_upper_copy(any.second.at(15));
+        string tlc = boost::to_upper_copy(id_PO);
 
         // check if corresponding position and equip CATALOG exists.
         if (positionCatalog.find(id_PO) == positionCatalog.end()){
             headerLog << "*** ERROR: position CATALOG not found ***\n";
             continue;
         }
-        if (equipCatalog.find(id_EQ+"|"+name) == equipCatalog.end()){
+        if (equipCatalog.find(id_EQ) == equipCatalog.end()){
             headerLog << "*** ERROR: equip CATALOG not found ***\n";
             continue;
         }
@@ -147,7 +149,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         }
 
         // check if equip.cat is long enough. Otherwise not all information is available.
-        vector<string> eq_cat = equipCatalog.at(id_EQ + "|" + name);
+        vector<string> eq_cat = equipCatalog.at(id_EQ);
         if (eq_cat.size()<9){
             headerLog << "*** ERROR: " << any.first << ": equip.cat to small ***\n";
             continue;
@@ -158,9 +160,9 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             continue;
         }
 
-        unordered_map<std::string,double> SEFDs;
+        unordered_map<std::string, double> SEFDs;
         // convert all items from equip.cat
-        unordered_map<std::string,double> SEFD_found;
+        unordered_map<std::string, double> SEFD_found;
         try{
             SEFD_found[eq_cat.at(5)] = boost::lexical_cast<double>(eq_cat.at(6));
             SEFD_found[eq_cat.at(7)] = boost::lexical_cast<double>(eq_cat.at(8));
@@ -326,7 +328,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             horizonMask = make_shared<HorizonMask_step>(hmask_az,hmask_el);
         }
 
-        stations_.emplace_back(name, antenna, cableWrap, position, equipment, horizonMask);
+        stations_.emplace_back(name, tlc, antenna, cableWrap, position, equipment, horizonMask);
 
         created++;
         headerLog << boost::format("  %-8s added\n") % name;

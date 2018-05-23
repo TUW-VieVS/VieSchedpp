@@ -63,7 +63,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << "*=========================================================================================================\n";
     of << "$PARAM\n";
     of << "*=========================================================================================================\n";
-    of << "* WARNING: some of the following parameters are not compatible with VieVS Scheduling Software!\n";
+    of << "* WARNING: some of the following parameters are not compatible with VieSched++!\n";
     of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription") << endl;
     of << "SCHEDULING_SOFTWARE VieSched++\n";
@@ -116,8 +116,6 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 
     of << "TAPE_MOTION _ START&STOP\n";
 
-    const std::map<std::string, std::string> &twoLetterCode = skdCatalogReader.getTwoLetterCode();
-
     const map<string, vector<string> > &ant = skdCatalogReader.getAntennaCatalog();
     const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
 
@@ -132,7 +130,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
         if (counter == 0) {
             of << "TAPE_TYPE ";
         }
-        of << twoLetterCode.at(staName) << " " << equip << " ";
+        of << any.getAlternativeName() << " " << equip << " ";
         ++counter;
         if (counter == 4) {
             of << "\n";
@@ -150,7 +148,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
         if (counter == 0) {
             of << "TAPE_ALLOCATION ";
         }
-        of << twoLetterCode.at(staName) << " AUTO ";
+        of << any.getAlternativeName() << " AUTO ";
         ++counter;
         if (counter == 4) {
             of << "\n";
@@ -163,9 +161,9 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 
     counter = 0;
     for (int i = 0; i < stations.size(); ++i) {
-        const string &sta1 = stations[i].getName();
+        const Station &sta1 = stations[i];
         for (int j = i + 1; j < stations.size(); ++j) {
-            const string &sta2 = stations[j].getName();
+            const Station &sta2 = stations[j];
 
             if (counter == 0) {
                 of << "SNR ";
@@ -187,8 +185,8 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
             if (stations[j].getPARA().minSNR.at("S") > minSNR_S) {
                 minSNR_S = stations[j].getPARA().minSNR.at("S");
             }
-            of << boost::format(" %2s-%2s X %4d %2s-%2s S %4d ") % twoLetterCode.at(sta1) % twoLetterCode.at(sta2)
-                  % minSNR_X % twoLetterCode.at(sta1) % twoLetterCode.at(sta2) % minSNR_S;
+            of << boost::format(" %2s-%2s X %4d %2s-%2s S %4d ") % sta1.getAlternativeName() % sta2.getAlternativeName()
+                  % minSNR_X % sta1.getAlternativeName() % sta2.getAlternativeName() % minSNR_S;
             ++counter;
             if (counter == 3) {
                 of << "\n";
@@ -203,7 +201,7 @@ void Skd::skd_OP() {
     of << "*=========================================================================================================\n";
     of << "$OP\n";
     of << "*=========================================================================================================\n";
-    of << "* OP is not supported in VieVS Scheduling Software \n";
+    of << "* OP is not supported in VieSched++ \n";
     of << "*\n";
 }
 
@@ -222,17 +220,16 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << "*=========================================================================================================\n";
     of << "$MAJOR\n";
     of << "*=========================================================================================================\n";
-    of << "* Sked MAJOR parameters can not be translated directly to VieVS Scheduling Software parameters\n";
+    of << "* Sked MAJOR parameters can not be translated directly to VieSched++ parameters\n";
     of << "*\n";
     of << "Subnet ";
-    const std::map<std::string, std::string> &twoLetterCode = skdCatalogReader.getTwoLetterCode();
-    for (const auto &any:twoLetterCode) {
-        of << any.second;
+    for (const auto &any:stations) {
+        of << any.getAlternativeName();
     }
     of << "\n";
     of << boost::format("%-14s %6s\n") % "SkyCov" % "No";
     of << boost::format("%-14s %6s\n") % "AllBlGood" % "Yes";
-    of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 180;
+    of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 360;
     of << boost::format("%-14s %6.2f\n") % "MinAngle" % 0;
     of << boost::format("%-14s %6d\n") % "MinBetween" % (sources[0].getPARA().minRepeat / 60);
     of << boost::format("%-14s %6d\n") % "MinSunDist" % 0;
@@ -263,7 +260,7 @@ void Skd::skd_MINOR() {
     of << "*=========================================================================================================\n";
     of << "$MINOR\n";
     of << "*=========================================================================================================\n";
-    of << "* Sked MINOR parameters can not be translated directly to VieVS Scheduling Software parameters\n";
+    of << "* Sked MINOR parameters can not be translated directly to VieSched++ parameters\n";
     of << "*\n";
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "Astro" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "BegScan" % "No" % "Abs" % 0.00;
@@ -289,7 +286,7 @@ void Skd::skd_ASTROMETRIC() {
     of << "*=========================================================================================================\n";
     of << "$ASTROMETRIC\n";
     of << "*=========================================================================================================\n";
-    of << "* ASTROMETRIC is not supported in VieVS Scheduling Software \n";
+    of << "* ASTROMETRIC is not supported in VieSched++ \n";
     of << "*\n";
 }
 
@@ -368,7 +365,7 @@ void Skd::skd_BROADBAND() {
     of << "*=========================================================================================================\n";
     of << "$BROADBAND\n";
     of << "*=========================================================================================================\n";
-    of << "* $BROADBAND is not supported in VieVS Scheduling Software \n";
+    of << "* $BROADBAND is not supported in VieSched++ \n";
     of << "*\n";
 }
 

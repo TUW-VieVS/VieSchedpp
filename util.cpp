@@ -13,7 +13,7 @@ string util::ra2dms(double angle){
     double m = floor(mf);
     double sf = (mf - m)*60;
 
-    return (boost::format("%02dh %02dm %06.3fs") %d %m %sf).str();
+    return (boost::format("%02dh %02dm %05.2fs") %d %m %sf).str();
 
 }
 
@@ -32,7 +32,7 @@ string util::dc2hms(double angle){
         h*=-1;
     }
 
-    return (boost::format("%+03d° %02d' %05.2fs\"") %h %m %sf).str();
+    return (boost::format("%+03d° %02d' %05.2f\"") %h %m %sf).str();
 
 }
 

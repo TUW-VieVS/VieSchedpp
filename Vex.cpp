@@ -104,7 +104,6 @@ void Vex::station_block(const std::vector<Station> &stations, const SkdCatalogRe
     of << "*=========================================================================================================\n";
     of << "$STATION;\n";
     of << "*=========================================================================================================\n";
-    const auto & tlc = skdCatalogReader.getTwoLetterCode();
     const map<string, vector<string> > & cat = skdCatalogReader.getEquipCatalog();
     const map<string, vector<string> > & acat = skdCatalogReader.getAntennaCatalog();
 
@@ -118,10 +117,10 @@ void Vex::station_block(const std::vector<Station> &stations, const SkdCatalogRe
         const string & recorder = eq.at(eq.size()-1);
         const string & rack = eq.at(eq.size()-2);
         const string & id = tmp.at(14);
-        const string & id_name = skdCatalogReader.getTwoLetterCode().at(name) + "_" + tmp.at(14);
+        const string & id_name = any.getAlternativeName() + "_" + tmp.at(14);
 
 
-        of << "    def " << tlc.at(name) << eol;
+        of << "    def " << any.getAlternativeName() << eol;
         of << "        ref $SITE = " << name << eol;
         of << "        ref $ANTENNA = " << name << eol;
         of << "        ref $DAS = " << recorder << "_recorder" << eol;
@@ -136,16 +135,15 @@ void Vex::sites_block(const std::vector<Station> &stations, const SkdCatalogRead
     of << "*=========================================================================================================\n";
     of << "$SITE;\n";
     of << "*=========================================================================================================\n";
-    const auto & tlc = skdCatalogReader.getTwoLetterCode();
     for(const auto &any: stations){
         const string &name = any.getName();
         of << "    def " << name << eol;
         of << "        site_type = fixed;\n";
         of << "        site_name = " << name << eol;
-        of << "        site_ID = " << tlc.at(name) << eol;
+        of << "        site_ID = " << any.getAlternativeName() << eol;
         of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
         of << "        site_position_ref = sked_position.cat;\n";
-        of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(boost::algorithm::to_upper_copy(tlc.at(name))).at(5) << eol;
+        of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(any.getAlternativeName()).at(5) << eol;
         if(any.hasHorizonMask()){
             any.getMask().vexOutput();
         }
@@ -200,7 +198,7 @@ void Vex::das_block(const std::vector<Station> &stations, const SkdCatalogReader
         const string & recorder = eq.at(eq.size()-2);
         const string & rack = eq.at(eq.size()-1);
         const string & id = tmp.at(14);
-        const string & id_name = skdCatalogReader.getTwoLetterCode().at(any.getName()) + "_" + tmp.at(14);
+        const string & id_name = any.getAlternativeName() + "_" + tmp.at(14);
 
         if(find(racks.begin(),racks.end(),rack) == racks.end()){
             racks.push_back(rack);
@@ -272,7 +270,6 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
-    const auto & tlc = skdCatalogReader.getTwoLetterCode();
     vector<string>scanIds;
     for(const auto &scan:scans) {
         unsigned long nsta = scan.getNSta();
@@ -317,7 +314,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             int staid = pv.getStaid();
             double az = pv.getAz();
             const Station &thisStation = stations.at(static_cast<unsigned long>(staid));
-            const string &thisTlc = tlc.at(thisStation.getName());
+            const string &thisTlc = thisStation.getAlternativeName();
             string cwvex;
             const string &cwskd = thisStation.getCableWrap().cableWrapFlag(pv);
             if(cwskd == "-"){

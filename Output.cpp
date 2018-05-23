@@ -343,7 +343,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     out << "scan length:\n";
     out << ".-------------------------------------------------------------------------------------.\n";
     out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   average |\n";
-    out << "|-------------------------------------------------------------------------------------|\n";
+    out << "|-------------------|-----------------------------------------------------------------|\n";
 
     {
         int n = maxScanDurations.size() - 1;
@@ -362,7 +362,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
         out << "\n";
     }
 
-    out << "|-------------------------------------------------------------------------------------|\n";
+    out << "|-------------------|-----------------------------------------------------------------|\n";
 
     for (int i = 1; i < nsta; ++i) {
         for (int j = 0; j < i; ++j) {
@@ -406,7 +406,7 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     }
     ofstream << "|\n";
 
-    ofstream << "|------------------";
+    ofstream << "|-----------------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
         ofstream << "----------";
     }
@@ -456,29 +456,26 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 }
 
 void Output::displayAstronomicalParameters(std::ofstream &out) {
-    out << ".--------------------------------------------.\n";
-    out << "| sun position:                              |\n";
-    out << "| RA:  " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " DEC: " << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " |\n";
-    out << "'--------------------------------------------'\n\n";
+    out << ".------------------------------------------.\n";
+    out << "| sun position:        | earth velocity:   |\n";
+    out << "|----------------------|-------------------|\n";
+    out << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
+    out << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
+    out << "|                      " << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
+    out << "'------------------------------------------'\n\n";
 
-//    out << ".-------------------.\n";
-//    out << "| earth velocity:   |\n";
-//    out << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
-//    out << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
-//    out << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
-//    out << "'-------------------'\n\n";
-//
-//    out << ".-----------------------------------------------------------.\n";
-//    out << "| earth nutation:                                           |\n";
-//    out << boost::format("| %20s | %11s %11s %11s |\n") %"time" %"X" %"Y" %"S";
-//    for(int i=0; i<AstronomicalParameters::earth_nutTime.size(); ++i){
-//        out << boost::format("| %20s | %+10.6f\" %+10.6f\" %+10.6f\" |\n")
-//               % (TimeSystem::internalTime2PosixTime(AstronomicalParameters::earth_nutTime[i]))
-//               % (acos(AstronomicalParameters::earth_nutX[i])*rad2deg*3600)
-//               % (acos(AstronomicalParameters::earth_nutY[i])*rad2deg*3600)
-//               % (acos(AstronomicalParameters::earth_nutS[i])*rad2deg*3600);
-//    }
-//    out << "'-----------------------------------------------------------'\n\n";
+    out << ".--------------------------------------------------------------------.\n";
+    out << "| earth nutation:                                                    |\n";
+    out << boost::format("| %=19s | %=14s %=14s %=14s |\n") %"time" %"X" %"Y" %"S";
+    out << "|---------------------|----------------------------------------------|\n";
+    for(int i=0; i<AstronomicalParameters::earth_nutTime.size(); ++i){
+        out << boost::format("| %19s | %+14.6e %+14.6e %+14.6e |\n")
+               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(AstronomicalParameters::earth_nutTime[i]))
+               % AstronomicalParameters::earth_nutX[i]
+               % AstronomicalParameters::earth_nutY[i]
+               % AstronomicalParameters::earth_nutS[i];
+    }
+    out << "'--------------------------------------------------------------------'\n\n";
 
 }
 
@@ -1069,6 +1066,14 @@ void Output::writeOperationsNotes() {
     }
     of << newStr << "\n";
     of << "---------------------------------------------------------------------------------------------------------\n\n";
+
+    of << ".---------------------.\n";
+    of << "| scheduled stations: |\n";
+    of << "|---------------------|\n";
+    for (const auto &any:stations_){
+        of << boost::format("| %-8s     |  %2s  |\n") %any.getName() %any.getAlternativeName();
+    }
+    of << "'---------------------'\n\n";
 
     displayGeneralStatistics(of);
     displayBaselineStatistics(of);

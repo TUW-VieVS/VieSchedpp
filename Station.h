@@ -192,9 +192,9 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(std::string sta_name, std::shared_ptr<Antenna> sta_antenna, std::shared_ptr<CableWrap> sta_cableWrap,
-                std::shared_ptr<Position> sta_position, std::shared_ptr<Equipment> sta_equip,
-                std::shared_ptr<HorizonMask> sta_mask);
+        Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna> sta_antenna,
+                std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
+                std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask);
 
         /**
          * @brief getter for station id
