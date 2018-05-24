@@ -93,6 +93,8 @@ namespace VieVS {
             return earliestScanStart_;
         }
 
+        void setStationAvailable(const std::vector<Station> &stations);
+
     private:
         static int nextId;
 

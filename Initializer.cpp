@@ -736,7 +736,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
         parameters_.subnettingMinAngle = xml_.get<double>("master.general.subnettingMinAngle",120.)*deg2rad;
         parameters_.subnettingMinNSta = xml_.get<double>("master.general.subnettingMinNSta",60.)/100;
-        parameters_.fillinmode = xml_.get<bool>("master.general.fillinmode");
+        parameters_.fillinmodeDuringScanSelection = xml_.get<bool>("master.general.fillinmodeDuringScanSelection",false);
         parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule",false);
         parameters_.fillinmodeAPosteriori = xml_.get<bool>("master.general.fillinmodeAPosteriori",false);
 
@@ -2043,7 +2043,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         parameters_.subnetting = *parameters.subnetting;
     }
     if (parameters.fillinmode.is_initialized()) {
-        parameters_.fillinmode = *parameters.fillinmode;
+        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode;
     }
 
     if (parameters.weightSkyCoverage.is_initialized()) {

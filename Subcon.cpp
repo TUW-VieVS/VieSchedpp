@@ -367,8 +367,6 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
 
 void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
                            const vector<SkyCoverage> &skyCoverages) noexcept {
-    singleScanScores_.clear();
-    subnettingScanScores_.clear();
 
     precalcScore(stations, sources);
     unsigned long nmaxsta = stations.size();
@@ -378,7 +376,6 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         const Source &thisSource = sources[thisScan.getSourceId()];
         thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
                            stations, thisSource, firstScorePerPv);
-        singleScanScores_.push_back(thisScan.getScore());
         firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
     }
 
@@ -399,14 +396,11 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
                                        skyCoverages, stations, thisSource2,
                                        firstScore[srcid2]);
         double score2 = thisScan2.getScore();
-        subnettingScanScores_.push_back(score1 + score2);
     }
 }
 
 void Subcon::generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
                            const std::vector<std::map<int, double>> &hiscores, unsigned int interval) {
-    singleScanScores_.clear();
-    subnettingScanScores_.clear();
 
     precalcScore(stations, sources);
     unsigned long nmaxsta = stations.size();
@@ -417,7 +411,6 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         const map<int,double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
         thisScan.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource, hiscore);
-        singleScanScores_.push_back(thisScan.getScore());
     }
 
 
@@ -439,7 +432,6 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         double hiscore2 = thisMap2.at(thisSource2.getId());
         thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource2, hiscore2);
         double score2 = thisScan2.getScore();
-        subnettingScanScores_.push_back(score1 + score2);
     }
 
 }
@@ -460,7 +452,6 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
                                         maxRequiredTime_, sources[thisScan.getSourceId()]);
         if (valid){
             ++i;
-            singleScanScores_.push_back(thisScan.getScore());
         } else {
             --nSingleScans_;
             singleScans_.erase(next(singleScans_.begin(),i));
@@ -483,7 +474,6 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
 
         if (valid1 && valid2){
             ++i;
-            subnettingScanScores_.push_back(score1+score2);
         } else {
             --nSubnettingScans_;
             subnettingScans_.erase(next(subnettingScans_.begin(),i));
@@ -606,20 +596,31 @@ void Subcon::precalcScore(const vector<Station> &stations, const vector<Source> 
 std::vector<Scan> Subcon::selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources) {
     vector<Scan> bestScans;
 
-    if(singleScanScores_.empty()){
+    if(nSingleScans_ == 0){
         return bestScans;
     }
-    auto it_single = max_element(singleScanScores_.begin(),singleScanScores_.end());
-    long idxSingle = distance(singleScanScores_.begin(), it_single);
+    auto it_single = max_element(singleScans_.begin(),singleScans_.end(),[](const Scan &a, const Scan &b){
+        return a.getScore() < b.getScore();
+    });
+
+    long idxSingle = distance(singleScans_.begin(), it_single);
 
     long idxSubnetting = -1;
-    if(!subnettingScanScores_.empty()){
-        auto it_subnetting = max_element(subnettingScanScores_.begin(),subnettingScanScores_.end());
-        idxSubnetting = distance(subnettingScanScores_.begin(), it_subnetting);
+    if(!subnettingScans_.empty()){
+
+        auto it_subnetting = max_element(subnettingScans_.begin(),subnettingScans_.end(),[]
+                (const std::pair<Scan,Scan> &a, const std::pair<Scan,Scan> &b){
+            return (a.first.getScore() + a.second.getScore()) < (b.first.getScore() + b.second.getScore());
+        });
+
+        idxSubnetting = distance(subnettingScans_.begin(), it_subnetting);
     }
 
 
-    if (idxSubnetting == -1 || singleScanScores_[idxSingle] > subnettingScanScores_[idxSubnetting]) {
+    if (idxSubnetting == -1 || singleScans_[idxSingle].getScore() >
+                               subnettingScans_[idxSubnetting].first.getScore() +
+                               subnettingScans_[idxSubnetting].second.getScore()) {
+
         Scan bestScan = takeSingleSourceScan(static_cast<unsigned long>(idxSingle));
         bool valid = bestScan.rigorousUpdate(stations,sources[bestScan.getSourceId()]);
         if(valid){
@@ -627,6 +628,7 @@ std::vector<Scan> Subcon::selectBest(const std::vector<Station> &stations, const
         }
 
     } else {
+
         pair<Scan, Scan> bestScan_pair = takeSubnettingScans(static_cast<unsigned long>(idxSubnetting));
 
         Scan bestScan1 = bestScan_pair.first;
@@ -652,14 +654,20 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
     vector<Scan> bestScans;
 
     // merge single scan scores and subnetting scores
-    vector<double> scores = singleScanScores_;
-    scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
+    vector<double> scores;
+    for(const auto&any: singleScans_){
+        scores.push_back(any.getScore());
+    }
+    for(const auto&any: subnettingScans_){
+        scores.push_back(any.first.getScore() + any.second.getScore());
+    }
 
     // push data into queue
     std::priority_queue<std::pair<double, unsigned long> > q;
     for (unsigned long i = 0; i < scores.size(); ++i) {
         q.push(std::pair<double, unsigned long>(scores[i], i));
     }
+    vector<int> scansToRemove;
 
     // loop through queue
     unsigned long idx;
@@ -682,6 +690,7 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             // make rigorous update
             bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()], endposition);
             if (!flag) {
+                scansToRemove.push_back(idx);
                 continue;
             }
 
@@ -705,10 +714,12 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             // make rigorous update
             bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], endposition);
             if (!flag1) {
+                scansToRemove.push_back(idx);
                 continue;
             }
             bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], endposition);
             if (!flag2) {
+                scansToRemove.push_back(idx);
                 continue;
             }
 
@@ -755,6 +766,20 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
         bestScans.push_back(std::move(bestScan2));
     }
 
+    sort(scansToRemove.begin(), scansToRemove.end(), [](const int a, const int b) {
+        return a > b;
+    });
+
+    // remove all scans which are invalid
+    for(auto invalidIdx:scansToRemove){
+        // if invalid index is larger as idx decrement it (source(s) with idx are already removed!)
+        if(invalidIdx>idx){
+            --invalidIdx;
+        }
+        removeScan(invalidIdx);
+    }
+
+
     return bestScans;
 
 
@@ -765,8 +790,13 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                                                      const vector<double> &prevLowElevationScores,
                                                      const vector<double> &prevHighElevationScores) {
 
-    vector<double> scores = singleScanScores_;
-    scores.insert(scores.end(), subnettingScanScores_.begin(), subnettingScanScores_.end());
+    vector<double> scores;
+    for(const auto&any: singleScans_){
+        scores.push_back(any.getScore());
+    }
+    for(const auto&any: subnettingScans_){
+        scores.push_back(any.first.getScore() + any.second.getScore());
+    }
 
     std::priority_queue<std::pair<double, unsigned long> > q;
     for (unsigned long i = 0; i < scores.size(); ++i) {
@@ -858,21 +888,17 @@ void Subcon::removeScan(unsigned long idx) noexcept {
         unsigned long thisIdx = idx;
         singleScans_.erase(next(singleScans_.begin(), static_cast<int>(thisIdx)));
         --nSingleScans_;
-        singleScanScores_.erase(next(singleScanScores_.begin(), static_cast<int>(thisIdx)));
 
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
         subnettingScans_.erase(next(subnettingScans_.begin(), static_cast<int>(thisIdx)));
         --nSubnettingScans_;
-        subnettingScanScores_.erase(next(subnettingScanScores_.begin(), static_cast<int>(thisIdx)));
-
     }
 }
 
 void Subcon::clearSubnettingScans() {
     nSubnettingScans_ = 0;
     subnettingScans_.clear();
-    subnettingScanScores_.clear();
 }
 
 void

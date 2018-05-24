@@ -53,7 +53,7 @@ void Skd::writeSkd(const std::vector<Station>& stations,
     skd_SOURCES(sources,skdCatalogReader);
     skd_SRCWT(sources);
     skd_SKED(stations,sources,scans,skdCatalogReader);
-    skd_FLUX(sources,xml,skdCatalogReader);
+    skd_FLUX(sources,skdCatalogReader);
 }
 
 
@@ -65,10 +65,10 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << "*=========================================================================================================\n";
     of << "* WARNING: some of the following parameters are not compatible with VieSched++!\n";
     of << "*\n";
-    of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription") << endl;
+    of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription","no description") << endl;
     of << "SCHEDULING_SOFTWARE VieSched++\n";
     of << "SOFTWARE_VERSION 0.8\n";
-    auto ctstr = xml.get<string>("master.created.time");
+    auto ctstr = xml.get<string>("master.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);
     of << "SCHEDULER " << xml.get("master.output.scheduler","----") << " ";
@@ -236,13 +236,15 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << boost::format("%-14s %6d\n") % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (SkyCoverage::maxInfluenceTime / 3600);
     of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % sources[0].getPARA().minNumberOfStations;
-    if (xml.get<bool>("master.general.subnetting")) {
+    if (xml.get<bool>("master.general.subnetting",false)) {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 1;
     } else {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 2;
     }
     of << boost::format("%-14s %6d\n") % "Best" % 100;
-    if (xml.get<bool>("master.general.fillinmode")) {
+    bool fillin = xml.get<bool>("master.general.fillinmodeDuringScanSelection",false) ||
+                  xml.get<bool>("master.general.fillinmodeAPosteriori",false);
+    if (fillin) {
         of << boost::format("%-14s %6s\n") % "FillIn" % "Yes";
     } else {
         of << boost::format("%-14s %6s\n") % "FillIn" % "No";
@@ -326,21 +328,21 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCata
     of << "$CATALOG_USED\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    string source = xml.get<string>("master.catalogs.source");
-    string flux = xml.get<string>("master.catalogs.flux");
+    string source = xml.get<string>("master.catalogs.source","UNKNOWN");
+    string flux = xml.get<string>("master.catalogs.flux","UNKNOWN");
 
-    string antenna = xml.get<string>("master.catalogs.antenna");
-    string position = xml.get<string>("master.catalogs.position");
-    string equip = xml.get<string>("master.catalogs.equip");
-    string mask = xml.get<string>("master.catalogs.mask");
+    string antenna = xml.get<string>("master.catalogs.antenna","UNKNOWN");
+    string position = xml.get<string>("master.catalogs.position","UNKNOWN");
+    string equip = xml.get<string>("master.catalogs.equip","UNKNOWN");
+    string mask = xml.get<string>("master.catalogs.mask","UNKNOWN");
 
-    string modes = xml.get<string>("master.catalogs.modes");
-    string freq = xml.get<string>("master.catalogs.freq");
-    string rec = xml.get<string>("master.catalogs.rec");
-    string rx = xml.get<string>("master.catalogs.rx");
-    string loif = xml.get<string>("master.catalogs.loif");
-    string tracks = xml.get<string>("master.catalogs.tracks");
-    string hdpos = xml.get<string>("master.catalogs.hdpos");
+    string modes = xml.get<string>("master.catalogs.modes","UNKNOWN");
+    string freq = xml.get<string>("master.catalogs.freq","UNKNOWN");
+    string rec = xml.get<string>("master.catalogs.rec","UNKNOWN");
+    string rx = xml.get<string>("master.catalogs.rx","UNKNOWN");
+    string loif = xml.get<string>("master.catalogs.loif","UNKNOWN");
+    string tracks = xml.get<string>("master.catalogs.tracks","UNKNOWN");
+    string hdpos = xml.get<string>("master.catalogs.hdpos","UNKNOWN");
 
     of << boost::format("%-10s %-20s %s\n") % "SOURCE" % skdCatalogReader.getVersion("source") % source;
     of << boost::format("%-10s %-20s %s\n") % "FLUX" % skdCatalogReader.getVersion("flux") % flux;
@@ -473,14 +475,12 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
     }
 }
 
-void Skd::skd_FLUX(const vector<Source> &sources, const boost::property_tree::ptree &xml,
-                   const SkdCatalogReader &skdCatalogReader) {
+void Skd::skd_FLUX(const vector<Source> &sources, const SkdCatalogReader &skdCatalogReader) {
     of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$FLUX\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    string fluxCat = xml.get<string>("master.catalogs.flux");
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();
     for (const auto &any:sources) {

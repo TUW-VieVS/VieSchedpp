@@ -84,7 +84,6 @@ namespace VieVS{
         Scan takeSingleSourceScan(unsigned long idx) noexcept {
             Scan tmp = std::move(singleScans_[idx]);
             singleScans_.erase(singleScans_.begin()+idx);
-            singleScanScores_.erase(singleScanScores_.begin()+idx);
             --nSingleScans_;
             return std::move(tmp);
         }
@@ -98,7 +97,6 @@ namespace VieVS{
         std::pair<Scan, Scan> takeSubnettingScans(unsigned long idx) noexcept {
             std::pair<Scan, Scan> tmp = std::move(subnettingScans_[idx]);
             subnettingScans_.erase(subnettingScans_.begin()+idx);
-            subnettingScanScores_.erase(subnettingScanScores_.begin()+idx);
             --nSubnettingScans_;
             return std::move(tmp);
         }
@@ -234,11 +232,9 @@ namespace VieVS{
 
         unsigned long nSingleScans_; ///< number of single source scans
         std::vector<Scan> singleScans_; ///< all single source scans
-        std::vector<double> singleScanScores_; ///< score for each single source scan
 
         unsigned long nSubnettingScans_; ///< number of subnetting scans
         std::vector<std::pair<Scan, Scan> > subnettingScans_; ///< all subnetting scans
-        std::vector<double> subnettingScanScores_; ///< score for each subnetting scan
 
         unsigned long nMaxBaselines_; ///< maximum possible number of baselines
         unsigned int minRequiredTime_; ///< minimum time required for a scan

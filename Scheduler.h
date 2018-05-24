@@ -41,7 +41,7 @@ namespace VieVS{
         struct Parameters {
             boost::optional<Subnetting> subnetting = boost::none;
             double subnettingMinNSta = 0.60;
-            bool fillinmode = true; ///< flag if fillin modes are allowed
+            bool fillinmodeDuringScanSelection = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
             bool fillinmodeAPosteriori = false;
 

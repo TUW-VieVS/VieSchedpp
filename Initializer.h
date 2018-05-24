@@ -80,9 +80,9 @@ namespace VieVS {
          */
         struct Parameters {
             bool subnetting = true; ///< if set to true subnetting is enabled
-            double subnettingMinAngle = 120;
+            double subnettingMinAngle = 120*deg2rad;
             double subnettingMinNSta = 0.60;
-            bool fillinmode = true; ///< it set to true fillin scans are calculated
+            bool fillinmodeDuringScanSelection = true; ///< it set to true fillin scans are calculated
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
             bool fillinmodeAPosteriori = false;
             std::vector<std::string> selectedStations; ///< list of all selected station for this session from .xml file

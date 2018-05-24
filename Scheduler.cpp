@@ -30,7 +30,7 @@ Scheduler::Scheduler(Initializer &init, string path, string name): VieVS_NamedOb
         parameters_.subnetting = move(subnetting);
     }
 
-    parameters_.fillinmode = init.parameters_.fillinmode;
+    parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
 
@@ -96,11 +96,20 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             if(depth == 0){
                 // if there is no more possible scan at the outer most iteration, check 1minute later
                 bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
+                unsigned int maxScanEnd = 0;
                 for(auto &any:stations_){
                     PointingVector pv = any.getCurrentPointingVector();
                     pv.setTime(pv.getTime()+60);
                     any.setCurrentPointingVector(pv);
+                    if(pv.getTime()>maxScanEnd){
+                        maxScanEnd = pv.getTime();
+                    }
                 }
+                checkForNewEvents(maxScanEnd,true,bodyLog);
+                if( maxScanEnd > endTime){
+                    break;
+                }
+
                 continue;
             }else{
                 // if there is no more possible scan in an deep recursion, break this recursion
@@ -131,7 +140,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         unsigned long  nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
-        if (parameters_.fillinmode && !parameters_.fillinmodeAPosteriori && !scans_.empty()) {
+        if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
             boost::optional<StationEndposition> newEndposition(static_cast<int>(stations_.size()));
             if(opt_endposition.is_initialized()){
                 for(int i=0; i<stations_.size();++i){
@@ -146,6 +155,9 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                     newEndposition->addPointingVectorAsEndposition(any.getPointingVector(i));
                 }
             }
+
+            newEndposition->setStationAvailable(stations_);
+            newEndposition->checkStationPossibility(stations_);
 
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
@@ -528,7 +540,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
             stationChanged.push_back(any.getName());
         }
     }
-    if(output && time<TimeSystem::duration){
+    if(!stationChanged.empty() && output && time<TimeSystem::duration){
         util::outputObjectList("station parameter changed",stationChanged,bodyLog);
     }
 
@@ -539,11 +551,9 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
             sourcesChanged.push_back(any.getName());
         }
     }
-    if(output && time<TimeSystem::duration){
+    if(!sourcesChanged.empty() &&output && time<TimeSystem::duration){
         util::outputObjectList("source parameter changed",sourcesChanged,bodyLog);
-        if(!sourcesChanged.empty()){
-            listSourceOverview(bodyLog);
-        }
+        listSourceOverview(bodyLog);
     }
 
     Baseline::checkForNewEvent(time, hard_break, output, bodyLog);
@@ -787,7 +797,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         }
 
 
-        if (parameters_.fillinmode && !scans_.empty()) {
+        if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
 //            start_fillinMode(bestScans, bodyLog);
         } else {
             for (const auto &bestScan : bestScans) {

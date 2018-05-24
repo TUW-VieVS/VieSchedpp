@@ -157,7 +157,7 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
         boost::optional<int> idx_pv = findIdxOfStationId(staid1);
         scanValid = removeStation(*idx_pv, source);
     }
-    if(counterStaid2==0){
+    if(scanValid && counterStaid2==0){
         boost::optional<int> idx_pv = findIdxOfStationId(staid2);
         scanValid = removeStation(*idx_pv, source);
     }

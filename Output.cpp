@@ -1014,7 +1014,7 @@ void Output::writeOperationsNotes() {
         string txt = (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("V%03d_operationsNotes.txt") % (iSched_)).str());
+        fileName.append((boost::format("v%03d_operationsNotes.txt") % (iSched_)).str());
         string txt = (boost::format("version %d: operationsNotes skd file: %s;\n") %iSched_ % fileName).str();
         cout << txt;
     }
@@ -1061,10 +1061,10 @@ void Output::writeOperationsNotes() {
     of << "Operation notes: \n";
     of << "---------------------------------------------------------------------------------------------------------\n";
     string newStr = boost::replace_all_copy(xml_.get("master.output.operationNotes","no additional notes"),"\\n","\n");
-    if(iSched_>0){
-        of << "    Version: " << iSched_ << "from multi scheduling";
-    }
     of << newStr << "\n";
+    if(iSched_>0){
+        of << "    Version: " << iSched_ << " from multi scheduling setup\n";
+    }
     of << "---------------------------------------------------------------------------------------------------------\n\n";
 
     of << ".---------------------.\n";

@@ -43,7 +43,6 @@ void VieVS_Scheduler::run() {
     init.statisticsLogHeader(statisticsLog);
 
     init.createSources(skdCatalogReader, headerLog);
-    init.precalcSubnettingSrcIds();
 
     init.initializeSourceSequence();
     init.initializeCalibrationBlocks( headerLog );
@@ -123,6 +122,7 @@ void VieVS_Scheduler::run() {
 
         // initialize all parameters
         newInit.initializeGeneral(bodyLog);
+        newInit.precalcSubnettingSrcIds();
         newInit.initializeStations();
         newInit.initializeSources();
         newInit.initializeBaselines();

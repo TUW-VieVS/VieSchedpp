@@ -133,8 +133,7 @@ namespace VieVS {
          * @param skdCatalogReader catalog reader
          * @param of out stream
          */
-        void skd_FLUX(const std::vector<Source> &sources, const boost::property_tree::ptree &xml,
-                      const SkdCatalogReader &skdCatalogReader);
+        void skd_FLUX(const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader);
 
         /**
          * @brief write skd $SKED block
