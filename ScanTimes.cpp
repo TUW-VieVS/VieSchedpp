@@ -23,6 +23,7 @@ ScanTimes::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsign
     endOfSlewTime_[idx] = endOfFieldSystemTime_[idx] + slew;
     endOfIdleTime_[idx] = endOfSlewTime_[idx];
     endOfPreobTime_[idx] = endOfIdleTime_[idx] + preob;
+    endOfObservingTime_[idx] = endOfIdleTime_[idx] + preob;
 }
 
 void ScanTimes::removeElement(int idx) noexcept {
@@ -43,9 +44,8 @@ void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
         unsigned int preobTime = getPreobTime(idx);
         unsigned int observingTime = getObservingTime(idx);
 
-        int delta = new_slewtime - currentSlewtime;
-        endOfSlewTime_[idx] = endOfSlewTime_[idx] + delta;
-        endOfIdleTime_[idx] = endOfSlewTime_[idx] - delta;
+        endOfSlewTime_[idx] = endOfFieldSystemTime_[idx] + new_slewtime;
+        endOfIdleTime_[idx] = endOfSlewTime_[idx];
         endOfPreobTime_[idx] = endOfIdleTime_[idx] + preobTime;
         endOfObservingTime_[idx] = endOfPreobTime_[idx] + observingTime;
     }
@@ -55,15 +55,17 @@ void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
 void ScanTimes::alignStartTimes() noexcept {
     auto nsta = static_cast<int>(endOfSlewTime_.size());
 
+    int id = getId();
+
     switch(anchor){
         case AlignmentAnchor::start:{
-            unsigned int latestSlewTime = *max_element(endOfSlewTime_.begin(),endOfSlewTime_.end());
+            unsigned int latestObservingStart = *max_element(endOfPreobTime_.begin(),endOfPreobTime_.end());
 
             for (int i = 0; i < nsta; ++i) {
                 unsigned int preob = getPreobTime(i);
                 unsigned int obs = getObservingTime(i);
-                endOfIdleTime_[i] = latestSlewTime;
-                endOfPreobTime_[i] = endOfIdleTime_[i] + preob;
+                endOfIdleTime_[i] = latestObservingStart-preob;
+                endOfPreobTime_[i] = latestObservingStart;
                 endOfObservingTime_[i] = endOfPreobTime_[i] + obs;
             }
             break;

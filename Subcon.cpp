@@ -151,16 +151,17 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
         while (j < thisScan.getNSta()) {
             int staid = thisScan.getStationId(j);
             PointingVector &thisPointingVector = thisScan.referencePointingVector(j);
+            const Station &thisStation = stations[staid];
             thisPointingVector.setTime(thisScan.getTimes().getObservingStart(j));
-            stations[staid].calcAzEl(thisSource, thisPointingVector);
-            bool visible = stations[staid].isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
+            thisStation.calcAzEl(thisSource, thisPointingVector);
+            bool visible = thisStation.isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
             boost::optional<unsigned int> slewtime;
 
             if (visible){
-                stations[staid].getCableWrap().calcUnwrappedAz(stations[staid].getCurrentPointingVector(),
+                thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(),
                                                                thisPointingVector);
-                slewtime = stations[staid].slewTime(thisPointingVector);
+                slewtime = thisStation.slewTime(thisPointingVector);
             }
 
             if (!visible || !slewtime.is_initialized()) {
@@ -169,8 +170,8 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
                     break;
                 }
             } else {
-                maxIdleTimes.push_back(stations[staid].getPARA().maxWait);
-                thisScan.updateSlewtime(j, *slewtime);
+                maxIdleTimes.push_back(thisStation.getPARA().maxWait);
+                thisScan.referenceTime().updateSlewtime(j, *slewtime);
                 ++j;
             }
         }

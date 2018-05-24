@@ -35,6 +35,9 @@ Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Baseline> bl):
         VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
         score_{0}, times_{move(times)}, baselines_{move(bl)}, constellation_{ScanConstellation::subnetting},
         type_{ScanType::standard}{
+
+    times_.giveNewId();
+
 }
 
 bool Scan::constructBaselines(const Source &source) noexcept {
@@ -205,10 +208,6 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
     }
 
     return scan_valid;
-}
-
-void Scan::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
-    times_.updateSlewtime(idx,new_slewtime);
 }
 
 bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &source) noexcept {

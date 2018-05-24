@@ -65,6 +65,10 @@ namespace VieVS {
          */
         void addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob) noexcept;
 
+        void giveNewId(){
+            setId(nextId++);
+        }
+
         /**
          * @brief removes an element
          *

@@ -135,6 +135,10 @@ namespace VieVS{
             return times_;
         }
 
+        ScanTimes &referenceTime() const noexcept {
+            return times_;
+        }
+
         /**
          * @brief getter for number of stations
          *
@@ -276,14 +280,6 @@ namespace VieVS{
          * @param source observed source
          */
         bool constructBaselines(const Source &source) noexcept;
-
-        /**
-         * @brief updates the slewtime of an element
-         *
-         * @param idx index of element
-         * @param new_slewtime new slewtime in seconds
-         */
-        void updateSlewtime(int idx, unsigned int new_slewtime) noexcept;
 
         /**
          * @brief checks if the idle time is not too long
