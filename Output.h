@@ -44,18 +44,7 @@ namespace VieVS{
          *
          * @param sched scheduler
          */
-        Output(Scheduler &sched, std::string path);
-
-        /**
-         * @brief sets the number of this schedule
-         *
-         * If you do not use multi scheduling the number is 0, otherwise the multi scheduling number is used.
-         *
-         * @param isched number of this schedule
-         */
-        void setIsched(int isched) {
-            Output::iSched_ = isched;
-        }
+        Output(Scheduler &sched, std::string path, int version);
 
         /**
          * @brief writes a summary text file containing some basic statistics and overviews
@@ -96,7 +85,7 @@ namespace VieVS{
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
         std::string path_;
-        int iSched_; ///< number of this schedule
+        int version_; ///< number of this schedule
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
         std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages

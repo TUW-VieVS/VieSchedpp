@@ -92,6 +92,11 @@ void VieVS_Scheduler::run() {
     // create all required schedules
     for (int i = 0; i < nsched; ++i) {
 
+        int version = 0;
+        if (flag_multiSched) {
+            version = i+1;
+        }
+
         ofstream bodyLog;
         string threadNumberPrefix;
 
@@ -139,7 +144,7 @@ void VieVS_Scheduler::run() {
         newInit.initializeAstronomicalParameteres();
 
         // create scheduler and start scheduling
-        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,path,fname);
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit,path,fname,version);
         if(himp.is_initialized()){
             scheduler.highImpactScans(himp.get(), bodyLog);
         }
@@ -148,12 +153,7 @@ void VieVS_Scheduler::run() {
         numberOfCreatedScans += scheduler.numberOfCreatedScans();
 
         // create output
-        VieVS::Output output(scheduler,path);
-        if (flag_multiSched) {
-            output.setIsched(i + 1);
-        } else {
-            output.setIsched(0);
-        }
+        VieVS::Output output(scheduler,path,version);
         output.createAllOutputFiles(statisticsLog, skdCatalogReader);
 
 

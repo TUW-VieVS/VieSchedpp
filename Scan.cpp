@@ -570,16 +570,16 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
 
-    // FIRST STEP: calc earliest possible slew end times for each station:
-    scanValid = rigorousSlewtime(stations, source);
-    if(!scanValid){
-        return scanValid;
-    }
-
-    // SECOND STEP: check if source is available during whole scan and iteratively check everything
+    //check if source is available during whole scan and iteratively check everything
     bool stationRemoved;
     do {
         stationRemoved = false;
+
+        // calc earliest possible slew end times for each station:
+        scanValid = rigorousSlewtime(stations, source);
+        if(!scanValid){
+            return scanValid;
+        }
 
         // align start times to earliest possible one:
         scanValid = rigorousScanStartTimeAlignment(stations, source);
@@ -638,7 +638,11 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
             pv.setTime(oldSlewEnd);
             thisStation.calcAzEl(source,pv);
             if(!thisStation.isVisible(pv,source.getPARA().minElevation)){
-                return false;
+                scanValid = removeStation(ista, source);
+                if (!scanValid) {
+                    return scanValid;
+                }
+                continue;
             }
             thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), pv);
 

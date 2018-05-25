@@ -16,8 +16,9 @@ using namespace std;
 using namespace VieVS;
 int Scheduler::nextId = 0;
 
-Scheduler::Scheduler(Initializer &init, string path, string name): VieVS_NamedObject(move(name),nextId++),
+Scheduler::Scheduler(Initializer &init, string path, string name, int version): VieVS_NamedObject(move(name),nextId++),
                                                                    path_{std::move(path)},
+                                                                   version_{version},
                                                                    stations_{std::move(init.stations_)},
                                                                    sources_{std::move(init.sources_)},
                                                                    skyCoverages_{std::move(init.skyCoverages_)},
@@ -238,7 +239,13 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     // check if there was an error during the session
     if (!check(bodyLog)) {
-        cout << "ERROR: there was an error while checking the schedule (see log file)\n";
+        if(version_ == 0){
+            cout << boost::format("iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
+                    % (parameters_.currentIteration);
+        }else{
+            cout << boost::format("version %d iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
+                    % version_ %(parameters_.currentIteration);
+        }
     }
 
     // output some statistics
@@ -478,7 +485,7 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
                         bodyLog << "*\n";
                         everythingOk = false;
                     }else{
-                        if(idleTime > 600){
+                        if(idleTime > 1200){
                             ++countWarnings;
                             bodyLog << "    WARNING #" << countWarnings << ": long idle time! scans: "
                                     << scan_thisEnd.printId() << " and " << scan_nextStart.printId() << "\n";

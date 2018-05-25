@@ -11,10 +11,11 @@ using namespace VieVS;
 
 Output::Output() = default;
 
-Output::Output(Scheduler &sched, std::string path) : xml_{sched.xml_},
+Output::Output(Scheduler &sched, std::string path, int version) : xml_{sched.xml_}, version_{version},
                                    stations_{std::move(sched.stations_)}, sources_{std::move(sched.sources_)},
                                    skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)},
                                    path_{std::move(path)} {
+
 }
 
 
@@ -22,14 +23,14 @@ void Output::writeSkdsum() {
 
     string expName = xml_.get("master.output.experimentName","schedule");
     string fileName = boost::to_lower_copy(expName);
-    if (iSched_ == 0) {
+    if (version_ == 0) {
         fileName.append("_skdsum.txt");
         string txt = (boost::format("writing statistics to: %s;\n") % fileName).str();
         cout << txt;
 
     } else {
-        fileName.append((boost::format("V%03d_skdsum.txt") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing statistics to: %s;\n") %iSched_ % fileName).str();
+        fileName.append((boost::format("V%03d_skdsum.txt") % (version_)).str());
+        string txt = (boost::format("version %d: writing statistics to: %s;\n") %version_ % fileName).str();
         cout << txt;
     }
 
@@ -482,13 +483,13 @@ void Output::displayAstronomicalParameters(std::ofstream &out) {
 void Output::writeNGS() {
 
     string fname;
-    if (iSched_ == 0) {
+    if (version_ == 0) {
         fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS");
         string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%sMS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (iSched_)).str();
-        string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % iSched_ % fname).str();
+        fname = (boost::format("%sMS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
+        string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % version_ % fname).str();
         cout << txt;
     }
     ofstream out(path_+fname);
@@ -552,13 +553,13 @@ void Output::writeNGS() {
 void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     string expName = xml_.get("master.output.experimentName","schedule");
     string fileName = boost::to_lower_copy(expName);
-    if (iSched_ == 0) {
+    if (version_ == 0) {
         fileName.append(".vex");
         string txt = (boost::format("writing vex file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("v%03d.vex") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing vex file: %s;\n") %iSched_ % fileName).str();
+        fileName.append((boost::format("v%03d.vex") % (version_)).str());
+        string txt = (boost::format("version %d: writing vex file: %s;\n") %version_ % fileName).str();
         cout << txt;
     }
 
@@ -570,13 +571,13 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     string expName = xml_.get("master.output.experimentName","schedule");
     string fileName = boost::to_lower_copy(expName);
-    if (iSched_ == 0) {
+    if (version_ == 0) {
         fileName.append(".skd");
         string txt = (boost::format("writing skd file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("v%03d.skd") % (iSched_)).str());
-        string txt = (boost::format("version %d: writing skd file: %s;\n") %iSched_ % fileName).str();
+        fileName.append((boost::format("v%03d.skd") % (version_)).str());
+        string txt = (boost::format("version %d: writing skd file: %s;\n") %version_ % fileName).str();
         cout << txt;
     }
 
@@ -595,13 +596,13 @@ void Output::writeStatisticsPerSourceGroup() {
 
         string expName = xml_.get("master.output.experimentName","schedule");
         string fileName = boost::to_lower_copy(expName);
-        if (iSched_ == 0) {
+        if (version_ == 0) {
             fileName.append("_sourceStatistics.txt");
             string txt = (boost::format("writing source statistics file: %s;\n") % fileName).str();
             cout << txt;
         } else {
-            fileName.append((boost::format("v%03d_sourceStatistics.txt") % (iSched_)).str());
-            string txt = (boost::format("version %d: writing source statistics file: %s;\n") %iSched_ % fileName).str();
+            fileName.append((boost::format("v%03d_sourceStatistics.txt") % (version_)).str());
+            string txt = (boost::format("version %d: writing source statistics file: %s;\n") %version_ % fileName).str();
             cout << txt;
         }
 
@@ -1009,13 +1010,13 @@ void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalog
 void Output::writeOperationsNotes() {
     string expName = xml_.get("master.output.experimentName","schedule");
     string fileName = boost::to_lower_copy(expName);
-    if (iSched_ == 0) {
+    if (version_ == 0) {
         fileName.append("_operationsNotes.txt");
         string txt = (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
         cout << txt;
     } else {
-        fileName.append((boost::format("v%03d_operationsNotes.txt") % (iSched_)).str());
-        string txt = (boost::format("version %d: operationsNotes skd file: %s;\n") %iSched_ % fileName).str();
+        fileName.append((boost::format("v%03d_operationsNotes.txt") % (version_)).str());
+        string txt = (boost::format("version %d: operationsNotes skd file: %s;\n") %version_ % fileName).str();
         cout << txt;
     }
 
@@ -1062,8 +1063,8 @@ void Output::writeOperationsNotes() {
     of << "---------------------------------------------------------------------------------------------------------\n";
     string newStr = boost::replace_all_copy(xml_.get("master.output.operationNotes","no additional notes"),"\\n","\n");
     of << newStr << "\n";
-    if(iSched_>0){
-        of << "    Version: " << iSched_ << " from multi scheduling setup\n";
+    if(version_>0){
+        of << "    Version: " << version_ << " from multi scheduling setup\n";
     }
     of << "---------------------------------------------------------------------------------------------------------\n\n";
 
@@ -1168,7 +1169,7 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
     int n_src = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
 
 
-    oString.append(std::to_string(iSched_)).append(",");
+    oString.append(std::to_string(version_)).append(",");
     oString.append(std::to_string(n_scans)).append(",");
     oString.append(std::to_string(n_single)).append(",");
     oString.append(std::to_string(n_subnetting)).append(",");

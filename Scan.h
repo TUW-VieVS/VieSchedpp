@@ -135,7 +135,7 @@ namespace VieVS{
             return times_;
         }
 
-        ScanTimes &referenceTime() const noexcept {
+        ScanTimes &referenceTime() noexcept {
             return times_;
         }
 

@@ -66,7 +66,7 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        Scheduler(Initializer &init, std::string path, std::string name);
+        Scheduler(Initializer &init, std::string path, std::string name, int version);
 
         Scheduler(std::string name, std::vector<Station> stations, std::vector<Source> sources,
                   std::vector<SkyCoverage> skyCoverages, std::vector<Scan> scans, boost::property_tree::ptree xml);
@@ -135,6 +135,7 @@ namespace VieVS{
         std::string path_;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        int version_;
 
         std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
