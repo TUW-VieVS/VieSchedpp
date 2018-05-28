@@ -130,6 +130,13 @@ namespace VieVS{
 
         void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &bodyLog);
 
+        /**
+         * @brief checks the schedule with an independend methode
+         *
+         * @param bodyLog outstream file object
+         */
+        bool checkAndStatistics(std::ofstream &bodyLog) noexcept;
+
     private:
         static int nextId;
         std::string path_;
@@ -153,12 +160,6 @@ namespace VieVS{
                                 boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
                                 int depth);
 
-        /**
-         * @brief checks the schedule with an independend methode
-         *
-         * @param bodyLog outstream file object
-         */
-        bool check(std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief checks if some parameters need to be changed
@@ -215,9 +216,11 @@ namespace VieVS{
         void changeStationAvailability(const boost::optional<StationEndposition> &endposition,
                                    StationEndposition::change change);
 
-        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output=false);
+        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output=false, bool ignoreTagalong=false);
 
         void resetAllEvents(std::ofstream &bodyLog);
+
+        void ignoreTagalongParameter();
     };
 }
 #endif /* SCHEDULER_H */

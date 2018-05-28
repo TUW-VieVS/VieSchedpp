@@ -41,15 +41,26 @@ int main(int argc, char *argv[])
     mainScheduler.run();
 
 //    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("/data/Daten/Schedules/EINT05/eint05.skd");
+//    VieVS::SkdParser mySkdParser("C:/Users/matth/Desktop/VGOS/b17341.skd");
 //    mySkdParser.createObjects();
 //    mySkdParser.createScans();
 //    mySkdParser.copyScanMembersToObjects();
-//
+
 //    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
 //    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
 //    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
 //    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
+
+//    VieVS::Scheduler sched = mySkdParser.createScheduler();
+//
+//    std::ofstream of("C:/Users/matth/Desktop/VGOS/b17341_summary.log");
+//    sched.checkAndStatistics(of);
+//
+//    VieVS::Output out(sched,"C:/Users/matth/Desktop/VGOS/",0);
+//    out.writeNGS();
+//    out.writeOperationsNotes();
+
+//
 
 
     auto finish = std::chrono::high_resolution_clock::now();

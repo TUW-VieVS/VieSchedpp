@@ -88,7 +88,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // if read from skd file read until you reach flag
                 if(fromSkdFile){
                     while(getline(fid,line)){
-                        if(line == skdFlag){
+                        if(boost::trim_copy(line) == skdFlag){
                             break;
                         }
                     }
@@ -185,7 +185,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // if read from skd file read until you reach flag
                 if(fromSkdFile){
                     while(getline(fid,line)){
-                        if(line == skdFlag){
+                        if(boost::trim_copy(line) == skdFlag){
                             break;
                         }
                     }
@@ -256,7 +256,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 // if read from skd file read until you reach flag
                 if(fromSkdFile){
                     while(getline(fid,line)){
-                        if(line == skdFlag){
+                        if(boost::trim_copy(line) == skdFlag){
                             break;
                         }
                     }
@@ -266,8 +266,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
 
                 bool versionFound = false;
                 // get first entry
-                while (true) {
-                    getline(fid, line);
+                while (getline(fid, line)) {
                     line = boost::algorithm::trim_copy(line);
                     if(!versionFound && line.length() > 0){
                         vector<string> splitVector;

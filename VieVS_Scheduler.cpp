@@ -56,11 +56,10 @@ void VieVS_Scheduler::run() {
     // check if multi scheduling is selected
     bool flag_multiSched = false;
     unsigned long nsched = 1;
-    vector<VieVS::MultiScheduling::Parameters> all_multiSched_PARA = init.readMultiSched();
+    vector<VieVS::MultiScheduling::Parameters> all_multiSched_PARA = init.readMultiSched(headerLog);
     if (!all_multiSched_PARA.empty()) {
         flag_multiSched = true;
         nsched = all_multiSched_PARA.size();
-        headerLog << "multi scheduling found ... creating " << nsched << " schedules!\n";
         cout << "multi scheduling found ... creating " << nsched << " schedules!;\n";
     }
 
@@ -155,7 +154,6 @@ void VieVS_Scheduler::run() {
         // create output
         VieVS::Output output(scheduler,path,version);
         output.createAllOutputFiles(statisticsLog, skdCatalogReader);
-
 
         if(flag_multiSched){
             string txt3 = threadNumberPrefix+(boost::format("version %d finished;\n") % (i + 1)).str();

@@ -522,7 +522,12 @@ double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcep
 
 double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
     unsigned int thisScanDuration = times_.getScanDuration();
-    double score = 1 - static_cast<double>(thisScanDuration - minTime) / static_cast<double>(maxTime - minTime);
+    double score;
+    if (maxTime - minTime == 0) {
+        score = 1;
+    } else {
+        score = 1 - static_cast<double>(thisScanDuration - minTime) / static_cast<double>(maxTime - minTime);
+    }
     return score;
 }
 
@@ -628,6 +633,7 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
         // timeDiff is difference between two estimated slew rates in iteration.
         unsigned int timeDiff = numeric_limits<unsigned int>::max();
 
+        bool stationRemoved = false;
         // iteratively calculate slew time
         while (timeDiff > 1) {
             // change slew times for iteration
@@ -642,7 +648,8 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
                 if (!scanValid) {
                     return scanValid;
                 }
-                continue;
+                stationRemoved = true;
+                break;
             }
             thisStation.getCableWrap().calcUnwrappedAz(thisStation.getCurrentPointingVector(), pv);
 
@@ -665,7 +672,8 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
                     if (!scanValid) {
                         return scanValid;
                     }
-                    continue;
+                    stationRemoved = true;
+                    break;
                 }
                 // otherwise set the big slew flag
                 bigSlew = true;
@@ -678,7 +686,8 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
                 if (!scanValid) {
                     return scanValid;
                 }
-                continue;
+                stationRemoved = true;
+                break;
             }
 
             // calculate new slew end time and time difference
@@ -689,9 +698,12 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
                 timeDiff = oldSlewEnd - newSlewEnd;
             }
         }
-        // update the slewtime
-        times_.updateSlewtime(ista, newSlewEnd - slewStart);
-        ++ista;
+        // if no station was removed update slewtimes and increase counter... otherwise restart with same staid
+        if(!stationRemoved){
+            // update the slewtime
+            times_.updateSlewtime(ista, newSlewEnd - slewStart);
+            ++ista;
+        }
     }
 
     return scanValid;
@@ -1262,21 +1274,19 @@ bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &sou
 }
 
 double Scan::weight_stations(const std::vector<Station> &stations) {
-    double weight = 0;
+    double weight = 1;
     for (const auto &any:pointingVectors_) {
-        weight += stations[any.getStaid()].getPARA().weight;
+        weight *= stations[any.getStaid()].getPARA().weight;
     }
-    weight /= pointingVectors_.size();
 
     return weight;
 }
 
 double Scan::weight_baselines() {
-    double weight = 0;
+    double weight = 1;
     for (const auto &any:baselines_) {
-        weight += Baseline::PARA.weight[any.getStaid1()][any.getStaid2()];
+        weight *= Baseline::PARA.weight[any.getStaid1()][any.getStaid2()];
     }
-    weight /= baselines_.size();
 
     return weight;
 }
@@ -1330,7 +1340,7 @@ void Scan::createDummyObservations() {
 
             unsigned int dur = std::max(dur1, dur2);
 
-            Baseline bl(staid1, staid2, srcid_, times_.getObservingStart());
+            Baseline bl(srcid_, staid1, staid2, times_.getObservingStart());
             bl.setScanDuration(dur);
             baselines_.push_back(std::move(bl));
         }

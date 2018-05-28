@@ -2438,7 +2438,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     }
 }
 
-vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
+vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &out) {
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms;
@@ -2451,9 +2451,22 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                                                                                          GroupType::station);
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
+
         boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
         unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline,
                                                                                           GroupType::baseline);
+
+        unsigned int maxNumber = mstree.get("maxNumber",numeric_limits<unsigned int>::max());
+        boost::optional<unsigned int> o_seed = mstree.get_optional<unsigned int>("seed");
+        unsigned int seed;
+        if(o_seed.is_initialized()){
+            seed = *o_seed;
+        }else{
+            std::default_random_engine generator;
+            generator.seed(static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count()));
+            std::uniform_int_distribution<unsigned int> distribution(0,2147483647);
+            seed = distribution(generator);
+        }
 
 
         for (const auto &any:mstree) {
@@ -2860,11 +2873,15 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
                     ms.setBaseline_weight(name, data);
                 }
             }
-
-
         }
+        std::vector<MultiScheduling::Parameters> ans = ms.createMultiScheduleParameters(maxNumber,seed);
 
-        return ms.createMultiScheduleParameters();
+        if(ans.size() != maxNumber){
+            out << "multi scheduling found ... creating " << ans.size() << " schedules!;\n";
+        }else{
+            out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!;\n";
+        }
+        return ans;
     }
     return std::vector<MultiScheduling::Parameters>{};
 }

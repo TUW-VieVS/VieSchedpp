@@ -9,6 +9,7 @@ using namespace std;
 int SkdParser::nextId = 0;
 
 SkdParser::SkdParser(const std::string &filename):VieVS_Object(nextId++), filename_{filename} {
+
 }
 
 void SkdParser::createObjects() {
@@ -25,6 +26,8 @@ void SkdParser::createObjects() {
         bool found = false;
         bool sourceFound = false;
         bool tapeFound = false;
+        bool corSynchFound = false;
+        bool calibrationFound = false;
         // loop through file
         int counter = 0;
         while (getline(fid, line)) {
@@ -65,6 +68,24 @@ void SkdParser::createObjects() {
                     }
                 }
                 tapeFound = true;
+            }
+            if(!corSynchFound && trimmed.find("CORSYNCH") != trimmed.npos){
+                boost::split(splitVector, trimmed, boost::is_space(), boost::token_compress_on);
+                for(int i=0;i<splitVector.size();++i){
+                    if(splitVector[i] == "CORSYNCH"){
+                        midob_ = boost::lexical_cast<unsigned int>(splitVector[i+1]);
+                    }
+                }
+                corSynchFound = true;
+            }
+            if(!calibrationFound && trimmed.find("CALIBRATION") != trimmed.npos){
+                boost::split(splitVector, trimmed, boost::is_space(), boost::token_compress_on);
+                for(int i=0;i<splitVector.size();++i){
+                    if(splitVector[i] == "CALIBRATION"){
+                        preob_ = boost::lexical_cast<unsigned int>(splitVector[i+1]);
+                    }
+                }
+                calibrationFound = true;
             }
 
             if(trimmed == "$STATIONS") {
@@ -266,7 +287,7 @@ void SkdParser::createScans() {
             if(!valid){
                 const auto &tmp = scan.getTimes();
                 for (int i = 0; i < nsta; ++i) {
-                    if(tmp.getObservingStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)){
+                    if(tmp.getObservingStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)-2){
                         unsigned int eost = tmp.getSlewEnd(i);
                         unsigned int eoit = tmp.getObservingStart(i)-tmp.getPreobTime(i);
                         boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
@@ -351,6 +372,15 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
 }
 
 Scheduler SkdParser::createScheduler() {
+
+    Station::WaitTimes wt;
+    wt.fieldSystem = fieldSystemTimes_;
+    wt.preob = preob_;
+    wt.midob = midob_;
+    wt.postob = postob_;
+    for(Station &station:stations_){
+        station.setWaitTimes(wt);
+    }
 
     boost::property_tree::ptree xml;
     xml.add("general.startTime",TimeSystem::ptime2string(TimeSystem::startTime));

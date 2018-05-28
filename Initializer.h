@@ -222,7 +222,7 @@ namespace VieVS {
          *
          * @return vector of all possible multisched parameter combination
          */
-        std::vector<MultiScheduling::Parameters> readMultiSched();
+        std::vector<MultiScheduling::Parameters> readMultiSched(std::ostream &out);
 
         void initializeCalibrationBlocks(std::ofstream &headerLog);
 

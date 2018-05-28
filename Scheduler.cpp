@@ -121,8 +121,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         // check end time of best possible next scan
         unsigned int maxScanEnd = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getObservingEnd() > maxScanEnd) {
-                maxScanEnd = any.getTimes().getObservingEnd();
+            if (any.getTimes().getScanEnd() > maxScanEnd) {
+                maxScanEnd = any.getTimes().getScanEnd();
             }
         }
 
@@ -228,17 +228,17 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
             return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
         });
     } else {
-        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard, true);
+        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard, true, false);
     }
 
     // start fillinmode a posterior
     if(parameters_.fillinmodeAPosteriori){
         bodyLog << "* --- start fillin mode a posteriori ---\n";
-        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin);
+        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin, false, true);
     }
 
     // check if there was an error during the session
-    if (!check(bodyLog)) {
+    if (!checkAndStatistics(bodyLog)) {
         if(version_ == 0){
             cout << boost::format("iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
                     % (parameters_.currentIteration);
@@ -376,7 +376,7 @@ void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, i
     }
 }
 
-bool Scheduler::check(ofstream &bodyLog) noexcept {
+bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
     bool everythingOk = true;
 
     bodyLog << "\n=======================   starting check routine   =======================\n";
@@ -389,6 +389,21 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
         bodyLog << "    checking station " << thisStation.getName() << ":\n";
         int staid = thisStation.getId();
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
+
+        sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+            boost::optional<int> idx1 = scan1.findIdxOfStationId(staid);
+            if(!idx1.is_initialized()){
+                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+            }
+
+            boost::optional<int> idx2 = scan2.findIdxOfStationId(staid);
+            if(!idx2.is_initialized()){
+                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+            }
+
+            return scan1.getTimes().getObservingStart(*idx1) < scan2.getTimes().getObservingStart(*idx2);
+        });
+
 
 
         // get first scan with this station and initialize idx
@@ -514,6 +529,10 @@ bool Scheduler::check(ofstream &bodyLog) noexcept {
     bodyLog << "Total: " << countErrors << " errors and " << countWarnings << " warnings\n";
     bodyLog << "=========================   end check routine    =========================\n";
 
+    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+    });
+
     std::vector<Source::Statistics> statistics(sources_.size());
     for(auto &any:scans_){
         int srcid = any.getSourceId();
@@ -565,6 +584,12 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
 
     Baseline::checkForNewEvent(time, hard_break, output, bodyLog);
     return hard_break;
+}
+
+void Scheduler::ignoreTagalongParameter() {
+    for (auto &any:stations_) {
+        any.referencePARA().tagalong = false;
+    }
 }
 
 void Scheduler::listSourceOverview(ofstream &log) noexcept {
@@ -1204,10 +1229,14 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
     }
 }
 
-void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output) {
+void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type,
+                                               bool output, bool ignoreTagalong) {
 
     // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>(scans_.size());
+    if(nMainScans == 0){
+        return;
+    }
 
     // reset all events
     resetAllEvents(bodyLog);
@@ -1247,14 +1276,20 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
                 break;
             }
         }
+        endposition->setStationAvailable(stations_);
+        endposition->checkStationPossibility(stations_);
+
 
         // check if there was an new upcoming event in the meantime
-        unsigned int startTime = lastScan.getTimes().getObservingEnd();
+        unsigned int startTime = lastScan.getTimes().getScanEnd();
         checkForNewEvents(startTime, true, bodyLog);
+        if(ignoreTagalong ){
+            ignoreTagalongParameter();
+        }
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection(scans_[i + 1].getTimes().getObservingStart(), bodyLog, type, endposition, subcon, 1);
+        startScanSelection(scans_[i + 1].getTimes().getScanEnd(), bodyLog, type, endposition, subcon, 1);
     }
 
     // do the same between time at from last scan until duration with no endposition
@@ -1274,8 +1309,11 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
     }
     // check if there was an new upcoming event in the meantime
-    unsigned int startTime = lastScan.getTimes().getObservingEnd();
+    unsigned int startTime = lastScan.getTimes().getScanEnd();
     checkForNewEvents(startTime, true, bodyLog);
+    if(ignoreTagalong ){
+        ignoreTagalongParameter();
+    }
 
     // recursively start scan selection
     boost::optional<Subcon> subcon = boost::none;
@@ -1379,5 +1417,6 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
     checkForNewEvents(0, false, bodyLog);
 
 }
+
 
 

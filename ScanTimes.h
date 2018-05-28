@@ -123,6 +123,9 @@ namespace VieVS {
         const unsigned int getObservingStart() const noexcept;
 
         const unsigned int getObservingStart(int idx) const noexcept{
+            if(idx>endOfPreobTime_.size()){
+                double x = 0;
+            }
             return endOfPreobTime_[idx];
         }
 
@@ -174,6 +177,7 @@ namespace VieVS {
             anchor = newAnchor;
         }
 
+
     private:
         static int nextId;
         static AlignmentAnchor anchor;
@@ -187,6 +191,8 @@ namespace VieVS {
 
         //TODO: implement endOfPostobTime_
         std::vector<unsigned int> endOfPostobTime_; ///< end of postob time
+
+        void removeIdleTime();
     };
 }
 

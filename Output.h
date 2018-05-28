@@ -66,6 +66,8 @@ namespace VieVS{
          */
         void writeNGS();
 
+        void writeOperationsNotes();
+
         /**
          * @brief creates a skd file
          */
@@ -142,7 +144,6 @@ namespace VieVS{
 
         std::vector<unsigned int> minutesVisible(const Source &source);
 
-        void writeOperationsNotes();
     };
 }
 

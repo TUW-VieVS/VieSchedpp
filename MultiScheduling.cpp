@@ -464,7 +464,7 @@ void MultiScheduling::setBaseline_weight(const std::string &new_id, const std::v
     baselineWeight_.emplace_back(new_id, values);
 }
 
-std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiScheduleParameters() {
+std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiScheduleParameters(unsigned int maxNr, unsigned int seed) {
     std::vector<unsigned int> counter;
 
     if (!start_.empty()) {
@@ -1063,6 +1063,12 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
             n_before = n_block;
         }
     }
+
+    if(allPARA.size()>maxNr){
+        std::shuffle(allPARA.begin(), allPARA.end(), std::default_random_engine(seed));
+        allPARA.resize(maxNr);
+    }
+
     return allPARA;
 }
 

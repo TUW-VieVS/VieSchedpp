@@ -49,13 +49,24 @@ void ScanTimes::updateSlewtime(int idx, unsigned int new_slewtime) noexcept {
         endOfPreobTime_[idx] = endOfIdleTime_[idx] + preobTime;
         endOfObservingTime_[idx] = endOfPreobTime_[idx] + observingTime;
     }
+}
 
+void ScanTimes::removeIdleTime() {
+    auto nsta = static_cast<int>(endOfSlewTime_.size());
+
+    for(int idx=0; idx<nsta; ++idx){
+        unsigned int preob = getPreobTime(idx);
+        unsigned int obs = getObservingTime(idx);
+
+        endOfIdleTime_[idx] = endOfSlewTime_[idx];
+        endOfPreobTime_[idx] = endOfIdleTime_[idx] + preob;
+        endOfObservingTime_[idx] = endOfPreobTime_[idx] + obs;
+    }
 }
 
 void ScanTimes::alignStartTimes() noexcept {
     auto nsta = static_cast<int>(endOfSlewTime_.size());
-
-    int id = getId();
+    removeIdleTime();
 
     switch(anchor){
         case AlignmentAnchor::start:{
@@ -97,34 +108,34 @@ void ScanTimes::alignStartTimes() noexcept {
 
                 unsigned int thisObsTime = getObservingTime(idx);
                 unsigned int thisPreobTime = getPreobTime(idx);
-                if(endOfObservingTime_[idx]-minObsStart<=thisObsTime){
+                if(maxObsEnd-minObsStart<=thisObsTime){
                     // anchor: end of observation is end of max observation time of all antennas
                     minObsStart = maxObsEnd-thisObsTime;
-                    endOfIdleTime_[i] = minObsStart;
-                    endOfPreobTime_[i] = minObsStart+thisPreobTime;
-                    endOfObservingTime_[i] = maxObsEnd;
+                    endOfIdleTime_[idx] = minObsStart-thisPreobTime;
+                    endOfPreobTime_[idx] = minObsStart;
+                    endOfObservingTime_[idx] = maxObsEnd;
 
                 }else{
                     unsigned int thisObsStart = endOfSlewTime_[idx];
-                    if(thisObsStart<maxSlewEnd){
-                        if(maxSlewEnd+thisObsTime>maxObsEnd){
+                    if(thisObsStart < maxSlewEnd){
+                        if(maxSlewEnd + thisObsTime > maxObsEnd){
                             // anchor: end of observation is end of max observation of all stations... maybe this is never true!
-                            endOfIdleTime_[i] = maxObsEnd-thisObsTime;
-                            endOfPreobTime_[i] = maxObsEnd-thisObsTime+thisPreobTime;
-                            endOfObservingTime_[i] = maxObsEnd;
+                            endOfIdleTime_[idx] = maxObsEnd-thisObsTime-thisPreobTime;
+                            endOfPreobTime_[idx] = maxObsEnd-thisObsTime;
+                            endOfObservingTime_[idx] = maxObsEnd;
 
                         }else{
                             // anchor: start of observing time is maximum slew time of all antennas
-                            endOfIdleTime_[i] = maxSlewEnd;
-                            endOfPreobTime_[i] = maxSlewEnd+thisPreobTime;
-                            endOfObservingTime_[i] = maxSlewEnd+thisObsTime;
+                            endOfIdleTime_[idx] = maxSlewEnd;
+                            endOfPreobTime_[idx] = maxSlewEnd+thisPreobTime;
+                            endOfObservingTime_[idx] = maxSlewEnd+thisObsTime;
                         }
                     }else{
                         // leave everything as it is (observation time is already correct)
 
-//                        endOfIdleTime_[i] = getSlewEnd(idx);
-//                        endOfPreobTime_[i] = getSlewEnd(idx)+thisPreobTime;
-//                        endOfObservingTime_[i] = getObservingEnd(idx);
+                        endOfIdleTime_[idx] = getSlewEnd(idx);
+                        endOfPreobTime_[idx] = getSlewEnd(idx)+thisPreobTime;
+                        endOfObservingTime_[idx] = getObservingEnd(idx);
                     }
 
                 }
@@ -148,12 +159,14 @@ void ScanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
         endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes[i];
     }
+    alignStartTimes();
 }
 
 void ScanTimes::addScanTimes(unsigned int scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
         endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes;
     }
+    alignStartTimes();
 }
 
 void ScanTimes::addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
@@ -216,6 +229,7 @@ const unsigned int ScanTimes::getScanEnd() const noexcept {
     // todo: postob
     return getObservingEnd();
 }
+
 
 
 

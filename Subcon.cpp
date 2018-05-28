@@ -336,8 +336,8 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                         if (scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
                             scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations) {
 
-                            unsigned int firstTime = first.getTimes().getObservingEnd();
-                            unsigned int secondTime = second.getTimes().getObservingEnd();
+                            unsigned int firstTime = first.getTimes().getScanEnd();
+                            unsigned int secondTime = second.getTimes().getScanEnd();
 
                             if( util::absDiff(firstTime,secondTime) > 600) {
                                 continue;
@@ -487,7 +487,7 @@ void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
     unsigned int minTime = numeric_limits<unsigned int>::max();
     for (auto &thisScan: singleScans_) {
-        unsigned int thisTime = thisScan.getTimes().getObservingEnd() - thisScan.getTimes().getObservingStart();
+        unsigned int thisTime = thisScan.getTimes().getScanEnd() - thisScan.getTimes().getScanStart();
         if (thisTime < minTime) {
             minTime = thisTime;
         }
@@ -725,8 +725,8 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             }
 
             // check time differences between subnetting scans
-            unsigned int maxTime1 = thisScan1.getTimes().getObservingEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getObservingEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
@@ -852,15 +852,15 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
 
-            unsigned int maxTime1 = thisScan1.getTimes().getObservingEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getObservingEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
+            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
             } else {
                 deltaTime = maxTime2 - maxTime1;
             }
-            if (deltaTime > 900) {
+            if (deltaTime > 600) {
                 continue;
             }
 

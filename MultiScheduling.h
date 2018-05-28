@@ -16,6 +16,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/format.hpp>
+#include <numeric>
+#include <random>
+
 #include "ParameterGroup.h"
 #include "WeightFactors.h"
 #include "VieVS_Object.h"
@@ -490,7 +493,7 @@ namespace VieVS {
          * @brief create vector of all possible multi scheduling parameter combinations
          * @return all possible multi scheduling parameter combinations
          */
-        std::vector<Parameters> createMultiScheduleParameters();
+        std::vector<Parameters> createMultiScheduleParameters(unsigned int maxNr, unsigned int seed);
 
         /**
          * @brief create property tree used for parameter.xml file

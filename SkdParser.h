@@ -29,6 +29,9 @@ namespace VieVS{
 
         std::string filename_;
         unsigned int fieldSystemTimes_ = 0;
+        unsigned int preob_ = 0;
+        unsigned int midob_ = 0;
+        unsigned int postob_ = 0;
 
         SkdCatalogReader skd_;
 
