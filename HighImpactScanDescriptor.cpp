@@ -141,9 +141,10 @@ vector<Scan> HighImpactScanDescriptor::highestImpactScans(const std::vector<Stat
     return highImpactScans_.selectBest(stations, sources);
 }
 
-bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans) {
+bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source) {
+    unsigned int minTimeBetweenSource = source.getPARA().minRepeat;
 
-    return std::all_of(scans.begin(),scans.end(),[target, minTimeBetweenScans=minTimeBetweenScans_](const Scan &scan){
+    return std::all_of(scans.begin(),scans.end(),[target, minTimeBetweenScans=minTimeBetweenScans_, minTimeBetweenSource](const Scan &scan){
         unsigned int targetStart = target.getTimes().getObservingStart();
         unsigned int targetEnd = target.getTimes().getObservingEnd();
         unsigned int scanStart = scan.getTimes().getObservingStart();
@@ -175,6 +176,12 @@ bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const
             valid = false;
         }
         if(scanStart>=targetStart && scanEnd<=targetEnd){
+            valid = false;
+        }
+
+
+        unsigned int diff_src = util::absDiff(targetStart,scanStart);
+        if(diff_src < minTimeBetweenSource){
             valid = false;
         }
 

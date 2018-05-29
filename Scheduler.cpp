@@ -1364,7 +1364,8 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     do{
         bestScans = himp.highestImpactScans(stations_, sources_);
         for(const auto& scan:bestScans){
-            if(himp.isCorrectHighImpactScan(scan,scans_)){
+            const Source &source = sources_[scan.getSourceId()];
+            if(himp.isCorrectHighImpactScan(scan, scans_, source)){
                 update(scan, bodyLog);
 
                 for(auto &thisStation:stations_){

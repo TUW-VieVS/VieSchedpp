@@ -41,7 +41,7 @@ namespace VieVS{
 
         std::vector<Scan> highestImpactScans(const std::vector<Station> &stations, const std::vector<Source> &sources);
 
-        bool isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans);
+        bool isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source);
 
         bool hasMoreScans(){
             return highImpactScans_.getNumberSingleScans()>0 || highImpactScans_.getNumberSubnettingScans()>0;

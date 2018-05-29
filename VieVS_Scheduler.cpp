@@ -21,7 +21,7 @@ void VieVS_Scheduler::run() {
     VieVS::Initializer init(inputFile_);
     std::size_t found = inputFile_.find_last_of("/\\");
     std::string path;
-    if(found == inputFile_.npos){
+    if(found == std::string::npos){
         path = "";
     }else{
         path = inputFile_.substr(0,found+1);
