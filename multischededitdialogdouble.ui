@@ -48,10 +48,20 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_start"/>
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_start">
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.250000000000000</double>
+              </property>
+             </widget>
             </item>
             <item row="1" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_stop">
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
               <property name="value">
                <double>1.000000000000000</double>
               </property>
@@ -63,10 +73,10 @@
                <double>0.010000000000000</double>
               </property>
               <property name="singleStep">
-               <double>0.050000000000000</double>
+               <double>0.250000000000000</double>
               </property>
               <property name="value">
-               <double>0.100000000000000</double>
+               <double>0.250000000000000</double>
               </property>
              </widget>
             </item>

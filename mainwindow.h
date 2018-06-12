@@ -126,8 +126,6 @@ private slots:
 
     void on_actionInput_triggered();
 
-    void on_checkBox_fillinMode_clicked(bool checked);
-
     void on_doubleSpinBox_weightLowDecStart_valueChanged(double arg1);
 
     void on_doubleSpinBox_weightLowDecEnd_valueChanged(double arg1);
@@ -466,6 +464,10 @@ private slots:
     void on_actionSkd_Parser_triggered();
 
     void on_actionAbout_Qt_triggered();
+
+    void on_comboBox_multiSched_maxNumber_currentIndexChanged(const QString &arg1);
+
+    void on_comboBox_multiSched_seed_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;

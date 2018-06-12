@@ -2984,6 +2984,12 @@ QString MainWindow::writeXML()
     if(ui->checkBox_weightAverageStations->isChecked()){
         weightAverageStations = ui->doubleSpinBox_weightAverageStations->value();
     }
+    double weightIdleTime = 0;
+    unsigned int intervalIdleTime = 0;
+    if(ui->checkBox_weightIdleTime->isChecked()){
+        weightIdleTime = ui->doubleSpinBox_weightIdleTime->value();
+        intervalIdleTime = ui->spinBox_idleTimeInterval->value();
+    }
     double weightDeclination = 0;
     double weightDeclinationSlopeStart = 0;
     double weightDeclinationSlopeEnd = 0;
@@ -3001,7 +3007,8 @@ QString MainWindow::writeXML()
         weightElevationSlopeEnd = ui->doubleSpinBox_weightLowElEnd->value();
     }
     para.weightFactor(weightSkyCoverage, weightNumberOfObservations, weightDuration, weightAverageSources,
-                      weightAverageStations, weightDeclination, weightDeclinationSlopeStart, weightDeclinationSlopeEnd,
+                      weightAverageStations, weightIdleTime, intervalIdleTime, weightDeclination, 
+                      weightDeclinationSlopeStart, weightDeclinationSlopeEnd,
                       weightElevation, weightElevationSlopeStart, weightElevationSlopeEnd);
 
     if(ui->groupBox_scanSequence->isChecked()){

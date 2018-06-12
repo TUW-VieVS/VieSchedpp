@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>19</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -4770,7 +4770,7 @@ Click on source to deselect it</string>
                <number>60</number>
               </property>
               <property name="value">
-               <number>600</number>
+               <number>300</number>
               </property>
              </widget>
             </item>
@@ -5381,8 +5381,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
