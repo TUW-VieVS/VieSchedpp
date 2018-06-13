@@ -115,7 +115,7 @@ namespace VieVS{
         void update(const PointingVector &pv) noexcept;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         unsigned long nStations_; ///< number of stations that belong to this sky coverage
         std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage

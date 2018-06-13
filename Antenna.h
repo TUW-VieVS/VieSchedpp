@@ -92,7 +92,7 @@ namespace VieVS{
         unsigned int slewTimePerAxis(double delta, Axis axis) const noexcept ;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         double offset_; ///< offset of the antenna axis intersection in meters
         double diam_; ///< diameter of the antenna dish in meters

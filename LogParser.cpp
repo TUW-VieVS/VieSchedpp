@@ -6,7 +6,7 @@
 
 using namespace VieVS;
 using namespace std;
-int LogParser::nextId = 0;
+unsigned long LogParser::nextId = 0;
 
 LogParser::LogParser(const std::string &filename): VieVS_Object(nextId++), filename_{filename}{
 }

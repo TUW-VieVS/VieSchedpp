@@ -34,7 +34,7 @@ namespace VieVS {
                       const boost::property_tree::ptree &xml);
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::ofstream of;
 

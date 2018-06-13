@@ -9,10 +9,10 @@
 using namespace std;
 using namespace VieVS;
 
-int HighImpactScanDescriptor::nextId = 0;
-int HighImpactScanDescriptor::AzElDescriptor::nextId = 0;
+unsigned long HighImpactScanDescriptor::nextId = 0;
+unsigned long HighImpactScanDescriptor::AzElDescriptor::nextId = 0;
 
-HighImpactScanDescriptor::AzElDescriptor::AzElDescriptor(double az, double el, double margin, std::vector<int> staids):
+HighImpactScanDescriptor::AzElDescriptor::AzElDescriptor(double az, double el, double margin, std::vector<unsigned long> staids):
         VieVS_Object(nextId++), az_{az}, el_{el}, margin_{margin}, staids_{std::move(staids)}{
 }
 
@@ -20,7 +20,7 @@ HighImpactScanDescriptor::HighImpactScanDescriptor(unsigned int interval, unsign
         VieVS_Object(nextId++), interval_{interval}, minTimeBetweenScans_{minTimeBetweenScans}{
 }
 
-void HighImpactScanDescriptor::addAzElDescriptor(double az, double el, double margin, const std::vector<int> &staids) {
+void HighImpactScanDescriptor::addAzElDescriptor(double az, double el, double margin, const std::vector<unsigned long> &staids) {
     azElDescritors_.emplace_back(az,el,margin,staids);
 }
 
@@ -43,8 +43,8 @@ double HighImpactScanDescriptor::highImpactScore(const PointingVector &pv) const
     return score;
 }
 
-std::vector<int> HighImpactScanDescriptor::getStationIds() const{
-    vector<int> ids;
+std::vector<unsigned long> HighImpactScanDescriptor::getStationIds() const{
+    vector<unsigned long> ids;
     for(const auto &any:azElDescritors_){
         ids.insert(ids.end(), any.getStaids().begin(), any.getStaids().end());
     }
@@ -56,14 +56,14 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
                                                        const std::vector<Source> &sources) {
 
     // map: key = srcid, value:weight
-    std::map<int,double> thisMap;
+    std::map<unsigned long,double> thisMap;
     unsigned int time = idxTime*interval_;
 
     // find possible highImpactScans
     // loop over himp pv
     for (const auto &any:azElDescritors_) {
-        for(int staid: any.getStaids()){
-            PointingVector pv(staid,-1);
+        for(unsigned long staid: any.getStaids()){
+            PointingVector pv(staid,numeric_limits<unsigned long>::max());
             pv.setTime(time);
             const auto &thisSta = stations[staid];
 
@@ -76,7 +76,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
 
                     // if you have possible high impact score add score to map
                     if(score >0){
-                        int srcid = source.getId();
+                        unsigned long srcid = source.getId();
                         auto i = thisMap.find(srcid);
                         if(i==thisMap.end()){
                             thisMap[srcid] = score;
@@ -91,7 +91,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
 
     // create high impact scans
     for(const auto& itm: thisMap){
-        int srcid = itm.first;
+        unsigned long srcid = itm.first;
         const Source &thisSource = sources[srcid];
         highImpactScans_.visibleScan(time,Scan::ScanType::highImpact,stations,thisSource);
     }
@@ -101,7 +101,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
 
 
 double HighImpactScanDescriptor::AzElDescriptor::highImpactScore(const PointingVector &pv) const {
-    int staid = pv.getStaid();
+    unsigned long staid = pv.getStaid();
     double score = 0;
     if(std::find(staids_.begin(), staids_.end(), staid) != staids_.end()){
         double thisAz = util::wrapToPi(pv.getAz());
@@ -114,7 +114,7 @@ double HighImpactScanDescriptor::AzElDescriptor::highImpactScore(const PointingV
     return score;
 }
 
-const vector<int> &HighImpactScanDescriptor::AzElDescriptor::getStaids() const {
+const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids() const {
     return staids_;
 }
 

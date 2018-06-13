@@ -154,7 +154,7 @@ namespace VieVS{
          * @param idx index of required station id
          * @return id of station
          */
-        int getStationId(int idx) const noexcept {
+        unsigned long getStationId(int idx) const noexcept {
             return pointingVectors_[idx].getStaid();
         }
 
@@ -163,7 +163,7 @@ namespace VieVS{
          *
          * @return source id
          */
-        int getSourceId() const noexcept {
+        unsigned long getSourceId() const noexcept {
             return pointingVectors_[0].getSrcid();
         }
 
@@ -260,7 +260,7 @@ namespace VieVS{
          * @param id station id
          * @return index
          */
-        boost::optional<int> findIdxOfStationId(int id) const noexcept;
+        boost::optional<unsigned long> findIdxOfStationId(unsigned long id) const noexcept;
 
         /**
          * @brief adds scan times
@@ -317,7 +317,7 @@ namespace VieVS{
          *
          * @return all station ids
          */
-        std::vector<int> getStationIds() const noexcept;
+        std::vector<unsigned long> getStationIds() const noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -426,7 +426,7 @@ namespace VieVS{
          * @param ids ids of all stations which should be copied
          * @return copy of scan with the stations from ids parameter or none if no valid scan can be created
          */
-        boost::optional<Scan> copyScan(const std::vector<int> &ids, const Source &source) const noexcept;
+        boost::optional<Scan> copyScan(const std::vector<unsigned long> &ids, const Source &source) const noexcept;
 
         /**
          * @brief getter for number of baselines
@@ -437,7 +437,7 @@ namespace VieVS{
             return baselines_.size();
         }
 
-        unsigned long getNBl(int staid) const noexcept;
+        unsigned long getNBl(unsigned long staid) const noexcept;
 
         /**
          * @brief checks if parts of this scan can be used as a fillin mode scan
@@ -472,10 +472,10 @@ namespace VieVS{
         void createDummyObservations();
 
     private:
-        static thread_local int nextId;
+        static unsigned long nextId;
 
         unsigned long nsta_; ///< number of stations in this scan
-        int srcid_; ///< observed source id
+        unsigned long srcid_; ///< observed source id
 
         double score_; ///< total score
 

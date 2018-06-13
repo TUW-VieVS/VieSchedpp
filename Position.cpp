@@ -25,7 +25,7 @@
 #include "Position.h"
 using namespace std;
 using namespace VieVS;
-int Position::nextId = 0;
+unsigned long Position::nextId = 0;
 
 Position::Position(double x_m, double y_m, double z_m):VieVS_Object(nextId++), x_{x_m},y_{y_m},z_{z_m} {
     double a = 6378136.6;

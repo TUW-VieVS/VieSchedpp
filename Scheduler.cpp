@@ -14,7 +14,7 @@
 #include "Scheduler.h"
 using namespace std;
 using namespace VieVS;
-int Scheduler::nextId = 0;
+unsigned long Scheduler::nextId = 0;
 
 Scheduler::Scheduler(Initializer &init, string path, string name, int version): VieVS_NamedObject(move(name),nextId++),
                                                                    path_{std::move(path)},
@@ -144,7 +144,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
             boost::optional<StationEndposition> newEndposition(static_cast<int>(stations_.size()));
             if(opt_endposition.is_initialized()){
-                for(int i=0; i<stations_.size();++i){
+                for(unsigned long i=0; i<stations_.size();++i){
                     if(opt_endposition->hasEndposition(i)){
                         newEndposition->addPointingVectorAsEndposition(opt_endposition->getFinalPosition(i).get());
                     }
@@ -294,7 +294,7 @@ Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Sc
 
 
 Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<StationEndposition> &endposition) noexcept {
-    unsigned long nsta = stations_.size();
+//    unsigned long nsta = stations_.size();
     unsigned long nsrc = sources_.size();
 
     unsigned int currentTime = 0;
@@ -325,11 +325,11 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
     bool scanHasInfluence;
     scanHasInfluence = !(scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule);
 
-    int srcid = scan.getSourceId();
+    unsigned long srcid = scan.getSourceId();
 
     for (int i = 0; i < scan.getNSta(); ++i) {
         const PointingVector &pv = scan.getPointingVector(i);
-        int staid = pv.getStaid();
+        unsigned long staid = pv.getStaid();
         const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
         unsigned long nbl = scan.getNBl(staid);
         stations_[staid].update(nbl, pv_end, scanHasInfluence);
@@ -365,11 +365,6 @@ void Scheduler::outputHeader(const vector<Station> &stations, ofstream &bodyLog)
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
 
     if(n1scans+n2scans>0){
-//        bodyLog << "|-------------";
-//        for (int i = 0; i < stations_.size() - 1; ++i) {
-//            bodyLog << "-----------";
-//        }
-//        bodyLog << "----------| \n";
         bodyLog << "*   depth "<< depth << " considered: single Scans " << n1scans << " subnetting scans " << n2scans << "\n";
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
@@ -387,21 +382,22 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
     for (auto& thisStation:stations_){
         bodyLog << "    checking station " << thisStation.getName() << ":\n";
-        int staid = thisStation.getId();
+        unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
 
         sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
-            boost::optional<int> idx1 = scan1.findIdxOfStationId(staid);
+            boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
             if(!idx1.is_initialized()){
                 return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
             }
 
-            boost::optional<int> idx2 = scan2.findIdxOfStationId(staid);
+            boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
             if(!idx2.is_initialized()){
                 return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
             }
 
-            return scan1.getTimes().getObservingStart(*idx1) < scan2.getTimes().getObservingStart(*idx2);
+            return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) < scan2.getTimes().getObservingStart(
+                    static_cast<int>(*idx2));
         });
 
 
@@ -412,12 +408,12 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
         while( i_thisEnd < scans_.size()) {
             const Scan &scan_thisEnd = scans_[i_thisEnd];
             // look for index of station in scan
-            boost::optional<int> oidx_thisEnd = scan_thisEnd.findIdxOfStationId(staid);
+            boost::optional<unsigned long> oidx_thisEnd = scan_thisEnd.findIdxOfStationId(staid);
             if (!oidx_thisEnd.is_initialized()) {
                 ++i_thisEnd;
                 continue; // if you do not find one continue
             }
-            idx_thisEnd = *oidx_thisEnd;
+            idx_thisEnd = static_cast<int>(*oidx_thisEnd);
             break;
         }
 
@@ -440,12 +436,12 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
                 // get scan and pointing vector at end
                 const Scan &scan_nextStart = scans_[i_nextStart];
                 // look for index of station in scan
-                boost::optional<int> oidx_nextStart = scan_nextStart.findIdxOfStationId(staid);
+                boost::optional<unsigned long> oidx_nextStart = scan_nextStart.findIdxOfStationId(staid);
                 if(!oidx_nextStart.is_initialized()){
                     ++i_nextStart;
                     continue; // if you do not find one continue
                 }
-                int idx_nextStart = *oidx_nextStart;
+                auto idx_nextStart = static_cast<int>(*oidx_nextStart);
                 const PointingVector &nextStart = scan_nextStart.getPointingVector(idx_nextStart);
 
                 // check if scan times are in correct order
@@ -535,7 +531,7 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
     std::vector<Source::Statistics> statistics(sources_.size());
     for(auto &any:scans_){
-        int srcid = any.getSourceId();
+        unsigned long srcid = any.getSourceId();
         auto &thisStatistics = statistics[srcid];
         thisStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
         thisStatistics.totalObservingTime += any.getTimes().getObservingTime();
@@ -593,7 +589,7 @@ void Scheduler::ignoreTagalongParameter() {
 }
 
 void Scheduler::listSourceOverview(ofstream &log) noexcept {
-    unsigned int counter = 0;
+//    unsigned int counter = 0;
     vector<string> available;
     vector<string> notAvailable;
     vector<string> notAvailable_optimization;
@@ -642,7 +638,7 @@ void Scheduler::listSourceOverview(ofstream &log) noexcept {
 
 void Scheduler::saveSkyCoverageData(unsigned int time) noexcept {
 
-    for (int i = 0; i < stations_.size(); ++i) {
+    for (unsigned long i = 0; i < stations_.size(); ++i) {
         Station &thisStation = stations_[i];
         PointingVector pv(i,0);
         std::ofstream log("skyCoverageData/"+thisStation.getName()+".bin", std::ofstream::app | std::ofstream::out);
@@ -704,7 +700,7 @@ void Scheduler::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
 void Scheduler::printHorizonMasksForDebugging() {
     for (const auto &any: stations_) {
         ofstream o("hmask_" + any.getName() + ".txt");
-        PointingVector p(-1,-1);
+        PointingVector p(numeric_limits<unsigned long>::max(),numeric_limits<unsigned long>::max());
         p.setTime(0);
         for (int az = -360; az < 0; ++az) {
             for (int el = 0; el < 20; ++el) {
@@ -770,7 +766,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 //            cout << "new Scan\n";
             for(int j = 0; j<scan.getNSta(); ++j){
                 const PointingVector &pv = scan.getPointingVector(j);
-                int staid = pv.getStaid();
+                unsigned long staid = pv.getStaid();
 
                 double el = pv.getEl();
 //                cout << "el: " << el << "\n";
@@ -903,7 +899,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
 void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
 
-    int staid = station.getId();
+    unsigned long staid = station.getId();
 
     bodyLog << "Start tagalong mode for station " << station.getName() << ": \n";
 
@@ -923,7 +919,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
 
         // look if this scan is possible for tagalong mode
         if (scanStartTime > currentStationTime){
-            int srcid = scan.getSourceId();
+            unsigned long srcid = scan.getSourceId();
             Source &source = sources_[scan.getSourceId()];
 
             PointingVector pv_new_start(staid,srcid);
@@ -956,8 +952,8 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                 // create baseline
                 const PointingVector & otherPv = scan.getPointingVector(i);
 
-                int staid1 = staid;
-                int staid2 = otherPv.getStaid();
+                unsigned long staid1 = staid;
+                unsigned long staid2 = otherPv.getStaid();
 
                 bool swapped = false;
                 if(staid1>staid2){
@@ -1201,7 +1197,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         bool dummy = false;
         vector<vector<unsigned int> > nextEvent(stations_.size(), vector<unsigned int>(stations_.size(), 0));
         Baseline::nextEvent = nextEvent;
-        Baseline::checkForNewEvent(0,dummy,0,of);
+        Baseline::checkForNewEvent(0, dummy, false, of);
 
 
     }else{
@@ -1215,14 +1211,14 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
                                           StationEndposition::change change) {
     switch (change){
         case StationEndposition::change::start:{
-            for(int i=0; i<stations_.size(); ++i){
-                stations_[i].referencePARA().available = endposition->getStationPossible(i);
+            for(unsigned long staid=0; staid<stations_.size(); ++staid){
+                stations_[staid].referencePARA().available = endposition->getStationPossible(staid);
             }
             break;
         }
         case StationEndposition::change::end:{
-            for(int i=0; i<stations_.size(); ++i){
-                stations_[i].referencePARA().available = endposition->getStationAvailable(i);
+            for(unsigned long staid=0; staid<stations_.size(); ++staid){
+                stations_[staid].referencePARA().available = endposition->getStationAvailable(staid);
             }
             break;
         }
@@ -1252,7 +1248,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         Scan &lastScan = scans_[i];
         for(int k=0; k<lastScan.getNSta(); ++k){
             const auto &pv = lastScan.getPointingVectors_endtime(k);
-            int staid = pv.getStaid();
+            unsigned long staid = pv.getStaid();
             unsigned int time = pv.getTime();
             Station &thisSta = stations_[staid];
             if(time >= thisSta.getCurrentTime()){
@@ -1301,7 +1297,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     Scan &lastScan = scans_[nMainScans-1];
     for(int k=0; k<lastScan.getNSta(); ++k){
         const auto &pv = lastScan.getPointingVectors_endtime(k);
-        int staid = pv.getStaid();
+        unsigned long staid = pv.getStaid();
         unsigned int time = pv.getTime();
         Station &thisSta = stations_[staid];
         if(time >= thisSta.getCurrentTime()){
@@ -1344,7 +1340,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         unsigned int time = iTime*interval;
         checkForNewEvents(time, true, bodyLog);
         for(auto &thisStation:stations_){
-            PointingVector pv(thisStation.getId(),-1);
+            PointingVector pv(thisStation.getId(), numeric_limits<unsigned long>::max());
             pv.setTime(time);
             thisStation.setCurrentPointingVector(pv);
             thisStation.referencePARA().firstScan = true;
@@ -1390,7 +1386,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     resetAllEvents(bodyLog);
 
     for(auto &thisStation:stations_){
-        PointingVector pv(thisStation.getId(),-1);
+        PointingVector pv(thisStation.getId(),numeric_limits<unsigned long>::max());
         pv.setTime(0);
         thisStation.setCurrentPointingVector(pv);
         thisStation.referencePARA().firstScan = true;
@@ -1402,7 +1398,7 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
 
     // reset all events
     for(auto &any:stations_){
-        PointingVector pv(any.getId(),-1);
+        PointingVector pv(any.getId(),numeric_limits<unsigned long>::max());
         pv.setTime(0);
         any.setCurrentPointingVector(pv);
         any.setNextEvent(0);

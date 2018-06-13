@@ -108,8 +108,8 @@ void Output::displayBaselineStatistics(ofstream &out) {
         n_bl += this_n_bl;
 
         for (int i = 0; i < this_n_bl; ++i) {
-            int staid1 = any.getBaseline(i).getStaid1();
-            int staid2 = any.getBaseline(i).getStaid2();
+            unsigned long staid1 = any.getBaseline(i).getStaid1();
+            unsigned long staid2 = any.getBaseline(i).getStaid2();
             if(staid1>staid2){
                 swap(staid1,staid2);
             }
@@ -298,8 +298,8 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
         for (int i = 0; i < nbl; ++i) {
             const Baseline &bl = any.getBaseline(i);
-            int staid1 = bl.getStaid1();
-            int staid2 = bl.getStaid2();
+            unsigned long staid1 = bl.getStaid1();
+            unsigned long staid2 = bl.getStaid2();
             unsigned int bl_duration = bl.getScanDuration();
 
             if(staid1<staid2){
@@ -675,7 +675,7 @@ void Output::writeStatisticsPerSourceGroup() {
         vector<vector<unsigned int> > scanTimePerStation(nsrc,vector<unsigned int>(stations_.size(),0));
 
         for(const auto &scan:scans_){
-            int srcid = scan.getSourceId();
+            unsigned long srcid = scan.getSourceId();
             scanTime[srcid].push_back(scan.getPointingVector(0).getTime());
             scanNsta[srcid].push_back(scan.getNSta());
             scanNbl[srcid].push_back(scan.getNBl());
@@ -692,9 +692,13 @@ void Output::writeStatisticsPerSourceGroup() {
                     flag[srcid].push_back(' ');
                     break;
                 }
+                case Scan::ScanType::highImpact:{
+                    flag[srcid].push_back(' ');
+                    break;
+                }
             }
             for(int i=0; i<scan.getNSta(); ++i){
-                int staid = scan.getPointingVector(i).getStaid();
+                unsigned long staid = scan.getPointingVector(i).getStaid();
                 unsigned int duration = scan.getTimes().getObservingTime(i);
                 scanTimePerStation[srcid][staid]+=duration;
             }
@@ -942,14 +946,14 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
     const auto &parameters = source.getPARA();
     unsigned int minVisible = parameters.minNumberOfStations;
 
-    vector<int> reqSta = parameters.requiredStations;
-    vector<int> ignSta = parameters.ignoreStations;
+    vector<unsigned long> reqSta = parameters.requiredStations;
+    vector<unsigned long> ignSta = parameters.ignoreStations;
 
     for(unsigned int t = 0; t<TimeSystem::duration; t+=60){
         unsigned int visible = 0;
 
         bool requiredStationNotVisible = false;
-        for(int staid = 0; staid<stations_.size(); ++staid){
+        for(unsigned long staid = 0; staid<stations_.size(); ++staid){
 
             if(find(ignSta.begin(),ignSta.end(),staid) != ignSta.end()){
                 continue;
@@ -1155,7 +1159,7 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
         n_bl += any.getNBl();
         for (int ista = 0; ista < any.getNSta(); ++ista) {
             const PointingVector& pv =  any.getPointingVector(ista);
-            int id = pv.getStaid();
+            unsigned long id = pv.getStaid();
             ++nscan_sta[id];
         }
         for (int ibl = 0; ibl < any.getNBl(); ++ibl){
@@ -1163,7 +1167,7 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
             ++nbl_sta[bl.getStaid1()];
             ++nbl_sta[bl.getStaid2()];
         }
-        int id = any.getSourceId();
+        unsigned long id = any.getSourceId();
         ++nscan_src[id];
     }
     int n_src = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));

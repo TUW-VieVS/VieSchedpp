@@ -37,7 +37,7 @@ namespace VieVS{
          * @param staid id of station
          * @param srcid id of observed source
          */
-        PointingVector(int staid, int srcid);
+        PointingVector(unsigned long staid, unsigned long srcid);
 
         PointingVector(const PointingVector &other);
 
@@ -56,7 +56,7 @@ namespace VieVS{
          *
          * @return id of station
          */
-        int getStaid() const noexcept {
+        unsigned long getStaid() const noexcept {
             return staid_;
         }
 
@@ -65,7 +65,7 @@ namespace VieVS{
          *
          * @return id of source
          */
-        int getSrcid() const noexcept {
+        unsigned long getSrcid() const noexcept {
             return srcid_;
         }
 
@@ -160,10 +160,10 @@ namespace VieVS{
         };
         
     private:
-        static int nextId;
+        static unsigned long nextId;
 
-        int staid_; ///< station id
-        int srcid_; ///< source id
+        unsigned long staid_; ///< station id
+        unsigned long srcid_; ///< source id
         double az_; ///< azimth
         double el_; ///< elevation
         double ha_{0}; ///< declination

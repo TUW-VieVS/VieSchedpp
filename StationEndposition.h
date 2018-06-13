@@ -50,16 +50,16 @@ namespace VieVS {
 
         bool checkStationPossibility(const std::vector<Station> &station);
 
-        bool getStationPossible(int staid) const noexcept{
+        bool getStationPossible(unsigned long staid) const noexcept{
             bool possible = stationPossible_[staid];
             return possible;
         }
 
-        bool hasEndposition(int staid) const noexcept{
+        bool hasEndposition(unsigned long staid) const noexcept{
             return finalPosition_[staid].is_initialized();
         }
 
-        unsigned int requiredEndpositionTime(int staid) const;
+        unsigned int requiredEndpositionTime(unsigned long staid) const;
 
         /**
          * @brief getter for all desired positions at the end of the fillin scans.
@@ -74,11 +74,11 @@ namespace VieVS {
             return finalPosition_;
         }
 
-        const boost::optional<PointingVector> &getFinalPosition(int staid) const noexcept {
+        const boost::optional<PointingVector> &getFinalPosition(unsigned long staid) const noexcept {
             return finalPosition_[staid];
         }
 
-        bool getStationAvailable(int staid) const noexcept {
+        bool getStationAvailable(unsigned long staid) const noexcept {
             return stationAvailable_[staid];
         }
 
@@ -96,7 +96,7 @@ namespace VieVS {
         void setStationAvailable(const std::vector<Station> &stations);
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::vector<char> stationAvailable_; ///< saves available state of station
         std::vector<char> stationPossible_; ///< true if it is possible to use this station

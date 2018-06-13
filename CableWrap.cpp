@@ -15,7 +15,7 @@
 using namespace std;
 using namespace VieVS;
 
-int CableWrap::nextId = 0;
+unsigned long CableWrap::nextId = 0;
 
 CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg):
         VieVS_Object(nextId++), axis1Low_{axis1_low_deg * deg2rad}, axis1Up_{axis1_up_deg * deg2rad},

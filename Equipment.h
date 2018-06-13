@@ -58,7 +58,7 @@ namespace VieVS{
         double getMaxSEFD() const noexcept;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::unordered_map<std::string,double> SEFD_; ///< SEFD information per band
     };

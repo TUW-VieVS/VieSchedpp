@@ -99,7 +99,7 @@ namespace VieVS{
         friend std::ostream &operator<<(std::ostream &out, const Position &position) noexcept;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         double x_; ///< x coordinate in meters
         double y_; ///< y coordinate in meters

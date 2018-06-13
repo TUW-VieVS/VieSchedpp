@@ -179,7 +179,7 @@ namespace VieVS {
 
 
     private:
-        static int nextId;
+        static unsigned long nextId;
         static AlignmentAnchor anchor;
 
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan

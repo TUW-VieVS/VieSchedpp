@@ -502,7 +502,7 @@ namespace VieVS {
         boost::property_tree::ptree createPropertyTree() const;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::unordered_map<std::string, std::vector<std::string> > stationGroups_; ///< used station groups
         std::unordered_map<std::string, std::vector<std::string> > sourceGroups_; ///< used source groups

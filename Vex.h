@@ -36,7 +36,7 @@ namespace VieVS {
 
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::ofstream of;
         std::string eol = ";\n";

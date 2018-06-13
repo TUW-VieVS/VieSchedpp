@@ -237,7 +237,7 @@ namespace VieVS {
         boost::optional<VieVS::HighImpactScanDescriptor> initializeHighImpactScanDescriptor(std::ofstream &ofstream);
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
         std::vector<Station> stations_; ///< all created stations

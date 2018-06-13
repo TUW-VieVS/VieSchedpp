@@ -15,7 +15,7 @@
 
 using namespace std;
 using namespace VieVS;
-int Subcon::nextId = 0;
+unsigned long Subcon::nextId = 0;
 
 Subcon::Subcon(): VieVS_Object(nextId++), nSingleScans_{0}, nSubnettingScans_{0} {
 }
@@ -47,7 +47,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
         // loop through all stations
         int j=0;
         while(j<thisScan.getNSta()){
-            int staid = thisScan.getStationId(j);
+            unsigned long staid = thisScan.getStationId(j);
 
             // current station
             const Station &thisSta = stations[staid];
@@ -149,7 +149,7 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
 
         int j = 0;
         while (j < thisScan.getNSta()) {
-            int staid = thisScan.getStationId(j);
+            unsigned long staid = thisScan.getStationId(j);
             PointingVector &thisPointingVector = thisScan.referencePointingVector(j);
             const Station &thisStation = stations[staid];
             thisPointingVector.setTime(thisScan.getTimes().getObservingStart(j));
@@ -227,7 +227,7 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<
             // loop through all stations
             int j=0;
             while(j<thisScan.getNSta()){
-                int staid = thisScan.getStationId(j);
+                unsigned long staid = thisScan.getStationId(j);
                 const Station &thisSta = stations[staid];
 
                 const auto &waitTimes = thisSta.getWaittimes();
@@ -269,13 +269,13 @@ void Subcon::calcCalibratorScanDuration(const vector<Station> &stations, const v
 
 void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<Source> &sources) noexcept {
     subnettingScans_.clear();
-    vector<int> sourceIds(nSingleScans_);
+    vector<unsigned long> sourceIds(nSingleScans_);
     for (int i = 0; i < nSingleScans_; ++i) {
         sourceIds[i] = singleScans_[i].getSourceId();
     }
 
     for (int i = 0; i < nSingleScans_; ++i) {
-        int firstSrcId = sourceIds[i];
+        unsigned long firstSrcId = sourceIds[i];
         Scan &first = singleScans_[i];
         const vector<int> &secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
         for (int secondSrcId : secondSrcIds) {
@@ -285,13 +285,13 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                 long srcid = distance(sourceIds.begin(), it);
                 Scan &second = singleScans_[srcid];
 
-                vector<int> uniqueSta1;
-                vector<int> uniqueSta2;
-                vector<int> intersection;
+                vector<unsigned long> uniqueSta1;
+                vector<unsigned long> uniqueSta2;
+                vector<unsigned long> intersection;
 
                 for (int idx=0; idx<first.getNSta(); ++idx) {
                     const PointingVector &pv = first.getPointingVector(idx);
-                    int staid = pv.getStaid();
+                    unsigned long staid = pv.getStaid();
 
                     if (!second.findIdxOfStationId(staid)) {
                         uniqueSta1.push_back(staid);
@@ -301,7 +301,7 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                 }
                 for (int idx=0; idx<second.getNSta(); ++idx) {
                     const PointingVector &pv = second.getPointingVector(idx);
-                    int staid = pv.getStaid();
+                    unsigned long staid = pv.getStaid();
 
                     if (!first.findIdxOfStationId(staid)) {
                         uniqueSta2.push_back(staid);
@@ -324,8 +324,8 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
 
 
                     do {
-                        vector<int> scan1sta{uniqueSta1};
-                        vector<int> scan2sta{uniqueSta2};
+                        vector<unsigned long> scan1sta{uniqueSta1};
+                        vector<unsigned long> scan2sta{uniqueSta2};
                         for (unsigned long ii = 0; ii < nint; ++ii) {
                             if (data.at(ii) == 1) {
                                 scan1sta.push_back(intersection[ii]);
@@ -370,7 +370,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
                            const vector<SkyCoverage> &skyCoverages) noexcept {
 
     precalcScore(stations, sources);
-    unsigned long nmaxsta = stations.size();
+//    unsigned long nmaxsta = stations.size();
     vector< vector <double> > firstScore(sources.size());
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
@@ -383,33 +383,33 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
 
     for (auto &thisScans:subnettingScans_) {
         Scan &thisScan1 = thisScans.first;
-        int srcid1 = thisScan1.getSourceId();
+        unsigned long srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[thisScan1.getSourceId()];
         thisScan1.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        skyCoverages, stations, thisSource1,
                                        firstScore[srcid1]);
-        double score1 = thisScan1.getScore();
+//        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
-        int srcid2 = thisScan2.getSourceId();
+        unsigned long srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[thisScan2.getSourceId()];
         thisScan2.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        skyCoverages, stations, thisSource2,
                                        firstScore[srcid2]);
-        double score2 = thisScan2.getScore();
+//        double score2 = thisScan2.getScore();
     }
 }
 
 void Subcon::generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                           const std::vector<std::map<int, double>> &hiscores, unsigned int interval) {
+                           const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval) {
 
     precalcScore(stations, sources);
-    unsigned long nmaxsta = stations.size();
+//    unsigned long nmaxsta = stations.size();
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
         unsigned int iTime = thisScan.getTimes().getObservingStart()/interval;
-        const map<int,double> &thisMap = hiscores[iTime];
+        const map<unsigned long, double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
         thisScan.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource, hiscore);
     }
@@ -417,22 +417,22 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
 
     for (auto &thisScans:subnettingScans_) {
         Scan &thisScan1 = thisScans.first;
-        int srcid1 = thisScan1.getSourceId();
-        const Source &thisSource1 = sources[thisScan1.getSourceId()];
+        unsigned long srcid1 = thisScan1.getSourceId();
+        const Source &thisSource1 = sources[srcid1];
         unsigned int iTime1 = thisScan1.getTimes().getObservingStart()/interval;
-        const map<int,double> &thisMap1 = hiscores[iTime1];
+        const map<unsigned long, double> &thisMap1 = hiscores[iTime1];
         double hiscore1 = thisMap1.at(thisSource1.getId());
         thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource1, hiscore1);
-        double score1 = thisScan1.getScore();
+//        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
-        int srcid2 = thisScan2.getSourceId();
-        const Source &thisSource2 = sources[thisScan2.getSourceId()];
+        unsigned long srcid2 = thisScan2.getSourceId();
+        const Source &thisSource2 = sources[srcid2];
         unsigned int iTime2 = thisScan2.getTimes().getObservingStart()/interval;
-        const map<int,double> &thisMap2 = hiscores[iTime2];
+        const map<unsigned long, double> &thisMap2 = hiscores[iTime2];
         double hiscore2 = thisMap2.at(thisSource2.getId());
         thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource2, hiscore2);
-        double score2 = thisScan2.getScore();
+//        double score2 = thisScan2.getScore();
     }
 
 }
@@ -442,8 +442,8 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
                            const vector<Station> &stations, const std::vector<Source> &sources) {
 
     minMaxTime();
-    unsigned int nsta = static_cast<unsigned int>(stations.size());
-    unsigned int nMaxBl = (nsta*(nsta-1))/2;
+//    auto nsta = static_cast<unsigned int>(stations.size());
+//    unsigned int nMaxBl = (nsta*(nsta-1))/2;
 
     int i=0;
     while (i<nSingleScans_){
@@ -465,13 +465,13 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
 
         bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
                                           maxRequiredTime_, sources[thisScan1.getSourceId()]);
-        double score1 = thisScan1.getScore();
+//        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].first;
 
         bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
                                           maxRequiredTime_, sources[thisScan2.getSourceId()]);
-        double score2 = thisScan2.getScore();
+//        double score2 = thisScan2.getScore();
 
         if (valid1 && valid2){
             ++i;
@@ -668,7 +668,7 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
     for (unsigned long i = 0; i < scores.size(); ++i) {
         q.push(std::pair<double, unsigned long>(scores[i], i));
     }
-    vector<int> scansToRemove;
+    vector<unsigned long> scansToRemove;
 
     // loop through queue
     unsigned long idx;
@@ -926,7 +926,7 @@ Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations
         while (istation < thisScan.getNSta()) {
 
             // current station id
-            int staid = thisScan.getStationId(istation);
+            unsigned long staid = thisScan.getStationId(istation);
             const Station &thisSta = stations[staid];
             const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
 
@@ -980,7 +980,7 @@ void Subcon::changeType(Scan::ScanType type) {
 
 void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const vector<Station> &stations,
                          const Source &thisSource, std::set<int>observedSources) {
-    int isrc = thisSource.getId();
+    unsigned long srcid = thisSource.getId();
 
     if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
         return;
@@ -995,7 +995,7 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
         return;
     }
 
-    if(observedSources.find(isrc) != observedSources.end()){
+    if(observedSources.find(srcid) != observedSources.end()){
         return;
     }
 
@@ -1011,8 +1011,8 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
     unsigned int visibleSta = 0;
     vector<PointingVector> pointingVectors;
     vector<unsigned int> endOfLastScans;
-    for (int ista=0; ista<stations.size(); ++ista){
-        const Station &thisSta = stations[ista];
+    for (unsigned long staid=0; staid<stations.size(); ++staid){
+        const Station &thisSta = stations[staid];
 
         if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
             continue;
@@ -1024,20 +1024,20 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
 
         if (!thisSta.getPARA().ignoreSources.empty()) {
             auto &PARA = thisSta.getPARA();
-            if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), isrc) != PARA.ignoreSources.end()) {
+            if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), srcid) != PARA.ignoreSources.end()) {
                 continue;
             }
         }
 
         if (!thisSource.getPARA().ignoreStations.empty()) {
             const auto &PARA = thisSource.getPARA();
-            if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), ista) !=
+            if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid) !=
                 PARA.ignoreStations.end()) {
                 continue;
             }
         }
 
-        PointingVector p(ista,isrc);
+        PointingVector p(staid,srcid);
 
         const Station::WaitTimes &wtimes = thisSta.getWaittimes();
         unsigned int time = thisSta.getCurrentTime() + wtimes.fieldSystem + wtimes.preob;

@@ -6,7 +6,7 @@
 using namespace std;
 using namespace VieVS;
 
-int Skd::nextId = 0;
+unsigned long Skd::nextId = 0;
 
 Skd::Skd(const string &file): VieVS_Object(nextId++) {
     of = ofstream(file);

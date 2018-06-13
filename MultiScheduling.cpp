@@ -8,7 +8,7 @@
 using namespace std;
 using namespace VieVS;
 
-int MultiScheduling::nextId = 0;
+unsigned long MultiScheduling::nextId = 0;
 
 MultiScheduling::MultiScheduling(): VieVS_Object(nextId++){
 }

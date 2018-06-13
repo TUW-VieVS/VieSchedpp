@@ -14,7 +14,7 @@
 #include "HorizonMask.h"
 using namespace std;
 using namespace VieVS;
-int HorizonMask::nextId = 0;
+unsigned long HorizonMask::nextId = 0;
 
 HorizonMask::HorizonMask():VieVS_Object(nextId++){
 }

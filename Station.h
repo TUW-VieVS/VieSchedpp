@@ -60,7 +60,7 @@ namespace VieVS{
          */
         class Parameters: public VieVS_NamedObject{
         private:
-            static int nextId;
+            static unsigned long nextId;
         public:
             explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
 
@@ -84,7 +84,7 @@ namespace VieVS{
             unsigned int minScan = 20; ///< minimum required scan time
             unsigned int maxNumberOfScans = 9999;
 
-            std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
+            std::vector<unsigned long> ignoreSources; ///< list of all source ids which should be ignored
 
             /**
              * @brief output of the curren parameters to out stream
@@ -111,7 +111,7 @@ namespace VieVS{
 
                 if (!ignoreSources.empty()) {
                     of << "    ignoreSources:";
-                    for (int ignoreSource : ignoreSources) {
+                    for (unsigned long ignoreSource : ignoreSources) {
                         of << " " << ignoreSource;
                     }
                     of << "\n";
@@ -172,7 +172,7 @@ namespace VieVS{
         };
 
         struct Statistics{
-            std::vector<unsigned int> scanStartTimes;
+            std::vector<unsigned int> scanStartTimes{};
             int totalObservingTime{0};
             int totalSlewTime{0};
             int totalIdleTime{0};
@@ -300,7 +300,7 @@ namespace VieVS{
         * @param id second station id
         * @return delta x coordinate between this two stations
         */
-        double dx(int id) const noexcept {
+        double dx(unsigned long id) const noexcept {
             return preCalculated_->dx[id];
         }
 
@@ -310,7 +310,7 @@ namespace VieVS{
         * @param id second station id
         * @return delta y coordinate between this two stations
          */
-        double dy(int id) const noexcept {
+        double dy(unsigned long id) const noexcept {
             return preCalculated_->dy[id];
         }
 
@@ -320,7 +320,7 @@ namespace VieVS{
         * @param id second station id
         * @return delta z coordinate between this two stations
          */
-        double dz(int id) const noexcept {
+        double dz(unsigned long id) const noexcept {
             return preCalculated_->dz[id];
         }
 
@@ -489,7 +489,7 @@ namespace VieVS{
         }
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::shared_ptr<Antenna> antenna_; ///< station antenna
         std::shared_ptr<CableWrap> cableWrap_; ///< station cable wrap

@@ -27,8 +27,8 @@
 
 using namespace std;
 using namespace VieVS;
-int VieVS::Station::nextId = 0;
-int VieVS::Station::Parameters::nextId = 0;
+unsigned long VieVS::Station::nextId = 0;
+unsigned long VieVS::Station::Parameters::nextId = 0;
 
 void Station::Parameters::setParameters(const Station::Parameters &other) {
     firstScan = other.firstScan;

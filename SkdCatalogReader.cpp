@@ -6,7 +6,7 @@
 
 using namespace VieVS;
 using namespace std;
-int SkdCatalogReader::nextId = 0;
+unsigned long SkdCatalogReader::nextId = 0;
 
 // source.cat: ^[^\*]\s*([\w+\$-]*)\s+([\w+\$-]*)\s+(\d{1,2})\s+(\d{1,2})\s+(\d{0,2}\.\d*)\s+([+-]?[\d]*)\s+(\d{1,2})\s+(\d{0,2}\.\d*)
 // antenna.cat: ^[^*]\s*(\w)\s+([\w-]*)\s*(\w*)\s+(\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\w+)\s+(\w+)\s+([\w-]+)

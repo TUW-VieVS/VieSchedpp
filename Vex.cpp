@@ -6,7 +6,7 @@
 
 using namespace std;
 using namespace VieVS;
-int Vex::nextId=0;
+unsigned long Vex::nextId = 0;
 Vex::Vex(const string &file): VieVS_Object(nextId++){
     of = ofstream(file);
     of << "VEX_rev = 1.5;\n";
@@ -273,7 +273,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     vector<string>scanIds;
     for(const auto &scan:scans) {
         unsigned long nsta = scan.getNSta();
-        int srcid = scan.getSourceId();
+        unsigned long srcid = scan.getSourceId();
         boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         int doy = scanStart.date().day_of_year();
         int hour = scanStart.time_of_day().hours();
@@ -299,21 +299,21 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         }
 
         unsigned long nsta = scan.getNSta();
-        int srcid = scan.getSourceId();
+        unsigned long srcid = scan.getSourceId();
         boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         of << "    scan " << scanId << eol;
         of << "        start = " << TimeSystem::ptime2string_doy_units(scanStart) << eol;
         of << "        mode = " << skdCatalogReader.getFreqName() << eol;
-        of << "        source = " << sources.at(static_cast<unsigned long>(srcid)).getName() << eol;
+        of << "        source = " << sources.at(srcid).getName() << eol;
 
         const auto &times = scan.getTimes();
         unsigned int start = times.getObservingStart();
 
         for(int j = 0; j<nsta; ++j){
             const PointingVector &pv = scan.getPointingVector(j);
-            int staid = pv.getStaid();
+            unsigned long staid = pv.getStaid();
             double az = pv.getAz();
-            const Station &thisStation = stations.at(static_cast<unsigned long>(staid));
+            const Station &thisStation = stations.at(staid);
             const string &thisTlc = thisStation.getAlternativeName();
             string cwvex;
             const string &cwskd = thisStation.getCableWrap().cableWrapFlag(pv);

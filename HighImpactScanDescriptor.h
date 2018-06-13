@@ -18,7 +18,7 @@ namespace VieVS{
     public:
         HighImpactScanDescriptor(unsigned int interval, unsigned int minTimeBetweenScans);
 
-        void addAzElDescriptor(double az, double el, double margin, const std::vector<int> &staids);
+        void addAzElDescriptor(double az, double el, double margin, const std::vector<unsigned long> &staids);
 
         double highImpactScore(const PointingVector &pv) const;
 
@@ -32,7 +32,7 @@ namespace VieVS{
             return minTimeBetweenScans_;
         }
 
-        std::vector<int> getStationIds() const;
+        std::vector<unsigned long> getStationIds() const;
 
         void possibleHighImpactScans(unsigned int time, const std::vector<Station> &stations, const std::vector<Source> &sources);
 
@@ -52,30 +52,30 @@ namespace VieVS{
     private:
         class AzElDescriptor;
 
-        static int nextId;
+        static unsigned long nextId;
         unsigned int interval_;
         unsigned int minTimeBetweenScans_;
         std::vector<AzElDescriptor> azElDescritors_;
 
-        std::vector< std::map<int,double> > scores_;
+        std::vector< std::map<unsigned long, double> > scores_;
         Subcon highImpactScans_;
 
     };
 
     class HighImpactScanDescriptor::AzElDescriptor: public VieVS_Object {
     public:
-        AzElDescriptor(double az, double el, double margin, std::vector<int> staids);
+        AzElDescriptor(double az, double el, double margin, std::vector<unsigned long> staids);
 
         double highImpactScore(const PointingVector &pv) const;
 
-        const std::vector<int> &getStaids() const;
+        const std::vector<unsigned long> &getStaids() const;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
         double az_;
         double el_;
         double margin_;
-        std::vector<int> staids_;
+        std::vector<unsigned long> staids_;
     };
 
 

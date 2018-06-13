@@ -141,7 +141,7 @@ namespace VieVS{
         double maxUp(Axis axis) const;
     private:
 
-        static int nextId;
+        static unsigned long nextId;
 
         double axis1Low_; ///< lower limit of first axis in radians
         double axis1Up_; ///< upper limit of first axis in radians

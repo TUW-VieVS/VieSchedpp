@@ -59,7 +59,7 @@ namespace VieVS{
     private:
 //        virtual Flux* do_clone() const = 0;
 
-        static int nextId;
+        static unsigned long nextId;
 
         double wavelength_; ///< wavelength of the band whose flux information is stored
     };

@@ -18,44 +18,42 @@ using namespace VieVS;
 thread_local VieVS::Baseline::ParameterStorage VieVS::Baseline::PARA;
 std::vector<std::vector<std::vector<VieVS::Baseline::Event> > >  VieVS::Baseline::EVENTS;
 std::vector<std::vector<unsigned int> >  VieVS::Baseline::nextEvent;
-int Baseline::nextId = 0;
+unsigned long Baseline::nextId = 0;
 
 
-Baseline::Baseline(int srcid, int staid1, int staid2, unsigned int startTime): VieVS_Object(nextId++),
+Baseline::Baseline(unsigned long srcid, unsigned long staid1, unsigned long staid2, unsigned int startTime): VieVS_Object(nextId++),
         srcid_(srcid), staid1_(staid1), staid2_(staid2), startTime_{startTime}{
 }
 
 void
 Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept {
     unsigned long nsta = Baseline::nextEvent.size();
-    for (int i = 0; i < nsta; ++i) {
-        for (int j = i + 1; j < nsta; ++j) {
+    for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
+        for (unsigned long staid2 = staid1 + 1; staid2 < nsta; ++staid2) {
 
-            unsigned int thisNextEvent = Baseline::nextEvent.at(i).at(j);
+            unsigned int thisNextEvent = Baseline::nextEvent.at(staid1).at(staid2);
 
-            while (thisNextEvent < EVENTS[i][j].size() && EVENTS[i][j][thisNextEvent].time <= time) {
+            while (thisNextEvent < EVENTS[staid1][staid2].size() && EVENTS[staid1][staid2][thisNextEvent].time <= time) {
 
-                Baseline::Parameters newPARA = EVENTS[i][j][thisNextEvent].PARA;
-                hardBreak = hardBreak || !EVENTS[i][j][thisNextEvent].softTransition;
+                Baseline::Parameters newPARA = EVENTS[staid1][staid2][thisNextEvent].PARA;
+                hardBreak = hardBreak || !EVENTS[staid1][staid2][thisNextEvent].softTransition;
 
-                Baseline::PARA.ignore[i][j] = newPARA.ignore;
-                Baseline::PARA.maxScan[i][j] = newPARA.maxScan;
-                Baseline::PARA.minScan[i][j] = newPARA.minScan;
-                Baseline::PARA.weight[i][j] = newPARA.weight;
+                Baseline::PARA.ignore[staid1][staid2] = newPARA.ignore;
+                Baseline::PARA.maxScan[staid1][staid2] = newPARA.maxScan;
+                Baseline::PARA.minScan[staid1][staid2] = newPARA.minScan;
+                Baseline::PARA.weight[staid1][staid2] = newPARA.weight;
                 for (const auto &any:newPARA.minSNR) {
-                    Baseline::PARA.minSNR.at(any.first).at(i).at(j) = any.second;
+                    Baseline::PARA.minSNR.at(any.first).at(staid1).at(staid2) = any.second;
                 }
                 if (output && time < TimeSystem::duration) {
                     bodyLog << "###############################################\n";
-                    bodyLog << "## changing parameters for baseline: " << boost::format("%2d") % i << "-"
-                              << boost::format("%2d") % j << "   ##\n";
+                    bodyLog << "## changing parameters for baseline: " << boost::format("%2d") % staid1 << "-"
+                              << boost::format("%2d") % staid2 << "   ##\n";
                     bodyLog << "###############################################\n";
                 }
-                ++nextEvent[i][j];
+                ++nextEvent[staid1][staid2];
                 ++thisNextEvent;
             }
-
-
         }
     }
 }

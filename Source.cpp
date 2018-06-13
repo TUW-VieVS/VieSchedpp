@@ -15,8 +15,8 @@
 
 using namespace std;
 using namespace VieVS;
-int VieVS::Source::nextId = 0;
-int VieVS::Source::Parameters::nextId = 0;
+unsigned long VieVS::Source::nextId = 0;
+unsigned long VieVS::Source::Parameters::nextId = 0;
 
 void Source::Parameters::setParameters(const Source::Parameters &other) {
     available = other.available;

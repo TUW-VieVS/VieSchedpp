@@ -6,7 +6,7 @@
 using namespace VieVS;
 using namespace std;
 
-int SkdParser::nextId = 0;
+unsigned long SkdParser::nextId = 0;
 
 SkdParser::SkdParser(const std::string &filename):VieVS_Object(nextId++), filename_{filename} {
 
@@ -317,11 +317,11 @@ void SkdParser::createScans() {
 
 void SkdParser::copyScanMembersToObjects() {
     for(const auto &scan:scans_){
-        int srcid = scan.getSourceId();
+        unsigned long srcid = scan.getSourceId();
 
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);
-            int staid = pv.getStaid();
+            unsigned long staid = pv.getStaid();
             const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
             unsigned long nbl = scan.getNBl(staid);
             stations_[staid].update(nbl, pv_end, true);

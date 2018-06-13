@@ -5,7 +5,7 @@
 #include "ScanTimes.h"
 using namespace std;
 using namespace VieVS;
-int ScanTimes::nextId = 0;
+unsigned long ScanTimes::nextId = 0;
 ScanTimes::AlignmentAnchor ScanTimes::anchor = ScanTimes::AlignmentAnchor::start;
 
 ScanTimes::ScanTimes(unsigned int nsta): VieVS_Object(nextId++) {
@@ -99,12 +99,12 @@ void ScanTimes::alignStartTimes() noexcept {
             unsigned int maxSlewEnd = *max_element(endOfSlewTime_.begin(),endOfSlewTime_.end());
             auto it = max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
             unsigned int maxObsEnd  = *it;
-            unsigned int minObsStart = getObservingStart(distance(endOfObservingTime_.begin(),it));
+            unsigned int minObsStart = getObservingStart(static_cast<int>(distance(endOfObservingTime_.begin(), it)));
 
 
             for(int i=0; i < nsta; ++i){
                 int idx = idxs[i];
-                unsigned int obs = getObservingTime(i);
+//                unsigned int obs = getObservingTime(i);
 
                 unsigned int thisObsTime = getObservingTime(idx);
                 unsigned int thisPreobTime = getPreobTime(idx);

@@ -14,7 +14,7 @@
 #include "Antenna.h"
 using namespace std;
 using namespace VieVS;
-int Antenna::nextId = 0;
+unsigned long Antenna::nextId = 0;
 
 Antenna::Antenna(double offset_m, double diam_m, double rate1_deg_per_min,
                  unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s):

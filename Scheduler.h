@@ -138,7 +138,7 @@ namespace VieVS{
         bool checkAndStatistics(std::ofstream &bodyLog) noexcept;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
         std::string path_;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file

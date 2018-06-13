@@ -65,7 +65,7 @@ namespace VieVS {
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
             std::vector<std::string> ignoreSourcesString; ///< list of all source names which should be ignored
-            std::vector<int> ignoreSources; ///< list of all source ids which should be ignored
+            std::vector<unsigned long> ignoreSources; ///< list of all source ids which should be ignored
         };
 
 
@@ -107,11 +107,11 @@ namespace VieVS {
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
-            std::vector<int> ignoreStations; ///< list of all station names which should be ignored
+            std::vector<unsigned long> ignoreStations; ///< list of all station names which should be ignored
             std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
-            std::vector<std::pair<int,int>> ignoreBaselines; ///< list of all baseline names which should be ignore
+            std::vector<std::pair<unsigned long, unsigned long>> ignoreBaselines; ///< list of all baseline names which should be ignore
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
-            std::vector<int> requiredStations; ///< list of station names which are required for a scan to this source
+            std::vector<unsigned long> requiredStations; ///< list of station names which are required for a scan to this source
         };
 
         /**

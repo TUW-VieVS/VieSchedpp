@@ -164,7 +164,7 @@ namespace VieVS{
                            const std::vector<Station> &stations, const std::vector<Source> &sources);
 
         void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                           const std::vector<std::map<int,double>> &hiscores, unsigned int interval);
+                           const std::vector<std::map<unsigned long,double>> &hiscores, unsigned int interval);
 
         void checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations,
                                                  const std::vector<Source> &sources,
@@ -228,7 +228,7 @@ namespace VieVS{
                          const Source &thisSource, std::set<int>observedSources = std::set<int>());
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         unsigned long nSingleScans_; ///< number of single source scans
         std::vector<Scan> singleScans_; ///< all single source scans

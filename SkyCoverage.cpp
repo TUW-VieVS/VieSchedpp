@@ -15,7 +15,7 @@
 using namespace std;
 using namespace VieVS;
 
-int VieVS::SkyCoverage::nextId = 0;
+unsigned long VieVS::SkyCoverage::nextId = 0;
 
 double SkyCoverage::maxInfluenceTime = 3600;
 double SkyCoverage::maxInfluenceDistance = 30*deg2rad;

@@ -309,7 +309,7 @@ namespace VieVS {
         std::string getVersion(const std::string& name) const;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::vector<std::string> staNames_; ///< list of all station
 

@@ -16,7 +16,7 @@
 using namespace std;
 using namespace VieVS;
 
-int Equipment::nextId=0;
+unsigned long Equipment::nextId = 0;
 
 Equipment::Equipment(const unordered_map<string, double> &SEFDs):VieVS_Object(nextId++), SEFD_{SEFDs}{
 }

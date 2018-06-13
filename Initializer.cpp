@@ -9,7 +9,7 @@
 
 using namespace std;
 using namespace VieVS;
-int Initializer::nextId = 0;
+unsigned long Initializer::nextId = 0;
 
 Initializer::Initializer(): VieVS_Object(nextId++){
 
@@ -295,7 +295,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
         if (!hmask.empty() && hmask_az.back() != twopi) {
             hmask_az.push_back(twopi);
-            hmask_el.push_back(hmask_el.back());
+            hmask_el.push_back(*hmask_el.end());
         }
 
 
@@ -3040,8 +3040,8 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
     unsigned int minutes = 0;
     unsigned int minVisible = parameters.minNumberOfStations;
 
-    vector<int> reqSta = parameters.requiredStations;
-    vector<int> ignSta = parameters.ignoreStations;
+    vector<unsigned long> reqSta = parameters.requiredStations;
+    vector<unsigned long> ignSta = parameters.ignoreStations;
 
     for(unsigned int t = start; t<end; t+=60){
         unsigned int visible = 0;
@@ -3175,7 +3175,7 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
         for(const auto &any: *ctree){
             if(any.first == "targetAzEl"){
                 auto member = any.second.get<string>("member");
-                vector<int> staids;
+                vector<unsigned long> staids;
 
                 if (groups.find(member) != groups.end()) {
                     const vector<string> &group = groups.at(member);

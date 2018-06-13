@@ -12,9 +12,9 @@
 namespace VieVS{
     class VieVS_NamedObject: public VieVS_Object {
     public:
-        VieVS_NamedObject(std::string name, int id):VieVS_Object(id), name_{std::move(name)}{};
+        VieVS_NamedObject(std::string name, unsigned long id):VieVS_Object(id), name_{std::move(name)}{};
 
-        VieVS_NamedObject(std::string name, std::string alternativeName, int id):
+        VieVS_NamedObject(std::string name, std::string alternativeName, unsigned long id):
                 VieVS_Object(id), name_{std::move(name)}, alternativeName_{std::move(alternativeName)}{
         };
 

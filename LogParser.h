@@ -51,7 +51,7 @@ namespace VieVS {
         bool addScheduledTimes(const std::vector<std::vector<unsigned int>> &times);
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         bool addedScheduledTimes_ = false;
 

@@ -11,9 +11,9 @@ namespace VieVS{
     class VieVS_Object {
     public:
 
-        explicit VieVS_Object(int id): id_{id}{};
+        explicit VieVS_Object(unsigned long id): id_{id}{};
 
-        const int getId() const {
+        const unsigned long getId() const {
             return id_;
         }
 
@@ -25,7 +25,7 @@ namespace VieVS{
             return id_==id;
         }
 
-        void setId(int id){
+        void setId(unsigned long id){
             id_ = id;
         }
 
@@ -34,7 +34,7 @@ namespace VieVS{
         }
 
     private:
-        int id_;
+        unsigned long id_;
     };
 }
 

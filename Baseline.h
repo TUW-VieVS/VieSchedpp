@@ -77,11 +77,6 @@ namespace VieVS{
         static std::vector<std::vector<unsigned int> > nextEvent; ///< next event number per baseline
 
         /**
-         * @brief empty default constructor
-         */
-        Baseline() = default;
-
-        /**
          * @brief constructor
          *
          * @param staid1 id of first station
@@ -89,14 +84,14 @@ namespace VieVS{
          * @param srcid id of observed source
          * @param startTime observation start time in seconds after session start
          */
-        Baseline(int staid1, int staid2, int srcid, unsigned int startTime);
+        Baseline(unsigned long staid1, unsigned long staid2, unsigned long srcid, unsigned int startTime);
 
         /**
          * @brief getter method for first station id
          *
          * @return first station id
          */
-        int getStaid1() const noexcept {
+        unsigned long getStaid1() const noexcept {
             return staid1_;
         }
 
@@ -105,7 +100,7 @@ namespace VieVS{
          *
          * @return second station id
          */
-        int getStaid2() const noexcept {
+        unsigned long getStaid2() const noexcept {
             return staid2_;
         }
 
@@ -114,7 +109,7 @@ namespace VieVS{
          *
          * @return source id
          */
-        int getSrcid() const noexcept {
+        unsigned long getSrcid() const noexcept {
             return srcid_;
         }
 
@@ -163,16 +158,16 @@ namespace VieVS{
          */
         static void displaySummaryOfStaticMembersForDebugging(std::ofstream &log);
 
-        static int numberOfCreatedBaselines(){
+        static unsigned long numberOfCreatedBaselines(){
             return nextId-1;
         }
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
-        int staid1_{}; ///< id of first antenna
-        int staid2_{}; ///< id of second antenna
-        int srcid_{}; ///< id of observed source
+        unsigned long staid1_{}; ///< id of first antenna
+        unsigned long staid2_{}; ///< id of second antenna
+        unsigned long srcid_{}; ///< id of observed source
         unsigned int startTime_{}; ///< start time of observion in seconds since session start
 
         unsigned int observingTime_{}; ///< required scan duration in seconds

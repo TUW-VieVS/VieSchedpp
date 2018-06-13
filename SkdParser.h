@@ -25,7 +25,7 @@ namespace VieVS{
         std::vector<std::vector<unsigned int>> getScheduledTimes(const std::string &station);
 
     private:
-        static int nextId;
+        static unsigned long nextId;
 
         std::string filename_;
         unsigned int fieldSystemTimes_ = 0;

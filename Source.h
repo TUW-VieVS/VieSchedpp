@@ -39,7 +39,7 @@ namespace VieVS{
     class Source: public VieVS_NamedObject {
     public:
 
-        static int nextId;
+        static unsigned long nextId;
 
         /**
          * @brief source parameters
@@ -56,7 +56,7 @@ namespace VieVS{
 
         class Parameters: public VieVS_NamedObject {
         private:
-            static int nextId;
+            static unsigned long nextId;
         public:
             explicit Parameters(const std::string &name): VieVS_NamedObject(name,nextId++){}
 
@@ -89,9 +89,9 @@ namespace VieVS{
 
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
-            std::vector<int> ignoreStations; ///< list of all stations ids which should be ignored
-            std::vector<std::pair<int, int>> ignoreBaselines; ///< list of all baseline ids which should be ignored
-            std::vector<int> requiredStations; ///< list of station ids which are required for a scan to this source
+            std::vector<unsigned long> ignoreStations; ///< list of all stations ids which should be ignored
+            std::vector<std::pair<unsigned long, unsigned long>> ignoreBaselines; ///< list of all baseline ids which should be ignored
+            std::vector<unsigned long> requiredStations; ///< list of station ids which are required for a scan to this source
 
             /**
              * @brief setter for available

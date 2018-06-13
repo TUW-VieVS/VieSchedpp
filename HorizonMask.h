@@ -39,7 +39,7 @@ namespace VieVS{
         virtual std::string vexOutput() const noexcept = 0;
 
     private:
-        static int nextId;
+        static unsigned long nextId;
     };
 }
 #endif /* HORIOZONMASK_H */

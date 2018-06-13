@@ -15,7 +15,7 @@
 using namespace std;
 using namespace VieVS;
 
-int Flux::nextId = 0;
+unsigned long Flux::nextId = 0;
 
 Flux::Flux(double wavelength): VieVS_Object{nextId++} {
     wavelength_ = wavelength;

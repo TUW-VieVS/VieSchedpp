@@ -6,9 +6,9 @@
 using namespace std;
 using namespace VieVS;
 
-int StationEndposition::nextId = 0;
+unsigned long StationEndposition::nextId = 0;
 
-StationEndposition::StationEndposition(int nsta) : VieVS_Object(nsta) {
+StationEndposition::StationEndposition(int nsta) : VieVS_Object(nextId++) {
     stationAvailable_ = vector<char>(static_cast<unsigned long>(nsta), false);
     stationPossible_ = std::vector<char>(static_cast<unsigned long>(nsta), false);
     finalPosition_ = vector< boost::optional<PointingVector> >(static_cast<unsigned long>(nsta));
@@ -18,7 +18,7 @@ StationEndposition::StationEndposition(int nsta) : VieVS_Object(nsta) {
 }
 
 void StationEndposition::addPointingVectorAsEndposition(const PointingVector &pv) {
-    int staid = pv.getStaid();
+    unsigned long staid = pv.getStaid();
 
     // check if there is already an earlier endposition
     if(finalPosition_[staid].is_initialized()){
@@ -36,7 +36,7 @@ void StationEndposition::addPointingVectorAsEndposition(const PointingVector &pv
 }
 
 void StationEndposition::checkStationPossibility(const Station &thisStation) {
-    int staid = thisStation.getId();
+    unsigned long staid = thisStation.getId();
 
     if(!thisStation.getPARA().available){
         stationPossible_[staid] = false;
@@ -72,7 +72,7 @@ void StationEndposition::checkStationPossibility(const Station &thisStation) {
 }
 
 
-unsigned int StationEndposition::requiredEndpositionTime(int staid) const {
+unsigned int StationEndposition::requiredEndpositionTime(unsigned long staid) const {
 
     // check if station has a required endposition, otherwise use earliest scan start.
     if(finalPosition_[staid].is_initialized()){
