@@ -564,6 +564,8 @@ namespace VieVS{
                                             const std::vector<Station> &stations,
                                             const std::vector<double> &firstScorePerPv) const noexcept;
 
+        double calcScore_idleTime() const noexcept;
+
         /**
          * @brief mean of the weight factors for each participating station
          *

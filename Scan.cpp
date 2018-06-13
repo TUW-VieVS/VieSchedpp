@@ -497,6 +497,19 @@ double Scan::calcScore_numberOfObservations(unsigned long maxObs) const noexcept
     return thisScore;
 }
 
+double Scan::calcScore_idleTime() const noexcept {
+    double interval = WeightFactors::idleTimeInterval;
+
+    double score = 0;
+    for(int idx=0; idx<nsta_; ++idx){
+        unsigned int thisIdleTime = times_.getIdleTime(idx);
+        score += static_cast<double>(thisIdleTime) / interval;
+    }
+
+    return score / nsta_;
+}
+
+
 double Scan::calcScore_averageStations(const vector<double> &astas, unsigned long nmaxsta) const noexcept {
     double finalScore = 0;
 
@@ -508,7 +521,7 @@ double Scan::calcScore_averageStations(const vector<double> &astas, unsigned lon
 
     for (auto &pv:pointingVectors_) {
         int thisStaId = pv.getStaid();
-        finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta_ - 1);
+        finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta_ - 1); // nsta-1 = max number of possible baselines
     }
 
     return finalScore;
@@ -537,10 +550,10 @@ double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
     double score = 0;
 
     for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, stations) / nsta_;
+        double thisSore = skyCoverage.calcScore(pointingVectors_, stations);
         score += thisSore;
     }
-    return score;
+    return score / nsta_;
 }
 
 
@@ -551,10 +564,10 @@ double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
     double score = 0;
 
     for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, stations, firstScorePerPv) / nsta_;
+        double thisSore = skyCoverage.calcScore(pointingVectors_, stations, firstScorePerPv);
         score += thisSore;
     }
-    return score;
+    return score / nsta_;
 }
 
 double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverages,
@@ -564,10 +577,28 @@ double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverage
     double score = 0;
 
     for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore_subcon(pointingVectors_, stations, firstScorePerPv) / nsta_;
+        double thisSore = skyCoverage.calcScore_subcon(pointingVectors_, stations, firstScorePerPv) ;
         score += thisSore;
     }
-    return score;
+    return score / nsta_;
+}
+
+double Scan::calcScore_lowElevation() {
+    double score = 0;
+    for (const auto &pv:pointingVectors_) {
+        double el = pv.getEl();
+        double f = 0;
+        if (el > WeightFactors::lowElevationStartWeight) {
+            f = 0;
+        } else if (el < WeightFactors::lowElevationFullWeight) {
+            f = 1;
+        } else {
+            f = (WeightFactors::lowElevationStartWeight - el) /
+                (WeightFactors::lowElevationFullWeight - WeightFactors::lowElevationStartWeight);
+        }
+        score += f ;
+    }
+    return score / nsta_;
 }
 
 
@@ -908,6 +939,10 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     double weight_duration = WeightFactors::weightDuration;
     if (weight_duration != 0) {
         this_score += calcScore_duration(minTime, maxTime) * weight_duration;
+    }
+    double weight_idle = WeightFactors::weightIdleTime;
+    if(weight_idle != 0) {
+        this_score += calcScore_idleTime() * weight_idle;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
@@ -1291,23 +1326,6 @@ double Scan::weight_baselines() {
     return weight;
 }
 
-double Scan::calcScore_lowElevation() {
-    double score = 0;
-    for (const auto &pv:pointingVectors_) {
-        double el = pv.getEl();
-        double f = 0;
-        if (el > WeightFactors::lowElevationStartWeight) {
-            f = 0;
-        } else if (el < WeightFactors::lowElevationFullWeight) {
-            f = 1;
-        } else {
-            f = (WeightFactors::lowElevationStartWeight - el) /
-                (WeightFactors::lowElevationFullWeight - WeightFactors::lowElevationStartWeight);
-        }
-        score += f;
-    }
-    return score / nsta_;
-}
 
 void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
     times_.addScanTimes(scanDuration);

@@ -29,6 +29,9 @@ namespace VieVS{
         static thread_local double weightAverageSources; ///< weight factor for average out sources
         static thread_local double weightAverageStations; ///< weight factor for average out stations
 
+        static thread_local double weightIdleTime;
+        static thread_local unsigned int idleTimeInterval;
+
         static thread_local double weightDeclination; ///< weight factor for declination
         static thread_local double declinationStartWeight; ///< start declination of additional weight (everything above has factor 0)
         static thread_local double declinationFullWeight; ///< end declination of additional declination weight slope (everything below has factor 1)
@@ -43,22 +46,38 @@ namespace VieVS{
          */
         static void summary(std::ofstream &of) {
             of << "weight factors: \n";
-            of << "    skyCoverage:          " << weightSkyCoverage << "\n";
-            of << "    numberOfObservations: " << weightNumberOfObservations << "\n";
-            of << "    duration:             " << weightDuration << "\n";
-            of << "    averageSources:       " << weightAverageSources << "\n";
-            of << "    averageStations:      " << weightAverageStations << "\n";
+            if(weightSkyCoverage != 0){
+                of << "    skyCoverage:          " << weightSkyCoverage << "\n";
+            }
+            if(weightNumberOfObservations != 0){
+                of << "    numberOfObservations: " << weightNumberOfObservations << "\n";
+            }
+            if(weightDuration != 0){
+                of << "    duration:             " << weightDuration << "\n";
+            }
+            if(weightAverageSources != 0){
+                of << "    averageSources:       " << weightAverageSources << "\n";
+            }
+            if(weightAverageStations != 0){
+                of << "    averageStations:      " << weightAverageStations << "\n";
+            }
+            if(weightIdleTime != 0){
+                of << "    weight idle time:     " << weightIdleTime << "\n";
+            }
+            if(idleTimeInterval != 0){
+                of << "        idle time interval:   " << idleTimeInterval << "\n";
+            }
             if(weightDeclination != 0){
-                of << "    declination           " << weightDeclination << " from 90 to " << declinationStartWeight * rad2deg
-                   << " = 0; from "
-                   << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear; from "
-                   << declinationFullWeight * rad2deg << " to -90" << " = 1;\n";
+                of << "    declination           " << weightDeclination << "\n";
+                of << "        from 90 to " << declinationStartWeight * rad2deg << " = 0\n";
+                of << "        from " << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear\n";
+                of << "        from " << declinationFullWeight * rad2deg << " to -90" << " = 1\n";
             }
             if(weightLowElevation != 0){
-                of << "    elevation             " << weightLowElevation << " from 90 to " << lowElevationStartWeight * rad2deg
-                   << " = 0; from "
-                   << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear; from "
-                   << lowElevationFullWeight * rad2deg << " to -90" << " = 1;\n";
+                of << "    elevation             " << weightLowElevation << "\n";
+                of << "        from 90 to " << lowElevationStartWeight * rad2deg << " = 0\n";
+                of << "        from " << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear\n";
+                of << "        from " << lowElevationFullWeight * rad2deg << " to -90" << " = 1\n";
             }
             of << "\n";
         }

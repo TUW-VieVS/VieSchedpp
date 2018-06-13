@@ -1516,6 +1516,9 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightAverageSources = xml_.get<double>("master.weightFactor.averageSources", 0);
     WeightFactors::weightAverageStations = xml_.get<double>("master.weightFactor.averageStations", 0);
 
+    WeightFactors::weightIdleTime = xml_.get<double>("master.weightFactor.idleTime", 0);
+    WeightFactors::idleTimeInterval = xml_.get<unsigned int>("master.weightFactor.idleTimeInterval", 0);
+
     WeightFactors::weightDeclination = xml_.get<double>("master.weightFactor.weightDeclination", 0);
     WeightFactors::declinationStartWeight = xml_.get<double>("master.weightFactor.declinationStartWeight", 0) * deg2rad;
     WeightFactors::declinationFullWeight = xml_.get<double>("master.weightFactor.declinationFullWeight", 0) * deg2rad;
