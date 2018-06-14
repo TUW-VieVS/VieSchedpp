@@ -469,6 +469,8 @@ private slots:
 
     void on_comboBox_multiSched_seed_currentIndexChanged(const QString &arg1);
 
+    void multi_sched_count_nsched();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

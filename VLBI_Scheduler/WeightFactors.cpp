@@ -10,6 +10,10 @@ double thread_local VieVS::WeightFactors::weightDuration = 0;
 double thread_local VieVS::WeightFactors::weightAverageSources = 0;
 double thread_local VieVS::WeightFactors::weightAverageStations = 0;
 
+double thread_local VieVS::WeightFactors::weightIdleTime = 0;
+unsigned int thread_local VieVS::WeightFactors::idleTimeInterval = 0;
+
+
 double thread_local VieVS::WeightFactors::weightDeclination = 0;
 double thread_local VieVS::WeightFactors::declinationStartWeight = 0;
 double thread_local VieVS::WeightFactors::declinationFullWeight = 0;

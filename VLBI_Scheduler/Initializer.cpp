@@ -1913,6 +1913,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
 
 void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters,
                                                  ofstream &bodyLog) {
+    /*
     parameters.output(bodyLog);
 
     boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
@@ -2334,10 +2335,11 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
                 Baseline::PARA.maxScan[staid0][staid1] = any.second;
             }
         }
-    }
+    }*/
 }
 
 vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
+    /*
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms;
@@ -2764,7 +2766,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched() {
         }
 
         return ms.createMultiScheduleParameters();
-    }
+    }*/
     return std::vector<MultiScheduling::Parameters>{};
 }
 

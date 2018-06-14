@@ -829,8 +829,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>247</width>
+             <height>611</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -5381,8 +5381,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -5894,7 +5894,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                     <number>1</number>
                    </property>
                    <property name="maximum">
-                    <number>9999</number>
+                    <number>999</number>
                    </property>
                   </widget>
                  </item>
@@ -5991,7 +5991,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                      </attribute>
                      <column>
                       <property name="text">
-                       <string>parameter</string>
+                       <string>Parameters:</string>
                       </property>
                      </column>
                      <item>
@@ -6083,32 +6083,32 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low declination</string>
+                        <string>low declination</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low declination begin</string>
+                        <string>low declination begin</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low declination full</string>
+                        <string>low declination full</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low elevation</string>
+                        <string>low elevation</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low elevation begin</string>
+                        <string>low elevation begin</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight low elevation full</string>
+                        <string>low elevation full</string>
                        </property>
                       </item>
                      </item>
@@ -6151,12 +6151,12 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>stationMinSlewDistance</string>
+                        <string>min slew distance</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>stationMaxSlewDistance</string>
+                        <string>max slew distance</string>
                        </property>
                       </item>
                       <item>
@@ -6166,12 +6166,12 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>stationMinElevation</string>
+                        <string>min elevation</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>stationMaxNumberOfScans</string>
+                        <string>max number of scans</string>
                        </property>
                       </item>
                       <item>
@@ -6210,17 +6210,17 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>sourceMaxNumberOfScans</string>
+                        <string>max number of scans</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>sourceMinElevation</string>
+                        <string>min elevation</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>sourceMinSunDistance</string>
+                        <string>min sun distance</string>
                        </property>
                       </item>
                       <item>

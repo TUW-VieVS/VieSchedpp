@@ -79,6 +79,7 @@ SOURCES += \
     VLBI_Scheduler/Vex.cpp \
     VLBI_Scheduler/WeightFactors.cpp \
     VLBI_Scheduler/VieVS_Scheduler.cpp \
+    VLBI_Scheduler/VieVS_Object.cpp \
     textfileviewer.cpp
 
 HEADERS += \
@@ -132,6 +133,7 @@ HEADERS += \
     VLBI_Scheduler/Vex.h \
     VLBI_Scheduler/WeightFactors.h \
     VLBI_Scheduler/VieVS_Scheduler.h \
+    VLBI_Scheduler/VieVS_Object.h \
     textfileviewer.h
 
 FORMS += \

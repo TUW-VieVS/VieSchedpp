@@ -2479,31 +2479,52 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
             QString name = any->text(0);
             QString parameterType = any->parent()->text(0);
 
+            QStringList row2dateTimeDialog {"session start"};
+
             QStringList row2toggle{"subnetting",
-                                   "fillin mode"};
+                                   "fillinmode during scan selection",
+                                   "fillinmode influence on scan selection",
+                                   "fillinmode a posteriori"};
 
             QStringList row2intDialog {"max slew time",
-                                      "max wait time",
-                                      "max scan time",
-                                      "min scan time",
-                                      "min number of stations",
-                                      "min repeat time"};
+                                       "max wait time",
+                                       "max scan time",
+                                       "min scan time",
+                                       "min number of stations",
+                                       "min repeat time",
+                                       "idle time interval",
+                                       "max number of scans"};
 
-            QStringList row2doubleDialog {"sky coverage",
+            QStringList row2doubleDialog {"subnetting min source angle",
+                                          "subnetting min participating stations",
+                                          "sky coverage",
                                           "number of observations",
                                           "duration",
                                           "average stations",
                                           "average sources",
+                                          "idle time",
+                                          "low declination",
+                                          "low declination begin",
+                                          "low declination full",
+                                          "low elevation",
+                                          "low elevation begin",
+                                          "low elevation full",
+                                          "influence distance",
+                                          "influence time",
+                                          "weight",
+                                          "min slew distance",
+                                          "max slew distance",
+                                          "min elevation",
                                           "min flux",
-                                          "weight"};
-
-            QStringList row2dateTimeDialog {"session start"};
+                                          "min sun distance"};
 
             QIcon ic;
             if(parameterType == "General"){
                 ic = QIcon(":/icons/icons/applications-internet-2.png");
             }else if(parameterType == "Weight factor"){
                 ic = QIcon(":/icons/icons/weight.png");
+            }else if(parameterType == "Sky Coverage"){
+                ic = QIcon(":/icons/icons/sky_coverage.png");
             }else if(parameterType == "Station"){
                 ic = QIcon(":/icons/icons/station.png");
             }else if(parameterType == "Source"){
@@ -2514,10 +2535,10 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
 
             auto t = ui->treeWidget_multiSchedSelected;
 
-            QTreeWidgetItem * itm = new QTreeWidgetItem();
+            QTreeWidgetItem *itm = new QTreeWidgetItem();
 
             if(row2toggle.indexOf(name) != -1){
-                if(parameterType == "General" || parameterType == "Weight factor"){
+                if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
                     any->setDisabled(true);
                 }
                 QString valuesString = "True, False";
@@ -2546,7 +2567,7 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                 }
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor"){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
                         any->setDisabled(true);
                     }
                     QVector<int> val = dialog->getValues();
@@ -2555,6 +2576,9 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                         QStandardItem* member = dialog->getMember();
                         itm->setText(1,member->text());
                         itm->setIcon(1,member->icon());
+                    }else if(parameterType == "Weight factor"){
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
                     }else{
                         itm->setText(1,"global");
                         itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
@@ -2581,13 +2605,13 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                     dialog->addMember(allSourcePlusGroupModel);
                 }else if(parameterType == "Baseline"){
                     dialog->addMember(allBaselinePlusGroupModel);
-                }else{
+                }else if(parameterType == "Weight factor"){
                     itm->setText(1,"global");
-                    itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
                 }
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor"){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
                         any->setDisabled(true);
                     }
                     QVector<double> val = dialog->getValues();
@@ -2597,6 +2621,9 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                         QStandardItem* member = dialog->getMember();
                         itm->setText(1,member->text());
                         itm->setIcon(1,member->icon());
+                    }else if(parameterType == "Sky Coverage"){
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/sky_coverage.png"));
                     }else{
                         itm->setText(1,"global");
                         itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
@@ -2619,7 +2646,7 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
 
                 int result = dialog->exec();
                 if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor"){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
                         any->setDisabled(true);
                     }
                     QVector<QDateTime> val = dialog->getValues();
@@ -2641,149 +2668,8 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                 delete(dialog);
             }
 
-            int nsched = 1;
-            QVector<double>weightSkyCoverage_;
-            QVector<double>weightNumberOfObservations_;
-            QVector<double>weightDuration_;
-            QVector<double>weightAverageSources_;
-            QVector<double>weightAverageStations_;
-            for(int i = 0; i<t->topLevelItemCount(); ++i){
-                if(t->topLevelItem(i)->text(0) == "sky coverage"){
-                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-                    for(int ilist = 0; ilist<list->count(); ++ilist){
-                        weightSkyCoverage_.push_back( QString(list->itemText(ilist)).toDouble());
-                    }
-                }
-                if(t->topLevelItem(i)->text(0) == "number of observations"){
-                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-                    for(int ilist = 0; ilist<list->count(); ++ilist){
-                        weightNumberOfObservations_.push_back( QString(list->itemText(ilist)).toDouble());
-                    }
-                }
-                if(t->topLevelItem(i)->text(0) == "duration"){
-                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-                    for(int ilist = 0; ilist<list->count(); ++ilist){
-                        weightDuration_.push_back( QString(list->itemText(ilist)).toDouble());
-                    }
-                }
-                if(t->topLevelItem(i)->text(0) == "average stations"){
-                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-                    for(int ilist = 0; ilist<list->count(); ++ilist){
-                        weightAverageSources_.push_back( QString(list->itemText(ilist)).toDouble());
-                    }
-                }
-                if(t->topLevelItem(i)->text(0) == "average sources"){
-                    QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-                    for(int ilist = 0; ilist<list->count(); ++ilist){
-                        weightAverageStations_.push_back( QString(list->itemText(ilist)).toDouble());
-                    }
-                }
-            }
+            multi_sched_count_nsched();
 
-            QVector<QVector<double> > weightFactors;
-            if(!weightSkyCoverage_.empty() ||
-                    !weightNumberOfObservations_.empty() ||
-                    !weightDuration_.empty() ||
-                    !weightAverageSources_.empty() ||
-                    !weightAverageStations_.empty()) {
-
-                if (weightSkyCoverage_.empty()) {
-                    if(ui->checkBox_weightCoverage->isChecked()){
-                        weightSkyCoverage_.push_back(ui->doubleSpinBox_weightSkyCoverage->value());
-                    }else{
-                        weightSkyCoverage_.push_back(0);
-                    }
-                }
-                if (weightNumberOfObservations_.empty()) {
-                    if(ui->checkBox_weightNobs->isChecked()){
-                        weightNumberOfObservations_.push_back(ui->doubleSpinBox_weightNumberOfObservations->value());
-                    }else{
-                        weightNumberOfObservations_.push_back(0);
-                    }
-                }
-                if (weightDuration_.empty()) {
-                    if(ui->checkBox_weightDuration->isChecked()){
-                        weightDuration_.push_back(ui->doubleSpinBox_weightDuration->value());
-                    }else{
-                        weightDuration_.push_back(0);
-                    }
-                }
-                if (weightAverageSources_.empty()) {
-                    if(ui->checkBox_weightAverageSources->isChecked()){
-                        weightAverageSources_.push_back(ui->doubleSpinBox_weightAverageSources->value());
-                    }else{
-                        weightAverageSources_.push_back(0);
-                    }
-                }
-                if (weightAverageStations_.empty()) {
-                    if(ui->checkBox_weightAverageStations->isChecked()){
-                        weightAverageStations_.push_back(ui->doubleSpinBox_weightAverageStations->value());
-                    }else{
-                        weightAverageStations_.push_back(0);
-                    }
-                }
-
-                for (double wsky: weightSkyCoverage_) {
-                    for (double wobs: weightNumberOfObservations_) {
-                        for (double wdur: weightDuration_) {
-                            for (double wasrc: weightAverageSources_) {
-                                for (double wsta: weightAverageStations_) {
-                                    double sum = wsky + wobs + wdur + wasrc + wsta;
-
-                                    if(sum == 0){
-                                        continue;
-                                    }
-
-                                    QVector<double> wf {wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wsta/sum};
-
-                                    weightFactors.push_back(wf);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                int i1 = 0;
-                while (i1 < weightFactors.size()) {
-                    const QVector<double> &v1 = weightFactors[i1];
-                    int i2 = i1 + 1;
-
-                    while (i2 < weightFactors.size()) {
-                        const QVector<double> &v2 = weightFactors[i2];
-                        int equal = 0;
-                        for (int i3 = 0; i3 < v1.size(); ++i3) {
-                            if (abs(v1[i3] - v2[i3]) < 1e-10) {
-                                ++equal;
-                            }
-                        }
-                        if (equal == v1.size()) {
-                            weightFactors.erase(std::next(weightFactors.begin(), i2));
-                        } else {
-                            ++i2;
-                        }
-                    }
-                    ++i1;
-                }
-
-            }
-
-            if (!weightFactors.empty()) {
-                nsched = weightFactors.count();
-            }
-
-            QStringList weightFactorsStr {"sky coverage",
-                                          "number of observations",
-                                          "duration",
-                                          "average stations",
-                                          "average sources"};
-
-            for(int i = 0; i<t->topLevelItemCount(); ++i){
-                if(weightFactorsStr.indexOf(t->topLevelItem(i)->text(0)) != -1){
-                    continue;
-                }
-                nsched *= t->topLevelItem(i)->text(2).toInt();
-            }
-            ui->label_multiSchedulingNsched->setText(QString::number(nsched));
         }
     }
 }
@@ -3143,26 +3029,50 @@ QString MainWindow::writeXML()
             auto itm = ui->treeWidget_multiSchedSelected->topLevelItem(i);
             QString parameter = itm->text(0);
             QIcon parameterIcon = itm->icon(0);
-            QString member = itm->text(1);
+            std::string member = itm->text(1).toStdString();
             QIcon memberIcon = itm->icon(0);
             QComboBox *list = qobject_cast<QComboBox*>(ui->treeWidget_multiSchedSelected->itemWidget(itm,3));
 
-            QStringList parameter2int {"max slew time",
-                                      "max wait time",
-                                      "max scan time",
-                                      "min scan time",
-                                      "min number of stations",
-                                      "min repeat time"};
+            QStringList parameter2dateTime {"session start"};
 
-            QStringList parameter2double {"sky coverage",
+            QStringList parameter2toggle{"subnetting",
+                                         "subnetting min participating stations",
+                                         "subnetting min source angle",
+                                         "fillinmode during scan selection",
+                                         "fillinmode influence on scan selection",
+                                         "fillinmode a posteriori"};
+
+            QStringList parameter2double {"max slew time",
+                                          "max wait time",
+                                          "max scan time",
+                                          "min scan time",
+                                          "min number of stations",
+                                          "min repeat time",
+                                          "idle time interval",
+                                          "max number of scans",
+                                          "subnetting min source angle",
+                                          "subnetting min participating stations",
+                                          "sky coverage",
                                           "number of observations",
                                           "duration",
                                           "average stations",
                                           "average sources",
+                                          "idle time",
+                                          "low declination",
+                                          "low declination begin",
+                                          "low declination full",
+                                          "low elevation",
+                                          "low elevation begin",
+                                          "low elevation full",
+                                          "influence distance",
+                                          "influence time",
+                                          "weight",
+                                          "min slew distance",
+                                          "max slew distance",
+                                          "min elevation",
                                           "min flux",
-                                          "weight"};
+                                          "min sun distance"};
 
-            QStringList parameter2dateTime {"session start"};
 
             std::vector<double> vecDouble;
             std::vector<unsigned int> vecInt;
@@ -3170,97 +3080,61 @@ QString MainWindow::writeXML()
                 for(int j = 0; j<list->count(); ++j){
                     vecDouble.push_back( QString(list->itemText(j)).toDouble());
                 }
-
-            }else if(parameter2int.indexOf(parameter) != -1){
-                for(int j = 0; j<list->count(); ++j){
-                    vecInt.push_back( QString(list->itemText(j)).toInt());
-                }
+//            }else if(parameter2int.indexOf(parameter) != -1){
+//                for(int j = 0; j<list->count(); ++j){
+//                    vecInt.push_back( QString(list->itemText(j)).toInt());
+//                }
             }
 
             if(parameterIcon.pixmap(16,16).toImage() == icSta.pixmap(16,16).toImage()){
-                if(memberIcon.pixmap(16,16).toImage() == icStaGrp.pixmap(16,16).toImage()){
-                    auto grpMem = groupSta.at(member.toStdString());
-                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
-
-                    if(parameter == "max slew time"){
-                        ms.setStation_maxSlewtime(grp,vecInt);
-                    }else if(parameter == "max wait time"){
-                        ms.setStation_maxWait(grp,vecInt);
-                    }else if(parameter == "max scan time"){
-                        ms.setStation_maxScan(grp,vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setStation_minScan(grp,vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setStation_weight(grp,vecDouble);
-                    }
-                }else{
-                    if(parameter == "max slew time"){
-                        ms.setStation_maxSlewtime(member.toStdString(),vecInt);
-                    }else if(parameter == "max wait time"){
-                        ms.setStation_maxWait(member.toStdString(),vecInt);
-                    }else if(parameter == "max scan time"){
-                        ms.setStation_maxScan(member.toStdString(),vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setStation_minScan(member.toStdString(),vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setStation_weight(member.toStdString(),vecDouble);
-                    }
+                if(parameter == "weight"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max slew time"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min slew distance"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max slew distance"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max wait time"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min elevation"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max number of scans"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max scan time"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min scan time"){
+                    ms.addParameters(std::string("station_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
                 }
 
             }else if(parameterIcon.pixmap(16,16).toImage() == icSrc.pixmap(16,16).toImage()){
-                if(memberIcon.pixmap(16,16).toImage() == icSrcGrp.pixmap(16,16).toImage()){
-                    auto grpMem = groupSrc.at(member.toStdString());
-                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
-
-                    if(parameter == "min number of stations"){
-                        ms.setSource_minNumberOfStations(grp,vecInt);
-                    }else if(parameter == "min flux"){
-                        ms.setSource_minFlux(grp,vecDouble);
-                    }else if(parameter == "min repeat time"){
-                        ms.setSource_minRepeat(grp,vecInt);
-                    }else if(parameter == "max scan time"){
-                        ms.setSource_minNumberOfStations(grp,vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setSource_minNumberOfStations(grp,vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setSource_weight(grp,vecDouble);
-                    }
-                }else{
-                    if(parameter == "min number of stations"){
-                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
-                    }else if(parameter == "min flux"){
-                        ms.setSource_minFlux(member.toStdString(),vecDouble);
-                    }else if(parameter == "min repeat time"){
-                        ms.setSource_minRepeat(member.toStdString(),vecInt);
-                    }else if(parameter == "max scan time"){
-                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setSource_minNumberOfStations(member.toStdString(),vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setSource_weight(member.toStdString(),vecDouble);
-                    }
+                if(parameter == "weight"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min number of stations"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min flux"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max number of scans"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min elevation"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min sun distance"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max scan time"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min scan time"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min repeat time"){
+                    ms.addParameters(std::string("source_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
                 }
 
             }else if(parameterIcon.pixmap(16,16).toImage() == icBl.pixmap(16,16).toImage()){
-                if(memberIcon.pixmap(16,16).toImage() == icBlGrp.pixmap(16,16).toImage()){
-                    auto grpMem = groupBl.at(member.toStdString());
-                    VieVS::ParameterGroup grp(member.toStdString(),grpMem);
-
-                    if(parameter == "max scan time"){
-                        ms.setBaseline_maxScan(grp,vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setBaseline_minScan(grp,vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setBaseline_weight(grp,vecDouble);
-                    }
-                }else{
-                    if(parameter == "max scan time"){
-                        ms.setBaseline_maxScan(member.toStdString(),vecInt);
-                    }else if(parameter == "min scan time"){
-                        ms.setBaseline_minScan(member.toStdString(),vecInt);
-                    }else if(parameter == "weight"){
-                        ms.setBaseline_weight(member.toStdString(),vecDouble);
-                    }
+                if(parameter == "weight"){
+                    ms.addParameters(std::string("baseline_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "max scan time"){
+                    ms.addParameters(std::string("baseline_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
+                }else if(parameter == "min scan time"){
+                    ms.addParameters(std::string("baseline_").append(parameter.replace(' ','_').toStdString()), member, vecDouble);
                 }
 
             }else{
@@ -3279,19 +3153,46 @@ QString MainWindow::writeXML()
                     }
                     ms.setStart(times);
                 }else if(parameter == "subnetting"){
-                    ms.setMultiSched_subnetting(true);
-                }else if(parameter == "fillin mode"){
-                    ms.setMultiSched_fillinmode(true);
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()));
+                }else if(parameter == "fillinmode during scan selection"){
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()));
+                }else if(parameter == "fillinmode influence on scan selection"){
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()));
+                }else if(parameter == "fillinmode a posteriori"){
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()));
+
+                }else if(parameter == "subnetting min participating stations"){
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "subnetting min source angle"){
+                    ms.addParameters(std::string("general_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "sky coverage"){
-                    ms.setWeight_skyCoverage(vecDouble);
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "number of observations"){
-                    ms.setWeight_numberOfObservations(vecDouble);
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "duration"){
-                    ms.setWeight_duration(vecDouble);
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "average stations"){
-                    ms.setWeight_averageStations(vecDouble);
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "average sources"){
-                    ms.setWeight_averageSources(vecDouble);
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "idle time"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low declination"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low declination begin"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low declination full"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low elevation"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low elevation begin"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "low elevation full"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "influence distance"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "influence time"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }
             }
         }
@@ -5068,8 +4969,17 @@ void MainWindow::on_pushButton_25_clicked()
                 ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
             }else if(any->text(0) == "subnetting"){
                 ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
-            }else if(any->text(0) == "fillin mode"){
+            }else if(any->text(0) == "subnetting min source angle"){
                 ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
+            }else if(any->text(0) == "subnetting min participating stations"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(3)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode during scan selection"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(4)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode influence on scan selection"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(5)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode a posteriori"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(6)->setDisabled(false);
+
             }else if(any->text(0) == "sky coverage"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
             }else if(any->text(0) == "number of observations"){
@@ -5080,16 +4990,33 @@ void MainWindow::on_pushButton_25_clicked()
                 ui->treeWidget_multiSched->topLevelItem(1)->child(3)->setDisabled(false);
             }else if(any->text(0) == "average sources"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(4)->setDisabled(false);
+            }else if(any->text(0) == "idle time"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(5)->setDisabled(false);
+            }else if(any->text(0) == "idle time interval"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(6)->setDisabled(false);
+            }else if(any->text(0) == "low declination"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(7)->setDisabled(false);
+            }else if(any->text(0) == "low declination begin"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(8)->setDisabled(false);
+            }else if(any->text(0) == "low declination full"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(9)->setDisabled(false);
+            }else if(any->text(0) == "low elevation"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(10)->setDisabled(false);
+            }else if(any->text(0) == "low elevation begin"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(11)->setDisabled(false);
+            }else if(any->text(0) == "low elevation full"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(12)->setDisabled(false);
+
+            }else if(any->text(0) == "influence distance"){
+                ui->treeWidget_multiSched->topLevelItem(2)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "influence time"){
+                ui->treeWidget_multiSched->topLevelItem(2)->child(1)->setDisabled(false);
             }
             delete(any);
         }
     }
 
-    int nsched = 1;
-    for(int i = 0; i<ui->treeWidget_multiSchedSelected->topLevelItemCount(); ++i){
-        nsched *= ui->treeWidget_multiSchedSelected->topLevelItem(i)->text(2).toInt();
-    }
-    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+    multi_sched_count_nsched();
 
 }
 
@@ -7293,5 +7220,216 @@ void MainWindow::on_comboBox_multiSched_seed_currentIndexChanged(const QString &
         ui->spinBox_multiSched_seed->setEnabled(false);
     } else {
         ui->spinBox_multiSched_seed->setEnabled(true);
+    }
+}
+
+void MainWindow::multi_sched_count_nsched()
+{
+
+    auto t = ui->treeWidget_multiSchedSelected;
+
+    int nsched = 1;
+    double wsky_ = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        wsky_ = ui->doubleSpinBox_weightSkyCoverage->value();
+    }
+    double wobs_ = 0;
+    if(ui->checkBox_weightNobs->isChecked()){
+        wobs_ = ui->doubleSpinBox_weightNumberOfObservations->value();
+    }
+    double wdur_ = 0;
+    if(ui->checkBox_weightDuration->isChecked()){
+        wdur_ = ui->doubleSpinBox_weightDuration->value();
+    }
+    double wasrc_ = 0;
+    if(ui->checkBox_weightAverageSources->isChecked()){
+        wasrc_ = ui->doubleSpinBox_weightAverageSources->value();
+    }
+    double wasta_ = 0;
+    if(ui->checkBox_weightAverageStations->isChecked()){
+        wasta_ = ui->doubleSpinBox_weightAverageStations->value();
+    }
+    double widle_ = 0;
+    if(ui->checkBox_weightIdleTime->isChecked()){
+        widle_ = ui->doubleSpinBox_weightIdleTime->value();
+    }
+    double wdec_ = 0;
+    if(ui->checkBox_weightLowDeclination->isChecked()){
+        wdec_ = ui->doubleSpinBox_weightLowDec->value();
+    }
+    double wel_ = 0;
+    if(ui->checkBox_weightLowElevation->isChecked()){
+        wel_ = ui->doubleSpinBox_weightLowEl->value();
+    }
+
+
+    std::map<std::string,std::vector<double>> weightFactors = {{"weight_factor_sky_coverage",std::vector<double>{wsky_}},
+                                                    {"weight_factor_number_of_observations",std::vector<double>{wobs_}},
+                                                    {"weight_factor_duration",std::vector<double>{wdur_}},
+                                                    {"weight_factor_average_sources",std::vector<double>{wasrc_}},
+                                                    {"weight_factor_average_stations",std::vector<double>{wasta_}},
+                                                    {"weight_factor_idle_time",std::vector<double>{widle_}},
+                                                    {"weight_factor_low_declination",std::vector<double>{wdec_}},
+                                                    {"weight_factor_low_elevation",std::vector<double>{wel_}}};
+
+    bool weigthFactorFound = false;
+    for(int i = 0; i<t->topLevelItemCount(); ++i){
+        if(t->topLevelItem(i)->text(0) == "sky coverage"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_sky_coverage"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "number of observations"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_number_of_observations"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "duration"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_duration"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "average stations"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_stations"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "average sources"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_sources"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "idle time"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_idle_time"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "low declination"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_low_declination"] = values;
+            weigthFactorFound = true;
+        }
+        if(t->topLevelItem(i)->text(0) == "low elevation"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_low_elevation"] = values;
+            weigthFactorFound = true;
+        }
+    }
+
+    std::vector<std::vector<double> > weightFactorValues;
+    if(weigthFactorFound){
+        for (double wsky: weightFactors["weight_factor_sky_coverage"]) {
+            for (double wobs: weightFactors["weight_factor_number_of_observations"]) {
+                for (double wdur: weightFactors["weight_factor_duration"]) {
+                    for (double wasrc: weightFactors["weight_factor_average_sources"]) {
+                        for (double wasta: weightFactors["weight_factor_average_stations"]) {
+                            for (double widle: weightFactors["weight_factor_idle_time"]) {
+                                for (double wdec: weightFactors["weight_factor_low_declination"]) {
+                                    for (double wel: weightFactors["weight_factor_low_elevation"]) {
+
+                                        double sum = wsky + wobs + wdur + wasrc + wasta + widle + wdec + wel;
+
+                                        if (sum == 0) {
+                                            continue;
+                                        }
+
+                                        std::vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum, widle/sum, wdec/sum, wel/sum};
+                                        weightFactorValues.push_back(std::move(wf));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // remove duplicated weight factors
+    int i1 = 0;
+    while (i1 < weightFactorValues.size()) {
+        const std::vector<double> &v1 = weightFactorValues[i1];
+        int i2 = i1 + 1;
+
+        while (i2 < weightFactorValues.size()) {
+            const std::vector<double> &v2 = weightFactorValues[i2];
+            int equal = 0;
+            for (int i3 = 0; i3 < v1.size(); ++i3) {
+                if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                    ++equal;
+                }
+            }
+            if (equal == v1.size()) {
+                weightFactorValues.erase(next(weightFactorValues.begin(), i2));
+            } else {
+                ++i2;
+            }
+        }
+        ++i1;
+    }
+
+    if (!weightFactorValues.empty()) {
+        nsched = weightFactorValues.size();
+    }
+
+    QStringList weightFactorsStr {"sky coverage",
+                                  "number of observations",
+                                  "duration",
+                                  "average stations",
+                                  "average sources",
+                                  "idle time",
+                                  "low declination",
+                                  "low elevation"};
+
+    for(int i = 0; i<t->topLevelItemCount(); ++i){
+        if(weightFactorsStr.indexOf(t->topLevelItem(i)->text(0)) != -1){
+            continue;
+        }
+        nsched *= t->topLevelItem(i)->text(2).toInt();
+    }
+    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+    if(nsched>999){
+        ui->spinBox_multiSched_maxNumber->setValue(999);
+        ui->comboBox_multiSched_maxNumber->setCurrentIndex(1);
+        ui->comboBox_multiSched_maxNumber->setEnabled(false);
+    }else{
+        ui->spinBox_multiSched_maxNumber->setValue(nsched);
+        ui->comboBox_multiSched_maxNumber->setEnabled(true);
+    }
+
+    if(nsched >9999){
+        QMessageBox::warning(this,"ignoring multi scheduling","Too many possible multi scheduling parameters!\nMulti scheduling will be ignored");
     }
 }
