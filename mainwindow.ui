@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>13</number>
       </property>
       <widget class="QWidget" name="welcome">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -4770,7 +4770,7 @@ Click on source to deselect it</string>
                <number>60</number>
               </property>
               <property name="value">
-               <number>600</number>
+               <number>300</number>
               </property>
              </widget>
             </item>
@@ -5381,8 +5381,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -6014,7 +6014,27 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>fillin mode</string>
+                        <string>subnetting min source angle</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>subnetting min participating stations</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>fillinmode during scan selection</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>fillinmode influence on scan selection</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>fillinmode a posteriori</string>
                        </property>
                       </item>
                      </item>
@@ -6051,6 +6071,65 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                         <string>average sources</string>
                        </property>
                       </item>
+                      <item>
+                       <property name="text">
+                        <string>idle time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>idle time interval</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low declination</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low declination begin</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low declination full</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low elevation</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low elevation begin</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>weight low elevation full</string>
+                       </property>
+                      </item>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>Sky Coverage</string>
+                      </property>
+                      <property name="icon">
+                       <iconset resource="myresources.qrc">
+                        <normaloff>:/icons/icons/sky_coverage.png</normaloff>:/icons/icons/sky_coverage.png</iconset>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>influence distance</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>influence time</string>
+                       </property>
+                      </item>
                      </item>
                      <item>
                       <property name="text">
@@ -6062,12 +6141,37 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </property>
                       <item>
                        <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
                         <string>max slew time</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
+                        <string>stationMinSlewDistance</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>stationMaxSlewDistance</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
                         <string>max wait time</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>stationMinElevation</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>stationMaxNumberOfScans</string>
                        </property>
                       </item>
                       <item>
@@ -6078,11 +6182,6 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       <item>
                        <property name="text">
                         <string>min scan time</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>weight</string>
                        </property>
                       </item>
                      </item>
@@ -6096,6 +6195,11 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </property>
                       <item>
                        <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
                         <string>min number of stations</string>
                        </property>
                       </item>
@@ -6106,7 +6210,17 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>min repeat time</string>
+                        <string>sourceMaxNumberOfScans</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>sourceMinElevation</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>sourceMinSunDistance</string>
                        </property>
                       </item>
                       <item>
@@ -6121,7 +6235,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </item>
                       <item>
                        <property name="text">
-                        <string>weight</string>
+                        <string>min repeat time</string>
                        </property>
                       </item>
                      </item>
@@ -6135,17 +6249,17 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       </property>
                       <item>
                        <property name="text">
+                        <string>weight</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
                         <string>max scan time</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
                         <string>min scan time</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>weight</string>
                        </property>
                       </item>
                      </item>

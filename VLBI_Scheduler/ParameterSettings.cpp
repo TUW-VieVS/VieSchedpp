@@ -787,7 +787,8 @@ void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influ
 
 void
 ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                                double weight_averageSources, double weight_averageStations, double weightDeclination,
+                                double weight_averageSources, double weight_averageStations, double weight_idleTime,
+                                unsigned int idleTimeInterval, double weightDeclination,
                                 double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                                 double lowElevationSlopeStart, double lowElevationSlopeEnd) {
     boost::property_tree::ptree weightFactor;
@@ -805,6 +806,10 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     }
     if(weight_averageStations != 0){
         weightFactor.add("weightFactor.averageStations", weight_averageStations);
+    }
+    if(weight_idleTime != 0){
+        weightFactor.add("weightFactor.idleTime", weight_idleTime);
+        weightFactor.add("weightFactor.idleTimeInterval", idleTimeInterval);
     }
     if(weightDeclination != 0){
         weightFactor.add("weightFactor.weightDeclination", weightDeclination);
