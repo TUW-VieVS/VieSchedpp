@@ -1102,8 +1102,11 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             }
 
             scan.addTagalongStation(pv_new_start, pv_new_end, bls, *slewtime, station);
-            bodyLog << boost::format("possible to observe source: %-8s (scan: %4d) scan start: %5d scan end: %5d \n")
-                       %source.getName() %counter %pv_new_start.getTime() %pv_new_end.getTime();
+            bodyLog << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
+                       %source.getName()
+                       %counter
+                       %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(pv_new_start.getTime()))
+                       %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(pv_new_end.getTime()));
             if(station.referencePARA().firstScan){
                 station.referencePARA().firstScan = false;
             }

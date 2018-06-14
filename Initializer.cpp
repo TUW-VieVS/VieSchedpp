@@ -2030,6 +2030,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
 
     unsigned long nsta = stations_.size();
 
+    // GENERAL
     if (parameters.start.is_initialized()) {
         boost::posix_time::ptime startTime = *parameters.start;
         int sec_ = startTime.time_of_day().total_seconds();
@@ -2045,10 +2046,23 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     if (parameters.subnetting.is_initialized()) {
         parameters_.subnetting = *parameters.subnetting;
     }
-    if (parameters.fillinmode.is_initialized()) {
-        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode;
+    if (parameters.subnetting_minSourceAngle.is_initialized()) {
+        parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
+    }
+    if (parameters.subnetting_minParticipatingStations.is_initialized()) {
+        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
+    }
+    if (parameters.fillinmode_duringScanSelection.is_initialized()) {
+        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
+    }
+    if (parameters.fillinmode_influenceOnScanSelection.is_initialized()) {
+        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
+    }
+    if (parameters.fillinmode_aPosteriori.is_initialized()) {
+        parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
 
+    // WEIGHT FACTORS
     if (parameters.weightSkyCoverage.is_initialized()) {
         WeightFactors::weightSkyCoverage = *parameters.weightSkyCoverage;
     }
@@ -2064,7 +2078,55 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     if (parameters.weightAverageStations.is_initialized()) {
         WeightFactors::weightAverageStations = *parameters.weightAverageStations;
     }
+    if (parameters.weightIdleTime.is_initialized()) {
+        WeightFactors::weightIdleTime = *parameters.weightIdleTime;
+    }
+    if (parameters.weightIdleTime_interval.is_initialized()) {
+        WeightFactors::idleTimeInterval = static_cast<unsigned int>(*parameters.weightIdleTime_interval);
+    }
+    if (parameters.weightLowDeclination.is_initialized()) {
+        WeightFactors::weightDeclination = *parameters.weightLowDeclination;
+    }
+    if (parameters.weightLowDeclination_begin.is_initialized()) {
+        WeightFactors::declinationStartWeight = *parameters.weightLowDeclination_begin;
+    }
+    if (parameters.weightLowDeclination_full.is_initialized()) {
+        WeightFactors::declinationFullWeight = *parameters.weightLowDeclination_full;
+    }
+    if (parameters.weightLowElevation.is_initialized()) {
+        WeightFactors::weightLowElevation = *parameters.weightLowElevation;
+    }
+    if (parameters.weightLowElevation_begin.is_initialized()) {
+        WeightFactors::lowElevationStartWeight = *parameters.weightLowElevation_begin;
+    }
+    if (parameters.weightLowElevation_full.is_initialized()) {
+        WeightFactors::lowElevationFullWeight = *parameters.weightLowElevation_full;
+    }
 
+    //TODO: SKY COVERAGE
+
+    // STATION
+    if (!parameters.stationWeight.empty()) {
+        for (const auto &any:parameters.stationWeight) {
+            string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                vector<string> members = group_station[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisStation:stations_) {
+                        if (thisStation.hasName(thisName)) {
+                            thisStation.referencePARA().weight = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisStation:stations_) {
+                    if (thisStation.hasName(name)) {
+                        thisStation.referencePARA().weight = any.second;
+                    }
+                }
+            }
+        }
+    }
     if (!parameters.stationMaxSlewtime.empty()) {
         for (const auto &any:parameters.stationMaxSlewtime) {
             string name = any.first;
@@ -2086,22 +2148,43 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             }
         }
     }
-    if (!parameters.stationWeight.empty()) {
-        for (const auto &any:parameters.stationWeight) {
+    if (!parameters.stationMaxSlewDistance.empty()) {
+        for (const auto &any:parameters.stationMaxSlewDistance) {
             string name = any.first;
             if (group_station.find(name) != group_station.end()) {
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
                         if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().weight = any.second;
+                            thisStation.referencePARA().maxSlewDistance = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
                     if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().weight = any.second;
+                        thisStation.referencePARA().maxSlewDistance = any.second;
+                    }
+                }
+            }
+        }
+    }
+    if (!parameters.stationMinSlewDistance.empty()) {
+        for (const auto &any:parameters.stationMinSlewDistance) {
+            string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                vector<string> members = group_station[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisStation:stations_) {
+                        if (thisStation.hasName(thisName)) {
+                            thisStation.referencePARA().minSlewDistance = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisStation:stations_) {
+                    if (thisStation.hasName(name)) {
+                        thisStation.referencePARA().minSlewDistance = any.second;
                     }
                 }
             }
@@ -2128,22 +2211,43 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             }
         }
     }
-    if (!parameters.stationMinScan.empty()) {
-        for (const auto &any:parameters.stationMinScan) {
+    if (!parameters.stationMinElevation.empty()) {
+        for (const auto &any:parameters.stationMinElevation) {
             string name = any.first;
             if (group_station.find(name) != group_station.end()) {
                 vector<string> members = group_station[name];
                 for (const auto &thisName:members) {
                     for (auto &thisStation:stations_) {
                         if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().minScan = any.second;
+                            thisStation.referencePARA().minElevation = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisStation:stations_) {
                     if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().minScan = any.second;
+                        thisStation.referencePARA().minElevation = any.second;
+                    }
+                }
+            }
+        }
+    }
+    if (!parameters.stationMaxNumberOfScans.empty()) {
+        for (const auto &any:parameters.stationMaxNumberOfScans) {
+            string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                vector<string> members = group_station[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisStation:stations_) {
+                        if (thisStation.hasName(thisName)) {
+                            thisStation.referencePARA().maxNumberOfScans = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisStation:stations_) {
+                    if (thisStation.hasName(name)) {
+                        thisStation.referencePARA().maxNumberOfScans = any.second;
                     }
                 }
             }
@@ -2170,7 +2274,50 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             }
         }
     }
+    if (!parameters.stationMinScan.empty()) {
+        for (const auto &any:parameters.stationMinScan) {
+            string name = any.first;
+            if (group_station.find(name) != group_station.end()) {
+                vector<string> members = group_station[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisStation:stations_) {
+                        if (thisStation.hasName(thisName)) {
+                            thisStation.referencePARA().minScan = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisStation:stations_) {
+                    if (thisStation.hasName(name)) {
+                        thisStation.referencePARA().minScan = any.second;
+                    }
+                }
+            }
+        }
+    }
 
+    // SOURCE
+    if (!parameters.sourceWeight.empty()) {
+        for (const auto &any:parameters.sourceWeight) {
+            string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                vector<string> members = group_source[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisSource:sources_) {
+                        if (thisSource.hasName(thisName)) {
+                            thisSource.referencePARA().weight = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisSource:sources_) {
+                    if (thisSource.hasName(name)) {
+                        thisSource.referencePARA().weight = any.second;
+                    }
+                }
+            }
+        }
+    }
     if (!parameters.sourceMinNumberOfStations.empty()) {
         for (const auto &any:parameters.sourceMinNumberOfStations) {
             string name = any.first;
@@ -2213,64 +2360,64 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             }
         }
     }
-    if (!parameters.sourceMinRepeat.empty()) {
-        for (const auto &any:parameters.sourceMinRepeat) {
+    if (!parameters.sourceMaxNumberOfScans.empty()) {
+        for (const auto &any:parameters.sourceMaxNumberOfScans) {
             string name = any.first;
             if (group_source.find(name) != group_source.end()) {
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
                         if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minRepeat = any.second;
+                            thisSource.referencePARA().maxNumberOfScans = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
                     if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minRepeat = any.second;
+                        thisSource.referencePARA().maxNumberOfScans = any.second;
                     }
                 }
             }
         }
     }
-    if (!parameters.sourceWeight.empty()) {
-        for (const auto &any:parameters.sourceWeight) {
+    if (!parameters.sourceMinElevation.empty()) {
+        for (const auto &any:parameters.sourceMinElevation) {
             string name = any.first;
             if (group_source.find(name) != group_source.end()) {
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
                         if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().weight = any.second;
+                            thisSource.referencePARA().minElevation = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
                     if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().weight = any.second;
+                        thisSource.referencePARA().minElevation = any.second;
                     }
                 }
             }
         }
     }
-    if (!parameters.sourceMinScan.empty()) {
-        for (const auto &any:parameters.sourceMinScan) {
+    if (!parameters.sourceMinSunDistance.empty()) {
+        for (const auto &any:parameters.sourceMinSunDistance) {
             string name = any.first;
             if (group_source.find(name) != group_source.end()) {
                 vector<string> members = group_source[name];
                 for (const auto &thisName:members) {
                     for (auto &thisSource:sources_) {
                         if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minScan = any.second;
+                            thisSource.referencePARA().minSunDistance = any.second;
                         }
                     }
                 }
             } else {
                 for (auto &thisSource:sources_) {
                     if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minScan = any.second;
+                        thisSource.referencePARA().minSunDistance = any.second;
                     }
                 }
             }
@@ -2297,7 +2444,50 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             }
         }
     }
+    if (!parameters.sourceMinScan.empty()) {
+        for (const auto &any:parameters.sourceMinScan) {
+            string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                vector<string> members = group_source[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisSource:sources_) {
+                        if (thisSource.hasName(thisName)) {
+                            thisSource.referencePARA().minScan = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisSource:sources_) {
+                    if (thisSource.hasName(name)) {
+                        thisSource.referencePARA().minScan = any.second;
+                    }
+                }
+            }
+        }
+    }
+    if (!parameters.sourceMinRepeat.empty()) {
+        for (const auto &any:parameters.sourceMinRepeat) {
+            string name = any.first;
+            if (group_source.find(name) != group_source.end()) {
+                vector<string> members = group_source[name];
+                for (const auto &thisName:members) {
+                    for (auto &thisSource:sources_) {
+                        if (thisSource.hasName(thisName)) {
+                            thisSource.referencePARA().minRepeat = any.second;
+                        }
+                    }
+                }
+            } else {
+                for (auto &thisSource:sources_) {
+                    if (thisSource.hasName(name)) {
+                        thisSource.referencePARA().minRepeat = any.second;
+                    }
+                }
+            }
+        }
+    }
 
+    // BASELINES
     if (!parameters.baselineWeight.empty()) {
         for (const auto &any:parameters.baselineWeight) {
             string name = any.first;
@@ -2474,10 +2664,33 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
 
         for (const auto &any:mstree) {
             std::string name = any.first;
-            auto tmp = any.second;
+            if(name == "maxNumber" || name == "seed"){
+                continue;
+            }
+            if(name == "general_subnetting" || name == "general_fillinmode_during_scan_selection" ||
+               name == "general_fillinmode_influence_on_scan_selection" || name == "general_fillinmode_a_posteriori"){
+                ms.addParameters(name);
+                continue;
+            }
 
-
-            ms.addParameters(name);
+            vector<double> values;
+            const auto &valueTree = any.second;
+            std::string member;
+            boost::optional<string> om = valueTree.get_optional<std::string>("<xmlattr>.member");
+            if(om.is_initialized()){
+                member = *om;
+            }
+            for(const auto &any2: valueTree){
+                std::string name2 = any2.first;
+                if(name2 == "value"){
+                    values.push_back(any2.second.get_value<double>());
+                }
+            }
+            if(member.empty()){
+                ms.addParameters(name,values);
+            }else{
+                ms.addParameters(name,member,values);
+            }
         }
 
         std::vector<MultiScheduling::Parameters> ans = ms.createMultiScheduleParameters(maxNumber,seed);

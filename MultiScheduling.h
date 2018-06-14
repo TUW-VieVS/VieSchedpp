@@ -22,6 +22,7 @@
 #include "ParameterGroup.h"
 #include "WeightFactors.h"
 #include "VieVS_Object.h"
+#include "Constants.h"
 
 namespace VieVS {
     /**

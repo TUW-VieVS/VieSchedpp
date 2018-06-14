@@ -41,22 +41,22 @@ int main(int argc, char *argv[])
     mainScheduler.run();
 
 //    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("C:/Users/matth/Desktop/VGOS/b17341.skd");
+//    VieVS::SkdParser mySkdParser("/data/CONT17/c1701.skd");
 //    mySkdParser.createObjects();
 //    mySkdParser.createScans();
 //    mySkdParser.copyScanMembersToObjects();
-
-//    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
-//    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
-//    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
-//    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
-
+//
+////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
+////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
+////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
+////    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
+//
 //    VieVS::Scheduler sched = mySkdParser.createScheduler();
 //
-//    std::ofstream of("C:/Users/matth/Desktop/VGOS/b17341_summary.log");
+//    std::ofstream of("/data/CONT17/c1701.log");
 //    sched.checkAndStatistics(of);
 //
-//    VieVS::Output out(sched,"C:/Users/matth/Desktop/VGOS/",0);
+//    VieVS::Output out(sched,"/data/CONT17/",0);
 //    out.writeNGS();
 //    out.writeOperationsNotes();
 

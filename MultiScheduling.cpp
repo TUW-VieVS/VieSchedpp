@@ -23,7 +23,8 @@ void MultiScheduling::addParameters(const std::string &name, const std::vector<d
 
 void
 MultiScheduling::addParameters(const std::string &name, const std::string &member, const std::vector<double> &values) {
-    doubleArgumentNumeric.emplace_back({name, {member,values}});
+
+    doubleArgumentNumeric.emplace_back(name, make_pair(member,values));
 }
 
 
@@ -41,14 +42,14 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     }
 
     // create map with all weight factors
-    map<string,vector<double>> weightFactors = {{"weightSkyCoverage",WeightFactors::weightSkyCoverage},
-                                                {"weightNumberOfObservations",WeightFactors::weightNumberOfObservations},
-                                                {"weightDuration",WeightFactors::weightDuration},
-                                                {"weightAverageSources",WeightFactors::weightAverageSources},
-                                                {"weightAverageStations",WeightFactors::weightAverageStations},
-                                                {"weightIdleTime",WeightFactors::weightIdleTime},
-                                                {"weightLowDeclination",WeightFactors::weightDeclination},
-                                                {"weightLowElevation",WeightFactors::weightLowElevation}};
+    map<string,vector<double>> weightFactors = {{"weight_factor_sky_coverage",vector<double>{WeightFactors::weightSkyCoverage}},
+                                                {"weight_factor_number_of_observations",vector<double>{WeightFactors::weightNumberOfObservations}},
+                                                {"weight_factor_duration",vector<double>{WeightFactors::weightDuration}},
+                                                {"weight_factor_average_sources",vector<double>{WeightFactors::weightAverageSources}},
+                                                {"weight_factor_average_stations",vector<double>{WeightFactors::weightAverageStations}},
+                                                {"weight_factor_idle_time",vector<double>{WeightFactors::weightIdleTime}},
+                                                {"weight_factor_low_declination",vector<double>{WeightFactors::weightDeclination}},
+                                                {"weight_factor_low_elevation",vector<double>{WeightFactors::weightLowElevation}}};
 
     // check if a weight factor is changed during multi scheduling
     bool weigthFactorFound = false;
@@ -65,14 +66,14 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     // normalize all weight factors
     vector<vector<double> > weightFactorValues;
     if(weigthFactorFound){
-        for (double wsky: weightFactors["weightSkyCoverage"]) {
-            for (double wobs: weightFactors["weightNumberOfObservations"]) {
-                for (double wdur: weightFactors["weightDuration"]) {
-                    for (double wasrc: weightFactors["weightAverageSources"]) {
-                        for (double wasta: weightFactors["weightAverageStations"]) {
-                            for (double widle: weightFactors["weightIdleTime"]) {
-                                for (double wdec: weightFactors["weightLowDeclination"]) {
-                                    for (double wel: weightFactors["weightLowElevation"]) {
+        for (double wsky: weightFactors["weight_factor_sky_coverage"]) {
+            for (double wobs: weightFactors["weight_factor_number_of_observations"]) {
+                for (double wdur: weightFactors["weight_factor_duration"]) {
+                    for (double wasrc: weightFactors["weight_factor_average_sources"]) {
+                        for (double wasta: weightFactors["weight_factor_average_stations"]) {
+                            for (double widle: weightFactors["weight_factor_idle_time"]) {
+                                for (double wdec: weightFactors["weight_factor_low_declination"]) {
+                                    for (double wel: weightFactors["weight_factor_low_elevation"]) {
 
                                         double sum = wsky + wobs + wdur + wasrc + wasta + widle + wdec + wel;
 
@@ -94,11 +95,11 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
     // remove duplicated weight factors
     int i1 = 0;
-    while (i1 < weightFactors.size()) {
+    while (i1 < weightFactorValues.size()) {
         const vector<double> &v1 = weightFactorValues[i1];
         int i2 = i1 + 1;
 
-        while (i2 < weightFactors.size()) {
+        while (i2 < weightFactorValues.size()) {
             const vector<double> &v2 = weightFactorValues[i2];
             int equal = 0;
             for (int i3 = 0; i3 < v1.size(); ++i3) {
@@ -107,7 +108,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                 }
             }
             if (equal == v1.size()) {
-                weightFactors.erase(next(weightFactors.begin(), i2));
+                weightFactorValues.erase(next(weightFactorValues.begin(), i2));
             } else {
                 ++i2;
             }
@@ -116,12 +117,16 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     }
 
     // count weight factors
-    if (!weightFactors.empty()) {
-        counter.push_back(static_cast<unsigned int &&>(weightFactors.size()));
+    if (!weightFactorValues.empty()) {
+        counter.push_back(static_cast<unsigned int &&>(weightFactorValues.size()));
     }
 
     // count single argument parameters with values
     for(const auto &any: singleArgumentNumeric){
+        const string &name = any.first;
+        if(weightFactors.find(name) != weightFactors.end()){
+            continue;
+        }
         counter.push_back(static_cast<unsigned int &&>(any.second.size()));
     }
 
@@ -137,6 +142,11 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     }
 
     Parameters thisPARA;
+    if(n_total>9999){
+        cerr << "too many multi scheduling parameters! (" << n_total << ")";
+        return std::vector<Parameters>{};
+    }
+
     std::vector<Parameters> allPARA(n_total, thisPARA);
 
     unsigned long n_before = 1;
@@ -229,13 +239,13 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
         bool thisValue = i_block % 2 == 0;
 
         for (int i_item = 0; i_item < n_items; ++i_item) {
-            if(name == "subnetting"){
+            if(name == "general_subnetting"){
                 allPara[c].subnetting = thisValue;
-            }else if(name == "fillinmode_duringScanSelection"){
+            }else if(name == "general_fillinmode_during_scan_selection"){
                 allPara[c].fillinmode_duringScanSelection = thisValue;
-            }else if(name == "fillinmode_influenceOnScanSelection"){
+            }else if(name == "general_fillinmode_influence_on_scan_selection"){
                 allPara[c].fillinmode_influenceOnScanSelection = thisValue;
-            }else if(name == "fillinmode_aPosteriori"){
+            }else if(name == "general_fillinmode_a_posteriori"){
                 allPara[c].fillinmode_aPosteriori = thisValue;
             }
             ++c;
@@ -257,31 +267,31 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
 
         for (int i_item = 0; i_item < n_items; ++i_item) {
 
-            if (name == "subnetting_minSourceAngle") {
+            if (name == "general_subnetting_min_source_angle") {
                 allPara[c].subnetting_minSourceAngle = thisValue;
 
-            }else if(name == "subnetting_minParticipatingStations"){
+            }else if(name == "general_subnetting_min_participating_stations"){
                 allPara[c].subnetting_minParticipatingStations = thisValue;
 
-            }else if(name == "weightIdleTime_interval"){
+            }else if(name == "weight_factor_idle_time"){
                 allPara[c].weightIdleTime_interval = thisValue;
 
-            }else if(name == "weightLowDeclination_begin"){
+            }else if(name == "weight_factor_low_declination_begin"){
                 allPara[c].weightLowDeclination_begin = thisValue;
 
-            }else if(name == "weightLowDeclination_full"){
+            }else if(name == "weight_factor_low_declination_full"){
                 allPara[c].weightLowDeclination_full = thisValue;
 
-            }else if(name == "weightLowElevation_begin"){
+            }else if(name == "weight_factor_low_elevation_begin"){
                 allPara[c].weightLowElevation_begin = thisValue;
 
-            }else if(name == "weightLowElevation_full"){
+            }else if(name == "weight_factor_low_elevation_full"){
                 allPara[c].weightLowElevation_full = thisValue;
 
-            }else if(name == "skyCoverageInfluenceDistance"){
+            }else if(name == "weight_factor_influence_distance"){
                 allPara[c].skyCoverageInfluenceDistance = thisValue;
 
-            }else if(name == "skyCoverageInfluenceTime"){
+            }else if(name == "weight_factor_influence_time"){
                 allPara[c].skyCoverageInfluenceTime = thisValue;
 
             }
@@ -304,7 +314,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
 
         for (int i_item = 0; i_item < n_items; ++i_item) {
 
-            if(name == "stationWeight"){
+            if(name == "station_weight"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationWeight[thisId] = thisValue;
@@ -313,7 +323,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationWeight[name] = thisValue;
                 }
 
-            }else if(name == "stationMaxSlewtime"){
+            }else if(name == "station_max_slew_time"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMaxSlewtime[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -322,7 +332,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMaxSlewtime[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "stationMinSlewDistance"){
+            }else if(name == "station_max_slew_time"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMinSlewDistance[thisId] = thisValue;
@@ -331,7 +341,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMinSlewDistance[name] = thisValue;
                 }
 
-            }else if(name == "stationMaxSlewDistance"){
+            }else if(name == "station_max_slew_distance"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMaxSlewDistance[thisId] = thisValue;
@@ -340,7 +350,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMaxSlewDistance[name] = thisValue;
                 }
 
-            }else if(name == "stationMaxWait"){
+            }else if(name == "station_max_wait_time"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMaxWait[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -349,7 +359,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMaxWait[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "stationMinElevation"){
+            }else if(name == "station_min_elevation"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMinElevation[thisId] = thisValue;
@@ -358,7 +368,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMinElevation[name] = thisValue;
                 }
 
-            }else if(name == "stationMaxNumberOfScans"){
+            }else if(name == "station_max_number_of_scans"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMaxNumberOfScans[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -367,7 +377,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMaxNumberOfScans[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "stationMaxScan"){
+            }else if(name == "station_max_scan_time"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -376,7 +386,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "stationMinScan"){
+            }else if(name == "station_min_scan_time"){
                 if (stationGroups_.find(name) != stationGroups_.end()) {
                     for (const auto &thisId: stationGroups_[name]) {
                         allPara[c].stationMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -385,7 +395,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].stationMinScan[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "sourceWeight"){
+            }else if(name == "source_weight"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceWeight[thisId] = thisValue;
@@ -394,7 +404,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceWeight[name] = thisValue;
                 }
 
-            }else if(name == "sourceMinNumberOfStations"){
+            }else if(name == "source_min_number_of_stations"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinNumberOfStations[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -403,7 +413,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinNumberOfStations[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "sourceMinFlux"){
+            }else if(name == "source_min_flux"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinFlux[thisId] = thisValue;
@@ -412,7 +422,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinFlux[name] = thisValue;
                 }
 
-            }else if(name == "sourceMaxNumberOfScans"){
+            }else if(name == "source_max_number_of_scans"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMaxNumberOfScans[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -421,7 +431,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMaxNumberOfScans[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "sourceMinElevation"){
+            }else if(name == "source_min_elevation"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinElevation[thisId] = thisValue;
@@ -430,7 +440,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinElevation[name] = thisValue;
                 }
 
-            }else if(name == "sourceMinSunDistance"){
+            }else if(name == "source_min_sun_distance"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinSunDistance[thisId] = thisValue;
@@ -439,7 +449,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinSunDistance[name] = thisValue;
                 }
 
-            }else if(name == "sourceMaxScan"){
+            }else if(name == "source_max_scan_time"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -448,7 +458,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "sourceMinScan"){
+            }else if(name == "source_min_scan_time"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -457,7 +467,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinScan[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "sourceMinRepeat"){
+            }else if(name == "source_min_repeat_time"){
                 if (sourceGroups_.find(name) != sourceGroups_.end()) {
                     for (const auto &thisId: sourceGroups_[name]) {
                         allPara[c].sourceMinRepeat[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -466,7 +476,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].sourceMinRepeat[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "baselineWeight"){
+            }else if(name == "baseline_weight"){
                 if (baselineGroups_.find(name) != baselineGroups_.end()) {
                     for (const auto &thisId: baselineGroups_[name]) {
                         allPara[c].baselineWeight[thisId] = thisValue;
@@ -475,7 +485,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].baselineWeight[name] = thisValue;
                 }
 
-            }else if(name == "baselineMaxScan"){
+            }else if(name == "baseline_max_scan_time"){
                 if (baselineGroups_.find(name) != baselineGroups_.end()) {
                     for (const auto &thisId: baselineGroups_[name]) {
                         allPara[c].baselineMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -484,7 +494,7 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                     allPara[c].baselineMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
                 }
 
-            }else if(name == "baselineMinScan"){
+            }else if(name == "baseline_min_scan_time"){
                 if (baselineGroups_.find(name) != baselineGroups_.end()) {
                     for (const auto &thisId: baselineGroups_[name]) {
                         allPara[c].baselineMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
@@ -545,7 +555,7 @@ boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
         boost::property_tree::ptree pt_tmp;
         for (const auto &v:values) {
             boost::property_tree::ptree value;
-            value.add(name + ".value", values);
+            value.add(name + ".value", v);
             pt_tmp.add_child(name + ".value", value.get_child(name + ".value"));
         }
         pt_tmp.add(name + ".<xmlattr>.member", member);
