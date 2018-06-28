@@ -60,7 +60,9 @@ set(SOURCE_FILES
         HorizonMask_step.cpp HorizonMask_step.h
         HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h
         Subnetting.h
-        util.h util.cpp)
+        util.h util.cpp
+        Network.cpp Network.h
+        Observation.cpp Observation.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

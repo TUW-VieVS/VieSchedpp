@@ -19,11 +19,10 @@ unsigned long VieVS::SkyCoverage::nextId = 0;
 
 double SkyCoverage::maxInfluenceTime = 3600;
 double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
-double SkyCoverage::maxTwinTelecopeDistance = 0;
 SkyCoverage::Interpolation SkyCoverage::interpolationDistance = Interpolation::linear;
 SkyCoverage::Interpolation SkyCoverage::interpolationTime = Interpolation::linear;
 
-SkyCoverage::SkyCoverage(const vector<int> &staids): VieVS_Object(nextId++), nStations_{staids.size()}, staids_{staids}{
+SkyCoverage::SkyCoverage(): VieVS_Object(nextId++){
 }
 
 double SkyCoverage::calcScore(const vector<PointingVector> &pvs,

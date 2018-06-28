@@ -32,9 +32,8 @@
 #include "HorizonMask_step.h"
 
 #include "Constants.h"
-#include "Station.h"
+#include "Network.h"
 #include "Source.h"
-#include "SkyCoverage.h"
 #include "AstronomicalParameters.h"
 #include "LookupTable.h"
 #include "WeightFactors.h"
@@ -108,13 +107,6 @@ namespace VieVS {
          */
         explicit Initializer(const std::string &path);
 
-//        Initializer(Initializer&&) = default;
-//        Initializer& operator=(Initializer&&) = default;
-//
-//        Initializer(const Initializer&);
-//        Initializer& operator=(const Initializer&) = delete;
-//
-//        virtual ~Initializer() = default;
 
         const boost::property_tree::ptree &getXml() const {
             return xml_;
@@ -135,6 +127,13 @@ namespace VieVS {
         void createStations(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
+         * @brief initializes all stations with settings from .xml file
+         */
+        void initializeStations() noexcept;
+
+        void initializeBaselines() noexcept;
+
+        /**
          * @brief creates all possible sources from sked catalogs
          *
          * @param headerLog outstream to log file
@@ -142,18 +141,9 @@ namespace VieVS {
         void createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
-         * @brief creates all sky Coverage objects
+         * @brief initializes all sources with settings from .xml file
          */
-        void createSkyCoverages(std::ofstream &headerLog) noexcept;
-
-        /**
-         * @brief displays a short summary of created stations and sources.
-         *
-         * This is only for debugging purpose and usually unused
-         *
-         * @param headerLog outstream to log file
-         */
-        void displaySummary(std::ofstream &headerLog) noexcept;
+        void initializeSources() noexcept;
 
         /**
          * @brief initializes general block in .xml file
@@ -162,15 +152,6 @@ namespace VieVS {
          */
         void initializeGeneral(std::ofstream &headerLog) noexcept;
 
-        /**
-         * @brief initializes all stations with settings from .xml file
-         */
-        void initializeStations() noexcept;
-
-        /**
-         * @brief initializes all sources with settings from .xml file
-         */
-        void initializeSources() noexcept;
 
         void initializeAstronomicalParameteres() noexcept ;
 
@@ -185,11 +166,6 @@ namespace VieVS {
          * @brief inintializes the sky Coverage lookup table
          */
         void initializeSkyCoverages() noexcept;
-
-        /**
-         * @brief initialzeBaselines
-         */
-        void initializeBaselines() noexcept;
 
         /**
          * @brief reads the observing mode information from xml file
@@ -240,12 +216,15 @@ namespace VieVS {
         static unsigned long nextId;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
-        std::vector<Station> stations_; ///< all created stations
         std::vector<Source> sources_; ///< all created sources
-        std::vector<SkyCoverage> skyCoverages_; ///< all created sky coverage objects
+        Network network_;
 
         Parameters parameters_; ///< parameters
         PRECALC preCalculated_; ///< pre calculated values
+
+        std::unordered_map<std::string, std::vector<std::string>> staGroups_;
+        std::unordered_map<std::string, std::vector<std::string>> srcGroups_;
+        std::unordered_map<std::string, std::vector<std::string>> blGroups_;
 
 
         /**
@@ -299,7 +278,7 @@ namespace VieVS {
          * @param groups all defined groups
          * @param parentPARA previously used parameters which are are use as template
          */
-        void baselineSetup(std::vector<std::vector<std::vector<Baseline::Event> > > &events,
+        void baselineSetup(std::vector<std::vector<Baseline::Event> > &events,
                            const boost::property_tree::ptree &tree,
                            const std::unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
                            const std::unordered_map<std::string, std::vector<std::string> > &groups,
@@ -307,6 +286,12 @@ namespace VieVS {
 
         unsigned int minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start,
                                     unsigned int end);
+
+        std::vector<unsigned long> getMembers(const std::string &name, const std::vector<Station> &stations);
+
+        std::vector<unsigned long> getMembers(const std::string &name, const std::vector<Baseline> &baselines);
+
+        std::vector<unsigned long> getMembers(const std::string &name, const std::vector<Source> &sources);
     };
 }
 #endif /* INITIALIZER_H */

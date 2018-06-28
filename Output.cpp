@@ -11,10 +11,12 @@ using namespace VieVS;
 
 Output::Output() = default;
 
-Output::Output(Scheduler &sched, std::string path, int version) : xml_{sched.xml_}, version_{version},
-                                   stations_{std::move(sched.stations_)}, sources_{std::move(sched.sources_)},
-                                   skyCoverages_{std::move(sched.skyCoverages_)}, scans_{std::move(sched.scans_)},
-                                   path_{std::move(path)} {
+Output::Output(Scheduler &sched, std::string path, int version) : xml_{sched.xml_},
+                                                                  version_{version},
+                                                                  network_{std::move(sched.network_)},
+                                                                  sources_{std::move(sched.sources_)},
+                                                                  scans_{std::move(sched.scans_)},
+                                                                  path_{std::move(path)} {
 
 }
 
@@ -100,16 +102,16 @@ void  Output::displayGeneralStatistics(ofstream &out) {
 }
 
 void Output::displayBaselineStatistics(ofstream &out) {
-    unsigned long nsta = stations_.size();
+    unsigned long nsta = network_.getNSta();
     int n_bl = 0;
     vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
     for (const auto&any:scans_){
-        int this_n_bl = static_cast<int>(any.getNBl());
+        int this_n_bl = static_cast<int>(any.getNObs());
         n_bl += this_n_bl;
 
         for (int i = 0; i < this_n_bl; ++i) {
-            unsigned long staid1 = any.getBaseline(i).getStaid1();
-            unsigned long staid2 = any.getBaseline(i).getStaid2();
+            unsigned long staid1 = any.getObservation(i).getStaid1();
+            unsigned long staid2 = any.getObservation(i).getStaid2();
             if(staid1>staid2){
                 swap(staid1,staid2);
             }
@@ -127,8 +129,8 @@ void Output::displayBaselineStatistics(ofstream &out) {
 
 
     out << boost::format("| %8s |") % "STATIONS";
-    for (int i = 0; i < nsta; ++i) {
-        out << boost::format(" %8s ") % stations_[i].getName();
+    for (const auto &any:network_.getStations()) {
+        out << boost::format(" %8s ") % any.getName();
     }
     out << "|";
     out << boost::format(" %8s ") % "TOTAL";
@@ -143,7 +145,7 @@ void Output::displayBaselineStatistics(ofstream &out) {
 
     for (int i = 0; i < nsta; ++i) {
         unsigned long counter = 0;
-        out << boost::format("| %8s |") % stations_[i].getName();
+        out << boost::format("| %8s |") % network_.getStation(i).getName();
         for (int j = 0; j < nsta; ++j) {
             if (j<i+1){
                 out << "          ";
@@ -178,14 +180,14 @@ void Output::displayStationStatistics(ofstream &out) {
            " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
     out << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
            "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
-    for (const auto &thisStation : stations_) {
+    for (const auto &thisStation : network_.getStations()) {
         out << boost::format("| %8s|") % thisStation.getName();
         const Station::Statistics &stat = thisStation.getStatistics();
         const auto& time_sta = stat.scanStartTimes;
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
         for (int j = 0; j < 96; ++j) {
-            int c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
+            long c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
                 return k>=timeStart && k<timeEnd ;
             });
             if(c==0){
@@ -196,11 +198,6 @@ void Output::displayStationStatistics(ofstream &out) {
                 out << "X";
             }
 
-//            if(any_of(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
-//                out << "x";
-//            }else{
-//                out << " ";
-//            }
             timeEnd += 900;
             timeStart += 900;
         }
@@ -215,7 +212,7 @@ void Output::displayStationStatistics(ofstream &out) {
 void Output::displaySourceStatistics(ofstream &out) {
     out << "number of available sources:   " << sources_.size() << "\n";
 
-    int number = count_if(sources_.begin(), sources_.end(), [](const Source &any){
+    long number = count_if(sources_.begin(), sources_.end(), [](const Source &any){
         return any.getNTotalScans() > 0;
     });
 
@@ -241,7 +238,7 @@ void Output::displaySourceStatistics(ofstream &out) {
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
         for (int j = 0; j < 96; ++j) {
-            int c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
+            long c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
                 return k>=timeStart && k<timeEnd ;
             });
             if(c==0){
@@ -269,13 +266,13 @@ void Output::displaySourceStatistics(ofstream &out) {
 }
 
 void Output::displayNstaStatistics(std::ofstream &out) {
-    int nsta = stations_.size();
+    unsigned long nsta = network_.getNSta();
     vector<int> nstas(nsta+1,0);
     for(const auto &scan:scans_){
         ++nstas[scan.getNSta()];
     }
 
-    int sum = scans_.size();
+    unsigned long sum = scans_.size();
 
     out << "number of scans per number of participating stations:\n";
     for(int i=2; i<=nsta; ++i){
@@ -287,25 +284,25 @@ void Output::displayNstaStatistics(std::ofstream &out) {
 
 
 void Output::displayScanDurationStatistics(ofstream &out) {
-    unsigned long nsta = stations_.size();
+    unsigned long nsta = network_.getNSta();
     out << "required scan durations:\n";
     vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
     vector< unsigned int> maxScanDurations;
 
     for(const auto&any: scans_){
-        unsigned long nbl = any.getNBl();
+        unsigned long nbl = any.getNObs();
         maxScanDurations.push_back(any.getTimes().getObservingTime());
 
         for (int i = 0; i < nbl; ++i) {
-            const Baseline &bl = any.getBaseline(i);
-            unsigned long staid1 = bl.getStaid1();
-            unsigned long staid2 = bl.getStaid2();
-            unsigned int bl_duration = bl.getScanDuration();
+            const Observation &obs = any.getObservation(i);
+            unsigned long staid1 = obs.getStaid1();
+            unsigned long staid2 = obs.getStaid2();
+            unsigned int obs_duration = obs.getObservingTime();
 
             if(staid1<staid2){
                 swap(staid1,staid2);
             }
-            bl_durations[staid1][staid2].push_back(bl_duration);
+            bl_durations[staid1][staid2].push_back(obs_duration);
         }
     }
 
@@ -347,7 +344,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     out << "|-------------------|-----------------------------------------------------------------|\n";
 
     {
-        int n = maxScanDurations.size() - 1;
+        int n = static_cast<int>(maxScanDurations.size() - 1);
         sort(maxScanDurations.begin(),maxScanDurations.end());
         out << boost::format("|        ALL        | ");
         out << boost::format("%4d   ") % maxScanDurations[0];
@@ -365,15 +362,15 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
     out << "|-------------------|-----------------------------------------------------------------|\n";
 
-    for (int i = 1; i < nsta; ++i) {
-        for (int j = 0; j < i; ++j) {
+    for (unsigned long i = 1; i < nsta; ++i) {
+        for (unsigned long j = 0; j < i; ++j) {
             vector<unsigned int>& this_duration = bl_durations[i][j];
             if(this_duration.empty()){
                 continue;
             }
             int n = (int) this_duration.size()-1;
             sort(this_duration.begin(),this_duration.end());
-            out << boost::format("| %8s-%8s | ") % stations_[i].getName() % stations_[j].getName();
+            out << boost::format("| %17s | ") % network_.getBaseline(i,j).getName();
             out << boost::format("%4d   ") % this_duration[0];
             out << boost::format("%4d   ") % this_duration[n * 0.1];
             out << boost::format("%4d   ") % this_duration[n / 2];
@@ -393,7 +390,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
 void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
-    auto nstaTotal = static_cast<int>(stations_.size());
+    unsigned long nstaTotal = network_.getNSta();
 
     ofstream << ".------------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
@@ -402,8 +399,8 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     ofstream << "----------.\n";
 
     ofstream << "|                 |";
-    for (int i = 0; i < nstaTotal; ++i) {
-        ofstream << boost::format(" %8s ") % stations_[i].getName();
+    for (const auto &station: network_.getStations()) {
+        ofstream << boost::format(" %8s ") % station.getName();
     }
     ofstream << "|\n";
 
@@ -414,35 +411,35 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     ofstream << "----------|\n";
 
     ofstream << "| % obs. time:    |";
-    for (const auto &station:stations_) {
+    for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalObservingTime;
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
     ofstream << "|\n";
 
     ofstream << "| % preob time:   |";
-    for (const auto &station:stations_) {
+    for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalPreobTime;
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
     ofstream << "|\n";
 
     ofstream << "| % slew time:    |";
-    for (const auto &station:stations_) {
+    for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalSlewTime;
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
     ofstream << "|\n";
 
     ofstream << "| % idle time:    |";
-    for (const auto &station:stations_) {
+    for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalIdleTime;
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
     ofstream << "|\n";
 
     ofstream << "| % field system: |";
-    for (const auto &station:stations_) {
+    for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalFieldSystemTime;
         ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
@@ -499,15 +496,15 @@ void Output::writeNGS() {
     unsigned long counter = 1;
 
     for (const auto &any: scans_) {
-        for (int i = 0; i < any.getNBl(); ++i) {
-            const Baseline &bl = any.getBaseline(i);
-            string sta1 = stations_[bl.getStaid1()].getName();
-            string sta2 = stations_[bl.getStaid2()].getName();
+        for (int i = 0; i < any.getNObs(); ++i) {
+            const Observation &obs = any.getObservation(i);
+            string sta1 = network_.getStation(obs.getStaid1()).getName();
+            string sta2 = network_.getStation(obs.getStaid1()).getName();
             if (sta1 > sta2) {
                 swap(sta1, sta2);
             }
-            string src = sources_[bl.getSrcid()].getName();
-            unsigned int time = bl.getStartTime();
+            string src = sources_[obs.getSrcid()].getName();
+            unsigned int time = obs.getStartTime();
 
             boost::posix_time::ptime tmp = TimeSystem::internalTime2PosixTime(time);
             int year = tmp.date().year();
@@ -564,8 +561,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     }
 
     Vex vex(path_+fileName);
-    vex.writeVex(stations_,sources_,scans_,skdCatalogReader,xml_);
-
+    vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
@@ -582,7 +578,7 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     }
 
     Skd skd(path_+fileName);
-    skd.writeSkd(stations_,sources_,scans_,skdCatalogReader,xml_);
+    skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
 
 
@@ -672,13 +668,13 @@ void Output::writeStatisticsPerSourceGroup() {
         vector<vector<unsigned long> > scanNsta(nsrc);
         vector<vector<unsigned long> > scanNbl(nsrc);
         vector<vector<char> > flag(nsrc);
-        vector<vector<unsigned int> > scanTimePerStation(nsrc,vector<unsigned int>(stations_.size(),0));
+        vector<vector<unsigned int> > scanTimePerStation(nsrc,vector<unsigned int>(network_.getNSta(),0));
 
         for(const auto &scan:scans_){
             unsigned long srcid = scan.getSourceId();
             scanTime[srcid].push_back(scan.getPointingVector(0).getTime());
             scanNsta[srcid].push_back(scan.getNSta());
-            scanNbl[srcid].push_back(scan.getNBl());
+            scanNbl[srcid].push_back(scan.getNObs());
             switch (scan.getType()){
                 case Scan::ScanType::fillin:{
                     flag[srcid].push_back('*');
@@ -743,7 +739,7 @@ void Output::writeStatisticsPerSourceGroup() {
                 continue;
             }
             vector<int> nscansPerGroup(nMaxScans+1,0);
-            vector<unsigned int> groupScanTimePerStation(stations_.size(),0);
+            vector<unsigned int> groupScanTimePerStation(network_.getNSta(),0);
             int sumTotalScans = 0;
             int sumScans = 0;
             int sumFillinModeScans = 0;
@@ -778,7 +774,7 @@ void Output::writeStatisticsPerSourceGroup() {
                     sumFillinModeScans += nscansFillin;
                     sumCalibratorScans += nscansCalibrator;
 
-                    for(int i=0; i<stations_.size(); ++i){
+                    for(int i=0; i<network_.getNSta(); ++i){
                         groupScanTimePerStation[i] += scanTimePerStation[srcid][i];
                     }
 
@@ -830,16 +826,16 @@ void Output::writeStatisticsPerSourceGroup() {
         of << "   # fillin mode scans: " << xxxfiScans  <<"\n";
         of << "   # calibrator scans:  " << xxxcalScans <<"\n";
 
-        vector<unsigned int> xxxstps(stations_.size(),0);
+        vector<unsigned int> xxxstps(network_.getNSta(),0);
         for(const auto &stps: scanTimePerStation){
-            for(int i=0; i<stations_.size(); ++i){
+            for(int i=0; i<network_.getNSta(); ++i){
                 xxxstps[i]+=stps[i];
             }
         }
         of << "* \n";
         of << "observing time per station:\n";
-        for (int i=0; i<stations_.size(); ++i){
-            const string name = stations_[i].getName();
+        for (int i=0; i<network_.getNSta(); ++i){
+            const string name = network_.getStation(i).getName();
             unsigned int seconds = xxxstps[i];
             double percent = (static_cast<double>(seconds)/ static_cast<double>(TimeSystem::duration))*100;
             of << boost::format("    %8s: %8d [s]  (%5.1f [%%])\n") %name %seconds %percent;
@@ -876,8 +872,8 @@ void Output::writeStatisticsPerSourceGroup() {
 
             of << "* \n";
             of << "observing time per station:\n";
-            for (int i=0; i<stations_.size(); ++i){
-                const string name = stations_[i].getName();
+            for (int i=0; i<network_.getNSta(); ++i){
+                const string name = network_.getStation(i).getName();
                 unsigned int seconds = srcGrpStationScanTime[grpName][i];
                 double percent = (static_cast<double>(seconds)/ static_cast<double>(TimeSystem::duration))*100;
                 of << boost::format("    %8s: %8d [s]  (%5.1f [%%])\n") %name %seconds %percent;
@@ -911,7 +907,7 @@ unordered_map<string, vector<string> > Output::readGroups(boost::property_tree::
     switch(type){
         case GroupType::source:{
             std::vector<std::string> members;
-            for(const auto&any:sources_){
+            for(const auto&any : sources_){
                 members.push_back(any.getName());
             }
             groups["__all__"] = members;
@@ -919,7 +915,7 @@ unordered_map<string, vector<string> > Output::readGroups(boost::property_tree::
         }
         case GroupType::station:{
             std::vector<std::string> members;
-            for(const auto&any:stations_){
+            for(const auto&any : network_.getStations()){
                 members.push_back(any.getName());
             }
             groups["__all__"] = members;
@@ -927,10 +923,8 @@ unordered_map<string, vector<string> > Output::readGroups(boost::property_tree::
         }
         case GroupType::baseline:{
             std::vector<std::string> members;
-            for(int i = 0; i<stations_.size(); ++i){
-                for (int j = i+1; j<stations_.size(); ++j){
-                    members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
-                }
+            for(const auto&any : network_.getBaselines()){
+                members.push_back(any.getName());
             }
             groups["__all__"] = members;
             break;
@@ -953,19 +947,20 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
         unsigned int visible = 0;
 
         bool requiredStationNotVisible = false;
-        for(unsigned long staid = 0; staid<stations_.size(); ++staid){
+        for(unsigned long staid = 0; staid<network_.getNSta(); ++staid){
 
             if(find(ignSta.begin(),ignSta.end(),staid) != ignSta.end()){
                 continue;
             }
 
+            const Station &thisSta = network_.getStation(staid);
             PointingVector p(staid,source.getId());
             p.setTime(t);
 
-            stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
+            thisSta.calcAzEl(source, p, Station::AzelModel::simple);
 
             // check if source is up from station
-            bool flag = stations_[staid].isVisible(p, source.getPARA().minElevation);
+            bool flag = thisSta.isVisible(p, source.getPARA().minElevation);
             if(flag){
                 ++visible;
             }else{
@@ -1075,7 +1070,7 @@ void Output::writeOperationsNotes() {
     of << ".---------------------.\n";
     of << "| scheduled stations: |\n";
     of << "|---------------------|\n";
-    for (const auto &any:stations_){
+    for (const auto &any:network_.getStations()){
         of << boost::format("| %-8s     |  %2s  |\n") %any.getName() %any.getAlternativeName();
     }
     of << "'---------------------'\n\n";
@@ -1095,12 +1090,12 @@ void Output::writeOperationsNotes() {
         of << "Scans:\n";
         for(unsigned long i=0; i<3; ++i){
             const auto &thisScan = scans_[i];
-            thisScan.output(i,stations_,sources_[thisScan.getSourceId()],of);
+            thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
         }
         of << "...\n";
         for(unsigned long i= scans_.size() - 3; i < scans_.size(); ++i){
             const auto &thisScan = scans_[i];
-            thisScan.output(i,stations_,sources_[thisScan.getSourceId()],of);
+            thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
         }
     }
 
@@ -1123,8 +1118,8 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
     int n_single = 0;
     int n_subnetting = 0;
     int n_bl = 0;
-    vector<unsigned int> nscan_sta(stations_.size(),0);
-    vector<unsigned int> nbl_sta(stations_.size(),0);
+    vector<unsigned int> nscan_sta(network_.getNSta(),0);
+    vector<unsigned int> nobs_sta(network_.getNSta(),0);
     vector<unsigned int> nscan_src(sources_.size(),0);
 
     for (const auto&any:scans_){
@@ -1156,16 +1151,16 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
                 break;
             }
         }
-        n_bl += any.getNBl();
+        n_bl += any.getNObs();
         for (int ista = 0; ista < any.getNSta(); ++ista) {
             const PointingVector& pv =  any.getPointingVector(ista);
             unsigned long id = pv.getStaid();
             ++nscan_sta[id];
         }
-        for (int ibl = 0; ibl < any.getNBl(); ++ibl){
-            const Baseline &bl = any.getBaseline(ibl);
-            ++nbl_sta[bl.getStaid1()];
-            ++nbl_sta[bl.getStaid2()];
+        for (int ibl = 0; ibl < any.getNObs(); ++ibl){
+            const Observation &obs = any.getObservation(ibl);
+            ++nobs_sta[obs.getStaid1()];
+            ++nobs_sta[obs.getStaid2()];
         }
         unsigned long id = any.getSourceId();
         ++nscan_src[id];
@@ -1180,12 +1175,12 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
     oString.append(std::to_string(n_fillin)).append(",");
     oString.append(std::to_string(n_calibrator)).append(",");
     oString.append(std::to_string(n_bl)).append(",");
-    oString.append(std::to_string(stations_.size())).append(",");
-    for (int i = 0; i < stations_.size(); ++i) {
+    oString.append(std::to_string(network_.getNSta())).append(",");
+    for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nscan_sta[i])).append(",");
     }
-    for (int i = 0; i < stations_.size(); ++i) {
-        oString.append(std::to_string(nbl_sta[i])).append(",");
+    for (int i = 0; i < network_.getNSta(); ++i) {
+        oString.append(std::to_string(nobs_sta[i])).append(",");
     }
     oString.append(std::to_string(n_src)).append(",\n");
 

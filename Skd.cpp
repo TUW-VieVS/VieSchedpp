@@ -12,7 +12,7 @@ Skd::Skd(const string &file): VieVS_Object(nextId++) {
     of = ofstream(file);
 }
 
-void Skd::writeSkd(const std::vector<Station>& stations,
+void Skd::writeSkd(const Network &network,
                    const std::vector<Source>& sources,
                    const std::vector<Scan> & scans,
                    const SkdCatalogReader &skdCatalogReader, 
@@ -39,25 +39,25 @@ void Skd::writeSkd(const std::vector<Station>& stations,
         of << notes << "*\n*";
     }
 
-    skd_PARAM(stations,xml,skdCatalogReader);
+    skd_PARAM(network, xml, skdCatalogReader);
     skd_OP();
     skd_DOWNTIME();
-    skd_MAJOR(stations,sources,xml,skdCatalogReader);
+    skd_MAJOR(network.getStations(), sources,xml, skdCatalogReader);
     skd_MINOR();
     skd_ASTROMETRIC();
     skd_BROADBAND();
-    skd_CATALOG_USED(xml,skdCatalogReader);
-    skd_CODES(stations,skdCatalogReader);
-    skd_STATIONS(stations,skdCatalogReader);
-    skd_STATWT(stations);
-    skd_SOURCES(sources,skdCatalogReader);
+    skd_CATALOG_USED(xml, skdCatalogReader);
+    skd_CODES(network.getStations(), skdCatalogReader);
+    skd_STATIONS(network.getStations(), skdCatalogReader);
+    skd_STATWT(network.getStations());
+    skd_SOURCES(sources, skdCatalogReader);
     skd_SRCWT(sources);
-    skd_SKED(stations,sources,scans,skdCatalogReader);
+    skd_SKED(network.getStations(), sources, scans, skdCatalogReader);
     skd_FLUX(sources,skdCatalogReader);
 }
 
 
-void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_tree::ptree &xml,
+void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,
                     const SkdCatalogReader &skdCatalogReader) {
     of << "*\n";
     of << "*=========================================================================================================\n";
@@ -78,16 +78,16 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     auto et = TimeSystem::endTime;
     of << boost::format("END %s \n") %TimeSystem::ptime2string_doy(et);
 
-    of << boost::format("%-12s %4d ") % "CALIBRATION" % stations[0].getWaittimes().preob;
-    of << boost::format("%-12s %4d ") % "CORSYNCH" % stations[0].getWaittimes().midob;
+    of << boost::format("%-12s %4d ") % "CALIBRATION" % network.getStation(0).getWaittimes().preob;
+    of << boost::format("%-12s %4d ") % "CORSYNCH" % network.getStation(0).getWaittimes().midob;
     of << boost::format("%-12s %4d\n") % "DURATION" % 196;
 
     of << boost::format("%-12s %4d ") % "EARLY" % 0;
     of << boost::format("%-12s %4d ") % "IDLE" % 0;
     of << boost::format("%-12s %4d\n") % "LOOKAHEAD" % 0;
 
-    of << boost::format("%-12s %4d ") % "MAXSCAN" % stations[0].getPARA().maxScan;
-    of << boost::format("%-12s %4d ") % "MINSCAN" % stations[0].getPARA().minScan;
+    of << boost::format("%-12s %4d ") % "MAXSCAN" % network.getStation(0).getPARA().maxScan;
+    of << boost::format("%-12s %4d ") % "MINSCAN" % network.getStation(0).getPARA().minScan;
     of << boost::format("%-12s %4d\n") % "MINIMUM" % 0;
 
     of << boost::format("%-12s %4d ") % "MIDTP" % 0;
@@ -96,7 +96,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     of << boost::format("%-12s %4d\n") % "PARITY" % 0;
 
     of << boost::format("%-12s %4d ") % "SETUP" % 0;
-    of << boost::format("%-12s %4d ") % "SOURCE" % stations[0].getWaittimes().fieldSystem;
+    of << boost::format("%-12s %4d ") % "SOURCE" % network.getStation(0).getWaittimes().fieldSystem;
     of << boost::format("%-12s %4d ") % "TAPETM" % 0;
     of << boost::format("%-12s %4d\n") % "WIDTH" % 0;
 
@@ -112,7 +112,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
 
     of << "FREQUENCY   SX PREOB      PREOB  MIDOB     MIDOB  POSTOB     POSTOB\n";
 
-    of << boost::format("%-12s %4.1d\n") % "ELEVATION _" % (stations[0].getPARA().minElevation*rad2deg);
+    of << boost::format("%-12s %4.1d\n") % "ELEVATION _" % (network.getStation(0).getPARA().minElevation*rad2deg);
 
     of << "TAPE_MOTION _ START&STOP\n";
 
@@ -120,7 +120,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
 
     int counter = 0;
-    for (const auto &any:stations) {
+    for (const auto &any:network.getStations()) {
         const string &staName = any.getName();
         vector<string> tmp = ant.at(staName);
         string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + staName;
@@ -142,7 +142,7 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     }
 
     counter = 0;
-    for (const auto &any:stations) {
+    for (const auto &any:network.getStations()) {
         const string &staName = any.getName();
 
         if (counter == 0) {
@@ -160,30 +160,30 @@ void Skd::skd_PARAM(const std::vector<Station>& stations, const boost::property_
     }
 
     counter = 0;
-    for (int i = 0; i < stations.size(); ++i) {
-        const Station &sta1 = stations[i];
-        for (int j = i + 1; j < stations.size(); ++j) {
-            const Station &sta2 = stations[j];
+    for (unsigned long staid1 = 0; staid1 < network.getNSta(); ++staid1) {
+        const Station &sta1 = network.getStation(staid1);
+        for (unsigned long staid2 = staid1 + 1; staid2 < network.getNSta(); ++staid2) {
+            const Station &sta2 = network.getStation(staid2);
 
             if (counter == 0) {
                 of << "SNR ";
             }
-            double minSNR_X = Baseline::PARA.minSNR.at("X")[i][j];
-            if (stations[i].getPARA().minSNR.at("X") > minSNR_X) {
-                minSNR_X = stations[i].getPARA().minSNR.at("X");
+            double minSNR_X = network.getBaseline(staid1,staid2).getParameters().minSNR.at("X");
+            if (sta1.getPARA().minSNR.at("X") > minSNR_X) {
+                minSNR_X = sta1.getPARA().minSNR.at("X");
             }
-            if (stations[j].getPARA().minSNR.at("X") > minSNR_X) {
-                minSNR_X = stations[j].getPARA().minSNR.at("X");
+            if (sta2.getPARA().minSNR.at("X") > minSNR_X) {
+                minSNR_X = sta2.getPARA().minSNR.at("X");
             }
             if (counter == 0) {
                 of << "SNR ";
             }
-            double minSNR_S = Baseline::PARA.minSNR.at("S")[i][j];
-            if (stations[i].getPARA().minSNR.at("S") > minSNR_S) {
-                minSNR_S = stations[i].getPARA().minSNR.at("S");
+            double minSNR_S = network.getBaseline(staid1,staid2).getParameters().minSNR.at("S");
+            if (sta1.getPARA().minSNR.at("S") > minSNR_S) {
+                minSNR_S = sta1.getPARA().minSNR.at("S");
             }
-            if (stations[j].getPARA().minSNR.at("S") > minSNR_S) {
-                minSNR_S = stations[j].getPARA().minSNR.at("S");
+            if (sta2.getPARA().minSNR.at("S") > minSNR_S) {
+                minSNR_S = sta2.getPARA().minSNR.at("S");
             }
             of << boost::format(" %2s-%2s X %4d %2s-%2s S %4d ") % sta1.getAlternativeName() % sta2.getAlternativeName()
                   % minSNR_X % sta1.getAlternativeName() % sta2.getAlternativeName() % minSNR_S;

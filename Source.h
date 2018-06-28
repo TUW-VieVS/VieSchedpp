@@ -90,7 +90,7 @@ namespace VieVS{
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
             std::vector<unsigned long> ignoreStations; ///< list of all stations ids which should be ignored
-            std::vector<std::pair<unsigned long, unsigned long>> ignoreBaselines; ///< list of all baseline ids which should be ignored
+            std::vector<unsigned long> ignoreBaselines; ///< list of all baseline ids which should be ignored
             std::vector<unsigned long> requiredStations; ///< list of station ids which are required for a scan to this source
 
             /**
@@ -152,22 +152,22 @@ namespace VieVS{
 
                 if (!ignoreStations.empty()) {
                     of << "    ignoreStations:";
-                    for (int ignoreStation : ignoreStations) {
+                    for (unsigned long ignoreStation : ignoreStations) {
                         of << " " << ignoreStation;
                     }
                     of << "\n";
                 }
                 if (!requiredStations.empty()) {
                     of << "    requiredStations:";
-                    for (int requiredStation : requiredStations) {
+                    for (unsigned long requiredStation : requiredStations) {
                         of << " " << requiredStation;
                     }
                     of << "\n";
                 }
                 if (!ignoreBaselines.empty()) {
                     of << "    ignoreBaselines:";
-                    for (const auto &ignoreBaseline : ignoreBaselines) {
-                        of << " " << ignoreBaseline.first << "-" << ignoreBaseline.second;
+                    for (unsigned long ignoreBaseline : ignoreBaselines) {
+                        of << " " << ignoreBaseline;
                     }
                     of << "\n";
                 }
@@ -355,7 +355,7 @@ namespace VieVS{
          * @param dz baseline delta z
          * @return observed flux density per band
          */
-        double observedFlux(const std::string &band, double gmst, double dx, double dy, double dz) const noexcept;
+        double observedFlux(const std::string &band, double gmst, const std::vector<double> &dxyz) const noexcept;
 
         /**
          * @brief this function checks if it is time to change the parameters

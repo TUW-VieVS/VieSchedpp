@@ -55,9 +55,15 @@ void Station::Parameters::setParameters(const Station::Parameters &other) {
 Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna> sta_antenna,
                  std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
                  std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask):
-        VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++), antenna_{move(sta_antenna)},
-        cableWrap_{move(sta_cableWrap)}, position_{move(sta_position)}, equip_{move(sta_equip)}, mask_{move(sta_mask)},
-        skyCoverageId_{-1}, currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
+        VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++),
+        antenna_{move(sta_antenna)},
+        cableWrap_{move(sta_cableWrap)},
+        position_{move(sta_position)},
+        equip_{move(sta_equip)},
+        mask_{move(sta_mask)},
+        skyCoverageId_{-1},
+        currentPositionVector_{PointingVector(nextId-1,numeric_limits<unsigned long>::max())},
+        parameters_{Parameters("empty")}{
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
@@ -220,10 +226,7 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     p.setTime(time);
 }
 
-void Station::preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
-                           const vector<double> &dz) noexcept {
-
-    preCalculated_ = make_shared<PreCalculated>(distance,dx,dy,dz);
+void Station::preCalc() noexcept {
 
     double lat = position_->getLat();
     double lon = position_->getLon();
@@ -277,7 +280,7 @@ boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVe
 void Station::update(unsigned long nbl, const PointingVector &end, bool addToStatistics) noexcept {
     if(addToStatistics){
         ++nScans_;
-        nBaselines_ += nbl;
+        nObs_ += nbl;
     }
     ++nTotalScans_;
     currentPositionVector_ = end;
@@ -308,7 +311,7 @@ bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
     return flag;
 }
 
-bool Station::checkForTagalongMode(unsigned int time) noexcept{
+bool Station::checkForTagalongMode(unsigned int time) const noexcept{
     bool tagalong = parameters_.tagalong;
     if(tagalong){
         if(nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time){
@@ -342,7 +345,7 @@ void Station::clearObservations() {
 
     nScans_ = 0;
     nTotalScans_ = 0;
-    nBaselines_ = 0;
+    nObs_ = 0;
 
     parameters_.firstScan=true;
 }

@@ -37,7 +37,6 @@ namespace VieVS{
 
         static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
         static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
-        static double maxTwinTelecopeDistance; ///< maximum distance between corresponding telescopes
         static Interpolation interpolationDistance;
         static Interpolation interpolationTime;
 
@@ -49,16 +48,7 @@ namespace VieVS{
          * @param skyCoverageInterval maximum influence time of a scan in seconds
          * @param id sky coverage id
          */
-        explicit SkyCoverage(const std::vector<int> &staids);
-
-        /**
-         * @brief getter for all station ids which belong to this sky coverage
-         *
-         * @return all station ids
-         */
-        const std::vector<int> &getStaids() const noexcept {
-            return staids_;
-        }
+        SkyCoverage();
 
         /**
          * @brief calculates the score of pointing vectors on the sky Coverage
@@ -116,9 +106,6 @@ namespace VieVS{
 
     private:
         static unsigned long nextId;
-
-        unsigned long nStations_; ///< number of stations that belong to this sky coverage
-        std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage
 
         std::vector<PointingVector> pointingVectors_; ///< all pointing vectors
     };

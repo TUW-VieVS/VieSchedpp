@@ -13,7 +13,7 @@
 
 /**
  * @namespace VieVS
- * @brief namespace VieVS is used for all "VieVS_*" and "VLBI_*" classes and files.
+ * @brief namespace VieVS is used for all defined classes.
  */
 
 /**

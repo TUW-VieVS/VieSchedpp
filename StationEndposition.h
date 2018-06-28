@@ -87,7 +87,7 @@ namespace VieVS {
                                [](const boost::optional<PointingVector> &p){ return p.is_initialized(); });
         }
 
-        std::set<int> getObservedSources() const noexcept;
+        std::set<unsigned long> getObservedSources() const noexcept;
 
         unsigned int getEarliestScanStart() const noexcept{
             return earliestScanStart_;

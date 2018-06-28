@@ -26,7 +26,7 @@ void Subcon::addScan(Scan &&scan) noexcept {
 }
 
 void
-Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &sources,
+Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
                        const boost::optional<StationEndposition> & endposition) noexcept {
 
     int i=0;
@@ -50,7 +50,7 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
             unsigned long staid = thisScan.getStationId(j);
 
             // current station
-            const Station &thisSta = stations[staid];
+            const Station &thisSta = network.getStation(j);
 
             // first scan means no field system, slew and preob time
             if (thisSta.getPARA().firstScan) {
@@ -121,12 +121,12 @@ Subcon::calcStartTimes(const vector<Station> &stations, const vector<Source> &so
     }
 }
 
-void Subcon::constructAllBaselines(const vector<Source> &sources) noexcept {
+void Subcon::constructAllBaselines(const Network &network, const vector<Source> &sources) noexcept {
     int i = 0;
     while (i < nSingleScans_) {
         Scan &thisScan = singleScans_[i];
         const Source &thisSource = sources[thisScan.getSourceId()];
-        bool scanValid = thisScan.constructBaselines(thisSource);
+        bool scanValid = thisScan.constructObservations(network, thisSource);
         if (scanValid) {
             ++i;
         } else {
@@ -136,7 +136,7 @@ void Subcon::constructAllBaselines(const vector<Source> &sources) noexcept {
     }
 }
 
-void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &sources) noexcept {
+void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) noexcept {
     int i = 0;
     while (i < nSingleScans_) {
 
@@ -147,12 +147,12 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
         bool scanValid_idle = true;
         vector<unsigned  int> maxIdleTimes;
 
-        int j = 0;
-        while (j < thisScan.getNSta()) {
-            unsigned long staid = thisScan.getStationId(j);
-            PointingVector &thisPointingVector = thisScan.referencePointingVector(j);
-            const Station &thisStation = stations[staid];
-            thisPointingVector.setTime(thisScan.getTimes().getObservingStart(j));
+        int staidx = 0;
+        while (staidx < thisScan.getNSta()) {
+            unsigned long staid = thisScan.getStationId(staidx);
+            PointingVector &thisPointingVector = thisScan.referencePointingVector(staidx);
+            const Station &thisStation = network.getStation(staid);
+            thisPointingVector.setTime(thisScan.getTimes().getObservingStart(staidx));
             thisStation.calcAzEl(thisSource, thisPointingVector);
             bool visible = thisStation.isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
@@ -165,14 +165,14 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
             }
 
             if (!visible || !slewtime.is_initialized()) {
-                scanValid_slew = thisScan.removeStation(j, sources[thisScan.getSourceId()]);
+                scanValid_slew = thisScan.removeStation(staidx, sources[thisScan.getSourceId()]);
                 if(!scanValid_slew){
                     break;
                 }
             } else {
                 maxIdleTimes.push_back(thisStation.getPARA().maxWait);
-                thisScan.referenceTime().updateSlewtime(j, *slewtime);
-                ++j;
+                thisScan.referenceTime().updateSlewtime(staidx, *slewtime);
+                ++staidx;
             }
         }
 
@@ -191,12 +191,11 @@ void Subcon::updateAzEl(const vector<Station> &stations, const vector<Source> &s
 }
 
 void
-Subcon::calcAllBaselineDurations(const vector<Station> &stations,
-                                      const vector<Source> &sources) noexcept {
+Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources) noexcept {
     int i = 0;
     while ( i < nSingleScans_ ) {
         Scan& thisScan = singleScans_[i];
-        bool scanValid = thisScan.calcBaselineScanDuration(stations, sources[thisScan.getSourceId()]);
+        bool scanValid = thisScan.calcObservationDuration(network, sources[thisScan.getSourceId()]);
         if (scanValid){
             ++i;
         } else {
@@ -206,7 +205,7 @@ Subcon::calcAllBaselineDurations(const vector<Station> &stations,
     }
 }
 
-void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<Source> &sources,
+void Subcon::calcAllScanDurations(const Network &network, const vector<Source> &sources,
                                   const boost::optional<StationEndposition> & endposition) noexcept {
     // loop through all scans
     int i=0;
@@ -217,7 +216,7 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<
         const Source &thisSource = sources[thisScan.getSourceId()];
 
         // calculate scan durations and check if they are valid
-        bool scanValid_scanDuration = thisScan.scanDuration(stations, thisSource);
+        bool scanValid_scanDuration = thisScan.scanDuration(network, thisSource);
 
         // check if there is enough time to slew to endposition under perfect circumstances
         bool scanValid_endposition = true;
@@ -225,29 +224,29 @@ void Subcon::calcAllScanDurations(const vector<Station> &stations, const vector<
             const auto &times = thisScan.getTimes();
 
             // loop through all stations
-            int j=0;
-            while(j<thisScan.getNSta()){
-                unsigned long staid = thisScan.getStationId(j);
-                const Station &thisSta = stations[staid];
+            int staidx=0;
+            while(staidx<thisScan.getNSta()){
+                unsigned long staid = thisScan.getStationId(staidx);
+                const Station &thisSta = network.getStation(staid);
 
                 const auto &waitTimes = thisSta.getWaittimes();
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time
-                int possibleEndpositionTime = times.getObservingEnd(j) + waitTimes.fieldSystem + waitTimes.preob + 5;
+                int possibleEndpositionTime = times.getObservingEnd(staidx) + waitTimes.fieldSystem + waitTimes.preob + 5;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
 
                 // check if there is enough time left
                 if(possibleEndpositionTime-5 > requiredEndpositionTime){
-                    scanValid_endposition = thisScan.removeStation(j, thisSource);
+                    scanValid_endposition = thisScan.removeStation(staidx, thisSource);
                     if(!scanValid_endposition){
                         break;      // scan is no longer valid
                     } else {
                         continue;   // station was removed, continue with next station (do not increment counter!)
                     }
                 }
-                ++j;
+                ++staidx;
             }
         }
 
@@ -366,17 +365,15 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
     }
 }
 
-void Subcon::generateScore(const vector<Station> &stations, const vector<Source> &sources,
-                           const vector<SkyCoverage> &skyCoverages) noexcept {
+void Subcon::generateScore(const Network &network, const vector<Source> &sources) noexcept {
 
-    precalcScore(stations, sources);
+    precalcScore(network, sources);
 //    unsigned long nmaxsta = stations.size();
     vector< vector <double> > firstScore(sources.size());
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
-        thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, skyCoverages,
-                           stations, thisSource, firstScorePerPv);
+        thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, network, thisSource, firstScorePerPv);
         firstScore[thisScan.getSourceId()] = std::move(firstScorePerPv);
     }
 
@@ -386,7 +383,7 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         unsigned long srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[thisScan1.getSourceId()];
         thisScan1.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                       skyCoverages, stations, thisSource1,
+                                       network, thisSource1,
                                        firstScore[srcid1]);
 //        double score1 = thisScan1.getScore();
 
@@ -394,16 +391,16 @@ void Subcon::generateScore(const vector<Station> &stations, const vector<Source>
         unsigned long srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[thisScan2.getSourceId()];
         thisScan2.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                       skyCoverages, stations, thisSource2,
+                                       network, thisSource2,
                                        firstScore[srcid2]);
 //        double score2 = thisScan2.getScore();
     }
 }
 
-void Subcon::generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
+void Subcon::generateScore(const Network &network, const std::vector<Source> &sources,
                            const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval) {
 
-    precalcScore(stations, sources);
+    precalcScore(network, sources);
 //    unsigned long nmaxsta = stations.size();
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
@@ -411,7 +408,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         unsigned int iTime = thisScan.getTimes().getObservingStart()/interval;
         const map<unsigned long, double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
-        thisScan.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource, hiscore);
+        thisScan.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource, hiscore);
     }
 
 
@@ -422,7 +419,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         unsigned int iTime1 = thisScan1.getTimes().getObservingStart()/interval;
         const map<unsigned long, double> &thisMap1 = hiscores[iTime1];
         double hiscore1 = thisMap1.at(thisSource1.getId());
-        thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource1, hiscore1);
+        thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource1, hiscore1);
 //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
@@ -431,7 +428,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
         unsigned int iTime2 = thisScan2.getTimes().getObservingStart()/interval;
         const map<unsigned long, double> &thisMap2 = hiscores[iTime2];
         double hiscore2 = thisMap2.at(thisSource2.getId());
-        thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, stations, thisSource2, hiscore2);
+        thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource2, hiscore2);
 //        double score2 = thisScan2.getScore();
     }
 
@@ -439,7 +436,7 @@ void Subcon::generateScore(const std::vector<Station> &stations, const std::vect
 
 
 void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
-                           const vector<Station> &stations, const std::vector<Source> &sources) {
+                           const Network &network, const std::vector<Source> &sources) {
 
     minMaxTime();
 //    auto nsta = static_cast<unsigned int>(stations.size());
@@ -449,7 +446,7 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
     while (i<nSingleScans_){
         Scan& thisScan = singleScans_[i];
 
-        bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+        bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
                                         maxRequiredTime_, sources[thisScan.getSourceId()]);
         if (valid){
             ++i;
@@ -463,13 +460,13 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
     while (i<subnettingScans_.size()){
         Scan &thisScan1 = subnettingScans_[i].first;
 
-        bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+        bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
                                           maxRequiredTime_, sources[thisScan1.getSourceId()]);
 //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].first;
 
-        bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, stations, minRequiredTime_,
+        bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
                                           maxRequiredTime_, sources[thisScan2.getSourceId()]);
 //        double score2 = thisScan2.getScore();
 
@@ -518,10 +515,10 @@ void Subcon::minMaxTime() noexcept {
 }
 
 
-void Subcon::average_station_score(const vector<Station> &stations) noexcept {
+void Subcon::average_station_score(const Network &network) noexcept {
 
     vector<double> staobs;
-    for (auto &thisStation:stations) {
+    for (auto &thisStation: network.getStations()) {
         staobs.push_back(thisStation.getNbls());
     }
 
@@ -574,17 +571,14 @@ void Subcon::average_source_score(const vector<Source> &sources) noexcept {
     asrcs_ = srcobs_score;
 }
 
-void Subcon::precalcScore(const vector<Station> &stations, const vector<Source> &sources) noexcept {
+void Subcon::precalcScore(const Network &network, const vector<Source> &sources) noexcept {
 
-    unsigned long nsta = stations.size();
-
-    nMaxBaselines_ = (nsta * (nsta - 1)) / 2;
     if (WeightFactors::weightDuration != 0) {
         minMaxTime();
     }
 
     if (WeightFactors::weightAverageStations != 0) {
-        average_station_score(stations);
+        average_station_score(network);
     }
 
     if (WeightFactors::weightAverageSources != 0) {
@@ -594,62 +588,61 @@ void Subcon::precalcScore(const vector<Station> &stations, const vector<Source> 
 }
 
 
-std::vector<Scan> Subcon::selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources) {
-    vector<Scan> bestScans;
+//std::vector<Scan> Subcon::selectBest(const Network &network, const std::vector<Source> &sources) {
+//    vector<Scan> bestScans;
+//
+//    if(nSingleScans_ == 0){
+//        return bestScans;
+//    }
+//    auto it_single = max_element(singleScans_.begin(),singleScans_.end(),[](const Scan &a, const Scan &b){
+//        return a.getScore() < b.getScore();
+//    });
+//
+//    long idxSingle = distance(singleScans_.begin(), it_single);
+//
+//    long idxSubnetting = -1;
+//    if(!subnettingScans_.empty()){
+//
+//        auto it_subnetting = max_element(subnettingScans_.begin(),subnettingScans_.end(),[]
+//                (const std::pair<Scan,Scan> &a, const std::pair<Scan,Scan> &b){
+//            return (a.first.getScore() + a.second.getScore()) < (b.first.getScore() + b.second.getScore());
+//        });
+//
+//        idxSubnetting = distance(subnettingScans_.begin(), it_subnetting);
+//    }
+//
+//
+//    if (idxSubnetting == -1 || singleScans_[idxSingle].getScore() >
+//                               subnettingScans_[idxSubnetting].first.getScore() +
+//                               subnettingScans_[idxSubnetting].second.getScore()) {
+//
+//        Scan bestScan = takeSingleSourceScan(static_cast<unsigned long>(idxSingle));
+//        bool valid = bestScan.rigorousUpdate(network,sources[bestScan.getSourceId()]);
+//        if(valid){
+//            bestScans.push_back(std::move(bestScan));
+//        }
+//
+//    } else {
+//
+//        pair<Scan, Scan> bestScan_pair = takeSubnettingScans(static_cast<unsigned long>(idxSubnetting));
+//
+//        Scan bestScan1 = bestScan_pair.first;
+//        bool valid1 = bestScan1.rigorousUpdate(network,sources[bestScan1.getSourceId()]);
+//        Scan bestScan2 = bestScan_pair.second;
+//        bool valid2 = bestScan2.rigorousUpdate(network,sources[bestScan2.getSourceId()]);
+//
+//        if(valid1 && valid2) {
+//            bestScans.push_back(std::move(bestScan1));
+//            bestScans.push_back(std::move(bestScan2));
+//        }
+//
+//    }
+//
+//    return bestScans;
+//}
 
-    if(nSingleScans_ == 0){
-        return bestScans;
-    }
-    auto it_single = max_element(singleScans_.begin(),singleScans_.end(),[](const Scan &a, const Scan &b){
-        return a.getScore() < b.getScore();
-    });
 
-    long idxSingle = distance(singleScans_.begin(), it_single);
-
-    long idxSubnetting = -1;
-    if(!subnettingScans_.empty()){
-
-        auto it_subnetting = max_element(subnettingScans_.begin(),subnettingScans_.end(),[]
-                (const std::pair<Scan,Scan> &a, const std::pair<Scan,Scan> &b){
-            return (a.first.getScore() + a.second.getScore()) < (b.first.getScore() + b.second.getScore());
-        });
-
-        idxSubnetting = distance(subnettingScans_.begin(), it_subnetting);
-    }
-
-
-    if (idxSubnetting == -1 || singleScans_[idxSingle].getScore() >
-                               subnettingScans_[idxSubnetting].first.getScore() +
-                               subnettingScans_[idxSubnetting].second.getScore()) {
-
-        Scan bestScan = takeSingleSourceScan(static_cast<unsigned long>(idxSingle));
-        bool valid = bestScan.rigorousUpdate(stations,sources[bestScan.getSourceId()]);
-        if(valid){
-            bestScans.push_back(std::move(bestScan));
-        }
-
-    } else {
-
-        pair<Scan, Scan> bestScan_pair = takeSubnettingScans(static_cast<unsigned long>(idxSubnetting));
-
-        Scan bestScan1 = bestScan_pair.first;
-        bool valid1 = bestScan1.rigorousUpdate(stations,sources[bestScan1.getSourceId()]);
-        Scan bestScan2 = bestScan_pair.second;
-        bool valid2 = bestScan2.rigorousUpdate(stations,sources[bestScan2.getSourceId()]);
-
-        if(valid1 && valid2) {
-            bestScans.push_back(std::move(bestScan1));
-            bestScans.push_back(std::move(bestScan2));
-        }
-
-    }
-
-    return bestScans;
-}
-
-
-vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<Source> &sources,
-                                const vector<SkyCoverage> &skyCoverages,
+vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
 
     vector<Scan> bestScans;
@@ -689,7 +682,7 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             Scan &thisScan = singleScans_[thisIdx];
             const Source &thisSource = sources[thisScan.getSourceId()];
             // make rigorous update
-            bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()], endposition);
+            bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()], endposition);
             if (!flag) {
                 scansToRemove.push_back(idx);
                 continue;
@@ -697,7 +690,7 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
 
             // calculate score again
             thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                               stations, thisSource, skyCoverages);
+                               network, thisSource);
 
             // push score in queue
             q.push(make_pair(thisScan.getScore(), idx));
@@ -713,12 +706,12 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             const Source &thisSource2 = sources[thisScan2.getSourceId()];
 
             // make rigorous update
-            bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()], endposition);
+            bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()], endposition);
             if (!flag1) {
                 scansToRemove.push_back(idx);
                 continue;
             }
-            bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()], endposition);
+            bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()], endposition);
             if (!flag2) {
                 scansToRemove.push_back(idx);
                 continue;
@@ -727,21 +720,16 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
             // check time differences between subnetting scans
             unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
             unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
-            unsigned int deltaTime;
-            if (maxTime1 > maxTime2) {
-                deltaTime = maxTime1 - maxTime2;
-            } else {
-                deltaTime = maxTime2 - maxTime1;
-            }
+            unsigned int deltaTime = util::absDiff(maxTime1,maxTime2);
             if (deltaTime > 600) {
                 continue;
             }
 
             // calculate score again
             thisScan1.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                stations, thisSource1, skyCoverages);
+                                network, thisSource1);
             thisScan2.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
-                                stations, thisSource2, skyCoverages);
+                                network, thisSource2);
 
             // push score in queue
             q.push(make_pair(thisScan1.getScore() + thisScan2.getScore(), idx));
@@ -786,8 +774,7 @@ vector<Scan> Subcon::selectBest(const vector<Station> &stations, const vector<So
 
 }
 
-boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stations, const vector<Source> &sources,
-                                                     const vector<SkyCoverage> &skyCoverages,
+boost::optional<unsigned long> Subcon::rigorousScore(const Network &network, const vector<Source> &sources,
                                                      const vector<double> &prevLowElevationScores,
                                                      const vector<double> &prevHighElevationScores) {
 
@@ -815,11 +802,11 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             unsigned long thisIdx = idx;
             Scan &thisScan = singleScans_[thisIdx];
             const Source &thisSource = sources[thisScan.getSourceId()];
-            bool flag = thisScan.rigorousUpdate(stations, sources[thisScan.getSourceId()]);
+            bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()]);
             if (!flag) {
                 continue;
             }
-            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
                                       minRequiredTime_, maxRequiredTime_, sources[thisScan.getSourceId()]);
             if (!flag) {
                 continue;
@@ -834,11 +821,11 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
 
             Scan &thisScan1 = thisScans.first;
             const Source &thisSource1 = sources[thisScan1.getSourceId()];
-            bool flag1 = thisScan1.rigorousUpdate(stations, sources[thisScan1.getSourceId()]);
+            bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()]);
             if (!flag1) {
                 continue;
             }
-            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
                                         minRequiredTime_, maxRequiredTime_, sources[thisScan1.getSourceId()]);
             if (!flag1) {
                 continue;
@@ -847,7 +834,7 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
 
             Scan &thisScan2 = thisScans.second;
             const Source &thisSource2 = sources[thisScan2.getSourceId()];
-            bool flag2 = thisScan2.rigorousUpdate(stations, sources[thisScan2.getSourceId()]);
+            bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()]);
             if (!flag2) {
                 continue;
             }
@@ -864,7 +851,7 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
                 continue;
             }
 
-            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, stations,
+            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, network,
                                         minRequiredTime_, maxRequiredTime_, sources[thisScan2.getSourceId()]);
             if (!flag2) {
                 continue;
@@ -880,7 +867,6 @@ boost::optional<unsigned long> Subcon::rigorousScore(const vector<Station> &stat
             return idx;
         }
     }
-
 }
 
 
@@ -902,8 +888,7 @@ void Subcon::clearSubnettingScans() {
     subnettingScans_.clear();
 }
 
-void
-Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations, const std::vector<Source> &sources,
+void Subcon::checkIfEnoughTimeToReachEndposition(const Network &network, const std::vector<Source> &sources,
                                             const boost::optional<StationEndposition> &endposition) {
 
     // if there is no required endposition do nothing
@@ -927,7 +912,7 @@ Subcon::checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations
 
             // current station id
             unsigned long staid = thisScan.getStationId(istation);
-            const Station &thisSta = stations[staid];
+            const Station &thisSta = network.getStation(staid);
             const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
 
             int possibleEndpositionTime;
@@ -978,8 +963,8 @@ void Subcon::changeType(Scan::ScanType type) {
     }
 }
 
-void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const vector<Station> &stations,
-                         const Source &thisSource, std::set<int>observedSources) {
+void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Network &network,
+                         const Source &thisSource, std::set<unsigned long>observedSources) {
     unsigned long srcid = thisSource.getId();
 
     if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
@@ -1011,8 +996,8 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const ve
     unsigned int visibleSta = 0;
     vector<PointingVector> pointingVectors;
     vector<unsigned int> endOfLastScans;
-    for (unsigned long staid=0; staid<stations.size(); ++staid){
-        const Station &thisSta = stations[staid];
+    for (const auto &thisSta: network.getStations()){
+        unsigned long staid = thisSta.getId();
 
         if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
             continue;

@@ -90,8 +90,8 @@ bool StationEndposition::checkStationPossibility(const std::vector<Station> &sta
     return count(stationPossible_.begin(),stationPossible_.end(), true) >= 2;
 }
 
-std::set<int> StationEndposition::getObservedSources() const noexcept {
-    set<int> obsSrc;
+std::set<unsigned long> StationEndposition::getObservedSources() const noexcept {
+    set<unsigned long> obsSrc;
 
     for (auto pv : finalPosition_) {
         if(pv.is_initialized()){

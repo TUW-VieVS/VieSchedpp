@@ -161,10 +161,10 @@ namespace VieVS {
          *
          * @param scanTimes all scan times in seconds
          */
-        void addScanTimes(const std::vector<unsigned int> &scanTimes) noexcept;
+        void addObservingTimes(const std::vector<unsigned int> &scanTimes) noexcept;
 
 
-        void addScanTimes(unsigned int scanTimes) noexcept;
+        void addObservingTime(unsigned int scanTimes) noexcept;
 
 
         void addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,

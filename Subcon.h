@@ -16,10 +16,9 @@
 #include <boost/optional.hpp>
 #include <numeric>
 
-#include "Station.h"
+#include "Network.h"
 #include "Source.h"
 #include "Scan.h"
-#include "SkyCoverage.h"
 #include "StationEndposition.h"
 #include "Subnetting.h"
 
@@ -107,7 +106,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcStartTimes(const std::vector<Station> &stations, const std::vector<Source> &sources,
+        void calcStartTimes(const Network &network, const std::vector<Source> &sources,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -115,7 +114,7 @@ namespace VieVS{
          *
          * @param sources list of all sources
          */
-        void constructAllBaselines(const std::vector<Source> &sources) noexcept;
+        void constructAllBaselines(const Network &network, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief updates all azimuths and elevations of all pointing vectors for each single source scan in this subcon
@@ -123,7 +122,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void updateAzEl(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+        void updateAzEl(const Network &network, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief calculates all baseline scan duration for all single source scans in this subcon
@@ -132,7 +131,7 @@ namespace VieVS{
          * @param sources list of all sources
          */
         void
-        calcAllBaselineDurations(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+        calcAllBaselineDurations(const Network &network, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -140,7 +139,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void calcAllScanDurations(const std::vector<Station> &stations, const std::vector<Source> &sources,
+        void calcAllScanDurations(const Network &network, const std::vector<Source> &sources,
                                   const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -157,16 +156,15 @@ namespace VieVS{
          * @param stations list of all stations
          * @param skyCoverages list of all sky coverages
          */
-        void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                           const std::vector<SkyCoverage> &skyCoverages) noexcept;
+        void generateScore(const Network &network, const std::vector<Source> &sources) noexcept;
 
         void generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
-                           const std::vector<Station> &stations, const std::vector<Source> &sources);
+                           const Network &network, const std::vector<Source> &sources);
 
-        void generateScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
+        void generateScore(const Network &network, const std::vector<Source> &sources,
                            const std::vector<std::map<unsigned long,double>> &hiscores, unsigned int interval);
 
-        void checkIfEnoughTimeToReachEndposition(const std::vector<Station> &stations,
+        void checkIfEnoughTimeToReachEndposition(const Network & network,
                                                  const std::vector<Source> &sources,
                                                  const boost::optional<StationEndposition> &endposition = boost::none);
 
@@ -180,7 +178,7 @@ namespace VieVS{
          *
          * @param stations list of all stations
          */
-        void average_station_score(const std::vector<Station> &stations) noexcept;
+        void average_station_score(const Network &network) noexcept;
 
         /**
          * @brief calculate the score for averaging out each source
@@ -189,7 +187,7 @@ namespace VieVS{
         void average_source_score(const std::vector<Source> &sources) noexcept;
 
 
-        std::vector<Scan> selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources);
+//        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources);
         /**
          * @brief rigorousely updates the best scans untill the best one is found
          *
@@ -200,8 +198,7 @@ namespace VieVS{
          * @param prevHighElevationScores optinal argument if you have a calibrator block scan - previouse high elevation scores
          * @return index of best scan
          */
-        std::vector<Scan> selectBest(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                                     const std::vector<SkyCoverage> &skyCoverages,
+        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
 
@@ -214,18 +211,17 @@ namespace VieVS{
         void clearSubnettingScans();
 
 
-        boost::optional<unsigned long> rigorousScore(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                                                 const std::vector<SkyCoverage> &skyCoverages,
-                                                 const std::vector<double> &prevLowElevationScores,
-                                                 const std::vector<double> &prevHighElevationScores);
+        boost::optional<unsigned long> rigorousScore(const Network &network, const std::vector<Source> &sources,
+                                                     const std::vector<double> &prevLowElevationScores,
+                                                     const std::vector<double> &prevHighElevationScores);
 
         void calcCalibratorScanDuration(const std::vector<Station> &stations, const std::vector<Source> &sources);
 
 
         void changeType(Scan::ScanType type);
 
-        void visibleScan(unsigned int currentTime, Scan::ScanType type, const std::vector<Station> &stations,
-                         const Source &thisSource, std::set<int>observedSources = std::set<int>());
+        void visibleScan(unsigned int currentTime, Scan::ScanType type, const Network &network,
+                         const Source &thisSource, std::set<unsigned long>observedSources = std::set<unsigned long>());
 
     private:
         static unsigned long nextId;
@@ -249,7 +245,7 @@ namespace VieVS{
          * @param stations list of all stations
          * @param sources list of all sources
          */
-        void precalcScore(const std::vector<Station> &stations, const std::vector<Source> &sources) noexcept;
+        void precalcScore(const Network &network, const std::vector<Source> &sources) noexcept;
 
     };
 }

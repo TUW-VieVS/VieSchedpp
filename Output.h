@@ -88,9 +88,8 @@ namespace VieVS{
 
         std::string path_;
         int version_; ///< number of this schedule
-        std::vector<Station> stations_; ///< all stations
+        Network network_;
         std::vector<Source> sources_; ///< all sources
-        std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages
         std::vector<Scan> scans_; ///< all scans in schedule
 
         /**
