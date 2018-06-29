@@ -232,7 +232,6 @@ namespace VieVS{
         unsigned long nSubnettingScans_; ///< number of subnetting scans
         std::vector<std::pair<Scan, Scan> > subnettingScans_; ///< all subnetting scans
 
-        unsigned long nMaxBaselines_; ///< maximum possible number of baselines
         unsigned int minRequiredTime_; ///< minimum time required for a scan
         unsigned int maxRequiredTime_; ///< maximum time required for a scan
         std::vector<double> astas_; ///< average station score for each station

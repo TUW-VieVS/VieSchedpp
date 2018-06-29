@@ -14,6 +14,7 @@
 #include <boost/format.hpp>
 #include "Constants.h"
 #include "VieVS_Object.h"
+#include "sofa.h"
 
 namespace VieVS{
     /**
@@ -98,6 +99,14 @@ namespace VieVS{
          */
         friend std::ostream &operator<<(std::ostream &out, const Position &position) noexcept;
 
+        void geodetic2Local(double g2l[3][3]){
+            g2l = g2l_;
+        }
+
+        const std::vector<std::vector<double>> getGeodetic2Local() const{
+            return g2l_2;
+        }
+
     private:
         static unsigned long nextId;
 
@@ -107,6 +116,11 @@ namespace VieVS{
         double lat_; ///< latitude in radians
         double lon_; ///< longitude in radians
         double h_; ///< height in meters
+
+        double g2l_[3][3]; ///< geocentric to local transformation matrix
+
+        std::vector<std::vector<double>> g2l_2; ///< geocentric to local transformation matrix
+
     };
 }
 #endif /* POSITION_H */

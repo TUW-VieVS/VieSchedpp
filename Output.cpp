@@ -305,7 +305,9 @@ void Output::displayScanDurationStatistics(ofstream &out) {
             bl_durations[staid1][staid2].push_back(obs_duration);
         }
     }
-
+    if(maxScanDurations.empty()){
+        return;
+    }
     unsigned int maxMax = *max_element(maxScanDurations.begin(),maxScanDurations.end());
     maxMax = maxMax/10*10+10;
     unsigned int cache_size = (1+maxMax/100)*10;

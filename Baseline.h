@@ -44,7 +44,7 @@ namespace VieVS{
             explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
             void setParameters(const Parameters &other);
 
-            bool ignore = true;
+            bool ignore = false;
             double weight = 1;
             unsigned int minScan = 30;
             unsigned int maxScan = 600;

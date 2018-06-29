@@ -107,7 +107,7 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
     of << boost::format("%-12s %4s ") % "KEEP_LOG" % "N";
     of << boost::format("%-12s %4s\n") % "VERBOSE" % "N";
 
-    of << boost::format("%-12s %4s ") % "PRFLAG" % "YYNN";
+    of << boost::format("%-12s %4s ") % "PRFLAG" % "YNNN";
     of << boost::format("%-12s %4s\n") % "SNR" % "AUTO";
 
     of << "FREQUENCY   SX PREOB      PREOB  MIDOB     MIDOB  POSTOB     POSTOB\n";
@@ -175,9 +175,6 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
             if (sta2.getPARA().minSNR.at("X") > minSNR_X) {
                 minSNR_X = sta2.getPARA().minSNR.at("X");
             }
-            if (counter == 0) {
-                of << "SNR ";
-            }
             double minSNR_S = network.getBaseline(staid1,staid2).getParameters().minSNR.at("S");
             if (sta1.getPARA().minSNR.at("S") > minSNR_S) {
                 minSNR_S = sta1.getPARA().minSNR.at("S");
@@ -185,7 +182,7 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
             if (sta2.getPARA().minSNR.at("S") > minSNR_S) {
                 minSNR_S = sta2.getPARA().minSNR.at("S");
             }
-            of << boost::format(" %2s-%2s X %4d %2s-%2s S %4d ") % sta1.getAlternativeName() % sta2.getAlternativeName()
+            of << boost::format(" %2s-%2s X %-4d %2s-%2s S %-4d ") % sta1.getAlternativeName() % sta2.getAlternativeName()
                   % minSNR_X % sta1.getAlternativeName() % sta2.getAlternativeName() % minSNR_S;
             ++counter;
             if (counter == 3) {

@@ -189,10 +189,13 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
 
 
-    //  source in local system
-    double g2l[3][3] = {{preCalculated_->g2l[0][0],preCalculated_->g2l[0][1],preCalculated_->g2l[0][2]},
-                        {preCalculated_->g2l[1][0],preCalculated_->g2l[1][1],preCalculated_->g2l[1][2]},
-                        {preCalculated_->g2l[2][0],preCalculated_->g2l[2][1],preCalculated_->g2l[2][2]},};
+    //  station in local system
+    const auto & g2l2 = position_->getGeodetic2Local();
+
+    double g2l[3][3] = {{g2l2[0][0], g2l2[0][1], g2l2[0][2]},
+                        {g2l2[1][0], g2l2[1][1], g2l2[1][2]},
+                        {g2l2[2][0], g2l2[2][1], g2l2[2][2]}};
+//    position_->geodetic2Local(g2l);
 
     double lq[3] = {};
     iauRxp(g2l,rq,lq);
@@ -224,36 +227,6 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     // end of hadc part
 
     p.setTime(time);
-}
-
-void Station::preCalc() noexcept {
-
-    double lat = position_->getLat();
-    double lon = position_->getLon();
-
-    double theta = DPI/2-lat;
-
-    const double cosTheta = cos(theta);
-    const double sinTheta = sin(theta);
-    double roty[3][3] = {{cosTheta, 0,  -sinTheta},
-                         {0,        -1, 0},
-                         {sinTheta, 0,  cosTheta} };
-
-    const double cosLon = cos(lon);
-    const double sinLon = sin(lon);
-    double rotz[3][3] = {{cosLon,  sinLon, 0},
-                         {-sinLon, cosLon, 0},
-                         {0,       0,      1}};
-
-    double g2l[3][3] = {};
-
-    iauRxr(roty,rotz,g2l);
-
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            preCalculated_->g2l[i][j] = g2l[i][j];
-        }
-    }
 }
 
 double Station::distance(const Station &other) const noexcept {

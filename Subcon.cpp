@@ -50,7 +50,7 @@ Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
             unsigned long staid = thisScan.getStationId(j);
 
             // current station
-            const Station &thisSta = network.getStation(j);
+            const Station &thisSta = network.getStation(staid);
 
             // first scan means no field system, slew and preob time
             if (thisSta.getPARA().firstScan) {

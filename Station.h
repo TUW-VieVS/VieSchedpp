@@ -151,13 +151,6 @@ namespace VieVS{
         };
 
 
-        /**
-         * @brief pre calculated values
-         */
-        struct PreCalculated{
-            std::vector<std::vector<double> > g2l; ///< geocentric to local transformation matrix
-        };
-
         struct Statistics{
             std::vector<unsigned int> scanStartTimes{};
             int totalObservingTime{0};
@@ -372,16 +365,6 @@ namespace VieVS{
         friend std::ostream &operator<<(std::ostream &out, const Station &sta) noexcept;
 
         /**
-         * pre calculates some parameters
-         *
-         * @param distance distance vector between stations
-         * @param dx delta x between stations
-         * @param dy delta y between stations
-         * @param dz delta z between stations
-         */
-        void preCalc() noexcept;
-
-        /**
          * @brief sets all upcoming events
          * @param EVENTS all upcoming events
          */
@@ -445,7 +428,6 @@ namespace VieVS{
         std::shared_ptr<Equipment> equip_; ///< station equipment
         std::shared_ptr<HorizonMask> mask_; ///< station horizon mask
         std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
-        std::shared_ptr<PreCalculated> preCalculated_; ///< precalculated values
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
         Statistics statistics_;

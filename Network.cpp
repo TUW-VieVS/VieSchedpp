@@ -21,8 +21,6 @@ void Network::addStation(Station station) {
         station.setId(stations_.size());
     }
 
-    nsta_ = stations_.size();
-    nbls_ = (nsta_*(nsta_-1))/2;
 
     bool skyCoveragFound = false;
     for(const auto &any: stations_){
@@ -53,6 +51,9 @@ void Network::addStation(Station station) {
 
     // finally push back station
     stations_.push_back(std::move(station));
+
+    nsta_ = stations_.size();
+    nbls_ = (nsta_*(nsta_-1))/2;
 
 }
 

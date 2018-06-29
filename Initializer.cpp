@@ -928,9 +928,9 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (newPARA.tagalong.is_initialized()) {
                 combinedPARA.tagalong = *newPARA.tagalong;
             }
-            if (newPARA.firstScan.is_initialized()) {
-                combinedPARA.firstScan = *newPARA.firstScan;
-            }
+//            if (newPARA.firstScan.is_initialized()) {
+//                combinedPARA.firstScan = *newPARA.firstScan;
+//            }
 
             if (newPARA.weight.is_initialized()) {
                 combinedPARA.weight = *newPARA.weight;
