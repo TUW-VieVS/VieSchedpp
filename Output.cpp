@@ -453,6 +453,24 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     }
     ofstream << "----------'\n\n";
 
+    ofstream << "|   #scans     :  |";
+    for (const auto &station: network_.getStations()) {
+        ofstream << boost::format(" %8d ") % (station.getNTotalScans());
+    }
+    ofstream << "|\n";
+
+    ofstream << "|   scans per h:  |";
+    for (const auto &station: network_.getStations()) {
+        ofstream << boost::format(" %8.2f ") % (static_cast<double>(station.getNTotalScans())/static_cast<double>(TimeSystem::duration/3600.)*100);
+    }
+    ofstream << "|\n";
+
+    ofstream << "'------------------";
+    for (int i = 0; i < nstaTotal-1; ++i) {
+        ofstream << "----------";
+    }
+    ofstream << "----------'\n\n";
+
 }
 
 void Output::displayAstronomicalParameters(std::ofstream &out) {
