@@ -1418,7 +1418,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
         } else if (paraName == "member") {
             string tmp = it.second.data();
             if (tmp == "__all__") {
-                for (const auto &any:sources_) {
+                for (const auto &any:network_.getBaselines()) {
                     members.push_back(any.getName());
                 }
             } else {
@@ -1469,9 +1469,34 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
     }
 
 
-    vector<string> srcNames;
-    for (const auto &any:sources_) {
-        srcNames.push_back(any.getName());
+    vector<string> blNames;
+    for (const auto &any: network_.getBaselines()) {
+        blNames.push_back(any.getName());
+    }
+
+    for (const auto &any:members) {
+
+        auto it = find(blNames.begin(), blNames.end(), any);
+        long id = distance(blNames.begin(), it);
+        auto &thisEvents = events[id];
+
+
+        Baseline::Event newEvent_start(start,softTransition,combinedPARA);
+
+        for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
+            if (iit->time > newEvent_start.time) {
+                thisEvents.insert(iit, newEvent_start);
+                break;
+            }
+        }
+
+        Baseline::Event newEvent_end(end,true,parentPARA);
+        for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
+            if (iit->time >= newEvent_end.time) {
+                thisEvents.insert(iit, newEvent_end);
+                break;
+            }
+        }
     }
 
     for (auto &it: tree) {
