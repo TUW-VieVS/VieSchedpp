@@ -1139,15 +1139,16 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
 
     for(int i=0; i<nsta_; ++i){
         const PointingVector &pv = pointingVectors_[i];
+        const PointingVector &pve = pointingVectorsEndtime_[i];
         const Station &thisSta = network.getStation(pv.getStaid());
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
-        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
+        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %9.4f el: %7.4f (id: %d and %d)\n")
               % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
                 times_.getObservingTime(i)
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingStart(i)))
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingEnd(i)))
-              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId();
+              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
     of << "*\n";
 }

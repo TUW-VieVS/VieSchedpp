@@ -268,8 +268,7 @@ void Scheduler::statistics(ofstream &log) {
     log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
     log << "number of observations:         " << nbl << "\n";
-    log << "considered observations:        " << 0 << "\n\n";
-
+    log << "considered observations:        " << Observation::numberOfCreatedObservations() << "\n\n";
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,

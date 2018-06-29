@@ -44,8 +44,9 @@ namespace VieVS{
             observingTime_ = observingTime;
         }
 
-
-
+        static unsigned long numberOfCreatedObservations() {
+            return nextId;
+        }
 
     private:
         static unsigned long nextId;
