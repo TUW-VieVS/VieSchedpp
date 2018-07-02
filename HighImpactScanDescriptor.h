@@ -34,12 +34,12 @@ namespace VieVS{
 
         std::vector<unsigned long> getStationIds() const;
 
-        void possibleHighImpactScans(unsigned int time, const std::vector<Station> &stations, const std::vector<Source> &sources);
+        void possibleHighImpactScans(unsigned int time, const Network &network, const std::vector<Source> &sources);
 
-        void updateHighImpactScans(const std::vector<Station> &stations, const std::vector<Source> &sources,
+        void updateHighImpactScans(const Network &network, const std::vector<Source> &sources,
                                    const boost::optional<Subnetting> &subnetting);
 
-        std::vector<Scan> highestImpactScans(const std::vector<Station> &stations, const std::vector<Source> &sources);
+        std::vector<Scan> highestImpactScans(const Network &network, const std::vector<Source> &sources);
 
         bool isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source);
 

@@ -16,8 +16,8 @@
 using namespace std;
 using namespace VieVS;
 
-unsigned int thread_local Scan::nScanSelections{0};
-Scan::ScanSequence thread_local Scan::scanSequence;
+unsigned int Scan::nScanSelections{0};
+Scan::ScanSequence Scan::scanSequence;
 unsigned long Scan::nextId = 0;
 
 
@@ -28,21 +28,22 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
     nsta_ = Scan::pointingVectors_.size();
     srcid_ = Scan::pointingVectors_.at(0).getSrcid();
     times_.setEndOfLastScan(endOfLastScan);
-    baselines_.reserve((nsta_ * (nsta_ - 1)) / 2);
+    observations_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
-Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Baseline> bl):
+Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs):
         VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
-        score_{0}, times_{move(times)}, baselines_{move(bl)}, constellation_{ScanConstellation::subnetting},
+        score_{0}, times_{move(times)}, observations_{move(obs)}, constellation_{ScanConstellation::subnetting},
         type_{ScanType::standard}{
 
     times_.giveNewId();
 
 }
 
-bool Scan::constructBaselines(const Source &source) noexcept {
-    baselines_.clear();
+bool Scan::constructObservations(const Network &network, const Source &source) noexcept {
+    observations_.clear();
     bool valid = false;
+    unsigned long srcid = source.getId();
 
     // loop over all pointingVectors
     for (int i=0; i<pointingVectors_.size(); ++i){
@@ -50,18 +51,18 @@ bool Scan::constructBaselines(const Source &source) noexcept {
 
             unsigned long staid1 = pointingVectors_[i].getStaid();
             unsigned long staid2 = pointingVectors_[j].getStaid();
+            unsigned long blid = network.getBaseline(staid1,staid2).getId();
 
             // check if Baseline is ignored
-            if(Baseline::PARA.ignore[staid1][staid2]){
+            if(network.getBaseline(staid1,staid2).getParameters().ignore){
                 continue;
             }
             // check if this source has to ignore this baseline
             if (!source.getPARA().ignoreBaselines.empty()) {
                 const auto &PARA = source.getPARA();
-                if (staid1 > staid2) {
-                    swap(staid1, staid2);
-                }
-                if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), make_pair(staid1, staid2)) !=
+                const Baseline &bl = network.getBaseline(staid1,staid2);
+                unsigned long blid = bl.getId();
+                if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), blid) !=
                     PARA.ignoreBaselines.end()) {
                     continue;
                 }
@@ -69,17 +70,9 @@ bool Scan::constructBaselines(const Source &source) noexcept {
             }
 
             // add new baseline
-            unsigned int startTime1 = times_.getObservingStart(i);
-            unsigned int startTime2 = times_.getObservingStart(j);
-            if (startTime1> startTime2){
-                baselines_.emplace_back(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
-                                        pointingVectors_[j].getStaid(), startTime1);
-                valid = true;
-            } else {
-                baselines_.emplace_back(pointingVectors_[i].getSrcid(), pointingVectors_[i].getStaid(),
-                                        pointingVectors_[j].getStaid(), startTime2);
-                valid = true;
-            }
+            unsigned int startTime = max({times_.getObservingStart(i), times_.getObservingStart(j)});
+            observations_.emplace_back(blid, staid1, staid2, srcid, startTime);
+            valid = true;
         }
     }
     return valid;
@@ -116,26 +109,26 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     }
 
     // remove all observations with this station
-    unsigned long nbl_before = baselines_.size();
+    unsigned long nbl_before = observations_.size();
     int i=0;
-    while (i<baselines_.size()){
-        if(baselines_[i].getStaid1()==staid || baselines_[i].getStaid2()==staid){
-            baselines_.erase(next(baselines_.begin(),i));
+    while (i<observations_.size()){
+        if(observations_[i].containsStation(staid)){
+            observations_.erase(next(observations_.begin(),i));
         } else {
             ++i;
         }
     }
     // check if there are any observations left
-    return !(nbl_before != 0 && baselines_.empty());
+    return !(nbl_before != 0 && observations_.empty());
 }
 
-bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
+bool Scan::removeObservation(int idx_bl, const Source &source) noexcept {
 
     // remove observation
-    unsigned long staid1 = baselines_[idx_bl].getStaid1();
-    unsigned long staid2 = baselines_[idx_bl].getStaid2();
-    baselines_.erase(next(baselines_.begin(),idx_bl));
-    if (baselines_.empty()) {
+    unsigned long staid1 = observations_[idx_bl].getStaid1();
+    unsigned long staid2 = observations_[idx_bl].getStaid2();
+    observations_.erase(next(observations_.begin(),idx_bl));
+    if (observations_.empty()) {
         return false;
     }
 
@@ -143,14 +136,11 @@ bool Scan::removeBaseline(int idx_bl, const Source &source) noexcept {
     bool scanValid = true;
     int counterStaid1 = 0;
     int counterStaid2 = 0;
-    for (const auto& any: baselines_) {
-        unsigned long thisStaid1 = any.getStaid1();
-        unsigned long thisStaid2 = any.getStaid2();
-
-        if(thisStaid1 == staid1 || thisStaid2 == staid1){
+    for (const auto& any: observations_) {
+        if(any.containsStation(staid1)){
             ++counterStaid1;
         }
-        if(thisStaid1 == staid2 || thisStaid2 == staid2){
+        if(any.containsStation(staid2)){
             ++counterStaid2;
         }
     }
@@ -210,15 +200,15 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
     return scan_valid;
 }
 
-bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Source &source) noexcept {
+bool Scan::calcObservationDuration(const Network &network, const Source &source) noexcept {
 
     // check if it is a calibrator scan and there is a fixed scan duration for calibrator scans
     if(type_ == ScanType::calibrator){
         if(CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds){
-            unsigned int maxScanDuration = CalibratorBlock::scanLength;
+            unsigned int maxObservingTime = CalibratorBlock::scanLength;
             // set baseline scan duration to fixed scan duration
-            for(auto &thisBaseline:baselines_){
-                thisBaseline.setScanDuration(maxScanDuration);
+            for(auto &thisObservation:observations_){
+                thisObservation.setObservingTime(maxObservingTime);
             }
             return true;
         }
@@ -227,43 +217,43 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
     // check if there is a fixed scan duration for this source
     boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
     if (fixedScanDuration.is_initialized()) {
-        unsigned int maxScanDuration = *fixedScanDuration;
+        unsigned int maxObservingTime = *fixedScanDuration;
         // set baseline scan duration to fixed scan duration
-        for(auto &thisBaseline:baselines_){
-            thisBaseline.setScanDuration(maxScanDuration);
+        for(auto &thisBaseline:observations_){
+            thisBaseline.setObservingTime(maxObservingTime);
         }
         return true;
     }
 
 
     // loop over all observed baselines
-    int ibl = 0;
-    while (ibl < baselines_.size()) {
-        Baseline& thisBaseline = baselines_[ibl];
+    int idxObs = 0;
+    while (idxObs < observations_.size()) {
+        auto &thisObservation = observations_[idxObs];
 
         // get station ids from this baseline
-        unsigned long staid1 = thisBaseline.getStaid1();
-        const Station &sta1 = stations[staid1];
-        unsigned long staid2 = thisBaseline.getStaid2();
-        const Station &sta2 = stations[staid2];
+        unsigned long staid1 = thisObservation.getStaid1();
+        const Station &sta1 = network.getStation(staid1);
+        unsigned long staid2 = thisObservation.getStaid2();
+        const Station &sta2 = network.getStation(staid2);
+        const Baseline &bl = network.getBaseline(staid1,staid2);
 
         // get baseline scan start time
-        unsigned int startTime = thisBaseline.getStartTime();
+        unsigned int startTime = thisObservation.getStartTime();
 
         // calculate greenwhich meridian sedirial time
         double date1 = 2400000.5;
         double date2 = TimeSystem::mjdStart + static_cast<double>(startTime) / 86400.0;
         double gmst = iauGmst82(date1, date2);
 
-        unsigned int maxScanDuration = 0;
+        unsigned int maxDuration = 0;
 
         // loop over each band
         bool flag_baselineRemoved = false;
         for (auto &band:ObservationMode::bands) {
 
             // calculate observed flux density for each band
-            double SEFD_src = source.observedFlux(band, gmst, stations[staid1].dx(staid2), stations[staid1].dy(staid2),
-                                                  stations[staid1].dz(staid2));
+            double SEFD_src = source.observedFlux(band, gmst, network.getDxyz(staid1,staid2));
 
             // calculate system equivalent flux density for each station
             double el1 = pointingVectors_[*findIdxOfStationId(staid1)].getEl();
@@ -274,16 +264,16 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
             // get minimum required SNR for each station, baseline and source
             double minSNR_sta1 = sta1.getPARA().minSNR.at(band);
             double minSNR_sta2 = sta2.getPARA().minSNR.at(band);
-            double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
+            double minSNR_bl = bl.getParameters().minSNR.at(band);
             double minSNR_src = source.getPARA().minSNR.at(band);
 
             // maximum required minSNR
             double maxminSNR = max({minSNR_src,minSNR_bl, minSNR_sta1, minSNR_sta2});
 
             // get maximum correlator synchronization time for
-            double maxCorSynch1 = stations[staid1].getWaittimes().midob;
-            double maxCorSynch2 = stations[staid2].getWaittimes().midob;
-            double maxCorSynch = max({maxCorSynch1,maxCorSynch2});
+            double maxCorSynch1 = sta1.getWaittimes().midob;
+            double maxCorSynch2 = sta2.getWaittimes().midob;
+            double maxCorSynch = max({maxCorSynch1, maxCorSynch2});
 
             // calc required baseline scan duration
             double anum = (1.75*maxminSNR / SEFD_src);
@@ -294,13 +284,13 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
             auto new_duration_uint = static_cast<unsigned int>(new_duration);
 
             // check if required baseline scan duration is within min and max scan times of baselines
-            unsigned int minScanBl = Baseline::PARA.minScan[staid1][staid2];
+            unsigned int minScanBl = bl.getParameters().minScan;
             if(new_duration_uint<minScanBl){
                 new_duration_uint = minScanBl;
             }
-            unsigned int maxScanBl = Baseline::PARA.maxScan[staid1][staid2];
+            unsigned int maxScanBl = bl.getParameters().maxScan;
             if(new_duration_uint>maxScanBl){
-                bool scanValid = removeBaseline(ibl, source);
+                bool scanValid = removeObservation(idxObs, source);
                 if(!scanValid){
                     return false;
                 }
@@ -308,28 +298,28 @@ bool Scan::calcBaselineScanDuration(const vector<Station> &stations, const Sourc
                 break;
             }
 
-            // change maxScanDuration if it is higher for this band
-            if (new_duration_uint > maxScanDuration) {
-                maxScanDuration = new_duration_uint;
+            // change maxDuration if it is higher for this band
+            if (new_duration_uint > maxDuration) {
+                maxDuration = new_duration_uint;
             }
         }
 
         // if you have not removed the baseline increment counter and set the baseline scan duration
         if(!flag_baselineRemoved){
-            ++ibl;
-            thisBaseline.setScanDuration(maxScanDuration);
+            ++idxObs;
+            thisObservation.setObservingTime(maxDuration);
         }
     }
 
     return true;
 }
 
-bool Scan::scanDuration(const vector<Station> &stations, const Source &source) noexcept {
+bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
 
     // check if it is a calibrator scan with a fixed scan duration
     if(type_ == ScanType::calibrator){
         if(CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds){
-            times_.addScanTimes(CalibratorBlock::scanLength);
+            times_.addObservingTime(CalibratorBlock::scanLength);
             return true;
         }
     }
@@ -337,7 +327,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
     // check if there is a fixed scan duration for this source
     boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
     if (fixedScanDuration.is_initialized()) {
-        times_.addScanTimes(*fixedScanDuration);
+        times_.addObservingTime(*fixedScanDuration);
         return true;
     }
 
@@ -346,8 +336,8 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
     vector<unsigned int> maxScanTimes(nsta_, source.getPARA().maxScan);
     for (int i = 0; i < nsta_; ++i) {
         unsigned long staid = pointingVectors_[i].getStaid();
-        unsigned int stationMinScanTime = stations[staid].getPARA().minScan;
-        unsigned int stationMaxScanTime = stations[staid].getPARA().maxScan;
+        unsigned int stationMinScanTime = network.getStation(staid).getPARA().minScan;
+        unsigned int stationMaxScanTime = network.getStation(staid).getPARA().maxScan;
 
         if(minscanTimes[i] < stationMinScanTime){
             minscanTimes[i] = stationMinScanTime;
@@ -370,18 +360,18 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
         scanTimes = minscanTimes;
 
         // loop through all baselines
-        for (auto &thisBaseline : baselines_) {
+        for (auto &thisObservation : observations_) {
 
             // get index of stations in this baseline
-            unsigned long staid1 = thisBaseline.getStaid1();
+            unsigned long staid1 = thisObservation.getStaid1();
             boost::optional<unsigned long> staidx1o = findIdxOfStationId(staid1);
             unsigned long staidx1 = *staidx1o;
-            unsigned long staid2 = thisBaseline.getStaid2();
+            unsigned long staid2 = thisObservation.getStaid2();
             boost::optional<unsigned long> staidx2o = findIdxOfStationId(staid2);
             unsigned long staidx2 = *staidx2o;
 
             // get scan duration of baseline
-            unsigned int duration = thisBaseline.getScanDuration();
+            unsigned int duration = thisObservation.getObservingTime();
 
             // if there is a higher required scan time update scanTimes
             if(scanTimes[staidx1]<duration){
@@ -430,7 +420,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
                 for(int i=0; i<maxIdx.size(); ++i){
                     int thisIdx = maxIdx[i];
                     unsigned long staid = pointingVectors_[thisIdx].getStaid();
-                    double thisMaxSEFD = stations[staid].getEquip().getMaxSEFD();
+                    double thisMaxSEFD = network.getStation(staid).getEquip().getMaxSEFD();
                     if (thisMaxSEFD == maxSEFD) {
                         maxSEFDId.push_back(thisIdx);
                     }
@@ -469,7 +459,7 @@ bool Scan::scanDuration(const vector<Station> &stations, const Source &source) n
 
     }while(!scanDurationsValid);
 
-    times_.addScanTimes(scanTimes);
+    times_.addObservingTimes(scanTimes);
     return true;
 }
 
@@ -492,7 +482,7 @@ vector<unsigned long> Scan::getStationIds() const noexcept {
 }
 
 double Scan::calcScore_numberOfObservations(unsigned long maxObs) const noexcept {
-    unsigned long nbl = baselines_.size();
+    unsigned long nbl = observations_.size();
     double thisScore = static_cast<double>(nbl) / static_cast<double>(maxObs);
     return thisScore;
 }
@@ -514,7 +504,7 @@ double Scan::calcScore_averageStations(const vector<double> &astas, unsigned lon
     double finalScore = 0;
 
     vector<unsigned long> bl_counter(nmaxsta);
-    for (auto &bl:baselines_) {
+    for (auto &bl:observations_) {
         ++bl_counter[bl.getStaid1()];
         ++bl_counter[bl.getStaid2()];
     }
@@ -529,7 +519,7 @@ double Scan::calcScore_averageStations(const vector<double> &astas, unsigned lon
 
 double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcept {
     unsigned long maxBl = (nsta_ * (nsta_ - 1)) / 2;
-    unsigned long nbl = baselines_.size();
+    unsigned long nbl = observations_.size();
     return asrcs[srcid_] * nbl / maxBl;
 }
 
@@ -542,45 +532,6 @@ double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) cons
         score = 1 - static_cast<double>(thisScanDuration - minTime) / static_cast<double>(maxTime - minTime);
     }
     return score;
-}
-
-double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
-                                        const vector<Station> &stations) const noexcept {
-
-    double score = 0;
-
-    for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, stations);
-        score += thisSore;
-    }
-    return score / nsta_;
-}
-
-
-double Scan::calcScore_skyCoverage(const vector<SkyCoverage> &skyCoverages,
-                                        const vector<Station> &stations,
-                                        vector<double> &firstScorePerPv) const noexcept {
-
-    double score = 0;
-
-    for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, stations, firstScorePerPv);
-        score += thisSore;
-    }
-    return score / nsta_;
-}
-
-double Scan::calcScore_skyCoverage_subcon(const vector<SkyCoverage> &skyCoverages,
-                                               const vector<Station> &stations,
-                                               const vector<double> &firstScorePerPv) const noexcept {
-
-    double score = 0;
-
-    for (const auto &skyCoverage : skyCoverages) {
-        double thisSore = skyCoverage.calcScore_subcon(pointingVectors_, stations, firstScorePerPv) ;
-        score += thisSore;
-    }
-    return score / nsta_;
 }
 
 double Scan::calcScore_lowElevation() {
@@ -602,7 +553,7 @@ double Scan::calcScore_lowElevation() {
 }
 
 
-bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
+bool Scan::rigorousUpdate(const Network &network, const Source &source,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
 
@@ -612,19 +563,19 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
         stationRemoved = false;
 
         // calc earliest possible slew end times for each station:
-        scanValid = rigorousSlewtime(stations, source);
+        scanValid = rigorousSlewtime(network, source);
         if(!scanValid){
             return scanValid;
         }
 
         // align start times to earliest possible one:
-        scanValid = rigorousScanStartTimeAlignment(stations, source);
+        scanValid = rigorousScanStartTimeAlignment(network, source);
         if(!scanValid){
             return scanValid;
         }
 
         // check if source is available during whole scan
-        scanValid = rigorousScanVisibility(stations, source, stationRemoved);
+        scanValid = rigorousScanVisibility(network, source, stationRemoved);
         if(!scanValid){
             return scanValid;
         }
@@ -633,7 +584,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
         }
 
         // check if end position can be reached
-        scanValid = rigorousScanCanReachEndposition(stations, source, endposition, stationRemoved);
+        scanValid = rigorousScanCanReachEndposition(network, source, endposition, stationRemoved);
         if(!scanValid){
             return scanValid;
         }
@@ -643,7 +594,7 @@ bool Scan::rigorousUpdate(const vector<Station> &stations, const Source &source,
     return true;
 }
 
-bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &source) noexcept {
+bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexcept {
 
     bool scanValid = true;
 
@@ -652,7 +603,7 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
     while (ista < nsta_) {
         PointingVector &pv = pointingVectors_[ista];
         unsigned int slewStart = times_.getSlewStart(ista);
-        const Station &thisStation = stations[pv.getStaid()];
+        const Station &thisStation = network.getStation(pv.getStaid());
 
         // old slew end time and new slew end time, required for iteration
         unsigned int oldSlewEnd = 0;
@@ -740,7 +691,7 @@ bool Scan::rigorousSlewtime(const std::vector<Station> &stations, const Source &
     return scanValid;
 }
 
-bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, const Source &source) noexcept{
+bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept{
     bool scanValid;
 
     // iteratively align start times
@@ -750,7 +701,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
 
         // align start times
         times_.alignStartTimes();
-        scanValid = constructBaselines(source);
+        scanValid = constructObservations(network, source);
         if (!scanValid) {
             return scanValid;
         }
@@ -759,7 +710,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
         }
 
         // calc baseline scan durations
-        scanValid = calcBaselineScanDuration(stations, source);
+        scanValid = calcObservationDuration(network, source);
         if (!scanValid) {
             return scanValid;
         }
@@ -768,7 +719,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
         }
 
         // calc scan durations
-        scanValid = scanDuration(stations, source);
+        scanValid = scanDuration(network, source);
         if (!scanValid) {
             return scanValid;
         }
@@ -778,7 +729,7 @@ bool Scan::rigorousScanStartTimeAlignment(const std::vector<Station> &stations, 
     return scanValid;
 }
 
-bool Scan::rigorousScanVisibility(const std::vector<Station> &stations, const Source &source, bool &stationRemoved) noexcept{
+bool Scan::rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept{
 
     pointingVectorsEndtime_.clear();
 
@@ -790,7 +741,7 @@ bool Scan::rigorousScanVisibility(const std::vector<Station> &stations, const So
         unsigned int scanStart = times_.getObservingStart(ista);
         unsigned int scanEnd = times_.getObservingEnd(ista);
         PointingVector &pv = pointingVectors_[ista];
-        const Station &thisStation = stations[pv.getStaid()];
+        const Station &thisStation = network.getStation(pv.getStaid());
 
         // create moving pointing vector which is used to check visibility during scan
         PointingVector moving_pv(pv.getStaid(), pv.getSrcid());
@@ -854,7 +805,7 @@ bool Scan::rigorousScanVisibility(const std::vector<Station> &stations, const So
     return true;
 }
 
-bool Scan::rigorousScanCanReachEndposition(const std::vector<Station> &stations, const Source &thisSource,
+bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source &thisSource,
                                            const boost::optional<StationEndposition> &endposition,
                                            bool &stationRemoved) {
     if(!endposition.is_initialized()){
@@ -867,7 +818,7 @@ bool Scan::rigorousScanCanReachEndposition(const std::vector<Station> &stations,
 
         // get station
         unsigned long staid = slewStart.getStaid();
-        const Station &thisSta = stations[staid];
+        const Station &thisSta = network.getStation(staid);
         const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
 
         // check if there is a required endposition
@@ -899,13 +850,14 @@ bool Scan::rigorousScanCanReachEndposition(const std::vector<Station> &stations,
 }
 
 
-void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end, const std::vector<Baseline> &baselines,
+void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
+                              const std::vector<Observation> &observations,
                               unsigned int slewtime, const Station &station) {
     pointingVectors_.push_back(pv_start);
     pointingVectorsEndtime_.push_back(pv_end);
     ++nsta_;
-    for(auto &any:baselines){
-        baselines_.push_back(any);
+    for(auto &any:observations){
+        observations_.push_back(any);
     }
     if(station.getPARA().firstScan){
         times_.addTagalongStation(pv_start, pv_end, 0, 0, 0, 0);
@@ -918,10 +870,10 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
 }
 
 double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                 unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                                 unsigned int minTime, unsigned int maxTime, const Network &network,
                                  const Source &source) {
-    unsigned long nmaxsta = stations.size();
-    unsigned long nmaxbl = nmaxsta * (nmaxsta - 1) / 2;
+    unsigned long nmaxsta = network.getNSta();
+    unsigned long nmaxbl = network.getNBls();
     double this_score = 0;
 
     double weight_numberOfObservations = WeightFactors::weightNumberOfObservations;
@@ -968,7 +920,7 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     return this_score;
 }
 
-double Scan::calcScore_secondPart(double this_score, const std::vector<Station> &stations, const Source &source) {
+double Scan::calcScore_secondPart(double this_score, const Network &network, const Source &source) {
     if (source.getPARA().tryToFocusIfObservedOnce) {
         unsigned int nscans = source.getNscans();
         if (nscans > 0) {
@@ -991,7 +943,7 @@ double Scan::calcScore_secondPart(double this_score, const std::vector<Station> 
 
     if(scanSequence.customScanSequence){
         if(nScanSelections != 0 && scanSequence.targetSources.find(scanSequence.moduloScanSelctions) != scanSequence.targetSources.end()){
-            const vector<int> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
+            const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
             if(find(target.begin(),target.end(),source.getId()) != target.end()){
                 this_score *= 100;
             }else{
@@ -1000,77 +952,73 @@ double Scan::calcScore_secondPart(double this_score, const std::vector<Station> 
         }
     }
 
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(network.getStations()) * weight_baselines(network.getBaselines());
 
     return this_score;
 }
 
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                     unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
-                     const Source &source, const std::vector<SkyCoverage> &skyCoverages) noexcept {
+                     unsigned int minTime, unsigned int maxTime, const Network &network,
+                     const Source &source) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
-
-
-    double weight_skyCoverage = WeightFactors::weightSkyCoverage;
-    if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(skyCoverages, stations) * weight_skyCoverage;
-    }
-
-    score_ = calcScore_secondPart(this_score,stations,source);
-}
-
-void Scan::calcScore(const std::vector<double> &astas,
-                     const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                     const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                     const Source &source,
-                     std::vector<double> &firstScorePerPV) noexcept {
-
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage;
+        this_score += network.calcScore_skyCoverage(pointingVectors_) * weight_skyCoverage;
     }
 
-    score_ = calcScore_secondPart(this_score,stations,source);
+    score_ = calcScore_secondPart(this_score,network,source);
 }
 
+void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
+                     unsigned int maxTime, const Network &network, const Source &source,
+                     unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
-void Scan::calcScore_subnetting(const std::vector<double> &astas,
-                                const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                                const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                                const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, stations, source);
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage_subcon(skyCoverages, stations, firstScorePerPV) * weight_skyCoverage * .5;
+        this_score += network.calcScore_skyCoverage(pointingVectors_,staids2skyCoverageScore) * weight_skyCoverage;
     }
 
-    score_ = calcScore_secondPart(this_score,stations,source);
+    score_ = calcScore_secondPart(this_score, network, source);
 }
 
-void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
-                     const Source &source, double hiscore) {
 
-    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), minTime, maxTime, stations, source);
+void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                                unsigned int minTime, unsigned int maxTime, const Network &network,
+                                const Source &source,
+                                const unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
+
+    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
+
+    double weight_skyCoverage = WeightFactors::weightSkyCoverage;
+    if (weight_skyCoverage != 0) {
+        this_score += network.calcScore_skyCoverage_subnetting(pointingVectors_,staids2skyCoverageScore)
+                      * weight_skyCoverage;
+    }
+
+    score_ = calcScore_secondPart(this_score, network, source);
+}
+
+void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
+                     double hiscore) {
+
+    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), minTime, maxTime, network, source);
 
 
-    score_ = calcScore_secondPart(this_score,stations,source)*hiscore;
+    score_ = calcScore_secondPart(this_score, network, source)*hiscore;
 
 }
 
 
 bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
-                     const vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                     const Network &network, unsigned int minRequiredTime, unsigned int maxRequiredTime,
                      const Source &source) {
-    unsigned long nmaxsta = stations.size();
-    unsigned long nmaxbl = nmaxsta * (nmaxsta - 1) / 2;
-
     double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
@@ -1124,19 +1072,18 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 
     double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime)*.1;
 
-    double scoreBaselines = static_cast<double>(baselines_.size())/ static_cast<double>(nmaxbl)*.5;
+    double scoreBaselines = static_cast<double>(observations_.size())/ static_cast<double>(network.getNBls())*.5;
 
     double this_score = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
 
-    this_score *= source.getPARA().weight * weight_stations(stations) * weight_baselines();
+    this_score *= source.getPARA().weight * weight_stations(network.getStations()) * weight_baselines(network.getBaselines());
 
     score_ = this_score;
     return true;
 }
 
 
-void
-Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, const Source &source,
+void Scan::output(unsigned long observed_scan_nr, const Network &network, const Source &source,
                   ofstream &of) const noexcept {
     string type;
     string type2;
@@ -1159,16 +1106,17 @@ Scan::output(unsigned long observed_scan_nr, const vector<Station> &stations, co
        % type % type2 %getId();
 
     for(int i=0; i<nsta_; ++i){
-        const auto &pv = pointingVectors_[i];
-        const auto &thisSta = stations[pv.getStaid()];
+        const PointingVector &pv = pointingVectors_[i];
+        const PointingVector &pve = pointingVectorsEndtime_[i];
+        const Station &thisSta = network.getStation(pv.getStaid());
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
-        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %8.4f el: %7.4f (id: %d)\n")
+        of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %9.4f el: %7.4f (id: %d and %d)\n")
               % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
                 times_.getObservingTime(i)
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingStart(i)))
               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingEnd(i)))
-              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId();
+              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
     of << "*\n";
 }
@@ -1178,7 +1126,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
     vector<PointingVector> pv;
     pv.reserve(ids.size());
     ScanTimes t = times_;
-    vector<Baseline> bl;
+    vector<Observation> obs;
 
     int counter = 0;
     // add all found pointing vectors to new pointing vector vector
@@ -1213,100 +1161,100 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
     }
 
     // move all observations whose stations were found to bl
-    for (const auto &baseline : baselines_) {
-        const Baseline &thisBl = baseline;
+    for (const auto &iobs : observations_) {
+        const Observation &thisBl = iobs;
         unsigned long staid1 = thisBl.getStaid1();
         unsigned long staid2 = thisBl.getStaid2();
 
         if (find(ids.begin(), ids.end(), staid1) != ids.end() &&
             find(ids.begin(), ids.end(), staid2) != ids.end()) {
-            bl.push_back(baseline);
+            obs.push_back(iobs);
         }
     }
-    if (bl.empty()) {
+    if (obs.empty()) {
         return boost::none;
     }
 
-    return Scan(move(pv), move(t), move(bl));
+    return Scan(move(pv), move(t), move(obs));
 }
 
 
-bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &source,
-                                   const std::vector<char> &unused,
-                                   const vector<PointingVector> &pv_final_position) {
-    int pv_id = 0;
-    while (pv_id < nsta_) {
-        const PointingVector fillinScanStart = pointingVectors_[pv_id];
-        unsigned long staid = fillinScanStart.getStaid();
-
-        // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
-        unsigned int endOfFillinScan = times_.getObservingEnd(pv_id);
-        const PointingVector &finalPosition = pv_final_position[staid];
-
-        if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
-
-            const Station &thisStation = stations[staid];
-
-            PointingVector fillinScanEnd(staid, srcid_);
-            if (pointingVectorsEndtime_.empty()) {
-                // create pointing vector at end of scan
-                fillinScanEnd.setTime(endOfFillinScan);
-
-                // calculate azimuth and elevation at end of scan
-                thisStation.calcAzEl(source, fillinScanEnd);
-
-                bool visible = thisStation.isVisible(fillinScanEnd, source.getPARA().minElevation);
-                if (!visible) {
-                    bool valid = removeStation(pv_id, source);
-                    if (!valid) {
-                        return false;
-                    }
-                    continue;
-                }
-
-                // unwrap azimuth and elevation at end of scan
-                thisStation.getCableWrap().calcUnwrappedAz(fillinScanStart, fillinScanEnd);
-            } else {
-                fillinScanEnd = pointingVectorsEndtime_[pv_id];
-            }
-
-            // calculate slewtime between end of scan and start of new scan (final position)
-            unsigned int slewTime = thisStation.getAntenna().slewTime(fillinScanEnd, finalPosition);
-
-            // check the available time
-            unsigned int pv_finalTime = finalPosition.getTime();
-            unsigned int availableTime;
-            if (pv_finalTime > endOfFillinScan) {
-                availableTime = pv_finalTime - endOfFillinScan;
-            } else {
-                availableTime = 0;
-            }
-
-            const Station::WaitTimes &wtimes = thisStation.getWaittimes();
-            int time_needed = slewTime + wtimes.fieldSystem + wtimes.preob;
-            if (time_needed > availableTime) {
-                bool valid = removeStation(pv_id, source);
-                if (!valid) {
-                    return false;
-                }
-                continue;
-            }
-
-        } else { // if station is not used in the following scans (this means we have no desired end pointing vector
-            // check if the end of the fillin scan if earlier as the required final position time
-            if (endOfFillinScan > finalPosition.getTime()) {
-                bool valid = removeStation(pv_id, source);
-                if (!valid) {
-                    return false;
-                }
-                continue;
-            }
-        }
-        //station is ok!
-        ++pv_id;
-    }
-    return true;
-}
+//bool Scan::possibleFillinScan(const vector<Station> &stations, const Source &source,
+//                                   const std::vector<char> &unused,
+//                                   const vector<PointingVector> &pv_final_position) {
+//    int pv_id = 0;
+//    while (pv_id < nsta_) {
+//        const PointingVector fillinScanStart = pointingVectors_[pv_id];
+//        unsigned long staid = fillinScanStart.getStaid();
+//
+//        // this is the endtime of the fillin scan, this means this is also the start time to slew to the next source
+//        unsigned int endOfFillinScan = times_.getObservingEnd(pv_id);
+//        const PointingVector &finalPosition = pv_final_position[staid];
+//
+//        if (!unused[staid]) { // unused station... this means we have an desired end pointing vector
+//
+//            const Station &thisStation = stations[staid];
+//
+//            PointingVector fillinScanEnd(staid, srcid_);
+//            if (pointingVectorsEndtime_.empty()) {
+//                // create pointing vector at end of scan
+//                fillinScanEnd.setTime(endOfFillinScan);
+//
+//                // calculate azimuth and elevation at end of scan
+//                thisStation.calcAzEl(source, fillinScanEnd);
+//
+//                bool visible = thisStation.isVisible(fillinScanEnd, source.getPARA().minElevation);
+//                if (!visible) {
+//                    bool valid = removeStation(pv_id, source);
+//                    if (!valid) {
+//                        return false;
+//                    }
+//                    continue;
+//                }
+//
+//                // unwrap azimuth and elevation at end of scan
+//                thisStation.getCableWrap().calcUnwrappedAz(fillinScanStart, fillinScanEnd);
+//            } else {
+//                fillinScanEnd = pointingVectorsEndtime_[pv_id];
+//            }
+//
+//            // calculate slewtime between end of scan and start of new scan (final position)
+//            unsigned int slewTime = thisStation.getAntenna().slewTime(fillinScanEnd, finalPosition);
+//
+//            // check the available time
+//            unsigned int pv_finalTime = finalPosition.getTime();
+//            unsigned int availableTime;
+//            if (pv_finalTime > endOfFillinScan) {
+//                availableTime = pv_finalTime - endOfFillinScan;
+//            } else {
+//                availableTime = 0;
+//            }
+//
+//            const Station::WaitTimes &wtimes = thisStation.getWaittimes();
+//            int time_needed = slewTime + wtimes.fieldSystem + wtimes.preob;
+//            if (time_needed > availableTime) {
+//                bool valid = removeStation(pv_id, source);
+//                if (!valid) {
+//                    return false;
+//                }
+//                continue;
+//            }
+//
+//        } else { // if station is not used in the following scans (this means we have no desired end pointing vector
+//            // check if the end of the fillin scan if earlier as the required final position time
+//            if (endOfFillinScan > finalPosition.getTime()) {
+//                bool valid = removeStation(pv_id, source);
+//                if (!valid) {
+//                    return false;
+//                }
+//                continue;
+//            }
+//        }
+//        //station is ok!
+//        ++pv_id;
+//    }
+//    return true;
+//}
 
 double Scan::weight_stations(const std::vector<Station> &stations) {
     double weight = 1;
@@ -1317,10 +1265,10 @@ double Scan::weight_stations(const std::vector<Station> &stations) {
     return weight;
 }
 
-double Scan::weight_baselines() {
+double Scan::weight_baselines(const std::vector<Baseline> &baselines) {
     double weight = 1;
-    for (const auto &any:baselines_) {
-        weight *= Baseline::PARA.weight[any.getStaid1()][any.getStaid2()];
+    for (const auto &any:observations_) {
+        weight *= baselines[any.getBlid()].getParameters().weight;
     }
 
     return weight;
@@ -1328,19 +1276,19 @@ double Scan::weight_baselines() {
 
 
 void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
-    times_.addScanTimes(scanDuration);
+    times_.addObservingTime(scanDuration);
 }
 
 bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSystemTime,
                         const vector<unsigned int> &slewTime, unsigned int preob,
-                        unsigned int scanStart, const vector<unsigned int> &scanDurations) {
+                        unsigned int scanStart, const vector<unsigned int> &observingTimes) {
     times_.setEndOfLastScan(eols);
     for(int i=0; i < slewTime.size(); ++i){
         times_.addTimes(i, fieldSystemTime, slewTime.at(static_cast<unsigned long>(i)), 0);
     }
     times_.setStartTime(scanStart);
     bool valid = times_.substractPreobTimeFromStartTime(preob);
-    times_.addScanTimes(scanDurations);
+    times_.addObservingTimes(observingTimes);
     return valid;
 }
 
@@ -1348,7 +1296,7 @@ void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEndtime_ = std::move(pv_end);
 }
 
-void Scan::createDummyObservations() {
+void Scan::createDummyObservations(const Network &network) {
     for(int i=0; i<nsta_; ++i) {
         unsigned long staid1 = pointingVectors_[i].getStaid();
         unsigned int dur1 = times_.getObservingTime(i);
@@ -1357,18 +1305,18 @@ void Scan::createDummyObservations() {
             unsigned int dur2 = times_.getObservingTime(j);
 
             unsigned int dur = std::max(dur1, dur2);
+            unsigned long blid = network.getBlid(staid1,staid2);
 
-            Baseline bl(srcid_, staid1, staid2, times_.getObservingStart());
-            bl.setScanDuration(dur);
-            baselines_.push_back(std::move(bl));
+            Observation obs(blid, staid1, staid2, srcid_, times_.getObservingStart(), dur);
+            observations_.push_back(std::move(obs));
         }
     }
 }
 
-unsigned long Scan::getNBl(unsigned long staid) const noexcept {
+unsigned long Scan::getNObs(unsigned long staid) const noexcept {
     unsigned long n=0;
-    for(const auto &any:baselines_){
-        if(any.getStaid1() == staid || any.getStaid2() == staid){
+    for(const auto &any:observations_){
+        if(any.containsStation(staid)){
             ++n;
         }
     }

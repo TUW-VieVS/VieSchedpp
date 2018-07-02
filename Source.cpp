@@ -102,12 +102,12 @@ namespace VieVS {
     }
 }
 
-double Source::observedFlux(const string &band, double gmst, double dx, double dy, double dz) const noexcept {
+double Source::observedFlux(const string &band, double gmst, const std::vector<double> &dxyz) const noexcept {
 
     double ha = gmst - ra_;
 
-    double u = dx * sin(ha) + dy * cos(ha);
-    double v = dz*cos(de_) + sin(de_) * (-dx * cos(ha) + dy * sin(ha));
+    double u = dxyz[0] * sin(ha) + dxyz[1] * cos(ha);
+    double v = dxyz[2]*cos(de_) + sin(de_) * (-dxyz[0] * cos(ha) + dxyz[1] * sin(ha));
 
     double flux = flux_->at(band)->observedFlux(u, v);
     return flux;

@@ -151,26 +151,6 @@ namespace VieVS{
         };
 
 
-        /**
-         * @brief pre calculated values
-         */
-        struct PreCalculated{
-            PreCalculated(std::vector<double> distance, std::vector<double> dx, std::vector<double> dy,
-                          std::vector<double> dz):distance{std::move(distance)}, dx{std::move(dx)},
-                                                  dy{std::move(dy)}, dz{std::move(dz)}{
-                g2l.resize(3);
-                g2l[0].resize(3);
-                g2l[1].resize(3);
-                g2l[2].resize(3);
-            }
-
-            std::vector<double> distance; ///< distance between stations
-            std::vector<double> dx; ///< delta x of station coordinates
-            std::vector<double> dy; ///< delta y of station coordinates
-            std::vector<double> dz; ///< delta z of station coordinates
-            std::vector<std::vector<double> > g2l; ///< geocentric to local transformation matrix
-        };
-
         struct Statistics{
             std::vector<unsigned int> scanStartTimes{};
             int totalObservingTime{0};
@@ -196,14 +176,6 @@ namespace VieVS{
                 std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
                 std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask);
 
-        /**
-         * @brief getter for station id
-         *
-         * @return station id
-         */
-//        int getId() const {
-//            return VieVS_Object.;
-//        }
 
         /**
          * @brief getter for parameters
@@ -295,42 +267,12 @@ namespace VieVS{
         }
 
         /**
-        * @brief getter for delta x coordinates between two stations
-        *
-        * @param id second station id
-        * @return delta x coordinate between this two stations
-        */
-        double dx(unsigned long id) const noexcept {
-            return preCalculated_->dx[id];
-        }
-
-        /**
-        * @brief getter for delta y coordinates between two stations
-        *
-        * @param id second station id
-        * @return delta y coordinate between this two stations
-         */
-        double dy(unsigned long id) const noexcept {
-            return preCalculated_->dy[id];
-        }
-
-        /**
-        * @brief getter for delta z coordinates between two stations
-        *
-        * @param id second station id
-        * @return delta z coordinate between this two stations
-         */
-        double dz(unsigned long id) const noexcept {
-            return preCalculated_->dz[id];
-        }
-
-        /**
          * @brief getter for number of baselines which were already observed with this station
          *
          * @return number of already observed baselines
          */
         int getNbls() const noexcept {
-            return nBaselines_;
+            return nObs_;
         }
 
         int getNScans() const noexcept  {
@@ -339,24 +281,6 @@ namespace VieVS{
 
         int getNTotalScans() const noexcept{
             return nTotalScans_;
-        }
-
-        /**
-         * @brief getter for sky coverage id
-         *
-         * @return sky coverage id
-         */
-        int getSkyCoverageID() const noexcept {
-            return skyCoverageId_;
-        }
-
-        /**
-         * @brief set the sky coverage id
-         *
-         * @param id new sky coverage id
-         */
-        void setSkyCoverageId(int id) noexcept {
-            skyCoverageId_ = id;
         }
 
         /**
@@ -412,27 +336,7 @@ namespace VieVS{
          * @param pointingVector new current pointing vector
          */
         void setCurrentPointingVector(const PointingVector &pointingVector) noexcept;
-
-        /**
-         * @brief overload of the << operator for output to stream
-         *
-         * @param out output stream object
-         * @param sta station information that should be printed to stream
-         * @return stream object
-         */
-        friend std::ostream &operator<<(std::ostream &out, const Station &sta) noexcept;
-
-        /**
-         * pre calculates some parameters
-         *
-         * @param distance distance vector between stations
-         * @param dx delta x between stations
-         * @param dy delta y between stations
-         * @param dz delta z between stations
-         */
-        void preCalc(const std::vector<double> &distance, const std::vector<double> &dx, const std::vector<double> &dy,
-                     const std::vector<double> &dz) noexcept;
-
+        
         /**
          * @brief sets all upcoming events
          * @param EVENTS all upcoming events
@@ -443,7 +347,7 @@ namespace VieVS{
         }
 
 
-        bool checkForTagalongMode(unsigned int time) noexcept;
+        bool checkForTagalongMode(unsigned int time) const noexcept;
 
         /**
          * @brief this function checks if it is time to change the parameters
@@ -497,18 +401,16 @@ namespace VieVS{
         std::shared_ptr<Equipment> equip_; ///< station equipment
         std::shared_ptr<HorizonMask> mask_; ///< station horizon mask
         std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
-        std::shared_ptr<PreCalculated> preCalculated_; ///< precalculated values
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
         Statistics statistics_;
 
-        int skyCoverageId_{-1}; ///< station sky coverage id
         Parameters parameters_; ///< station parameters
         PointingVector currentPositionVector_; ///< current pointing vector
         unsigned int nextEvent_{0}; ///< index of next event
         int nScans_{0}; ///< number of participated scans
         int nTotalScans_{0}; ///< number of total scans
-        int nBaselines_{0}; ///< number of observed baselines
+        int nObs_{0}; ///< number of observed baselines
     };
 }
 #endif /* STATION_H */

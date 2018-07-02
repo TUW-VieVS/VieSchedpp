@@ -36,13 +36,33 @@ Position::Position(double x_m, double y_m, double z_m):VieVS_Object(nextId++), x
     double r = sqrt(x_m*x_m+y_m*y_m);
     lat_ = atan2(z_m,r);
 
-
     for(int i=0; i<6; ++i){
         double N=a/sqrt(1-e2*sin(lat_)*sin(lat_));
         h_=r/cos(lat_)-N;
         lat_=atan2(z_m*(N+h_),r*((1-e2)*N+h_));
     }
 
+
+    double theta = DPI/2-lat_;
+
+    const double cosTheta = cos(theta);
+    const double sinTheta = sin(theta);
+    double roty[3][3] = {{cosTheta, 0,  -sinTheta},
+                         {0,        -1, 0},
+                         {sinTheta, 0,  cosTheta} };
+
+    const double cosLon = cos(lon_);
+    const double sinLon = sin(lon_);
+    double rotz[3][3] = {{cosLon,  sinLon, 0},
+                         {-sinLon, cosLon, 0},
+                         {0,       0,      1}};
+
+
+    iauRxr(roty,rotz,g2l_);
+
+    g2l_2 = {{g2l_[0][0], g2l_[0][1], g2l_[0][2]},
+             {g2l_[1][0], g2l_[1][1], g2l_[1][2]},
+             {g2l_[2][0], g2l_[2][1], g2l_[2][2]}};
 }
 
 namespace VieVS{

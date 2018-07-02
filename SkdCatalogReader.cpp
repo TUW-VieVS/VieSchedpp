@@ -154,11 +154,35 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
 
                         // get key and convert it to upper case for case insensitivity
                         string key = boost::algorithm::to_upper_copy(splitVector[indexOfKey]);
-
                         // add station name to key if you look at equip.cat because id alone is not unique in catalogs
                         if (type == CATALOG::equip) {
                             key = boost::algorithm::to_upper_copy(key + "|" + splitVector[indexOfKey - 1]);
                         }
+
+                        // save all station keys in case of antenna catalog
+                        if (type == CATALOG::antenna){
+                            // look if this station is really required
+                            if(find(staNames_.begin(),staNames_.end(),key) == staNames_.end()){
+                                continue;
+                            }
+                            antennaKey2positionKey_[key] = boost::algorithm::to_upper_copy(splitVector.at(13));
+                            string id_EQ = boost::algorithm::to_upper_copy(splitVector.at(14)+"|"+key);
+                            antennaKey2equipKey_[key] = id_EQ;
+                            antennaKey2maskKey_[key] = boost::algorithm::to_upper_copy(splitVector.at(15));
+                        } else if (type == CATALOG::position){
+                            if(!util::valueExists(antennaKey2positionKey_,key)){
+                                continue;
+                            }
+                        } else if (type == CATALOG::equip){
+                            if(!util::valueExists(antennaKey2equipKey_,key)){
+                                continue;
+                            }
+                        } else if (type == CATALOG::mask){
+                            if(!util::valueExists(antennaKey2maskKey_,key)){
+                                continue;
+                            }
+                        }
+
 
                         // look if a key already exists, if not add it.
                         if (all.find(key) == all.end()) {

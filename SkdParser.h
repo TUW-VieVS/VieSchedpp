@@ -35,9 +35,8 @@ namespace VieVS{
 
         SkdCatalogReader skd_;
 
-        std::vector<Station> stations_; ///< all stations
+        Network network_;
         std::vector<Source> sources_; ///< all sources
-        std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages
         std::vector<Scan> scans_; ///< all scans in schedule
 
 

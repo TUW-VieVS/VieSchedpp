@@ -37,7 +37,7 @@ set(SOURCE_FILES
         Station.cpp Station.h
         Subcon.cpp Subcon.h
         TimeSystem.cpp TimeSystem.h
-        VieVS_Scheduler.h VieVS_Scheduler.cpp
+        VieSchedpp.h VieSchedpp.cpp
         WeightFactors.cpp WeightFactors.h
         Vex.cpp Vex.h
         Skd.cpp Skd.h
@@ -60,7 +60,9 @@ set(SOURCE_FILES
         HorizonMask_step.cpp HorizonMask_step.h
         HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h
         Subnetting.h
-        util.h util.cpp)
+        util.h util.cpp
+        Network.cpp Network.h
+        Observation.cpp Observation.h)
 
 add_executable(VLBI_scheduler ${SOURCE_FILES})
 

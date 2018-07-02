@@ -55,23 +55,18 @@ void Station::Parameters::setParameters(const Station::Parameters &other) {
 Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna> sta_antenna,
                  std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
                  std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask):
-        VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++), antenna_{move(sta_antenna)},
-        cableWrap_{move(sta_cableWrap)}, position_{move(sta_position)}, equip_{move(sta_equip)}, mask_{move(sta_mask)},
-        skyCoverageId_{-1}, currentPositionVector_{PointingVector(nextId-1,-1)}, parameters_{Parameters("empty")}{
+        VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++),
+        antenna_{move(sta_antenna)},
+        cableWrap_{move(sta_cableWrap)},
+        position_{move(sta_position)},
+        equip_{move(sta_equip)},
+        mask_{move(sta_mask)},
+        currentPositionVector_{PointingVector(nextId-1,numeric_limits<unsigned long>::max())},
+        parameters_{Parameters("empty")}{
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
     currentPositionVector_ = pointingVector;
-}
-
-namespace VieVS {
-    ostream &operator<<(ostream &out, const Station &sta) noexcept {
-        cout << boost::format("%=36s\n") % sta.getName();
-        cout << sta.position_;
-        cout << "uses sky coverage id: " << sta.skyCoverageId_ << "\n";
-        cout << "------------------------------------\n";
-        return out;
-    }
 }
 
 bool Station::isVisible(const PointingVector &p, double minElevationSource) const noexcept {
@@ -183,10 +178,13 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
 
 
-    //  source in local system
-    double g2l[3][3] = {{preCalculated_->g2l[0][0],preCalculated_->g2l[0][1],preCalculated_->g2l[0][2]},
-                        {preCalculated_->g2l[1][0],preCalculated_->g2l[1][1],preCalculated_->g2l[1][2]},
-                        {preCalculated_->g2l[2][0],preCalculated_->g2l[2][1],preCalculated_->g2l[2][2]},};
+    //  station in local system
+    const auto & g2l2 = position_->getGeodetic2Local();
+
+    double g2l[3][3] = {{g2l2[0][0], g2l2[0][1], g2l2[0][2]},
+                        {g2l2[1][0], g2l2[1][1], g2l2[1][2]},
+                        {g2l2[2][0], g2l2[2][1], g2l2[2][2]}};
+//    position_->geodetic2Local(g2l);
 
     double lq[3] = {};
     iauRxp(g2l,rq,lq);
@@ -220,39 +218,6 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     p.setTime(time);
 }
 
-void Station::preCalc(const vector<double> &distance, const vector<double> &dx, const vector<double> &dy,
-                           const vector<double> &dz) noexcept {
-
-    preCalculated_ = make_shared<PreCalculated>(distance,dx,dy,dz);
-
-    double lat = position_->getLat();
-    double lon = position_->getLon();
-
-    double theta = DPI/2-lat;
-
-    const double cosTheta = cos(theta);
-    const double sinTheta = sin(theta);
-    double roty[3][3] = {{cosTheta, 0,  -sinTheta},
-                         {0,        -1, 0},
-                         {sinTheta, 0,  cosTheta} };
-
-    const double cosLon = cos(lon);
-    const double sinLon = sin(lon);
-    double rotz[3][3] = {{cosLon,  sinLon, 0},
-                         {-sinLon, cosLon, 0},
-                         {0,       0,      1}};
-
-    double g2l[3][3] = {};
-
-    iauRxr(roty,rotz,g2l);
-
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            preCalculated_->g2l[i][j] = g2l[i][j];
-        }
-    }
-}
-
 double Station::distance(const Station &other) const noexcept {
     return position_->getDistance(*other.position_);
 }
@@ -277,7 +242,7 @@ boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVe
 void Station::update(unsigned long nbl, const PointingVector &end, bool addToStatistics) noexcept {
     if(addToStatistics){
         ++nScans_;
-        nBaselines_ += nbl;
+        nObs_ += nbl;
     }
     ++nTotalScans_;
     currentPositionVector_ = end;
@@ -308,7 +273,7 @@ bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
     return flag;
 }
 
-bool Station::checkForTagalongMode(unsigned int time) noexcept{
+bool Station::checkForTagalongMode(unsigned int time) const noexcept{
     bool tagalong = parameters_.tagalong;
     if(tagalong){
         if(nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time){
@@ -342,7 +307,7 @@ void Station::clearObservations() {
 
     nScans_ = 0;
     nTotalScans_ = 0;
-    nBaselines_ = 0;
+    nObs_ = 0;
 
     parameters_.firstScan=true;
 }

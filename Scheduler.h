@@ -15,6 +15,7 @@
 #include <tuple>
 #include <boost/optional.hpp>
 
+#include "Network.h"
 #include "Initializer.h"
 #include "Subcon.h"
 #include "Constants.h"
@@ -66,15 +67,15 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        Scheduler(Initializer &init, std::string path, std::string name, int version);
+        Scheduler(Initializer &init, std::string path, std::string fname);
 
-        Scheduler(std::string name, std::vector<Station> stations, std::vector<Source> sources,
-                  std::vector<SkyCoverage> skyCoverages, std::vector<Scan> scans, boost::property_tree::ptree xml);
+        Scheduler(std::string name, Network network_, std::vector<Source> sources,
+                  std::vector<Scan> scans, boost::property_tree::ptree xml);
 
         /**
          * @brief main function that starts the scheduling
          */
-        void start(std::ofstream &bodyLog) noexcept;
+        void start() noexcept;
 
         /**
          * @brief this function creates a subcon with all scans, times and scores
@@ -110,22 +111,6 @@ namespace VieVS{
          */
         void consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &bodyLog) noexcept;
 
-        /**
-         * @brief prints the header lines of the output table to the console
-         * @param stations
-         * @param bodyLog outstream file object
-         */
-        void outputHeader(const std::vector<Station> &stations, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief total number of created scans
-         *
-         * @return total number of created scans
-         */
-        unsigned long numberOfCreatedScans() {
-            return nSingleScansConsidered + 2 * nSubnettingScansConsidered;
-        }
-
         void statistics(std::ofstream &ofstream);
 
         void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &bodyLog);
@@ -142,11 +127,9 @@ namespace VieVS{
         std::string path_;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
-        int version_;
 
-        std::vector<Station> stations_; ///< all stations
         std::vector<Source> sources_; ///< all sources
-        std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages
+        Network network_;
         std::vector<Scan> scans_; ///< all scans in schedule
 
         Parameters parameters_; ///< general scheduling parameters
@@ -155,6 +138,9 @@ namespace VieVS{
         unsigned long nSingleScansConsidered = 0; ///< considered single source scans
         unsigned long nSubnettingScansConsidered = 0; ///< considered subnetting scans
         unsigned long nObservationsConsidered = 0; ///< considered baselines
+
+        boost::optional<HighImpactScanDescriptor> himp_;
+        boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
                                 boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
@@ -178,34 +164,6 @@ namespace VieVS{
          */
         void listSourceOverview(std::ofstream &log) noexcept;
 
-        /**
-         * @brief saves sky coverage data
-         *
-         * @param time time in seconds since start
-         */
-        void saveSkyCoverageData(unsigned int time) noexcept;
-
-        /**
-         * @brief saves sky coverage azimuth and elevation data
-         */
-        void saveSkyCoverageMain() noexcept;
-
-        /**
-         * @brief internal debugging function to test static member
-         *
-         * Usually unused
-         *
-         * @param log outstream log file
-         */
-        void displaySummaryOfStaticMembersForDebugging(std::ofstream &log);
-
-        /**
-         * @brief internal debugging function to test horizon mask
-         *
-         * Usually unuse
-         *
-         */
-        void printHorizonMasksForDebugging();
 
         void startCalibrationBlock(std::ofstream &bodyLog);
 

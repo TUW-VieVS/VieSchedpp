@@ -1,5 +1,5 @@
 #include <chrono>
-#include "VieVS_Scheduler.h"
+#include "VieSchedpp.h"
 #include "SkdParser.h"
 #include "LogParser.h"
 
@@ -13,7 +13,7 @@
 
 /**
  * @namespace VieVS
- * @brief namespace VieVS is used for all "VieVS_*" and "VLBI_*" classes and files.
+ * @brief namespace VieVS is used for all defined classes.
  */
 
 /**
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     // V1: standard usage:
     std::cout << "Processing file: " << file << ";\n";
-    VieVS::VieVS_Scheduler mainScheduler(file);
+    VieVS::VieSchedpp mainScheduler(file);
     mainScheduler.run();
 
 //    V2: parse skd and log files

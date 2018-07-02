@@ -4,87 +4,97 @@
  *
  *
  * @author Matthias Schartner
- * @date 29.06.2017
+ * @date 23.06.2018
  */
 
 #ifndef BASELINE_H
 #define BASELINE_H
 
-#include <iostream>
-#include <fstream>
-
-#include <string>
 #include <vector>
-#include <utility>
-#include <algorithm>
 #include <unordered_map>
-#include <boost/optional.hpp>
-#include <boost/format.hpp>
+#include <memory>
+#include <iostream>
 
-#include "TimeSystem.h"
-#include "VieVS_Object.h"
+#include "VieVS_NamedObject.h"
 
 namespace VieVS{
     /**
      * @class Baseline
-     * @brief representation of an VLBI baseline
+     * @brief representation of a VLBI baseline
      *
      * @author Matthias Schartner
-     * @date 29.06.2017
+     * @date 23.06.2018
      */
-    class Baseline: public VieVS_Object {
+    class Baseline: public VieVS_NamedObject {
     public:
+
+        Baseline(std::string name, std::string alternativeName, unsigned long staid1, unsigned long staid2);
+
+        bool hasStationIds(unsigned long staid1, unsigned long staid2) const noexcept;
+
+        bool hasStationIds(const std::pair<unsigned long, unsigned long> &staids) const noexcept;
 
         /**
          * @brief baseline parameters
          */
-        struct Parameters {
-            std::unordered_map<std::string, double> minSNR; ///< minimum SNR per band for each baseline
-            bool ignore = false; ///< ignore specific baselines
+        class Parameters: public VieVS_NamedObject{
+        private:
+            static unsigned long nextId;
+        public:
+            explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
+            void setParameters(const Parameters &other);
 
-            double weight = 1; ///< multiplicative factor of score for scans with this baseline
-            unsigned int minScan = 20; ///< minimum required scan duration of this baseline
-            unsigned int maxScan = 600; ///< maximum allowed scan duration of this baseline
+            bool ignore = false;
+            double weight = 1;
+            unsigned int minScan = 30;
+            unsigned int maxScan = 600;
+            std::unordered_map<std::string, double> minSNR;
+
+            /**
+             * @brief output of the current parameters to out stream
+             *
+             * @param of out stream object
+             */
+            void output(std::ofstream &of) const {
+//                if (ignore) {
+//                    of << "    ignore: TRUE\n";
+//                } else {
+//                    of << "    ignore: FALSE\n";
+//                }
+//                of << "    weight:      " << weight << "\n";
+//                of << "    min scan:      " << minScan << "\n";
+//                of << "    max scan:      " << maxScan << "\n";
+//                for (const auto &it:minSNR) {
+//                    of << "    minSNR: " << it.first << " " << it.second << "\n";
+//                }
+            }
         };
 
-        /**
-         * @brief changes in parameters
-         */
+
         struct Event {
-            unsigned int time; ///< time wher parameters should be changed in seconds from start
-            bool softTransition; ///< flag if a soft or hard transition is required
+            Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
+                                                                            softTransition{softTransition},
+                                                                            PARA{std::move(PARA)}{}
+
+            unsigned int time; ///< time when new parameters should be used in seconds since start
+            bool softTransition; ///< transition type
             Parameters PARA; ///< new parameters
         };
 
-
-        /**
-         * @brief baseline parameters.
-         *
-         * Unlike the parameters for station and source this holds the information for all possible baselines.
-         * If you want to get the parameter for a specific baseline use the station ids as indices for the vectors.
-         */
-        struct ParameterStorage {
-            std::unordered_map<std::string, std::vector<std::vector<double> > > minSNR; ///< minimum SNR per band for each baseline
-            std::vector<std::vector<char> > ignore; ///< ignore specific baselines
-            std::vector<std::vector<double> > weight; ///< multiplicative factor of score for scans with this baseline
-            std::vector<std::vector<unsigned int> > minScan; ///< minimum required scan duration of this baseline
-            std::vector<std::vector<unsigned int> > maxScan; ///< maximum allowed scan duration of this baseline
+        struct Statistics{
+            std::vector<unsigned int> scanStartTimes{};
+            int totalObservingTime{0};
         };
 
-        static thread_local ParameterStorage PARA; ///< parameters for all baselines
-
-        static std::vector<std::vector<std::vector<Baseline::Event> > > EVENTS; ///< all events per baseline
-        static std::vector<std::vector<unsigned int> > nextEvent; ///< next event number per baseline
-
         /**
-         * @brief constructor
-         *
-         * @param staid1 id of first station
-         * @param staid2 id of second station
-         * @param srcid id of observed source
-         * @param startTime observation start time in seconds after session start
+         * @brief sets all upcoming events
+         * @param EVENTS all upcoming events
          */
-        Baseline(unsigned long staid1, unsigned long staid2, unsigned long srcid, unsigned int startTime);
+        void setEVENTS(std::vector<Event> &EVENTS) noexcept {
+            events_ = std::make_shared<std::vector<Event>>(move(EVENTS));
+            nextEvent_ = 0;
+        }
+
 
         /**
          * @brief getter method for first station id
@@ -105,72 +115,53 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter method for source id
+         * @brief getter method for station ids
          *
-         * @return source id
+         * @return pair of station ids
          */
-        unsigned long getSrcid() const noexcept {
-            return srcid_;
+        std::pair<unsigned long, unsigned long> getStaids() const noexcept {
+            return {staid1_, staid2_};
+        };
+
+        const Parameters &getParameters() const {
+            return parameters_;
         }
 
-        /**
-         * @brief getter function for scan start time
-         * @return start time in seconds from session start
-         */
-        unsigned int getStartTime() const noexcept {
-            return startTime_;
+        Parameters &refParameters() {
+            return parameters_;
         }
 
 
-        /**
-         * @brief getter function for scan duration
-         *
-         * @return scan duration in seconds
-         */
-        unsigned int getScanDuration() const noexcept {
-            return observingTime_;
+        bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
+
+        void update(bool influence) noexcept;
+
+        void setNextEvent(unsigned int idx) noexcept{
+            nextEvent_ = idx;
         }
 
-        /**
-         * sets scan duration of this baseline
-         *
-         * @param scanDuration scan duration in seconds
-         */
-        void setScanDuration(unsigned int scanDuration) noexcept {
-            Baseline::observingTime_ = scanDuration;
+        void setStatistics(const Statistics &stat){
+            statistics_ = stat;
         }
 
-        /**
-         * @brief check if it is time to change the parameters (a new event occures)
-         *
-         * @param time current scheduling time
-         * @param hardBreak flag if a hard transition is required
-         * @param output flag if output should be print to bodyLog stream
-         * @param bodyLog output stream
-         */
-        static void checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept;
-
-        /**
-         * @brief internal function for debugging
-         * Usually unused
-         *
-         * @param log log file stream
-         */
-        static void displaySummaryOfStaticMembersForDebugging(std::ofstream &log);
-
-        static unsigned long numberOfCreatedBaselines(){
-            return nextId-1;
+        const Statistics &getStatistics() const {
+            return statistics_;
         }
 
     private:
         static unsigned long nextId;
 
-        unsigned long staid1_{}; ///< id of first antenna
-        unsigned long staid2_{}; ///< id of second antenna
-        unsigned long srcid_{}; ///< id of observed source
-        unsigned int startTime_{}; ///< start time of observion in seconds since session start
+        unsigned long staid1_; ///< id of first antenna
+        unsigned long staid2_; ///< id of second antenna
 
-        unsigned int observingTime_{}; ///< required scan duration in seconds
+        std::shared_ptr<std::vector<Event>> events_; ///< list of all events
+
+        Statistics statistics_;
+        Parameters parameters_; ///< station parameters
+
+        unsigned int nextEvent_{0}; ///< index of next event
+        int nObs_{0}; ///< number of observations
+        int nTotalObs_{0};
 
     };
 }

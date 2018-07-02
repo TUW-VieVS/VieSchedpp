@@ -18,12 +18,11 @@
 #include <utility>
 #include <limits>
 
+#include "Network.h"
+#include "Observation.h"
 #include "PointingVector.h"
-#include "Baseline.h"
 #include "ScanTimes.h"
-#include "Station.h"
 #include "Source.h"
-#include "SkyCoverage.h"
 #include "WeightFactors.h"
 #include "ObservationMode.h"
 #include "TimeSystem.h"
@@ -42,7 +41,7 @@ namespace VieVS{
      */
     class Scan: public VieVS_Object {
     public:
-        static thread_local unsigned int nScanSelections; ///< number of selected main scans
+        static unsigned int nScanSelections; ///< number of selected main scans
 
         /**
          * @brief scan type
@@ -66,7 +65,7 @@ namespace VieVS{
             bool customScanSequence = false; ///< true if you have a custom scan sequence
             unsigned int cadence = 0; ///< cadence of source sequence rule
             unsigned int moduloScanSelctions = 0; ///< modulo of scan selection cadence
-            std::map<unsigned int, std::vector<int> > targetSources; ///< map with modulo number as key and list of target source ids as value
+            std::map<unsigned int, std::vector<unsigned long> > targetSources; ///< map with modulo number as key and list of target source ids as value
 
             /**
              * @brief increases the modulo value for this ScanSequence
@@ -80,7 +79,7 @@ namespace VieVS{
             }
         };
 
-        static thread_local ScanSequence scanSequence; ///< scan sequence rules
+        static ScanSequence scanSequence; ///< scan sequence rules
 
         /**
          * @brief internal debugging function that checks if the number of pointing vectors is equal to nsta
@@ -116,7 +115,7 @@ namespace VieVS{
          * @param bl all baselines
          * @param minNumSta minimum number of stations for this scan
          */
-        Scan(std::vector<PointingVector> pv, ScanTimes times, std::vector<Baseline> bl);
+        Scan(std::vector<PointingVector> pv, ScanTimes times, std::vector<Observation> obs);
 
         /**
          * @brief sets the scan type
@@ -230,8 +229,12 @@ namespace VieVS{
          * @param idx index of baseline
          * @return baseline
          */
-        const Baseline &getBaseline(int idx) const noexcept {
-            return baselines_[idx];
+        const Observation &getObservation(int idx) const noexcept {
+            return observations_[idx];
+        }
+
+        const std::vector<Observation> &getObservations() const noexcept {
+            return observations_;
         }
 
         /**
@@ -249,10 +252,10 @@ namespace VieVS{
          *
          * If a station has no longer any baselines it also gets removed
          *
-         * @param idx_bl
+         * @param idxObs
          * @return
          */
-        bool removeBaseline(int idx_bl, const Source &source) noexcept;
+        bool removeObservation(int idxObs, const Source &source) noexcept;
 
         /**
          * @brief finds the index of an station id
@@ -279,7 +282,7 @@ namespace VieVS{
          *
          * @param source observed source
          */
-        bool constructBaselines(const Source &source) noexcept;
+        bool constructObservations(const Network &network, const Source &source) noexcept;
 
         /**
          * @brief checks if the idle time is not too long
@@ -299,7 +302,7 @@ namespace VieVS{
          * @param sources observed source
          * @return true is scan is still valid, otherwise false
          */
-        bool calcBaselineScanDuration(const std::vector<Station> &stations, const Source &sources) noexcept;
+        bool calcObservationDuration(const Network &network, const Source &sources) noexcept;
 
         /**
          * @brief calculates the total scan duration per station
@@ -310,7 +313,7 @@ namespace VieVS{
          * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool scanDuration(const std::vector<Station> &stations, const Source &source) noexcept;
+        bool scanDuration(const Network &network, const Source &source) noexcept;
 
         /**
          * @brief getter for all station ids
@@ -335,8 +338,7 @@ namespace VieVS{
          */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                        unsigned int minTime, unsigned int maxTime,
-                       const std::vector<Station> &stations, const Source &source,
-                       const std::vector<SkyCoverage> &skyCoverages) noexcept;
+                       const Network &network, const Source &source) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -356,11 +358,9 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stores the score of each pointing vector without twin station influences
         */
-        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime,
-                       const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                       const Source &source,
-                       std::vector<double> &firstScorePerPv) noexcept;
+        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
+                       unsigned int maxTime, const Network &network, const Source &source,
+                       std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -379,13 +379,13 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
-        void calcScore_subnetting(const std::vector<double> &astas,
-                                  const std::vector<double> &asrcs, unsigned int minTime, unsigned int maxTime,
-                                  const std::vector<SkyCoverage> &skyCoverages, const std::vector<Station> &stations,
-                                  const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
+        void calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                                  unsigned int minTime, unsigned int maxTime, const Network &network,
+                                  const Source &source,
+                                  const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
-        void calcScore(unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
-                       const Source &source, double hiscore);
+        void calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
+                       double hiscore);
 
         /**
          * @brief calculates the score for a calibrator block scan
@@ -395,9 +395,10 @@ namespace VieVS{
          * @param minRequiredTime minimum time required for a scan
          * @param maxRequiredTime maximum time required for a scan
          */
-        bool calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
-                               const std::vector<Station> &stations, unsigned int minRequiredTime, unsigned int maxRequiredTime,
-                               const Source &source);
+        bool calcScore(const std::vector<double> &prevLowElevationScores,
+                       const std::vector<double> &prevHighElevationScores,
+                       const Network &network, unsigned int minRequiredTime, unsigned int maxRequiredTime,
+                       const Source &source);
 
 
         /**
@@ -407,7 +408,7 @@ namespace VieVS{
          * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(const std::vector<Station> &stations, const Source &source,
+        bool rigorousUpdate(const Network &network, const Source &source,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -417,8 +418,9 @@ namespace VieVS{
          * @param pv_end pointing vector at end time
          * @param baselines all baselines
          */
-        void addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end, const std::vector<Baseline> &baselines,
-                                        unsigned int slewtime, const Station &station);
+        void addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
+                                const std::vector<Observation> &baselines, unsigned int slewtime,
+                                const Station &station);
 
         /**
          * @brief makes a hard copy of a scan with all stations from parameter ids
@@ -433,23 +435,23 @@ namespace VieVS{
          *
          * @return number of baselines
          */
-        unsigned long getNBl() const noexcept {
-            return baselines_.size();
+        unsigned long getNObs() const noexcept {
+            return observations_.size();
         }
 
-        unsigned long getNBl(unsigned long staid) const noexcept;
+        unsigned long getNObs(unsigned long staid) const noexcept;
 
-        /**
-         * @brief checks if parts of this scan can be used as a fillin mode scan
-         *
-         * @param stations list of all stations
-         * @param source list of all sources
-         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
-         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
-         * @return possible fillin scan
-         */
-        bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
-                                const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
+//        /**
+//         * @brief checks if parts of this scan can be used as a fillin mode scan
+//         *
+//         * @param stations list of all stations
+//         * @param source list of all sources
+//         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
+//         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
+//         * @return possible fillin scan
+//         */
+//        bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
+//                                const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
 
         void setFixedScanDuration(unsigned int scanDuration) noexcept;
 
@@ -461,15 +463,19 @@ namespace VieVS{
          * @param source observed source
          * @param of outstream file object
          */
-        void output(unsigned long observed_scan_nr, const std::vector<Station> &stations, const Source &source,
+        void output(unsigned long observed_scan_nr, const Network &network, const Source &source,
                     std::ofstream &of) const noexcept;
 
         bool setScanTimes(const std::vector<unsigned int> &eols, unsigned int fieldSystemTime, const std::vector<unsigned int> &slewTime,
-                          unsigned int preob, unsigned int scanStart, const std::vector<unsigned int> &scanDurations);
+                          unsigned int preob, unsigned int scanStart, const std::vector<unsigned int> &observingTimes);
 
         void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
 
-        void createDummyObservations();
+        void createDummyObservations(const Network &network);
+
+        static unsigned long numberOfCreatedObject(){
+            return nextId-1;
+        }
 
     private:
         static unsigned long nextId;
@@ -482,18 +488,18 @@ namespace VieVS{
         ScanTimes times_; ///< time informations
         std::vector<PointingVector> pointingVectors_; ///< pointing vectors at start of the scan
         std::vector<PointingVector> pointingVectorsEndtime_; ///< pointing vectors at end of the scan
-        std::vector<Baseline> baselines_; ///< all observed baselines
+        std::vector<Observation> observations_; ///< all observed baselines
 
         ScanType type_; ///< type of the scan
         ScanConstellation constellation_; ///
 
-        bool rigorousSlewtime(const std::vector<Station> &stations, const Source &source) noexcept;
+        bool rigorousSlewtime(const Network &network, const Source &source) noexcept;
 
-        bool rigorousScanStartTimeAlignment(const std::vector<Station> &stations, const Source &source) noexcept;
+        bool rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept;
 
-        bool rigorousScanVisibility(const std::vector<Station> &stations, const Source &source, bool &stationRemoved) noexcept;
+        bool rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept;
 
-        bool rigorousScanCanReachEndposition(const std::vector<Station> &station, const Source &thisSource,
+        bool rigorousScanCanReachEndposition(const Network &network, const Source &thisSource,
                                                      const boost::optional<StationEndposition> &endposition,
                                                      bool &stationRemoved);
 
@@ -531,38 +537,6 @@ namespace VieVS{
          */
         double calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept;
 
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * @param skyCoverages all sky coverages
-         * @return score
-         */
-        double calcScore_skyCoverage(const std::vector<SkyCoverage> &skyCoverages,
-                                     const std::vector<Station> &stations) const noexcept;
-
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * !!! This function changes firstScorePerPv !!!
-         *
-         * @param skyCoverages all sky coverages
-         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_skyCoverage(const std::vector<SkyCoverage> &skyCoverages,
-                                     const std::vector<Station> &stations,
-                                     std::vector<double> &firstScorePerPv) const noexcept;
-
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * @param skyCoverages all sky coverages
-         * @param firstScorePerPv stored score for each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_skyCoverage_subcon(const std::vector<SkyCoverage> &skyCoverages,
-                                            const std::vector<Station> &stations,
-                                            const std::vector<double> &firstScorePerPv) const noexcept;
 
         double calcScore_idleTime() const noexcept;
 
@@ -579,7 +553,7 @@ namespace VieVS{
          *
          * @return mean of the weight factors
          */
-        double weight_baselines();
+        double weight_baselines(const std::vector<Baseline> &baselines);
 
         /**
          * @brief calculate score for low elevation scans
@@ -589,10 +563,10 @@ namespace VieVS{
 
 
         double calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                   unsigned int minTime, unsigned int maxTime, const std::vector<Station> &stations,
+                                   unsigned int minTime, unsigned int maxTime, const Network &network,
                                    const Source &source);
 
-        double calcScore_secondPart(double this_score, const std::vector<Station> &stations, const Source &source);
+        double calcScore_secondPart(double this_score, const Network &network, const Source &source);
     };
 }
 #endif /* SCAN_H */

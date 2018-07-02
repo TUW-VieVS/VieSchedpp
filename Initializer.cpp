@@ -18,26 +18,19 @@ Initializer::Initializer(): VieVS_Object(nextId++){
 Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
     boost::property_tree::read_xml(is, xml_,boost::property_tree::xml_parser::trim_whitespace);
+    double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+    network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
-//Initializer::Initializer(const Initializer &other): VieVS_Object(nextId++) {
-//    xml_ = other.xml_;
-//    stations_ = other.stations_;
-//    for(const auto &any:other.sources_){
-//        sources_.push_back(any.clone());
-//    }
-//
-//    skyCoverages_ = other.skyCoverages_;
-//
-//    parameters_ = other.parameters_;
-//    preCalculated_ = other.preCalculated_;
-//
-//}
+Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(nextId++), xml_{xml} {
+    double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+    network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
+}
 
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
     unsigned long nsrc = sources_.size();
-    vector<vector<int> > subnettingSrcIds(nsrc);
+    vector<vector<unsigned long> > subnettingSrcIds(nsrc);
     for (int i = 0; i < nsrc; ++i) {
         for (int j = i + 1; j < nsrc; ++j) {
             double tmp = sin(sources_[i].getDe()) * sin(sources_[j].getDe()) + cos(sources_[i].getDe()) *
@@ -52,8 +45,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
-void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
-    reader.initializeStationCatalogs();
+void Initializer::createStations(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
 
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
     const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
@@ -93,19 +85,18 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         }
 
         // convert all IDs to upper case for case insensitivity
-        string id_PO = boost::algorithm::to_upper_copy(any.second.at(13));
-        string id_EQ = boost::algorithm::to_upper_copy(any.second.at(14));
-        id_EQ.append("|").append(name);
-        string id_MS = boost::algorithm::to_upper_copy(any.second.at(15));
-        string tlc = boost::to_upper_copy(id_PO);
+        const string &id_PO = reader.positionKey(name);
+        const string &id_EQ = reader.equipKey(name);
+        const string &id_MS = reader.maskKey(name);
+        const string &tlc = reader.getTwoLetterCode().at(name);
 
         // check if corresponding position and equip CATALOG exists.
         if (positionCatalog.find(id_PO) == positionCatalog.end()){
-            headerLog << "*** ERROR: position CATALOG not found ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": position CATALOG not found ***\n";
             continue;
         }
         if (equipCatalog.find(id_EQ) == equipCatalog.end()){
-            headerLog << "*** ERROR: equip CATALOG not found ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": equip CATALOG not found ***\n";
             continue;
         }
 
@@ -125,14 +116,14 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             diam = boost::lexical_cast<double>(any.second.at(12));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << " ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if position.cat is long enough. Otherwise not all information is available.
         vector<string> po_cat = positionCatalog.at(id_PO);
         if (po_cat.size()<5){
-            headerLog << "*** ERROR: " << any.first << ": positon.cat to small ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": positon.cat to small ***\n";
             continue;
         }
 
@@ -144,19 +135,19 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             z = boost::lexical_cast<double>(po_cat.at(4));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << " ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if equip.cat is long enough. Otherwise not all information is available.
         vector<string> eq_cat = equipCatalog.at(id_EQ);
         if (eq_cat.size()<9){
-            headerLog << "*** ERROR: " << any.first << ": equip.cat to small ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": equip.cat to small ***\n";
             continue;
         }
         // check if SEFD_ information is in X and S band
         if (eq_cat[5] != "X" || eq_cat[7] != "S") {
-            headerLog << "*** ERROR: " << any.first << ": we only support SX equipment ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": we only support SX equipment ***\n";
             continue;
         }
 
@@ -168,7 +159,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             SEFD_found[eq_cat.at(7)] = boost::lexical_cast<double>(eq_cat.at(8));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << "\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << "\n";
             continue;
         }
         bool everythingOkWithBands = true;
@@ -184,13 +175,13 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             }
         }
         if(!everythingOkWithBands){
-            cerr << "ERROR: station " << name << " required SEFD_ information missing!;\n";
+            cerr << "ERROR: creating station "<< name <<": required SEFD_ information missing!;\n";
             continue;
         }
 
         if(SEFDs.size() != ObservationMode::bands.size()){
             if(SEFDs.empty()){
-                cerr << "ERROR: station " << name << " no SEFD_ information found to calculate backup value!;\n";
+                cerr << "ERROR: creating station "<< name <<": no SEFD_ information found to calculate backup value!;\n";
                 continue;
             }
             double max = 0;
@@ -236,7 +227,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
+                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
@@ -253,14 +244,11 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
+                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
         }
-
-
-
 
             // check if an horizontal mask exists
         vector<double> hmask;
@@ -273,13 +261,12 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
                     hmask.push_back(boost::lexical_cast<double>(mask_cat.at(i)));
                 }
                 catch(const std::exception& e){
-                    headerLog << "*** ERROR: " << e.what() << " ***\n";
-                    headerLog << mask_cat.at(i) << "\n";
+                    headerLog << "*** ERROR: creating station "<< name <<": mask catalog entry "<< mask_cat.at(i) << " not understood \n";
                 }
             }
         } else {
             if (id_MS != "--"){
-                headerLog << "*** ERROR: mask CATALOG not found ***\n";
+                headerLog << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
             }
         }
 
@@ -328,7 +315,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             horizonMask = make_shared<HorizonMask_step>(hmask_az,hmask_el);
         }
 
-        stations_.emplace_back(name, tlc, antenna, cableWrap, position, equipment, horizonMask);
+        network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask));
 
         created++;
         headerLog << boost::format("  %-8s added\n") % name;
@@ -337,11 +324,10 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
     headerLog << "Finished! " << created << " of " << nant << " stations created\n\n";
 }
 
-void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
 
     double flcon2{pi / (3600.0 * 180.0 * 1000.0)};
 
-    reader.initializeSourceCatalogs();
     const map<string, vector<string> > &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string> > &fluxCatalog = reader.getFluxCatalog();
 
@@ -653,62 +639,19 @@ void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerL
 
 }
 
-void Initializer::createSkyCoverages(ofstream &headerLog) noexcept {
-    unsigned long nsta = stations_.size();
-    std::vector<char> alreadyConsidered(nsta, false);
-    int skyCoverageId = 0;
-    vector<vector<int> > stationsPerId(nsta);
-
-    headerLog << "Create Sky Coverage Objects:\n";
-    for(int i=0; i<nsta; ++i){
-        if(!alreadyConsidered[i]){
-            stations_[i].setSkyCoverageId(skyCoverageId);
-            headerLog << boost::format("  station: %-8s belongs to sky coverage object %2d\n") %stations_[i].getName() %skyCoverageId;
-            stationsPerId[skyCoverageId].push_back(i);
-            alreadyConsidered[i] = true;
-            for(int j=i+1; j<nsta; ++j){
-                double dist = stations_[i].distance(stations_[j]);
-
-                if(!alreadyConsidered[j] && dist<SkyCoverage::maxTwinTelecopeDistance){
-                    stations_[j].setSkyCoverageId(skyCoverageId);
-                    headerLog << boost::format("  station: %8s belongs to sky coverage object %2d\n") %stations_[j].getName() %skyCoverageId;
-                    stationsPerId[skyCoverageId].push_back(i);
-                    alreadyConsidered[j] = true;
-                }
-            }
-            skyCoverageId++;
-        }
-    }
-
-    for (int i=0; i<skyCoverageId; ++i){
-        skyCoverages_.emplace_back(stationsPerId[i]);
-    }
-
-    vector<int> sta2sky_(nsta);
-
-    for (int i = 0; i < skyCoverages_.size(); ++i) {
-        vector<int> sky2sta = skyCoverages_[i].getStaids();
-        for (int j : sky2sta) {
-            sta2sky_[j] = i;
-        }
-    }
-    headerLog << "Finished! "<< skyCoverages_.size() << " sky coverage objects were created\n\n";
-
-}
-
 void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
     try {
 
         string startString = xml_.get<string>("master.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
-        headerLog << "start time:" << TimeSystem::ptime2string(startTime) << "\n";
+        headerLog << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
         string endString = xml_.get<string>("master.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
-        headerLog << "end time:" << TimeSystem::ptime2string(endTime) << "\n";
+        headerLog << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
 
 
         int sec = util::duration(startTime,endTime);
@@ -760,205 +703,194 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
 
 
 void Initializer::initializeStations() noexcept {
-    boost::property_tree::ptree PARA_station;
-    try{
-        PARA_station = xml_.get_child("master.station");
-    }catch(const boost::property_tree::ptree_error &e){
+    // get station tree
+    const auto & PARA_station_o = xml_.get_child_optional("master.station");
+    if(PARA_station_o.is_initialized()) {
+        const auto &PARA_station = PARA_station_o.get();
+
+        // get all defined baseline group
+        staGroups_ = readGroups(PARA_station, GroupType::station);
+
+        // get all defined parameters
+        unordered_map<std::string, ParameterSettings::ParametersStations> parameters;
+        const auto &para_tree = PARA_station.get_child("parameters");
+        for (auto &it: para_tree) {
+            string name = it.first;
+            if (name == "parameter") {
+                string parameterName = it.second.get_child("<xmlattr>.name").data();
+                ParameterSettings::ParametersStations PARA;
+                auto PARA_ = ParameterSettings::ptree2parameterStation(it.second);
+                PARA = PARA_.second;
+                parameters[parameterName] = PARA;
+            }
+        }
+
+        // change ignore source name to id
+        for (auto &any:parameters) {
+            auto &iss = any.second.ignoreSourcesString;
+            for (const auto &iss_n:iss) {
+                for (const auto &src:sources_) {
+                    if (src.hasName(iss_n)) {
+                        any.second.ignoreSources.push_back(src.getId());
+                        break;
+                    }
+                }
+            }
+        }
+
+        // define backup parameter
+        Station::Parameters parentPARA("backup");
+
+        // store events for each station
+        vector<vector<Station::Event> > events(network_.getNSta());
+
+        // set observation mode band names
+        for (const auto &any:ObservationMode::bands) {
+            const string &name = any;
+            parentPARA.minSNR[name] = ObservationMode::minSNR[name];
+        }
+
+        // create default events at start and end
+        for (int i = 0; i < network_.getNSta(); ++i) {
+            Station::Event newEvent_start(0, false, parentPARA);
+            events[i].push_back(newEvent_start);
+
+            Station::Event newEvent_end(TimeSystem::duration, true, parentPARA);
+            events[i].push_back(newEvent_end);
+        }
+
+        // add setup for all stations
+        for (auto &it: PARA_station) {
+            string name = it.first;
+            if (name == "setup") {
+                stationSetup(events, it.second, parameters, staGroups_, parentPARA);
+            }
+        }
+
+        // set to start state
+        for (unsigned long ista = 0; ista < network_.getNSta(); ++ista) {
+            Station &thisStation = network_.refStation(ista);
+
+            PointingVector pV(ista, 0);
+            pV.setAz(0);
+            pV.setEl(0);
+            pV.setTime(0);
+
+            thisStation.setCurrentPointingVector(pV);
+            thisStation.setEVENTS(events[ista]);
+
+            bool hardBreak = false;
+            thisStation.checkForNewEvent(0, hardBreak);
+
+            thisStation.referencePARA().firstScan = true;
+        }
+
+        // set wait times
+        vector<string> waitTimesInitialized;
+        auto waitTime_tree = PARA_station.get_child("waitTimes");
+        for (auto &it: waitTime_tree) {
+            string name = it.first;
+            if (name == "waitTime") {
+                vector<string> waitTimesNow;
+                string memberName = it.second.get_child("<xmlattr>.member").data();
+                if (staGroups_.find(memberName) != staGroups_.end()) {
+                    waitTimesNow.insert(waitTimesNow.end(), staGroups_[memberName].begin(), staGroups_[memberName].end());
+                } else if (memberName == "__all__") {
+                    for (const auto &sta:network_.getStations()) {
+                        waitTimesNow.push_back(sta.getName());
+                    }
+                } else {
+                    waitTimesNow.push_back(memberName);
+                }
+
+                bool errorFlagWaitTime = false;
+                for (const auto &any:waitTimesNow) {
+                    if (find(waitTimesInitialized.begin(), waitTimesInitialized.end(), any) !=
+                        waitTimesInitialized.end()) {
+                        cerr << "ERROR: double use of station/group " << name
+                             << " in wait times block! This whole block is ignored!;\n";
+                        errorFlagWaitTime = true;
+                    }
+                }
+                if (errorFlagWaitTime) {
+                    continue;
+                }
+
+
+                for (const auto &any: waitTimesNow) {
+                    for (auto &sta: network_.refStations()) {
+                        if (sta.hasName(any)) {
+                            Station::WaitTimes wtimes;
+                            wtimes.fieldSystem = it.second.get<double>("fieldSystem");
+                            wtimes.preob = it.second.get<double>("preob");
+                            wtimes.midob = it.second.get<double>("midob");
+                            wtimes.postob = it.second.get<double>("postob");
+                            sta.setWaitTimes(wtimes);
+                            break;
+                        }
+                    }
+                }
+                waitTimesInitialized.insert(waitTimesInitialized.end(), waitTimesNow.begin(), waitTimesNow.end());
+            }
+        }
+
+        // set cable wrap buffers
+        auto cableBuffer_tree = PARA_station.get_child("cableWrapBuffers");
+        vector<string> cableInitialized;
+        for (auto &it: cableBuffer_tree) {
+            string name = it.first;
+            if (name == "cableWrapBuffer") {
+                vector<string> cableNow;
+                string memberName = it.second.get_child("<xmlattr>.member").data();
+                if (staGroups_.find(memberName) != staGroups_.end()) {
+                    cableNow.insert(cableNow.end(), staGroups_[memberName].begin(), staGroups_[memberName].end());
+                } else if (memberName == "__all__") {
+                    for (const auto &sta: network_.getStations()) {
+                        cableNow.push_back(sta.getName());
+                    }
+                } else {
+                    cableNow.push_back(memberName);
+                }
+
+                bool errorFlagWaitTime = false;
+                for (const auto &any:cableNow) {
+                    if (find(cableInitialized.begin(), cableInitialized.end(), any) != cableInitialized.end()) {
+                        cerr << "ERROR: double use of station/group " << name
+                             << " in wait times block! This whole block is ignored!;\n";
+                        errorFlagWaitTime = true;
+                    }
+                }
+                if (errorFlagWaitTime) {
+                    continue;
+                }
+
+
+                for (const auto &any: cableNow) {
+                    for (auto &sta:network_.refStations()) {
+                        if (sta.hasName(any)) {
+                            auto axis1Low = it.second.get<double>("axis1LowOffset");
+                            auto axis1Up = it.second.get<double>("axis1UpOffset");
+                            auto axis2Low = it.second.get<double>("axis2LowOffset");
+                            auto axis2Up = it.second.get<double>("axis2UpOffset");
+                            sta.referenceCableWrap().setMinimumOffsets(axis1Low, axis1Up, axis2Low, axis2Up);
+                            break;
+                        }
+                    }
+                }
+                cableInitialized.insert(cableInitialized.end(), cableNow.begin(), cableNow.end());
+            }
+        }
+    }else{
         cout << "ERROR: reading parameters.xml file!" <<
              "    probably missing <station> block?;" << endl;
-    }
-
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
-
-    unordered_map<std::string, ParameterSettings::ParametersStations> parameters;
-    auto para_tree = PARA_station.get_child("parameters");
-    for (auto &it: para_tree) {
-        string name = it.first;
-        if (name == "parameter") {
-            string parameterName = it.second.get_child("<xmlattr>.name").data();
-
-            ParameterSettings::ParametersStations PARA;
-
-            auto PARA_ = ParameterSettings::ptree2parameterStation(it.second);
-            PARA = PARA_.second;
-
-            parameters[parameterName] = PARA;
-        }
-    }
-
-    for(auto &any:parameters) {
-        auto &iss = any.second.ignoreSourcesString;
-        for (const auto &iss_n:iss) {
-            for (const auto &src:sources_) {
-                if (src.hasName(iss_n)) {
-                    any.second.ignoreSources.push_back(src.getId());
-                    break;
-                }
-            }
-        }
-    }
-
-    vector<vector<Station::Event> > events(stations_.size());
-
-    Station::Parameters parentPARA("backup");
-
-    for (const auto &any:ObservationMode::bands) {
-        const string &name = any;
-        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
-    }
-
-    parentPARA.weight = 1;
-
-
-    for (int i = 0; i < stations_.size(); ++i) {
-        Station::Event newEvent_start(0,false,parentPARA);
-        events[i].push_back(newEvent_start);
-
-        Station::Event newEvent_end(TimeSystem::duration,true,parentPARA);
-        events[i].push_back(newEvent_end);
-    }
-
-    for (auto &it: PARA_station) {
-        string name = it.first;
-        if (name == "setup") {
-            stationSetup(events, it.second, parameters, groups, parentPARA);
-        }
-    }
-
-    unsigned long nsta = stations_.size();
-    for (int i = 0; i < nsta; ++i) {
-        Station &thisStation = stations_[i];
-
-        PointingVector pV(i, 0);
-        pV.setAz(0);
-        pV.setEl(0);
-        pV.setTime(0);
-
-        thisStation.setCurrentPointingVector(pV);
-        thisStation.setEVENTS(events[i]);
-        bool hardBreak = false;
-        thisStation.checkForNewEvent(0, hardBreak);
-
-        vector<double> distance(nsta);
-        vector<double> dx(nsta);
-        vector<double> dy(nsta);
-        vector<double> dz(nsta);
-        for (int j = i+1; j<nsta; ++j) {
-            Station &otherStation = stations_[j];
-
-            distance[j] = thisStation.distance(otherStation);
-            dx[j] = otherStation.getPosition().getX() - thisStation.getPosition().getX();
-            dy[j] = otherStation.getPosition().getY() - thisStation.getPosition().getY();
-            dz[j] = otherStation.getPosition().getZ() - thisStation.getPosition().getZ();
-        }
-
-        thisStation.preCalc(distance, dx, dy, dz);
-        thisStation.referencePARA().firstScan = true;
-    }
-
-    vector<string> waitTimesInitialized;
-    auto waitTime_tree = PARA_station.get_child("waitTimes");
-    for (auto &it: waitTime_tree) {
-        string name = it.first;
-        if (name == "waitTime") {
-            vector<string> waitTimesNow;
-            string memberName = it.second.get_child("<xmlattr>.member").data();
-            if (groups.find(memberName) != groups.end()) {
-                waitTimesNow.insert(waitTimesNow.end(), groups[memberName].begin(), groups[memberName].end());
-            } else if (memberName == "__all__") {
-                for (const auto &sta:stations_) {
-                    waitTimesNow.push_back(sta.getName());
-                }
-            } else {
-                waitTimesNow.push_back(memberName);
-            }
-
-            bool errorFlagWaitTime = false;
-            for (const auto &any:waitTimesNow) {
-                if (find(waitTimesInitialized.begin(), waitTimesInitialized.end(), any) != waitTimesInitialized.end()) {
-                    cerr << "ERROR: double use of station/group " << name
-                         << " in wait times block! This whole block is ignored!;\n";
-                    errorFlagWaitTime = true;
-                }
-            }
-            if (errorFlagWaitTime) {
-                continue;
-            }
-
-
-            for (const auto &any: waitTimesNow) {
-                for (auto &sta:stations_) {
-                    if (sta.hasName(any)) {
-                        Station::WaitTimes wtimes;
-                        wtimes.fieldSystem = it.second.get<double>("fieldSystem");
-                        wtimes.preob = it.second.get<double>("preob");
-                        wtimes.midob = it.second.get<double>("midob");
-                        wtimes.postob = it.second.get<double>("postob");
-                        sta.setWaitTimes(wtimes);
-                        break;
-                    }
-                }
-            }
-            waitTimesInitialized.insert(waitTimesInitialized.end(), waitTimesNow.begin(), waitTimesNow.end());
-        }
-    }
-
-    auto cableBuffer_tree = PARA_station.get_child("cableWrapBuffers");
-    vector<string> cableInitialized;
-    for (auto &it: cableBuffer_tree) {
-        string name = it.first;
-        if (name == "cableWrapBuffer") {
-            vector<string> cableNow;
-            string memberName = it.second.get_child("<xmlattr>.member").data();
-            if (groups.find(memberName) != groups.end()) {
-                cableNow.insert(cableNow.end(), groups[memberName].begin(), groups[memberName].end());
-            } else if (memberName == "__all__") {
-                for (const auto &sta:stations_) {
-                    cableNow.push_back(sta.getName());
-                }
-            } else {
-                cableNow.push_back(memberName);
-            }
-
-            bool errorFlagWaitTime = false;
-            for (const auto &any:cableNow) {
-                if (find(cableInitialized.begin(), cableInitialized.end(), any) != cableInitialized.end()) {
-                    cerr << "ERROR: double use of station/group " << name
-                         << " in wait times block! This whole block is ignored!;\n";
-                    errorFlagWaitTime = true;
-                }
-            }
-            if (errorFlagWaitTime) {
-                continue;
-            }
-
-
-            for (const auto &any: cableNow) {
-                for (auto &sta:stations_) {
-                    if (sta.hasName(any)) {
-                        auto axis1Low = it.second.get<double>("axis1LowOffset");
-                        auto axis1Up = it.second.get<double>("axis1UpOffset");
-                        auto axis2Low = it.second.get<double>("axis2LowOffset");
-                        auto axis2Up = it.second.get<double>("axis2UpOffset");
-                        sta.referenceCableWrap().setMinimumOffsets(axis1Low, axis1Up, axis2Low, axis2Up);
-                        break;
-                    }
-                }
-            }
-            cableInitialized.insert(cableInitialized.end(), cableNow.begin(), cableNow.end());
-        }
-    }
-
-    for(auto & any:stations_){
-        any.referencePARA().firstScan = true;
     }
 }
 
 void Initializer::stationSetup(vector<vector<Station::Event> > &events,
-                                    const boost::property_tree::ptree &tree,
-                                    const unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
-                                    const unordered_map<std::string, std::vector<std::string> > &groups,
-                                    const Station::Parameters &parentPARA) noexcept {
+                               const boost::property_tree::ptree &tree,
+                               const unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
+                               const unordered_map<std::string, std::vector<std::string> > &groups,
+                               const Station::Parameters &parentPARA) noexcept {
 
     vector<string> members;
     Station::Parameters combinedPARA = Station::Parameters(tree.get<string>("parameter"));
@@ -975,7 +907,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         } else if (paraName == "member") {
             string tmp = it.second.data();
             if (tmp == "__all__") {
-                for (const auto &any:stations_) {
+                for (const auto &any:network_.getStations()) {
                     members.push_back(any.getName());
                 }
             } else {
@@ -995,9 +927,9 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (newPARA.tagalong.is_initialized()) {
                 combinedPARA.tagalong = *newPARA.tagalong;
             }
-            if (newPARA.firstScan.is_initialized()) {
-                combinedPARA.firstScan = *newPARA.firstScan;
-            }
+//            if (newPARA.firstScan.is_initialized()) {
+//                combinedPARA.firstScan = *newPARA.firstScan;
+//            }
 
             if (newPARA.weight.is_initialized()) {
                 combinedPARA.weight = *newPARA.weight;
@@ -1060,7 +992,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
     }
 
     vector<string> staNames;
-    for (const auto &any:stations_) {
+    for (const auto &any: network_.getStations()) {
         staNames.push_back(any.getName());
     }
 
@@ -1099,113 +1031,97 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
 
 void Initializer::initializeSources() noexcept {
 
-    boost::property_tree::ptree PARA_source;
-    try{
-        PARA_source = xml_.get_child("master.source");
-    }catch(const boost::property_tree::ptree_error &e){
+    // get source tree
+    const auto & PARA_source_o = xml_.get_child_optional("master.source");
+    if(PARA_source_o.is_initialized()) {
+        const auto &PARA_source = PARA_source_o.get();
+
+        // get all defined source groups
+        srcGroups_ = readGroups(PARA_source, GroupType::source);
+
+        // get all defined parameters
+        const auto & para_tree = PARA_source.get_child("parameters");
+        unordered_map<std::string, ParameterSettings::ParametersSources> parameters;
+        for (auto &it: para_tree) {
+            string name = it.first;
+            if (name == "parameter") {
+                string parameterName = it.second.get_child("<xmlattr>.name").data();
+
+                ParameterSettings::ParametersSources PARA;
+
+                auto PARA_ = ParameterSettings::ptree2parameterSource(it.second);
+                PARA = PARA_.second;
+
+                parameters[parameterName] = PARA;
+            }
+        }
+        // change names in parameters to ids
+        for (auto &any:parameters) {
+
+            // get ignore station ids
+            auto &ignoreStationsString = any.second.ignoreStationsString;
+            for (const auto &ignoreStationName:ignoreStationsString) {
+                unsigned long id = network_.getStation(ignoreStationName).getId();
+                any.second.ignoreStations.push_back(id);
+            }
+
+            // get required station ids
+            auto &requiredStationsString = any.second.requiredStationsString;
+            for (const auto &requiredStationName:requiredStationsString) {
+                unsigned long id = network_.getStation(requiredStationName).getId();
+                any.second.requiredStations.push_back(id);
+            }
+
+            // get ignore baseline ids
+            auto &ignoreBaselineString = any.second.ignoreBaselinesString;
+            for (const auto &ignoreBaselineName: ignoreBaselineString) {
+                unsigned long id = network_.getBaseline(ignoreBaselineName).getId();
+                any.second.ignoreBaselines.push_back(id);
+            }
+        }
+
+        // define backup parameter
+        Source::Parameters parentPARA("backup");
+
+        // set observation mode band names
+        for (const auto &any:ObservationMode::bands) {
+            const string &name = any;
+            parentPARA.minSNR[name] = ObservationMode::minSNR[name];
+        }
+
+        // store events for each source
+        vector<vector<Source::Event> > events(sources_.size());
+
+        // create default events at start and end
+        for (int i = 0; i < sources_.size(); ++i) {
+            Source::Event newEvent_start(0, false, parentPARA);
+            events[i].push_back(newEvent_start);
+            Source::Event newEvent_end(TimeSystem::duration, true, parentPARA);
+            events[i].push_back(newEvent_end);
+        }
+
+        // add setup for all sources
+        for (auto &it: PARA_source) {
+            string name = it.first;
+            if (name == "setup") {
+                sourceSetup(events, it.second, parameters, srcGroups_, parentPARA);
+            }
+        }
+
+        // set events for all sources
+        for (int i = 0; i < sources_.size(); ++i) {
+            sources_[i].setEVENTS(events[i]);
+        }
+
+        // set to start event
+        for (auto &any:sources_) {
+            bool hardBreak = false;
+            any.checkForNewEvent(0, hardBreak);
+        }
+    }else{
         cout << "ERROR: reading parameters.xml file!" <<
              "    probably missing <source> block?;" << endl;
     }
-
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
-
-    auto para_tree = PARA_source.get_child("parameters");
-    unordered_map<std::string, ParameterSettings::ParametersSources> parameters;
-    for (auto &it: para_tree) {
-        string name = it.first;
-        if (name == "parameter") {
-            string parameterName = it.second.get_child("<xmlattr>.name").data();
-
-            ParameterSettings::ParametersSources PARA;
-
-            auto PARA_ = ParameterSettings::ptree2parameterSource(it.second);
-            PARA = PARA_.second;
-
-            parameters[parameterName] = PARA;
-        }
-    }
-    for(auto &any:parameters){
-        auto &iss = any.second.ignoreStationsString;
-        for(const auto &iss_n:iss) {
-            for(const auto &sta:stations_){
-                if(sta.hasName(iss_n)){
-                    any.second.ignoreStations.push_back(sta.getId());
-                    break;
-                }
-            }
-        }
-        auto &iss2 = any.second.requiredStationsString;
-        for(const auto &iss_n:iss2) {
-            for(const auto &sta:stations_){
-                if(sta.hasName(iss_n)){
-                    any.second.requiredStations.push_back(sta.getId());
-                    break;
-                }
-            }
-        }
-        auto &iss3 = any.second.ignoreBaselinesString;
-        for(const auto &baselineName:iss3) {
-            vector<string> splitVec;
-            boost::split(splitVec, baselineName, boost::is_any_of("-"));
-            string station1 = splitVec[0];
-            int staid1;
-            for (int i = 0; i < stations_.size(); ++i) {
-                if (stations_[i].hasName(station1)) {
-                    staid1 = i;
-                    break;
-                }
-            }
-            string station2 = splitVec[1];
-            int staid2;
-            for (int i = 0; i < stations_.size(); ++i) {
-                if (stations_[i].hasName(station2)) {
-                    staid2 = i;
-                    break;
-                }
-            }
-            if (staid1 > staid2) {
-                swap(staid1, staid2);
-            }
-            any.second.ignoreBaselines.emplace_back(staid1, staid2);
-        }
-    }
-
-
-    Source::Parameters parentPARA("backup");
-
-    for (const auto &any:ObservationMode::bands) {
-        const string &name = any;
-        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
-    }
-
-    vector<vector<Source::Event> > events(sources_.size());
-
-    for (int i = 0; i < sources_.size(); ++i) {
-        Source::Event newEvent_start(0,false,parentPARA);
-
-        events[i].push_back(newEvent_start);
-
-        Source::Event newEvent_end(TimeSystem::duration, true, parentPARA);
-
-        events[i].push_back(newEvent_end);
-    }
-
-    for (auto &it: PARA_source) {
-        string name = it.first;
-        if (name == "setup") {
-            sourceSetup(events, it.second, parameters, groups, parentPARA);
-        }
-    }
-    for (int i = 0; i < sources_.size(); ++i) {
-        sources_[i].setEVENTS(events[i]);
-    }
-
-    for (auto &any:sources_) {
-        bool hardBreak = false;
-        any.checkForNewEvent(0, hardBreak);
-    }
-
-
 }
 
 
@@ -1405,23 +1321,191 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             sourceSetup(events, it.second, parameters, groups, combinedPARA);
         }
     }
+}
+
+void Initializer::initializeBaselines() noexcept {
+    // get baseline tree
+    const auto & PARA_baseline_o = xml_.get_child_optional("master.baseline");
+    if(PARA_baseline_o.is_initialized()){
+        const auto & PARA_baseline = PARA_baseline_o.get();
+
+        // get all defined baseline groups
+        blGroups_ = readGroups(PARA_baseline, GroupType::baseline);
+
+        // get all defined parameters
+        const auto &para_tree = PARA_baseline.get_child("parameters");
+        unordered_map<std::string, ParameterSettings::ParametersBaselines> parameters;
+        for (auto &it: para_tree) {
+            string name = it.first;
+            if (name == "parameter") {
+                string parameterName = it.second.get_child("<xmlattr>.name").data();
+
+                ParameterSettings::ParametersBaselines PARA;
+
+                auto PARA_ = ParameterSettings::ptree2parameterBaseline(it.second);
+                PARA = PARA_.second;
+
+                parameters[parameterName] = PARA;
+            }
+        }
+
+        // define backup parameter
+        Baseline::Parameters parentPARA("backup");
+
+        // set observation mode band names
+        for (const auto &any:ObservationMode::bands) {
+            const string &name = any;
+            parentPARA.minSNR[name] = ObservationMode::minSNR[name];
+        }
+
+
+        // store events for each baseline
+        vector<vector<Baseline::Event> > events(network_.getNBls());
+
+        // create default events at start and end
+        for (int i = 0; i < network_.getNBls(); ++i) {
+            Baseline::Event newEvent_start(0,false,parentPARA);
+            events[i].push_back(newEvent_start);
+            Baseline::Event newEvent_end(TimeSystem::duration, true, parentPARA);
+            events[i].push_back(newEvent_end);
+        }
+
+        // add setup for all baselines
+        for (auto &it: PARA_baseline) {
+            string name = it.first;
+            if (name == "setup") {
+                baselineSetup(events, it.second, parameters, blGroups_, parentPARA);
+            }
+        }
+        // set events for all baselines
+        for (unsigned int i = 0; i < network_.getNBls(); ++i) {
+            Baseline &bl = network_.refBaseline(i);
+            bl.setEVENTS(events[i]);
+        }
+
+        // set to start event
+        for (auto &thisBl:network_.refBaselines()) {
+            bool dummy = false;
+            thisBl.checkForNewEvent(0, dummy);
+        }
+
+    }else{
+        cout << "ERROR: reading parameters.xml file!" <<
+             "    probably missing <baseline> block?;" << endl;
+    }
 
 }
 
+void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
+                                const boost::property_tree::ptree &tree,
+                                const unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
+                                const unordered_map<std::string, std::vector<std::string> > &groups,
+                                const Baseline::Parameters &parentPARA) noexcept {
 
-void Initializer::displaySummary(ofstream &headerLog) noexcept {
+    vector<string> members;
+    Baseline::Parameters combinedPARA = Baseline::Parameters( tree.get<string>("parameter"));
+    combinedPARA.setParameters(parentPARA);
+    unsigned int start = 0;
+    unsigned int end = TimeSystem::duration;
+    bool softTransition = true;
 
-    headerLog << "List of all sources:\n";
-    headerLog << "------------------------------------\n";
-    for(auto& any:stations_){
-        headerLog << any;
+    for (auto &it: tree) {
+        string paraName = it.first;
+        if (paraName == "group") {
+            string tmp = it.second.data();
+            members = groups.at(tmp);
+        } else if (paraName == "member") {
+            string tmp = it.second.data();
+            if (tmp == "__all__") {
+                for (const auto &any:network_.getBaselines()) {
+                    members.push_back(any.getName());
+                }
+            } else {
+                members.push_back(tmp);
+            }
+        } else if (paraName == "parameter") {
+            const string &tmp = it.second.data();
+
+            ParameterSettings::ParametersBaselines newPARA = parameters.at(tmp);
+            if (newPARA.ignore.is_initialized()) {
+                combinedPARA.ignore = *newPARA.ignore;
+            }
+            if (newPARA.weight.is_initialized()) {
+                combinedPARA.weight = *newPARA.weight;
+            }
+            if (newPARA.minScan.is_initialized()) {
+                combinedPARA.minScan = *newPARA.minScan;
+            }
+            if (newPARA.maxScan.is_initialized()) {
+                combinedPARA.maxScan = *newPARA.maxScan;
+            }
+            if (!newPARA.minSNR.empty()) {
+                for (const auto &any:newPARA.minSNR) {
+                    string name = any.first;
+                    double value = any.second;
+                    combinedPARA.minSNR[name] = value;
+                }
+            }
+
+        } else if (paraName == "start") {
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
+            start = TimeSystem::posixTime2InternalTime(thisStartTime);
+        } else if (paraName == "end") {
+            string t = it.second.get_value<string>();
+            boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
+            end = TimeSystem::posixTime2InternalTime(thisEndTime);
+        } else if (paraName == "transition") {
+            string tmp = it.second.data();
+            if (tmp == "hard") {
+                softTransition = false;
+            } else if (tmp == "soft") {
+                softTransition = true;
+            } else {
+                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
+            }
+        }
     }
-    headerLog << "List of all sources:\n";
-    headerLog << "------------------------------------\n";
-    for(auto& any:sources_){
-        headerLog << any;
+
+
+    vector<string> blNames;
+    for (const auto &any: network_.getBaselines()) {
+        blNames.push_back(any.getName());
+    }
+
+    for (const auto &any:members) {
+
+        auto it = find(blNames.begin(), blNames.end(), any);
+        long id = distance(blNames.begin(), it);
+        auto &thisEvents = events[id];
+
+
+        Baseline::Event newEvent_start(start,softTransition,combinedPARA);
+
+        for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
+            if (iit->time > newEvent_start.time) {
+                thisEvents.insert(iit, newEvent_start);
+                break;
+            }
+        }
+
+        Baseline::Event newEvent_end(end,true,parentPARA);
+        for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
+            if (iit->time >= newEvent_end.time) {
+                thisEvents.insert(iit, newEvent_end);
+                break;
+            }
+        }
+    }
+
+    for (auto &it: tree) {
+        string paraName = it.first;
+        if (paraName == "setup") {
+            baselineSetup(events, it.second, parameters, groups, combinedPARA);
+        }
     }
 }
+
 
 void Initializer::initializeAstronomicalParameteres() noexcept{
     // earth velocity
@@ -1503,11 +1587,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept{
     }
     double sunde = asin(sin(obliq) * sin(ecllon));
     AstronomicalParameters::sun_radc = {sunra, sunde};
-
-
-
 }
-
 
 void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
@@ -1532,7 +1612,6 @@ void Initializer::initializeSkyCoverages() noexcept {
 
     SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
     SkyCoverage::maxInfluenceTime = xml_.get<double>("master.skyCoverage.skyCoverageInterval", 3600);
-    SkyCoverage::maxTwinTelecopeDistance = xml_.get<double>("master.skyCoverage.maxTwinTelecopeDistance", 0);
 
     string interpolationDistance = xml_.get<string>("master.skyCoverage.interpolationDistance", "linear");
     if (interpolationDistance == "constant") {
@@ -1554,229 +1633,12 @@ void Initializer::initializeSkyCoverages() noexcept {
 
 }
 
-
-void Initializer::initializeBaselines() noexcept {
-
-    boost::property_tree::ptree PARA_baseline;
-    try {
-        PARA_baseline = xml_.get_child("master.baseline");
-    } catch (const boost::property_tree::ptree_error &e) {
-        cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <baseline> block?;" << endl;
-    }
-
-    unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_baseline, GroupType::baseline);
-
-    auto para_tree = PARA_baseline.get_child("parameters");
-    unordered_map<std::string, ParameterSettings::ParametersBaselines> parameters;
-    for (auto &it: para_tree) {
-        string name = it.first;
-        if (name == "parameter") {
-            string parameterName = it.second.get_child("<xmlattr>.name").data();
-
-            ParameterSettings::ParametersBaselines PARA;
-            auto PARA_ = ParameterSettings::ptree2parameterBaseline(it.second);
-            PARA = PARA_.second;
-
-            parameters[parameterName] = PARA;
-        }
-    }
-
-    unsigned long nsta = stations_.size();
-    vector<vector <char> > ignore(nsta, vector< char>(nsta,false));
-    vector< vector<unsigned int> > minScan(nsta, vector<unsigned int>(nsta,1));
-    vector< vector<unsigned int> > maxScan(nsta, vector<unsigned int>(nsta,numeric_limits<unsigned int>::max()));
-    vector< vector<double> > weight(nsta, vector<double>(nsta,1));
-    unordered_map<string,vector< vector<double> >> minSNR;
-
-    for (const auto &any:ObservationMode::bands) {
-        const string &name = any;
-        vector<vector<double> > tmp(nsta, vector<double>(nsta, 0));
-        minSNR[name] = tmp;
-    }
-
-    Baseline::PARA.ignore = ignore;
-    Baseline::PARA.minScan = minScan;
-    Baseline::PARA.maxScan = maxScan;
-    Baseline::PARA.weight = weight;
-    Baseline::PARA.minSNR = minSNR;
-
-    Baseline::Parameters parentPARA;
-    for (const auto &any:ObservationMode::bands) {
-        const string &name = any;
-        parentPARA.minSNR[name] = ObservationMode::minSNR[name];
-    }
-
-    vector<vector<vector<Baseline::Event> > > events(nsta, vector<vector<Baseline::Event> >(nsta));
-    vector<vector<unsigned int> > nextEvent(nsta, vector<unsigned int>(nsta, 0));
-
-    for (int i = 0; i < nsta; ++i) {
-        for (int j = i + 1; j < nsta; ++j) {
-            Baseline::Event newEvent_start;
-            newEvent_start.time = 0;
-            newEvent_start.softTransition = false;
-            newEvent_start.PARA = parentPARA;
-
-            events[i][j].push_back(newEvent_start);
-
-            Baseline::Event newEvent_end;
-            newEvent_end.time = TimeSystem::duration;
-            newEvent_end.softTransition = true;
-            newEvent_end.PARA = parentPARA;
-
-            events[i][j].push_back(newEvent_end);
-        }
-    }
-
-
-    for (auto &it: PARA_baseline) {
-        string name = it.first;
-        if (name == "setup") {
-            baselineSetup(events, it.second, parameters, groups, parentPARA);
-        }
-    }
-
-    Baseline::EVENTS = events;
-    Baseline::nextEvent = nextEvent;
-    bool hardBreak = false;
-    ofstream dummy;
-    Baseline::checkForNewEvent(0, hardBreak, false, dummy);
-
-}
-
-void Initializer::baselineSetup(vector<vector<vector<Baseline::Event> > > &events,
-                                     const boost::property_tree::ptree &tree,
-                                     const unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
-                                     const unordered_map<std::string, std::vector<std::string> > &groups,
-                                     const Baseline::Parameters &parentPARA) noexcept {
-
-    vector<string> members;
-    Baseline::Parameters combinedPARA = parentPARA;
-    unsigned int start = 0;
-    unsigned int end = TimeSystem::duration;
-    bool softTransition = true;
-
-    for (auto &it: tree) {
-        string paraName = it.first;
-        if (paraName == "group") {
-            string tmp = it.second.data();
-            members = groups.at(tmp);
-        } else if (paraName == "member") {
-            string tmp = it.second.data();
-            if (tmp == "__all__") {
-                for(int i = 0; i<stations_.size(); ++i){
-                    for(int j=i+1; j<stations_.size(); ++j){
-                        members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
-                    }
-                }
-            } else {
-                members.push_back(tmp);
-            }
-        } else if (paraName == "parameter") {
-            string tmp = it.second.data();
-            ParameterSettings::ParametersBaselines newPARA = parameters.at(tmp);
-            if (newPARA.ignore.is_initialized()) {
-                combinedPARA.ignore = *newPARA.ignore;
-            }
-
-            if (newPARA.weight.is_initialized()) {
-                combinedPARA.weight = *newPARA.weight;
-            }
-
-            if (newPARA.minScan.is_initialized()) {
-                combinedPARA.minScan = *newPARA.minScan;
-            }
-            if (newPARA.maxScan.is_initialized()) {
-                combinedPARA.maxScan = *newPARA.maxScan;
-            }
-            if (!newPARA.minSNR.empty()) {
-                for (const auto &any:newPARA.minSNR) {
-                    string name = any.first;
-                    double value = any.second;
-                    combinedPARA.minSNR[name] = value;
-                }
-            }
-
-        } else if (paraName == "start") {
-            string t = it.second.get_value<string>();
-            boost::posix_time::ptime thisStartTime = TimeSystem::string2ptime(t);
-            start = TimeSystem::posixTime2InternalTime(thisStartTime);
-        } else if (paraName == "end") {
-            string t = it.second.get_value<string>();
-            boost::posix_time::ptime thisEndTime = TimeSystem::string2ptime(t);
-            end = TimeSystem::posixTime2InternalTime(thisEndTime);
-        } else if (paraName == "transition") {
-            string tmp = it.second.data();
-            if (tmp == "hard") {
-                softTransition = false;
-            } else if (tmp == "soft") {
-                softTransition = true;
-            } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
-            }
-        }
-    }
-
-    vector<string> staNames;
-    for (const auto &any:stations_) {
-        staNames.push_back(any.getName());
-    }
-
-    for (const auto &any:members) {
-
-        vector<string> splitVector;
-        boost::split(splitVector, any, boost::is_any_of("-"));
-
-        auto it1 = find(staNames.begin(), staNames.end(), splitVector[0]);
-        int id1 = it1 - staNames.begin();
-        auto it2 = find(staNames.begin(), staNames.end(), splitVector[1]);
-        int id2 = it2 - staNames.begin();
-
-
-        if (id1 > id2) {
-            std::swap(id1, id2);
-        }
-
-        Baseline::Event newEvent_start;
-        newEvent_start.time = start;
-        newEvent_start.softTransition = softTransition;
-        newEvent_start.PARA = combinedPARA;
-
-        for (auto iit = events[id1][id2].begin(); iit < events[id1][id2].end(); ++iit) {
-            if (iit->time > newEvent_start.time) {
-                events[id1][id2].insert(iit, newEvent_start);
-                break;
-            }
-        }
-
-        Baseline::Event newEvent_end;
-        newEvent_end.time = end;
-        newEvent_end.softTransition = true;
-        newEvent_end.PARA = parentPARA;
-        for (auto iit = events[id1][id2].begin(); iit < events[id1][id2].end(); ++iit) {
-            if (iit->time >= newEvent_end.time) {
-                events[id1][id2].insert(iit, newEvent_end);
-                break;
-            }
-        }
-    }
-
-    for (auto &it: tree) {
-        string paraName = it.first;
-        if (paraName == "setup") {
-            baselineSetup(events, it.second, parameters, groups, combinedPARA);
-        }
-    }
-}
-
-
-void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
 
             const string &name = it.second.get_value<string>();
-            reader.initializeModesCatalogs(name);
             ObservationMode::sampleRate = reader.getSampleRate();
             ObservationMode::bits = reader.getBits();
             ObservationMode::manual = false;
@@ -1809,8 +1671,8 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
 
             for(const auto&any:reader.getChannelNumber2skyFreq()){
                 int chanNr = any.first;
-                string band = chan2band.at(chanNr);
-                double freq = boost::lexical_cast<double>(any.second);
+                const string &band = chan2band.at(chanNr);
+                auto freq = boost::lexical_cast<double>(any.second);
                 band2skyFreqs.at(band).push_back(freq);
             }
 
@@ -1848,7 +1710,6 @@ void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &he
             ObservationMode::sourceProperty = sourceProperty;
             ObservationMode::sourceBackup = sourceBackup;
             ObservationMode::sourceBackupValue = sourceBackupValue;
-
 
         } else if (it.first == "sampleRate") {
             ObservationMode::sampleRate = it.second.get_value<double>();
@@ -1994,7 +1855,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
         }
         case GroupType::station:{
             std::vector<std::string> members;
-            for(const auto&any:stations_){
+            for(const auto&any:network_.getStations()){
                 members.push_back(any.getName());
             }
             groups["__all__"] = members;
@@ -2002,10 +1863,8 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
         }
         case GroupType::baseline:{
             std::vector<std::string> members;
-            for(int i = 0; i<stations_.size(); ++i){
-                for (int j = i+1; j<stations_.size(); ++j){
-                    members.push_back(stations_[i].getName() + "-" + stations_[j].getName());
-                }
+            for(const auto&any: network_.getBaselines()){
+                members.push_back(any.getName());
             }
             groups["__all__"] = members;
             break;
@@ -2015,51 +1874,44 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
     return groups;
 }
 
-void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters,
-                                                 ofstream &bodyLog) {
-    parameters.output(bodyLog);
+Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
+//    parameters.output(bodyLog);
 
-    boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
-    unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station, GroupType::station);
-    boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
-    unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
-    boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
-    unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline, GroupType::baseline);
+    Initializer copyOfInit(*this);
+    multiSchedulingParameters_ = parameters;
 
-
-
-    unsigned long nsta = stations_.size();
+    unsigned long nsta = network_.getNSta();
 
     // GENERAL
     if (parameters.start.is_initialized()) {
-        boost::posix_time::ptime startTime = *parameters.start;
-        int sec_ = startTime.time_of_day().total_seconds();
-        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
-
-        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(
-                static_cast<long>(TimeSystem::duration));
-
-        TimeSystem::mjdStart = mjdStart;
-        TimeSystem::startTime = startTime;
-        TimeSystem::endTime = endTime;
+//        boost::posix_time::ptime startTime = *parameters.start;
+//        int sec_ = startTime.time_of_day().total_seconds();
+//        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
+//
+//        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(
+//                static_cast<long>(TimeSystem::duration));
+//
+//        TimeSystem::mjdStart = mjdStart;
+//        TimeSystem::startTime = startTime;
+//        TimeSystem::endTime = endTime;
     }
     if (parameters.subnetting.is_initialized()) {
-        parameters_.subnetting = *parameters.subnetting;
+        copyOfInit.parameters_.subnetting = *parameters.subnetting;
     }
     if (parameters.subnetting_minSourceAngle.is_initialized()) {
-        parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
+        copyOfInit.parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
     }
     if (parameters.subnetting_minParticipatingStations.is_initialized()) {
-        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
+        copyOfInit.parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
     }
     if (parameters.fillinmode_duringScanSelection.is_initialized()) {
-        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
+        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
     }
     if (parameters.fillinmode_influenceOnScanSelection.is_initialized()) {
-        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
+        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
     }
     if (parameters.fillinmode_aPosteriori.is_initialized()) {
-        parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
+        copyOfInit.parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
 
     // WEIGHT FACTORS
@@ -2103,195 +1955,93 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         WeightFactors::lowElevationFullWeight = *parameters.weightLowElevation_full;
     }
 
-    //TODO: SKY COVERAGE
+    // SKY COVERAGE
+    if(parameters.skyCoverageInfluenceDistance.is_initialized()){
+        SkyCoverage::maxInfluenceDistance = *parameters.skyCoverageInfluenceDistance;
+    }
+    if(parameters.skyCoverageInfluenceTime.is_initialized()){
+        SkyCoverage::maxInfluenceTime = *parameters.skyCoverageInfluenceTime;
+    }
 
     // STATION
     if (!parameters.stationWeight.empty()) {
         for (const auto &any:parameters.stationWeight) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().weight = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().weight = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().weight = any.second;
             }
         }
     }
     if (!parameters.stationMaxSlewtime.empty()) {
         for (const auto &any:parameters.stationMaxSlewtime) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().maxSlewtime = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().maxSlewtime = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().maxSlewtime = any.second;
             }
         }
     }
     if (!parameters.stationMaxSlewDistance.empty()) {
         for (const auto &any:parameters.stationMaxSlewDistance) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().maxSlewDistance = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().maxSlewDistance = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().maxSlewDistance = any.second;
             }
         }
     }
     if (!parameters.stationMinSlewDistance.empty()) {
         for (const auto &any:parameters.stationMinSlewDistance) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().minSlewDistance = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().minSlewDistance = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().minSlewDistance = any.second;
             }
         }
     }
     if (!parameters.stationMaxWait.empty()) {
         for (const auto &any:parameters.stationMaxWait) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().maxWait = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().maxWait = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().maxWait = any.second;
             }
         }
     }
     if (!parameters.stationMinElevation.empty()) {
         for (const auto &any:parameters.stationMinElevation) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().minElevation = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().minElevation = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().minElevation = any.second;
             }
         }
     }
     if (!parameters.stationMaxNumberOfScans.empty()) {
         for (const auto &any:parameters.stationMaxNumberOfScans) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().maxNumberOfScans = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().maxNumberOfScans = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
     if (!parameters.stationMaxScan.empty()) {
         for (const auto &any:parameters.stationMaxScan) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().maxScan = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().maxScan = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().maxScan = any.second;
             }
         }
     }
     if (!parameters.stationMinScan.empty()) {
         for (const auto &any:parameters.stationMinScan) {
             string name = any.first;
-            if (group_station.find(name) != group_station.end()) {
-                vector<string> members = group_station[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisStation:stations_) {
-                        if (thisStation.hasName(thisName)) {
-                            thisStation.referencePARA().minScan = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisStation:stations_) {
-                    if (thisStation.hasName(name)) {
-                        thisStation.referencePARA().minScan = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,network_.getStations());
+            for(auto id : ids){
+                copyOfInit.network_.refStation(id).referencePARA().minScan = any.second;
             }
         }
     }
@@ -2300,189 +2050,81 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     if (!parameters.sourceWeight.empty()) {
         for (const auto &any:parameters.sourceWeight) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().weight = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().weight = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().weight = any.second;
             }
         }
     }
     if (!parameters.sourceMinNumberOfStations.empty()) {
         for (const auto &any:parameters.sourceMinNumberOfStations) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minNumberOfStations = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minNumberOfStations = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minNumberOfStations = any.second;
             }
         }
     }
     if (!parameters.sourceMinFlux.empty()) {
         for (const auto &any:parameters.sourceMinFlux) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minFlux = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minFlux = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minFlux = any.second;
             }
         }
     }
     if (!parameters.sourceMaxNumberOfScans.empty()) {
         for (const auto &any:parameters.sourceMaxNumberOfScans) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().maxNumberOfScans = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().maxNumberOfScans = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
     if (!parameters.sourceMinElevation.empty()) {
         for (const auto &any:parameters.sourceMinElevation) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minElevation = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minElevation = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minElevation = any.second;
             }
         }
     }
     if (!parameters.sourceMinSunDistance.empty()) {
         for (const auto &any:parameters.sourceMinSunDistance) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minSunDistance = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minSunDistance = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minSunDistance = any.second;
             }
         }
     }
     if (!parameters.sourceMaxScan.empty()) {
         for (const auto &any:parameters.sourceMaxScan) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().maxScan = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().maxScan = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().maxScan = any.second;
             }
         }
     }
     if (!parameters.sourceMinScan.empty()) {
         for (const auto &any:parameters.sourceMinScan) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minScan = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minScan = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minScan = any.second;
             }
         }
     }
     if (!parameters.sourceMinRepeat.empty()) {
         for (const auto &any:parameters.sourceMinRepeat) {
             string name = any.first;
-            if (group_source.find(name) != group_source.end()) {
-                vector<string> members = group_source[name];
-                for (const auto &thisName:members) {
-                    for (auto &thisSource:sources_) {
-                        if (thisSource.hasName(thisName)) {
-                            thisSource.referencePARA().minRepeat = any.second;
-                        }
-                    }
-                }
-            } else {
-                for (auto &thisSource:sources_) {
-                    if (thisSource.hasName(name)) {
-                        thisSource.referencePARA().minRepeat = any.second;
-                    }
-                }
+            vector<unsigned long> ids = getMembers(name,sources_);
+            for(auto id : ids){
+                copyOfInit.sources_[id].referencePARA().minRepeat = any.second;
             }
         }
     }
@@ -2491,144 +2133,32 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
     if (!parameters.baselineWeight.empty()) {
         for (const auto &any:parameters.baselineWeight) {
             string name = any.first;
-            if (group_baseline.find(name) != group_baseline.end()) {
-                vector<string> members = group_baseline[name];
-                for (const auto &thisName:members) {
-                    vector<string> baseline_stations;
-                    boost::split(baseline_stations, thisName, boost::is_any_of("-"));
-                    string sta0 = baseline_stations[0];
-                    string sta1 = baseline_stations[1];
-                    int staid0;
-                    int staid1;
-                    for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].hasName(sta0)) {
-                            staid0 = i;
-                        } else if (stations_[i].hasName(sta1)) {
-                            staid1 = i;
-                        }
-                    }
-                    if (staid0 > staid1) {
-                        std::swap(staid0, staid1);
-                    }
-
-                    Baseline::PARA.weight[staid0][staid1] = any.second;
-                }
-            } else {
-                vector<string> baseline_stations;
-                boost::split(baseline_stations, name, boost::is_any_of("-"));
-                string sta0 = baseline_stations[0];
-                string sta1 = baseline_stations[1];
-                int staid0;
-                int staid1;
-                for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].hasName(sta0)) {
-                        staid0 = i;
-                    } else if (stations_[i].hasName(sta1)) {
-                        staid1 = i;
-                    }
-                }
-                if (staid0 > staid1) {
-                    std::swap(staid0, staid1);
-                }
-
-                Baseline::PARA.weight[staid0][staid1] = any.second;
+            vector<unsigned long> ids = getMembers(name,network_.getBaselines());
+            for(auto id : ids){
+                copyOfInit.network_.refBaseline(id).refParameters().weight = any.second;
             }
         }
     }
     if (!parameters.baselineMinScan.empty()) {
         for (const auto &any:parameters.baselineMinScan) {
             string name = any.first;
-            if (group_baseline.find(name) != group_baseline.end()) {
-                vector<string> members = group_baseline[name];
-                for (const auto &thisName:members) {
-                    vector<string> baseline_stations;
-                    boost::split(baseline_stations, thisName, boost::is_any_of("-"));
-                    string sta0 = baseline_stations[0];
-                    string sta1 = baseline_stations[1];
-                    int staid0;
-                    int staid1;
-                    for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].hasName(sta0)) {
-                            staid0 = i;
-                        } else if (stations_[i].hasName(sta1)) {
-                            staid1 = i;
-                        }
-                    }
-                    if (staid0 > staid1) {
-                        std::swap(staid0, staid1);
-                    }
-
-                    Baseline::PARA.minScan[staid0][staid1] = any.second;
-                }
-            } else {
-                vector<string> baseline_stations;
-                boost::split(baseline_stations, name, boost::is_any_of("-"));
-                string sta0 = baseline_stations[0];
-                string sta1 = baseline_stations[1];
-                int staid0;
-                int staid1;
-                for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].hasName(sta0)) {
-                        staid0 = i;
-                    } else if (stations_[i].hasName(sta1)) {
-                        staid1 = i;
-                    }
-                }
-                if (staid0 > staid1) {
-                    std::swap(staid0, staid1);
-                }
-
-                Baseline::PARA.minScan[staid0][staid1] = any.second;
+            vector<unsigned long> ids = getMembers(name,network_.getBaselines());
+            for(auto id : ids){
+                copyOfInit.network_.refBaseline(id).refParameters().minScan = any.second;
             }
         }
     }
     if (!parameters.baselineMaxScan.empty()) {
         for (const auto &any:parameters.baselineMaxScan) {
             string name = any.first;
-            if (group_baseline.find(name) != group_baseline.end()) {
-                vector<string> members = group_baseline[name];
-                for (const auto &thisName:members) {
-                    vector<string> baseline_stations;
-                    boost::split(baseline_stations, thisName, boost::is_any_of("-"));
-                    string sta0 = baseline_stations[0];
-                    string sta1 = baseline_stations[1];
-                    int staid0;
-                    int staid1;
-                    for (int i = 0; i < nsta; ++i) {
-                        if (stations_[i].hasName(sta0)) {
-                            staid0 = i;
-                        } else if (stations_[i].hasName(sta1)) {
-                            staid1 = i;
-                        }
-                    }
-                    if (staid0 > staid1) {
-                        std::swap(staid0, staid1);
-                    }
-
-                    Baseline::PARA.maxScan[staid0][staid1] = any.second;
-                }
-            } else {
-                vector<string> baseline_stations;
-                boost::split(baseline_stations, name, boost::is_any_of("-"));
-                string sta0 = baseline_stations[0];
-                string sta1 = baseline_stations[1];
-                int staid0;
-                int staid1;
-                for (int i = 0; i < nsta; ++i) {
-                    if (stations_[i].hasName(sta0)) {
-                        staid0 = i;
-                    } else if (stations_[i].hasName(sta1)) {
-                        staid1 = i;
-                    }
-                }
-                if (staid0 > staid1) {
-                    std::swap(staid0, staid1);
-                }
-
-                Baseline::PARA.maxScan[staid0][staid1] = any.second;
+            vector<unsigned long> ids = getMembers(name,network_.getBaselines());
+            for(auto id : ids){
+                copyOfInit.network_.refBaseline(id).refParameters().maxScan = any.second;
             }
         }
     }
+
+    return copyOfInit;
 }
 
 vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &out) {
@@ -2705,23 +2235,6 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
     return std::vector<MultiScheduling::Parameters>{};
 }
 
-SkdCatalogReader Initializer::createSkdCatalogReader() const noexcept {
-    SkdCatalogReader reader;
-
-    vector<string> staNames;
-    boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
-    auto it = ptree_stations.begin();
-    while (it != ptree_stations.end()) {
-        auto item = it->second.data();
-        staNames.push_back(item);
-        ++it;
-    }
-    reader.setStationNames(staNames);
-    reader.setCatalogFilePathes(xml_.get_child("master.catalogs"));
-
-    return reader;
-}
-
 void Initializer::initializeSourceSequence() noexcept{
     boost::optional< boost::property_tree::ptree& > sq = xml_.get_child_optional( "master.rules.sourceSequence" );
     if( sq.is_initialized() )
@@ -2737,7 +2250,7 @@ void Initializer::initializeSourceSequence() noexcept{
             if(any.first == "sequence"){
                 auto tmp = any.second;
                 unsigned int modulo;
-                vector<int> targetIds;
+                vector<unsigned long> targetIds;
 
                 for(const auto &any2:tmp){
                     if(any2.first == "modulo"){
@@ -2813,7 +2326,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
                 }
 
                 headerLog << "  allowed calibratior sources: \n    ";
-                vector<int> targetIds;
+                vector<unsigned long> targetIds;
                 int c = 0;
                 for (const auto &source:sources_) {
                     const string &name = source.getName();
@@ -2863,8 +2376,9 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
         unsigned int visible = 0;
 
         bool requiredStationNotVisible = false;
-        for(int staid = 0; staid<stations_.size(); ++staid){
+        for(unsigned long staid = 0; staid<network_.getNSta(); ++staid){
 
+            const Station &thisSta = network_.getStation(staid);
             if(find(ignSta.begin(),ignSta.end(),staid) != ignSta.end()){
                 continue;
             }
@@ -2872,10 +2386,10 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
             PointingVector p(staid,source.getId());
             p.setTime(t);
 
-            stations_[staid].calcAzEl(source, p, Station::AzelModel::simple);
+            thisSta.calcAzEl(source, p, Station::AzelModel::simple);
 
             // check if source is up from station
-            bool flag = stations_[staid].isVisible(p, source.getPARA().minElevation);
+            bool flag = thisSta.isVisible(p, source.getPARA().minElevation);
             if(flag){
                 ++visible;
             }else{
@@ -2921,10 +2435,10 @@ void Initializer::statisticsLogHeader(ofstream &ofstream) {
 
     ofstream << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
     ofstream << "n_stations,";
-    for(const auto&any:stations_){
+    for(const auto&any : network_.getStations()){
         ofstream << "n_scans_" << any.getName() << ",";
     }
-    for(const auto&any:stations_){
+    for(const auto&any : network_.getStations()){
         ofstream << "n_baselines_" << any.getName() << ",";
     }
     ofstream << "n_sources,\n";
@@ -2973,8 +2487,7 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
     }
 }
 
-boost::optional<VieVS::HighImpactScanDescriptor>
-Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
+void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
     if (ctree.is_initialized()) {
 
@@ -2987,7 +2500,7 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
         boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
-        boost::optional<HighImpactScanDescriptor> himp = HighImpactScanDescriptor(interval, repeat);
+        HighImpactScanDescriptor himp = HighImpactScanDescriptor(interval, repeat);
         for(const auto &any: *ctree){
             if(any.first == "targetAzEl"){
                 auto member = any.second.get<string>("member");
@@ -2995,13 +2508,13 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
 
                 if (groups.find(member) != groups.end()) {
                     const vector<string> &group = groups.at(member);
-                    for(auto &station:stations_){
+                    for(auto &station : network_.getStations()){
                         if(find(group.begin(),group.end(),station.getName()) != group.end()){
                             staids.push_back(station.getId());
                         }
                     }
                 } else {
-                    for(auto &station:stations_){
+                    for(auto &station : network_.getStations()){
                         if(station.hasName(member)){
                             staids.push_back(station.getId());
                         }
@@ -3013,19 +2526,114 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
                 auto margin = any.second.get<double>("margin");
 
                 of << "    target az: " << az << " el: " << el << " margin: " << margin << " station: ";
-                for(int i:staids){
-                    of << stations_[i].getName() << " ";
+                for(unsigned long i:staids){
+                    of << network_.getStation(i).getName() << " ";
                 }
                 of << "\n";
 
-                himp->addAzElDescriptor(az*deg2rad,el*deg2rad,margin*deg2rad,staids);
+                himp.addAzElDescriptor(az*deg2rad,el*deg2rad,margin*deg2rad,staids);
             }
         }
-        return himp;
-    }else{
-        return boost::none;
+        himp_ = himp;
     }
 }
+
+std::vector<unsigned long> Initializer::getMembers(const std::string &name, const std::vector<Station> &stations) {
+    vector<unsigned long> ids;
+
+    // add all ids if name == "__all__"
+    if(name == "__all__"){
+        ids.resize(stations.size());
+        iota(ids.begin(), ids.end(), 0);
+
+    // add all ids from group if name is equal to a group name
+    }else if(staGroups_.find(name) != staGroups_.end()){
+        const auto &members = staGroups_.at(name);
+        for(const auto &thisTarget : members){
+            for(const auto &thisObject : stations){
+                if(thisObject.hasName(name)){
+                    ids.push_back(thisObject.getId());
+                    break;
+                }
+            }
+        }
+
+    // add single id instead
+    }else{
+        for(const auto &any : stations){
+            if(any.hasName(name)){
+                ids.push_back(any.getId());
+            }
+        }
+    }
+
+    return ids;
+}
+
+std::vector<unsigned long> Initializer::getMembers(const std::string &name, const std::vector<Baseline> &baselines) {
+    vector<unsigned long> ids;
+
+    // add all ids if name == "__all__"
+    if(name == "__all__"){
+        ids.resize(baselines.size());
+        iota(ids.begin(), ids.end(), 0);
+
+        // add all ids from group if name is equal to a group name
+    }else if(blGroups_.find(name) != blGroups_.end()){
+        const auto &members = blGroups_.at(name);
+        for(const auto &thisTarget : members){
+            for(const auto &thisObject : baselines){
+                if(thisObject.hasName(name)){
+                    ids.push_back(thisObject.getId());
+                    break;
+                }
+            }
+        }
+
+        // add single id instead
+    }else{
+        for(const auto &any : baselines){
+            if(any.hasName(name)){
+                ids.push_back(any.getId());
+            }
+        }
+    }
+
+    return ids;
+}
+
+std::vector<unsigned long> Initializer::getMembers(const std::string &name, const std::vector<Source> &sources) {
+    vector<unsigned long> ids;
+
+    // add all ids if name == "__all__"
+    if(name == "__all__"){
+        ids.resize(sources.size());
+        iota(ids.begin(), ids.end(), 0);
+
+        // add all ids from group if name is equal to a group name
+    }else if(srcGroups_.find(name) != srcGroups_.end()){
+        const auto &members = srcGroups_.at(name);
+        for(const auto &thisTarget : members){
+            for(const auto &thisObject : sources){
+                if(thisObject.hasName(name)){
+                    ids.push_back(thisObject.getId());
+                    break;
+                }
+            }
+        }
+
+        // add single id instead
+    }else{
+        for(const auto &any : sources){
+            if(any.hasName(name)){
+                ids.push_back(any.getId());
+            }
+        }
+    }
+
+    return ids;
+}
+
 
 
 

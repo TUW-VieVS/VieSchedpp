@@ -16,17 +16,17 @@ using namespace std;
 using namespace VieVS;
 unsigned long Scheduler::nextId = 0;
 
-Scheduler::Scheduler(Initializer &init, string path, string name, int version): VieVS_NamedObject(move(name),nextId++),
-                                                                   path_{std::move(path)},
-                                                                   version_{version},
-                                                                   stations_{std::move(init.stations_)},
-                                                                   sources_{std::move(init.sources_)},
-                                                                   skyCoverages_{std::move(init.skyCoverages_)},
-                                                                   xml_{init.xml_} {
+Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedObject(move(fname),nextId++),
+                                                                    path_{std::move(path)},
+                                                                    network_{std::move(init.network_)},
+                                                                    sources_{std::move(init.sources_)},
+                                                                    himp_{std::move(init.himp_)},
+                                                                    multiSchedulingParameters_{std::move(init.multiSchedulingParameters_)},
+                                                                    xml_{init.xml_} {
 
     if(init.parameters_.subnetting){
         Subnetting subnetting;
-        subnetting.subnettingMinNSta = static_cast<unsigned int>(stations_.size() * init.parameters_.subnettingMinNSta);
+        subnetting.subnettingMinNSta = static_cast<unsigned int>(network_.getNSta() * init.parameters_.subnettingMinNSta);
         subnetting.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
         parameters_.subnetting = move(subnetting);
     }
@@ -43,15 +43,12 @@ Scheduler::Scheduler(Initializer &init, string path, string name, int version): 
     parameters_.writeSkyCoverageData = false;
 }
 
-Scheduler::Scheduler(std::string name, std::vector<Station> stations, std::vector<Source> sources,
-                     std::vector<SkyCoverage> skyCoverages, std::vector<Scan> scans, boost::property_tree::ptree xml):
-                                                                            VieVS_NamedObject(move(name),nextId++),
-                                                                            stations_{std::move(stations)},
-                                                                            sources_{std::move(sources)},
-                                                                            skyCoverages_{std::move(skyCoverages)},
-                                                                            scans_{std::move(scans)},
-                                                                            xml_{std::move(xml)}{
-
+Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sources, std::vector<Scan> scans,
+                     boost::property_tree::ptree xml): VieVS_NamedObject(move(name),nextId++),
+                                                       network_{std::move(network)},
+                                                       sources_{std::move(sources)},
+                                                       scans_{std::move(scans)},
+                                                       xml_{std::move(xml)}{
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
@@ -66,7 +63,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
     while (true) {
         // look if station is possible with respect to opt_endposition
         if(opt_endposition.is_initialized()){
-            if (!opt_endposition->checkStationPossibility(stations_)){
+            if (!opt_endposition->checkStationPossibility(network_.getStations())){
                 break;
             }
         }
@@ -78,19 +75,19 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             subcon = std::move(*opt_subcon);
             opt_subcon = boost::none;
             subcon.changeType(Scan::ScanType::fillin);
-            subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, opt_endposition);
+            subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, opt_endposition);
             if (parameters_.subnetting) {
                 subcon.createSubnettingScans(*parameters_.subnetting, sources_);
             }
-            subcon.generateScore(stations_,sources_,skyCoverages_);
+            subcon.generateScore(network_,sources_);
         }else{
             // otherwise calculate new subcon
             subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
-            subcon.generateScore(stations_,sources_,skyCoverages_);
+            subcon.generateScore(network_,sources_);
         }
 
         // select the best possible next scan(s) and save them under 'bestScans'
-        vector<Scan> bestScans = subcon.selectBest(stations_, sources_, skyCoverages_, opt_endposition);
+        vector<Scan> bestScans = subcon.selectBest(network_, sources_, opt_endposition);
 
         // check if you have possible next scan
         if (bestScans.empty()) {
@@ -98,7 +95,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                 // if there is no more possible scan at the outer most iteration, check 1minute later
                 bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
                 unsigned int maxScanEnd = 0;
-                for(auto &any:stations_){
+                for(auto &any:network_.refStations()){
                     PointingVector pv = any.getCurrentPointingVector();
                     pv.setTime(pv.getTime()+60);
                     any.setCurrentPointingVector(pv);
@@ -142,9 +139,9 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
-            boost::optional<StationEndposition> newEndposition(static_cast<int>(stations_.size()));
+            boost::optional<StationEndposition> newEndposition(static_cast<int>(network_.getNSta()));
             if(opt_endposition.is_initialized()){
-                for(unsigned long i=0; i<stations_.size();++i){
+                for(unsigned long i=0; i<network_.getNSta();++i){
                     if(opt_endposition->hasEndposition(i)){
                         newEndposition->addPointingVectorAsEndposition(opt_endposition->getFinalPosition(i).get());
                     }
@@ -157,8 +154,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                 }
             }
 
-            newEndposition->setStationAvailable(stations_);
-            newEndposition->checkStationPossibility(stations_);
+            newEndposition->setStationAvailable(network_.getStations());
+            newEndposition->checkStationPossibility(network_.getStations());
 
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
@@ -207,15 +204,27 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
 }
 
-void Scheduler::start(ofstream &bodyLog) noexcept {
+void Scheduler::start() noexcept {
 
+    string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log";
+    ofstream bodyLog(path_ + fileName);
+    cout << (boost::format("writing scheduling log file: %s;\n") % fileName).str();
     if(parameters_.currentIteration>0){
         bodyLog << "Iteration number: " << parameters_.currentIteration << "\n";
     }
+    if(multiSchedulingParameters_.is_initialized()){
+        bodyLog << "multi scheduling parameters:\n";
+        multiSchedulingParameters_->output(bodyLog);
+    }
+
     listSourceOverview(bodyLog);
 
     boost::optional<StationEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
+
+    if(himp_.is_initialized()){
+        highImpactScans(himp_.get(), bodyLog);
+    }
 
 
     // check if you have some fixed high impact scans
@@ -239,13 +248,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     // check if there was an error during the session
     if (!checkAndStatistics(bodyLog)) {
-        if(version_ == 0){
-            cout << boost::format("iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
-                    % (parameters_.currentIteration);
-        }else{
-            cout << boost::format("version %d iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
-                    % version_ %(parameters_.currentIteration);
-        }
+        cout << boost::format("%s iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
+                % getName() %(parameters_.currentIteration);
     }
 
     // output some statistics
@@ -257,9 +261,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
     // check if new iteration is necessary
     if(newScheduleNecessary){
         ++parameters_.currentIteration;
-        ofstream newBodyLog(path_+getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log");
         // restart schedule
-        start(newBodyLog);
+        start();
     }
 
 }
@@ -270,21 +273,20 @@ void Scheduler::statistics(ofstream &log) {
     log << "considered single source scans: " << nSingleScansConsidered << "\n";
     log << "considered subnetting scans:    " << nSubnettingScansConsidered << "\n";
     log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
-    int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNBl(); });
+    int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
     log << "number of observations:         " << nbl << "\n";
-    log << "considered observations:        " << Baseline::numberOfCreatedBaselines() << "\n\n";
-
+    log << "considered observations:        " << Observation::numberOfCreatedObservations() << "\n\n";
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
                                const boost::optional<StationEndposition> & endposition) noexcept {
     Subcon subcon = allVisibleScans(type, endposition);
-    subcon.calcStartTimes(stations_, sources_, endposition);
-    subcon.updateAzEl(stations_, sources_);
-    subcon.constructAllBaselines(sources_);
-    subcon.calcAllBaselineDurations(stations_, sources_);
-    subcon.calcAllScanDurations(stations_, sources_, endposition);
-    subcon.checkIfEnoughTimeToReachEndposition(stations_, sources_, endposition);
+    subcon.calcStartTimes(network_, sources_, endposition);
+    subcon.updateAzEl(network_, sources_);
+    subcon.constructAllBaselines(network_, sources_);
+    subcon.calcAllBaselineDurations(network_, sources_);
+    subcon.calcAllScanDurations(network_, sources_, endposition);
+    subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, endposition);
 
     if (subnetting.is_initialized()) {
         subcon.createSubnettingScans(*subnetting, sources_);
@@ -294,26 +296,26 @@ Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Sc
 
 
 Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<StationEndposition> &endposition) noexcept {
-//    unsigned long nsta = stations_.size();
-    unsigned long nsrc = sources_.size();
 
+    // get latest start time of new scan
     unsigned int currentTime = 0;
-    for (auto &station : stations_) {
+    for (auto &station : network_.getStations()) {
         if (station.getCurrentTime() > currentTime) {
             currentTime = station.getCurrentTime();
         }
     }
 
-    set<int> observedSources;
+    // save all ids of the next observed sources (if there is a required endposition)
+    set<unsigned long> observedSources;
     if(endposition.is_initialized()){
         observedSources = endposition->getObservedSources();
     }
 
+    // create subcon with all visible scans
     Subcon subcon;
-
-    for (int isrc=0; isrc<nsrc; ++isrc){
+    for (int isrc=0; isrc<sources_.size(); ++isrc){
         const Source &thisSource = sources_[isrc];
-        subcon.visibleScan(currentTime, type, stations_, thisSource, observedSources);
+        subcon.visibleScan(currentTime, type, network_, thisSource, observedSources);
     }
 
     return subcon;
@@ -322,8 +324,10 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 
 void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
 
-    bool scanHasInfluence;
-    scanHasInfluence = !(scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule);
+    // check if scan has influence (only required for fillin mode scans)
+    bool influence;
+    influence = !(scan.getType() == Scan::ScanType::fillin && !parameters_.fillinmodeInfluenceOnSchedule);
+
 
     unsigned long srcid = scan.getSourceId();
 
@@ -331,35 +335,22 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
         const PointingVector &pv = scan.getPointingVector(i);
         unsigned long staid = pv.getStaid();
         const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
-        unsigned long nbl = scan.getNBl(staid);
-        stations_[staid].update(nbl, pv_end, scanHasInfluence);
+        unsigned long nObs = scan.getNObs(staid);
 
-        if(scanHasInfluence){
-            int skyCoverageId = stations_[staid].getSkyCoverageID();
-            skyCoverages_[skyCoverageId].update(pv);
-        }
+        network_.update(nObs, pv_end, influence);
+    }
+    for (int i=0; i< scan.getNObs(); ++i){
+        const Observation &obs = scan.getObservation(i);
+        network_.update(obs.getBlid(), influence);
     }
 
-    unsigned long nbl = scan.getNBl();
+    unsigned long nbl = scan.getNObs();
     unsigned int latestTime = scan.getTimes().getObservingStart();
     Source &thisSource = sources_[srcid];
-    thisSource.update(nbl, latestTime, scanHasInfluence);
+    thisSource.update(nbl, latestTime, influence);
 
     scans_.push_back(scan);
-    scan.output(scans_.size(), stations_, thisSource, bodyLog);
-}
-
-void Scheduler::outputHeader(const vector<Station> &stations, ofstream &bodyLog) noexcept {
-    bodyLog << ".------------.";
-    for (auto &t:stations) {
-        bodyLog << "----------.";
-    }
-    bodyLog << "\n";
-    bodyLog << "| stations   | ";
-    for (auto &t:stations) {
-        bodyLog << boost::format("%8s | ") % t.getName();
-    }
-    bodyLog << "\n";
+    scan.output(scans_.size(), network_, thisSource, bodyLog);
 }
 
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
@@ -380,11 +371,12 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
     int countErrors = 0;
     int countWarnings = 0;
 
-    for (auto& thisStation:stations_){
+    for (auto& thisStation : network_.refStations()){
         bodyLog << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
 
+        // sort scans based on observation start of this station (can be different if you align scans individual or at end)
         sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
             boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
             if(!idx1.is_initialized()){
@@ -417,19 +409,19 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
             break;
         }
 
-        // save statistics
-        Station::Statistics statistics;
+        // save staStatistics
+        Station::Statistics staStatistics;
 
         while( i_thisEnd < scans_.size()){
             // get scan and pointing vector at start
             const Scan &scan_thisEnd = scans_[i_thisEnd];
             const PointingVector &thisEnd = scan_thisEnd.getPointingVectors_endtime(idx_thisEnd);
 
-            // update statistics
-            statistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
-            statistics.totalObservingTime += scan_thisEnd.getTimes().getObservingTime(idx_thisEnd);
-            statistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemTime(idx_thisEnd);
-            statistics.totalPreobTime += scan_thisEnd.getTimes().getPreobTime(idx_thisEnd);
+            // update staStatistics
+            staStatistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
+            staStatistics.totalObservingTime += scan_thisEnd.getTimes().getObservingTime(idx_thisEnd);
+            staStatistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemTime(idx_thisEnd);
+            staStatistics.totalPreobTime += scan_thisEnd.getTimes().getPreobTime(idx_thisEnd);
 
             int i_nextStart = i_thisEnd+1;
             while( i_nextStart < scans_.size()){
@@ -468,15 +460,15 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
                     unsigned int availableTime = nextStartTime-thisEndTime;
                     unsigned int idleTime;
 
-                    // update statistics
-                    statistics.totalSlewTime += slewtime;
+                    // update staStatistics
+                    staStatistics.totalSlewTime += slewtime;
                     if(availableTime>=min_neededTime){
                         idleTime = availableTime-min_neededTime;
                     }else{
                         idleTime = 0;
                     }
 
-                    statistics.totalIdleTime += idleTime;
+                    staStatistics.totalIdleTime += idleTime;
 
                     if(availableTime+1<min_neededTime){
                         ++countErrors;
@@ -520,34 +512,48 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
         }
         bodyLog << "    finished!\n";
-        thisStation.setStatistics(statistics);
+        thisStation.setStatistics(staStatistics);
     }
     bodyLog << "Total: " << countErrors << " errors and " << countWarnings << " warnings\n";
     bodyLog << "=========================   end check routine    =========================\n";
 
+    // sort scans again based on their observation start
     sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
         return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
     });
 
-    std::vector<Source::Statistics> statistics(sources_.size());
-    for(auto &any:scans_){
+    // add source srcStatistics
+    std::vector<Source::Statistics> srcStatistics(sources_.size());
+    std::vector<Baseline::Statistics> blsStatistics(network_.getNBls());
+    for(const auto &any:scans_){
         unsigned long srcid = any.getSourceId();
-        auto &thisStatistics = statistics[srcid];
-        thisStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
-        thisStatistics.totalObservingTime += any.getTimes().getObservingTime();
-    }
-    for(int i=0; i<sources_.size(); ++i){
-        Source &source = sources_[i];
-        source.setStatistics(statistics[i]);
-    }
+        auto &thisSrcStatistics = srcStatistics[srcid];
+        thisSrcStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
+        thisSrcStatistics.totalObservingTime += any.getTimes().getObservingTime();
 
+        for(const auto &obs: any.getObservations()){
+            unsigned long blid = obs.getBlid();
+            auto &thisBlsStatistics = blsStatistics[blid];
+            thisBlsStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
+            thisBlsStatistics.totalObservingTime += any.getTimes().getObservingTime();
+        }
+    }
+    for(unsigned long isrc=0; isrc<sources_.size(); ++isrc){
+        Source &source = sources_[isrc];
+        source.setStatistics(srcStatistics[isrc]);
+    }
+    for(unsigned long ibl=0; ibl<network_.getNBls(); ++ibl){
+        Baseline &baseline = network_.refBaseline(ibl);
+        baseline.setStatistics(blsStatistics[ibl]);
+    }
     return everythingOk;
 }
 
 bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &bodyLog) noexcept {
     bool hard_break = false;
 
-    for (auto &any:stations_){
+    // check if it is required to tagalong a station
+    for (auto &any:network_.refStations()){
         bool tagalong = any.checkForTagalongMode(time);
         if(tagalong){
             bodyLog << "TAGALONG for station " << any.getName() << " required!\n";
@@ -555,8 +561,9 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         }
     }
 
+    // check if a station has to be changed
     vector<string> stationChanged;
-    for (auto &any:stations_) {
+    for (auto &any : network_.refStations()) {
         bool changed = any.checkForNewEvent(time, hard_break);
         if(changed){
             stationChanged.push_back(any.getName());
@@ -566,6 +573,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         util::outputObjectList("station parameter changed",stationChanged,bodyLog);
     }
 
+    // check if a source has to be changed
     vector<string> sourcesChanged;
     for (auto &any:sources_) {
         bool changed = any.checkForNewEvent(time, hard_break);
@@ -578,12 +586,23 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         listSourceOverview(bodyLog);
     }
 
-    Baseline::checkForNewEvent(time, hard_break, output, bodyLog);
+    // check if a baseline has to be changed
+    vector<string> baselineChanged;
+    for (auto &any : network_.refBaselines()) {
+        bool changed = any.checkForNewEvent(time, hard_break);
+        if(changed){
+            baselineChanged.push_back(any.getName());
+        }
+    }
+    if(!baselineChanged.empty() && output && time<TimeSystem::duration){
+        util::outputObjectList("baseline parameter changed",baselineChanged,bodyLog);
+    }
     return hard_break;
 }
 
 void Scheduler::ignoreTagalongParameter() {
-    for (auto &any:stations_) {
+    // ignore the tagalong mode for each station
+    for (auto &any : network_.refStations()) {
         any.referencePARA().tagalong = false;
     }
 }
@@ -636,92 +655,8 @@ void Scheduler::listSourceOverview(ofstream &log) noexcept {
 
 }
 
-void Scheduler::saveSkyCoverageData(unsigned int time) noexcept {
-
-    for (unsigned long i = 0; i < stations_.size(); ++i) {
-        Station &thisStation = stations_[i];
-        PointingVector pv(i,0);
-        std::ofstream log("skyCoverageData/"+thisStation.getName()+".bin", std::ofstream::app | std::ofstream::out);
-        unsigned int c=0;
-        for (double el = 0; el < 90; el+=5) {
-            double deltaAz = 5/cos(el*deg2rad);
-            for (int az = 0; az < 360; az+=deltaAz) {
-                pv.setAz(az*deg2rad);
-                pv.setEl(el*deg2rad);
-                pv.setTime(thisStation.getCurrentTime());
-
-                int skyCoverageId = thisStation.getSkyCoverageID();
-                SkyCoverage &thisSkyCoverage = skyCoverages_[skyCoverageId];
-                double score = thisSkyCoverage.calcScore(vector<PointingVector>{pv},stations_);
-                log << score << endl;
-                ++c;
-            }
-        }
-        log.close();
-    }
-}
-
-void Scheduler::saveSkyCoverageMain() noexcept {
-    std::ofstream az_file("skyCoverageData/az.bin", std::ofstream::out);
-    std::ofstream el_file("skyCoverageData/el.bin", std::ofstream::out);
-
-
-    for (double el = 0; el < 90; el += 5) {
-        double deltaAz = 5 / cos(el * deg2rad);
-        for (int az = 0; az < 360; az += deltaAz) {
-            az_file << az << endl;
-            el_file << el << endl;
-        }
-    }
-    az_file.close();
-    el_file.close();
-}
-
-void Scheduler::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
-
-    WeightFactors::summary(log);
-
-    log << "############################### STATIONS ###############################\n";
-    for (auto &station : stations_) {
-        log << station.getName() << ":\n";
-        station.getPARA().output(log);
-    }
-    log << "############################### SOURCES ###############################\n";
-    for (auto &source : sources_) {
-        log << source.getName() << ":\n";
-        source.getPARA().output(log);
-    }
-
-    Baseline::displaySummaryOfStaticMembersForDebugging(log);
-
-
-}
-
-void Scheduler::printHorizonMasksForDebugging() {
-    for (const auto &any: stations_) {
-        ofstream o("hmask_" + any.getName() + ".txt");
-        PointingVector p(numeric_limits<unsigned long>::max(),numeric_limits<unsigned long>::max());
-        p.setTime(0);
-        for (int az = -360; az < 0; ++az) {
-            for (int el = 0; el < 20; ++el) {
-                double thisAz = static_cast<double>(az) * deg2rad;
-                double thisEl = static_cast<double>(el) * deg2rad;
-                p.setAz(thisAz);
-                p.setEl(thisEl);
-
-                bool flag = true;
-                if(any.hasHorizonMask()){
-                    flag = any.getMask().visible(p);
-                }
-                o << flag << endl;
-            }
-        }
-        o.close();
-    }
-}
-
 void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
-    unsigned long nsta = stations_.size();
+    unsigned long nsta = network_.getNSta();
     vector<double> prevLowElevationScores(nsta,0);
     vector<double> prevHighElevationScores(nsta,0);
 
@@ -733,9 +668,9 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
 
         Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::calibrator);
-        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, stations_, sources_);
+        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, network_, sources_);
 
-        boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(stations_,sources_,skyCoverages_, prevLowElevationScores, prevHighElevationScores );
+        boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(network_, sources_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {
             bodyLog << "ERROR! no valid scan found! End of calibrator block!\n";
             break;
@@ -857,13 +792,13 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     }
 
     bodyLog << "|=============";
-    for (int i = 0; i < stations_.size() - 1; ++i) {
+    for (int i = 0; i < network_.getNSta() - 1; ++i) {
         bodyLog << "===========";
     }
     bodyLog << "==========| \n";
     bodyLog << "| CALIBRATOR BLOCK SUMMARY:\n";
     bodyLog << "|=============";
-    for (int i = 0; i < stations_.size() - 1; ++i) {
+    for (int i = 0; i < network_.getNSta() - 1; ++i) {
         bodyLog << "===========";
     }
     bodyLog << "==========| \n";
@@ -888,12 +823,10 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
     bodyLog << "\n";
 
     bodyLog << "|=============";
-    for (int i = 0; i < stations_.size() - 1; ++i) {
+    for (int i = 0; i < network_.getNSta() - 1; ++i) {
         bodyLog << "===========";
     }
     bodyLog << "==========| \n";
-
-
 
 }
 
@@ -947,32 +880,27 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             }
 
             // loop through all other participating stations and prepare baselines
-            vector<Baseline> bls;
+            vector<Observation> newObs;
             for (int i = 0; i < scan.getNSta(); ++i) {
                 // create baseline
                 const PointingVector & otherPv = scan.getPointingVector(i);
 
-                unsigned long staid1 = staid;
-                unsigned long staid2 = otherPv.getStaid();
+                const Station &sta1 = network_.getStation(staid);
+                const Station &sta2 = network_.getStation(otherPv.getStaid());
+                const Baseline &bl = network_.getBaseline(sta1.getId(),sta2.getId());
 
-                bool swapped = false;
-                if(staid1>staid2){
-                    swap(staid1,staid2);
-                    swapped = true;
-                }
-
-                if(Baseline::PARA.ignore[staid1][staid2]){
+                if(bl.getParameters().ignore){
                     continue;
                 }
                 if (!source.getPARA().ignoreBaselines.empty()) {
                     const auto &PARA = source.getPARA();
-                    if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), make_pair(staid1, staid2)) !=
+                    if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), bl.getId()) !=
                         PARA.ignoreBaselines.end()) {
                         continue;
                     }
 
                 }
-                Baseline bl(srcid, staid1, staid2, scanStartTime);
+                Observation obs(bl.getId(), sta1.getId(), sta2.getId(), srcid, scanStartTime);
 
                 // calc baseline scan length
                 double date1 = 2400000.5;
@@ -986,30 +914,18 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
 
                     for (auto &band:ObservationMode::bands) {
 
-                        double SEFD_src = source.observedFlux(band, gmst, stations_[staid1].dx(staid2),
-                                                              stations_[staid1].dy(staid2),
-                                                              stations_[staid1].dz(staid2));
+                        double SEFD_src = source.observedFlux(band, gmst, network_.getDxyz(sta1.getId(), sta2.getId()));
 
-                        double el1;
-                        if (!swapped) {
-                            el1 = pv_new_start.getEl();
-                        } else {
-                            el1 = otherPv.getEl();
-                        }
-                        double SEFD_sta1 = stations_[staid1].getEquip().getSEFD(band, el1);
+                        double el1 = pv_new_start.getEl();
+                        double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
 
-                        double el2;
-                        if (!swapped) {
-                            el2 = otherPv.getEl();
-                        } else {
-                            el2 = pv_new_start.getEl();
-                        }
-                        double SEFD_sta2 = stations_[staid2].getEquip().getSEFD(band, el2);
+                        double el2 = otherPv.getEl();
+                        double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
 
-                        double minSNR_sta1 = stations_[staid1].getPARA().minSNR.at(band);
-                        double minSNR_sta2 = stations_[staid2].getPARA().minSNR.at(band);
+                        double minSNR_sta1 = sta1.getPARA().minSNR.at(band);
+                        double minSNR_sta2 = sta2.getPARA().minSNR.at(band);
 
-                        double minSNR_bl = Baseline::PARA.minSNR[band][staid1][staid2];
+                        double minSNR_bl = bl.getParameters().minSNR.at(band);
 
                         double minSNR_src = source.getPARA().minSNR.at(band);
 
@@ -1024,9 +940,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                             maxminSNR = minSNR_bl;
                         }
 
-                        double maxCorSynch1 = stations_[staid1].getWaittimes().midob;
+                        double maxCorSynch1 = sta1.getWaittimes().midob;
                         double maxCorSynch = maxCorSynch1;
-                        double maxCorSynch2 = stations_[staid2].getWaittimes().midob;
+                        double maxCorSynch2 = sta2.getWaittimes().midob;
                         if (maxCorSynch2 > maxCorSynch) {
                             maxCorSynch = maxCorSynch2;
                         }
@@ -1040,17 +956,17 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                         new_duration = ceil(new_duration);
                         auto new_duration_uint = static_cast<unsigned int>(new_duration);
 
-                        unsigned int minScanBl = std::max({Baseline::PARA.minScan[staid1][staid2],
-                                                           stations_[staid1].getPARA().minScan,
-                                                           stations_[staid2].getPARA().minScan,
+                        unsigned int minScanBl = std::max({bl.getParameters().minScan,
+                                                           sta1.getPARA().minScan,
+                                                           sta2.getPARA().minScan,
                                                            source.getPARA().minScan});
 
                         if (new_duration_uint < minScanBl) {
                             new_duration_uint = minScanBl;
                         }
-                        unsigned int maxScanBl = std::min({Baseline::PARA.maxScan[staid1][staid2],
-                                                           stations_[staid1].getPARA().maxScan,
-                                                           stations_[staid2].getPARA().maxScan,
+                        unsigned int maxScanBl = std::min({bl.getParameters().maxScan,
+                                                           sta1.getPARA().maxScan,
+                                                           sta2.getPARA().maxScan,
                                                            source.getPARA().maxScan});
 
                         if (new_duration_uint > maxScanBl) {
@@ -1069,17 +985,17 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                         }
                     }
                 }
-                bl.setScanDuration(maxScanDuration);
-                bls.push_back(bl);
+                obs.setObservingTime(maxScanDuration);
+                newObs.push_back(obs);
             }
-            if(bls.empty()){
+            if(newObs.empty()){
                 continue;
             }
 
             unsigned int maxBl = 0;
-            for (const auto &any:bls){
-                if(any.getScanDuration()>maxBl){
-                    maxBl = any.getScanDuration();
+            for (const auto &any:newObs){
+                if(any.getObservingTime()>maxBl){
+                    maxBl = any.getObservingTime();
                 }
             }
 
@@ -1101,7 +1017,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                 continue;
             }
 
-            scan.addTagalongStation(pv_new_start, pv_new_end, bls, *slewtime, station);
+            scan.addTagalongStation(pv_new_start, pv_new_end, newObs, *slewtime, station);
             bodyLog << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
                        %source.getName()
                        %counter
@@ -1188,20 +1104,15 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         util::outputObjectList("List of removed sources",excludedSources,of);
 
         scans_.clear();
-        for(auto &any:stations_){
+        for(auto &any:network_.refStations()){
             any.clearObservations();
         }
         for(auto &any:sources_){
             any.clearObservations();
         }
-        for(auto &any:skyCoverages_){
+        for(auto &any:network_.refSkyCoverages()){
             any.clearObservations();
         }
-        bool dummy = false;
-        vector<vector<unsigned int> > nextEvent(stations_.size(), vector<unsigned int>(stations_.size(), 0));
-        Baseline::nextEvent = nextEvent;
-        Baseline::checkForNewEvent(0, dummy, false, of);
-
 
     }else{
         of << "no new schedule needed!\n";
@@ -1214,14 +1125,14 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
                                           StationEndposition::change change) {
     switch (change){
         case StationEndposition::change::start:{
-            for(unsigned long staid=0; staid<stations_.size(); ++staid){
-                stations_[staid].referencePARA().available = endposition->getStationPossible(staid);
+            for(auto &sta : network_.refStations()){
+                sta.referencePARA().available = endposition->getStationPossible(sta.getId());
             }
             break;
         }
         case StationEndposition::change::end:{
-            for(unsigned long staid=0; staid<stations_.size(); ++staid){
-                stations_[staid].referencePARA().available = endposition->getStationAvailable(staid);
+            for(auto &sta : network_.refStations()){
+                sta.referencePARA().available = endposition->getStationAvailable(sta.getId());
             }
             break;
         }
@@ -1253,14 +1164,14 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
             const auto &pv = lastScan.getPointingVectors_endtime(k);
             unsigned long staid = pv.getStaid();
             unsigned int time = pv.getTime();
-            Station &thisSta = stations_[staid];
+            Station &thisSta = network_.refStation(staid);
             if(time >= thisSta.getCurrentTime()){
                 thisSta.setCurrentPointingVector(pv);
             }
         }
 
         // loop through all upcoming scans and set endposition
-        boost::optional<StationEndposition> endposition(static_cast<int>(stations_.size()));
+        boost::optional<StationEndposition> endposition(static_cast<int>(network_.getNSta()));
         for(int j=i+1; j<nMainScans; ++j){
             const Scan &nextScan = scans_[j];
             bool nextRequired = true;
@@ -1275,8 +1186,8 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
                 break;
             }
         }
-        endposition->setStationAvailable(stations_);
-        endposition->checkStationPossibility(stations_);
+        endposition->setStationAvailable(network_.getStations());
+        endposition->checkStationPossibility(network_.getStations());
 
 
         // check if there was an new upcoming event in the meantime
@@ -1302,7 +1213,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         const auto &pv = lastScan.getPointingVectors_endtime(k);
         unsigned long staid = pv.getStaid();
         unsigned int time = pv.getTime();
-        Station &thisSta = stations_[staid];
+        Station &thisSta = network_.refStation(staid);
         if(time >= thisSta.getCurrentTime()){
             thisSta.setCurrentPointingVector(pv);
         }
@@ -1342,7 +1253,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         // check for new event and changes current pointing vector as well as first scan
         unsigned int time = iTime*interval;
         checkForNewEvents(time, true, bodyLog);
-        for(auto &thisStation:stations_){
+        for(auto &thisStation : network_.refStations()){
             PointingVector pv(thisStation.getId(), numeric_limits<unsigned long>::max());
             pv.setTime(time);
             thisStation.setCurrentPointingVector(pv);
@@ -1350,24 +1261,24 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         }
 
         // create all possible high impact scan pointing vectors for this time
-        himp.possibleHighImpactScans(iTime,stations_,sources_);
+        himp.possibleHighImpactScans(iTime, network_, sources_);
     }
 
     // create the actual scans
-    himp.updateHighImpactScans(stations_,sources_,parameters_.subnetting);
+    himp.updateHighImpactScans(network_, sources_, parameters_.subnetting);
 
     himp.updateLogfile(bodyLog);
 
     // select bestScans
     vector<Scan> bestScans;
     do{
-        bestScans = himp.highestImpactScans(stations_, sources_);
+        bestScans = himp.highestImpactScans(network_, sources_);
         for(const auto& scan:bestScans){
             const Source &source = sources_[scan.getSourceId()];
             if(himp.isCorrectHighImpactScan(scan, scans_, source)){
                 update(scan, bodyLog);
 
-                for(auto &thisStation:stations_){
+                for(auto &thisStation : network_.refStations()){
                     thisStation.referencePARA().firstScan = true;
                 }
 
@@ -1388,7 +1299,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     // reset all events
     resetAllEvents(bodyLog);
 
-    for(auto &thisStation:stations_){
+    for(auto &thisStation : network_.refStations()){
         PointingVector pv(thisStation.getId(),numeric_limits<unsigned long>::max());
         pv.setTime(0);
         thisStation.setCurrentPointingVector(pv);
@@ -1400,7 +1311,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
 void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
 
     // reset all events
-    for(auto &any:stations_){
+    for(auto &any:network_.refStations()){
         PointingVector pv(any.getId(),numeric_limits<unsigned long>::max());
         pv.setTime(0);
         any.setCurrentPointingVector(pv);
@@ -1409,13 +1320,10 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
     for(auto &any:sources_){
         any.setNextEvent(0);
     }
-    for (int i = 0; i < stations_.size(); ++i) {
-        for (int j = i + 1; j < stations_.size(); ++j) {
-            Baseline::nextEvent[i][j]=0;
-        }
+    for(auto &any:network_.refBaselines()){
+        any.setNextEvent(0);
     }
     checkForNewEvents(0, false, bodyLog);
-
 }
 
 

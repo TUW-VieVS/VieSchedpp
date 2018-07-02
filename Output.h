@@ -23,7 +23,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 22.08.2017
      */
-    class Output {
+    class Output: public VieVS_NamedObject {
     public:
         /**
          * @brief possible group types
@@ -35,16 +35,11 @@ namespace VieVS{
         };
 
         /**
-         * @brief empty default constructor
-         */
-        Output();
-
-        /**
          * @brief constructor
          *
          * @param sched scheduler
          */
-        Output(Scheduler &sched, std::string path, int version);
+        Output(Scheduler &sched, std::string path, std::string fname, int version);
 
         /**
          * @brief writes a summary text file containing some basic statistics and overviews
@@ -84,14 +79,16 @@ namespace VieVS{
         void createAllOutputFiles(std::ofstream& statisticsLog, const SkdCatalogReader &skdCatalogReader);
 
     private:
+        static unsigned long nextId;
+
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
         std::string path_;
         int version_; ///< number of this schedule
-        std::vector<Station> stations_; ///< all stations
+        Network network_;
         std::vector<Source> sources_; ///< all sources
-        std::vector<SkyCoverage> skyCoverages_; ///< all sky coverages
         std::vector<Scan> scans_; ///< all scans in schedule
+        boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
         /**
          * @brief displays some general statistics of the schedule

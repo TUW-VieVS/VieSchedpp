@@ -28,11 +28,8 @@ namespace VieVS {
 
         explicit Vex(const std::string &file);
 
-        void writeVex(const std::vector<Station>& stations,
-                           const std::vector<Source>& sources,
-                           const std::vector<Scan> & scans,
-                           const SkdCatalogReader &skdCatalogReader,
-                           const boost::property_tree::ptree &xml);
+        void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
+                      const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml);
 
 
     private:

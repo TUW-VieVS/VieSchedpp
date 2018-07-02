@@ -21,7 +21,7 @@ namespace VieVS{
             return id_>0;
         }
 
-        bool hasId(int id) const {
+        bool hasId(unsigned long id) const {
             return id_==id;
         }
 

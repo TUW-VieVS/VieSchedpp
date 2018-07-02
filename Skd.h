@@ -6,7 +6,6 @@
 #define SKD_H
 
 #include "SkdCatalogReader.h"
-#include "Station.h"
 #include "Scan.h"
 
 namespace VieVS {
@@ -27,7 +26,7 @@ namespace VieVS {
          * @brief creates a skd file
          * @param skdCatalogReader skd catalogs
          */
-        void writeSkd(const std::vector<Station>& stations,
+        void writeSkd(const Network &network,
                       const std::vector<Source>& sources,
                       const std::vector<Scan> & scans,
                       const SkdCatalogReader &skdCatalogReader,
@@ -44,7 +43,7 @@ namespace VieVS {
          * @param skdCatalogReader catalog reader
          * @param ofstream out stream
          */
-        void skd_PARAM(const std::vector<Station>& stations, const boost::property_tree::ptree &xml,
+        void skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,
                        const SkdCatalogReader &skdCatalogReader);
 
         /**

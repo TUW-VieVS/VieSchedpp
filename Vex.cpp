@@ -13,7 +13,7 @@ Vex::Vex(const string &file): VieVS_Object(nextId++){
 }
 
 
-void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+void Vex::writeVex(const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
               const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml) {
 
     global_block(xml.get("master.output.experimentName","schedule"));
@@ -29,19 +29,19 @@ void Vex::writeVex(const std::vector<Station> &stations, const std::vector<Sourc
                 boost::trim_copy(xml.get("master.output.notes","")),
                 boost::trim_copy(xml.get("master.output.correlator","unknown")));
 
-    station_block(stations, skdCatalogReader);
-    mode_block(stations,skdCatalogReader);
-    sched_block(scans, stations, sources, skdCatalogReader);
+    station_block(network.getStations(), skdCatalogReader);
+    mode_block(network.getStations(), skdCatalogReader);
+    sched_block(scans, network.getStations(), sources, skdCatalogReader);
 
-    sites_block(stations, skdCatalogReader);
-    antenna_block(stations);
-    das_block(stations, skdCatalogReader);
+    sites_block(network.getStations(), skdCatalogReader);
+    antenna_block(network.getStations());
+    das_block(network.getStations(), skdCatalogReader);
 
     source_block(sources);
 
     bbc_block(skdCatalogReader);
     if_block(skdCatalogReader);
-    tracks_block(stations, skdCatalogReader);
+    tracks_block(network.getStations(), skdCatalogReader);
     freq_block(skdCatalogReader);
 
     pass_order_block();
@@ -143,7 +143,7 @@ void Vex::sites_block(const std::vector<Station> &stations, const SkdCatalogRead
         of << "        site_ID = " << any.getAlternativeName() << eol;
         of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
         of << "        site_position_ref = sked_position.cat;\n";
-        of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(any.getAlternativeName()).at(5) << eol;
+        of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(skdCatalogReader.positionKey(name)).at(5) << eol;
         if(any.hasHorizonMask()){
             any.getMask().vexOutput();
         }

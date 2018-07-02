@@ -35,11 +35,10 @@ namespace VieVS{
             cosine,
         };
 
-        static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
-        static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
-        static double maxTwinTelecopeDistance; ///< maximum distance between corresponding telescopes
-        static Interpolation interpolationDistance;
-        static Interpolation interpolationTime;
+        static thread_local double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
+        static thread_local double maxInfluenceDistance; ///< maximum time influence on the sky coverage
+        static thread_local Interpolation interpolationDistance;
+        static thread_local Interpolation interpolationTime;
 
         /**
          * @brief constructor
@@ -49,50 +48,9 @@ namespace VieVS{
          * @param skyCoverageInterval maximum influence time of a scan in seconds
          * @param id sky coverage id
          */
-        explicit SkyCoverage(const std::vector<int> &staids);
+        SkyCoverage();
 
-        /**
-         * @brief getter for all station ids which belong to this sky coverage
-         *
-         * @return all station ids
-         */
-        const std::vector<int> &getStaids() const noexcept {
-            return staids_;
-        }
-
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @return score
-         */
-        double calcScore(const std::vector<PointingVector> &pvs, const std::vector<Station> &stations) const noexcept;
-
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * !!! This function changes firstScorePerPv !!!
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore(const std::vector<PointingVector> &pvs, const std::vector<Station> &stations,
-                         std::vector<double> &firstScorePerPv) const noexcept;
-
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @param firstScorePerPv stored score for each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_subcon(const std::vector<PointingVector> &pvs,
-                                const std::vector<Station> &stations,
-                                const std::vector<double> &firstScorePerPv) const noexcept;
+        double calcScore(const PointingVector &pv) const;
 
         /**
          * @brief calculates the influence of the score between two pointing vectors
@@ -116,9 +74,6 @@ namespace VieVS{
 
     private:
         static unsigned long nextId;
-
-        unsigned long nStations_; ///< number of stations that belong to this sky coverage
-        std::vector<int> staids_; ///< ids of the stations that belong to this sky coverage
 
         std::vector<PointingVector> pointingVectors_; ///< all pointing vectors
     };

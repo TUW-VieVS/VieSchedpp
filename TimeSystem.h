@@ -25,9 +25,9 @@ namespace VieVS {
      */
     class TimeSystem {
     public:
-        static thread_local double mjdStart; ///< modified julian date of session start
-        static thread_local boost::posix_time::ptime startTime; ///< session start time
-        static thread_local boost::posix_time::ptime endTime; ///< session end time
+        static double mjdStart; ///< modified julian date of session start
+        static boost::posix_time::ptime startTime; ///< session start time
+        static boost::posix_time::ptime endTime; ///< session end time
         static unsigned int duration; ///< session duration in seconds
 
         /**

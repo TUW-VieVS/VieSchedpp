@@ -136,16 +136,8 @@ void SkdParser::createObjects() {
     init.createStations(skd_, of);
     init.createSources(skd_, of);
 
-    stations_ = init.stations_;
+    network_ = init.network_;
     sources_ = move(init.sources_);
-    for (int i = 0; i < stations_.size(); ++i) {
-        skyCoverages_.emplace_back(vector<int>{i});
-        stations_[i].setSkyCoverageId(i);
-    }
-    unsigned long nsta = stations_.size();
-    for(auto&any:stations_){
-        any.preCalc(vector<double>(nsta,0),vector<double>(nsta,0),vector<double>(nsta,0),vector<double>(nsta,0));
-    }
 
     init.initializeAstronomicalParameteres();
 }
@@ -171,7 +163,7 @@ void SkdParser::createScans() {
         }
 
         bool firstScan = true;
-        vector<unsigned int>eols(stations_.size(),0); // end of last scan
+        vector<unsigned int>eols(network_.getNSta(),0); // end of last scan
         // Read SKED block
         int counter = 1;
         while (getline(fid, line)) {
@@ -186,10 +178,10 @@ void SkdParser::createScans() {
             vector<string> splitVector;
             boost::split(splitVector, trimmed, boost::is_space(), boost::token_compress_on);
             const string &srcName = splitVector[0];
-            int srcid = -1;
-            for(int i=0; i<sources_.size(); ++i){
-                if(sources_[i].hasName(srcName)){
-                    srcid = i;
+            unsigned long srcid = numeric_limits<unsigned long>::max();
+            for(unsigned long isrc=0; isrc<sources_.size(); ++isrc){
+                if(sources_[isrc].hasName(srcName)){
+                    srcid = isrc;
                     break;
                 }
             }
@@ -235,19 +227,13 @@ void SkdParser::createScans() {
                         break;
                     }
                 }
-                int staid = -1;
-                for (int j = 0; j < stations_.size(); ++j) {
-                    if(stations_[j].hasName(staName)){
-                        staid = j;
-                        break;
-                    }
-                }
+                unsigned long staid = network_.getStation(staName).getId();
 
                 PointingVector p(staid,srcid);
 
                 p.setTime(time);
                 const auto &thisSource = sources_[srcid];
-                auto &thisSta = stations_[staid];
+                Station &thisSta = network_.refStation(staid);
                 thisSta.calcAzEl(thisSource,p);
                 bool error = thisSta.getCableWrap().unwrapAzInSection(p,cwflag);
                 if(error){
@@ -294,7 +280,7 @@ void SkdParser::createScans() {
                         boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
                         cerr << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
-                                %stations_[scan.getPointingVector(i).getStaid()].getName()
+                                %network_.getStation(scan.getPointingVector(i).getStaid()).getName()
                                 %counter
                                 %sources_[scan.getPointingVector(i).getSrcid()].getName()
                                 %TimeSystem::ptime2string_doy(scanStart)
@@ -307,7 +293,7 @@ void SkdParser::createScans() {
 
             scan.setPointingVectorsEndtime(move(pv_end));
 
-            scan.createDummyObservations();
+            scan.createDummyObservations(network_);
 
             scans_.push_back(scan);
             ++counter;
@@ -323,11 +309,12 @@ void SkdParser::copyScanMembersToObjects() {
             const PointingVector &pv = scan.getPointingVector(i);
             unsigned long staid = pv.getStaid();
             const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
-            unsigned long nbl = scan.getNBl(staid);
-            stations_[staid].update(nbl, pv_end, true);
-
-            int skyCoverageId = stations_[staid].getSkyCoverageID();
-            skyCoverages_[skyCoverageId].update(pv);
+            unsigned long nObs = scan.getNObs(staid);
+            network_.update(nObs, pv_end);
+        }
+        for (int i=0; i< scan.getNObs(); ++i){
+            const Observation &obs = scan.getObservation(i);
+            network_.update(obs.getBlid());
         }
 
         unsigned long nbl = (scan.getNSta()*(scan.getNSta()-1))/2;
@@ -340,13 +327,7 @@ void SkdParser::copyScanMembersToObjects() {
 std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &station) {
     vector<vector<unsigned int>> times;
 
-    int staid = -1;
-    for(int i=0; i<stations_.size(); ++i){
-        if(stations_[i].hasName(station)){
-            staid = i;
-            break;
-        }
-    }
+    unsigned long staid = network_.getStation(station).getId();
     if(staid == -1){
         cerr << "ERROR: get scheduled slew times: station name "<< station << "unknown!;\n";
     }else {
@@ -378,7 +359,7 @@ Scheduler SkdParser::createScheduler() {
     wt.preob = preob_;
     wt.midob = midob_;
     wt.postob = postob_;
-    for(Station &station:stations_){
+    for(Station &station:network_.refStations()){
         station.setWaitTimes(wt);
     }
 
@@ -399,9 +380,9 @@ Scheduler SkdParser::createScheduler() {
     }
 
     xml.add("output.experimentName",fname);
-    string description = string("created from skd file: ").append(fname);
+    string description = "created from skd file: " + fname;
 
     xml.add("output.experimentDescription",description);
 
-    return Scheduler(filename_,stations_,sources_,skyCoverages_,scans_, xml);
+    return Scheduler(filename_, network_, sources_, scans_, xml);
 }

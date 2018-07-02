@@ -39,7 +39,6 @@ void VieVS_Scheduler::run() {
     init.initializeSkyCoverages();
 
     init.createStations(skdCatalogReader, headerLog);
-    init.createSkyCoverages(headerLog);
     init.statisticsLogHeader(statisticsLog);
 
     init.createSources(skdCatalogReader, headerLog);

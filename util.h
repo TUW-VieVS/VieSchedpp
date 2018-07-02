@@ -42,6 +42,21 @@ namespace VieVS::util{
         return idx;
     }
 
+    template<typename K, typename V>
+    bool valueExists(std::map<K, V> mapOfElemen, V value) {
+        auto it = mapOfElemen.begin();
+        // Iterate through the map
+        while(it != mapOfElemen.end()) {
+            // Check if value of this entry matches with given value
+            if(it->second == value) {
+                return true;
+            }
+            // Go to next entry in map
+            it++;
+        }
+        return false;
+    }
+
     void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &log);
 
 

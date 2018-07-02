@@ -15,69 +15,55 @@
 using namespace std;
 using namespace VieVS;
 
-thread_local VieVS::Baseline::ParameterStorage VieVS::Baseline::PARA;
-std::vector<std::vector<std::vector<VieVS::Baseline::Event> > >  VieVS::Baseline::EVENTS;
-std::vector<std::vector<unsigned int> >  VieVS::Baseline::nextEvent;
 unsigned long Baseline::nextId = 0;
+unsigned long VieVS::Baseline::Parameters::nextId = 0;
 
-
-Baseline::Baseline(unsigned long srcid, unsigned long staid1, unsigned long staid2, unsigned int startTime): VieVS_Object(nextId++),
-        srcid_(srcid), staid1_(staid1), staid2_(staid2), startTime_{startTime}{
+void Baseline::Parameters::setParameters(const Baseline::Parameters &other) {
+    ignore = other.ignore;
+    weight = other.weight;
+    minSNR = other.minSNR;
 }
 
-void
-Baseline::checkForNewEvent(unsigned int time, bool &hardBreak, bool output, std::ofstream &bodyLog) noexcept {
-    unsigned long nsta = Baseline::nextEvent.size();
-    for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
-        for (unsigned long staid2 = staid1 + 1; staid2 < nsta; ++staid2) {
+Baseline::Baseline(std::string name, std::string alternativeName, unsigned long staid1, unsigned long staid2):
+        VieVS_NamedObject(move(name), move(alternativeName), nextId++),
+        staid1_{staid1}, staid2_{staid2}, parameters_{Parameters("empty")} {
 
-            unsigned int thisNextEvent = Baseline::nextEvent.at(staid1).at(staid2);
+}
 
-            while (thisNextEvent < EVENTS[staid1][staid2].size() && EVENTS[staid1][staid2][thisNextEvent].time <= time) {
+bool Baseline::hasStationIds(unsigned long staid1, unsigned long staid2) const noexcept{
+    if(staid1 > staid2){
+        swap(staid1, staid2);
+    }
 
-                Baseline::Parameters newPARA = EVENTS[staid1][staid2][thisNextEvent].PARA;
-                hardBreak = hardBreak || !EVENTS[staid1][staid2][thisNextEvent].softTransition;
+    return staid1 == staid1_ && staid2 == staid2_;
+}
 
-                Baseline::PARA.ignore[staid1][staid2] = newPARA.ignore;
-                Baseline::PARA.maxScan[staid1][staid2] = newPARA.maxScan;
-                Baseline::PARA.minScan[staid1][staid2] = newPARA.minScan;
-                Baseline::PARA.weight[staid1][staid2] = newPARA.weight;
-                for (const auto &any:newPARA.minSNR) {
-                    Baseline::PARA.minSNR.at(any.first).at(staid1).at(staid2) = any.second;
-                }
-                if (output && time < TimeSystem::duration) {
-                    bodyLog << "###############################################\n";
-                    bodyLog << "## changing parameters for baseline: " << boost::format("%2d") % staid1 << "-"
-                              << boost::format("%2d") % staid2 << "   ##\n";
-                    bodyLog << "###############################################\n";
-                }
-                ++nextEvent[staid1][staid2];
-                ++thisNextEvent;
-            }
-        }
+bool Baseline::hasStationIds(const std::pair<unsigned long, unsigned long> &staids)const noexcept{
+    return hasStationIds(staids.first, staids.second);
+}
+
+
+bool Baseline::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
+    bool flag = false;
+    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
+
+        parameters_ = events_->at(nextEvent_).PARA;
+
+        hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
+
+        nextEvent_++;
+        flag = true;
+    }
+    return flag;
+
+}
+
+void Baseline::update(bool influence) noexcept {
+    if(influence){
+        ++nObs_;
+        ++nTotalObs_;
+    }else{
+        ++nTotalObs_;
     }
 }
 
-void Baseline::displaySummaryOfStaticMembersForDebugging(ofstream &log) {
-    unsigned long nsta = PARA.ignore.size();
-    log << "############################### BASELINES ###############################\n";
-    for (int i = 0; i < nsta; ++i) {
-        for (int j = i + 1; j < nsta; ++j) {
-            log << "baseline " << i << "-" << j << ":\n";
-            if (PARA.ignore[i][j]) {
-                log << "    ignore: " << "TRUE\n";
-            } else {
-                log << "    ignore: " << "FALSE\n";
-            }
-
-            log << "    minScan: " << PARA.minScan[i][j] << "\n";
-            log << "    maxScan: " << PARA.maxScan[i][j] << "\n";
-
-            for (const auto &it:PARA.minSNR) {
-                log << "    minSNR: " << it.first << " " << it.second[i][j] << "\n";
-            }
-
-        }
-    }
-
-}

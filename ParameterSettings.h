@@ -109,7 +109,7 @@ namespace VieVS {
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
             std::vector<unsigned long> ignoreStations; ///< list of all station names which should be ignored
             std::vector<std::string> ignoreBaselinesString; ///< list of all baseline names which should be ignore
-            std::vector<std::pair<unsigned long, unsigned long>> ignoreBaselines; ///< list of all baseline names which should be ignore
+            std::vector<unsigned long> ignoreBaselines; ///< list of all baseline names which should be ignore
             std::vector<std::string> requiredStationsString; ///< list of station names which are required for a scan to this source
             std::vector<unsigned long> requiredStations; ///< list of station names which are required for a scan to this source
         };

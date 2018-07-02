@@ -52,7 +52,7 @@ std::vector<unsigned long> HighImpactScanDescriptor::getStationIds() const{
 }
 
 void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
-                                                       const std::vector<Station> &stations,
+                                                       const Network &network,
                                                        const std::vector<Source> &sources) {
 
     // map: key = srcid, value:weight
@@ -65,7 +65,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
         for(unsigned long staid: any.getStaids()){
             PointingVector pv(staid,numeric_limits<unsigned long>::max());
             pv.setTime(time);
-            const auto &thisSta = stations[staid];
+            const auto &thisSta = network.getStation(staid);
 
             // loop over all sources
             for (const auto &source:sources){
@@ -93,7 +93,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
     for(const auto& itm: thisMap){
         unsigned long srcid = itm.first;
         const Source &thisSource = sources[srcid];
-        highImpactScans_.visibleScan(time,Scan::ScanType::highImpact,stations,thisSource);
+        highImpactScans_.visibleScan(time,Scan::ScanType::highImpact,network,thisSource);
     }
 
     scores_.push_back(move(thisMap));
@@ -119,26 +119,26 @@ const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids
 }
 
 
-void HighImpactScanDescriptor::updateHighImpactScans(const std::vector<Station> &stations,
+void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
                                                      const std::vector<Source> &sources,
                                                      const boost::optional<Subnetting> &subnetting) {
-    highImpactScans_.calcStartTimes(stations, sources);
-    highImpactScans_.updateAzEl(stations, sources);
-    highImpactScans_.constructAllBaselines(sources);
-    highImpactScans_.calcAllBaselineDurations(stations, sources);
-    highImpactScans_.calcAllScanDurations(stations, sources);
-    highImpactScans_.checkIfEnoughTimeToReachEndposition(stations, sources);
+    highImpactScans_.calcStartTimes(network, sources);
+    highImpactScans_.updateAzEl(network, sources);
+    highImpactScans_.constructAllBaselines(network, sources);
+    highImpactScans_.calcAllBaselineDurations(network, sources);
+    highImpactScans_.calcAllScanDurations(network, sources);
+    highImpactScans_.checkIfEnoughTimeToReachEndposition(network, sources);
 
     if (subnetting.is_initialized()) {
         highImpactScans_.createSubnettingScans(*subnetting, sources);
     }
 
-    highImpactScans_.generateScore(stations,sources,scores_,interval_);
+    highImpactScans_.generateScore(network,sources,scores_,interval_);
 }
 
 
-vector<Scan> HighImpactScanDescriptor::highestImpactScans(const std::vector<Station> &stations, const std::vector<Source> &sources) {
-    return highImpactScans_.selectBest(stations, sources);
+vector<Scan> HighImpactScanDescriptor::highestImpactScans(const Network &network, const std::vector<Source> &sources) {
+    return highImpactScans_.selectBest(network, sources);
 }
 
 bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source) {

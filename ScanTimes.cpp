@@ -155,14 +155,14 @@ void ScanTimes::setStartTime(unsigned int scanStart) noexcept {
     }
 }
 
-void ScanTimes::addScanTimes(const vector<unsigned int> &scanTimes) noexcept {
+void ScanTimes::addObservingTimes(const vector<unsigned int> &scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
         endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes[i];
     }
     alignStartTimes();
 }
 
-void ScanTimes::addScanTimes(unsigned int scanTimes) noexcept {
+void ScanTimes::addObservingTime(unsigned int scanTimes) noexcept {
     for (int i = 0; i < endOfSlewTime_.size(); ++i) {
         endOfObservingTime_[i] = endOfPreobTime_[i]+scanTimes;
     }

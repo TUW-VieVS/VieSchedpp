@@ -17,87 +17,30 @@ using namespace VieVS;
 
 unsigned long VieVS::SkyCoverage::nextId = 0;
 
-double SkyCoverage::maxInfluenceTime = 3600;
-double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
-double SkyCoverage::maxTwinTelecopeDistance = 0;
-SkyCoverage::Interpolation SkyCoverage::interpolationDistance = Interpolation::linear;
-SkyCoverage::Interpolation SkyCoverage::interpolationTime = Interpolation::linear;
+double thread_local SkyCoverage::maxInfluenceTime = 3600;
+double thread_local SkyCoverage::maxInfluenceDistance = 30*deg2rad;
+SkyCoverage::Interpolation thread_local SkyCoverage::interpolationDistance = Interpolation::linear;
+SkyCoverage::Interpolation thread_local SkyCoverage::interpolationTime = Interpolation::linear;
 
-SkyCoverage::SkyCoverage(const vector<int> &staids): VieVS_Object(nextId++), nStations_{staids.size()}, staids_{staids}{
+SkyCoverage::SkyCoverage(): VieVS_Object(nextId++){
 }
 
-double SkyCoverage::calcScore(const vector<PointingVector> &pvs,
-                                   const vector<Station> &stations) const noexcept {
+double SkyCoverage::calcScore(const PointingVector &pv) const{
 
-    double score = 0;
-
-    for (const auto &pv_new : pvs) {
-        if (!hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
+    double score = 1;
+    for (const auto &pv_old : pointingVectors_) {
+        if(pv_old.getTime()>pv.getTime()){
             continue;
         }
-
-        double min_score = 1;
-
-        for (const auto &pv_old : pointingVectors_) {
-            if(pv_old.getTime()>pv_new.getTime()){
-                continue;
-            }
-            double thisScore = scorePerPointingVector(pv_new, pv_old);
-            if (thisScore < min_score) {
-                min_score = thisScore;
-            }
+        double thisScore = scorePerPointingVector(pv, pv_old);
+        if (thisScore < score) {
+            score = thisScore;
         }
-        score = min_score;
     }
+
     return score;
 }
 
-
-double SkyCoverage::calcScore(const vector<PointingVector> &pvs, const vector<Station> &stations,
-                                   vector<double> &firstScorePerPv) const noexcept {
-
-    double score = 0;
-
-    for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-        const PointingVector &pv_new = pvs[idx_newObs];
-        if (!hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
-            continue;
-        }
-
-        double min_score = 1;
-
-        for (const auto &pv_old : pointingVectors_) {
-            if(pv_old.getTime()>pv_new.getTime()){
-                continue;
-            }
-            double thisScore = scorePerPointingVector(pv_new, pv_old);
-            if (thisScore < min_score) {
-                min_score = thisScore;
-            }
-        }
-
-        firstScorePerPv[idx_newObs] = min_score;
-        score = min_score;
-    }
-    return score;
-}
-
-double SkyCoverage::calcScore_subcon(const vector<PointingVector> &pvs,
-                                          const vector<Station> &stations,
-                                          const vector<double> &firstScorePerPv) const noexcept {
-
-    double score = 0;
-
-    for (int idx_newObs = 0; idx_newObs < pvs.size(); ++idx_newObs) {
-        const PointingVector &pv_new = pvs[idx_newObs];
-        if (!hasId(stations[pv_new.getStaid()].getSkyCoverageID())) {
-            continue;
-        }
-        score = firstScorePerPv[idx_newObs];
-        break;
-    }
-    return score;
-}
 
 void SkyCoverage::update(const PointingVector &pv) noexcept {
     pointingVectors_.push_back(pv);
@@ -159,5 +102,6 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
 void SkyCoverage::clearObservations() {
     pointingVectors_.clear();
 }
+
 
 
