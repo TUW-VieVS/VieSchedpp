@@ -67,7 +67,7 @@ namespace VieVS{
          *
          * @param init initializer
          */
-        Scheduler(Initializer &init, std::string path, std::string name, int version);
+        Scheduler(Initializer &init, std::string path, std::string fname);
 
         Scheduler(std::string name, Network network_, std::vector<Source> sources,
                   std::vector<Scan> scans, boost::property_tree::ptree xml);
@@ -75,7 +75,7 @@ namespace VieVS{
         /**
          * @brief main function that starts the scheduling
          */
-        void start(std::ofstream &bodyLog) noexcept;
+        void start() noexcept;
 
         /**
          * @brief this function creates a subcon with all scans, times and scores
@@ -111,15 +111,6 @@ namespace VieVS{
          */
         void consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &bodyLog) noexcept;
 
-        /**
-         * @brief total number of created scans
-         *
-         * @return total number of created scans
-         */
-        unsigned long numberOfCreatedScans() {
-            return nSingleScansConsidered + 2 * nSubnettingScansConsidered;
-        }
-
         void statistics(std::ofstream &ofstream);
 
         void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &bodyLog);
@@ -136,7 +127,6 @@ namespace VieVS{
         std::string path_;
 
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
-        int version_;
 
         std::vector<Source> sources_; ///< all sources
         Network network_;
@@ -148,6 +138,9 @@ namespace VieVS{
         unsigned long nSingleScansConsidered = 0; ///< considered single source scans
         unsigned long nSubnettingScansConsidered = 0; ///< considered subnetting scans
         unsigned long nObservationsConsidered = 0; ///< considered baselines
+
+        boost::optional<HighImpactScanDescriptor> himp_;
+        boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
         void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
                                 boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,

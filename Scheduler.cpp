@@ -16,12 +16,13 @@ using namespace std;
 using namespace VieVS;
 unsigned long Scheduler::nextId = 0;
 
-Scheduler::Scheduler(Initializer &init, string path, string name, int version): VieVS_NamedObject(move(name),nextId++),
-                                                                   path_{std::move(path)},
-                                                                   version_{version},
-                                                                   network_{std::move(init.network_)},
-                                                                   sources_{std::move(init.sources_)},
-                                                                   xml_{init.xml_} {
+Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedObject(move(fname),nextId++),
+                                                                    path_{std::move(path)},
+                                                                    network_{std::move(init.network_)},
+                                                                    sources_{std::move(init.sources_)},
+                                                                    himp_{std::move(init.himp_)},
+                                                                    multiSchedulingParameters_{std::move(init.multiSchedulingParameters_)},
+                                                                    xml_{init.xml_} {
 
     if(init.parameters_.subnetting){
         Subnetting subnetting;
@@ -203,15 +204,27 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
 }
 
-void Scheduler::start(ofstream &bodyLog) noexcept {
+void Scheduler::start() noexcept {
 
+    string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log";
+    ofstream bodyLog(path_ + fileName);
+    cout << (boost::format("writing scheduling log file: %s;\n") % fileName).str();
     if(parameters_.currentIteration>0){
         bodyLog << "Iteration number: " << parameters_.currentIteration << "\n";
     }
+    if(multiSchedulingParameters_.is_initialized()){
+        bodyLog << "multi scheduling parameters:\n";
+        multiSchedulingParameters_->output(bodyLog);
+    }
+
     listSourceOverview(bodyLog);
 
     boost::optional<StationEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
+
+    if(himp_.is_initialized()){
+        highImpactScans(himp_.get(), bodyLog);
+    }
 
 
     // check if you have some fixed high impact scans
@@ -235,13 +248,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
 
     // check if there was an error during the session
     if (!checkAndStatistics(bodyLog)) {
-        if(version_ == 0){
-            cout << boost::format("iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
-                    % (parameters_.currentIteration);
-        }else{
-            cout << boost::format("version %d iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
-                    % version_ %(parameters_.currentIteration);
-        }
+        cout << boost::format("%s iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
+                % getName() %(parameters_.currentIteration);
     }
 
     // output some statistics
@@ -253,9 +261,8 @@ void Scheduler::start(ofstream &bodyLog) noexcept {
     // check if new iteration is necessary
     if(newScheduleNecessary){
         ++parameters_.currentIteration;
-        ofstream newBodyLog(path_+getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log");
         // restart schedule
-        start(newBodyLog);
+        start();
     }
 
 }
@@ -402,19 +409,19 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
             break;
         }
 
-        // save statistics
-        Station::Statistics statistics;
+        // save staStatistics
+        Station::Statistics staStatistics;
 
         while( i_thisEnd < scans_.size()){
             // get scan and pointing vector at start
             const Scan &scan_thisEnd = scans_[i_thisEnd];
             const PointingVector &thisEnd = scan_thisEnd.getPointingVectors_endtime(idx_thisEnd);
 
-            // update statistics
-            statistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
-            statistics.totalObservingTime += scan_thisEnd.getTimes().getObservingTime(idx_thisEnd);
-            statistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemTime(idx_thisEnd);
-            statistics.totalPreobTime += scan_thisEnd.getTimes().getPreobTime(idx_thisEnd);
+            // update staStatistics
+            staStatistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
+            staStatistics.totalObservingTime += scan_thisEnd.getTimes().getObservingTime(idx_thisEnd);
+            staStatistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemTime(idx_thisEnd);
+            staStatistics.totalPreobTime += scan_thisEnd.getTimes().getPreobTime(idx_thisEnd);
 
             int i_nextStart = i_thisEnd+1;
             while( i_nextStart < scans_.size()){
@@ -453,15 +460,15 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
                     unsigned int availableTime = nextStartTime-thisEndTime;
                     unsigned int idleTime;
 
-                    // update statistics
-                    statistics.totalSlewTime += slewtime;
+                    // update staStatistics
+                    staStatistics.totalSlewTime += slewtime;
                     if(availableTime>=min_neededTime){
                         idleTime = availableTime-min_neededTime;
                     }else{
                         idleTime = 0;
                     }
 
-                    statistics.totalIdleTime += idleTime;
+                    staStatistics.totalIdleTime += idleTime;
 
                     if(availableTime+1<min_neededTime){
                         ++countErrors;
@@ -505,7 +512,7 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
         }
         bodyLog << "    finished!\n";
-        thisStation.setStatistics(statistics);
+        thisStation.setStatistics(staStatistics);
     }
     bodyLog << "Total: " << countErrors << " errors and " << countWarnings << " warnings\n";
     bodyLog << "=========================   end check routine    =========================\n";
@@ -515,19 +522,30 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
         return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
     });
 
-    // add source statistics
-    std::vector<Source::Statistics> statistics(sources_.size());
-    for(auto &any:scans_){
+    // add source srcStatistics
+    std::vector<Source::Statistics> srcStatistics(sources_.size());
+    std::vector<Baseline::Statistics> blsStatistics(network_.getNBls());
+    for(const auto &any:scans_){
         unsigned long srcid = any.getSourceId();
-        auto &thisStatistics = statistics[srcid];
-        thisStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
-        thisStatistics.totalObservingTime += any.getTimes().getObservingTime();
-    }
-    for(int i=0; i<sources_.size(); ++i){
-        Source &source = sources_[i];
-        source.setStatistics(statistics[i]);
-    }
+        auto &thisSrcStatistics = srcStatistics[srcid];
+        thisSrcStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
+        thisSrcStatistics.totalObservingTime += any.getTimes().getObservingTime();
 
+        for(const auto &obs: any.getObservations()){
+            unsigned long blid = obs.getBlid();
+            auto &thisBlsStatistics = blsStatistics[blid];
+            thisBlsStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
+            thisBlsStatistics.totalObservingTime += any.getTimes().getObservingTime();
+        }
+    }
+    for(unsigned long isrc=0; isrc<sources_.size(); ++isrc){
+        Source &source = sources_[isrc];
+        source.setStatistics(srcStatistics[isrc]);
+    }
+    for(unsigned long ibl=0; ibl<network_.getNBls(); ++ibl){
+        Baseline &baseline = network_.refBaseline(ibl);
+        baseline.setStatistics(blsStatistics[ibl]);
+    }
     return everythingOk;
 }
 

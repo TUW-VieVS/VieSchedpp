@@ -276,8 +276,8 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
     for (int i = 0; i < nSingleScans_; ++i) {
         unsigned long firstSrcId = sourceIds[i];
         Scan &first = singleScans_[i];
-        const vector<int> &secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
-        for (int secondSrcId : secondSrcIds) {
+        const vector<unsigned long> &secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
+        for (unsigned long secondSrcId : secondSrcIds) {
 
             auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
             if (it != sourceIds.end()) {

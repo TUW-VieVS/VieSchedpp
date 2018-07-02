@@ -16,8 +16,8 @@
 using namespace std;
 using namespace VieVS;
 
-unsigned int thread_local Scan::nScanSelections{0};
-Scan::ScanSequence thread_local Scan::scanSequence;
+unsigned int Scan::nScanSelections{0};
+Scan::ScanSequence Scan::scanSequence;
 unsigned long Scan::nextId = 0;
 
 

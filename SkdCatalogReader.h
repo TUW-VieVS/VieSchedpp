@@ -16,6 +16,7 @@
 #include <boost/lexical_cast.hpp>
 #include <set>
 #include "VieVS_Object.h"
+#include "util.h"
 
 namespace VieVS {
     class SkdCatalogReader: public VieVS_Object {
@@ -306,6 +307,16 @@ namespace VieVS {
             return bits_;
         }
 
+        const std::string &positionKey(const std::string &staName) const{
+            return antennaKey2positionKey_.at(staName);
+        }
+        const std::string &equipKey(const std::string &staName) const{
+            return antennaKey2equipKey_.at(staName);
+        }
+        const std::string &maskKey(const std::string &staName) const{
+            return antennaKey2maskKey_.at(staName);
+        }
+
         std::string getVersion(const std::string& name) const;
 
     private:
@@ -337,8 +348,11 @@ namespace VieVS {
         std::map<std::string, std::vector<std::string>> fluxCatalog_; ///< map with source name as key and flux catalog entry as value
 
         std::map<std::string, std::vector<std::string>> antennaCatalog_; ///< map with station name as key and catalog entry as value
+        std::map<std::string, std::string> antennaKey2positionKey_;
         std::map<std::string, std::vector<std::string>> positionCatalog_; ///< map with position id as key and catalog entry as value
+        std::map<std::string, std::string> antennaKey2equipKey_;
         std::map<std::string, std::vector<std::string>> equipCatalog_; ///< map with equipment id + "|" + station name as key and catalog entry as value
+        std::map<std::string, std::string> antennaKey2maskKey_;
         std::map<std::string, std::vector<std::string>> maskCatalog_; ///< map with mask id as key and catalog entry as value
 
         std::string freqName_; ///< frequency sequence name

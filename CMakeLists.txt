@@ -37,7 +37,7 @@ set(SOURCE_FILES
         Station.cpp Station.h
         Subcon.cpp Subcon.h
         TimeSystem.cpp TimeSystem.h
-        VieVS_Scheduler.h VieVS_Scheduler.cpp
+        VieSchedpp.h VieSchedpp.cpp
         WeightFactors.cpp WeightFactors.h
         Vex.cpp Vex.h
         Skd.cpp Skd.h

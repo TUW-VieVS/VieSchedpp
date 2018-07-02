@@ -98,21 +98,22 @@ namespace VieVS {
          * @brief pre calculated values
          */
         struct PRECALC {
-            std::vector<std::vector<int>> subnettingSrcIds; ///< list of all available second sources in subnetting
+            std::vector<std::vector<unsigned long>> subnettingSrcIds; ///< list of all available second sources in subnetting
         };
 
         Initializer();
+
         /**
          * @brief empty default constructor.
          */
         explicit Initializer(const std::string &path);
 
+        explicit Initializer(const boost::property_tree::ptree &xml);
+
 
         const boost::property_tree::ptree &getXml() const {
             return xml_;
         }
-
-        SkdCatalogReader createSkdCatalogReader() const noexcept;
 
         /**
          *  @brief pre calculates all possible second scans used for subnetting
@@ -124,7 +125,7 @@ namespace VieVS {
          *
          * @param headerLog outstream to log file
          */
-        void createStations(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createStations(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief initializes all stations with settings from .xml file
@@ -138,7 +139,7 @@ namespace VieVS {
          *
          * @param headerLog outstream to log file
          */
-        void createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief initializes all sources with settings from .xml file
@@ -170,7 +171,7 @@ namespace VieVS {
         /**
          * @brief reads the observing mode information from xml file
          */
-        void initializeObservingMode(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the .xml file
@@ -191,7 +192,7 @@ namespace VieVS {
          * @param parameters multi scheduling parameters
          * @param bodyLog outstream to log file
          */
-        void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters, std::ofstream &bodyLog);
+        Initializer applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters);
 
         /**
          * @brief reads multiSched block in .xml file
@@ -210,7 +211,7 @@ namespace VieVS {
 
         void initializeOptimization(std::ofstream &ofstream);
 
-        boost::optional<VieVS::HighImpactScanDescriptor> initializeHighImpactScanDescriptor(std::ofstream &ofstream);
+        void initializeHighImpactScanDescriptor(std::ofstream &ofstream);
 
     private:
         static unsigned long nextId;
@@ -225,6 +226,9 @@ namespace VieVS {
         std::unordered_map<std::string, std::vector<std::string>> staGroups_;
         std::unordered_map<std::string, std::vector<std::string>> srcGroups_;
         std::unordered_map<std::string, std::vector<std::string>> blGroups_;
+
+        boost::optional<HighImpactScanDescriptor> himp_;
+        boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
 
         /**

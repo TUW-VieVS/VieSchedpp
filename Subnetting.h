@@ -9,7 +9,7 @@
 
 namespace VieVS{
     struct Subnetting{
-        std::vector<std::vector<int>> subnettingSrcIds;
+        std::vector<std::vector<unsigned long>> subnettingSrcIds;
         unsigned int subnettingMinNSta = 2;
     };
 }

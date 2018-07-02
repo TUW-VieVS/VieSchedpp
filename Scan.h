@@ -41,7 +41,7 @@ namespace VieVS{
      */
     class Scan: public VieVS_Object {
     public:
-        static thread_local unsigned int nScanSelections; ///< number of selected main scans
+        static unsigned int nScanSelections; ///< number of selected main scans
 
         /**
          * @brief scan type
@@ -79,7 +79,7 @@ namespace VieVS{
             }
         };
 
-        static thread_local ScanSequence scanSequence; ///< scan sequence rules
+        static ScanSequence scanSequence; ///< scan sequence rules
 
         /**
          * @brief internal debugging function that checks if the number of pointing vectors is equal to nsta
@@ -231,6 +231,10 @@ namespace VieVS{
          */
         const Observation &getObservation(int idx) const noexcept {
             return observations_[idx];
+        }
+
+        const std::vector<Observation> &getObservations() const noexcept {
+            return observations_;
         }
 
         /**
@@ -467,6 +471,10 @@ namespace VieVS{
         void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
 
         void createDummyObservations(const Network &network);
+
+        static unsigned long numberOfCreatedObject(){
+            return nextId-1;
+        }
 
     private:
         static unsigned long nextId;

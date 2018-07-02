@@ -8,33 +8,26 @@
 
 using namespace std;
 using namespace VieVS;
+unsigned long Output::nextId = 0;
 
-Output::Output() = default;
-
-Output::Output(Scheduler &sched, std::string path, int version) : xml_{sched.xml_},
-                                                                  version_{version},
-                                                                  network_{std::move(sched.network_)},
-                                                                  sources_{std::move(sched.sources_)},
-                                                                  scans_{std::move(sched.scans_)},
-                                                                  path_{std::move(path)} {
+Output::Output(Scheduler &sched, std::string path, string fname, int version): VieVS_NamedObject(move(fname), nextId++),
+                                                                               xml_{sched.xml_},
+                                                                               network_{std::move(sched.network_)},
+                                                                               sources_{std::move(sched.sources_)},
+                                                                               scans_{std::move(sched.scans_)},
+                                                                               path_{std::move(path)},
+                                                                               multiSchedulingParameters_{std::move(sched.multiSchedulingParameters_)},
+                                                                               version_{version}{
 
 }
 
 
 void Output::writeSkdsum() {
 
-    string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = boost::to_lower_copy(expName);
-    if (version_ == 0) {
-        fileName.append("_skdsum.txt");
-        string txt = (boost::format("writing statistics to: %s;\n") % fileName).str();
-        cout << txt;
+    string fileName = getName();
+    fileName.append("_skdsum.txt");
 
-    } else {
-        fileName.append((boost::format("V%03d_skdsum.txt") % (version_)).str());
-        string txt = (boost::format("version %d: writing statistics to: %s;\n") %version_ % fileName).str();
-        cout << txt;
-    }
+    cout << (boost::format("writing statistics to: %s;\n") % fileName).str();
 
     ofstream out(path_+fileName);
     displayGeneralStatistics(out);
@@ -104,19 +97,9 @@ void  Output::displayGeneralStatistics(ofstream &out) {
 void Output::displayBaselineStatistics(ofstream &out) {
     unsigned long nsta = network_.getNSta();
     int n_bl = 0;
-    vector< vector <unsigned long> > bl_storage(nsta,vector<unsigned long>(nsta,0));
     for (const auto&any:scans_){
-        int this_n_bl = static_cast<int>(any.getNObs());
+        unsigned long this_n_bl = any.getNObs();
         n_bl += this_n_bl;
-
-        for (int i = 0; i < this_n_bl; ++i) {
-            unsigned long staid1 = any.getObservation(i).getStaid1();
-            unsigned long staid2 = any.getObservation(i).getStaid2();
-            if(staid1>staid2){
-                swap(staid1,staid2);
-            }
-            ++bl_storage[staid1][staid2];
-        }
     }
 
     out << "number of scheduled observations: " << n_bl << "\n";
@@ -143,16 +126,16 @@ void Output::displayBaselineStatistics(ofstream &out) {
     out << "----------|";
     out << "----------|\n";
 
-    for (int i = 0; i < nsta; ++i) {
+    for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
         unsigned long counter = 0;
-        out << boost::format("| %8s |") % network_.getStation(i).getName();
-        for (int j = 0; j < nsta; ++j) {
-            if (j<i+1){
+        out << boost::format("| %8s |") % network_.getStation(staid1).getName();
+        for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
+            if (staid2<staid1+1){
                 out << "          ";
-                counter += bl_storage[j][i];
             }else{
-                out << boost::format(" %8d ") % bl_storage[i][j];
-                counter += bl_storage[i][j];
+                unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
+                out << boost::format(" %8d ") % nBl;
+                counter += nBl;
             }
         }
         out << "|";
@@ -249,11 +232,6 @@ void Output::displaySourceStatistics(ofstream &out) {
                 out << "X";
             }
 
-//            if(any_of(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){return k<timeEnd && k>=timeStart;})){
-//                out << "x";
-//            }else{
-//                out << " ";
-//            }
             timeEnd += 900;
             timeStart += 900;
         }
@@ -341,12 +319,12 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     out << "\n";
 
     out << "scan length:\n";
-    out << ".-------------------------------------------------------------------------------------.\n";
-    out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   average |\n";
-    out << "|-------------------|-----------------------------------------------------------------|\n";
+    out << ".----------------------------------------------------------------------------------------------.\n";
+    out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
+    out << "|-------------------|---------------------------------------------------------|----------------|\n";
 
     {
-        int n = static_cast<int>(maxScanDurations.size() - 1);
+        auto n = static_cast<int>(maxScanDurations.size() - 1);
         sort(maxScanDurations.begin(),maxScanDurations.end());
         out << boost::format("|        ALL        | ");
         out << boost::format("%4d   ") % maxScanDurations[0];
@@ -357,12 +335,13 @@ void Output::displayScanDurationStatistics(ofstream &out) {
         out << boost::format("%4d   ") % maxScanDurations[n * 0.975];
         out << boost::format("%4d   ") % maxScanDurations[n * 0.99];
         out << boost::format("%4d   ") % maxScanDurations[n];
-        double average = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0.0) / (n + 1);
-        out << boost::format("%7.2f |") % average;
+        int sum = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0);
+        double average = static_cast<double>(sum) / (n + 1);
+        out << boost::format("| %5d %8.1f |") % sum % average;
         out << "\n";
     }
 
-    out << "|-------------------|-----------------------------------------------------------------|\n";
+    out << "|-------------------|---------------------------------------------------------|----------------|\n";
 
     for (unsigned long i = 1; i < nsta; ++i) {
         for (unsigned long j = 0; j < i; ++j) {
@@ -381,91 +360,132 @@ void Output::displayScanDurationStatistics(ofstream &out) {
             out << boost::format("%4d   ") % this_duration[n * 0.975];
             out << boost::format("%4d   ") % this_duration[n * 0.99];
             out << boost::format("%4d   ") % this_duration[n];
-            double average = accumulate(this_duration.begin(), this_duration.end(), 0.0) / (n + 1);
-            out << boost::format("%7.2f |") % average;
+            int sum = accumulate(this_duration.begin(), this_duration.end(), 0);
+            double average = static_cast<double>(sum) / (n + 1);
+            out << boost::format("| %5d %8.1f |") % sum % average;
             out << "\n";
         }
 
     }
-    out << "'-------------------------------------------------------------------------------------'\n\n";
+    out << "'----------------------------------------------------------------------------------------------'\n\n";
 }
 
 void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
     unsigned long nstaTotal = network_.getNSta();
 
-    ofstream << ".------------------";
+    ofstream << ".-----------------";
+    ofstream << "------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
         ofstream << "----------";
     }
     ofstream << "----------.\n";
 
-    ofstream << "|                 |";
+    ofstream << "|                 ";
+    ofstream << boost::format("| %8s |") % "average";
     for (const auto &station: network_.getStations()) {
         ofstream << boost::format(" %8s ") % station.getName();
     }
     ofstream << "|\n";
 
-    ofstream << "|-----------------|";
+    ofstream << "|-----------------";
+    ofstream << "|----------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
         ofstream << "----------";
     }
     ofstream << "----------|\n";
 
-    ofstream << "| % obs. time:    |";
+    ofstream << "| % obs. time:    ";
+    vector<double> obsPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalObservingTime;
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+        obsPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network_.getNSta()));
+    for(auto p:obsPer){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "| % preob time:   |";
+    ofstream << "| % preob time:   ";
+    vector<double> preobPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalPreobTime;
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+        preobPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network_.getNSta()));
+    for(auto p:preobPer){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "| % slew time:    |";
+    ofstream << "| % slew time:    ";
+    vector<double> slewPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalSlewTime;
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+        slewPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network_.getNSta()));
+    for(auto p:slewPer){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "| % idle time:    |";
+    ofstream << "| % idle time:    ";
+    vector<double> idlePer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalIdleTime;
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+        idlePer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network_.getNSta()));
+    for(auto p:idlePer){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "| % field system: |";
+    ofstream << "| % field system: ";
+    vector<double> fieldPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalFieldSystemTime;
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+        fieldPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta()));
+    for(auto p:fieldPer){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "'------------------";
+    ofstream << "|-----------------";
+    ofstream << "|----------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
         ofstream << "----------";
     }
-    ofstream << "----------'\n\n";
+    ofstream << "----------|\n";
 
-    ofstream << "|   #scans     :  |";
+    ofstream << "|   #scans:       ";
+    vector<int> scans;
     for (const auto &station: network_.getStations()) {
-        ofstream << boost::format(" %8d ") % (station.getNTotalScans());
+        scans.push_back(station.getNTotalScans());
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(scans.begin(),scans.end(),0.0)/(network_.getNSta()));
+    for(auto p:scans){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "|   scans per h:  |";
+    ofstream << "|   scans per h:  ";
+    vector<double> scansPerH;
     for (const auto &station: network_.getStations()) {
-        ofstream << boost::format(" %8.2f ") % (static_cast<double>(station.getNTotalScans())/static_cast<double>(TimeSystem::duration/3600.)*100);
+        scansPerH.push_back(static_cast<double>(station.getNTotalScans())/(TimeSystem::duration/3600.));
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network_.getNSta()));
+    for(auto p:scansPerH){
+        ofstream << boost::format(" %8.2f ") % p;
     }
     ofstream << "|\n";
 
-    ofstream << "'------------------";
+    ofstream << "'-----------------";
+    ofstream << "------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
         ofstream << "----------";
     }
@@ -568,35 +588,17 @@ void Output::writeNGS() {
 
 
 void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
-    string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = boost::to_lower_copy(expName);
-    if (version_ == 0) {
-        fileName.append(".vex");
-        string txt = (boost::format("writing vex file: %s;\n") % fileName).str();
-        cout << txt;
-    } else {
-        fileName.append((boost::format("v%03d.vex") % (version_)).str());
-        string txt = (boost::format("version %d: writing vex file: %s;\n") %version_ % fileName).str();
-        cout << txt;
-    }
-
+    string fileName = getName();
+    fileName.append(".vex");
+    cout << (boost::format("writing vex file: %s;\n") % fileName).str();
     Vex vex(path_+fileName);
     vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
-    string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = boost::to_lower_copy(expName);
-    if (version_ == 0) {
-        fileName.append(".skd");
-        string txt = (boost::format("writing skd file: %s;\n") % fileName).str();
-        cout << txt;
-    } else {
-        fileName.append((boost::format("v%03d.skd") % (version_)).str());
-        string txt = (boost::format("version %d: writing skd file: %s;\n") %version_ % fileName).str();
-        cout << txt;
-    }
-
+    string fileName = getName();
+    fileName.append(".skd");
+    cout << (boost::format("writing skd file: %s;\n") % fileName).str();
     Skd skd(path_+fileName);
     skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
@@ -611,16 +613,9 @@ void Output::writeStatisticsPerSourceGroup() {
         unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
 
         string expName = xml_.get("master.output.experimentName","schedule");
-        string fileName = boost::to_lower_copy(expName);
-        if (version_ == 0) {
-            fileName.append("_sourceStatistics.txt");
-            string txt = (boost::format("writing source statistics file: %s;\n") % fileName).str();
-            cout << txt;
-        } else {
-            fileName.append((boost::format("v%03d_sourceStatistics.txt") % (version_)).str());
-            string txt = (boost::format("version %d: writing source statistics file: %s;\n") %version_ % fileName).str();
-            cout << txt;
-        }
+        string fileName = getName();
+        fileName.append("_sourceStatistics.txt");
+        cout << (boost::format("writing source statistics file: %s;\n") % fileName).str();
 
         vector<string> interestedSrcGroups;
         const auto & tmp = xml_.get_child_optional("master.output.sourceGroupsForStatistic");
@@ -771,7 +766,7 @@ void Output::writeStatisticsPerSourceGroup() {
             of << "* ----------------------------- GROUP: "<< group.first <<" -----------------------------\n";
             of << "*\n";
             for(const auto &src: sources_) {
-                int srcid = src.getId();
+                unsigned long srcid = src.getId();
                 if ( find(group.second.begin(),group.second.end(),src.getName()) != group.second.end() ) {
 
                     unsigned long nscans = scanTime[srcid].size();
@@ -854,9 +849,9 @@ void Output::writeStatisticsPerSourceGroup() {
         }
         of << "* \n";
         of << "observing time per station:\n";
-        for (int i=0; i<network_.getNSta(); ++i){
-            const string name = network_.getStation(i).getName();
-            unsigned int seconds = xxxstps[i];
+        for (unsigned long ista=0; ista<network_.getNSta(); ++ista){
+            const string name = network_.getStation(ista).getName();
+            unsigned int seconds = xxxstps[ista];
             double percent = (static_cast<double>(seconds)/ static_cast<double>(TimeSystem::duration))*100;
             of << boost::format("    %8s: %8d [s]  (%5.1f [%%])\n") %name %seconds %percent;
         }
@@ -1023,22 +1018,14 @@ void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalog
     if(xml_.get<bool>("master.output.createSourceGroupStatistics",false)) {
         writeStatisticsPerSourceGroup();
     }
-
 }
 
 void Output::writeOperationsNotes() {
     string expName = xml_.get("master.output.experimentName","schedule");
-    string fileName = boost::to_lower_copy(expName);
-    if (version_ == 0) {
-        fileName.append("_operationsNotes.txt");
-        string txt = (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
-        cout << txt;
-    } else {
-        fileName.append((boost::format("v%03d_operationsNotes.txt") % (version_)).str());
-        string txt = (boost::format("version %d: operationsNotes skd file: %s;\n") %version_ % fileName).str();
-        cout << txt;
-    }
 
+    string fileName = getName();
+    fileName.append("_operationsNotes.txt");
+    cout << (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
     ofstream of(path_+fileName);
 
     of << "Session Notes for: " << expName << "\n";
@@ -1083,7 +1070,8 @@ void Output::writeOperationsNotes() {
     string newStr = boost::replace_all_copy(xml_.get("master.output.operationNotes","no additional notes"),"\\n","\n");
     of << newStr << "\n";
     if(version_>0){
-        of << "    Version: " << version_ << " from multi scheduling setup\n";
+        of << "    Version: " << version_ << " from multi scheduling setup:\nUsed multi scheduling parameters:\n";
+        multiSchedulingParameters_->output(of);
     }
     of << "---------------------------------------------------------------------------------------------------------\n\n";
 

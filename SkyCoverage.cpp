@@ -17,10 +17,10 @@ using namespace VieVS;
 
 unsigned long VieVS::SkyCoverage::nextId = 0;
 
-double SkyCoverage::maxInfluenceTime = 3600;
-double SkyCoverage::maxInfluenceDistance = 30*deg2rad;
-SkyCoverage::Interpolation SkyCoverage::interpolationDistance = Interpolation::linear;
-SkyCoverage::Interpolation SkyCoverage::interpolationTime = Interpolation::linear;
+double thread_local SkyCoverage::maxInfluenceTime = 3600;
+double thread_local SkyCoverage::maxInfluenceDistance = 30*deg2rad;
+SkyCoverage::Interpolation thread_local SkyCoverage::interpolationDistance = Interpolation::linear;
+SkyCoverage::Interpolation thread_local SkyCoverage::interpolationTime = Interpolation::linear;
 
 SkyCoverage::SkyCoverage(): VieVS_Object(nextId++){
 }

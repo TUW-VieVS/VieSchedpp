@@ -35,10 +35,10 @@ namespace VieVS{
             cosine,
         };
 
-        static double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
-        static double maxInfluenceDistance; ///< maximum time influence on the sky coverage
-        static Interpolation interpolationDistance;
-        static Interpolation interpolationTime;
+        static thread_local double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
+        static thread_local double maxInfluenceDistance; ///< maximum time influence on the sky coverage
+        static thread_local Interpolation interpolationDistance;
+        static thread_local Interpolation interpolationTime;
 
         /**
          * @brief constructor

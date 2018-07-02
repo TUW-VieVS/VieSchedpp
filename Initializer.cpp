@@ -22,9 +22,15 @@ Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
+Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(nextId++), xml_{xml} {
+    double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+    network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
+}
+
+
 void Initializer::precalcSubnettingSrcIds() noexcept {
     unsigned long nsrc = sources_.size();
-    vector<vector<int> > subnettingSrcIds(nsrc);
+    vector<vector<unsigned long> > subnettingSrcIds(nsrc);
     for (int i = 0; i < nsrc; ++i) {
         for (int j = i + 1; j < nsrc; ++j) {
             double tmp = sin(sources_[i].getDe()) * sin(sources_[j].getDe()) + cos(sources_[i].getDe()) *
@@ -39,8 +45,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
-void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
-    reader.initializeStationCatalogs();
+void Initializer::createStations(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
 
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
     const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
@@ -80,19 +85,18 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
         }
 
         // convert all IDs to upper case for case insensitivity
-        string id_PO = boost::algorithm::to_upper_copy(any.second.at(13));
-        string id_EQ = boost::algorithm::to_upper_copy(any.second.at(14));
-        id_EQ.append("|").append(name);
-        string id_MS = boost::algorithm::to_upper_copy(any.second.at(15));
-        string tlc = boost::to_upper_copy(id_PO);
+        const string &id_PO = reader.positionKey(name);
+        const string &id_EQ = reader.equipKey(name);
+        const string &id_MS = reader.maskKey(name);
+        const string &tlc = reader.getTwoLetterCode().at(name);
 
         // check if corresponding position and equip CATALOG exists.
         if (positionCatalog.find(id_PO) == positionCatalog.end()){
-            headerLog << "*** ERROR: position CATALOG not found ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": position CATALOG not found ***\n";
             continue;
         }
         if (equipCatalog.find(id_EQ) == equipCatalog.end()){
-            headerLog << "*** ERROR: equip CATALOG not found ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": equip CATALOG not found ***\n";
             continue;
         }
 
@@ -112,14 +116,14 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             diam = boost::lexical_cast<double>(any.second.at(12));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << " ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if position.cat is long enough. Otherwise not all information is available.
         vector<string> po_cat = positionCatalog.at(id_PO);
         if (po_cat.size()<5){
-            headerLog << "*** ERROR: " << any.first << ": positon.cat to small ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": positon.cat to small ***\n";
             continue;
         }
 
@@ -131,19 +135,19 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             z = boost::lexical_cast<double>(po_cat.at(4));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << " ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if equip.cat is long enough. Otherwise not all information is available.
         vector<string> eq_cat = equipCatalog.at(id_EQ);
         if (eq_cat.size()<9){
-            headerLog << "*** ERROR: " << any.first << ": equip.cat to small ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": equip.cat to small ***\n";
             continue;
         }
         // check if SEFD_ information is in X and S band
         if (eq_cat[5] != "X" || eq_cat[7] != "S") {
-            headerLog << "*** ERROR: " << any.first << ": we only support SX equipment ***\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": we only support SX equipment ***\n";
             continue;
         }
 
@@ -155,7 +159,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             SEFD_found[eq_cat.at(7)] = boost::lexical_cast<double>(eq_cat.at(8));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: " << e.what() << "\n";
+            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << "\n";
             continue;
         }
         bool everythingOkWithBands = true;
@@ -171,13 +175,13 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
             }
         }
         if(!everythingOkWithBands){
-            cerr << "ERROR: station " << name << " required SEFD_ information missing!;\n";
+            cerr << "ERROR: creating station "<< name <<": required SEFD_ information missing!;\n";
             continue;
         }
 
         if(SEFDs.size() != ObservationMode::bands.size()){
             if(SEFDs.empty()){
-                cerr << "ERROR: station " << name << " no SEFD_ information found to calculate backup value!;\n";
+                cerr << "ERROR: creating station "<< name <<": no SEFD_ information found to calculate backup value!;\n";
                 continue;
             }
             double max = 0;
@@ -223,7 +227,7 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
+                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
@@ -240,14 +244,11 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: station " << name << " elevation dependent SEFD value not understood - ignored!!;\n";
+                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
                     elSEFD = false;
                 }
             }
         }
-
-
-
 
             // check if an horizontal mask exists
         vector<double> hmask;
@@ -260,13 +261,12 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
                     hmask.push_back(boost::lexical_cast<double>(mask_cat.at(i)));
                 }
                 catch(const std::exception& e){
-                    headerLog << "*** ERROR: " << e.what() << " ***\n";
-                    headerLog << mask_cat.at(i) << "\n";
+                    headerLog << "*** ERROR: creating station "<< name <<": mask catalog entry "<< mask_cat.at(i) << " not understood \n";
                 }
             }
         } else {
             if (id_MS != "--"){
-                headerLog << "*** ERROR: mask CATALOG not found ***\n";
+                headerLog << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
             }
         }
 
@@ -324,11 +324,10 @@ void Initializer::createStations(SkdCatalogReader &reader, ofstream &headerLog) 
     headerLog << "Finished! " << created << " of " << nant << " stations created\n\n";
 }
 
-void Initializer::createSources(SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
 
     double flcon2{pi / (3600.0 * 180.0 * 1000.0)};
 
-    reader.initializeSourceCatalogs();
     const map<string, vector<string> > &sourceCatalog = reader.getSourceCatalog();
     const map<string, vector<string> > &fluxCatalog = reader.getFluxCatalog();
 
@@ -645,14 +644,14 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
 
         string startString = xml_.get<string>("master.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
-        headerLog << "start time:" << TimeSystem::ptime2string(startTime) << "\n";
+        headerLog << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
         string endString = xml_.get<string>("master.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
-        headerLog << "end time:" << TimeSystem::ptime2string(endTime) << "\n";
+        headerLog << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
 
 
         int sec = util::duration(startTime,endTime);
@@ -1634,13 +1633,12 @@ void Initializer::initializeSkyCoverages() noexcept {
 
 }
 
-void Initializer::initializeObservingMode(SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
 
             const string &name = it.second.get_value<string>();
-            reader.initializeModesCatalogs(name);
             ObservationMode::sampleRate = reader.getSampleRate();
             ObservationMode::bits = reader.getBits();
             ObservationMode::manual = false;
@@ -1876,42 +1874,44 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
     return groups;
 }
 
-void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters,
-                                                 ofstream &bodyLog) {
-    parameters.output(bodyLog);
+Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
+//    parameters.output(bodyLog);
+
+    Initializer copyOfInit(*this);
+    multiSchedulingParameters_ = parameters;
 
     unsigned long nsta = network_.getNSta();
 
     // GENERAL
     if (parameters.start.is_initialized()) {
-        boost::posix_time::ptime startTime = *parameters.start;
-        int sec_ = startTime.time_of_day().total_seconds();
-        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
-
-        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(
-                static_cast<long>(TimeSystem::duration));
-
-        TimeSystem::mjdStart = mjdStart;
-        TimeSystem::startTime = startTime;
-        TimeSystem::endTime = endTime;
+//        boost::posix_time::ptime startTime = *parameters.start;
+//        int sec_ = startTime.time_of_day().total_seconds();
+//        double mjdStart = startTime.date().modjulian_day() + sec_ / 86400;
+//
+//        boost::posix_time::ptime endTime = startTime + boost::posix_time::seconds(
+//                static_cast<long>(TimeSystem::duration));
+//
+//        TimeSystem::mjdStart = mjdStart;
+//        TimeSystem::startTime = startTime;
+//        TimeSystem::endTime = endTime;
     }
     if (parameters.subnetting.is_initialized()) {
-        parameters_.subnetting = *parameters.subnetting;
+        copyOfInit.parameters_.subnetting = *parameters.subnetting;
     }
     if (parameters.subnetting_minSourceAngle.is_initialized()) {
-        parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
+        copyOfInit.parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
     }
     if (parameters.subnetting_minParticipatingStations.is_initialized()) {
-        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
+        copyOfInit.parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
     }
     if (parameters.fillinmode_duringScanSelection.is_initialized()) {
-        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
+        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
     }
     if (parameters.fillinmode_influenceOnScanSelection.is_initialized()) {
-        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
+        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
     }
     if (parameters.fillinmode_aPosteriori.is_initialized()) {
-        parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
+        copyOfInit.parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
 
     // WEIGHT FACTORS
@@ -1955,6 +1955,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         WeightFactors::lowElevationFullWeight = *parameters.weightLowElevation_full;
     }
 
+    // SKY COVERAGE
     if(parameters.skyCoverageInfluenceDistance.is_initialized()){
         SkyCoverage::maxInfluenceDistance = *parameters.skyCoverageInfluenceDistance;
     }
@@ -1968,7 +1969,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().weight = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().weight = any.second;
             }
         }
     }
@@ -1977,7 +1978,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxSlewtime = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().maxSlewtime = any.second;
             }
         }
     }
@@ -1986,7 +1987,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxSlewDistance = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().maxSlewDistance = any.second;
             }
         }
     }
@@ -1995,7 +1996,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().minSlewDistance = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().minSlewDistance = any.second;
             }
         }
     }
@@ -2004,7 +2005,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxWait = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().maxWait = any.second;
             }
         }
     }
@@ -2013,7 +2014,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().minElevation = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().minElevation = any.second;
             }
         }
     }
@@ -2022,7 +2023,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxNumberOfScans = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
@@ -2031,7 +2032,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxScan = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().maxScan = any.second;
             }
         }
     }
@@ -2040,7 +2041,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().minScan = any.second;
+                copyOfInit.network_.refStation(id).referencePARA().minScan = any.second;
             }
         }
     }
@@ -2051,7 +2052,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().weight = any.second;
+                copyOfInit.sources_[id].referencePARA().weight = any.second;
             }
         }
     }
@@ -2060,7 +2061,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minNumberOfStations = any.second;
+                copyOfInit.sources_[id].referencePARA().minNumberOfStations = any.second;
             }
         }
     }
@@ -2069,7 +2070,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minFlux = any.second;
+                copyOfInit.sources_[id].referencePARA().minFlux = any.second;
             }
         }
     }
@@ -2078,7 +2079,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().maxNumberOfScans = any.second;
+                copyOfInit.sources_[id].referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
@@ -2087,7 +2088,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minElevation = any.second;
+                copyOfInit.sources_[id].referencePARA().minElevation = any.second;
             }
         }
     }
@@ -2096,7 +2097,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minSunDistance = any.second;
+                copyOfInit.sources_[id].referencePARA().minSunDistance = any.second;
             }
         }
     }
@@ -2105,7 +2106,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().maxScan = any.second;
+                copyOfInit.sources_[id].referencePARA().maxScan = any.second;
             }
         }
     }
@@ -2114,7 +2115,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minScan = any.second;
+                copyOfInit.sources_[id].referencePARA().minScan = any.second;
             }
         }
     }
@@ -2123,7 +2124,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minRepeat = any.second;
+                copyOfInit.sources_[id].referencePARA().minRepeat = any.second;
             }
         }
     }
@@ -2134,7 +2135,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                network_.refBaseline(id).refParameters().weight = any.second;
+                copyOfInit.network_.refBaseline(id).refParameters().weight = any.second;
             }
         }
     }
@@ -2143,7 +2144,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                network_.refBaseline(id).refParameters().minScan = any.second;
+                copyOfInit.network_.refBaseline(id).refParameters().minScan = any.second;
             }
         }
     }
@@ -2152,10 +2153,12 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                network_.refBaseline(id).refParameters().maxScan = any.second;
+                copyOfInit.network_.refBaseline(id).refParameters().maxScan = any.second;
             }
         }
     }
+
+    return copyOfInit;
 }
 
 vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &out) {
@@ -2230,23 +2233,6 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
         return ans;
     }
     return std::vector<MultiScheduling::Parameters>{};
-}
-
-SkdCatalogReader Initializer::createSkdCatalogReader() const noexcept {
-    SkdCatalogReader reader;
-
-    vector<string> staNames;
-    boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
-    auto it = ptree_stations.begin();
-    while (it != ptree_stations.end()) {
-        auto item = it->second.data();
-        staNames.push_back(item);
-        ++it;
-    }
-    reader.setStationNames(staNames);
-    reader.setCatalogFilePathes(xml_.get_child("master.catalogs"));
-
-    return reader;
 }
 
 void Initializer::initializeSourceSequence() noexcept{
@@ -2340,7 +2326,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
                 }
 
                 headerLog << "  allowed calibratior sources: \n    ";
-                vector<int> targetIds;
+                vector<unsigned long> targetIds;
                 int c = 0;
                 for (const auto &source:sources_) {
                     const string &name = source.getName();
@@ -2501,8 +2487,7 @@ void Initializer::initializeOptimization(std::ofstream &ofstream) {
     }
 }
 
-boost::optional<VieVS::HighImpactScanDescriptor>
-Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
+void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
     if (ctree.is_initialized()) {
 
@@ -2515,7 +2500,7 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
         boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
-        boost::optional<HighImpactScanDescriptor> himp = HighImpactScanDescriptor(interval, repeat);
+        HighImpactScanDescriptor himp = HighImpactScanDescriptor(interval, repeat);
         for(const auto &any: *ctree){
             if(any.first == "targetAzEl"){
                 auto member = any.second.get<string>("member");
@@ -2546,12 +2531,10 @@ Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
                 }
                 of << "\n";
 
-                himp->addAzElDescriptor(az*deg2rad,el*deg2rad,margin*deg2rad,staids);
+                himp.addAzElDescriptor(az*deg2rad,el*deg2rad,margin*deg2rad,staids);
             }
         }
-        return himp;
-    }else{
-        return boost::none;
+        himp_ = himp;
     }
 }
 
@@ -2650,6 +2633,7 @@ std::vector<unsigned long> Initializer::getMembers(const std::string &name, cons
 
     return ids;
 }
+
 
 
 

@@ -140,6 +140,14 @@ namespace VieVS{
             nextEvent_ = idx;
         }
 
+        void setStatistics(const Statistics &stat){
+            statistics_ = stat;
+        }
+
+        const Statistics &getStatistics() const {
+            return statistics_;
+        }
+
     private:
         static unsigned long nextId;
 
