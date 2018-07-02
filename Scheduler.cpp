@@ -1292,7 +1292,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
 
 
     bodyLog << "###############################################################################################\n";
-    bodyLog << "##                                 start with normal scans                                   ##\n";
+    bodyLog << "##                              start with normal scan selection                             ##\n";
     bodyLog << "###############################################################################################\n";
 
 
