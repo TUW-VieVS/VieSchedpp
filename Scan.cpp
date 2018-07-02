@@ -534,40 +534,6 @@ double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) cons
     return score;
 }
 
-double Scan::calcScore_skyCoverage(const Network &network) const noexcept {
-
-    double score = 0;
-
-    for (const auto &skyCoverage : network.getSkyCoverages()) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, network.getStations());
-        score += thisSore;
-    }
-    return score / nsta_;
-}
-
-
-double Scan::calcScore_skyCoverage(const Network &network, vector<double> &firstScorePerPv) const noexcept {
-
-    double score = 0;
-
-    for (const auto &skyCoverage : network.getSkyCoverages()) {
-        double thisSore = skyCoverage.calcScore(pointingVectors_, network.getStations(), firstScorePerPv);
-        score += thisSore;
-    }
-    return score / nsta_;
-}
-
-double Scan::calcScore_skyCoverage_subcon(const Network &network, const vector<double> &firstScorePerPv) const noexcept{
-
-    double score = 0;
-
-    for (const auto &skyCoverage : network.getSkyCoverages()) {
-        double thisSore = skyCoverage.calcScore_subcon(pointingVectors_, network.getStations(), firstScorePerPv);
-        score += thisSore;
-    }
-    return score / nsta_;
-}
-
 double Scan::calcScore_lowElevation() {
     double score = 0;
     for (const auto &pv:pointingVectors_) {
@@ -1001,7 +967,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(network) * weight_skyCoverage;
+        this_score += network.calcScore_skyCoverage(pointingVectors_) * weight_skyCoverage;
     }
 
     score_ = calcScore_secondPart(this_score,network,source);
@@ -1009,14 +975,14 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
                      unsigned int maxTime, const Network &network, const Source &source,
-                     std::vector<double> &firstScorePerPV) noexcept {
+                     map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
     double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage(network, firstScorePerPV) * weight_skyCoverage;
+        this_score += network.calcScore_skyCoverage(pointingVectors_,staids2skyCoverageScore) * weight_skyCoverage;
     }
 
     score_ = calcScore_secondPart(this_score, network, source);
@@ -1025,13 +991,15 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
 void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                 unsigned int minTime, unsigned int maxTime, const Network &network,
-                                const Source &source, const std::vector<double> &firstScorePerPV) noexcept {
+                                const Source &source,
+                                const map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
     double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += calcScore_skyCoverage_subcon(network, firstScorePerPV) * weight_skyCoverage * .5;
+        this_score += network.calcScore_skyCoverage_subnetting(pointingVectors_,staids2skyCoverageScore)
+                      * weight_skyCoverage;
     }
 
     score_ = calcScore_secondPart(this_score, network, source);

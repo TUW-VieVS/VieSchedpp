@@ -198,8 +198,53 @@ const std::vector<double> &Network::getDxyz(unsigned long staid1, unsigned long 
 }
 
 
+double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs) const {
 
+    double score = 0;
 
+    for (const auto &pv : pvs){
+        unsigned long staid = pv.getStaid();
+        unsigned long skyCovid = staids2skyCoverageId_.at(staid);
+        const SkyCoverage &thisSkyCov = skyCoverages_.at(skyCovid);
+        score += thisSkyCov.calcScore(pv);
+    }
+
+    return score / pvs.size();
+
+}
+
+double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs,
+                                      map<unsigned long, double> &staids2skyCoverageScore) const {
+
+    double score = 0;
+
+    for(int i=0; i<pvs.size(); ++i){
+        const PointingVector &pv = pvs[i];
+        unsigned long staid = pv.getStaid();
+        unsigned long skyCovid = staids2skyCoverageId_.at(staid);
+        const SkyCoverage &thisSkyCov = skyCoverages_.at(skyCovid);
+        double thisScore = thisSkyCov.calcScore(pv);
+        staids2skyCoverageScore[staid] = thisScore;
+        score += thisScore;
+    }
+
+    return score / pvs.size();
+}
+
+double Network::calcScore_skyCoverage_subnetting(const vector<PointingVector> &pvs,
+                                                 const map<unsigned long, double> &staids2skyCoverageScore) const {
+
+    double score = 0;
+
+    for(int i=0; i<pvs.size(); ++i){
+        const PointingVector &pv = pvs[i];
+        unsigned long staid = pv.getStaid();
+        score += staids2skyCoverageScore.at(staid);
+    }
+
+    return score / pvs.size();
+
+}
 
 
 

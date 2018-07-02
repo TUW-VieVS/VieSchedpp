@@ -61,23 +61,12 @@ Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna>
         position_{move(sta_position)},
         equip_{move(sta_equip)},
         mask_{move(sta_mask)},
-        skyCoverageId_{-1},
         currentPositionVector_{PointingVector(nextId-1,numeric_limits<unsigned long>::max())},
         parameters_{Parameters("empty")}{
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {
     currentPositionVector_ = pointingVector;
-}
-
-namespace VieVS {
-    ostream &operator<<(ostream &out, const Station &sta) noexcept {
-        cout << boost::format("%=36s\n") % sta.getName();
-        cout << sta.position_;
-        cout << "uses sky coverage id: " << sta.skyCoverageId_ << "\n";
-        cout << "------------------------------------\n";
-        return out;
-    }
 }
 
 bool Station::isVisible(const PointingVector &p, double minElevationSource) const noexcept {

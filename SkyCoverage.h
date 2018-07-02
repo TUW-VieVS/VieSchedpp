@@ -50,40 +50,8 @@ namespace VieVS{
          */
         SkyCoverage();
 
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @return score
-         */
-        double calcScore(const std::vector<PointingVector> &pvs, const std::vector<Station> &stations) const noexcept;
-
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * !!! This function changes firstScorePerPv !!!
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore(const std::vector<PointingVector> &pvs, const std::vector<Station> &stations,
-                         std::vector<double> &firstScorePerPv) const noexcept;
-
-        /**
-         * @brief calculates the score of pointing vectors on the sky Coverage
-         *
-         * @param pvs pointing vectors
-         * @param stations list of all stations
-         * @param firstScorePerPv stored score for each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_subcon(const std::vector<PointingVector> &pvs,
-                                const std::vector<Station> &stations,
-                                const std::vector<double> &firstScorePerPv) const noexcept;
-
+        double calcScore(const PointingVector &pv) const;
+        
         /**
          * @brief calculates the influence of the score between two pointing vectors
          *

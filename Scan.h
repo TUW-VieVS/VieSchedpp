@@ -360,7 +360,7 @@ namespace VieVS{
         */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
                        unsigned int maxTime, const Network &network, const Source &source,
-                       std::vector<double> &firstScorePerPv) noexcept;
+                       std::map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -381,7 +381,8 @@ namespace VieVS{
          */
         void calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                   unsigned int minTime, unsigned int maxTime, const Network &network,
-                                  const Source &source, const std::vector<double> &firstScorePerPv) noexcept;
+                                  const Source &source,
+                                  const std::map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         void calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                        double hiscore);
@@ -536,34 +537,6 @@ namespace VieVS{
          */
         double calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept;
 
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * @param skyCoverages all sky coverages
-         * @return score
-         */
-        double calcScore_skyCoverage(const Network &network) const noexcept;
-
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * !!! This function changes firstScorePerPv !!!
-         *
-         * @param skyCoverages all sky coverages
-         * @param firstScorePerPv stores the score of each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_skyCoverage(const Network &network, std::vector<double> &firstScorePerPv) const noexcept;
-
-        /**
-         * @brief calculates score for improvement in sky coverage
-         *
-         * @param skyCoverages all sky coverages
-         * @param firstScorePerPv stored score for each pointing vector without twin station influences
-         * @return score
-         */
-        double calcScore_skyCoverage_subcon(const Network &network,
-                                            const std::vector<double> &firstScorePerPv) const noexcept;
 
         double calcScore_idleTime() const noexcept;
 

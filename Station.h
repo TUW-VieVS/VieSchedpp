@@ -284,24 +284,6 @@ namespace VieVS{
         }
 
         /**
-         * @brief getter for sky coverage id
-         *
-         * @return sky coverage id
-         */
-        int getSkyCoverageID() const noexcept {
-            return skyCoverageId_;
-        }
-
-        /**
-         * @brief set the sky coverage id
-         *
-         * @param id new sky coverage id
-         */
-        void setSkyCoverageId(int id) noexcept {
-            skyCoverageId_ = id;
-        }
-
-        /**
          * @brief getter for current pointing vector
          * @return current pointing vector
          */
@@ -354,16 +336,7 @@ namespace VieVS{
          * @param pointingVector new current pointing vector
          */
         void setCurrentPointingVector(const PointingVector &pointingVector) noexcept;
-
-        /**
-         * @brief overload of the << operator for output to stream
-         *
-         * @param out output stream object
-         * @param sta station information that should be printed to stream
-         * @return stream object
-         */
-        friend std::ostream &operator<<(std::ostream &out, const Station &sta) noexcept;
-
+        
         /**
          * @brief sets all upcoming events
          * @param EVENTS all upcoming events
@@ -432,7 +405,6 @@ namespace VieVS{
 
         Statistics statistics_;
 
-        int skyCoverageId_{-1}; ///< station sky coverage id
         Parameters parameters_; ///< station parameters
         PointingVector currentPositionVector_; ///< current pointing vector
         unsigned int nextEvent_{0}; ///< index of next event

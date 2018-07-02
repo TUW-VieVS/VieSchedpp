@@ -68,6 +68,18 @@ namespace VieVS {
 
         const std::vector<double> &getDxyz(unsigned long staid1, unsigned long staid2) const;
 
+        double calcScore_skyCoverage(const std::vector<PointingVector> &pvs) const;
+
+        double calcScore_skyCoverage(const std::vector<PointingVector> &pvs,
+                                     std::map<unsigned long, double> &staids2skyCoverageScore) const;
+
+        double calcScore_skyCoverage_subnetting(const std::vector<PointingVector> &pvs,
+                                                const std::map<unsigned long, double> &staids2skyCoverageScore) const;
+
+        const std::map<unsigned long, unsigned long> &getStaid2skyCoverageId() const{
+            return staids2skyCoverageId_;
+        };
+
     private:
         unsigned long nsta_;
         unsigned long nbls_;
