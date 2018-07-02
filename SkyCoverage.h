@@ -51,7 +51,7 @@ namespace VieVS{
         SkyCoverage();
 
         double calcScore(const PointingVector &pv) const;
-        
+
         /**
          * @brief calculates the influence of the score between two pointing vectors
          *

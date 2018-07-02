@@ -71,10 +71,10 @@ namespace VieVS {
         double calcScore_skyCoverage(const std::vector<PointingVector> &pvs) const;
 
         double calcScore_skyCoverage(const std::vector<PointingVector> &pvs,
-                                     std::map<unsigned long, double> &staids2skyCoverageScore) const;
+                                     std::unordered_map<unsigned long, double> &staids2skyCoverageScore) const;
 
         double calcScore_skyCoverage_subnetting(const std::vector<PointingVector> &pvs,
-                                                const std::map<unsigned long, double> &staids2skyCoverageScore) const;
+                                                const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) const;
 
         const std::map<unsigned long, unsigned long> &getStaid2skyCoverageId() const{
             return staids2skyCoverageId_;

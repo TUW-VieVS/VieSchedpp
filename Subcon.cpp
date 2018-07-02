@@ -369,10 +369,10 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
 
     precalcScore(network, sources);
 //    unsigned long nmaxsta = stations.size();
-    vector< map<unsigned long, double> > staids2skyCoverageScores(sources.size());
+    vector< unordered_map<unsigned long, double> > staids2skyCoverageScores(sources.size());
     for (auto &thisScan: singleScans_) {
         unsigned long srcid = thisScan.getSourceId();
-        map<unsigned long, double> & staids2skyCoverageScore = staids2skyCoverageScores[srcid];
+        unordered_map<unsigned long, double> & staids2skyCoverageScore = staids2skyCoverageScores[srcid];
         const Source &thisSource = sources[srcid];
         thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, network, thisSource,
                            staids2skyCoverageScore);
@@ -383,7 +383,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         Scan &thisScan1 = thisScans.first;
         unsigned long srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[srcid1];
-        const map<unsigned long, double> & staids2skyCoverageScore1 = staids2skyCoverageScores[srcid1];
+        const unordered_map<unsigned long, double> & staids2skyCoverageScore1 = staids2skyCoverageScores[srcid1];
         thisScan1.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        network, thisSource1, staids2skyCoverageScore1);
 //        double score1 = thisScan1.getScore();
@@ -391,7 +391,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         Scan &thisScan2 = thisScans.second;
         unsigned long srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[srcid2];
-        const map<unsigned long, double> & staids2skyCoverageScore2 = staids2skyCoverageScores[srcid2];
+        const unordered_map<unsigned long, double> & staids2skyCoverageScore2 = staids2skyCoverageScores[srcid2];
         thisScan2.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
                                        network, thisSource2, staids2skyCoverageScore2);
 //        double score2 = thisScan2.getScore();

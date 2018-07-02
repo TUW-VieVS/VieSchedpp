@@ -360,7 +360,7 @@ namespace VieVS{
         */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
                        unsigned int maxTime, const Network &network, const Source &source,
-                       std::map<unsigned long, double> &staids2skyCoverageScore) noexcept;
+                       std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -382,7 +382,7 @@ namespace VieVS{
         void calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                   unsigned int minTime, unsigned int maxTime, const Network &network,
                                   const Source &source,
-                                  const std::map<unsigned long, double> &staids2skyCoverageScore) noexcept;
+                                  const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         void calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                        double hiscore);

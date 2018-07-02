@@ -214,7 +214,7 @@ double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs) const {
 }
 
 double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs,
-                                      map<unsigned long, double> &staids2skyCoverageScore) const {
+                                      unordered_map<unsigned long, double> &staids2skyCoverageScore) const {
 
     double score = 0;
 
@@ -232,7 +232,7 @@ double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs,
 }
 
 double Network::calcScore_skyCoverage_subnetting(const vector<PointingVector> &pvs,
-                                                 const map<unsigned long, double> &staids2skyCoverageScore) const {
+                                                 const unordered_map<unsigned long, double> &staids2skyCoverageScore) const {
 
     double score = 0;
 

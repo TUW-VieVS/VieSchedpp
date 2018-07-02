@@ -22,7 +22,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     boost::property_tree::read_xml(is, xml_, boost::property_tree::xml_parser::trim_whitespace);
 
     try {
-        fileName_ = xml_.get<std::string>("master.output.experimentName");
+        fileName_ = boost::to_lower_copy(xml_.get<std::string>("master.output.experimentName"));
     } catch(const boost::property_tree::ptree_error &e){
         cerr << "cannot open parameter file: " << inputFile_ << endl;
         cerr << e.what() << endl;

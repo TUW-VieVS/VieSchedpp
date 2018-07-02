@@ -975,7 +975,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
                      unsigned int maxTime, const Network &network, const Source &source,
-                     map<unsigned long, double> &staids2skyCoverageScore) noexcept {
+                     unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
     double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
@@ -992,7 +992,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                 unsigned int minTime, unsigned int maxTime, const Network &network,
                                 const Source &source,
-                                const map<unsigned long, double> &staids2skyCoverageScore) noexcept {
+                                const unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
     double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
 
