@@ -14,6 +14,9 @@ namespace VieVS{
         Observation(unsigned long blid, unsigned long staid1, unsigned long staid2, unsigned long srcid,
                     unsigned int startTime, unsigned int observingTime = 0);
 
+        Observation(const Observation &other);
+
+
         unsigned long getBlid() const {
             return blid_;
         }
@@ -44,7 +47,7 @@ namespace VieVS{
             observingTime_ = observingTime;
         }
 
-        static unsigned long numberOfCreatedObservations() {
+        static unsigned long numberOfCreatedObjects() {
             return nextId;
         }
 

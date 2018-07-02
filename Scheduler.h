@@ -100,7 +100,7 @@ namespace VieVS{
          * @param scan best possible next scans
          * @param bodyLog outstream file object
          */
-        void update(const Scan &scan, std::ofstream &bodyLog) noexcept;
+        void update(Scan &scan, std::ofstream &bodyLog) noexcept;
 
         /**
          * @brief updates and prints the number of all considered scans

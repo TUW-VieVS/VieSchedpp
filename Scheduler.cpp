@@ -163,7 +163,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         }
 
         // update best possible scans
-        for (const auto &bestScan : bestScans) {
+        for (auto &bestScan : bestScans) {
             consideredUpdate(nSingleScans, nSubnettingScans, depth, bodyLog);
             update(bestScan, bodyLog);
         }
@@ -269,13 +269,14 @@ void Scheduler::start() noexcept {
 
 void Scheduler::statistics(ofstream &log) {
     log << "summary:\n";
-    log << "number of scheduled scans       " << scans_.size() << "\n";
-    log << "considered single source scans: " << nSingleScansConsidered << "\n";
-    log << "considered subnetting scans:    " << nSubnettingScansConsidered << "\n";
-    log << "total scans considered:         " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
+    log << "number of scheduled scans         " << scans_.size() << "\n";
+    log << "considered single source scans:   " << nSingleScansConsidered << "\n";
+    log << "considered subnetting combiation: " << nSubnettingScansConsidered << "\n";
+    log << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
-    log << "number of observations:         " << nbl << "\n";
-    log << "considered observations:        " << Observation::numberOfCreatedObservations() << "\n\n";
+    log << "number of observations:           " << nbl << "\n";
+    log << "considered observations:          " << Observation::numberOfCreatedObjects() << "\n";
+    log << "considered antenna pointings:     " << PointingVector::numberOfCreatedObjects() << "\n\n";
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
@@ -313,8 +314,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 
     // create subcon with all visible scans
     Subcon subcon;
-    for (int isrc=0; isrc<sources_.size(); ++isrc){
-        const Source &thisSource = sources_[isrc];
+    for (const auto &thisSource : sources_) {
         subcon.visibleScan(currentTime, type, network_, thisSource, observedSources);
     }
 
@@ -322,7 +322,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 }
 
 
-void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
+void Scheduler::update(Scan &scan, ofstream &bodyLog) noexcept {
 
     // check if scan has influence (only required for fillin mode scans)
     bool influence;
@@ -349,8 +349,8 @@ void Scheduler::update(const Scan &scan, ofstream &bodyLog) noexcept {
     Source &thisSource = sources_[srcid];
     thisSource.update(nbl, latestTime, influence);
 
-    scans_.push_back(scan);
     scan.output(scans_.size(), network_, thisSource, bodyLog);
+    scans_.push_back(std::move(scan));
 }
 
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
@@ -763,7 +763,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
 //            start_fillinMode(bestScans, bodyLog);
         } else {
-            for (const auto &bestScan : bestScans) {
+            for (auto &bestScan : bestScans) {
                 consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, bodyLog);
                 update(bestScan, bodyLog);
             }
@@ -1273,7 +1273,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     vector<Scan> bestScans;
     do{
         bestScans = himp.highestImpactScans(network_, sources_);
-        for(const auto& scan:bestScans){
+        for(auto& scan:bestScans){
             const Source &source = sources_[scan.getSourceId()];
             if(himp.isCorrectHighImpactScan(scan, scans_, source)){
                 update(scan, bodyLog);

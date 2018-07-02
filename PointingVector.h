@@ -158,7 +158,11 @@ namespace VieVS{
         void setTime(unsigned int new_time) noexcept {
             time_ = new_time;
         };
-        
+
+        static unsigned long numberOfCreatedObjects(){
+            return nextId-1;
+        }
+
     private:
         static unsigned long nextId;
 
