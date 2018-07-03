@@ -374,7 +374,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         unsigned long srcid = thisScan.getSourceId();
         unordered_map<unsigned long, double> & staids2skyCoverageScore = staids2skyCoverageScores[srcid];
         const Source &thisSource = sources[srcid];
-        thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_, network, thisSource,
+        thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
                            staids2skyCoverageScore);
     }
 
@@ -384,7 +384,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         unsigned long srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[srcid1];
         const unordered_map<unsigned long, double> & staids2skyCoverageScore1 = staids2skyCoverageScores[srcid1];
-        thisScan1.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+        thisScan1.calcScore_subnetting(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
                                        network, thisSource1, staids2skyCoverageScore1);
 //        double score1 = thisScan1.getScore();
 
@@ -392,7 +392,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         unsigned long srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[srcid2];
         const unordered_map<unsigned long, double> & staids2skyCoverageScore2 = staids2skyCoverageScores[srcid2];
-        thisScan2.calcScore_subnetting(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+        thisScan2.calcScore_subnetting(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
                                        network, thisSource2, staids2skyCoverageScore2);
 //        double score2 = thisScan2.getScore();
     }
@@ -516,60 +516,57 @@ void Subcon::minMaxTime() noexcept {
 }
 
 
-void Subcon::average_station_score(const Network &network) noexcept {
-
-    vector<double> staobs;
-    for (auto &thisStation: network.getStations()) {
-        staobs.push_back(thisStation.getNbls());
+void Subcon::prepareAverageScore(const vector<Station> &objects) noexcept {
+    vector<unsigned long> nobs;
+    for (auto &thisObject:objects) {
+        nobs.push_back(thisObject.getNObs());
     }
-
-    double meanStaobs = std::accumulate(std::begin(staobs), std::end(staobs), 0.0) / staobs.size();
-
-    double total = 0;
-    vector<double> staobs_score;
-    for (auto &thisStaobs:staobs) {
-        double diff = meanStaobs - thisStaobs;
-        if (diff > 0) {
-            staobs_score.push_back(diff);
-            total += diff;
-        } else {
-            staobs_score.push_back(0);
-        }
-    }
-    if (total != 0) {
-        for (auto &thisStaobs_score:staobs_score) {
-            thisStaobs_score /= total;
-        }
-    }
-    astas_ = staobs_score;
+    astas_ =  prepareAverageScore_base(nobs);
 }
 
-void Subcon::average_source_score(const vector<Source> &sources) noexcept {
-    vector<double> srcobs;
-    for (auto &thisSource:sources) {
-        srcobs.push_back(thisSource.getNbls());
+void Subcon::prepareAverageScore(const vector<Baseline> &objects) noexcept{
+    vector<unsigned long> nobs;
+    for (auto &thisObject:objects) {
+        nobs.push_back(thisObject.getNObs());
     }
-    double meanSrcobs = std::accumulate(std::begin(srcobs), std::end(srcobs), 0.0) / srcobs.size();
 
-    double max = 0;
-    vector<double> srcobs_score;
-    for (auto &thisSrcobs:srcobs) {
-        double diff = meanSrcobs - thisSrcobs;
+    abls_ = prepareAverageScore_base(nobs);
+}
+
+
+
+void Subcon::prepareAverageScore(const vector<Source> &objects) noexcept {
+    vector<unsigned long> nobs;
+    for (auto &thisObject:objects) {
+        nobs.push_back(thisObject.getNObs());
+    }
+    asrcs_ = prepareAverageScore_base(nobs);
+}
+
+std::vector<double> Subcon::prepareAverageScore_base(const std::vector<unsigned long> &nobs) noexcept{
+    double mean = std::accumulate(std::begin(nobs), std::end(nobs), 0.0) / nobs.size();
+
+    double maxDiff = 0;
+    vector<double> score;
+    for (auto &thisObs : nobs){
+        double diff = mean - thisObs;
         if (diff > 0) {
-            srcobs_score.push_back(diff);
-            if (diff > max) {
-                max = diff;
+            score.push_back(diff);
+            if (diff > maxDiff){
+                maxDiff = diff;
             }
         } else {
-            srcobs_score.push_back(0);
+            score.push_back(0);
         }
     }
-    if (max != 0) {
-        for (auto &thisStaobs_score:srcobs_score) {
-            thisStaobs_score /= max;
+    if (maxDiff != 0) {
+        for (auto &thisScore : score){
+            if(thisScore != 0){
+                thisScore = thisScore/maxDiff;
+            }
         }
     }
-    asrcs_ = srcobs_score;
+    return score;
 }
 
 void Subcon::precalcScore(const Network &network, const vector<Source> &sources) noexcept {
@@ -577,15 +574,15 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
     if (WeightFactors::weightDuration != 0) {
         minMaxTime();
     }
-
     if (WeightFactors::weightAverageStations != 0) {
-        average_station_score(network);
+        prepareAverageScore(network.getStations());
     }
-
+    if (WeightFactors::weightAverageBaselines != 0) {
+        prepareAverageScore(network.getBaselines());
+    }
     if (WeightFactors::weightAverageSources != 0) {
-        average_source_score(sources);
+        prepareAverageScore(sources);
     }
-
 }
 
 
@@ -690,7 +687,7 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             }
 
             // calculate score again
-            thisScan.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
                                network, thisSource);
 
             // push score in queue
@@ -727,9 +724,9 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             }
 
             // calculate score again
-            thisScan1.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan1.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
                                 network, thisSource1);
-            thisScan2.calcScore(astas_, asrcs_, minRequiredTime_, maxRequiredTime_,
+            thisScan2.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
                                 network, thisSource2);
 
             // push score in queue
@@ -1044,6 +1041,8 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
     }
 
 }
+
+
 
 
 

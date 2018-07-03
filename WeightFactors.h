@@ -26,8 +26,10 @@ namespace VieVS{
         static thread_local double weightSkyCoverage; ///< weight factor for sky Coverage
         static thread_local double weightNumberOfObservations; ///< weight factor for number of observations
         static thread_local double weightDuration; ///< weight factor for duration
+
         static thread_local double weightAverageSources; ///< weight factor for average out sources
         static thread_local double weightAverageStations; ///< weight factor for average out stations
+        static thread_local double weightAverageBaselines; ///< weight factor for average out baselines
 
         static thread_local double weightIdleTime;
         static thread_local unsigned int idleTimeInterval;
@@ -47,34 +49,37 @@ namespace VieVS{
         static void summary(std::ofstream &of) {
             of << "weight factors: \n";
             if(weightSkyCoverage != 0){
-                of << "    skyCoverage:          " << weightSkyCoverage << "\n";
+                of << "    sky coverage:           " << weightSkyCoverage << "\n";
             }
             if(weightNumberOfObservations != 0){
-                of << "    numberOfObservations: " << weightNumberOfObservations << "\n";
+                of << "    number of observations: " << weightNumberOfObservations << "\n";
             }
             if(weightDuration != 0){
-                of << "    duration:             " << weightDuration << "\n";
+                of << "    duration:               " << weightDuration << "\n";
             }
             if(weightAverageSources != 0){
-                of << "    averageSources:       " << weightAverageSources << "\n";
+                of << "    average sources:        " << weightAverageSources << "\n";
             }
             if(weightAverageStations != 0){
-                of << "    averageStations:      " << weightAverageStations << "\n";
+                of << "    average stations:       " << weightAverageStations << "\n";
+            }
+            if(weightAverageBaselines != 0){
+                of << "    average baselines:      " << weightAverageStations << "\n";
             }
             if(weightIdleTime != 0){
-                of << "    weight idle time:     " << weightIdleTime << "\n";
+                of << "    weight idle time:       " << weightIdleTime << "\n";
             }
             if(idleTimeInterval != 0){
-                of << "        idle time interval:   " << idleTimeInterval << "\n";
+                of << "        idle time interval: " << idleTimeInterval << "\n";
             }
             if(weightDeclination != 0){
-                of << "    declination           " << weightDeclination << "\n";
+                of << "    declination             " << weightDeclination << "\n";
                 of << "        from 90 to " << declinationStartWeight * rad2deg << " = 0\n";
                 of << "        from " << declinationStartWeight * rad2deg << " to " << declinationFullWeight * rad2deg << " = linear\n";
                 of << "        from " << declinationFullWeight * rad2deg << " to -90" << " = 1\n";
             }
             if(weightLowElevation != 0){
-                of << "    elevation             " << weightLowElevation << "\n";
+                of << "    elevation               " << weightLowElevation << "\n";
                 of << "        from 90 to " << lowElevationStartWeight * rad2deg << " = 0\n";
                 of << "        from " << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear\n";
                 of << "        from " << lowElevationFullWeight * rad2deg << " to -90" << " = 1\n";

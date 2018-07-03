@@ -271,7 +271,7 @@ namespace VieVS{
          *
          * @return number of already observed baselines
          */
-        int getNbls() const noexcept {
+        int getNObs() const noexcept {
             return nObs_;
         }
 

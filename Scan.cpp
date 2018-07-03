@@ -500,27 +500,36 @@ double Scan::calcScore_idleTime() const noexcept {
 }
 
 
-double Scan::calcScore_averageStations(const vector<double> &astas, unsigned long nmaxsta) const noexcept {
+double Scan::calcScore_averageStations(const vector<double> &astas, unsigned long nMaxSta) const noexcept {
     double finalScore = 0;
+    unsigned long nMaxStaPossible = nMaxSta-1;
 
-    vector<unsigned long> bl_counter(nmaxsta);
-    for (auto &bl:observations_) {
-        ++bl_counter[bl.getStaid1()];
-        ++bl_counter[bl.getStaid2()];
-    }
-
-    for (auto &pv:pointingVectors_) {
-        unsigned long thisStaId = pv.getStaid();
-        finalScore += astas[thisStaId] * bl_counter[thisStaId] / (nsta_ - 1); // nsta-1 = max number of possible baselines
+    for(const auto &pv:pointingVectors_){
+        unsigned long staid = pv.getStaid();
+        unsigned long nObs = getNObs(staid);
+        finalScore += astas[staid] * nObs / nMaxStaPossible;
     }
 
     return finalScore;
 }
 
-double Scan::calcScore_averageSources(const vector<double> &asrcs) const noexcept {
-    unsigned long maxBl = (nsta_ * (nsta_ - 1)) / 2;
+double Scan::calcScore_averageBaselines(const std::vector<double> &abls) const noexcept{
+
+    double finalScore = 0;
+    for(const auto &obs:observations_){
+        unsigned long blid = obs.getBlid();
+        finalScore += abls[blid];
+    }
+
+    return finalScore;
+}
+
+
+double Scan::calcScore_averageSources(const vector<double> &asrcs, unsigned long nMaxBls) const noexcept {
+
     unsigned long nbl = observations_.size();
-    return asrcs[srcid_] * nbl / maxBl;
+    return asrcs[srcid_] * nbl / nMaxBls;
+
 }
 
 double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
@@ -870,8 +879,8 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
 }
 
 double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                 unsigned int minTime, unsigned int maxTime, const Network &network,
-                                 const Source &source) {
+                                 const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                                 const Network &network, const Source &source) {
     unsigned long nmaxsta = network.getNSta();
     unsigned long nmaxbl = network.getNBls();
     double this_score = 0;
@@ -882,11 +891,15 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     }
     double weight_averageSources = WeightFactors::weightAverageSources;
     if (weight_averageSources != 0 && !asrcs.empty()) {
-        this_score += calcScore_averageSources(asrcs) * weight_averageSources;
+        this_score += calcScore_averageSources(asrcs, nmaxbl) * weight_averageSources;
     }
     double weight_averageStations = WeightFactors::weightAverageStations;
     if (weight_averageStations != 0 && !astas.empty()) {
         this_score += calcScore_averageStations(astas, nmaxsta) * weight_averageStations;
+    }
+    double weight_averageBaselines = WeightFactors::weightAverageBaselines;
+    if (weight_averageBaselines != 0 && !abls.empty()) {
+        this_score += calcScore_averageBaselines(abls) * weight_averageBaselines;
     }
     double weight_duration = WeightFactors::weightDuration;
     if (weight_duration != 0) {
@@ -959,10 +972,10 @@ double Scan::calcScore_secondPart(double this_score, const Network &network, con
 
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                     unsigned int minTime, unsigned int maxTime, const Network &network,
-                     const Source &source) noexcept {
+                     const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                     const Network &network, const Source &source) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -973,11 +986,12 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
     score_ = calcScore_secondPart(this_score,network,source);
 }
 
-void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
-                     unsigned int maxTime, const Network &network, const Source &source,
+void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                     const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                     const Network &network, const Source &source,
                      unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -990,11 +1004,11 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
 
 void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                unsigned int minTime, unsigned int maxTime, const Network &network,
-                                const Source &source,
+                                const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                                const Network &network, const Source &source,
                                 const unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
@@ -1008,7 +1022,7 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
 void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                      double hiscore) {
 
-    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), vector<double>(), minTime, maxTime, network, source);
 
 
     score_ = calcScore_secondPart(this_score, network, source)*hiscore;
@@ -1322,4 +1336,5 @@ unsigned long Scan::getNObs(unsigned long staid) const noexcept {
     }
     return n;
 }
+
 

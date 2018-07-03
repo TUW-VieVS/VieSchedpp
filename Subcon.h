@@ -173,18 +173,6 @@ namespace VieVS{
          */
         void minMaxTime() noexcept;
 
-        /**
-         * @brief calculate the score for averaging out each station
-         *
-         * @param stations list of all stations
-         */
-        void average_station_score(const Network &network) noexcept;
-
-        /**
-         * @brief calculate the score for averaging out each source
-         * @param sources list of all sources
-         */
-        void average_source_score(const std::vector<Source> &sources) noexcept;
 
 
 //        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources);
@@ -236,6 +224,7 @@ namespace VieVS{
         unsigned int maxRequiredTime_; ///< maximum time required for a scan
         std::vector<double> astas_; ///< average station score for each station
         std::vector<double> asrcs_; ///< average source score for each source
+        std::vector<double> abls_; ///< average baseline score for each baseline
 
 
         /**
@@ -245,7 +234,23 @@ namespace VieVS{
          * @param sources list of all sources
          */
         void precalcScore(const Network &network, const std::vector<Source> &sources) noexcept;
+        /**
+         * @brief calculate the score for averaging out each station
+         *
+         * @param stations list of all stations
+         */
+        void prepareAverageScore(const std::vector<Station> &sources) noexcept;
 
+
+        void prepareAverageScore(const std::vector<Baseline> &sources) noexcept;
+
+        /**
+         * @brief calculate the score for averaging out each source
+         * @param sources list of all sources
+         */
+        void prepareAverageScore(const std::vector<Source> &sources) noexcept;
+
+        std::vector<double> prepareAverageScore_base(const std::vector<unsigned long> &nobs) noexcept;
     };
 }
 #endif /* SUBCON_H */

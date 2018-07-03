@@ -93,7 +93,6 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         if (bestScans.empty()) {
             if(depth == 0){
                 // if there is no more possible scan at the outer most iteration, check 1minute later
-                bodyLog << "ERROR! no valid scan found! Checking 1 minute later\n";
                 unsigned int maxScanEnd = 0;
                 for(auto &any:network_.refStations()){
                     PointingVector pv = any.getCurrentPointingVector();
@@ -103,6 +102,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                         maxScanEnd = pv.getTime();
                     }
                 }
+                bodyLog << (boost::format("ERROR! no valid scan found! Checking 1 minute later: %s\n")
+                                          % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
                 checkForNewEvents(maxScanEnd,true,bodyLog);
                 if( maxScanEnd > endTime){
                     break;
@@ -208,6 +209,14 @@ void Scheduler::start() noexcept {
 
     string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log";
     ofstream bodyLog(path_ + fileName);
+
+    if(network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0){
+        string e = (boost::format("ERROR: number of stations: %d number of baselines: %d number of sources: %d;\n")
+        % network_.getNSta() %network_.getNBls() %sources_.size()).str();
+        bodyLog << e;
+        return;
+    }
+
     cout << (boost::format("writing scheduling log file: %s;\n") % fileName).str();
     if(parameters_.currentIteration>0){
         bodyLog << "Iteration number: " << parameters_.currentIteration << "\n";
@@ -647,6 +656,7 @@ void Scheduler::listSourceOverview(ofstream &log) noexcept {
         }
     }
 
+    log << "Total number of sources: " << sources_.size() << "\n";
     util::outputObjectList("available source",available,log);
     util::outputObjectList("not available",notAvailable,log);
     util::outputObjectList("not available because of optimization",notAvailable_optimization,log);
@@ -1052,7 +1062,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         bool baselinesValid = true;
-        if(thisSource.getNbls()<thisSource.getOptimization().minNumBaselines) {
+        if(thisSource.getNObs()<thisSource.getOptimization().minNumBaselines) {
             baselinesValid = false;
         }
 
@@ -1073,7 +1083,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
                 }
             }
             excludedScans += thisSource.getNTotalScans();
-            excludedBaselines += thisSource.getNbls();
+            excludedBaselines += thisSource.getNObs();
             excludedSources.push_back(thisSource.getName());
             newScheduleNecessary = true;
             thisSource.referencePARA().setGlobalAvailable(false);

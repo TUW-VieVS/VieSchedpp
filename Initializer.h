@@ -109,7 +109,7 @@ namespace VieVS {
         explicit Initializer(const std::string &path);
 
         explicit Initializer(const boost::property_tree::ptree &xml);
-
+        
 
         const boost::property_tree::ptree &getXml() const {
             return xml_;
@@ -192,7 +192,7 @@ namespace VieVS {
          * @param parameters multi scheduling parameters
          * @param bodyLog outstream to log file
          */
-        Initializer applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters);
+        void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters);
 
         /**
          * @brief reads multiSched block in .xml file

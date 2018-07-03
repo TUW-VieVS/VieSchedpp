@@ -337,7 +337,7 @@ namespace VieVS{
          * @param stations list of all VLBI stations
          */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                       unsigned int minTime, unsigned int maxTime,
+                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                        const Network &network, const Source &source) noexcept;
 
         /**
@@ -358,8 +358,9 @@ namespace VieVS{
          * @param source observed source
          * @param firstScorePerPv stores the score of each pointing vector without twin station influences
         */
-        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs, unsigned int minTime,
-                       unsigned int maxTime, const Network &network, const Source &source,
+        void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
+                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                       const Network &network, const Source &source,
                        std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         /**
@@ -380,8 +381,8 @@ namespace VieVS{
          * @param firstScorePerPv stored score for each pointing vector without twin station influences
          */
         void calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                  unsigned int minTime, unsigned int maxTime, const Network &network,
-                                  const Source &source,
+                                  const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                                  const Network &network, const Source &source,
                                   const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         void calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
@@ -511,6 +512,7 @@ namespace VieVS{
          */
         double calcScore_numberOfObservations(unsigned long maxObs) const noexcept;
 
+        double calcScore_averageBaselines(const std::vector<double> &abls) const noexcept;
         /**
          * @brief calculates score for average station observations
          *
@@ -518,7 +520,7 @@ namespace VieVS{
          * @param nmaxsta maximum possible number of stations
          * @return score
         */
-        double calcScore_averageStations(const std::vector<double> &astas, unsigned long nmaxsta) const noexcept;
+        double calcScore_averageStations(const std::vector<double> &astas, unsigned long nMaxBls) const noexcept;
 
         /**
          * @brief calculates score for average source observations
@@ -526,7 +528,7 @@ namespace VieVS{
          * @param asrcs precalculated vector of average source observations @see subcon
          * @return score
          */
-        double calcScore_averageSources(const std::vector<double> &asrcs) const noexcept;
+        double calcScore_averageSources(const std::vector<double> &asrcs, unsigned long nMaxBls) const noexcept;
 
         /**
          * @brief calculates score for duration
@@ -563,8 +565,8 @@ namespace VieVS{
 
 
         double calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
-                                   unsigned int minTime, unsigned int maxTime, const Network &network,
-                                   const Source &source);
+                                   const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
+                                   const Network &network, const Source &source);
 
         double calcScore_secondPart(double this_score, const Network &network, const Source &source);
     };

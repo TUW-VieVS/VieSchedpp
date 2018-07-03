@@ -148,6 +148,10 @@ namespace VieVS{
             return statistics_;
         }
 
+        unsigned long getNObs() const{
+            return nObs_;
+        }
+
     private:
         static unsigned long nextId;
 

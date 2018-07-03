@@ -184,7 +184,7 @@ void Output::displayStationStatistics(ofstream &out) {
             timeEnd += 900;
             timeStart += 900;
         }
-        out << boost::format("| %6d %4d ") % thisStation.getNTotalScans() % thisStation.getNbls();
+        out << boost::format("| %6d %4d ") % thisStation.getNTotalScans() % thisStation.getNObs();
         out << boost::format("| %5d %8.1f |\n") % thisStation.getStatistics().totalObservingTime
                % (static_cast<double>(thisStation.getStatistics().totalObservingTime) / static_cast<double>(thisStation.getNTotalScans()));
     }
@@ -213,7 +213,7 @@ void Output::displaySourceStatistics(ofstream &out) {
         const Source::Statistics &stat = thisSource.getStatistics();
         const auto& time_sta = stat.scanStartTimes;
 
-        if (thisSource.getNbls() == 0) {
+        if (thisSource.getNObs() == 0) {
             continue;
         }
         out << boost::format("| %8s|") % thisSource.getName();
@@ -235,7 +235,7 @@ void Output::displaySourceStatistics(ofstream &out) {
             timeEnd += 900;
             timeStart += 900;
         }
-        out << boost::format("| %6d %4d ") % thisSource.getNTotalScans() % thisSource.getNbls();
+        out << boost::format("| %6d %4d ") % thisSource.getNTotalScans() % thisSource.getNObs();
         out << boost::format("| %5d %8.1f |\n") % thisSource.getStatistics().totalObservingTime
                % (static_cast<double>(thisSource.getStatistics().totalObservingTime) / static_cast<double>(thisSource.getNTotalScans()));
     }
@@ -997,6 +997,10 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
 }
 
 void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalogReader &skdCatalogReader) {
+
+    if(scans_.empty()){
+        return;
+    }
 
     writeStatistics(statisticsLog);
 

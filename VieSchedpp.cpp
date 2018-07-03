@@ -64,6 +64,8 @@ void VieSchedpp::run() {
     init.initializeOptimization(headerLog);
 
     init.initializeHighImpactScanDescriptor(headerLog);
+    init.initializeWeightFactors();
+    init.initializeSkyCoverages();
 
     // check if multi scheduling is selected
     bool flag_multiSched = false;
@@ -94,9 +96,10 @@ void VieSchedpp::run() {
     // create all required schedules
     for (int i = 0; i < nsched; ++i) {
 
-        // initialize parameters for each thread
-        init.initializeWeightFactors();
-        init.initializeSkyCoverages();
+        // create initializer and set static parameters for each thread
+        Initializer newInit(init);
+        newInit.initializeWeightFactors();
+        newInit.initializeSkyCoverages();
 
         // get version number
         int version = 0;
@@ -109,7 +112,7 @@ void VieSchedpp::run() {
 
         // if you have multi schedule append version number to file name
         if (flag_multiSched) {
-            fname.append((boost::format("v%03d") % (i+1)).str());
+            fname.append((boost::format("_v%03d") % (i+1)).str());
         }
 
         // if you have multicore support add thread number as prefix to output
@@ -126,11 +129,11 @@ void VieSchedpp::run() {
 
         // add multi scheduling parameters
         if (flag_multiSched){
-            init = init.applyMultiSchedParameters(multiSchedParameters_[i]);
+            newInit.applyMultiSchedParameters(multiSchedParameters_[i]);
         }
 
         // create scheduler and start scheduling
-        VieVS::Scheduler scheduler = VieVS::Scheduler(init, path_, fname);
+        VieVS::Scheduler scheduler = VieVS::Scheduler(newInit, path_, fname);
         scheduler.start();
 
         // create output

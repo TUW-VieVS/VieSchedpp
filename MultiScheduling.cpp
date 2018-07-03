@@ -47,6 +47,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                                                 {"weight_factor_duration",vector<double>{WeightFactors::weightDuration}},
                                                 {"weight_factor_average_sources",vector<double>{WeightFactors::weightAverageSources}},
                                                 {"weight_factor_average_stations",vector<double>{WeightFactors::weightAverageStations}},
+                                                {"weight_factor_average_baselines",vector<double>{WeightFactors::weightAverageBaselines}},
                                                 {"weight_factor_idle_time",vector<double>{WeightFactors::weightIdleTime}},
                                                 {"weight_factor_low_declination",vector<double>{WeightFactors::weightDeclination}},
                                                 {"weight_factor_low_elevation",vector<double>{WeightFactors::weightLowElevation}}};
@@ -71,18 +72,22 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                 for (double wdur: weightFactors["weight_factor_duration"]) {
                     for (double wasrc: weightFactors["weight_factor_average_sources"]) {
                         for (double wasta: weightFactors["weight_factor_average_stations"]) {
-                            for (double widle: weightFactors["weight_factor_idle_time"]) {
-                                for (double wdec: weightFactors["weight_factor_low_declination"]) {
-                                    for (double wel: weightFactors["weight_factor_low_elevation"]) {
+                            for (double wabls: weightFactors["weight_factor_average_baselines"]) {
+                                for (double widle: weightFactors["weight_factor_idle_time"]) {
+                                    for (double wdec: weightFactors["weight_factor_low_declination"]) {
+                                        for (double wel: weightFactors["weight_factor_low_elevation"]) {
 
-                                        double sum = wsky + wobs + wdur + wasrc + wasta + widle + wdec + wel;
+                                            double sum = wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec + wel;
 
-                                        if (sum == 0) {
-                                            continue;
+                                            if (sum == 0) {
+                                                continue;
+                                            }
+
+                                            vector<double> wf{wsky / sum, wobs / sum, wdur / sum, wasrc / sum,
+                                                              wasta / sum, wabls / sum, widle / sum, wdec / sum,
+                                                              wel / sum};
+                                            weightFactorValues.push_back(std::move(wf));
                                         }
-
-                                        vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum, widle/sum, wdec/sum, wel/sum};
-                                        weightFactorValues.push_back(std::move(wf));
                                     }
                                 }
                             }
@@ -182,9 +187,10 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                 allPARA[c].weightDuration = thisValue[2];
                 allPARA[c].weightAverageSources = thisValue[3];
                 allPARA[c].weightAverageStations = thisValue[4];
-                allPARA[c].weightIdleTime = thisValue[5];
-                allPARA[c].weightLowDeclination = thisValue[6];
-                allPARA[c].weightLowElevation = thisValue[7];
+                allPARA[c].weightAverageBaselines = thisValue[5];
+                allPARA[c].weightIdleTime = thisValue[6];
+                allPARA[c].weightLowDeclination = thisValue[7];
+                allPARA[c].weightLowElevation = thisValue[8];
                 ++c;
             }
         }

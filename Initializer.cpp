@@ -1593,8 +1593,10 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
     WeightFactors::weightNumberOfObservations = xml_.get<double>("master.weightFactor.numberOfObservations", 0);
     WeightFactors::weightDuration = xml_.get<double>("master.weightFactor.duration", 0);
+
     WeightFactors::weightAverageSources = xml_.get<double>("master.weightFactor.averageSources", 0);
     WeightFactors::weightAverageStations = xml_.get<double>("master.weightFactor.averageStations", 0);
+    WeightFactors::weightAverageBaselines = xml_.get<double>("master.weightFactor.averageBaselines", 0);
 
     WeightFactors::weightIdleTime = xml_.get<double>("master.weightFactor.idleTime", 0);
     WeightFactors::idleTimeInterval = xml_.get<unsigned int>("master.weightFactor.idleTimeInterval", 0);
@@ -1874,10 +1876,10 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
     return groups;
 }
 
-Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
+void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
 //    parameters.output(bodyLog);
 
-    Initializer copyOfInit(*this);
+//    Initializer copyOfInit(*this);
     multiSchedulingParameters_ = parameters;
 
     unsigned long nsta = network_.getNSta();
@@ -1896,22 +1898,22 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
 //        TimeSystem::endTime = endTime;
     }
     if (parameters.subnetting.is_initialized()) {
-        copyOfInit.parameters_.subnetting = *parameters.subnetting;
+        parameters_.subnetting = *parameters.subnetting;
     }
     if (parameters.subnetting_minSourceAngle.is_initialized()) {
-        copyOfInit.parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
+        parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
     }
     if (parameters.subnetting_minParticipatingStations.is_initialized()) {
-        copyOfInit.parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
+        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
     }
     if (parameters.fillinmode_duringScanSelection.is_initialized()) {
-        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
+        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;
     }
     if (parameters.fillinmode_influenceOnScanSelection.is_initialized()) {
-        copyOfInit.parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
+        parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_influenceOnScanSelection;
     }
     if (parameters.fillinmode_aPosteriori.is_initialized()) {
-        copyOfInit.parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
+        parameters_.fillinmodeAPosteriori = *parameters.fillinmode_aPosteriori;
     }
 
     // WEIGHT FACTORS
@@ -1929,6 +1931,9 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
     }
     if (parameters.weightAverageStations.is_initialized()) {
         WeightFactors::weightAverageStations = *parameters.weightAverageStations;
+    }
+    if (parameters.weightAverageBaselines.is_initialized()) {
+        WeightFactors::weightAverageBaselines = *parameters.weightAverageBaselines;
     }
     if (parameters.weightIdleTime.is_initialized()) {
         WeightFactors::weightIdleTime = *parameters.weightIdleTime;
@@ -1969,7 +1974,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().weight = any.second;
+                network_.refStation(id).referencePARA().weight = any.second;
             }
         }
     }
@@ -1978,7 +1983,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().maxSlewtime = any.second;
+                network_.refStation(id).referencePARA().maxSlewtime = any.second;
             }
         }
     }
@@ -1987,7 +1992,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().maxSlewDistance = any.second;
+                network_.refStation(id).referencePARA().maxSlewDistance = any.second;
             }
         }
     }
@@ -1996,7 +2001,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().minSlewDistance = any.second;
+                network_.refStation(id).referencePARA().minSlewDistance = any.second;
             }
         }
     }
@@ -2005,7 +2010,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().maxWait = any.second;
+                network_.refStation(id).referencePARA().maxWait = any.second;
             }
         }
     }
@@ -2014,7 +2019,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().minElevation = any.second;
+                network_.refStation(id).referencePARA().minElevation = any.second;
             }
         }
     }
@@ -2023,7 +2028,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().maxNumberOfScans = any.second;
+                network_.refStation(id).referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
@@ -2032,7 +2037,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().maxScan = any.second;
+                network_.refStation(id).referencePARA().maxScan = any.second;
             }
         }
     }
@@ -2041,7 +2046,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                copyOfInit.network_.refStation(id).referencePARA().minScan = any.second;
+                network_.refStation(id).referencePARA().minScan = any.second;
             }
         }
     }
@@ -2052,7 +2057,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().weight = any.second;
+                sources_[id].referencePARA().weight = any.second;
             }
         }
     }
@@ -2061,7 +2066,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minNumberOfStations = any.second;
+                sources_[id].referencePARA().minNumberOfStations = any.second;
             }
         }
     }
@@ -2070,7 +2075,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minFlux = any.second;
+                sources_[id].referencePARA().minFlux = any.second;
             }
         }
     }
@@ -2079,7 +2084,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().maxNumberOfScans = any.second;
+                sources_[id].referencePARA().maxNumberOfScans = any.second;
             }
         }
     }
@@ -2088,7 +2093,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minElevation = any.second;
+                sources_[id].referencePARA().minElevation = any.second;
             }
         }
     }
@@ -2097,7 +2102,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minSunDistance = any.second;
+                sources_[id].referencePARA().minSunDistance = any.second;
             }
         }
     }
@@ -2106,7 +2111,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().maxScan = any.second;
+                sources_[id].referencePARA().maxScan = any.second;
             }
         }
     }
@@ -2115,7 +2120,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minScan = any.second;
+                sources_[id].referencePARA().minScan = any.second;
             }
         }
     }
@@ -2124,7 +2129,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                copyOfInit.sources_[id].referencePARA().minRepeat = any.second;
+                sources_[id].referencePARA().minRepeat = any.second;
             }
         }
     }
@@ -2135,7 +2140,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                copyOfInit.network_.refBaseline(id).refParameters().weight = any.second;
+                network_.refBaseline(id).refParameters().weight = any.second;
             }
         }
     }
@@ -2144,7 +2149,7 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                copyOfInit.network_.refBaseline(id).refParameters().minScan = any.second;
+                network_.refBaseline(id).refParameters().minScan = any.second;
             }
         }
     }
@@ -2153,12 +2158,11 @@ Initializer Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling:
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getBaselines());
             for(auto id : ids){
-                copyOfInit.network_.refBaseline(id).refParameters().maxScan = any.second;
+                network_.refBaseline(id).refParameters().maxScan = any.second;
             }
         }
     }
 
-    return copyOfInit;
 }
 
 vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &out) {
@@ -2633,8 +2637,3 @@ std::vector<unsigned long> Initializer::getMembers(const std::string &name, cons
 
     return ids;
 }
-
-
-
-
-
