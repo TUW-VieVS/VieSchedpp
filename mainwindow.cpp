@@ -46,8 +46,14 @@ MainWindow::MainWindow(QWidget *parent) :
     plotSkyCoverageTemplate = false;
     setupChanged = false;
     setupStation = new QChartView;
+    setupStation->setToolTip("station setup");
+    setupStation->setStatusTip("station setup");
     setupSource = new QChartView;
+    setupSource->setToolTip("station setup");
+    setupSource->setStatusTip("station setup");
     setupBaseline = new QChartView;
+    setupBaseline->setToolTip("station setup");
+    setupBaseline->setStatusTip("station setup");
     prepareSetupPlot(setupStation, ui->verticalLayout_28);
     stationSetupCallout = new Callout(setupStation->chart());
     stationSetupCallout->hide();
@@ -1337,6 +1343,8 @@ void MainWindow::plotWorldMap()
     worldChart->setAnimationOptions(QChart::NoAnimation);
 
     worldmap = new ChartView(worldChart);
+    worldmap->setStatusTip("network overview");
+    worldmap->setToolTip("network overview");
     worldmap->setMinMax(-180,180,-90,90);
     worldmap->setRenderHint(QPainter::Antialiasing);
     worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
@@ -1443,6 +1451,8 @@ void MainWindow::plotSkyMap(){
     skyChart->setAnimationOptions(QChart::NoAnimation);
 
     skymap = new ChartView(skyChart);
+    skymap->setStatusTip("source overview");
+    skymap->setToolTip("source overview");
     skymap->setMinMax(-2.85,2.85,-1.45,1.45);
     skymap->setRenderHint(QPainter::Antialiasing);
     skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
@@ -2502,6 +2512,7 @@ void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
                                           "duration",
                                           "average stations",
                                           "average sources",
+                                          "average baselines",
                                           "idle time",
                                           "low declination",
                                           "low declination begin",
@@ -3056,6 +3067,7 @@ QString MainWindow::writeXML()
                                           "number of observations",
                                           "duration",
                                           "average stations",
+                                          "average baselines",
                                           "average sources",
                                           "idle time",
                                           "low declination",
@@ -3172,6 +3184,8 @@ QString MainWindow::writeXML()
                 }else if(parameter == "duration"){
                     ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "average stations"){
+                    ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
+                }else if(parameter == "average baselines"){
                     ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
                 }else if(parameter == "average sources"){
                     ms.addParameters(std::string("weight_factor_").append(parameter.replace(' ','_').toStdString()), vecDouble);
@@ -4990,22 +5004,24 @@ void MainWindow::on_pushButton_25_clicked()
                 ui->treeWidget_multiSched->topLevelItem(1)->child(3)->setDisabled(false);
             }else if(any->text(0) == "average sources"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(4)->setDisabled(false);
-            }else if(any->text(0) == "idle time"){
+            }else if(any->text(0) == "average baselines"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(5)->setDisabled(false);
-            }else if(any->text(0) == "idle time interval"){
+            }else if(any->text(0) == "idle time"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(6)->setDisabled(false);
-            }else if(any->text(0) == "low declination"){
+            }else if(any->text(0) == "idle time interval"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(7)->setDisabled(false);
-            }else if(any->text(0) == "low declination begin"){
+            }else if(any->text(0) == "low declination"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(8)->setDisabled(false);
-            }else if(any->text(0) == "low declination full"){
+            }else if(any->text(0) == "low declination begin"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(9)->setDisabled(false);
-            }else if(any->text(0) == "low elevation"){
+            }else if(any->text(0) == "low declination full"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(10)->setDisabled(false);
-            }else if(any->text(0) == "low elevation begin"){
+            }else if(any->text(0) == "low elevation"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(11)->setDisabled(false);
-            }else if(any->text(0) == "low elevation full"){
+            }else if(any->text(0) == "low elevation begin"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(12)->setDisabled(false);
+            }else if(any->text(0) == "low elevation full"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(13)->setDisabled(false);
 
             }else if(any->text(0) == "influence distance"){
                 ui->treeWidget_multiSched->topLevelItem(2)->child(0)->setDisabled(false);
@@ -5764,6 +5780,8 @@ void MainWindow::setupStatisticView()
     hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     statisticsView = new QChartView(this);
+    statisticsView->setToolTip("version comparison");
+    statisticsView->setStatusTip("version comparison");
     statisticsView->setChart(new QChart());
     ui->verticalLayout_statisticPlot->insertWidget(0,statisticsView,1);
     ui->horizontalScrollBar_statistics->setRange(0,0);
@@ -6320,6 +6338,9 @@ void MainWindow::setupSkyCoverageTemplatePlot()
 {
     plotSkyCoverageTemplate = true;
     skyCoverageTemplateView = new QChartView(this);
+    skyCoverageTemplateView->setStatusTip("sky coverage example");
+    skyCoverageTemplateView->setToolTip("sky coverage example");
+
     QPolarChart *chart = new QPolarChart();
 
     QValueAxis *angularAxis = new QValueAxis();
@@ -7249,6 +7270,10 @@ void MainWindow::multi_sched_count_nsched()
     if(ui->checkBox_weightAverageStations->isChecked()){
         wasta_ = ui->doubleSpinBox_weightAverageStations->value();
     }
+    double wabls_ = 0;
+    if(ui->checkBox_weightAverageBaselines->isChecked()){
+        wabls_ = ui->doubleSpinBox_weightAverageBaselines->value();
+    }
     double widle_ = 0;
     if(ui->checkBox_weightIdleTime->isChecked()){
         widle_ = ui->doubleSpinBox_weightIdleTime->value();
@@ -7282,8 +7307,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_sky_coverage"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "number of observations"){
+        }else if(t->topLevelItem(i)->text(0) == "number of observations"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7291,8 +7315,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_number_of_observations"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "duration"){
+        }else if(t->topLevelItem(i)->text(0) == "duration"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7300,8 +7323,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_duration"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "average stations"){
+        }else if(t->topLevelItem(i)->text(0) == "average stations"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7309,8 +7331,15 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_average_stations"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "average sources"){
+        }else if(t->topLevelItem(i)->text(0) == "average baselines"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_baselines"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "average sources"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7318,8 +7347,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_average_sources"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "idle time"){
+        }else if(t->topLevelItem(i)->text(0) == "idle time"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7327,8 +7355,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_idle_time"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "low declination"){
+        }else if(t->topLevelItem(i)->text(0) == "low declination"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7336,8 +7363,7 @@ void MainWindow::multi_sched_count_nsched()
             }
             weightFactors["weight_factor_low_declination"] = values;
             weigthFactorFound = true;
-        }
-        if(t->topLevelItem(i)->text(0) == "low elevation"){
+        }else if(t->topLevelItem(i)->text(0) == "low elevation"){
             QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
             std::vector<double> values;
             for(int ilist = 0; ilist<list->count(); ++ilist){
@@ -7355,18 +7381,21 @@ void MainWindow::multi_sched_count_nsched()
                 for (double wdur: weightFactors["weight_factor_duration"]) {
                     for (double wasrc: weightFactors["weight_factor_average_sources"]) {
                         for (double wasta: weightFactors["weight_factor_average_stations"]) {
-                            for (double widle: weightFactors["weight_factor_idle_time"]) {
-                                for (double wdec: weightFactors["weight_factor_low_declination"]) {
-                                    for (double wel: weightFactors["weight_factor_low_elevation"]) {
+                            for (double wabls: weightFactors["weight_factor_average_baselines"]) {
+                                for (double widle: weightFactors["weight_factor_idle_time"]) {
+                                    for (double wdec: weightFactors["weight_factor_low_declination"]) {
+                                        for (double wel: weightFactors["weight_factor_low_elevation"]) {
 
-                                        double sum = wsky + wobs + wdur + wasrc + wasta + widle + wdec + wel;
+                                            double sum = wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec + wel;
 
-                                        if (sum == 0) {
-                                            continue;
+                                            if (sum == 0) {
+                                                continue;
+                                            }
+
+                                            std::vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum,
+                                                                   wabls/sum, widle/sum, wdec/sum, wel/sum};
+                                            weightFactorValues.push_back(std::move(wf));
                                         }
-
-                                        std::vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum, widle/sum, wdec/sum, wel/sum};
-                                        weightFactorValues.push_back(std::move(wf));
                                     }
                                 }
                             }
@@ -7409,6 +7438,7 @@ void MainWindow::multi_sched_count_nsched()
                                   "duration",
                                   "average stations",
                                   "average sources",
+                                  "average baselines",
                                   "idle time",
                                   "low declination",
                                   "low elevation"};
