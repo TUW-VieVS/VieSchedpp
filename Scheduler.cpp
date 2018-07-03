@@ -76,6 +76,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             opt_subcon = boost::none;
             subcon.changeType(Scan::ScanType::fillin);
             subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, opt_endposition);
+            subcon.clearSubnettingScans();
             if (parameters_.subnetting) {
                 subcon.createSubnettingScans(*parameters_.subnetting, sources_);
             }
@@ -85,6 +86,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
             subcon.generateScore(network_,sources_);
         }
+        unsigned long nSingleScans = subcon.getNumberSingleScans();
+        unsigned long  nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // select the best possible next scan(s) and save them under 'bestScans'
         vector<Scan> bestScans = subcon.selectBest(network_, sources_, opt_endposition);
@@ -135,8 +138,6 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             break;
         }
 
-        unsigned long nSingleScans = subcon.getNumberSingleScans();
-        unsigned long  nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
@@ -164,8 +165,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         }
 
         // update best possible scans
+        consideredUpdate(nSingleScans, nSubnettingScans, depth, bodyLog);
         for (auto &bestScan : bestScans) {
-            consideredUpdate(nSingleScans, nSubnettingScans, depth, bodyLog);
             update(bestScan, bodyLog);
         }
 
@@ -195,6 +196,10 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                     break;
                 }
             }
+        }
+
+        if(depth == 0){
+            bodyLog << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n*\n";
         }
     }
 
@@ -284,8 +289,6 @@ void Scheduler::statistics(ofstream &log) {
     log << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
     log << "number of observations:           " << nbl << "\n";
-    log << "considered observations:          " << Observation::numberOfCreatedObjects() << "\n";
-    log << "considered antenna pointings:     " << PointingVector::numberOfCreatedObjects() << "\n\n";
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,

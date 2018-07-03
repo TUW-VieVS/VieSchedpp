@@ -474,7 +474,7 @@ namespace VieVS{
 
         void createDummyObservations(const Network &network);
 
-        static unsigned long numberOfCreatedObject(){
+        static unsigned long numberOfCreatedObjects(){
             return nextId-1;
         }
 
