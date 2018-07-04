@@ -484,6 +484,32 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
     }
     ofstream << "|\n";
 
+    ofstream << "|-----------------";
+    ofstream << "|----------|";
+    for (int i = 0; i < nstaTotal-1; ++i) {
+        ofstream << "----------";
+    }
+    ofstream << "----------|\n";
+
+    ofstream << "|   Total TB:     ";
+    unsigned int nChannels = 0;
+    for(const auto &any: ObservationMode::nChannels){
+        nChannels += any.second;
+    }
+    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
+
+    vector<double> total_tb;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalObservingTime;
+
+        total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
+    }
+    ofstream << boost::format("| %8.2f |") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network_.getNSta()));
+    for(auto p:total_tb){
+        ofstream << boost::format(" %8.2f ") % p;
+    }
+    ofstream << "|\n";
+
     ofstream << "'-----------------";
     ofstream << "------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
@@ -521,7 +547,7 @@ void Output::writeNGS() {
 
     string fname;
     if (version_ == 0) {
-        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS");
+        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS_N000");
         string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
@@ -539,7 +565,7 @@ void Output::writeNGS() {
         for (int i = 0; i < any.getNObs(); ++i) {
             const Observation &obs = any.getObservation(i);
             string sta1 = network_.getStation(obs.getStaid1()).getName();
-            string sta2 = network_.getStation(obs.getStaid1()).getName();
+            string sta2 = network_.getStation(obs.getStaid2()).getName();
             if (sta1 > sta2) {
                 swap(sta1, sta2);
             }
@@ -1088,12 +1114,12 @@ void Output::writeOperationsNotes() {
     of << "'---------------------'\n\n";
 
     displayGeneralStatistics(of);
+    displayTimeStatistics(of);
     displayBaselineStatistics(of);
     displayStationStatistics(of);
     displaySourceStatistics(of);
     displayNstaStatistics(of);
     displayScanDurationStatistics(of);
-    displayTimeStatistics(of);
     displayAstronomicalParameters(of);
 
     WeightFactors::summary(of);
