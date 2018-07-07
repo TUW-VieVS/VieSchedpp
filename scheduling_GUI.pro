@@ -27,7 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #LIBS += "-LC:/home/mschartn/boost_1_64_0//stage/lib/"
 INCLUDEPATH += C:/boost/
 LIBS += "-LC:/boost/stage/lib/" \
-         /home/mschartn/programming/scheduling_GUI/VLBI_Scheduler/libsofa_c.a
+         C:/Users/matth/CLionProjects/sofa_test_v2/libsofa_c.lib
 
 
 SOURCES += \
