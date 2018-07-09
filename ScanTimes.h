@@ -177,6 +177,14 @@ namespace VieVS {
             anchor = newAnchor;
         }
 
+        static AlignmentAnchor getAlignmentAnchor(){
+            return anchor;
+        }
+
+
+        void setObservationEnd(int idx, unsigned int time);
+
+        int removeUnnecessaryObservingTime();
 
     private:
         static unsigned long nextId;

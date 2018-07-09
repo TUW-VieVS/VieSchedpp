@@ -1337,4 +1337,30 @@ unsigned long Scan::getNObs(unsigned long staid) const noexcept {
     return n;
 }
 
+void Scan::setPointingVectorEnd(int idx, PointingVector pv) {
+    times_.setObservationEnd(idx,pv.getTime());
+    pointingVectorsEndtime_[idx] = move(pv);
+}
+
+void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource) {
+
+    int idx = times_.removeUnnecessaryObservingTime();
+
+    unsigned int t = times_.getObservingEnd(idx);
+    PointingVector &pv = pointingVectorsEndtime_[idx];
+    unsigned long staid = pv.getStaid();
+    const Station &thisSta = network.getStation(staid);
+    thisSta.calcAzEl(thisSource, pv);
+
+    bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
+    if(~visible){
+        cerr << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                % thisSource.getName()
+                % thisSta.getName()
+                %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(t))).str();
+    }
+
+
+}
+
 

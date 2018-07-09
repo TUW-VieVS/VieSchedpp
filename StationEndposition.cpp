@@ -8,10 +8,10 @@ using namespace VieVS;
 
 unsigned long StationEndposition::nextId = 0;
 
-StationEndposition::StationEndposition(int nsta) : VieVS_Object(nextId++) {
-    stationAvailable_ = vector<char>(static_cast<unsigned long>(nsta), false);
-    stationPossible_ = std::vector<char>(static_cast<unsigned long>(nsta), false);
-    finalPosition_ = vector< boost::optional<PointingVector> >(static_cast<unsigned long>(nsta));
+StationEndposition::StationEndposition(unsigned long nsta) : VieVS_Object(nextId++) {
+    stationAvailable_ = vector<char>(nsta, false);
+    stationPossible_ = std::vector<char>(nsta, false);
+    finalPosition_ = vector< boost::optional<PointingVector> >(nsta);
 
     // if there is no subcon the earliest scan start is set to zero to be save
     earliestScanStart_ = numeric_limits<unsigned int>::max();

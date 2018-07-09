@@ -141,7 +141,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
-            boost::optional<StationEndposition> newEndposition(static_cast<int>(network_.getNSta()));
+            boost::optional<StationEndposition> newEndposition(network_.getNSta());
             if(opt_endposition.is_initialized()){
                 for(unsigned long i=0; i<network_.getNSta();++i){
                     if(opt_endposition->hasEndposition(i)){
@@ -1184,7 +1184,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
 
         // loop through all upcoming scans and set endposition
-        boost::optional<StationEndposition> endposition(static_cast<int>(network_.getNSta()));
+        boost::optional<StationEndposition> endposition(network_.getNSta());
         for(int j=i+1; j<nMainScans; ++j){
             const Scan &nextScan = scans_[j];
             bool nextRequired = true;
@@ -1339,5 +1339,147 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
     checkForNewEvents(0, false, bodyLog);
 }
 
+void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
+
+    switch (ScanTimes::getAlignmentAnchor()){
+        case ScanTimes::AlignmentAnchor::start:{
+            resetAllEvents(bodyLog);
+            checkForNewEvents(0, false, bodyLog);
+
+            // start with each scan
+            for(int iscan=0; iscan<scans_.size(); ++iscan){
+                Scan &thisScan = scans_[iscan];
+                checkForNewEvents(thisScan.getTimes().getScanStart(), true, bodyLog);
+
+                // save station ids of this scan (only these stations can be affected)
+                const vector<unsigned long> staids= thisScan.getStationIds();
+                unsigned long nThisSta = staids.size();
+                const vector<char> found(nThisSta);
+                const vector<unsigned int> constantTime(nThisSta,0);
+                const vector<unsigned int> slewTimes(nThisSta,0);
+                StationEndposition endp(network_.getNSta());
+
+                // look in each following scan when each station is next used. Save the next position in endp
+                for(int iNextScan = iscan+1; iNextScan<scans_.size(); ++iNextScan){
+                    const auto &nextScan = scans_[iscan];
+
+                    // search each station in this next scan
+                    for(int idx = 0; idx<nThisSta; ++idx){
+                        if(!found[idx]){
+                            unsigned long staid = staids[idx];
+                            boost::optional<unsigned long> oidx = nextScan.findIdxOfStationId(staid);
+
+                            // check if station is part of this next scan
+                            if(oidx.is_initialized()){
+
+                                // if yes save endposition
+                                auto nidx = static_cast<int>(oidx.get());
+                                const PointingVector &endposition = nextScan.getPointingVector(nidx);
+                                endp.addPointingVectorAsEndposition(endposition);
+                                constantTime[idx] = thisScan.getTimes().getFieldSystemTime(idx) +
+                                                    thisScan.getTimes().getPreobTime(idx);
+                                slewTimes[idx] = thisScan.getTimes().getSlewTime(idx);
+                                found[idx] = true;
+                            }
+                        }
+                    }
+                    // if all stations are found you can stop searching for next scan
+                    if(all_of(found.begin(),found.end(),true)){
+                        break;
+                    }
+                }
+
+                unsigned long srcid = thisScan.getSourceId();
+                const Source & thisSource = sources_[srcid];
+                //extend scan time
+                for(int idx = 0; idx<nThisSta; ++idx){
+                    unsigned long staid = staids[idx];
+                    const Station &thisSta = network_.getStation(staid);
+                    const PointingVector &start = thisScan.getPointingVectors_endtime(idx);
+                    unsigned int startTime = start.getTime();
+
+                    // get variable pointing vector (it will change time)
+                    PointingVector variable(start.getStaid(), start.getSrcid());
+                    variable.copyValuesFromOtherPv(start);
+
+                    if(found[idx]){
+                        const PointingVector &end = endp.getFinalPosition(staid).get();
+                        unsigned int availableTime = end.getTime()-startTime;
+                        unsigned int idleTime = availableTime - constantTime[idx] - slewTimes[idx];
+
+                        // update azimuth and elevation of variable
+                        variable.setTime(startTime + idleTime);
+                        thisSta.calcAzEl(thisSource,variable);
+
+                        // check if azimuth and elevation is visible
+                        if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                            continue;
+                        }
+
+                        // calc new slew time
+                        unsigned int slewTime = thisSta.getAntenna().slewTime(variable,end);
+
+                        // iteratively adjust observing time
+                        int offset = 0;
+                        bool visible = true;
+                        while(slewTime+offset != slewTimes[idx]){
+                            offset += slewTimes[idx]-slewTime;
+
+                            // update azimuth and elevation of variable
+                            variable.setTime(startTime + idleTime + offset);
+                            thisSta.calcAzEl(sources_[srcid],variable);
+
+                            // check if azimuth and elevation is visible
+                            if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                                visible = false;
+                                break;
+                            }
+
+                            // get new slewtime
+                            slewTime = thisSta.getAntenna().slewTime(variable,end);
+
+                            // live safer: If you are within one second you are ok
+                            if(slewTime+offset == slewTimes[idx]-1){
+                                break;
+                            }
+                        }
+
+                        // continue if azimuth and elevation is not visible
+                        if(!visible){
+                            continue;
+                        }
+
+                        // adjust observing times
+                        thisScan.setPointingVectorEnd(idx, move(variable));
+
+                    }else{
+                        // update azimuth and elevation of variable
+                        variable.setTime(TimeSystem::duration);
+                        thisSta.calcAzEl(sources_[srcid],variable);
+
+                        // check if azimuth and elevation is visible and adjust observing times
+                        if( thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                            thisScan.setPointingVectorEnd(idx, move(variable));
+                        }
+                    }
+                }
+
+                thisScan.removeUnnecessaryObservingTime(network_, thisSource);
+
+            }
+            break;
+        }
+        case ScanTimes::AlignmentAnchor::end:{
+
+            bodyLog << "Idle to scan time is not supported for scan alignment end";
+            break;
+        }
+        case ScanTimes::AlignmentAnchor::individual:{
+
+            bodyLog << "Idle to scan time is not supported for scan alignment individual";
+            break;
+        }
+    }
+}
 
 

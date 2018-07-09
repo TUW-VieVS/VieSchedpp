@@ -179,6 +179,9 @@ namespace VieVS{
         void resetAllEvents(std::ofstream &bodyLog);
 
         void ignoreTagalongParameter();
+
+        void idleToScanTime(std::ofstream &bodyLog);
+
     };
 }
 #endif /* SCHEDULER_H */

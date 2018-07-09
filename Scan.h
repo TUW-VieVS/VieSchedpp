@@ -478,6 +478,10 @@ namespace VieVS{
             return nextId-1;
         }
 
+        void setPointingVectorEnd(int idx, PointingVector pv);
+
+        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource);
+
     private:
         static unsigned long nextId;
 

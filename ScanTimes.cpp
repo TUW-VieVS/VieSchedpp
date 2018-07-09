@@ -230,6 +230,21 @@ const unsigned int ScanTimes::getScanEnd() const noexcept {
     return getObservingEnd();
 }
 
+void ScanTimes::setObservationEnd(int idx, unsigned int time) {
+    endOfObservingTime_[idx] = time;
+}
+
+int ScanTimes::removeUnnecessaryObservingTime() {
+
+    auto maxElement = max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
+    auto idx = static_cast<int>(distance(endOfObservingTime_.begin(), maxElement));
+    endOfObservingTime_[idx] = 0;
+    unsigned int secondMax = *max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
+    endOfObservingTime_[idx] = secondMax;
+
+    return idx;
+}
+
 
 
 
