@@ -108,9 +108,27 @@ endif ()
 
 ############################## SOFA ###################################
 
-#FIND_LIBRARY(SOFA libsofa_c.a /home/mschartn/SOFA/c/src REQUIRED)
-FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
-if (SOFA)
-    message("SOFA found here: ${SOFA}")
-    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})
+# uncommend the following lines to manually link SOFA to your project
+#
+#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
+#if (SOFA)
+#    message("SOFA found here: ${SOFA}")
+#    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})
+#endif()
+
+
+
+# uncommend the following lines to automatically look for SOFA and link it to your project
+#
+FIND_LIBRARY(SOFA_LNX libsofa_c.a ./)
+FIND_LIBRARY(SOFA_WIN libsofa_c.lib ./)
+if (SOFA_LNX)
+    message("SOFA library found: ${SOFA_LNX}")
+    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA_LNX})
+elseif(SOFA_WIN)
+    message("SOFA library found: ${SOFA_WIN}")
+    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA_WIN})
+else()
+    message("ERROR: SOFA library not found!")
 endif ()
+
