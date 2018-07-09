@@ -480,7 +480,7 @@ namespace VieVS{
 
         void setPointingVectorEnd(int idx, PointingVector pv);
 
-        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource);
+        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log);
 
     private:
         static unsigned long nextId;

@@ -106,3 +106,11 @@ unsigned int VieVS::TimeSystem::posixTime2InternalTime(const boost::posix_time::
     return static_cast<unsigned int>(sec);
 }
 
+std::string VieVS::TimeSystem::internalTime2timeString(unsigned int time) {
+    boost::posix_time::ptime ptime = internalTime2PosixTime(time);
+    std::string str = (boost::format("%02d:%02d:%02d") %ptime.time_of_day().hours()
+                       %ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
+
+    return str;
+}
+

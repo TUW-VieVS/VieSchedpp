@@ -1036,8 +1036,8 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             bodyLog << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
                        %source.getName()
                        %counter
-                       %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(pv_new_start.getTime()))
-                       %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(pv_new_end.getTime()));
+                       %TimeSystem::internalTime2timeString(pv_new_start.getTime())
+                       %TimeSystem::internalTime2timeString(pv_new_end.getTime());
             if(station.referencePARA().firstScan){
                 station.referencePARA().firstScan = false;
             }
@@ -1405,8 +1405,8 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                     unsigned int startTime = start.getTime();
 
                     // get variable pointing vector (it will change time)
-                    PointingVector variable(start.getStaid(), start.getSrcid());
-                    variable.copyValuesFromOtherPv(start);
+                    PointingVector variable(start);
+                    variable.setId(start.getId());
 
                     if(found[idx]){
                         const PointingVector &end = endp.getFinalPosition(staid).get();
@@ -1416,6 +1416,11 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                         // update azimuth and elevation of variable
                         variable.setTime(startTime + idleTime);
                         thisSta.calcAzEl(thisSource,variable);
+                        thisSta.getCableWrap().calcUnwrappedAz(start, variable);
+
+                        if( abs(start.getAz() - variable.getAz()) > pi/2){
+                            continue;
+                        }
 
                         // check if azimuth and elevation is visible
                         if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
@@ -1429,11 +1434,12 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                         int offset = 0;
                         bool visible = true;
                         while(slewTime+offset != slewTimes[idx]){
-                            offset += slewTimes[idx]-slewTime;
+                            offset = slewTimes[idx]-slewTime;
 
                             // update azimuth and elevation of variable
                             variable.setTime(startTime + idleTime + offset);
                             thisSta.calcAzEl(sources_[srcid],variable);
+                            thisSta.getCableWrap().calcUnwrappedAz(start, variable);
 
                             // check if azimuth and elevation is visible
                             if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
@@ -1462,6 +1468,7 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                         // update azimuth and elevation of variable
                         variable.setTime(TimeSystem::duration);
                         thisSta.calcAzEl(sources_[srcid],variable);
+                        thisSta.getCableWrap().calcUnwrappedAz(start, variable);
 
                         // check if azimuth and elevation is visible and adjust observing times
                         if( thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
@@ -1470,29 +1477,40 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                     }
                 }
 
-                thisScan.removeUnnecessaryObservingTime(network_, thisSource);
+                thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog);
 
 
-
-                bodyLog << boost::format("Scan (id: %d) changing idle time to observing time:\n") % getId();
-                for(int i=0; i<nThisSta; ++i){
-                    unsigned long staid = thisScan.getStationId(i);
+                bool change = false;
+                for(int i=0; i<nThisSta; ++i) {
                     unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
                     unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
-
-                    bodyLog << (boost::format("Station %8s %+d seconds: new observing time: %s %s (%d sec) old observing time %s %s (%d sec)\n")
-                               % network_.getStation(staid).getName()
-                               %(newObservingTime-oldObservingTime)
-                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(thisScan.getTimes().getObservingStart(i)))
-                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(thisScan.getTimes().getObservingEnd(i)))
-                               % newObservingTime
-                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(copyOfScanTimes.getObservingStart(i)))
-                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(copyOfScanTimes.getObservingEnd(i)))
-                               % oldObservingTime).str();
-
+                    if(oldObservingTime != newObservingTime){
+                        change = true;
+                        break;
+                    }
                 }
 
+                if(change){
+                    bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
+                    for(int i=0; i<nThisSta; ++i){
+                        unsigned long staid = thisScan.getStationId(i);
+                        unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
+                        unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+                        if(oldObservingTime == newObservingTime){
+                            continue;
+                        }
 
+                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec)\n")
+                                    % network_.getStation(staid).getName()
+                                    %(newObservingTime-oldObservingTime)
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingEnd(i))
+                                    % newObservingTime
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
+                                    % oldObservingTime).str();
+                    }
+                }
             }
             break;
         }

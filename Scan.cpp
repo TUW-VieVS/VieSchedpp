@@ -1115,8 +1115,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
 
     of << boost::format("Scan: no%04d  Source: %-8s (id: %3d) Ra: %s Dec %s Start_time: %s Stop_time: %s Type: %s %s (id: %d)\n")
        % observed_scan_nr % source.getName() % source.getId() % util::ra2dms(source.getRa()) % util::dc2hms(source.getDe())
-       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingStart()))
-       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingEnd()))
+       % TimeSystem::internalTime2timeString(times_.getObservingStart())
+       % TimeSystem::internalTime2timeString(times_.getObservingEnd())
        % type % type2 %getId();
 
     for(int i=0; i<nsta_; ++i){
@@ -1128,8 +1128,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
         of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %9.4f el: %7.4f (id: %d and %d)\n")
               % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
                 times_.getObservingTime(i)
-              % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingStart(i)))
-              % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(times_.getObservingEnd(i)))
+              % TimeSystem::internalTime2timeString(times_.getObservingStart(i))
+              % TimeSystem::internalTime2timeString(times_.getObservingEnd(i))
               % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
     of << "*\n";
@@ -1342,22 +1342,26 @@ void Scan::setPointingVectorEnd(int idx, PointingVector pv) {
     pointingVectorsEndtime_[idx] = move(pv);
 }
 
-void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource) {
+void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log) {
 
     int idx = times_.removeUnnecessaryObservingTime();
 
     unsigned int t = times_.getObservingEnd(idx);
     PointingVector &pv = pointingVectorsEndtime_[idx];
+    double az = pv.getAz();
+    pv.setTime(t);
     unsigned long staid = pv.getStaid();
     const Station &thisSta = network.getStation(staid);
     thisSta.calcAzEl(thisSource, pv);
+    thisSta.getCableWrap().unwrapAzNearAz(pv, az);
 
     bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
-    if(~visible){
-        cerr << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+
+    if(!visible){
+        log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
                 % thisSource.getName()
                 % thisSta.getName()
-                %TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(t))).str();
+                %TimeSystem::internalTime2timeString(t)).str();
     }
 
 
