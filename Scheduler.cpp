@@ -260,6 +260,8 @@ void Scheduler::start() noexcept {
         startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin, false, true);
     }
 
+    idleToScanTime(bodyLog);
+
     // check if there was an error during the session
     if (!checkAndStatistics(bodyLog)) {
         cout << boost::format("%s iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
@@ -1352,16 +1354,20 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                 checkForNewEvents(thisScan.getTimes().getScanStart(), true, bodyLog);
 
                 // save station ids of this scan (only these stations can be affected)
-                const vector<unsigned long> staids= thisScan.getStationIds();
+                vector<unsigned long> staids= thisScan.getStationIds();
                 unsigned long nThisSta = staids.size();
-                const vector<char> found(nThisSta);
-                const vector<unsigned int> constantTime(nThisSta,0);
-                const vector<unsigned int> slewTimes(nThisSta,0);
+
+                vector<char> found(nThisSta);
+                vector<unsigned int> constantTime(nThisSta,0);
+                vector<unsigned int> slewTimes(nThisSta,0);
+
                 StationEndposition endp(network_.getNSta());
+
+                ScanTimes copyOfScanTimes = thisScan.getTimes();
 
                 // look in each following scan when each station is next used. Save the next position in endp
                 for(int iNextScan = iscan+1; iNextScan<scans_.size(); ++iNextScan){
-                    const auto &nextScan = scans_[iscan];
+                    const Scan &nextScan = scans_[iNextScan];
 
                     // search each station in this next scan
                     for(int idx = 0; idx<nThisSta; ++idx){
@@ -1376,15 +1382,15 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                                 auto nidx = static_cast<int>(oidx.get());
                                 const PointingVector &endposition = nextScan.getPointingVector(nidx);
                                 endp.addPointingVectorAsEndposition(endposition);
-                                constantTime[idx] = thisScan.getTimes().getFieldSystemTime(idx) +
-                                                    thisScan.getTimes().getPreobTime(idx);
-                                slewTimes[idx] = thisScan.getTimes().getSlewTime(idx);
+                                constantTime[idx] = nextScan.getTimes().getFieldSystemTime(nidx) +
+                                                    nextScan.getTimes().getPreobTime(nidx);
+                                slewTimes[idx] = nextScan.getTimes().getSlewTime(nidx);
                                 found[idx] = true;
                             }
                         }
                     }
                     // if all stations are found you can stop searching for next scan
-                    if(all_of(found.begin(),found.end(),true)){
+                    if( all_of(found.begin(), found.end(), [](bool i){ return i; } ) ){
                         break;
                     }
                 }
@@ -1465,6 +1471,27 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                 }
 
                 thisScan.removeUnnecessaryObservingTime(network_, thisSource);
+
+
+
+                bodyLog << boost::format("Scan (id: %d) changing idle time to observing time:\n") % getId();
+                for(int i=0; i<nThisSta; ++i){
+                    unsigned long staid = thisScan.getStationId(i);
+                    unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
+                    unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+
+                    bodyLog << (boost::format("Station %8s %+d seconds: new observing time: %s %s (%d sec) old observing time %s %s (%d sec)\n")
+                               % network_.getStation(staid).getName()
+                               %(newObservingTime-oldObservingTime)
+                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(thisScan.getTimes().getObservingStart(i)))
+                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(thisScan.getTimes().getObservingEnd(i)))
+                               % newObservingTime
+                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(copyOfScanTimes.getObservingStart(i)))
+                               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(copyOfScanTimes.getObservingEnd(i)))
+                               % oldObservingTime).str();
+
+                }
+
 
             }
             break;
