@@ -1505,7 +1505,7 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
 
                         bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec)\n")
                                     % network_.getStation(staid).getName()
-                                    %(newObservingTime-oldObservingTime)
+                                    %(static_cast<int>(newObservingTime-oldObservingTime))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingEnd(i))
                                     % newObservingTime
