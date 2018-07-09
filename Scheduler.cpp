@@ -34,6 +34,7 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
+    parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -260,7 +261,9 @@ void Scheduler::start() noexcept {
         startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin, false, true);
     }
 
-    idleToScanTime(bodyLog);
+    if(parameters_.idleToObservingTime){
+        idleToScanTime(bodyLog);
+    }
 
     // check if there was an error during the session
     if (!checkAndStatistics(bodyLog)) {
@@ -1373,6 +1376,7 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                     for(int idx = 0; idx<nThisSta; ++idx){
                         if(!found[idx]){
                             unsigned long staid = staids[idx];
+                            const Station &thisSta = network_.getStation(staid);
                             boost::optional<unsigned long> oidx = nextScan.findIdxOfStationId(staid);
 
                             // check if station is part of this next scan
@@ -1382,8 +1386,7 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                                 auto nidx = static_cast<int>(oidx.get());
                                 const PointingVector &endposition = nextScan.getPointingVector(nidx);
                                 endp.addPointingVectorAsEndposition(endposition);
-                                constantTime[idx] = nextScan.getTimes().getFieldSystemTime(nidx) +
-                                                    nextScan.getTimes().getPreobTime(nidx);
+                                constantTime[idx] = thisSta.getWaittimes().fieldSystem + thisSta.getWaittimes().preob;
                                 slewTimes[idx] = nextScan.getTimes().getSlewTime(nidx);
                                 found[idx] = true;
                             }

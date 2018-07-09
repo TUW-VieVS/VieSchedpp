@@ -46,6 +46,8 @@ namespace VieVS{
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
             bool fillinmodeAPosteriori = false;
 
+            bool idleToObservingTime = true;
+
             bool andAsConditionCombination = true;
             unsigned int currentIteration = 0;
             unsigned int maxNumberOfIterations = 999;
