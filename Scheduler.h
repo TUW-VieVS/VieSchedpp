@@ -182,7 +182,7 @@ namespace VieVS{
 
         void ignoreTagalongParameter();
 
-        void idleToScanTime(std::ofstream &bodyLog);
+        void idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &bodyLog);
 
     };
 }

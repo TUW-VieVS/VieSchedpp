@@ -262,7 +262,7 @@ void Scheduler::start() noexcept {
     }
 
     if(parameters_.idleToObservingTime){
-        idleToScanTime(bodyLog);
+        idleToScanTime(ScanTimes::getAlignmentAnchor(), bodyLog);
     }
 
     // check if there was an error during the session
@@ -1344,10 +1344,11 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
     checkForNewEvents(0, false, bodyLog);
 }
 
-void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
+void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &bodyLog) {
 
-    switch (ScanTimes::getAlignmentAnchor()){
+    switch (anchor){
         case ScanTimes::AlignmentAnchor::start:{
+            bodyLog << "Extend observing time at end of scan:\n\n";
             resetAllEvents(bodyLog);
             checkForNewEvents(0, false, bodyLog);
 
@@ -1515,16 +1516,18 @@ void Scheduler::idleToScanTime(std::ofstream &bodyLog) {
                     }
                 }
             }
+            bodyLog << "\n";
             break;
         }
         case ScanTimes::AlignmentAnchor::end:{
+            bodyLog << "Extend observing time at start of scan:\n\n";
 
-            bodyLog << "Idle to scan time is not supported for scan alignment end";
+            bodyLog << "Idle to scan time is not supported for scan alignment end\n\n";
             break;
         }
         case ScanTimes::AlignmentAnchor::individual:{
-
-            bodyLog << "Idle to scan time is not supported for scan alignment individual";
+            idleToScanTime(ScanTimes::AlignmentAnchor::start, bodyLog);
+            idleToScanTime(ScanTimes::AlignmentAnchor::end, bodyLog);
             break;
         }
     }
