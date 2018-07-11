@@ -192,7 +192,7 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector at the end of a scan
          */
-        const PointingVector &getPointingVectors_endtime(int idx) const noexcept {
+        const PointingVector &getPointingVector_endtime(int idx) const noexcept {
             return pointingVectorsEndtime_[idx];
         }
 
@@ -441,18 +441,6 @@ namespace VieVS{
         }
 
         unsigned long getNObs(unsigned long staid) const noexcept;
-
-//        /**
-//         * @brief checks if parts of this scan can be used as a fillin mode scan
-//         *
-//         * @param stations list of all stations
-//         * @param source list of all sources
-//         * @param unused vector of flags for all unused stations (see VLBI_fillin_endpositions)
-//         * @param pv_final_position final required end position of all stations (see VLBI_fillin_endpositions)
-//         * @return possible fillin scan
-//         */
-//        bool possibleFillinScan(const std::vector<Station> &stations, const Source &source,
-//                                const std::vector<char> &unused, const std::vector<PointingVector> &pv_final_position);
 
         void setFixedScanDuration(unsigned int scanDuration) noexcept;
 

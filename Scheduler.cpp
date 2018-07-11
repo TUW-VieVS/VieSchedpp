@@ -351,7 +351,7 @@ void Scheduler::update(Scan &scan, ofstream &bodyLog) noexcept {
     for (int i = 0; i < scan.getNSta(); ++i) {
         const PointingVector &pv = scan.getPointingVector(i);
         unsigned long staid = pv.getStaid();
-        const PointingVector &pv_end = scan.getPointingVectors_endtime(i);
+        const PointingVector &pv_end = scan.getPointingVector_endtime(i);
         unsigned long nObs = scan.getNObs(staid);
 
         network_.update(nObs, pv_end, influence);
@@ -432,7 +432,7 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
         while( i_thisEnd < scans_.size()){
             // get scan and pointing vector at start
             const Scan &scan_thisEnd = scans_[i_thisEnd];
-            const PointingVector &thisEnd = scan_thisEnd.getPointingVectors_endtime(idx_thisEnd);
+            const PointingVector &thisEnd = scan_thisEnd.getPointingVector_endtime(idx_thisEnd);
 
             // update staStatistics
             staStatistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
@@ -996,7 +996,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
                         }
 
                         unsigned int maxScanTime =
-                                scan.getPointingVectors_endtime(i).getTime() - scan.getPointingVector(i).getTime();
+                                scan.getPointingVector_endtime(i).getTime() - scan.getPointingVector(i).getTime();
 
                         if (maxScanDuration > maxScanTime) {
                             maxScanDuration = maxScanTime;
@@ -1179,7 +1179,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
         for(int k=0; k<lastScan.getNSta(); ++k){
-            const auto &pv = lastScan.getPointingVectors_endtime(k);
+            const auto &pv = lastScan.getPointingVector_endtime(k);
             unsigned long staid = pv.getStaid();
             unsigned int time = pv.getTime();
             Station &thisSta = network_.refStation(staid);
@@ -1228,7 +1228,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     // get last predefined scan and set current position of station
     Scan &lastScan = scans_[nMainScans-1];
     for(int k=0; k<lastScan.getNSta(); ++k){
-        const auto &pv = lastScan.getPointingVectors_endtime(k);
+        const auto &pv = lastScan.getPointingVector_endtime(k);
         unsigned long staid = pv.getStaid();
         unsigned int time = pv.getTime();
         Station &thisSta = network_.refStation(staid);
@@ -1405,7 +1405,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                 for(int idx = 0; idx<nThisSta; ++idx){
                     unsigned long staid = staids[idx];
                     const Station &thisSta = network_.getStation(staid);
-                    const PointingVector &start = thisScan.getPointingVectors_endtime(idx);
+                    const PointingVector &start = thisScan.getPointingVector_endtime(idx);
                     unsigned int startTime = start.getTime();
 
                     // get variable pointing vector (it will change time)
