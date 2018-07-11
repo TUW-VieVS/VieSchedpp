@@ -546,14 +546,6 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
 
             }
 
-//            bool flagFlux = srcFlux.addFluxParameters(parameters);
-//            srcFlux.setWavelength(ObservationMode::wavelength[thisBand]);
-//            if (flagFlux){
-//                flux.emplace(make_pair(thisBand,srcFlux));
-//            }else{
-//                cerr << "ERROR: error reading flux info of: "<< name << ";\n";
-//            }
-
             if(!errorWhileReadingFlux){
                 flux[thisBand] = move(srcFlux);
                 ++cflux;
