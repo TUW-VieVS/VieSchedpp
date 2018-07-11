@@ -34,6 +34,7 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
     parameters_.fillinmodeInfluenceOnSchedule = init.parameters_.fillinmodeInfluenceOnSchedule;
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
+
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;

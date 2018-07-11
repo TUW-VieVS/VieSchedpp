@@ -33,15 +33,6 @@ void LookupTable::initialize() {
         acosLookupTable.push_back(val);
     }
 
-//    x = -1;
-//    counter = -1000;
-//    while (x <= 1 + 0.001) {
-//        double val = acos(x);
-//        acosLookupTable.push_back(val);
-//        x += .001;
-//        ++counter;
-//    }
-
     unsigned int maxEl = 91;
     unsigned int sizeAz = 181;
     vector<vector<vector<float> > > storage;
