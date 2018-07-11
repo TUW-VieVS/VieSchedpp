@@ -361,6 +361,8 @@ namespace VieVS{
          */
         bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
 
+        unsigned int getMaximumPossibleObservingTime() const noexcept;
+
         /**
          * @brief changes parameters to next setup
          *

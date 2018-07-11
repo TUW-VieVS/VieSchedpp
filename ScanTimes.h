@@ -186,6 +186,8 @@ namespace VieVS {
 
         int removeUnnecessaryObservingTime();
 
+        bool reduceObservingTimeTo(int idx, unsigned int maxObsTime);
+
     private:
         static unsigned long nextId;
         static AlignmentAnchor anchor;

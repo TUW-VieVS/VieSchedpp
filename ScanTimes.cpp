@@ -245,6 +245,18 @@ int ScanTimes::removeUnnecessaryObservingTime() {
     return idx;
 }
 
+bool ScanTimes::reduceObservingTimeTo(int idx, unsigned int maxObsTime) {
+
+    bool reduced = false;
+    if(endOfObservingTime_[idx] > maxObsTime){
+        endOfObservingTime_[idx] = maxObsTime;
+
+        reduced = true;
+    }
+
+    return reduced;
+}
+
 
 
 

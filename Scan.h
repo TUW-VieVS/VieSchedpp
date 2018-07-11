@@ -470,6 +470,9 @@ namespace VieVS{
 
         void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log);
 
+        void removeAdditionalObservingTime(unsigned int maxObsTime, const Station &station, const Source &thisSource,
+                                                 std::ofstream &log);
+
     private:
         static unsigned long nextId;
 

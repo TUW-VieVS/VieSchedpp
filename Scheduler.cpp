@@ -1437,7 +1437,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                         // iteratively adjust observing time
                         int offset = 0;
-                        bool visible = true;
+                        bool valid = true;
                         while(slewTime+offset != slewTimes[idx]){
                             offset = slewTimes[idx]-slewTime;
 
@@ -1448,7 +1448,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                             // check if azimuth and elevation is visible
                             if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
-                                visible = false;
+                                valid = false;
                                 break;
                             }
 
@@ -1462,7 +1462,12 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                         }
 
                         // continue if azimuth and elevation is not visible
-                        if(!visible){
+                        if(!valid){
+                            continue;
+                        }
+
+                        // if scan time would be reduced skip station!
+                        if(offset + static_cast<int>(idleTime) < 0){
                             continue;
                         }
 
@@ -1480,6 +1485,15 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                             thisScan.setPointingVectorEnd(idx, move(variable));
                         }
                     }
+                }
+
+                // get maximum allowed observing times (until station is not available) and change scheduled time if necessary
+                for(int idx=0; idx<nThisSta; ++idx){
+                    unsigned long staid = staids[idx];
+                    unsigned int thisEndTime = thisScan.getTimes().getObservingEnd(idx);
+                    const Station &sta = network_.getStation(staid);
+                    unsigned int maxObsTime = sta.getMaximumPossibleObservingTime();
+                    thisScan.removeAdditionalObservingTime(maxObsTime, sta, thisSource, bodyLog);
                 }
 
                 thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog);

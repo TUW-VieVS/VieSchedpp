@@ -1286,8 +1286,39 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
                 % thisSta.getName()
                 %TimeSystem::internalTime2timeString(t)).str();
     }
-
-
 }
 
 
+void Scan::removeAdditionalObservingTime(unsigned int maxObsTime, const Station &station, const Source &thisSource,
+                                         std::ofstream &log){
+
+
+    unsigned long staid = station.getId();
+    auto oidx = findIdxOfStationId(staid);
+
+    if(oidx.is_initialized()){
+        auto idx = static_cast<int>(oidx.get());
+
+        bool reduced = times_.reduceObservingTimeTo(idx, maxObsTime);
+
+        if(reduced){
+            unsigned int t = times_.getObservingEnd(idx);
+            PointingVector &pv = pointingVectorsEndtime_[idx];
+            double az = pv.getAz();
+            pv.setTime(t);
+            station.calcAzEl(thisSource, pv);
+            station.getCableWrap().unwrapAzNearAz(pv, az);
+
+            bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
+
+            if(!visible){
+                log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                        % thisSource.getName()
+                        % station.getName()
+                        %TimeSystem::internalTime2timeString(t)).str();
+            }
+        }
+    }
+
+
+}
