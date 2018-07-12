@@ -1526,7 +1526,9 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                             continue;
                         }
 
-                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec)\n")
+                        string id = thisScan.getPointingVector_endtime(i).printId();
+
+                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
@@ -1534,7 +1536,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                                     % newObservingTime
                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
-                                    % oldObservingTime).str();
+                                    % oldObservingTime
+                                    % id).str();
                     }
                 }
             }
@@ -1725,7 +1728,9 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                             continue;
                         }
 
-                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec)\n")
+                        string id = thisScan.getPointingVector(i).printId();
+
+                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
@@ -1733,7 +1738,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                                     % newObservingTime
                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
-                                    % oldObservingTime).str();
+                                    % oldObservingTime
+                                    % id).str();
                     }
                 }
             }
