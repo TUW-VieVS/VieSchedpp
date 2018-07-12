@@ -1295,7 +1295,7 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
     // remove from scan start
     {
         int idx = times_.removeUnnecessaryObservingTimeStart();
-        unsigned int t = times_.getObservingEnd(idx);
+        unsigned int t = times_.getObservingStart(idx);
         PointingVector &pv = pointingVectors_[idx];
         double az = pv.getAz();
         pv.setTime(t);
@@ -1357,8 +1357,8 @@ void Scan::removeAdditionalObservingTimeStart(unsigned int minObsTime, const Sta
         bool reduced = times_.reduceObservingTimeStart(idx, minObsTime);
 
         if(reduced){
-            unsigned int t = times_.getObservingEnd(idx);
-            PointingVector &pv = pointingVectorsEndtime_[idx];
+            unsigned int t = times_.getObservingStart(idx);
+            PointingVector &pv = pointingVectors_[idx];
             double az = pv.getAz();
             pv.setTime(t);
             station.calcAzEl(thisSource, pv);
