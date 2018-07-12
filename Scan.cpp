@@ -1265,41 +1265,66 @@ void Scan::setPointingVectorEnd(int idx, PointingVector pv) {
     pointingVectorsEndtime_[idx] = move(pv);
 }
 
+void Scan::setPointingVectorStart(int idx, PointingVector pv) {
+    times_.setObservationStart(idx,pv.getTime());
+    pointingVectors_[idx] = move(pv);
+}
+
 void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log) {
 
-    int idx = times_.removeUnnecessaryObservingTime();
-
-    unsigned int t = times_.getObservingEnd(idx);
-    PointingVector &pv = pointingVectorsEndtime_[idx];
-    double az = pv.getAz();
-    pv.setTime(t);
-    unsigned long staid = pv.getStaid();
-    const Station &thisSta = network.getStation(staid);
-    thisSta.calcAzEl(thisSource, pv);
-    thisSta.getCableWrap().unwrapAzNearAz(pv, az);
-
-    bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
-
-    if(!visible){
-        log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
-                % thisSource.getName()
-                % thisSta.getName()
-                %TimeSystem::internalTime2timeString(t)).str();
+    // remove from scan end
+    {
+        int idx = times_.removeUnnecessaryObservingTimeEnd();
+        unsigned int t = times_.getObservingEnd(idx);
+        PointingVector &pv = pointingVectorsEndtime_[idx];
+        double az = pv.getAz();
+        pv.setTime(t);
+        unsigned long staid = pv.getStaid();
+        const Station &thisSta = network.getStation(staid);
+        thisSta.calcAzEl(thisSource, pv);
+        thisSta.getCableWrap().unwrapAzNearAz(pv, az);
+        bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
+        if(!visible){
+            log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                    % thisSource.getName()
+                    % thisSta.getName()
+                    %TimeSystem::internalTime2timeString(t)).str();
+        }
     }
+
+    // remove from scan start
+    {
+        int idx = times_.removeUnnecessaryObservingTimeStart();
+        unsigned int t = times_.getObservingEnd(idx);
+        PointingVector &pv = pointingVectors_[idx];
+        double az = pv.getAz();
+        pv.setTime(t);
+        unsigned long staid = pv.getStaid();
+        const Station &thisSta = network.getStation(staid);
+        thisSta.calcAzEl(thisSource, pv);
+        thisSta.getCableWrap().unwrapAzNearAz(pv, az);
+        bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
+        if(!visible){
+            log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                    % thisSource.getName()
+                    % thisSta.getName()
+                    %TimeSystem::internalTime2timeString(t)).str();
+        }
+    }
+
+
 }
 
 
-void Scan::removeAdditionalObservingTime(unsigned int maxObsTime, const Station &station, const Source &thisSource,
-                                         std::ofstream &log){
-
-
+void Scan::removeAdditionalObservingTimeEnd(unsigned int maxObsTime, const Station &station, const Source &thisSource,
+                                            std::ofstream &log){
     unsigned long staid = station.getId();
     auto oidx = findIdxOfStationId(staid);
 
     if(oidx.is_initialized()){
         auto idx = static_cast<int>(oidx.get());
 
-        bool reduced = times_.reduceObservingTimeTo(idx, maxObsTime);
+        bool reduced = times_.reduceObservingTimeEnd(idx, maxObsTime);
 
         if(reduced){
             unsigned int t = times_.getObservingEnd(idx);
@@ -1319,6 +1344,34 @@ void Scan::removeAdditionalObservingTime(unsigned int maxObsTime, const Station 
             }
         }
     }
+}
 
+void Scan::removeAdditionalObservingTimeStart(unsigned int minObsTime, const Station &station, const Source &thisSource,
+                                             std::ofstream &log){
+    unsigned long staid = station.getId();
+    auto oidx = findIdxOfStationId(staid);
 
+    if(oidx.is_initialized()){
+        auto idx = static_cast<int>(oidx.get());
+
+        bool reduced = times_.reduceObservingTimeStart(idx, minObsTime);
+
+        if(reduced){
+            unsigned int t = times_.getObservingEnd(idx);
+            PointingVector &pv = pointingVectorsEndtime_[idx];
+            double az = pv.getAz();
+            pv.setTime(t);
+            station.calcAzEl(thisSource, pv);
+            station.getCableWrap().unwrapAzNearAz(pv, az);
+
+            bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
+
+            if(!visible){
+                log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                        % thisSource.getName()
+                        % station.getName()
+                        %TimeSystem::internalTime2timeString(t)).str();
+            }
+        }
+    }
 }

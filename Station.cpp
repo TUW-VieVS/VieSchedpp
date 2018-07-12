@@ -279,9 +279,20 @@ unsigned int Station::getMaximumPossibleObservingTime() const noexcept {
         if(!events_->at(tmp).PARA.available){
             return events_->at(tmp).time;
         }
-        tmp++;
+        ++tmp;
     }
     return TimeSystem::duration;
+}
+
+unsigned int Station::getMinimumPossibleObservingTime() const noexcept {
+    int tmp = static_cast<int>(nextEvent_);
+    while (tmp >= 0) {
+        if(!events_->at(tmp).PARA.available){
+            return events_->at(tmp).time;
+        }
+        --tmp;
+    }
+    return 0;
 }
 
 bool Station::checkForTagalongMode(unsigned int time) const noexcept{

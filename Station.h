@@ -363,6 +363,8 @@ namespace VieVS{
 
         unsigned int getMaximumPossibleObservingTime() const noexcept;
 
+        unsigned int getMinimumPossibleObservingTime() const noexcept;
+
         /**
          * @brief changes parameters to next setup
          *

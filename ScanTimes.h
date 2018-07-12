@@ -184,9 +184,15 @@ namespace VieVS {
 
         void setObservationEnd(int idx, unsigned int time);
 
-        int removeUnnecessaryObservingTime();
+        void setObservationStart(int idx, unsigned int time);
 
-        bool reduceObservingTimeTo(int idx, unsigned int maxObsTime);
+        int removeUnnecessaryObservingTimeEnd();
+
+        int removeUnnecessaryObservingTimeStart();
+
+        bool reduceObservingTimeEnd(int idx, unsigned int maxObsTime);
+
+        bool reduceObservingTimeStart(int idx, unsigned int minObsTime);
 
     private:
         static unsigned long nextId;

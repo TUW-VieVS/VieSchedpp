@@ -234,7 +234,13 @@ void ScanTimes::setObservationEnd(int idx, unsigned int time) {
     endOfObservingTime_[idx] = time;
 }
 
-int ScanTimes::removeUnnecessaryObservingTime() {
+void ScanTimes::setObservationStart(int idx, unsigned int time) {
+    unsigned int preobTime = getPreobTime(idx);
+    endOfPreobTime_[idx] = time;
+    endOfIdleTime_[idx] = time-preobTime;
+}
+
+int ScanTimes::removeUnnecessaryObservingTimeEnd() {
 
     auto maxElement = max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
     auto idx = static_cast<int>(distance(endOfObservingTime_.begin(), maxElement));
@@ -245,11 +251,48 @@ int ScanTimes::removeUnnecessaryObservingTime() {
     return idx;
 }
 
-bool ScanTimes::reduceObservingTimeTo(int idx, unsigned int maxObsTime) {
+int ScanTimes::removeUnnecessaryObservingTimeStart() {
+
+    auto minElement = min_element(endOfPreobTime_.begin(),endOfPreobTime_.end());
+    auto idx = static_cast<int>(distance(endOfPreobTime_.begin(), minElement));
+    unsigned int preob = getPreobTime(idx);
+
+    endOfPreobTime_[idx] = numeric_limits<unsigned int>::max();
+    unsigned int secondMax = *min_element(endOfPreobTime_.begin(),endOfPreobTime_.end());
+    endOfPreobTime_[idx] = secondMax;
+    endOfIdleTime_[idx] = endOfPreobTime_[idx]-preob;
+//    if(endOfIdleTime_[idx]<endOfSlewTime_[idx]){
+//        cout << "ERROR in ScanTimes::removeUnnecessaryObservingTimeStart\n";
+//        endOfSlewTime_[idx] = endOfIdleTime_[idx];
+//    }
+
+    return idx;
+}
+
+bool ScanTimes::reduceObservingTimeEnd(int idx, unsigned int maxObsTime) {
 
     bool reduced = false;
     if(endOfObservingTime_[idx] > maxObsTime){
         endOfObservingTime_[idx] = maxObsTime;
+
+        reduced = true;
+    }
+
+    return reduced;
+}
+
+bool ScanTimes::reduceObservingTimeStart(int idx, unsigned int minObsTime) {
+
+    unsigned int preob = getPreobTime(idx);
+
+    bool reduced = false;
+    if(endOfPreobTime_[idx] < minObsTime){
+        endOfPreobTime_[idx] = minObsTime;
+        endOfIdleTime_[idx] = minObsTime-preob;
+//        if(endOfIdleTime_[idx]<endOfSlewTime_[idx]){
+//            cout << "ERROR in ScanTimes::reduceObservingTimeStart\n";
+//            endOfSlewTime_[idx] = endOfIdleTime_[idx];
+//        }
 
         reduced = true;
     }
