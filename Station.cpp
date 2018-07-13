@@ -278,7 +278,7 @@ unsigned int Station::maximumAllowedObservingTime(Timestamp ts) const noexcept {
     switch (ts){
 
         case Timestamp::start:{
-            int tmp = static_cast<int>(nextEvent_)-2;
+            int tmp = static_cast<int>(nextEvent_)-2; // -1 would be current parameters and -2 are previous parameters
             while (tmp >= 0) {
                 if(!events_->at(tmp).PARA.available){
                     return events_->at(tmp).time;
