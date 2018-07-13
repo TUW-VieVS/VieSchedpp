@@ -14,31 +14,23 @@ vector<vector<vector<float> > > VieVS::LookupTable::angularDistanceLookup = {};
 
 void LookupTable::initialize() {
 
-    double x = 0;
-    int counter = 0;
-    while (x < twopi + 0.001) {
+
+    for (int i=0; i<twopi*1001; ++i){
+        double x = i*0.001;
         double val = sin(x);
         sinLookupTable.push_back(val);
-        x += .001;
-        ++counter;
     }
 
-    x = 0;
-    counter = 0;
-    while (x < twopi + 0.001) {
+    for (int i=0; i<twopi*1001; ++i){
+        double x = i*0.001;
         double val = cos(x);
         cosLookupTable.push_back(val);
-        x += .001;
-        ++counter;
     }
 
-    x = -1;
-    counter = -1000;
-    while (x < 1) {
+    for (int i=0; i<2001; ++i){
+        double x = -1 + i*0.001;
         double val = acos(x);
         acosLookupTable.push_back(val);
-        x += .001;
-        ++counter;
     }
 
     unsigned int maxEl = 91;
@@ -83,7 +75,7 @@ double LookupTable::cosLookup(double x) {
 }
 
 double LookupTable::acosLookup(double x) {
-    return acosLookupTable[lround(x * 1000)+1000];
+    return acosLookupTable.at(lround(x * 1000)+1000);
 }
 
 float LookupTable::angularDistance(double phi1, double theta1, double phi2, double theta2) noexcept {

@@ -147,8 +147,8 @@ void VieSchedpp::run() {
     statisticsLog.close();
     cout << "everything finally finished!;\n";
     cout << "created scans:                " << Scan::numberOfCreatedObjects() << ";\n";
-    cout << "considered observations:      " << Observation::numberOfCreatedObjects() << ";\n";
-    cout << "considered antenna pointings: " << PointingVector::numberOfCreatedObjects() << ";\n\n";
+    cout << "created observations:         " << Observation::numberOfCreatedObjects() << ";\n";
+    cout << "created antenna pointings:    " << PointingVector::numberOfCreatedObjects() << ";\n\n";
 }
 
 void VieSchedpp::readSkdCatalogs() {

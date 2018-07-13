@@ -42,7 +42,7 @@ namespace VieVS {
 //         */
 //        StationEndposition(const std::vector<Scan> &bestScans, const std::vector<Station> &stations);
 
-        explicit StationEndposition(int nsta);
+        explicit StationEndposition(unsigned long nsta);
 
         void addPointingVectorAsEndposition(const PointingVector &pv);
 

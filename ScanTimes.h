@@ -135,6 +135,19 @@ namespace VieVS {
             return endOfObservingTime_[idx];
         }
 
+        const unsigned int getObservingTime(int idx, Timestamp ts){
+            switch (ts){
+
+                case Timestamp::start:{
+
+                    return endOfPreobTime_[idx];
+                }
+                case Timestamp::end:{
+
+                    return endOfObservingTime_[idx];
+                }
+            }
+        }
 
 
         /**
@@ -177,6 +190,16 @@ namespace VieVS {
             anchor = newAnchor;
         }
 
+        static AlignmentAnchor getAlignmentAnchor(){
+            return anchor;
+        }
+
+
+        void setObservation(int idx, unsigned int time, Timestamp ts);
+
+        int removeUnnecessaryObservingTime(Timestamp ts);
+
+        bool reduceObservingTime(int idx, unsigned int maxObsTime, Timestamp ts);
 
     private:
         static unsigned long nextId;

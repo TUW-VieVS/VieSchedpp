@@ -263,7 +263,7 @@ void Output::displayNstaStatistics(std::ofstream &out) {
 
 void Output::displayScanDurationStatistics(ofstream &out) {
     unsigned long nsta = network_.getNSta();
-    out << "required scan durations:\n";
+    out << "scan observing durations:\n";
     vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
     vector< unsigned int> maxScanDurations;
 
@@ -318,7 +318,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     }
     out << "\n";
 
-    out << "scan length:\n";
+    out << "required scan length:\n";
     out << ".----------------------------------------------------------------------------------------------.\n";
     out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
     out << "|-------------------|---------------------------------------------------------|----------------|\n";
@@ -547,11 +547,11 @@ void Output::writeNGS() {
 
     string fname;
     if (version_ == 0) {
-        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS_N000");
+        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("VS_N000");
         string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%sMS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
+        fname = (boost::format("%sVS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
         string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % version_ % fname).str();
         cout << txt;
     }

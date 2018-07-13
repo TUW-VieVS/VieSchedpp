@@ -47,6 +47,7 @@ namespace VieVS {
         static std::string date2string(const boost::posix_time::ptime &ptime);
 
         static boost::posix_time::ptime internalTime2PosixTime(unsigned int time);
+        static std::string internalTime2timeString(unsigned int time);
         static unsigned int posixTime2InternalTime(const boost::posix_time::ptime &ptime);
     };
 }

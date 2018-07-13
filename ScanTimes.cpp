@@ -230,6 +230,78 @@ const unsigned int ScanTimes::getScanEnd() const noexcept {
     return getObservingEnd();
 }
 
+void ScanTimes::setObservation(int idx, unsigned int time, Timestamp ts) {
+    switch (ts){
+
+        case Timestamp::start: {
+            unsigned int preobTime = getPreobTime(idx);
+            endOfPreobTime_[idx] = time;
+            endOfIdleTime_[idx] = time-preobTime;
+            break;
+        }
+        case Timestamp::end:{
+            endOfObservingTime_[idx] = time;
+            break;
+        }
+    }
+}
+
+int ScanTimes::removeUnnecessaryObservingTime(Timestamp ts) {
+
+    switch (ts){
+
+        case Timestamp::start:{
+            auto minElement = min_element(endOfPreobTime_.begin(),endOfPreobTime_.end());
+            auto idx = static_cast<int>(distance(endOfPreobTime_.begin(), minElement));
+            unsigned int preob = getPreobTime(idx);
+
+            endOfPreobTime_[idx] = numeric_limits<unsigned int>::max();
+            unsigned int secondMax = *min_element(endOfPreobTime_.begin(),endOfPreobTime_.end());
+            endOfPreobTime_[idx] = secondMax;
+            endOfIdleTime_[idx] = endOfPreobTime_[idx]-preob;
+
+            return idx;
+        }
+        case Timestamp::end:{
+
+            auto maxElement = max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
+            auto idx = static_cast<int>(distance(endOfObservingTime_.begin(), maxElement));
+            endOfObservingTime_[idx] = 0;
+            unsigned int secondMax = *max_element(endOfObservingTime_.begin(),endOfObservingTime_.end());
+            endOfObservingTime_[idx] = secondMax;
+
+            return idx;
+        }
+    }
+}
+
+bool ScanTimes::reduceObservingTime(int idx, unsigned int time, Timestamp ts) {
+
+    switch (ts){
+
+        case Timestamp::start:{
+            bool reduced = false;
+            if(endOfObservingTime_[idx] > time){
+                endOfObservingTime_[idx] = time;
+                reduced = true;
+            }
+            return reduced;
+        }
+
+        case Timestamp::end: {
+            unsigned int preob = getPreobTime(idx);
+            bool reduced = false;
+            if (endOfPreobTime_[idx] < time) {
+                endOfPreobTime_[idx] = time;
+                endOfIdleTime_[idx] = time - preob;
+
+                reduced = true;
+            }
+            return reduced;
+        }
+
+    }
+}
 
 
 

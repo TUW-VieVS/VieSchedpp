@@ -273,6 +273,31 @@ bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
     return flag;
 }
 
+unsigned int Station::maximumAllowedObservingTime(Timestamp ts) const noexcept {
+    switch (ts){
+        case Timestamp::start:{
+            int tmp = static_cast<int>(nextEvent_)-2; // -1 would be current parameters and -2 are previous parameters
+            while (tmp >= 0) {
+                if(!events_->at(tmp).PARA.available){
+                    return events_->at(tmp).time;
+                }
+                --tmp;
+            }
+            return 0;
+        }
+        case Timestamp::end:{
+            unsigned int tmp = nextEvent_;
+            while (tmp < events_->size()) {
+                if(!events_->at(tmp).PARA.available){
+                    return events_->at(tmp).time;
+                }
+                ++tmp;
+            }
+            return TimeSystem::duration;
+        }
+    }
+}
+
 bool Station::checkForTagalongMode(unsigned int time) const noexcept{
     bool tagalong = parameters_.tagalong;
     if(tagalong){
