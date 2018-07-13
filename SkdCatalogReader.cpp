@@ -732,7 +732,7 @@ void SkdCatalogReader::saveOneLetterCode() {
         auto tmp = ant.at(staName);
         char oneLetterCode = tmp[0][0];
         if (charsUsed.find(oneLetterCode) != charsUsed.end()) {
-            cout << "WARGNING: One letter code " << oneLetterCode << " of station " << staName << " already used!";
+            cout << "WARNING: One letter code " << oneLetterCode << " of station " << staName << " already used!";
             for (char l = 'A'; l <= 'Z'; ++l) {
                 if (charsUsed.find(l) == charsUsed.end()) {
                     cout << "--> using \"" << l << "\" insted!; \n";

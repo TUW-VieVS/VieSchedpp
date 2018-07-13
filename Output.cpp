@@ -547,11 +547,11 @@ void Output::writeNGS() {
 
     string fname;
     if (version_ == 0) {
-        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("MS_N000");
+        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("VS_N000");
         string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
         cout << txt;
     } else {
-        fname = (boost::format("%sMS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
+        fname = (boost::format("%sVS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
         string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % version_ % fname).str();
         cout << txt;
     }
