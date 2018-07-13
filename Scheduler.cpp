@@ -249,9 +249,8 @@ void Scheduler::start() noexcept {
         startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, subcon, 0);
 
         // sort scans
-        sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-            return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-        });
+        sortSchedule(Timestamp::start);
+
     } else {
         startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard, true, false);
     }
@@ -395,22 +394,7 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
 
         // sort scans based on observation start of this station (can be different if you align scans individual or at end)
-        sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
-            boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
-            if(!idx1.is_initialized()){
-                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-            }
-
-            boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
-            if(!idx2.is_initialized()){
-                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-            }
-
-            return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) < scan2.getTimes().getObservingStart(
-                    static_cast<int>(*idx2));
-        });
-
-
+        sortSchedule(staid);
 
         // get first scan with this station and initialize idx
         int i_thisEnd = 0;
@@ -536,9 +520,7 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
     bodyLog << "=========================   end check routine    =========================\n";
 
     // sort scans again based on their observation start
-    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-    });
+    sortSchedule(Timestamp::start);
 
     // add source srcStatistics
     std::vector<Source::Statistics> srcStatistics(sources_.size());
@@ -1250,10 +1232,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     startScanSelection(duration, bodyLog, type, endposition, subcon, 1);
 
     // sort scans at the end
-    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-    });
-
+    sortSchedule(Timestamp::start);
 }
 
 void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLog) {
@@ -1305,9 +1284,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         }
     }while(himp.hasMoreScans());
 
-    sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-        return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-    });
+    sortSchedule(Timestamp::start);
 
 
     bodyLog << "###############################################################################################\n";
@@ -1550,9 +1527,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             checkForNewEvents(0, false, bodyLog);
 
             // sort scans per endtime
-            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-                return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
-            });
+            sortSchedule(Timestamp::end);
 
             // loop over each scan
             for(int iscan=0; iscan<scans_.size(); ++iscan) {
@@ -1745,9 +1720,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             }
 
             // sort scans back with respect to observing start
-            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-            });
+            sortSchedule(Timestamp::start);
 
             break;
         }
@@ -1758,6 +1731,73 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             break;
         }
     }
+}
+
+void Scheduler::sortSchedule(Timestamp ts) {
+    switch (ts){
+
+        case Timestamp::start:{
+            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+            });
+
+            break;}
+        case Timestamp::end:{
+            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+                return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+            });
+
+            break;
+        }
+    }
+
+
+}
+
+void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
+
+    switch (ts){
+
+        case Timestamp::start:{
+            sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+                boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
+                if(!idx1.is_initialized()){
+                    return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+                }
+
+                boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
+                if(!idx2.is_initialized()){
+                    return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
+                }
+
+                return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) < scan2.getTimes().getObservingStart(
+                        static_cast<int>(*idx2));
+            });
+
+
+            break;}
+        case Timestamp::end:{
+            sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+                boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
+                if(!idx1.is_initialized()){
+                    return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+                }
+
+                boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
+                if(!idx2.is_initialized()){
+                    return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+                }
+
+                return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) > scan2.getTimes().getObservingStart(
+                        static_cast<int>(*idx2));
+            });
+
+
+            break;
+        }
+    }
+
+
 }
 
 

@@ -184,6 +184,11 @@ namespace VieVS{
 
         void idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &bodyLog);
 
+        void sortSchedule(Timestamp ts = Timestamp::start);
+
+        void sortSchedule(unsigned long staid, Timestamp ts = Timestamp::start);
+
+
     };
 }
 #endif /* SCHEDULER_H */
