@@ -13,7 +13,17 @@
 
 #include "Constants.h"
 
+namespace VieVS{
+    enum class Timestamp {
+        start,
+        end
+    };
+}
+
+
 namespace VieVS::util{
+
+
 
     std::string ra2dms(double angle);
 

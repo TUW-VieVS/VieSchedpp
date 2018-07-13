@@ -89,7 +89,7 @@ namespace VieVS{
          * @return true if everything is ok
          */
         bool check() {
-            return pointingVectors_.size() != nsta_;
+            return pointingVectorsStart_.size() != nsta_;
         }
 
         /**
@@ -154,7 +154,7 @@ namespace VieVS{
          * @return id of station
          */
         unsigned long getStationId(int idx) const noexcept {
-            return pointingVectors_[idx].getStaid();
+            return pointingVectorsStart_[idx].getStaid();
         }
 
         /**
@@ -163,7 +163,7 @@ namespace VieVS{
          * @return source id
          */
         unsigned long getSourceId() const noexcept {
-            return pointingVectors_[0].getSrcid();
+            return pointingVectorsStart_[0].getSrcid();
         }
 
         /**
@@ -172,8 +172,15 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector
          */
-        const PointingVector &getPointingVector(int idx) const noexcept {
-            return pointingVectors_[idx];
+        const PointingVector &getPointingVector(int idx, Timestamp ts = Timestamp::start) const noexcept {
+            switch (ts){
+                case VieVS::Timestamp::start:{
+                    return pointingVectorsStart_[idx];
+                }
+                case VieVS::Timestamp::end:{
+                    return pointingVectorsEnd_[idx];
+                }
+            }
         }
 
         /**
@@ -182,18 +189,15 @@ namespace VieVS{
          * @param idx index of required pointing vector
          * @return pointing vector
          */
-        PointingVector &referencePointingVector(int idx) noexcept {
-            return pointingVectors_[idx];
-        }
-
-        /**
-         * @brief getter for pointing vector at the end of a scan for an index
-         *
-         * @param idx index of required pointing vector
-         * @return pointing vector at the end of a scan
-         */
-        const PointingVector &getPointingVector_endtime(int idx) const noexcept {
-            return pointingVectorsEndtime_[idx];
+        PointingVector &referencePointingVector(int idx, Timestamp ts = Timestamp::start) noexcept {
+            switch (ts){
+                case VieVS::Timestamp::start:{
+                    return pointingVectorsStart_[idx];
+                }
+                case VieVS::Timestamp::end:{
+                    return pointingVectorsEnd_[idx];
+                }
+            }
         }
 
         /**
@@ -466,15 +470,12 @@ namespace VieVS{
             return nextId-1;
         }
 
-        void setPointingVectorEnd(int idx, PointingVector pv);
-        void setPointingVectorStart(int idx, PointingVector pv);
+        void setPointingVector(int idx, PointingVector pv, Timestamp ts);
 
-        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log);
+        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log, Timestamp ts);
 
-        void removeAdditionalObservingTimeEnd(unsigned int maxObsTime, const Station &station, const Source &thisSource,
-                                              std::ofstream &log);
-        void removeAdditionalObservingTimeStart(unsigned int minObsTime, const Station &station, const Source &thisSource,
-                                              std::ofstream &log);
+        void removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
+                                           std::ofstream &log, Timestamp ts);
 
     private:
         static unsigned long nextId;
@@ -485,8 +486,8 @@ namespace VieVS{
         double score_; ///< total score
 
         ScanTimes times_; ///< time informations
-        std::vector<PointingVector> pointingVectors_; ///< pointing vectors at start of the scan
-        std::vector<PointingVector> pointingVectorsEndtime_; ///< pointing vectors at end of the scan
+        std::vector<PointingVector> pointingVectorsStart_; ///< pointing vectors at start of the scan
+        std::vector<PointingVector> pointingVectorsEnd_; ///< pointing vectors at end of the scan
         std::vector<Observation> observations_; ///< all observed baselines
 
         ScanType type_; ///< type of the scan
@@ -567,6 +568,7 @@ namespace VieVS{
                                    const Network &network, const Source &source);
 
         double calcScore_secondPart(double this_score, const Network &network, const Source &source);
+
     };
 }
 #endif /* SCAN_H */

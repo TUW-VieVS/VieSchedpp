@@ -24,15 +24,15 @@ unsigned long Scan::nextId = 0;
 
 Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type):
         VieVS_Object(nextId++), times_{ScanTimes(static_cast<unsigned int>(pointingVectors.size()))},
-        pointingVectors_{move(pointingVectors)}, type_{type}, constellation_{ScanConstellation::single}, score_{0}{
-    nsta_ = Scan::pointingVectors_.size();
-    srcid_ = Scan::pointingVectors_.at(0).getSrcid();
+        pointingVectorsStart_{move(pointingVectors)}, type_{type}, constellation_{ScanConstellation::single}, score_{0}{
+    nsta_ = Scan::pointingVectorsStart_.size();
+    srcid_ = Scan::pointingVectorsStart_.at(0).getSrcid();
     times_.setEndOfLastScan(endOfLastScan);
     observations_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
 Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs):
-        VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectors_{move(pv)},
+        VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectorsStart_{move(pv)},
         score_{0}, times_{move(times)}, observations_{move(obs)}, constellation_{ScanConstellation::subnetting},
         type_{ScanType::standard}{
 
@@ -46,11 +46,11 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
     unsigned long srcid = source.getId();
 
     // loop over all pointingVectors
-    for (int i=0; i<pointingVectors_.size(); ++i){
-        for (int j=i+1; j<pointingVectors_.size(); ++j){
+    for (int i=0; i<pointingVectorsStart_.size(); ++i){
+        for (int j=i+1; j<pointingVectorsStart_.size(); ++j){
 
-            unsigned long staid1 = pointingVectors_[i].getStaid();
-            unsigned long staid2 = pointingVectors_[j].getStaid();
+            unsigned long staid1 = pointingVectorsStart_[i].getStaid();
+            unsigned long staid2 = pointingVectorsStart_[j].getStaid();
             unsigned long blid = network.getBaseline(staid1,staid2).getId();
 
             // check if Baseline is ignored
@@ -91,7 +91,7 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     }
 
     // check if you want to remove a required station
-    unsigned long staid = pointingVectors_[idx].getStaid();
+    unsigned long staid = pointingVectorsStart_[idx].getStaid();
     if (!source.getPARA().requiredStations.empty()) {
         const vector<unsigned long> &rsta = source.getPARA().requiredStations;
         if (find(rsta.begin(), rsta.end(), staid) != rsta.end()) {
@@ -103,9 +103,9 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     times_.removeElement(idx);
 
     // erase the pointing vector
-    pointingVectors_.erase(next(pointingVectors_.begin(),idx));
-    if (!pointingVectorsEndtime_.empty()) {
-        pointingVectorsEndtime_.erase(next(pointingVectorsEndtime_.begin(),idx));
+    pointingVectorsStart_.erase(next(pointingVectorsStart_.begin(),idx));
+    if (!pointingVectorsEnd_.empty()) {
+        pointingVectorsEnd_.erase(next(pointingVectorsEnd_.begin(),idx));
     }
 
     // remove all observations with this station
@@ -256,9 +256,9 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
             double SEFD_src = source.observedFlux(band, gmst, network.getDxyz(staid1,staid2));
 
             // calculate system equivalent flux density for each station
-            double el1 = pointingVectors_[*findIdxOfStationId(staid1)].getEl();
+            double el1 = pointingVectorsStart_[*findIdxOfStationId(staid1)].getEl();
             double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
-            double el2 = pointingVectors_[*findIdxOfStationId(staid2)].getEl();
+            double el2 = pointingVectorsStart_[*findIdxOfStationId(staid2)].getEl();
             double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
 
             // get minimum required SNR for each station, baseline and source
@@ -335,7 +335,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
     vector<unsigned int> minscanTimes(nsta_, source.getPARA().minScan);
     vector<unsigned int> maxScanTimes(nsta_, source.getPARA().maxScan);
     for (int i = 0; i < nsta_; ++i) {
-        unsigned long staid = pointingVectors_[i].getStaid();
+        unsigned long staid = pointingVectorsStart_[i].getStaid();
         unsigned int stationMinScanTime = network.getStation(staid).getPARA().minScan;
         unsigned int stationMaxScanTime = network.getStation(staid).getPARA().maxScan;
 
@@ -419,7 +419,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
                 vector<int> maxSEFDId(maxIdx.size());
                 for(int i=0; i<maxIdx.size(); ++i){
                     int thisIdx = maxIdx[i];
-                    unsigned long staid = pointingVectors_[thisIdx].getStaid();
+                    unsigned long staid = pointingVectorsStart_[thisIdx].getStaid();
                     double thisMaxSEFD = network.getStation(staid).getEquip().getMaxSEFD();
                     if (thisMaxSEFD == maxSEFD) {
                         maxSEFDId.push_back(thisIdx);
@@ -465,7 +465,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
 
 boost::optional<unsigned long> Scan::findIdxOfStationId(unsigned long id) const noexcept {
     for (unsigned long idx = 0; idx < nsta_; ++idx) {
-        if(pointingVectors_[idx].getStaid()==id){
+        if(pointingVectorsStart_[idx].getStaid()==id){
             return idx;
         }
     }
@@ -475,7 +475,7 @@ boost::optional<unsigned long> Scan::findIdxOfStationId(unsigned long id) const 
 vector<unsigned long> Scan::getStationIds() const noexcept {
     vector<unsigned long> ids;
     for (int i = 0; i < nsta_; ++i) {
-        ids.push_back(pointingVectors_[i].getStaid());
+        ids.push_back(pointingVectorsStart_[i].getStaid());
     }
 
     return std::move(ids);
@@ -504,7 +504,7 @@ double Scan::calcScore_averageStations(const vector<double> &astas, unsigned lon
     double finalScore = 0;
     unsigned long nMaxStaPossible = nMaxSta-1;
 
-    for(const auto &pv:pointingVectors_){
+    for(const auto &pv:pointingVectorsStart_){
         unsigned long staid = pv.getStaid();
         unsigned long nObs = getNObs(staid);
         finalScore += astas[staid] * nObs / nMaxStaPossible;
@@ -545,7 +545,7 @@ double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) cons
 
 double Scan::calcScore_lowElevation() {
     double score = 0;
-    for (const auto &pv:pointingVectors_) {
+    for (const auto &pv:pointingVectorsStart_) {
         double el = pv.getEl();
         double f = 0;
         if (el > WeightFactors::lowElevationStartWeight) {
@@ -610,7 +610,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
     // loop through all stations
     int ista = 0;
     while (ista < nsta_) {
-        PointingVector &pv = pointingVectors_[ista];
+        PointingVector &pv = pointingVectorsStart_[ista];
         unsigned int slewStart = times_.getSlewStart(ista);
         const Station &thisStation = network.getStation(pv.getStaid());
 
@@ -740,7 +740,7 @@ bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &
 
 bool Scan::rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept{
 
-    pointingVectorsEndtime_.clear();
+    pointingVectorsEnd_.clear();
 
     // loop over all stations
     int ista = 0;
@@ -749,7 +749,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
         // get all required members
         unsigned int scanStart = times_.getObservingStart(ista);
         unsigned int scanEnd = times_.getObservingEnd(ista);
-        PointingVector &pv = pointingVectors_[ista];
+        PointingVector &pv = pointingVectorsStart_[ista];
         const Station &thisStation = network.getStation(pv.getStaid());
 
         // create moving pointing vector which is used to check visibility during scan
@@ -782,7 +782,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
             }
 
             if (time == scanStart) {
-                pointingVectors_[ista].copyValuesFromOtherPv(moving_pv);
+                pointingVectorsStart_[ista].copyValuesFromOtherPv(moving_pv);
             }
         }
 
@@ -807,7 +807,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
         }
 
         // save pointing vector for end time
-        pointingVectorsEndtime_.push_back(moving_pv);
+        pointingVectorsEnd_.push_back(moving_pv);
         ++ista;
     }
 
@@ -823,7 +823,7 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
 
     for(int idxSta=0; idxSta<nsta_; ++idxSta){
         // start position for slewing
-        const PointingVector &slewStart = pointingVectorsEndtime_[idxSta];
+        const PointingVector &slewStart = pointingVectorsEnd_[idxSta];
 
         // get station
         unsigned long staid = slewStart.getStaid();
@@ -862,8 +862,8 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
 void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
                               const std::vector<Observation> &observations,
                               unsigned int slewtime, const Station &station) {
-    pointingVectors_.push_back(pv_start);
-    pointingVectorsEndtime_.push_back(pv_end);
+    pointingVectorsStart_.push_back(pv_start);
+    pointingVectorsEnd_.push_back(pv_end);
     ++nsta_;
     for(auto &any:observations){
         observations_.push_back(any);
@@ -980,7 +980,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += network.calcScore_skyCoverage(pointingVectors_) * weight_skyCoverage;
+        this_score += network.calcScore_skyCoverage(pointingVectorsStart_) * weight_skyCoverage;
     }
 
     score_ = calcScore_secondPart(this_score,network,source);
@@ -996,7 +996,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += network.calcScore_skyCoverage(pointingVectors_,staids2skyCoverageScore) * weight_skyCoverage;
+        this_score += network.calcScore_skyCoverage(pointingVectorsStart_,staids2skyCoverageScore) * weight_skyCoverage;
     }
 
     score_ = calcScore_secondPart(this_score, network, source);
@@ -1012,7 +1012,7 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
-        this_score += network.calcScore_skyCoverage_subnetting(pointingVectors_,staids2skyCoverageScore)
+        this_score += network.calcScore_skyCoverage_subnetting(pointingVectorsStart_,staids2skyCoverageScore)
                       * weight_skyCoverage;
     }
 
@@ -1044,7 +1044,7 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 
     int i=0;
     while( i<nsta_ ){
-        const PointingVector &pv = pointingVectors_[i];
+        const PointingVector &pv = pointingVectorsStart_[i];
         unsigned long staid = pv.getStaid();
         double el = pv.getEl();
 
@@ -1120,8 +1120,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
        % type % type2 %getId();
 
     for(int i=0; i<nsta_; ++i){
-        const PointingVector &pv = pointingVectors_[i];
-        const PointingVector &pve = pointingVectorsEndtime_[i];
+        const PointingVector &pv = pointingVectorsStart_[i];
+        const PointingVector &pve = pointingVectorsEnd_[i];
         const Station &thisSta = network.getStation(pv.getStaid());
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
@@ -1144,10 +1144,10 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
 
     int counter = 0;
     // add all found pointing vectors to new pointing vector vector
-    for (auto &any:pointingVectors_) {
+    for (auto &any:pointingVectorsStart_) {
         unsigned long id = any.getStaid();
         if (find(ids.begin(), ids.end(), id) != ids.end()) {
-            pv.push_back(pointingVectors_[counter]);
+            pv.push_back(pointingVectorsStart_[counter]);
         }
         ++counter;
     }
@@ -1166,9 +1166,9 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
         }
     }
 
-    // remove times of pointingVectors_(original scan) which are not found (not part of pv)
+    // remove times of pointingVectorsStart_(original scan) which are not found (not part of pv)
     for (auto i = static_cast<int>(nsta_ - 1); i >= 0; --i) {
-        unsigned long thisId = pointingVectors_[i].getStaid();
+        unsigned long thisId = pointingVectorsStart_[i].getStaid();
         if (find(ids.begin(), ids.end(), thisId) == ids.end()) {
             t.removeElement(i);
         }
@@ -1195,7 +1195,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
 
 double Scan::weight_stations(const std::vector<Station> &stations) {
     double weight = 1;
-    for (const auto &any:pointingVectors_) {
+    for (const auto &any:pointingVectorsStart_) {
         weight *= stations[any.getStaid()].getPARA().weight;
     }
 
@@ -1230,15 +1230,15 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
 }
 
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
-    pointingVectorsEndtime_ = std::move(pv_end);
+    pointingVectorsEnd_ = std::move(pv_end);
 }
 
 void Scan::createDummyObservations(const Network &network) {
     for(int i=0; i<nsta_; ++i) {
-        unsigned long staid1 = pointingVectors_[i].getStaid();
+        unsigned long staid1 = pointingVectorsStart_[i].getStaid();
         unsigned int dur1 = times_.getObservingTime(i);
         for (int j = i + 1; j < nsta_; ++j) {
-            unsigned long staid2 = pointingVectors_[j].getStaid();
+            unsigned long staid2 = pointingVectorsStart_[j].getStaid();
             unsigned int dur2 = times_.getObservingTime(j);
 
             unsigned int dur = std::max(dur1, dur2);
@@ -1260,105 +1260,55 @@ unsigned long Scan::getNObs(unsigned long staid) const noexcept {
     return n;
 }
 
-void Scan::setPointingVectorEnd(int idx, PointingVector pv) {
-    times_.setObservationEnd(idx,pv.getTime());
-    pointingVectorsEndtime_[idx] = move(pv);
-}
-
-void Scan::setPointingVectorStart(int idx, PointingVector pv) {
-    times_.setObservationStart(idx,pv.getTime());
-    pointingVectors_[idx] = move(pv);
-}
-
-void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log) {
-
-    // remove from scan end
-    {
-        int idx = times_.removeUnnecessaryObservingTimeEnd();
-        unsigned int t = times_.getObservingEnd(idx);
-        PointingVector &pv = pointingVectorsEndtime_[idx];
-        double az = pv.getAz();
-        pv.setTime(t);
-        unsigned long staid = pv.getStaid();
-        const Station &thisSta = network.getStation(staid);
-        thisSta.calcAzEl(thisSource, pv);
-        thisSta.getCableWrap().unwrapAzNearAz(pv, az);
-        bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
-        if(!visible){
-            log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
-                    % thisSource.getName()
-                    % thisSta.getName()
-                    %TimeSystem::internalTime2timeString(t)).str();
+void Scan::setPointingVector(int idx, PointingVector pv, Timestamp ts) {
+    times_.setObservation(idx, pv.getTime(), ts);
+    switch (ts){
+        case Timestamp::start:{
+            pointingVectorsStart_[idx] = move(pv);
+            break;
+        }
+        case Timestamp::end:{
+            pointingVectorsEnd_[idx] = move(pv);
+            break;
         }
     }
+}
 
-    // remove from scan start
-    {
-        int idx = times_.removeUnnecessaryObservingTimeStart();
-        unsigned int t = times_.getObservingStart(idx);
-        PointingVector &pv = pointingVectors_[idx];
-        double az = pv.getAz();
-        pv.setTime(t);
-        unsigned long staid = pv.getStaid();
-        const Station &thisSta = network.getStation(staid);
-        thisSta.calcAzEl(thisSource, pv);
-        thisSta.getCableWrap().unwrapAzNearAz(pv, az);
-        bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
-        if(!visible){
-            log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
-                    % thisSource.getName()
-                    % thisSta.getName()
-                    %TimeSystem::internalTime2timeString(t)).str();
-        }
+void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log, Timestamp ts) {
+
+     int idx = times_.removeUnnecessaryObservingTime(ts);
+    unsigned int t = times_.getObservingTime(idx, ts);
+    PointingVector &pv = referencePointingVector(idx, ts);
+    double az = pv.getAz();
+    pv.setTime(t);
+    unsigned long staid = pv.getStaid();
+    const Station &thisSta = network.getStation(staid);
+    thisSta.calcAzEl(thisSource, pv);
+    thisSta.getCableWrap().unwrapAzNearAz(pv, az);
+    bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
+    if(!visible){
+        log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                % thisSource.getName()
+                % thisSta.getName()
+                %TimeSystem::internalTime2timeString(t)).str();
     }
-
-
 }
 
 
-void Scan::removeAdditionalObservingTimeEnd(unsigned int maxObsTime, const Station &station, const Source &thisSource,
-                                            std::ofstream &log){
+void Scan::removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
+                                         std::ofstream &log, Timestamp ts){
+
     unsigned long staid = station.getId();
     auto oidx = findIdxOfStationId(staid);
 
     if(oidx.is_initialized()){
         auto idx = static_cast<int>(oidx.get());
 
-        bool reduced = times_.reduceObservingTimeEnd(idx, maxObsTime);
+        bool reduced = times_.reduceObservingTime(idx, time, ts);
 
         if(reduced){
-            unsigned int t = times_.getObservingEnd(idx);
-            PointingVector &pv = pointingVectorsEndtime_[idx];
-            double az = pv.getAz();
-            pv.setTime(t);
-            station.calcAzEl(thisSource, pv);
-            station.getCableWrap().unwrapAzNearAz(pv, az);
-
-            bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
-
-            if(!visible){
-                log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
-                        % thisSource.getName()
-                        % station.getName()
-                        %TimeSystem::internalTime2timeString(t)).str();
-            }
-        }
-    }
-}
-
-void Scan::removeAdditionalObservingTimeStart(unsigned int minObsTime, const Station &station, const Source &thisSource,
-                                             std::ofstream &log){
-    unsigned long staid = station.getId();
-    auto oidx = findIdxOfStationId(staid);
-
-    if(oidx.is_initialized()){
-        auto idx = static_cast<int>(oidx.get());
-
-        bool reduced = times_.reduceObservingTimeStart(idx, minObsTime);
-
-        if(reduced){
-            unsigned int t = times_.getObservingStart(idx);
-            PointingVector &pv = pointingVectors_[idx];
+            unsigned int t = times_.getObservingTime(idx, ts);
+            PointingVector &pv = referencePointingVector(idx, ts);
             double az = pv.getAz();
             pv.setTime(t);
             station.calcAzEl(thisSource, pv);

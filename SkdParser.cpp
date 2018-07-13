@@ -308,7 +308,7 @@ void SkdParser::copyScanMembersToObjects() {
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);
             unsigned long staid = pv.getStaid();
-            const PointingVector &pv_end = scan.getPointingVector_endtime(i);
+            const PointingVector &pv_end = scan.getPointingVector(i, Timestamp::end);
             unsigned long nObs = scan.getNObs(staid);
             network_.update(nObs, pv_end);
         }
