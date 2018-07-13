@@ -282,7 +282,7 @@ void Scheduler::start() noexcept {
 
     // check if there was an error during the session
     if (!checkAndStatistics(bodyLog)) {
-        cout << boost::format("%s iteration %d ERROR: there was an error while checking the schedule (see log file);\n")
+        cout << boost::format("ERROR: %s iteration %d while checking the schedule (see log file);\n")
                 % getName() %(parameters_.currentIteration);
     }
 
@@ -2020,9 +2020,78 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
     sortSchedule(Timestamp::start);
 
+    resetAllEvents(bodyLog);
     // remove unnecessary observing times
     for(auto &thisScan : scans_){
         const Source &thisSource = sources_[thisScan.getSourceId()];
+
+        // loop over all stations and check for down times
+        for(int staidx = 0; staidx<thisScan.getNSta(); ++staidx){
+            unsigned long staid = thisScan.getStationId(staidx);
+            Station &thisSta = network_.refStation(staid);
+            bool dummy;
+
+            // change event to time of scan
+            switch (ts) {
+                case Timestamp::start: {
+                    thisSta.checkForNewEvent(thisScan.getPointingVector(staidx, Timestamp::end).getTime(), dummy);
+                    break;
+                }
+                case Timestamp::end: {
+                    thisSta.checkForNewEvent(thisScan.getPointingVector(staidx, Timestamp::start).getTime(), dummy);
+                    break;
+                }
+            }
+
+            // look for maximum allowed time before/after current event time
+            unsigned int maximum = thisSta.maximumAllowedObservingTime(ts);
+
+
+            // check if it is necessary to adjust observing time
+            const PointingVector &pv1 = thisScan.getPointingVector(staidx, ts);
+            bool changeToMaximum = false;
+            switch (ts){
+                case Timestamp::start:{
+                    if(pv1.getTime() < maximum){
+                        changeToMaximum = true;
+                    }
+                    break;
+                }
+                case Timestamp::end:{
+                    if(pv1.getTime() > maximum){
+                        changeToMaximum = true;
+                    }
+                    break;
+                }
+            }
+
+            // adjust observing time
+            if(changeToMaximum){
+                PointingVector variable(pv1);
+                variable.setId(pv1.getId());
+                variable.setTime(maximum);
+                thisSta.calcAzEl(thisSource,variable);
+                thisSta.getCableWrap().calcUnwrappedAz(pv1, variable);
+                bool valid = true;
+                // check if cable wrap changes
+                if( abs(pv1.getAz() - variable.getAz()) > pi/2){
+                    valid = false;
+                }
+                // check if azimuth and elevation is visible
+                if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                    valid = false;
+                }
+                thisScan.setPointingVector(staidx, move(variable), ts);
+                if(!valid){
+                    bodyLog << (boost::format("ERROR while extending observing time to idle time:\n    "
+                                              "source %s might not be visible from %s during %s. ")
+                                % thisSource.getName()
+                                % thisSta.getName()
+                                %TimeSystem::internalTime2timeString(maximum)).str();
+                }
+            }
+        }
+
         thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog, ts);
     }
 

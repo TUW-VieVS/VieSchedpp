@@ -1287,7 +1287,8 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
     thisSta.getCableWrap().unwrapAzNearAz(pv, az);
     bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
     if(!visible){
-        log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+        log << (boost::format("ERROR while extending observing time to idle time:\n    "
+                              "source %s might not be visible from %s during %s. ")
                 % thisSource.getName()
                 % thisSta.getName()
                 %TimeSystem::internalTime2timeString(t)).str();
@@ -1317,7 +1318,8 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &stati
             bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
 
             if(!visible){
-                log << (boost::format("ERROR while extending observing time to idle time:\n    source %s might not be visible from %s during %s. ")
+                log << (boost::format("ERROR while extending observing time to idle time:\n    "
+                                      "source %s might not be visible from %s during %s. ")
                         % thisSource.getName()
                         % station.getName()
                         %TimeSystem::internalTime2timeString(t)).str();

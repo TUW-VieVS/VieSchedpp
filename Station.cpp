@@ -274,9 +274,7 @@ bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
 }
 
 unsigned int Station::maximumAllowedObservingTime(Timestamp ts) const noexcept {
-
     switch (ts){
-
         case Timestamp::start:{
             int tmp = static_cast<int>(nextEvent_)-2; // -1 would be current parameters and -2 are previous parameters
             while (tmp >= 0) {
@@ -287,7 +285,6 @@ unsigned int Station::maximumAllowedObservingTime(Timestamp ts) const noexcept {
             }
             return 0;
         }
-
         case Timestamp::end:{
             unsigned int tmp = nextEvent_;
             while (tmp < events_->size()) {

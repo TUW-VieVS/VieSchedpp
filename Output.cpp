@@ -263,7 +263,7 @@ void Output::displayNstaStatistics(std::ofstream &out) {
 
 void Output::displayScanDurationStatistics(ofstream &out) {
     unsigned long nsta = network_.getNSta();
-    out << "required scan durations:\n";
+    out << "scan observing durations:\n";
     vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
     vector< unsigned int> maxScanDurations;
 
@@ -318,7 +318,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
     }
     out << "\n";
 
-    out << "scan length:\n";
+    out << "required scan length:\n";
     out << ".----------------------------------------------------------------------------------------------.\n";
     out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
     out << "|-------------------|---------------------------------------------------------|----------------|\n";
