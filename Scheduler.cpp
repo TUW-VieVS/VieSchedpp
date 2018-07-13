@@ -1492,7 +1492,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                 for(int idx=0; idx<nThisSta; ++idx){
                     unsigned long staid = staids[idx];
                     const Station &sta = network_.getStation(staid);
-                    unsigned int maxObsTime = sta.getMaximumPossibleObservingTime();
+                    unsigned int maxObsTime = sta.maximumAllowedObservingTime(Timestamp::end);
                     thisScan.removeAdditionalObservingTime(maxObsTime, sta, thisSource, bodyLog, Timestamp::end);
                 }
 
@@ -1692,7 +1692,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                 for(int idx=0; idx<nThisSta; ++idx){
                     unsigned long staid = staids[idx];
                     const Station &sta = network_.getStation(staid);
-                    unsigned int minObsTime = sta.getMinimumPossibleObservingTime();
+                    unsigned int minObsTime = sta.maximumAllowedObservingTime(Timestamp::start);
                     thisScan.removeAdditionalObservingTime(minObsTime, sta, thisSource, bodyLog, Timestamp::start);
                 }
 
@@ -1838,8 +1838,8 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             auto &scan2 = scans_[iscan2];
 
             // get indices
-            int staidx1 = static_cast<int>(*scan1.findIdxOfStationId(staid));
-            int staidx2 = static_cast<int>(*scan2.findIdxOfStationId(staid));
+            auto staidx1 = static_cast<int>(*scan1.findIdxOfStationId(staid));
+            auto staidx2 = static_cast<int>(*scan2.findIdxOfStationId(staid));
 
             // get pointing vectors
             const PointingVector &pv1 = scan1.getPointingVector(staidx1, Timestamp::end);
@@ -1988,7 +1988,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
                 // skip scan if it does not contain this station
                 if(oidx.is_initialized()){
-                    int staidx1 = static_cast<int>(*oidx);
+                    auto staidx1 = static_cast<int>(*oidx);
 
                     const Source &thisSource = sources_[lastScan.getSourceId()];
                     const PointingVector &pv1 = lastScan.getPointingVector(staidx1, Timestamp::end);
@@ -2085,7 +2085,8 @@ void Scheduler::sortSchedule(Timestamp ts) {
                 return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
             });
 
-            break;}
+            break;
+        }
         case Timestamp::end:{
             stable_sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
                 return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
@@ -2132,7 +2133,8 @@ void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
             });
 
 
-            break;}
+            break;
+        }
         case Timestamp::end:{
             stable_sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
 
