@@ -262,7 +262,22 @@ void Scheduler::start() noexcept {
     }
 
     if(parameters_.idleToObservingTime){
-        idleToScanTime(ScanTimes::getAlignmentAnchor(), bodyLog);
+        switch (ScanTimes::getAlignmentAnchor()){
+
+            case ScanTimes::AlignmentAnchor::start:{
+                idleToScanTime(Timestamp::end,bodyLog);
+                break;
+            }
+            case ScanTimes::AlignmentAnchor::end:{
+                idleToScanTime(Timestamp::start,bodyLog);
+                break;
+            }
+            case ScanTimes::AlignmentAnchor::individual:{
+                idleToScanTime(Timestamp::end,bodyLog);
+                idleToScanTime(Timestamp::start,bodyLog);
+                break;
+            }
+        }
     }
 
     // check if there was an error during the session
@@ -1733,18 +1748,262 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
     }
 }
 
+void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
+
+    // hard copy previouse observing times
+    map<unsigned long, ScanTimes> oldScanTimes;
+
+    for(const auto &scan : scans_){
+        oldScanTimes.insert({scan.getId(), scan.getTimes()});
+    }
+
+
+    for(const auto &thisSta : network_.getStations()){
+
+        // reset all events
+        resetAllEvents(bodyLog);
+        unsigned long staid = thisSta.getId();
+
+        // sort schedule based on this station
+        sortSchedule(staid);
+
+        // loop over all scans
+        for(int iscan1 = 0; iscan1<scans_.size(); ++iscan1){
+
+            // get scan1
+            auto &scan1 = scans_[iscan1];
+
+            // skip scan if it does not contain this station
+            if(!scan1.findIdxOfStationId(staid).is_initialized()){
+                continue;
+            }
+
+            // check for new events
+            checkForNewEvents(scan1.getTimes().getScanStart(), true, bodyLog);
+
+            // look for index of next scan with this station
+            int iscan2 = iscan1+1;
+            while(iscan2 < scans_.size() && !scans_[iscan2].findIdxOfStationId(staid).is_initialized()){
+                ++iscan2;
+            }
+
+            // continue with next station if end of schedule is reached
+            if(iscan2 == scans_.size()){
+                continue;
+            }
+
+            // get scan2
+            auto &scan2 = scans_[iscan2];
+
+            // get indices
+            int staidx1 = static_cast<int>(*scan1.findIdxOfStationId(staid));
+            int staidx2 = static_cast<int>(*scan2.findIdxOfStationId(staid));
+
+            // get pointing vectors
+            const PointingVector &pv1 = scan1.getPointingVector(staidx1, Timestamp::end);
+            const PointingVector &pv2 = scan2.getPointingVector(staidx2, Timestamp::start);
+
+            // get times
+            unsigned int availableTime = pv2.getTime()-pv1.getTime();
+            unsigned int prevSlewTime = thisSta.getAntenna().slewTime(pv1,pv2);
+            unsigned int fsTime = thisSta.getWaittimes().fieldSystem;
+            unsigned int preobTime = thisSta.getWaittimes().preob;
+
+            // avoid rounding errors
+            if( availableTime < prevSlewTime-fsTime-preobTime ){
+                continue;
+            }
+
+            // calc idle time
+            unsigned int idleTime = availableTime-prevSlewTime-fsTime-preobTime;
+            if(idleTime == 0){
+                continue;
+            }
+
+            // if ts == end: time will be added after pv1
+            PointingVector ref = scan1.getPointingVector(staidx1, Timestamp::end);
+            unsigned int variableStartTime = pv1.getTime() + idleTime;
+            // if ts == start: time will be added before pv2
+            if(ts == Timestamp::start){
+                ref = scan2.getPointingVector(staidx2, Timestamp::start);
+                variableStartTime = pv2.getTime() - idleTime;
+            }
+
+            const auto &thisSource = sources_[ref.getSrcid()];
+
+            PointingVector variable(ref);
+            variable.setId(ref.getId());
+
+            // set new time for variable
+            variable.setTime(variableStartTime);
+
+            // calc new azimuth and elevation
+            thisSta.calcAzEl(thisSource, variable);
+
+            // unwrap cable wrap near reference pointing vector
+            thisSta.getCableWrap().calcUnwrappedAz(ref, variable);
+
+            // check if cable wrap changes
+            if( abs(ref.getAz() - variable.getAz()) > pi/2){
+                continue;
+            }
+
+            // check if azimuth and elevation is visible
+            if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                continue;
+            }
+
+            // calc new slew time
+            unsigned int slewTime;
+            switch (ts){
+                case Timestamp::start:{
+                    slewTime = thisSta.getAntenna().slewTime(pv1,variable);
+                    break;
+                }
+                case Timestamp::end:{
+                    slewTime = thisSta.getAntenna().slewTime(variable,pv2);
+                    break;
+                }
+            }
+
+            // iteratively adjust new idle time and new slew time until it is equal to previouse slew time
+            // we also allow 1 second offset (1 sec additional idle time) as a live saver
+            int offset = 0;
+            bool valid = true;
+            while(slewTime + offset != prevSlewTime && slewTime + offset != prevSlewTime-1){
+                offset = prevSlewTime - slewTime;
+
+                switch (ts){
+                    case Timestamp::start:{
+                        variable.setTime(variableStartTime - offset);
+                        break;
+                    }
+                    case Timestamp::end:{
+                        variable.setTime(variableStartTime + offset);
+                        break;
+                    }
+                }
+
+                thisSta.calcAzEl(thisSource,variable);
+                thisSta.getCableWrap().calcUnwrappedAz(ref, variable);
+
+                // check if cable wrap changes
+                if( abs(ref.getAz() - variable.getAz()) > pi/2){
+                    valid = false;
+                    break;
+                }
+
+                // check if azimuth and elevation is visible
+                if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
+                    valid = false;
+                    break;
+                }
+
+                // get new slewtime
+                switch (ts){
+                    case Timestamp::start:{
+                        slewTime = thisSta.getAntenna().slewTime(pv1,variable);
+                        break;
+                    }
+                    case Timestamp::end:{
+                        slewTime = thisSta.getAntenna().slewTime(variable,pv2);
+                        break;
+                    }
+                }
+            }
+
+            // continue if source is still visible
+            if(!valid){
+                continue;
+            }
+
+            // if scan time would be reduced skip station!
+            if(offset + static_cast<int>(idleTime) < 0){
+                continue;
+            }
+
+            // adjust observing times
+            switch (ts){
+                case Timestamp::start:{
+                    scan2.setPointingVector(staidx2, move(variable), Timestamp::start);
+                    break;
+                }
+                case Timestamp::end:{
+                    scan1.setPointingVector(staidx1, move(variable), Timestamp::end);
+                    break;
+                }
+            }
+        }
+    }
+
+    sortSchedule(Timestamp::start);
+
+    // remove unnecessary observing times
+    for(auto &thisScan : scans_){
+        const Source &thisSource = sources_[thisScan.getSourceId()];
+        thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog, ts);
+    }
+
+
+    // output
+    for(int iscan=0; iscan<scans_.size(); ++iscan){
+
+        const Scan &scan = scans_[iscan];
+        const ScanTimes &copyOfScanTimes = oldScanTimes.at(scan.getId());
+        const Source &source = sources_[scan.getSourceId()];
+
+        // check if output is required
+        bool change = false;
+        for(int i=0; i<scan.getNSta(); ++i) {
+            unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
+            unsigned int newObservingTime = scan.getTimes().getObservingTime(i);
+            if(oldObservingTime != newObservingTime){
+                change = true;
+                break;
+            }
+        }
+
+        // output if there was a change
+        if(change){
+            bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % scan.getId() % source.getName();
+            for(int i=0; i<scan.getNSta(); ++i){
+                unsigned long staid = scan.getStationId(i);
+                unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
+                unsigned int newObservingTime = scan.getTimes().getObservingTime(i);
+                if(oldObservingTime == newObservingTime){
+                    continue;
+                }
+
+                string id = scan.getPointingVector(i, ts).printId();
+
+                bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
+                            % network_.getStation(staid).getName()
+                            %(static_cast<int>(newObservingTime-oldObservingTime))
+                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingStart(i))
+                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingEnd(i))
+                            % newObservingTime
+                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
+                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
+                            % oldObservingTime
+                            % id).str();
+            }
+        }
+    }
+}
+
+
 void Scheduler::sortSchedule(Timestamp ts) {
     switch (ts){
 
         case Timestamp::start:{
-            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+            stable_sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
                 return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
             });
 
             break;}
         case Timestamp::end:{
-            sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-                return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+            stable_sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
+                return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
             });
 
             break;
@@ -1759,7 +2018,7 @@ void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
     switch (ts){
 
         case Timestamp::start:{
-            sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+            stable_sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
                 boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
                 if(!idx1.is_initialized()){
                     return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
@@ -1777,18 +2036,18 @@ void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
 
             break;}
         case Timestamp::end:{
-            sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+            stable_sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
                 boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
                 if(!idx1.is_initialized()){
-                    return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+                    return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
                 }
 
                 boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
                 if(!idx2.is_initialized()){
-                    return scan1.getTimes().getObservingStart() > scan2.getTimes().getObservingStart();
+                    return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
                 }
 
-                return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) > scan2.getTimes().getObservingStart(
+                return scan1.getTimes().getObservingEnd(static_cast<int>(*idx1)) < scan2.getTimes().getObservingEnd(
                         static_cast<int>(*idx2));
             });
 
