@@ -126,9 +126,9 @@ namespace VieVS {
         /**
          * @brief creates all selected stations from sked catalogs
          *
-         * @param headerLog outstream to log file
+         * @param of outstream to log file
          */
-        void createStations(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createStations(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
          * @brief initializes all stations with settings from .xml file
@@ -140,9 +140,9 @@ namespace VieVS {
         /**
          * @brief creates all possible sources from sked catalogs
          *
-         * @param headerLog outstream to log file
+         * @param of outstream to log file
          */
-        void createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void createSources(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
          * @brief initializes all sources with settings from .xml file
@@ -152,9 +152,9 @@ namespace VieVS {
         /**
          * @brief initializes general block in .xml file
          *
-         * @param headerLog outstream to log file
+         * @param of outstream to log file
          */
-        void initializeGeneral(std::ofstream &headerLog) noexcept;
+        void initializeGeneral(std::ofstream &of) noexcept;
 
 
         void initializeAstronomicalParameteres() noexcept ;
@@ -174,7 +174,7 @@ namespace VieVS {
         /**
          * @brief reads the observing mode information from xml file
          */
-        void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept;
+        void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the .xml file
@@ -204,17 +204,17 @@ namespace VieVS {
          */
         std::vector<MultiScheduling::Parameters> readMultiSched(std::ostream &out);
 
-        void initializeCalibrationBlocks(std::ofstream &headerLog);
+        void initializeCalibrationBlocks(std::ofstream &of);
 
         #ifdef _OPENMP
         void initializeMultiCore(int& nThreads, std::string & jobScheduling, int& chunkSize, std::string & threadPlace);
         #endif
 
-        void statisticsLogHeader(std::ofstream &ofstream);
+        void statisticsLogHeader(std::ofstream &of);
 
-        void initializeOptimization(std::ofstream &ofstream);
+        void initializeOptimization(std::ofstream &of);
 
-        void initializeHighImpactScanDescriptor(std::ofstream &ofstream);
+        void initializeHighImpactScanDescriptor(std::ofstream &of);
 
     private:
         static unsigned long nextId;

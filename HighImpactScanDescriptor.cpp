@@ -189,6 +189,6 @@ bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const
     });
 }
 
-void HighImpactScanDescriptor::updateLogfile(std::ofstream &bodyLog) {
-    bodyLog << "*   depth 0 considered: single Scans " << highImpactScans_.getNumberSingleScans() << " subnetting scans " << highImpactScans_.getNumberSubnettingScans() << "\n*\n";
+void HighImpactScanDescriptor::updateLogfile(std::ofstream &of) {
+    of << "*   depth 0 considered: single Scans " << highImpactScans_.getNumberSingleScans() << " subnetting scans " << highImpactScans_.getNumberSubnettingScans() << "\n*\n";
 }

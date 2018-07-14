@@ -366,9 +366,9 @@ namespace VieVS{
         /**
          * @brief changes parameters to next setup
          *
-         * @param out output stream object
+         * @param of output stream object
          */
-        void applyNextEvent(std::ofstream & out) noexcept;
+        void applyNextEvent(std::ofstream & of) noexcept;
 
         void setNextEvent(unsigned int idx) noexcept{
             nextEvent_ = idx;

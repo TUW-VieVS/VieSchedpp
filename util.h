@@ -67,7 +67,7 @@ namespace VieVS::util{
         return false;
     }
 
-    void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &log);
+    void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of);
 
 
 }

@@ -308,14 +308,14 @@ bool Station::checkForTagalongMode(unsigned int time) const noexcept{
     return false;
 }
 
-void Station::applyNextEvent(std::ofstream &out) noexcept{
+void Station::applyNextEvent(std::ofstream &of) noexcept{
     unsigned int nextEventTimes = events_->at(nextEvent_).time;
     while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= nextEventTimes) {
         parameters_ = events_->at(nextEvent_).PARA;
 
-        out << "###############################################\n";
-        out << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
-        out << "###############################################\n";
+        of << "###############################################\n";
+        of << "## changing parameters for station: " << boost::format("%8s") % getName() << " ##\n";
+        of << "###############################################\n";
         nextEvent_++;
     }
 

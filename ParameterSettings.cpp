@@ -884,11 +884,11 @@ void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, 
 
 
 void ParameterSettings::write(const std::string &name) {
-    std::ofstream os;
-    os.open(name);
-    boost::property_tree::xml_parser::write_xml(os, master_,
+    std::ofstream of;
+    of.open(name);
+    boost::property_tree::xml_parser::write_xml(of, master_,
                                                 boost::property_tree::xml_writer_make_settings<string>('\t', 1));
-    os.close();
+    of.close();
 }
 
 void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree) {

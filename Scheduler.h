@@ -100,29 +100,29 @@ namespace VieVS{
          * @brief updates the selected next scans to the schedule
          *
          * @param scan best possible next scans
-         * @param bodyLog outstream file object
+         * @param of outstream file object
          */
-        void update(Scan &scan, std::ofstream &bodyLog) noexcept;
+        void update(Scan &scan, std::ofstream &of) noexcept;
 
         /**
          * @brief updates and prints the number of all considered scans
          *
          * @param n1scans number of single source scans
          * @param n2scans number of subnetting scans
-         * @param bodyLog outstream file object
+         * @param of outstream file object
          */
-        void consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &bodyLog) noexcept;
+        void consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &of) noexcept;
 
-        void statistics(std::ofstream &ofstream);
+        void statistics(std::ofstream &of);
 
-        void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &bodyLog);
+        void highImpactScans(HighImpactScanDescriptor &himp, std::ofstream &of);
 
         /**
          * @brief checks the schedule with an independend methode
          *
-         * @param bodyLog outstream file object
+         * @param of outstream file object
          */
-        bool checkAndStatistics(std::ofstream &bodyLog) noexcept;
+        bool checkAndStatistics(std::ofstream &of) noexcept;
 
     private:
         static unsigned long nextId;
@@ -144,7 +144,7 @@ namespace VieVS{
         boost::optional<HighImpactScanDescriptor> himp_;
         boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
-        void startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
+        void startScanSelection(unsigned int endTime, std::ofstream &of, Scan::ScanType type,
                                 boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
                                 int depth);
 
@@ -154,37 +154,37 @@ namespace VieVS{
          *
          * @param time current time in seconds since start
          * @param output flag if output to log file is required
-         * @param bodyLog outstream file object
+         * @param of outstream file object
          * @return true if a hard break was found
          */
-        bool checkForNewEvents(unsigned int time, bool output, std::ofstream &bodyLog) noexcept;
+        bool checkForNewEvents(unsigned int time, bool output, std::ofstream &of) noexcept;
 
         /**
          * @brief calculates number of available sources
          *
          * @return number of available sources
          */
-        void listSourceOverview(std::ofstream &log) noexcept;
+        void listSourceOverview(std::ofstream &of) noexcept;
 
 
-        void startCalibrationBlock(std::ofstream &bodyLog);
+        void startCalibrationBlock(std::ofstream &of);
 
-        void startTagelongMode(Station &station, std::ofstream &bodyLog);
+        void startTagelongMode(Station &station, std::ofstream &of);
 
         bool checkOptimizationConditions(std::ofstream &of);
 
         void changeStationAvailability(const boost::optional<StationEndposition> &endposition,
                                    StationEndposition::change change);
 
-        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type, bool output=false, bool ignoreTagalong=false);
+        void startScanSelectionBetweenScans(unsigned int duration, std::ofstream &of, Scan::ScanType type, bool output=false, bool ignoreTagalong=false);
 
-        void resetAllEvents(std::ofstream &bodyLog);
+        void resetAllEvents(std::ofstream &of);
 
         void ignoreTagalongParameter();
 
-        void idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &bodyLog);
+        void idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &of);
 
-        void idleToScanTime(Timestamp ts, std::ofstream &bodyLog);
+        void idleToScanTime(Timestamp ts, std::ofstream &of);
 
         void sortSchedule(Timestamp ts = Timestamp::start);
 

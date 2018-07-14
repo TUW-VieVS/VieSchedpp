@@ -168,7 +168,6 @@ void Source::clearObservations() {
     nBaselines_ = 0;
 
     bool hardBreak = false;
-    ofstream dummy;
     nextEvent_ = 0;
     checkForNewEvent(0, hardBreak);
 }

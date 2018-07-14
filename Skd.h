@@ -41,7 +41,7 @@ namespace VieVS {
          * @brief write skd $PARAM block
          *
          * @param skdCatalogReader catalog reader
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,
                        const SkdCatalogReader &skdCatalogReader);
@@ -49,14 +49,14 @@ namespace VieVS {
         /**
          * @brief write skd $OP block
          *
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_OP();
 
         /**
          * @brief write skd $DOWNTIME block
          *
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_DOWNTIME();
 
@@ -64,7 +64,7 @@ namespace VieVS {
          * @brief write skd $MAJOR block
          *
          * @param skdCatalogReader catalog reader
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_MAJOR(const std::vector<Station> &stations, const std::vector<Source> &sources,
                        const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader);
@@ -72,14 +72,14 @@ namespace VieVS {
         /**
          * @brief write skd $MINOR block
          *
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_MINOR();
 
         /**
          * @brief write skd $ASTROMETRIC block
          *
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_ASTROMETRIC();
 
@@ -107,7 +107,7 @@ namespace VieVS {
         /**
          * @brief write skd $BROADBAND block
          *
-         * @param ofstream out stream
+         * @param of out stream
          */
         void skd_BROADBAND();
 

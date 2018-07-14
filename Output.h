@@ -54,7 +54,7 @@ namespace VieVS{
          */
         void writeSkdsum();
 
-        void writeStatistics(std::ofstream &statisticsLog);
+        void writeStatistics(std::ofstream &of);
 
         /**
          * @brief create a ngs file
@@ -76,7 +76,7 @@ namespace VieVS{
 
         void writeStatisticsPerSourceGroup();
 
-        void createAllOutputFiles(std::ofstream& statisticsLog, const SkdCatalogReader &skdCatalogReader);
+        void createAllOutputFiles(std::ofstream& of, const SkdCatalogReader &skdCatalogReader);
 
     private:
         static unsigned long nextId;
@@ -93,48 +93,48 @@ namespace VieVS{
         /**
          * @brief displays some general statistics of the schedule
          *
-         * @param out outsteam file object
+         * @param of outsteam file object
          * @return vector of statistical values
          */
-        void displayGeneralStatistics(std::ofstream &out);
+        void displayGeneralStatistics(std::ofstream &of);
 
         /**
          * @brief displays some baseline dependent statistics of the schedule
          *
-         * @param out outsteam file object
+         * @param of outsteam file object
          * @param number of baselines
          */
-        void displayBaselineStatistics(std::ofstream &out);
+        void displayBaselineStatistics(std::ofstream &of);
 
         /**
          * @brief displays some station dependent statistics of the schedule
          *
-         * @param out outsteam file object
+         * @param of outsteam file object
          * @return vector of statistical values
          */
-        void displayStationStatistics(std::ofstream &out);
+        void displayStationStatistics(std::ofstream &of);
 
         /**
          * @brief displays some source dependent statistics of the schedule
          *
-         * @param out outsteam file object
+         * @param of outsteam file object
          * @param number of scheduled sources
          */
-        void displaySourceStatistics(std::ofstream &out);
+        void displaySourceStatistics(std::ofstream &of);
 
-        void displayNstaStatistics(std::ofstream &out);
+        void displayNstaStatistics(std::ofstream &of);
 
-        void displayAstronomicalParameters(std::ofstream &out);
+        void displayAstronomicalParameters(std::ofstream &of);
 
         /**
          * @brief displays some source dependent statistics of the schedule
          *
-         * @param out outsteam file object
+         * @param of outsteam file object
          */
-        void displayScanDurationStatistics(std::ofstream &out);
+        void displayScanDurationStatistics(std::ofstream &of);
 
 
-        void displayTimeStatistics(std::ofstream &ofstream);
+        void displayTimeStatistics(std::ofstream &of);
 
         std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root,
                                                                               GroupType type) noexcept;

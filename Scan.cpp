@@ -1276,7 +1276,7 @@ void Scan::setPointingVector(int idx, PointingVector pv, Timestamp ts) {
     }
 }
 
-void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log, Timestamp ts) {
+void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts) {
 
      int idx = times_.removeUnnecessaryObservingTime(ts);
     unsigned int t = times_.getObservingTime(idx, ts);
@@ -1289,7 +1289,7 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
     thisSta.getCableWrap().unwrapAzNearAz(pv, az);
     bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
     if(!visible){
-        log << (boost::format("ERROR while extending observing time to idle time:\n    "
+        of << (boost::format("ERROR while extending observing time to idle time:\n    "
                               "source %s might not be visible from %s during %s. ")
                 % thisSource.getName()
                 % thisSta.getName()
@@ -1299,7 +1299,7 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
 
 
 void Scan::removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
-                                         std::ofstream &log, Timestamp ts){
+                                         std::ofstream &of, Timestamp ts){
 
     unsigned long staid = station.getId();
     auto oidx = findIdxOfStationId(staid);
@@ -1320,7 +1320,7 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &stati
             bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
 
             if(!visible){
-                log << (boost::format("ERROR while extending observing time to idle time:\n    "
+                of << (boost::format("ERROR while extending observing time to idle time:\n    "
                                       "source %s might not be visible from %s during %s. ")
                         % thisSource.getName()
                         % station.getName()

@@ -472,10 +472,10 @@ namespace VieVS{
 
         void setPointingVector(int idx, PointingVector pv, Timestamp ts);
 
-        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &log, Timestamp ts);
+        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts);
 
         void removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
-                                           std::ofstream &log, Timestamp ts);
+                                           std::ofstream &of, Timestamp ts);
 
     private:
         static unsigned long nextId;

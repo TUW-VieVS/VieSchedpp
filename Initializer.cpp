@@ -45,14 +45,14 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
 
-void Initializer::createStations(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) noexcept {
 
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
     const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
     const map<string, vector<string> > &equipCatalog = reader.getEquipCatalog();
     const map<string, vector<string> > &maskCatalog = reader.getMaskCatalog();
 
-    headerLog << "Create Stations:\n";
+    of << "Create Stations:\n";
     unsigned long nant;
     int counter = 0;
 
@@ -80,7 +80,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
 
         // look if vector in antenna.cat is long enough. Otherwise not all information is available!
         if (any.second.size() < 16){
-            headerLog << "*** ERROR: " << any.first << ": antenna.cat to small ***\n";
+            of << "*** ERROR: " << any.first << ": antenna.cat to small ***\n";
             continue;
         }
 
@@ -92,11 +92,11 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
 
         // check if corresponding position and equip CATALOG exists.
         if (positionCatalog.find(id_PO) == positionCatalog.end()){
-            headerLog << "*** ERROR: creating station "<< name <<": position CATALOG not found ***\n";
+            of << "*** ERROR: creating station "<< name <<": position CATALOG not found ***\n";
             continue;
         }
         if (equipCatalog.find(id_EQ) == equipCatalog.end()){
-            headerLog << "*** ERROR: creating station "<< name <<": equip CATALOG not found ***\n";
+            of << "*** ERROR: creating station "<< name <<": equip CATALOG not found ***\n";
             continue;
         }
 
@@ -116,14 +116,14 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
             diam = boost::lexical_cast<double>(any.second.at(12));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
+            of << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if position.cat is long enough. Otherwise not all information is available.
         vector<string> po_cat = positionCatalog.at(id_PO);
         if (po_cat.size()<5){
-            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": positon.cat to small ***\n";
+            of << "*** ERROR: creating station "<< name <<": " << any.first << ": positon.cat to small ***\n";
             continue;
         }
 
@@ -135,19 +135,19 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
             z = boost::lexical_cast<double>(po_cat.at(4));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
+            of << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
             continue;
         }
 
         // check if equip.cat is long enough. Otherwise not all information is available.
         vector<string> eq_cat = equipCatalog.at(id_EQ);
         if (eq_cat.size()<9){
-            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": equip.cat to small ***\n";
+            of << "*** ERROR: creating station "<< name <<": " << any.first << ": equip.cat to small ***\n";
             continue;
         }
         // check if SEFD_ information is in X and S band
         if (eq_cat[5] != "X" || eq_cat[7] != "S") {
-            headerLog << "*** ERROR: creating station "<< name <<": " << any.first << ": we only support SX equipment ***\n";
+            of << "*** ERROR: creating station "<< name <<": " << any.first << ": we only support SX equipment ***\n";
             continue;
         }
 
@@ -159,7 +159,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
             SEFD_found[eq_cat.at(7)] = boost::lexical_cast<double>(eq_cat.at(8));
         }
         catch(const std::exception& e){
-            headerLog << "*** ERROR: creating station "<< name <<": " << e.what() << "\n";
+            of << "*** ERROR: creating station "<< name <<": " << e.what() << "\n";
             continue;
         }
         bool everythingOkWithBands = true;
@@ -261,12 +261,12 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
                     hmask.push_back(boost::lexical_cast<double>(mask_cat.at(i)));
                 }
                 catch(const std::exception& e){
-                    headerLog << "*** ERROR: creating station "<< name <<": mask catalog entry "<< mask_cat.at(i) << " not understood \n";
+                    of << "*** ERROR: creating station "<< name <<": mask catalog entry "<< mask_cat.at(i) << " not understood \n";
                 }
             }
         } else {
             if (id_MS != "--"){
-                headerLog << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
+                of << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
             }
         }
 
@@ -318,13 +318,13 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &heade
         network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask));
 
         created++;
-        headerLog << boost::format("  %-8s added\n") % name;
+        of << boost::format("  %-8s added\n") % name;
 
     }
-    headerLog << "Finished! " << created << " of " << nant << " stations created\n\n";
+    of << "Finished! " << created << " of " << nant << " stations created\n\n";
 }
 
-void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &headerLog) noexcept {
+void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &of) noexcept {
 
     double flcon2{pi / (3600.0 * 180.0 * 1000.0)};
 
@@ -334,7 +334,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
     int counter = 0;
     unsigned long nsrc = sourceCatalog.size();
     int created = 0;
-    headerLog << "Create Sources:\n";
+    of << "Create Sources:\n";
 
     vector<string> src_created;
     vector<string> src_ignored;
@@ -369,7 +369,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
         string name = any.first;
 
         if (any.second.size() < 8){
-            headerLog << "*** ERROR: " << any.first << ": source.cat to small ***\n";
+            of << "*** ERROR: " << any.first << ": source.cat to small ***\n";
             src_failed.push_back(name);
             continue;
         }
@@ -414,7 +414,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
         }
         catch(const std::exception& e){
             src_failed.push_back(name);
-            headerLog << "*** ERROR: reading right ascension and declination for " << name << " ***\n";
+            of << "*** ERROR: reading right ascension and declination for " << name << " ***\n";
             continue;
         }
         double ra = 15*(ra_h + ra_m/60 + ra_s/3600);
@@ -469,7 +469,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
                     flagAdd = true;
                 }
                 if (flagAdd){
-                    headerLog << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
+                    of << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
                 }
             }
 
@@ -622,28 +622,28 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &h
             src_created.push_back(name);
         }
     }
-    headerLog << "Finished! " << created << " of " << nsrc << " sources created\n\n";
+    of << "Finished! " << created << " of " << nsrc << " sources created\n\n";
 
-    util::outputObjectList("Created sources",src_created,headerLog);
-    util::outputObjectList("ignored sources",src_ignored,headerLog);
-    util::outputObjectList("failed because of missing flux information",src_fluxInformationNotFound,headerLog);
-    util::outputObjectList("failed to create source",src_failed,headerLog);
+    util::outputObjectList("Created sources",src_created,of);
+    util::outputObjectList("ignored sources",src_ignored,of);
+    util::outputObjectList("failed because of missing flux information",src_fluxInformationNotFound,of);
+    util::outputObjectList("failed to create source",src_failed,of);
 
 }
 
-void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
+void Initializer::initializeGeneral(ofstream &of) noexcept {
     try {
 
         string startString = xml_.get<string>("master.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
-        headerLog << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
+        of << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
         string endString = xml_.get<string>("master.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
-        headerLog << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
+        of << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
 
 
         int sec = util::duration(startTime,endTime);
@@ -651,7 +651,7 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
             cerr << "ERROR: duration is less than zero seconds!;\n";
         }
         auto duration = static_cast<unsigned int>(sec);
-        headerLog << "duration: " << duration << " [s]\n";
+        of << "duration: " << duration << " [s]\n";
 
         TimeSystem::mjdStart = mjdStart;
         TimeSystem::startTime = startTime;
@@ -685,14 +685,14 @@ void Initializer::initializeGeneral(ofstream &headerLog) noexcept {
         }else if(anchor == "individual"){
             ScanTimes::setAlignmentAnchor(ScanTimes::AlignmentAnchor::individual);
         }else{
-            headerLog << "ERROR: cannot read scan alignment type:" << anchor << endl;
+            of << "ERROR: cannot read scan alignment type:" << anchor << endl;
         }
 
     } catch (const boost::property_tree::ptree_error &e) {
-        headerLog << "ERROR: reading parameters.xml file!" << endl;
+        of << "ERROR: reading parameters.xml file!" << endl;
     }
 
-    headerLog << "\n";
+    of << "\n";
 }
 
 
@@ -1629,7 +1629,7 @@ void Initializer::initializeSkyCoverages() noexcept {
 
 }
 
-void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &headerLog) noexcept {
+void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &of) noexcept {
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
@@ -1809,16 +1809,16 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         }
     }
 
-    headerLog << "Observing Mode:\n";
-    headerLog << "  sample rate:    " << ObservationMode::sampleRate << "\n";
-    headerLog << "  recording bits: " << ObservationMode::bits << "\n";
-    headerLog << "  Bands: \n";
+    of << "Observing Mode:\n";
+    of << "  sample rate:    " << ObservationMode::sampleRate << "\n";
+    of << "  recording bits: " << ObservationMode::bits << "\n";
+    of << "  Bands: \n";
     for(const auto &any:ObservationMode::bands){
         unsigned int channels = ObservationMode::nChannels.at(any);
         double wavelength = ObservationMode::wavelength.at(any);
-        headerLog << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
+        of << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
     }
-    headerLog << "\n";
+    of << "\n";
 }
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
@@ -2287,7 +2287,7 @@ void Initializer::initializeSourceSequence() noexcept{
     }
 }
 
-void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
+void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("master.rules.calibratorBlock");
     if (cb.is_initialized()) {
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
@@ -2295,19 +2295,19 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
 
         CalibratorBlock::scheduleCalibrationBlocks = true;
 
-        headerLog << "Calibration Block found!\n";
+        of << "Calibration Block found!\n";
 
         for(const auto &any:*cb) {
             if (any.first == "cadence_nScanSelections") {
                 CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::scans;
                 CalibratorBlock::cadence = any.second.get_value<unsigned int>();
                 CalibratorBlock::nextBlock = CalibratorBlock::cadence;
-                headerLog << "  calibration block every "<< CalibratorBlock::cadence <<" scan selections\n";
+                of << "  calibration block every "<< CalibratorBlock::cadence <<" scan selections\n";
             } else if (any.first == "cadence_seconds") {
                 CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds;
                 CalibratorBlock::cadence = any.second.get_value<unsigned int>();
                 CalibratorBlock::nextBlock = CalibratorBlock::cadence;
-                headerLog << "  calibration block every "<< CalibratorBlock::cadence <<" seconds\n";
+                of << "  calibration block every "<< CalibratorBlock::cadence <<" seconds\n";
             } else if (any.first == "member") {
                 string member = any.second.get_value<string>();
                 vector<string> targetSources;
@@ -2323,32 +2323,32 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &headerLog) {
                     targetSources.push_back(member);
                 }
 
-                headerLog << "  allowed calibratior sources: \n    ";
+                of << "  allowed calibratior sources: \n    ";
                 vector<unsigned long> targetIds;
                 int c = 0;
                 for (const auto &source:sources_) {
                     const string &name = source.getName();
                     if (find(targetSources.begin(), targetSources.end(), name) != targetSources.end()) {
                         if(c==9){
-                            headerLog << "\n    ";
+                            of << "\n    ";
                             c = 0;
                         }
-                        headerLog << boost::format("%-8s ") % name;
+                        of << boost::format("%-8s ") % name;
                         targetIds.push_back(source.getId());
                         ++c;
                     }
                 }
-                headerLog << "\n";
+                of << "\n";
                 CalibratorBlock::calibratorSourceIds = std::move(targetIds);
             } else if (any.first == "nMaxScans") {
                 CalibratorBlock::nmaxScans = any.second.get_value<unsigned int>();
-                headerLog << "  maximum number of calibration block scans: "<< CalibratorBlock::nmaxScans <<"\n";
+                of << "  maximum number of calibration block scans: "<< CalibratorBlock::nmaxScans <<"\n";
 
             } else if (any.first == "fixedScanTime") {
                 CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::seconds;
                 CalibratorBlock::scanLength = any.second.get_value<unsigned int>();
 
-                headerLog << "  fixed scan length for calibrator scans: "<< CalibratorBlock::scanLength <<" seconds\n";
+                of << "  fixed scan length for calibrator scans: "<< CalibratorBlock::scanLength <<" seconds\n";
 
             } else if (any.first == "lowElevation"){
                 CalibratorBlock::lowElevationStartWeight = any.second.get<double>("startWeight")*deg2rad;
@@ -2429,20 +2429,20 @@ void Initializer::initializeMultiCore(int& nThreads, std::string & jobScheduling
 }
 #endif
 
-void Initializer::statisticsLogHeader(ofstream &ofstream) {
+void Initializer::statisticsLogHeader(ofstream &of) {
 
-    ofstream << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
-    ofstream << "n_stations,";
+    of << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
+    of << "n_stations,";
     for(const auto&any : network_.getStations()){
-        ofstream << "n_scans_" << any.getName() << ",";
+        of << "n_scans_" << any.getName() << ",";
     }
     for(const auto&any : network_.getStations()){
-        ofstream << "n_baselines_" << any.getName() << ",";
+        of << "n_baselines_" << any.getName() << ",";
     }
-    ofstream << "n_sources,\n";
+    of << "n_sources,\n";
 }
 
-void Initializer::initializeOptimization(std::ofstream &ofstream) {
+void Initializer::initializeOptimization(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.optimization");
     if (ctree.is_initialized()) {
 

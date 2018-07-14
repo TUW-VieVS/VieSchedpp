@@ -47,7 +47,7 @@ namespace VieVS{
             return highImpactScans_.getNumberSingleScans()>0 || highImpactScans_.getNumberSubnettingScans()>0;
         }
 
-        void updateLogfile(std::ofstream &bodyLog);
+        void updateLogfile(std::ofstream &of);
 
     private:
         class AzElDescriptor;

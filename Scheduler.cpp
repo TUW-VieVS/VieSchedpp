@@ -53,7 +53,7 @@ Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sour
                                                        xml_{std::move(xml)}{
 }
 
-void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog, Scan::ScanType type,
+void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan::ScanType type,
                                    boost::optional<StationEndposition> &opt_endposition,
                                    boost::optional<Subcon> &opt_subcon, int depth) {
 
@@ -107,9 +107,9 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
                         maxScanEnd = pv.getTime();
                     }
                 }
-                bodyLog << (boost::format("ERROR! no valid scan found! Checking 1 minute later: %s\n")
+                of << (boost::format("ERROR! no valid scan found! Checking 1 minute later: %s\n")
                                           % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
-                checkForNewEvents(maxScanEnd,true,bodyLog);
+                checkForNewEvents(maxScanEnd,true,of);
                 if( maxScanEnd > endTime){
                     break;
                 }
@@ -130,7 +130,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         }
 
         // check if end time triggers a new event
-        bool hardBreak = checkForNewEvents(maxScanEnd, true, bodyLog);
+        bool hardBreak = checkForNewEvents(maxScanEnd, true, of);
         if (hardBreak) {
             continue;
         }
@@ -163,13 +163,13 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
-            startScanSelection(newEndposition->getEarliestScanStart(), bodyLog, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
+            startScanSelection(newEndposition->getEarliestScanStart(), of, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
         }
 
         // update best possible scans
-        consideredUpdate(nSingleScans, nSubnettingScans, depth, bodyLog);
+        consideredUpdate(nSingleScans, nSubnettingScans, depth, of);
         for (auto &bestScan : bestScans) {
-            update(bestScan, bodyLog);
+            update(bestScan, of);
         }
 
         // update number of scan selections if it is a standard scan
@@ -185,14 +185,14 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
             switch(CalibratorBlock::cadenceUnit){
                 case CalibratorBlock::CadenceUnit::scans:{
                     if(Scan::nScanSelections == CalibratorBlock::nextBlock){
-                        startCalibrationBlock(bodyLog);
+                        startCalibrationBlock(of);
                         CalibratorBlock::nextBlock += CalibratorBlock::cadence;
                     }
                     break;
                 }
                 case CalibratorBlock::CadenceUnit::seconds:{
                     if(maxScanEnd >= CalibratorBlock::nextBlock){
-                        startCalibrationBlock(bodyLog);
+                        startCalibrationBlock(of);
                         CalibratorBlock::nextBlock += CalibratorBlock::cadence;
                     }
                     break;
@@ -201,7 +201,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         }
 
         if(depth == 0){
-            bodyLog << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n*\n";
+            of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n*\n";
         }
     }
 
@@ -215,82 +215,82 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
 void Scheduler::start() noexcept {
 
     string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log";
-    ofstream bodyLog(path_ + fileName);
+    ofstream of(path_ + fileName);
 
     if(network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0){
         string e = (boost::format("ERROR: number of stations: %d number of baselines: %d number of sources: %d;\n")
         % network_.getNSta() %network_.getNBls() %sources_.size()).str();
-        bodyLog << e;
+        of << e;
         return;
     }
 
     cout << (boost::format("writing scheduling log file: %s;\n") % fileName).str();
     if(parameters_.currentIteration>0){
-        bodyLog << "Iteration number: " << parameters_.currentIteration << "\n";
+        of << "Iteration number: " << parameters_.currentIteration << "\n";
     }
     if(multiSchedulingParameters_.is_initialized()){
-        bodyLog << "multi scheduling parameters:\n";
-        multiSchedulingParameters_->output(bodyLog);
+        of << "multi scheduling parameters:\n";
+        multiSchedulingParameters_->output(of);
     }
 
-    listSourceOverview(bodyLog);
+    listSourceOverview(of);
 
     boost::optional<StationEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
 
     if(himp_.is_initialized()){
-        highImpactScans(himp_.get(), bodyLog);
+        highImpactScans(himp_.get(), of);
     }
 
 
     // check if you have some fixed high impact scans
     if(scans_.empty()){
         // no fixed scans: start creating a schedule
-        startScanSelection(TimeSystem::duration,bodyLog,Scan::ScanType::standard, endposition, subcon, 0);
+        startScanSelection(TimeSystem::duration,of,Scan::ScanType::standard, endposition, subcon, 0);
 
         // sort scans
         sortSchedule(Timestamp::start);
 
     } else {
-        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::standard, true, false);
+        startScanSelectionBetweenScans(TimeSystem::duration, of, Scan::ScanType::standard, true, false);
     }
 
     // start fillinmode a posterior
     if(parameters_.fillinmodeAPosteriori){
-        bodyLog << "* --- start fillin mode a posteriori ---\n";
-        startScanSelectionBetweenScans(TimeSystem::duration, bodyLog, Scan::ScanType::fillin, false, true);
+        of << "* --- start fillin mode a posteriori ---\n";
+        startScanSelectionBetweenScans(TimeSystem::duration, of, Scan::ScanType::fillin, false, true);
     }
 
     if(parameters_.idleToObservingTime){
         switch (ScanTimes::getAlignmentAnchor()){
 
             case ScanTimes::AlignmentAnchor::start:{
-                idleToScanTime(Timestamp::end,bodyLog);
+                idleToScanTime(Timestamp::end,of);
                 break;
             }
             case ScanTimes::AlignmentAnchor::end:{
-                idleToScanTime(Timestamp::start,bodyLog);
+                idleToScanTime(Timestamp::start,of);
                 break;
             }
             case ScanTimes::AlignmentAnchor::individual:{
-                idleToScanTime(Timestamp::end,bodyLog);
-                idleToScanTime(Timestamp::start,bodyLog);
+                idleToScanTime(Timestamp::end,of);
+                idleToScanTime(Timestamp::start,of);
                 break;
             }
         }
     }
 
     // check if there was an error during the session
-    if (!checkAndStatistics(bodyLog)) {
+    if (!checkAndStatistics(of)) {
         cout << boost::format("ERROR: %s iteration %d while checking the schedule (see log file);\n")
                 % getName() %(parameters_.currentIteration);
     }
 
     // output some statistics
-    statistics(bodyLog);
+    statistics(of);
 
-    bool newScheduleNecessary = checkOptimizationConditions(bodyLog);
-    bodyLog.close();
+    bool newScheduleNecessary = checkOptimizationConditions(of);
+    of.close();
 
     // check if new iteration is necessary
     if(newScheduleNecessary){
@@ -301,17 +301,17 @@ void Scheduler::start() noexcept {
 
 }
 
-void Scheduler::statistics(ofstream &log) {
-    log << "*\n";
-    log << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-    log << "*\n";
-    log << "summary:\n";
-    log << "number of scheduled scans         " << scans_.size() << "\n";
-    log << "considered single source scans:   " << nSingleScansConsidered << "\n";
-    log << "considered subnetting combiation: " << nSubnettingScansConsidered << "\n";
-    log << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
+void Scheduler::statistics(ofstream &of) {
+    of << "*\n";
+    of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+    of << "*\n";
+    of << "summary:\n";
+    of << "number of scheduled scans         " << scans_.size() << "\n";
+    of << "considered single source scans:   " << nSingleScansConsidered << "\n";
+    of << "considered subnetting combiation: " << nSubnettingScansConsidered << "\n";
+    of << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
-    log << "number of observations:           " << nbl << "\n";
+    of << "number of observations:           " << nbl << "\n";
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
@@ -357,7 +357,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 }
 
 
-void Scheduler::update(Scan &scan, ofstream &bodyLog) noexcept {
+void Scheduler::update(Scan &scan, ofstream &of) noexcept {
 
     // check if scan has influence (only required for fillin mode scans)
     bool influence;
@@ -384,29 +384,29 @@ void Scheduler::update(Scan &scan, ofstream &bodyLog) noexcept {
     Source &thisSource = sources_[srcid];
     thisSource.update(nbl, latestTime, influence);
 
-    scan.output(scans_.size(), network_, thisSource, bodyLog);
+    scan.output(scans_.size(), network_, thisSource, of);
     scans_.push_back(std::move(scan));
 }
 
-void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &bodyLog) noexcept {
+void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &of) noexcept {
 
     if(n1scans+n2scans>0){
-        bodyLog << "*   depth "<< depth << " considered: single Scans " << n1scans << " subnetting scans " << n2scans << "\n";
+        of << "*   depth "<< depth << " considered: single Scans " << n1scans << " subnetting scans " << n2scans << "\n";
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
     }
 }
 
-bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
+bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
     bool everythingOk = true;
 
-    bodyLog << "starting check routine!\n";
+    of << "starting check routine!\n";
 
     int countErrors = 0;
     int countWarnings = 0;
 
     for (auto& thisStation : network_.refStations()){
-        bodyLog << "    checking station " << thisStation.getName() << ":\n";
+        of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
 
@@ -461,16 +461,16 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
                 if(nextStartTime<thisEndTime){
                     ++countErrors;
-                    bodyLog << "    ERROR #" << countErrors << ": start time of next scan is before end time of previouse scan! scans: "
+                    of << "    ERROR #" << countErrors << ": start time of next scan is before end time of previouse scan! scans: "
                             << scan_thisEnd.printId() << " and " << scan_nextStart.printId() << "\n";
                     boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                     boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
 
-                    bodyLog << "           end time of previouse scan: " << thisEndTime_.time_of_day()
+                    of << "           end time of previouse scan: " << thisEndTime_.time_of_day()
                             << " " << thisEnd.printId() << "\n";
-                    bodyLog << "           start time of next scan:    " << nextStartTime_.time_of_day()
+                    of << "           start time of next scan:    " << nextStartTime_.time_of_day()
                             << " " << nextStart.printId() << "\n";
-                    bodyLog << "*\n";
+                    of << "*\n";
                     everythingOk = false;
                 }else{
                     // check slew time
@@ -491,34 +491,34 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
                     if(availableTime+1<min_neededTime){
                         ++countErrors;
-                        bodyLog << "    ERROR #" << countErrors << ": not enough available time for slewing! scans: "
+                        of << "    ERROR #" << countErrors << ": not enough available time for slewing! scans: "
                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId() << "\n";
                         boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                         boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
-                        bodyLog << "               end time of previouse scan: " << thisEndTime_.time_of_day()
+                        of << "               end time of previouse scan: " << thisEndTime_.time_of_day()
                                 << " " << thisEnd.printId() << "\n";
-                        bodyLog << "               start time of next scan:    " << nextStartTime_.time_of_day()
+                        of << "               start time of next scan:    " << nextStartTime_.time_of_day()
                                 << " " << nextStart.printId() << "\n";
-                        bodyLog << "           available time: " << availableTime << "\n";
-                        bodyLog << "               needed slew time:           " << slewtime << "\n";
-                        bodyLog << "               needed constant times:      " << constTimes << "\n";
-                        bodyLog << "           needed time:    " << min_neededTime << "\n";
-                        bodyLog << "           difference:     " << (long) availableTime - (long) min_neededTime << "\n";
-                        bodyLog << "*\n";
+                        of << "           available time: " << availableTime << "\n";
+                        of << "               needed slew time:           " << slewtime << "\n";
+                        of << "               needed constant times:      " << constTimes << "\n";
+                        of << "           needed time:    " << min_neededTime << "\n";
+                        of << "           difference:     " << (long) availableTime - (long) min_neededTime << "\n";
+                        of << "*\n";
                         everythingOk = false;
                     }else{
                         if(idleTime > 1200){
                             ++countWarnings;
-                            bodyLog << "    WARNING #" << countWarnings << ": long idle time! scans: "
+                            of << "    WARNING #" << countWarnings << ": long idle time! scans: "
                                     << scan_thisEnd.printId() << " and " << scan_nextStart.printId() << "\n";
-                            bodyLog << "        idle time: " << idleTime << "[s]\n";
+                            of << "        idle time: " << idleTime << "[s]\n";
                             boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                             boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
-                            bodyLog << "               end time of previouse scan: " << thisEndTime_.time_of_day()
+                            of << "               end time of previouse scan: " << thisEndTime_.time_of_day()
                                     << " " << thisEnd.printId() << "\n";
-                            bodyLog << "               start time of next scan:    " << nextStartTime_.time_of_day()
+                            of << "               start time of next scan:    " << nextStartTime_.time_of_day()
                                     << " " << nextStart.printId() << "\n";
-                            bodyLog << "*\n";
+                            of << "*\n";
                         }
                     }
                 }
@@ -530,10 +530,10 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
             i_thisEnd = i_nextStart;
 
         }
-        bodyLog << "    finished!\n";
+        of << "    finished!\n";
         thisStation.setStatistics(staStatistics);
     }
-    bodyLog << "Total: " << countErrors << " errors and " << countWarnings << " warnings\n";
+    of << "Total: " << countErrors << " errors and " << countWarnings << " warnings\n";
 
     // sort scans again based on their observation start
     sortSchedule(Timestamp::start);
@@ -565,15 +565,15 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
     return everythingOk;
 }
 
-bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &bodyLog) noexcept {
+bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) noexcept {
     bool hard_break = false;
 
     // check if it is required to tagalong a station
     for (auto &any:network_.refStations()){
         bool tagalong = any.checkForTagalongMode(time);
         if(tagalong){
-            bodyLog << "TAGALONG for station " << any.getName() << " required!\n";
-            startTagelongMode(any, bodyLog);
+            of << "TAGALONG for station " << any.getName() << " required!\n";
+            startTagelongMode(any, of);
         }
     }
 
@@ -586,7 +586,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         }
     }
     if(!stationChanged.empty() && output && time<TimeSystem::duration){
-        util::outputObjectList("station parameter changed",stationChanged,bodyLog);
+        util::outputObjectList("station parameter changed",stationChanged,of);
     }
 
     // check if a source has to be changed
@@ -598,8 +598,8 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         }
     }
     if(!sourcesChanged.empty() &&output && time<TimeSystem::duration){
-        util::outputObjectList("source parameter changed",sourcesChanged,bodyLog);
-        listSourceOverview(bodyLog);
+        util::outputObjectList("source parameter changed",sourcesChanged,of);
+        listSourceOverview(of);
     }
 
     // check if a baseline has to be changed
@@ -611,7 +611,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &body
         }
     }
     if(!baselineChanged.empty() && output && time<TimeSystem::duration){
-        util::outputObjectList("baseline parameter changed",baselineChanged,bodyLog);
+        util::outputObjectList("baseline parameter changed",baselineChanged,of);
     }
     return hard_break;
 }
@@ -623,7 +623,7 @@ void Scheduler::ignoreTagalongParameter() {
     }
 }
 
-void Scheduler::listSourceOverview(ofstream &log) noexcept {
+void Scheduler::listSourceOverview(ofstream &of) noexcept {
 //    unsigned int counter = 0;
     vector<string> available;
     vector<string> notAvailable;
@@ -663,16 +663,16 @@ void Scheduler::listSourceOverview(ofstream &log) noexcept {
         }
     }
 
-    log << "Total number of sources: " << sources_.size() << "\n";
-    util::outputObjectList("available source",available,log);
-    util::outputObjectList("not available",notAvailable,log);
-    util::outputObjectList("not available because of optimization",notAvailable_optimization,log);
-    util::outputObjectList("not available because too weak",notAvailable_tooWeak,log);
-    util::outputObjectList("not available because of sun distance",notAvailable_tooCloseToSun,log);
+    of << "Total number of sources: " << sources_.size() << "\n";
+    util::outputObjectList("available source",available,of);
+    util::outputObjectList("not available",notAvailable,of);
+    util::outputObjectList("not available because of optimization",notAvailable_optimization,of);
+    util::outputObjectList("not available because too weak",notAvailable_tooWeak,of);
+    util::outputObjectList("not available because of sun distance",notAvailable_tooCloseToSun,of);
 
 }
 
-void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
+void Scheduler::startCalibrationBlock(std::ofstream &of) {
     unsigned long nsta = network_.getNSta();
     vector<double> prevLowElevationScores(nsta,0);
     vector<double> prevHighElevationScores(nsta,0);
@@ -689,7 +689,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(network_, sources_, prevLowElevationScores, prevHighElevationScores );
         if (!bestIdx_opt) {
-            bodyLog << "ERROR! no valid scan found! End of calibrator block!\n";
+            of << "ERROR! no valid scan found! End of calibrator block!\n";
             break;
         }
         unsigned long bestIdx = *bestIdx_opt;
@@ -766,7 +766,7 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         }
 
 
-        bool hardBreak = checkForNewEvents(all_maxTime, true, bodyLog);
+        bool hardBreak = checkForNewEvents(all_maxTime, true, of);
         if (hardBreak) {
             i -=1;
             continue;
@@ -778,11 +778,11 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
 
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
-//            start_fillinMode(bestScans, bodyLog);
+//            start_fillinMode(bestScans, of);
         } else {
             for (auto &bestScan : bestScans) {
-                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, bodyLog);
-                update(bestScan, bodyLog);
+                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, of);
+                update(bestScan, of);
             }
         }
 
@@ -808,50 +808,50 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
         }
     }
 
-    bodyLog << "|=============";
+    of << "|=============";
     for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        bodyLog << "===========";
+        of << "===========";
     }
-    bodyLog << "==========| \n";
-    bodyLog << "| CALIBRATOR BLOCK SUMMARY:\n";
-    bodyLog << "|=============";
+    of << "==========| \n";
+    of << "| CALIBRATOR BLOCK SUMMARY:\n";
+    of << "|=============";
     for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        bodyLog << "===========";
+        of << "===========";
     }
-    bodyLog << "==========| \n";
+    of << "==========| \n";
 
-    bodyLog << "| low el     |";
+    of << "| low el     |";
     for (const auto &any:lowestElevations) {
         if(any != numeric_limits<double>::max()){
-            bodyLog << boost::format(" %8.2f |")% (any*rad2deg);
+            of << boost::format(" %8.2f |")% (any*rad2deg);
         }else {
-            bodyLog << boost::format(" %8s |")% "";
+            of << boost::format(" %8s |")% "";
         }
     }
-    bodyLog << "\n";
-    bodyLog << "| high el    |";
+    of << "\n";
+    of << "| high el    |";
     for (const auto &any:highestElevations) {
         if(any != numeric_limits<double>::min()){
-            bodyLog << boost::format(" %8.2f |")% (any*rad2deg);
+            of << boost::format(" %8.2f |")% (any*rad2deg);
         }else {
-            bodyLog << boost::format(" %8s |")% "";
+            of << boost::format(" %8s |")% "";
         }
     }
-    bodyLog << "\n";
+    of << "\n";
 
-    bodyLog << "|=============";
+    of << "|=============";
     for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        bodyLog << "===========";
+        of << "===========";
     }
-    bodyLog << "==========| \n";
+    of << "==========| \n";
 
 }
 
-void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
+void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
     unsigned long staid = station.getId();
 
-    bodyLog << "Start tagalong mode for station " << station.getName() << ": \n";
+    of << "Start tagalong mode for station " << station.getName() << ": \n";
 
     // get wait times
     unsigned int stationConstTimes = station.getWaittimes().fieldSystem + station.getWaittimes().preob;
@@ -1035,7 +1035,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
             }
 
             scan.addTagalongStation(pv_new_start, pv_new_end, newObs, *slewtime, station);
-            bodyLog << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
+            of << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
                        %source.getName()
                        %counter
                        %TimeSystem::internalTime2timeString(pv_new_start.getTime())
@@ -1047,7 +1047,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
         }
     }
 
-//    station.applyNextEvent(bodyLog);
+//    station.applyNextEvent(of);
 }
 
 bool Scheduler::checkOptimizationConditions(ofstream &of) {
@@ -1156,7 +1156,7 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
     }
 }
 
-void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &bodyLog, Scan::ScanType type,
+void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &of, Scan::ScanType type,
                                                bool output, bool ignoreTagalong) {
 
     // save number of predefined scans (new scans will be added at end of those)
@@ -1166,14 +1166,14 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     }
 
     // reset all events
-    resetAllEvents(bodyLog);
+    resetAllEvents(of);
 
 
     // loop through all predefined scans
     for(int i=0; i<nMainScans-1; ++i){
 
         if(output){
-            bodyLog << "* --- start new scan selection ---\n";
+            of << "* --- start new scan selection ---\n";
         }
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
@@ -1209,19 +1209,19 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
         // check if there was an new upcoming event in the meantime
         unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
-        checkForNewEvents(startTime, true, bodyLog);
+        checkForNewEvents(startTime, true, of);
         if(ignoreTagalong ){
             ignoreTagalongParameter();
         }
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection(scans_[i + 1].getTimes().getScanTime(Timestamp::end), bodyLog, type, endposition, subcon, 1);
+        startScanSelection(scans_[i + 1].getTimes().getScanTime(Timestamp::end), of, type, endposition, subcon, 1);
     }
 
     // do the same between time at from last scan until duration with no endposition
     if(output){
-        bodyLog << "* --- start final scan selection ---\n";
+        of << "* --- start final scan selection ---\n";
     }
 
     // get last predefined scan and set current position of station
@@ -1237,7 +1237,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     }
     // check if there was an new upcoming event in the meantime
     unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
-    checkForNewEvents(startTime, true, bodyLog);
+    checkForNewEvents(startTime, true, of);
     if(ignoreTagalong ){
         ignoreTagalongParameter();
     }
@@ -1245,19 +1245,19 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     // recursively start scan selection
     boost::optional<Subcon> subcon = boost::none;
     boost::optional<StationEndposition> endposition = boost::none;
-    startScanSelection(duration, bodyLog, type, endposition, subcon, 1);
+    startScanSelection(duration, of, type, endposition, subcon, 1);
 
     // sort scans at the end
     sortSchedule(Timestamp::start);
 }
 
-void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLog) {
+void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
 
 
-    bodyLog << "###############################################################################################\n";
-    bodyLog << "##                                 fixing high impact scans                                  ##\n";
-    bodyLog << "###############################################################################################\n";
+    of << "###############################################################################################\n";
+    of << "##                                 fixing high impact scans                                  ##\n";
+    of << "###############################################################################################\n";
     unsigned int interval = himp.getInterval();
     int n = TimeSystem::duration/interval;
 
@@ -1266,7 +1266,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
 
         // check for new event and changes current pointing vector as well as first scan
         unsigned int time = iTime*interval;
-        checkForNewEvents(time, true, bodyLog);
+        checkForNewEvents(time, true, of);
         for(auto &thisStation : network_.refStations()){
             PointingVector pv(thisStation.getId(), numeric_limits<unsigned long>::max());
             pv.setTime(time);
@@ -1281,7 +1281,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     // create the actual scans
     himp.updateHighImpactScans(network_, sources_, parameters_.subnetting);
 
-    himp.updateLogfile(bodyLog);
+    himp.updateLogfile(of);
 
     // select bestScans
     vector<Scan> bestScans;
@@ -1290,7 +1290,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
         for(auto& scan:bestScans){
             const Source &source = sources_[scan.getSourceId()];
             if(himp.isCorrectHighImpactScan(scan, scans_, source)){
-                update(scan, bodyLog);
+                update(scan, of);
 
                 for(auto &thisStation : network_.refStations()){
                     thisStation.referencePARA().firstScan = true;
@@ -1303,13 +1303,13 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
     sortSchedule(Timestamp::start);
 
 
-    bodyLog << "###############################################################################################\n";
-    bodyLog << "##                              start with normal scan selection                             ##\n";
-    bodyLog << "###############################################################################################\n";
+    of << "###############################################################################################\n";
+    of << "##                              start with normal scan selection                             ##\n";
+    of << "###############################################################################################\n";
 
 
     // reset all events
-    resetAllEvents(bodyLog);
+    resetAllEvents(of);
 
     for(auto &thisStation : network_.refStations()){
         PointingVector pv(thisStation.getId(),numeric_limits<unsigned long>::max());
@@ -1320,7 +1320,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &bodyLo
 
 }
 
-void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
+void Scheduler::resetAllEvents(std::ofstream &of) {
 
     // reset all events
     for(auto &any:network_.refStations()){
@@ -1335,21 +1335,21 @@ void Scheduler::resetAllEvents(std::ofstream &bodyLog) {
     for(auto &any:network_.refBaselines()){
         any.setNextEvent(0);
     }
-    checkForNewEvents(0, false, bodyLog);
+    checkForNewEvents(0, false, of);
 }
 
-void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &bodyLog) {
+void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &of) {
 
     switch (anchor){
         case ScanTimes::AlignmentAnchor::start:{
-            bodyLog << "Extend observing time at end of scan:\n\n";
-            resetAllEvents(bodyLog);
-            checkForNewEvents(0, false, bodyLog);
+            of << "Extend observing time at end of scan:\n\n";
+            resetAllEvents(of);
+            checkForNewEvents(0, false, of);
 
             // start with each scan
             for(int iscan=0; iscan<scans_.size(); ++iscan){
                 Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, bodyLog);
+                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, of);
 
                 // save station ids of this scan (only these stations can be affected)
                 vector<unsigned long> staids= thisScan.getStationIds();
@@ -1493,10 +1493,10 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                     unsigned long staid = staids[idx];
                     const Station &sta = network_.getStation(staid);
                     unsigned int maxObsTime = sta.maximumAllowedObservingTime(Timestamp::end);
-                    thisScan.removeAdditionalObservingTime(maxObsTime, sta, thisSource, bodyLog, Timestamp::end);
+                    thisScan.removeAdditionalObservingTime(maxObsTime, sta, thisSource, of, Timestamp::end);
                 }
 
-                thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog, Timestamp::end);
+                thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, Timestamp::end);
 
 
                 bool change = false;
@@ -1510,7 +1510,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                 }
 
                 if(change){
-                    bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
+                    of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
                     for(int i=0; i<nThisSta; ++i){
                         unsigned long staid = thisScan.getStationId(i);
                         unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
@@ -1521,7 +1521,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                         string id = thisScan.getPointingVector(i, Timestamp::end).printId();
 
-                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
+                        of << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
@@ -1534,13 +1534,13 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                     }
                 }
             }
-            bodyLog << "\n";
+            of << "\n";
             break;
         }
         case ScanTimes::AlignmentAnchor::end:{
-            bodyLog << "Extend observing time at start of scan:\n\n";
-            resetAllEvents(bodyLog);
-            checkForNewEvents(0, false, bodyLog);
+            of << "Extend observing time at start of scan:\n\n";
+            resetAllEvents(of);
+            checkForNewEvents(0, false, of);
 
             // sort scans per endtime
             sortSchedule(Timestamp::end);
@@ -1548,7 +1548,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             // loop over each scan
             for(int iscan=0; iscan<scans_.size(); ++iscan) {
                 Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, bodyLog);
+                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, of);
 
                 // save station ids of this scan (only these stations can be affected)
                 vector<unsigned long> staids = thisScan.getStationIds();
@@ -1693,10 +1693,10 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                     unsigned long staid = staids[idx];
                     const Station &sta = network_.getStation(staid);
                     unsigned int minObsTime = sta.maximumAllowedObservingTime(Timestamp::start);
-                    thisScan.removeAdditionalObservingTime(minObsTime, sta, thisSource, bodyLog, Timestamp::start);
+                    thisScan.removeAdditionalObservingTime(minObsTime, sta, thisSource, of, Timestamp::start);
                 }
 
-                thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog, Timestamp::start);
+                thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, Timestamp::start);
 
 
                 bool change = false;
@@ -1710,7 +1710,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                 }
 
                 if(change){
-                    bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
+                    of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
                     for(int i=0; i<nThisSta; ++i){
                         unsigned long staid = thisScan.getStationId(i);
                         unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
@@ -1721,7 +1721,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                         string id = thisScan.getPointingVector(i).printId();
 
-                        bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
+                        of << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
                                     % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
@@ -1741,23 +1741,23 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             break;
         }
         case ScanTimes::AlignmentAnchor::individual:{
-            bodyLog << "idle to scan time is not supported for individual scan alignment:\n\n";
-//            idleToScanTime(ScanTimes::AlignmentAnchor::start, bodyLog);
-//            idleToScanTime(ScanTimes::AlignmentAnchor::end, bodyLog);
+            of << "idle to scan time is not supported for individual scan alignment:\n\n";
+//            idleToScanTime(ScanTimes::AlignmentAnchor::start, of);
+//            idleToScanTime(ScanTimes::AlignmentAnchor::end, of);
             break;
         }
     }
 }
 
-void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
+void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
     switch (ts){
 
         case Timestamp::start:
-            bodyLog << "increasing observing time at start of scan\n*\n";
+            of << "increasing observing time at start of scan\n*\n";
             break;
         case Timestamp::end:
-            bodyLog << "increasing observing time at end of scan\n*\n";
+            of << "increasing observing time at end of scan\n*\n";
             break;
     }
 
@@ -1772,7 +1772,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
     for(const auto &thisSta : network_.getStations()){
 
         // reset all events
-        resetAllEvents(bodyLog);
+        resetAllEvents(of);
         unsigned long staid = thisSta.getId();
 
         // sort schedule based on this station
@@ -1821,7 +1821,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             }
 
             // check for new events
-            checkForNewEvents(scan1.getTimes().getScanTime(Timestamp::start), true, bodyLog);
+            checkForNewEvents(scan1.getTimes().getScanTime(Timestamp::start), true, of);
 
             // look for index of next scan with this station
             int iscan2 = iscan1+1;
@@ -2020,7 +2020,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
     sortSchedule(Timestamp::start);
 
-    resetAllEvents(bodyLog);
+    resetAllEvents(of);
     // remove unnecessary observing times
     for(auto &thisScan : scans_){
         const Source &thisSource = sources_[thisScan.getSourceId()];
@@ -2083,7 +2083,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
                 }
                 thisScan.setPointingVector(staidx, move(variable), ts);
                 if(!valid){
-                    bodyLog << (boost::format("ERROR while extending observing time to idle time:\n    "
+                    of << (boost::format("ERROR while extending observing time to idle time:\n    "
                                               "source %s might not be visible from %s during %s. ")
                                 % thisSource.getName()
                                 % thisSta.getName()
@@ -2092,7 +2092,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             }
         }
 
-        thisScan.removeUnnecessaryObservingTime(network_, thisSource, bodyLog, ts);
+        thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, ts);
     }
 
 
@@ -2115,7 +2115,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
         // output if there was a change
         if(change){
-            bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % scan.getId() % source.getName();
+            of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % scan.getId() % source.getName();
             for(int i=0; i<scan.getNSta(); ++i){
                 unsigned long staid = scan.getStationId(i);
                 unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
@@ -2126,7 +2126,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
                 string id = scan.getPointingVector(i, ts).printId();
 
-                bodyLog << (boost::format("    %-8s %+5d seconds: new observing time: %s - %s (%4d sec) old observing time %s - %s (%4d sec) %s\n")
+                of << (boost::format("    %-8s %+5d seconds: new observing time: %s - %s (%4d sec) old observing time %s - %s (%4d sec) %s\n")
                             % network_.getStation(staid).getName()
                             %(static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime))
                             % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
@@ -2139,9 +2139,9 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             }
         }
     }
-    bodyLog << "*\n";
-    bodyLog << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-    bodyLog << "*\n";
+    of << "*\n";
+    of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
+    of << "*\n";
 
 }
 

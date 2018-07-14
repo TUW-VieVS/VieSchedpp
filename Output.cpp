@@ -29,19 +29,19 @@ void Output::writeSkdsum() {
 
     cout << (boost::format("writing statistics to: %s;\n") % fileName).str();
 
-    ofstream out(path_+fileName);
-    displayGeneralStatistics(out);
-    displayBaselineStatistics(out);
-    displayStationStatistics(out);
-    displaySourceStatistics(out);
-    displayNstaStatistics(out);
-    displayScanDurationStatistics(out);
-    displayTimeStatistics(out);
-    displayAstronomicalParameters(out);
-    out.close();
+    ofstream of(path_+fileName);
+    displayGeneralStatistics(of);
+    displayBaselineStatistics(of);
+    displayStationStatistics(of);
+    displaySourceStatistics(of);
+    displayNstaStatistics(of);
+    displayScanDurationStatistics(of);
+    displayTimeStatistics(of);
+    displayAstronomicalParameters(of);
+    of.close();
 }
 
-void  Output::displayGeneralStatistics(ofstream &out) {
+void  Output::displayGeneralStatistics(ofstream &of) {
     auto n_scans = static_cast<int>(scans_.size());
     int n_standard = 0;
     int n_highImpact = 0;
@@ -80,21 +80,21 @@ void  Output::displayGeneralStatistics(ofstream &out) {
         }
     }
 
-    out << ".--------------------------------------.\n";
-    out << boost::format("| number of total scans:         %5d |\n") %n_scans;
-    out << "|--------------------------------------|\n";
-    out << boost::format("| number of single source scans: %5d |\n") %n_single;
-    out << boost::format("| number of subnetting scans:    %5d |\n") %n_subnetting;
-    out << "|--------------------------------------|\n";
-    out << boost::format("| number of standard scans:      %5d |\n") %n_standard;
-    out << boost::format("| number of high impact scans    %5d |\n") %n_highImpact;
-    out << boost::format("| number of fillin mode scans:   %5d |\n") %n_fillin;
-    out << boost::format("| number of calibrator scans:    %5d |\n") %n_calibrator;
-    out << "'--------------------------------------'\n\n";
+    of << ".--------------------------------------.\n";
+    of << boost::format("| number of total scans:         %5d |\n") %n_scans;
+    of << "|--------------------------------------|\n";
+    of << boost::format("| number of single source scans: %5d |\n") %n_single;
+    of << boost::format("| number of subnetting scans:    %5d |\n") %n_subnetting;
+    of << "|--------------------------------------|\n";
+    of << boost::format("| number of standard scans:      %5d |\n") %n_standard;
+    of << boost::format("| number of high impact scans    %5d |\n") %n_highImpact;
+    of << boost::format("| number of fillin mode scans:   %5d |\n") %n_fillin;
+    of << boost::format("| number of calibrator scans:    %5d |\n") %n_calibrator;
+    of << "'--------------------------------------'\n\n";
 
 }
 
-void Output::displayBaselineStatistics(ofstream &out) {
+void Output::displayBaselineStatistics(ofstream &of) {
     unsigned long nsta = network_.getNSta();
     int n_bl = 0;
     for (const auto&any:scans_){
@@ -102,69 +102,69 @@ void Output::displayBaselineStatistics(ofstream &out) {
         n_bl += this_n_bl;
     }
 
-    out << "number of scheduled observations: " << n_bl << "\n";
-    out << ".-----------";
+    of << "number of scheduled observations: " << n_bl << "\n";
+    of << ".-----------";
     for (int i = 0; i < nsta-1; ++i) {
-        out << "----------";
+        of << "----------";
     }
-    out << "-----------";
-    out << "----------.\n";
+    of << "-----------";
+    of << "----------.\n";
 
 
-    out << boost::format("| %8s |") % "STATIONS";
+    of << boost::format("| %8s |") % "STATIONS";
     for (const auto &any:network_.getStations()) {
-        out << boost::format(" %8s ") % any.getName();
+        of << boost::format(" %8s ") % any.getName();
     }
-    out << "|";
-    out << boost::format(" %8s ") % "TOTAL";
-    out << "|\n";
+    of << "|";
+    of << boost::format(" %8s ") % "TOTAL";
+    of << "|\n";
 
-    out << "|----------|";
+    of << "|----------|";
     for (int i = 0; i < nsta-1; ++i) {
-        out << "----------";
+        of << "----------";
     }
-    out << "----------|";
-    out << "----------|\n";
+    of << "----------|";
+    of << "----------|\n";
 
     for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
         unsigned long counter = 0;
-        out << boost::format("| %8s |") % network_.getStation(staid1).getName();
+        of << boost::format("| %8s |") % network_.getStation(staid1).getName();
         for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
             if (staid2<staid1+1){
-                out << "          ";
+                of << "          ";
             }else{
                 unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
-                out << boost::format(" %8d ") % nBl;
+                of << boost::format(" %8d ") % nBl;
                 counter += nBl;
             }
         }
-        out << "|";
-        out << boost::format(" %8d ") % counter;
-        out << "|\n";
+        of << "|";
+        of << boost::format(" %8d ") % counter;
+        of << "|\n";
     }
 
-    out << "'-----------";
+    of << "'-----------";
     for (int i = 0; i < nsta-1; ++i) {
-        out << "----------";
+        of << "----------";
     }
-    out << "-----------";
-    out << "----------'\n\n";
+    of << "-----------";
+    of << "----------'\n\n";
 
 }
 
-void Output::displayStationStatistics(ofstream &out) {
+void Output::displayStationStatistics(ofstream &of) {
 
-    out << "number of scans per 15 minutes:\n";
-    out << ".-------------------------------------------------------------"
+    of << "number of scans per 15 minutes:\n";
+    of << ".-------------------------------------------------------------"
            "----------------------------------------------------------------------------.\n";
-    out << "|          time since session start (1 char equals 15 minutes)"
+    of << "|          time since session start (1 char equals 15 minutes)"
            "                                             | #SCANS #OBS |   OBS Time [s] |\n";
-    out << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12 "
+    of << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12 "
            " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
-    out << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
+    of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
            "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
     for (const auto &thisStation : network_.getStations()) {
-        out << boost::format("| %8s|") % thisStation.getName();
+        of << boost::format("| %8s|") % thisStation.getName();
         const Station::Statistics &stat = thisStation.getStatistics();
         const auto& time_sta = stat.scanStartTimes;
         unsigned int timeStart = 0;
@@ -174,40 +174,40 @@ void Output::displayStationStatistics(ofstream &out) {
                 return k>=timeStart && k<timeEnd ;
             });
             if(c==0){
-                out << " ";
+                of << " ";
             }else if (c<=9){
-                out << c;
+                of << c;
             }else{
-                out << "X";
+                of << "X";
             }
 
             timeEnd += 900;
             timeStart += 900;
         }
-        out << boost::format("| %6d %4d ") % thisStation.getNTotalScans() % thisStation.getNObs();
-        out << boost::format("| %5d %8.1f |\n") % thisStation.getStatistics().totalObservingTime
+        of << boost::format("| %6d %4d ") % thisStation.getNTotalScans() % thisStation.getNObs();
+        of << boost::format("| %5d %8.1f |\n") % thisStation.getStatistics().totalObservingTime
                % (static_cast<double>(thisStation.getStatistics().totalObservingTime) / static_cast<double>(thisStation.getNTotalScans()));
     }
-    out << "'--------------------------------------------------------------"
+    of << "'--------------------------------------------------------------"
            "---------------------------------------------------------------------------'\n\n";
 }
 
-void Output::displaySourceStatistics(ofstream &out) {
-    out << "number of available sources:   " << sources_.size() << "\n";
+void Output::displaySourceStatistics(ofstream &of) {
+    of << "number of available sources:   " << sources_.size() << "\n";
 
     long number = count_if(sources_.begin(), sources_.end(), [](const Source &any){
         return any.getNTotalScans() > 0;
     });
 
-    out << "number of scheduled sources:   " << number << "\n";
-    out << "number of scans per 15 minutes:\n";
-    out << ".-------------------------------------------------------------"
+    of << "number of scheduled sources:   " << number << "\n";
+    of << "number of scans per 15 minutes:\n";
+    of << ".-------------------------------------------------------------"
            "----------------------------------------------------------------------------.\n";
-    out << "|          time since session start (1 char equals 15 minutes)"
+    of << "|          time since session start (1 char equals 15 minutes)"
            "                                             | #SCANS #OBS |   OBS Time [s] |\n";
-    out << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12 "
+    of << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12 "
            " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
-    out << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
+    of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
            "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
     for (const auto &thisSource : sources_) {
         const Source::Statistics &stat = thisSource.getStatistics();
@@ -216,7 +216,7 @@ void Output::displaySourceStatistics(ofstream &out) {
         if (thisSource.getNObs() == 0) {
             continue;
         }
-        out << boost::format("| %8s|") % thisSource.getName();
+        of << boost::format("| %8s|") % thisSource.getName();
 
         unsigned int timeStart = 0;
         unsigned int timeEnd = 900;
@@ -225,25 +225,25 @@ void Output::displaySourceStatistics(ofstream &out) {
                 return k>=timeStart && k<timeEnd ;
             });
             if(c==0){
-                out << " ";
+                of << " ";
             }else if (c<=9){
-                out << c;
+                of << c;
             }else{
-                out << "X";
+                of << "X";
             }
 
             timeEnd += 900;
             timeStart += 900;
         }
-        out << boost::format("| %6d %4d ") % thisSource.getNTotalScans() % thisSource.getNObs();
-        out << boost::format("| %5d %8.1f |\n") % thisSource.getStatistics().totalObservingTime
+        of << boost::format("| %6d %4d ") % thisSource.getNTotalScans() % thisSource.getNObs();
+        of << boost::format("| %5d %8.1f |\n") % thisSource.getStatistics().totalObservingTime
                % (static_cast<double>(thisSource.getStatistics().totalObservingTime) / static_cast<double>(thisSource.getNTotalScans()));
     }
-    out << "'--------------------------------------------------------------"
+    of << "'--------------------------------------------------------------"
            "---------------------------------------------------------------------------'\n\n";
 }
 
-void Output::displayNstaStatistics(std::ofstream &out) {
+void Output::displayNstaStatistics(std::ofstream &of) {
     unsigned long nsta = network_.getNSta();
     vector<int> nstas(nsta+1,0);
     for(const auto &scan:scans_){
@@ -252,18 +252,18 @@ void Output::displayNstaStatistics(std::ofstream &out) {
 
     unsigned long sum = scans_.size();
 
-    out << "number of scans per number of participating stations:\n";
+    of << "number of scans per number of participating stations:\n";
     for(int i=2; i<=nsta; ++i){
-        out << boost::format("    number of %2d station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
+        of << boost::format("    number of %2d station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
                                                                                                 static_cast<double>(sum)*100);
     }
-    out << "\n";
+    of << "\n";
 }
 
 
-void Output::displayScanDurationStatistics(ofstream &out) {
+void Output::displayScanDurationStatistics(ofstream &of) {
     unsigned long nsta = network_.getNSta();
-    out << "scan observing durations:\n";
+    of << "scan observing durations:\n";
     vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
     vector< unsigned int> maxScanDurations;
 
@@ -306,42 +306,42 @@ void Output::displayScanDurationStatistics(ofstream &out) {
         ++hist[i-1];
     }
 
-    out << "scan duration:\n";
+    of << "scan duration:\n";
     for (int i = 0; i < hist.size(); ++i) {
-        out << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
+        of << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
         double percent = 100 * static_cast<double>(hist[i]) / static_cast<double>(maxScanDurations.size());
         percent = round(percent);
         for (int j = 0; j < percent; ++j) {
-            out << "+";
+            of << "+";
         }
-        out << "\n";
+        of << "\n";
     }
-    out << "\n";
+    of << "\n";
 
-    out << "required scan length:\n";
-    out << ".----------------------------------------------------------------------------------------------.\n";
-    out << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
-    out << "|-------------------|---------------------------------------------------------|----------------|\n";
+    of << "required scan length:\n";
+    of << ".----------------------------------------------------------------------------------------------.\n";
+    of << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
+    of << "|-------------------|---------------------------------------------------------|----------------|\n";
 
     {
         auto n = static_cast<int>(maxScanDurations.size() - 1);
         sort(maxScanDurations.begin(),maxScanDurations.end());
-        out << boost::format("|        ALL        | ");
-        out << boost::format("%4d   ") % maxScanDurations[0];
-        out << boost::format("%4d   ") % maxScanDurations[n * 0.1];
-        out << boost::format("%4d   ") % maxScanDurations[n / 2];
-        out << boost::format("%4d   ") % maxScanDurations[n * 0.9];
-        out << boost::format("%4d   ") % maxScanDurations[n * 0.95];
-        out << boost::format("%4d   ") % maxScanDurations[n * 0.975];
-        out << boost::format("%4d   ") % maxScanDurations[n * 0.99];
-        out << boost::format("%4d   ") % maxScanDurations[n];
+        of << boost::format("|        ALL        | ");
+        of << boost::format("%4d   ") % maxScanDurations[0];
+        of << boost::format("%4d   ") % maxScanDurations[n * 0.1];
+        of << boost::format("%4d   ") % maxScanDurations[n / 2];
+        of << boost::format("%4d   ") % maxScanDurations[n * 0.9];
+        of << boost::format("%4d   ") % maxScanDurations[n * 0.95];
+        of << boost::format("%4d   ") % maxScanDurations[n * 0.975];
+        of << boost::format("%4d   ") % maxScanDurations[n * 0.99];
+        of << boost::format("%4d   ") % maxScanDurations[n];
         int sum = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0);
         double average = static_cast<double>(sum) / (n + 1);
-        out << boost::format("| %5d %8.1f |") % sum % average;
-        out << "\n";
+        of << boost::format("| %5d %8.1f |") % sum % average;
+        of << "\n";
     }
 
-    out << "|-------------------|---------------------------------------------------------|----------------|\n";
+    of << "|-------------------|---------------------------------------------------------|----------------|\n";
 
     for (unsigned long i = 1; i < nsta; ++i) {
         for (unsigned long j = 0; j < i; ++j) {
@@ -351,147 +351,147 @@ void Output::displayScanDurationStatistics(ofstream &out) {
             }
             int n = (int) this_duration.size()-1;
             sort(this_duration.begin(),this_duration.end());
-            out << boost::format("| %17s | ") % network_.getBaseline(i,j).getName();
-            out << boost::format("%4d   ") % this_duration[0];
-            out << boost::format("%4d   ") % this_duration[n * 0.1];
-            out << boost::format("%4d   ") % this_duration[n / 2];
-            out << boost::format("%4d   ") % this_duration[n * 0.9];
-            out << boost::format("%4d   ") % this_duration[n * 0.95];
-            out << boost::format("%4d   ") % this_duration[n * 0.975];
-            out << boost::format("%4d   ") % this_duration[n * 0.99];
-            out << boost::format("%4d   ") % this_duration[n];
+            of << boost::format("| %17s | ") % network_.getBaseline(i,j).getName();
+            of << boost::format("%4d   ") % this_duration[0];
+            of << boost::format("%4d   ") % this_duration[n * 0.1];
+            of << boost::format("%4d   ") % this_duration[n / 2];
+            of << boost::format("%4d   ") % this_duration[n * 0.9];
+            of << boost::format("%4d   ") % this_duration[n * 0.95];
+            of << boost::format("%4d   ") % this_duration[n * 0.975];
+            of << boost::format("%4d   ") % this_duration[n * 0.99];
+            of << boost::format("%4d   ") % this_duration[n];
             int sum = accumulate(this_duration.begin(), this_duration.end(), 0);
             double average = static_cast<double>(sum) / (n + 1);
-            out << boost::format("| %5d %8.1f |") % sum % average;
-            out << "\n";
+            of << boost::format("| %5d %8.1f |") % sum % average;
+            of << "\n";
         }
 
     }
-    out << "'----------------------------------------------------------------------------------------------'\n\n";
+    of << "'----------------------------------------------------------------------------------------------'\n\n";
 }
 
-void Output::displayTimeStatistics(std::ofstream &ofstream) {
+void Output::displayTimeStatistics(std::ofstream &of) {
 
     unsigned long nstaTotal = network_.getNSta();
 
-    ofstream << ".-----------------";
-    ofstream << "------------";
+    of << ".-----------------";
+    of << "------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
-        ofstream << "----------";
+        of << "----------";
     }
-    ofstream << "----------.\n";
+    of << "----------.\n";
 
-    ofstream << "|                 ";
-    ofstream << boost::format("| %8s |") % "average";
+    of << "|                 ";
+    of << boost::format("| %8s |") % "average";
     for (const auto &station: network_.getStations()) {
-        ofstream << boost::format(" %8s ") % station.getName();
+        of << boost::format(" %8s ") % station.getName();
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "|-----------------";
-    ofstream << "|----------|";
+    of << "|-----------------";
+    of << "|----------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
-        ofstream << "----------";
+        of << "----------";
     }
-    ofstream << "----------|\n";
+    of << "----------|\n";
 
-    ofstream << "| % obs. time:    ";
+    of << "| % obs. time:    ";
     vector<double> obsPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalObservingTime;
         obsPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network_.getNSta()));
     for(auto p:obsPer){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "| % preob time:   ";
+    of << "| % preob time:   ";
     vector<double> preobPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalPreobTime;
         preobPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network_.getNSta()));
     for(auto p:preobPer){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "| % slew time:    ";
+    of << "| % slew time:    ";
     vector<double> slewPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalSlewTime;
         slewPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network_.getNSta()));
     for(auto p:slewPer){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "| % idle time:    ";
+    of << "| % idle time:    ";
     vector<double> idlePer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalIdleTime;
         idlePer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network_.getNSta()));
     for(auto p:idlePer){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "| % field system: ";
+    of << "| % field system: ";
     vector<double> fieldPer;
     for (const auto &station: network_.getStations()) {
         int t = station.getStatistics().totalFieldSystemTime;
         fieldPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta()));
     for(auto p:fieldPer){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "|-----------------";
-    ofstream << "|----------|";
+    of << "|-----------------";
+    of << "|----------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
-        ofstream << "----------";
+        of << "----------";
     }
-    ofstream << "----------|\n";
+    of << "----------|\n";
 
-    ofstream << "|   #scans:       ";
+    of << "|   #scans:       ";
     vector<int> scans;
     for (const auto &station: network_.getStations()) {
         scans.push_back(station.getNTotalScans());
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(scans.begin(),scans.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(scans.begin(),scans.end(),0.0)/(network_.getNSta()));
     for(auto p:scans){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "|   scans per h:  ";
+    of << "|   scans per h:  ";
     vector<double> scansPerH;
     for (const auto &station: network_.getStations()) {
         scansPerH.push_back(static_cast<double>(station.getNTotalScans())/(TimeSystem::duration/3600.));
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network_.getNSta()));
     for(auto p:scansPerH){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "|-----------------";
-    ofstream << "|----------|";
+    of << "|-----------------";
+    of << "|----------|";
     for (int i = 0; i < nstaTotal-1; ++i) {
-        ofstream << "----------";
+        of << "----------";
     }
-    ofstream << "----------|\n";
+    of << "----------|\n";
 
-    ofstream << "|   Total TB:     ";
+    of << "|   Total TB:     ";
     unsigned int nChannels = 0;
     for(const auto &any: ObservationMode::nChannels){
         nChannels += any.second;
@@ -504,42 +504,42 @@ void Output::displayTimeStatistics(std::ofstream &ofstream) {
 
         total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
     }
-    ofstream << boost::format("| %8.2f |") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network_.getNSta()));
+    of << boost::format("| %8.2f |") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network_.getNSta()));
     for(auto p:total_tb){
-        ofstream << boost::format(" %8.2f ") % p;
+        of << boost::format(" %8.2f ") % p;
     }
-    ofstream << "|\n";
+    of << "|\n";
 
-    ofstream << "'-----------------";
-    ofstream << "------------";
+    of << "'-----------------";
+    of << "------------";
     for (int i = 0; i < nstaTotal-1; ++i) {
-        ofstream << "----------";
+        of << "----------";
     }
-    ofstream << "----------'\n\n";
+    of << "----------'\n\n";
 
 }
 
-void Output::displayAstronomicalParameters(std::ofstream &out) {
-    out << ".------------------------------------------.\n";
-    out << "| sun position:        | earth velocity:   |\n";
-    out << "|----------------------|-------------------|\n";
-    out << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
-    out << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
-    out << "|                      " << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
-    out << "'------------------------------------------'\n\n";
+void Output::displayAstronomicalParameters(std::ofstream &of) {
+    of << ".------------------------------------------.\n";
+    of << "| sun position:        | earth velocity:   |\n";
+    of << "|----------------------|-------------------|\n";
+    of << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
+    of << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
+    of << "|                      " << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
+    of << "'------------------------------------------'\n\n";
 
-    out << ".--------------------------------------------------------------------.\n";
-    out << "| earth nutation:                                                    |\n";
-    out << boost::format("| %=19s | %=14s %=14s %=14s |\n") %"time" %"X" %"Y" %"S";
-    out << "|---------------------|----------------------------------------------|\n";
+    of << ".--------------------------------------------------------------------.\n";
+    of << "| earth nutation:                                                    |\n";
+    of << boost::format("| %=19s | %=14s %=14s %=14s |\n") %"time" %"X" %"Y" %"S";
+    of << "|---------------------|----------------------------------------------|\n";
     for(int i=0; i<AstronomicalParameters::earth_nutTime.size(); ++i){
-        out << boost::format("| %19s | %+14.6e %+14.6e %+14.6e |\n")
+        of << boost::format("| %19s | %+14.6e %+14.6e %+14.6e |\n")
                % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(AstronomicalParameters::earth_nutTime[i]))
                % AstronomicalParameters::earth_nutX[i]
                % AstronomicalParameters::earth_nutY[i]
                % AstronomicalParameters::earth_nutS[i];
     }
-    out << "'--------------------------------------------------------------------'\n\n";
+    of << "'--------------------------------------------------------------------'\n\n";
 
 }
 
@@ -555,7 +555,7 @@ void Output::writeNGS() {
         string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % version_ % fname).str();
         cout << txt;
     }
-    ofstream out(path_+fname);
+    ofstream of(path_+fname);
 
 
     boost::posix_time::ptime start = TimeSystem::startTime;
@@ -580,36 +580,36 @@ void Output::writeNGS() {
             int minute = tmp.time_of_day().minutes();
             double second = tmp.time_of_day().seconds();
 
-            out << boost::format("%-8s  %-8s  %-8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
+            of << boost::format("%-8s  %-8s  %-8s %4d %02d %02d %02d %02d  %13.10f            ") % sta1 % sta2 % src %
                    year % month % day % hour % minute % second;
-            out << boost::format("%6d") % counter << "01\n";
+            of << boost::format("%6d") % counter << "01\n";
 
-            out << "    0000000.00000000    .00000  -000000.0000000000    .00000 0      I   ";
-            out << boost::format("%6d") % counter << "02\n";
+            of << "    0000000.00000000    .00000  -000000.0000000000    .00000 0      I   ";
+            of << boost::format("%6d") % counter << "02\n";
 
-            out << "    .00000    .00000    .00000    .00000   0.000000000000000        0.  ";
-            out << boost::format("%6d") % counter << "03\n";
+            of << "    .00000    .00000    .00000    .00000   0.000000000000000        0.  ";
+            of << boost::format("%6d") % counter << "03\n";
 
-            out << "       .00   .0       .00   .0       .00   .0       .00   .0            ";
-            out << boost::format("%6d") % counter << "04\n";
+            of << "       .00   .0       .00   .0       .00   .0       .00   .0            ";
+            of << boost::format("%6d") % counter << "04\n";
 
-            out << "   -.00000   -.00000    .00000    .00000    .00000    .00000            ";
-            out << boost::format("%6d") % counter << "05\n";
+            of << "   -.00000   -.00000    .00000    .00000    .00000    .00000            ";
+            of << boost::format("%6d") % counter << "05\n";
 
-            out << "     0.000    00.000   000.000   000.000    00.000    00.000 0 0        ";
-            out << boost::format("%6d") % counter << "06\n";
+            of << "     0.000    00.000   000.000   000.000    00.000    00.000 0 0        ";
+            of << boost::format("%6d") % counter << "06\n";
 
-            out << "        0.0000000000    .00000        -.0000000000    .00000  0         ";
-            out << boost::format("%6d") % counter << "08\n";
+            of << "        0.0000000000    .00000        -.0000000000    .00000  0         ";
+            of << boost::format("%6d") % counter << "08\n";
 
-            out << "          0.00000000    .00000        0.0000000000    .00000 0      I   ";
-            out << boost::format("%6d") % counter << "09\n";
+            of << "          0.00000000    .00000        0.0000000000    .00000 0      I   ";
+            of << boost::format("%6d") % counter << "09\n";
 
             ++counter;
         }
     }
 
-    out.close();
+    of.close();
 }
 
 
@@ -1022,13 +1022,13 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
     return visibleTimes;
 }
 
-void Output::createAllOutputFiles(std::ofstream &statisticsLog, const SkdCatalogReader &skdCatalogReader) {
+void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skdCatalogReader) {
 
     if(scans_.empty()){
         return;
     }
 
-    writeStatistics(statisticsLog);
+    writeStatistics(of);
 
     if(xml_.get<bool>("master.output.createSummary",false)){
         writeSkdsum();
@@ -1146,7 +1146,7 @@ void Output::writeOperationsNotes() {
     of << "==================\n";
 }
 
-void Output::writeStatistics(std::ofstream &statisticsLog) {
+void Output::writeStatistics(std::ofstream &of) {
     string oString;
 
     auto n_scans = static_cast<int>(scans_.size());
@@ -1222,7 +1222,7 @@ void Output::writeStatistics(std::ofstream &statisticsLog) {
     }
     oString.append(std::to_string(n_src)).append(",\n");
 
-    statisticsLog << oString;
+    of << oString;
 
 }
 
