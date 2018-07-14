@@ -307,7 +307,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         of << "        source = " << sources.at(srcid).getName() << eol;
 
         const auto &times = scan.getTimes();
-        unsigned int start = times.getObservingStart();
+        unsigned int start = times.getObservingTime(Timestamp::start);
 
         for(int j = 0; j<nsta; ++j){
             const PointingVector &pv = scan.getPointingVector(j);
@@ -325,8 +325,8 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
                 cwvex = "&ccw";
             }
 
-            int dataGood = times.getObservingStart(j);
-            int dataObs = times.getObservingEnd(j);
+            int dataGood = times.getObservingTime(j, Timestamp::start);
+            int dataObs = times.getObservingTime(j, Timestamp::end);
             of << boost::format("        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n") % thisTlc % (dataGood-start) % (dataObs-start) % cwvex;
         }
         of << "    endscan;\n";

@@ -36,6 +36,15 @@ namespace VieVS {
             individual
         };
 
+        static void setAlignmentAnchor(AlignmentAnchor newAnchor){
+            anchor = newAnchor;
+        }
+
+        static AlignmentAnchor getAlignmentAnchor(){
+            return anchor;
+        }
+
+
         /**
          * @brief constructor
          * @param nsta number of stations
@@ -69,6 +78,10 @@ namespace VieVS {
             setId(nextId++);
         }
 
+        const std::vector<unsigned int> getEndOfSlewTimes() const noexcept{
+            return endOfSlewTime_;
+        }
+
         /**
          * @brief removes an element
          *
@@ -76,88 +89,110 @@ namespace VieVS {
          */
         void removeElement(int idx) noexcept;
 
-        /**
-         * @brief getter for all end of slew times
-         *
-         * @return all end of slew times in seconds since session start
-         */
-        const std::vector<unsigned int> &getEndOfSlewTime() const noexcept {
-            return endOfSlewTime_;
-        }
-
-        const unsigned int getSlewStart(int idx) const noexcept{
-            return endOfFieldSystemTime_[idx];
-        }
-
-        const unsigned int getSlewEnd(int idx) const noexcept{
-            return endOfSlewTime_[idx];
-        }
-
-        const unsigned int getFieldSystemTime(int idx) const noexcept{
+        const unsigned int getFieldSystemDuration(int idx) const noexcept{
             return endOfFieldSystemTime_[idx]-endOfLastScan_[idx];
         }
-        const unsigned int getSlewTime(int idx) const noexcept{
+        const unsigned int getSlewDuration(int idx) const noexcept{
             return endOfSlewTime_[idx]-endOfFieldSystemTime_[idx];
         }
-        const unsigned int getIdleTime(int idx) const noexcept{
+        const unsigned int getIdleDuration(int idx) const noexcept{
             return endOfIdleTime_[idx]-endOfSlewTime_[idx];
         }
-        const unsigned int getPreobTime(int idx) const noexcept{
+        const unsigned int getPreobDuration(int idx) const noexcept{
             return endOfPreobTime_[idx]-endOfIdleTime_[idx];
         }
-
-        const unsigned int getScanStart() const noexcept;
-
-        const unsigned int getScanEnd() const noexcept;
-
-        const unsigned int getScanDuration() const noexcept{
-            return getScanEnd() - getScanStart();
-        }
-
-        const unsigned int getObservingTime() const noexcept;
-
-        const unsigned int getObservingTime(int idx) const noexcept{
+        const unsigned int getObservingDuration(int idx) const noexcept{
             return endOfObservingTime_[idx]-endOfPreobTime_[idx];
         }
 
-        const unsigned int getObservingStart() const noexcept;
-
-        const unsigned int getObservingStart(int idx) const noexcept{
-            if(idx>endOfPreobTime_.size()){
-                double x = 0;
-            }
-            return endOfPreobTime_[idx];
+        const unsigned int getObservingDuration() const noexcept{
+            return getObservingTime(Timestamp::end)- getObservingTime(Timestamp::start);
+        }
+        const unsigned int getScanDuration() const noexcept{
+            return getScanTime(Timestamp::end) - getScanTime(Timestamp::start);
         }
 
-        const unsigned int getObservingEnd() const noexcept;
-
-        const unsigned int getObservingEnd(int idx) const noexcept{
-            return endOfObservingTime_[idx];
-        }
-
-        const unsigned int getObservingTime(int idx, Timestamp ts){
+        const unsigned int getFieldSystemTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
-
                 case Timestamp::start:{
+                    return endOfLastScan_[idx];
+                }
+                case Timestamp::end:{
+                    return endOfFieldSystemTime_[idx];
+                }
+            }
+        }
 
+        const unsigned int getSlewTime(int idx, Timestamp ts) const noexcept {
+            switch (ts){
+                case Timestamp::start:{
+                    return endOfFieldSystemTime_[idx];
+                }
+                case Timestamp::end:{
+                    return endOfSlewTime_[idx];
+                }
+            }
+        }
+
+        const unsigned int getIdleTime(int idx, Timestamp ts) const noexcept {
+            switch (ts){
+                case Timestamp::start:{
+                    return endOfSlewTime_[idx];
+                }
+                case Timestamp::end:{
+                    return endOfIdleTime_[idx];
+                }
+            }
+        }
+
+        const unsigned int getPreobTime(int idx, Timestamp ts) const noexcept {
+            switch (ts){
+                case Timestamp::start:{
+                    return endOfIdleTime_[idx];
+                }
+                case Timestamp::end:{
+                    return endOfPreobTime_[idx];
+                }
+            }
+        }
+
+        const unsigned int getObservingTime(int idx, Timestamp ts) const noexcept {
+            switch (ts){
+                case Timestamp::start:{
                     return endOfPreobTime_[idx];
                 }
                 case Timestamp::end:{
-
                     return endOfObservingTime_[idx];
                 }
             }
         }
 
+        const unsigned int getObservingTime(Timestamp ts) const noexcept{
+            switch (ts){
+                case Timestamp::start:{
+                    return *min_element(endOfPreobTime_.begin(), endOfPreobTime_.end());
+                }
+                case Timestamp::end:{
+                    return *max_element(endOfObservingTime_.begin(), endOfObservingTime_.end());
+                }
+            }
+        }
 
-        /**
-         * @brief calculates the earliest possible start time for this scan
-         *
-         * Idle times are introduced
-         */
+        const unsigned int getScanTime(Timestamp ts) const noexcept{
+            switch (ts){
+                case Timestamp::start:{
+                    return *min_element(endOfLastScan_.begin(), endOfLastScan_.end());
+                }
+                case Timestamp::end:{
+                    return *max_element(endOfObservingTime_.begin(), endOfObservingTime_.end());
+                }
+            }
+        }
+
+        
         void alignStartTimes() noexcept;
 
-        void setStartTime(unsigned int scanStart) noexcept ;
+        void setObservingStarts(unsigned int scanStart) noexcept ;
 
         /**
          * @brief updates the slewtime of one element
@@ -165,7 +200,7 @@ namespace VieVS {
          * @param idx index of the element whichs slewtime is chanded
          * @param new_slewtime new slew time in seconds
          */
-        void updateSlewtime(int idx, unsigned int new_slewtime) noexcept;
+        void setSlewTime(int idx, unsigned int new_slewtime) noexcept;
 
         /**
          * @brief adds scan times to each element
@@ -174,32 +209,21 @@ namespace VieVS {
          *
          * @param scanTimes all scan times in seconds
          */
-        void addObservingTimes(const std::vector<unsigned int> &scanTimes) noexcept;
+        void setObservingTimes(const std::vector<unsigned int> &scanTimes) noexcept;
 
+        void setObservingTimes(unsigned int scanTimes) noexcept;
 
-        void addObservingTime(unsigned int scanTimes) noexcept;
-
-
-        void addTagalongStation(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
-                                unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
-                                unsigned int preob);
-
-        bool substractPreobTimeFromStartTime(unsigned int preob);
-
-        static void setAlignmentAnchor(AlignmentAnchor newAnchor){
-            anchor = newAnchor;
-        }
-
-        static AlignmentAnchor getAlignmentAnchor(){
-            return anchor;
-        }
-
-
-        void setObservation(int idx, unsigned int time, Timestamp ts);
-
-        int removeUnnecessaryObservingTime(Timestamp ts);
+        void setObservingTime(int idx, unsigned int time, Timestamp ts);
 
         bool reduceObservingTime(int idx, unsigned int maxObsTime, Timestamp ts);
+
+        void addTagalongStationTime(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
+                                    unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
+                                    unsigned int preob);
+
+        bool setPreobTime(unsigned int preob);
+
+        int removeUnnecessaryObservingTime(Timestamp ts);
 
     private:
         static unsigned long nextId;

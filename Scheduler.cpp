@@ -124,8 +124,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &bodyLog,
         // check end time of best possible next scan
         unsigned int maxScanEnd = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getScanEnd() > maxScanEnd) {
-                maxScanEnd = any.getTimes().getScanEnd();
+            if (any.getTimes().getScanTime(Timestamp::end) > maxScanEnd) {
+                maxScanEnd = any.getTimes().getScanTime(Timestamp::end);
             }
         }
 
@@ -380,7 +380,7 @@ void Scheduler::update(Scan &scan, ofstream &bodyLog) noexcept {
     }
 
     unsigned long nbl = scan.getNObs();
-    unsigned int latestTime = scan.getTimes().getObservingStart();
+    unsigned int latestTime = scan.getTimes().getObservingTime(Timestamp::start);
     Source &thisSource = sources_[srcid];
     thisSource.update(nbl, latestTime, influence);
 
@@ -438,9 +438,9 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
 
             // update staStatistics
             staStatistics.scanStartTimes.push_back(scan_thisEnd.getPointingVector(idx_thisEnd).getTime());
-            staStatistics.totalObservingTime += scan_thisEnd.getTimes().getObservingTime(idx_thisEnd);
-            staStatistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemTime(idx_thisEnd);
-            staStatistics.totalPreobTime += scan_thisEnd.getTimes().getPreobTime(idx_thisEnd);
+            staStatistics.totalObservingTime += scan_thisEnd.getTimes().getObservingDuration(idx_thisEnd);
+            staStatistics.totalFieldSystemTime += scan_thisEnd.getTimes().getFieldSystemDuration(idx_thisEnd);
+            staStatistics.totalPreobTime += scan_thisEnd.getTimes().getPreobDuration(idx_thisEnd);
 
             int i_nextStart = i_thisEnd+1;
             while( i_nextStart < scans_.size()){
@@ -544,14 +544,14 @@ bool Scheduler::checkAndStatistics(ofstream &bodyLog) noexcept {
     for(const auto &any:scans_){
         unsigned long srcid = any.getSourceId();
         auto &thisSrcStatistics = srcStatistics[srcid];
-        thisSrcStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
-        thisSrcStatistics.totalObservingTime += any.getTimes().getObservingTime();
+        thisSrcStatistics.scanStartTimes.push_back(any.getTimes().getObservingTime(Timestamp::start));
+        thisSrcStatistics.totalObservingTime += any.getTimes().getObservingDuration();
 
         for(const auto &obs: any.getObservations()){
             unsigned long blid = obs.getBlid();
             auto &thisBlsStatistics = blsStatistics[blid];
-            thisBlsStatistics.scanStartTimes.push_back(any.getTimes().getObservingStart());
-            thisBlsStatistics.totalObservingTime += any.getTimes().getObservingTime();
+            thisBlsStatistics.scanStartTimes.push_back(any.getTimes().getObservingTime(Timestamp::start));
+            thisBlsStatistics.totalObservingTime += any.getTimes().getObservingDuration();
         }
     }
     for(unsigned long isrc=0; isrc<sources_.size(); ++isrc){
@@ -760,8 +760,8 @@ void Scheduler::startCalibrationBlock(std::ofstream &bodyLog) {
 
         unsigned int all_maxTime = 0;
         for (const auto &any:bestScans) {
-            if (any.getTimes().getObservingEnd() > all_maxTime) {
-                all_maxTime = any.getTimes().getObservingEnd();
+            if (any.getTimes().getObservingTime(Timestamp::end) > all_maxTime) {
+                all_maxTime = any.getTimes().getObservingTime(Timestamp::end);
             }
         }
 
@@ -860,7 +860,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &bodyLog) {
     unsigned long counter = 0;
     for(auto & scan:scans_){
         ++counter;
-        unsigned int scanStartTime = scan.getTimes().getObservingStart();
+        unsigned int scanStartTime = scan.getTimes().getObservingTime(Timestamp::start);
         unsigned int currentStationTime = station.getCurrentTime();
 
         if(scan.getType() == Scan::ScanType::fillin){
@@ -1208,7 +1208,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
 
         // check if there was an new upcoming event in the meantime
-        unsigned int startTime = lastScan.getTimes().getScanEnd();
+        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
         checkForNewEvents(startTime, true, bodyLog);
         if(ignoreTagalong ){
             ignoreTagalongParameter();
@@ -1216,7 +1216,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection(scans_[i + 1].getTimes().getScanEnd(), bodyLog, type, endposition, subcon, 1);
+        startScanSelection(scans_[i + 1].getTimes().getScanTime(Timestamp::end), bodyLog, type, endposition, subcon, 1);
     }
 
     // do the same between time at from last scan until duration with no endposition
@@ -1236,7 +1236,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
         }
     }
     // check if there was an new upcoming event in the meantime
-    unsigned int startTime = lastScan.getTimes().getScanEnd();
+    unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
     checkForNewEvents(startTime, true, bodyLog);
     if(ignoreTagalong ){
         ignoreTagalongParameter();
@@ -1349,7 +1349,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             // start with each scan
             for(int iscan=0; iscan<scans_.size(); ++iscan){
                 Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanStart(), true, bodyLog);
+                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, bodyLog);
 
                 // save station ids of this scan (only these stations can be affected)
                 vector<unsigned long> staids= thisScan.getStationIds();
@@ -1382,7 +1382,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                                 const PointingVector &endposition = nextScan.getPointingVector(nidx);
                                 endp.addPointingVectorAsEndposition(endposition);
                                 constantTime[idx] = thisSta.getWaittimes().fieldSystem + thisSta.getWaittimes().preob;
-                                slewTimes[idx] = nextScan.getTimes().getSlewTime(nidx);
+                                slewTimes[idx] = nextScan.getTimes().getSlewDuration(nidx);
                                 found[idx] = true;
                             }
                         }
@@ -1501,8 +1501,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                 bool change = false;
                 for(int i=0; i<nThisSta; ++i) {
-                    unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-                    unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+                    unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+                    unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
                     if(oldObservingTime != newObservingTime){
                         change = true;
                         break;
@@ -1513,8 +1513,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                     bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
                     for(int i=0; i<nThisSta; ++i){
                         unsigned long staid = thisScan.getStationId(i);
-                        unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-                        unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+                        unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+                        unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
                         if(oldObservingTime == newObservingTime){
                             continue;
                         }
@@ -1524,11 +1524,11 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                         bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingEnd(i))
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::end))
                                     % newObservingTime
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
                                     % oldObservingTime
                                     % id).str();
                     }
@@ -1548,7 +1548,7 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
             // loop over each scan
             for(int iscan=0; iscan<scans_.size(); ++iscan) {
                 Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanStart(), true, bodyLog);
+                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, bodyLog);
 
                 // save station ids of this scan (only these stations can be affected)
                 vector<unsigned long> staids = thisScan.getStationIds();
@@ -1608,8 +1608,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                         unsigned int prevSlewTime = thisSta.getAntenna().slewTime(start,end);
 
                         unsigned int availableTime = end.getTime() - start.getTime();
-                        unsigned int idleTime = availableTime - thisScan.getTimes().getFieldSystemTime(idx) -
-                                thisScan.getTimes().getPreobTime(idx) - prevSlewTime;
+                        unsigned int idleTime = availableTime - thisScan.getTimes().getFieldSystemDuration(idx) -
+                                thisScan.getTimes().getPreobDuration(idx) - prevSlewTime;
 
                         // update azimuth and elevation of variable
                         variable.setTime(endTime - idleTime);
@@ -1701,8 +1701,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
 
                 bool change = false;
                 for(int i=0; i<nThisSta; ++i) {
-                    unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-                    unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+                    unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+                    unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
                     if(oldObservingTime != newObservingTime){
                         change = true;
                         break;
@@ -1713,8 +1713,8 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                     bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
                     for(int i=0; i<nThisSta; ++i){
                         unsigned long staid = thisScan.getStationId(i);
-                        unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-                        unsigned int newObservingTime = thisScan.getTimes().getObservingTime(i);
+                        unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+                        unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
                         if(oldObservingTime == newObservingTime){
                             continue;
                         }
@@ -1724,11 +1724,11 @@ void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream 
                         bodyLog << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
                                     % network_.getStation(staid).getName()
                                     %(static_cast<int>(newObservingTime-oldObservingTime))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingStart(i))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingEnd(i))
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
+                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::end))
                                     % newObservingTime
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
+                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
                                     % oldObservingTime
                                     % id).str();
                     }
@@ -1821,7 +1821,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             }
 
             // check for new events
-            checkForNewEvents(scan1.getTimes().getScanStart(), true, bodyLog);
+            checkForNewEvents(scan1.getTimes().getScanTime(Timestamp::start), true, bodyLog);
 
             // look for index of next scan with this station
             int iscan2 = iscan1+1;
@@ -2105,8 +2105,8 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
         // check if output is required
         bool change = false;
         for(int i=0; i<scan.getNSta(); ++i) {
-            unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-            unsigned int newObservingTime = scan.getTimes().getObservingTime(i);
+            unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+            unsigned int newObservingTime = scan.getTimes().getObservingDuration(i);
             if(oldObservingTime != newObservingTime){
                 change = true;
                 break;
@@ -2118,8 +2118,8 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
             bodyLog << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % scan.getId() % source.getName();
             for(int i=0; i<scan.getNSta(); ++i){
                 unsigned long staid = scan.getStationId(i);
-                unsigned int oldObservingTime = copyOfScanTimes.getObservingTime(i);
-                unsigned int newObservingTime = scan.getTimes().getObservingTime(i);
+                unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
+                unsigned int newObservingTime = scan.getTimes().getObservingDuration(i);
                 if(oldObservingTime == newObservingTime){
                     continue;
                 }
@@ -2129,11 +2129,11 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
                 bodyLog << (boost::format("    %-8s %+5d seconds: new observing time: %s - %s (%4d sec) old observing time %s - %s (%4d sec) %s\n")
                             % network_.getStation(staid).getName()
                             %(static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime))
-                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingStart(i))
-                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingEnd(i))
+                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
+                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::end))
                             % newObservingTime
-                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingStart(i))
-                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingEnd(i))
+                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
+                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
                             % oldObservingTime
                             % id).str();
             }
@@ -2147,98 +2147,41 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &bodyLog) {
 
 
 void Scheduler::sortSchedule(Timestamp ts) {
-    switch (ts){
-
-        case Timestamp::start:{
-            stable_sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-                return scan1.getTimes().getObservingStart() < scan2.getTimes().getObservingStart();
-            });
-
-            break;
-        }
-        case Timestamp::end:{
-            stable_sort(scans_.begin(),scans_.end(), [](const Scan &scan1, const Scan &scan2){
-                return scan1.getTimes().getObservingEnd() < scan2.getTimes().getObservingEnd();
-            });
-
-            break;
-        }
-    }
-
-
+    stable_sort(scans_.begin(),scans_.end(), [ts](const Scan &scan1, const Scan &scan2){
+        return scan1.getTimes().getObservingTime(ts) < scan2.getTimes().getObservingTime(ts);
+    });
 }
 
 void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
 
-    switch (ts){
+    stable_sort(scans_.begin(),scans_.end(), [staid, ts](const Scan &scan1, const Scan &scan2){
 
-        case Timestamp::start:{
-            stable_sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
+        boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
+        boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
 
-                boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
-                boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
+        if(!idx1.is_initialized() && !idx2.is_initialized()){
 
-                if(!idx1.is_initialized() && !idx2.is_initialized()){
+            return scan1.getTimes().getObservingTime(ts) <
+                   scan2.getTimes().getObservingTime(ts);
 
-                    return scan1.getTimes().getObservingStart() <
-                           scan2.getTimes().getObservingStart();
+        } else if(idx1.is_initialized() && !idx2.is_initialized()){
 
-                } else if(idx1.is_initialized() && !idx2.is_initialized()){
+            return scan1.getTimes().getObservingTime(static_cast<int>(*idx1), ts) <
+                   scan2.getTimes().getObservingTime(ts);
 
-                    return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) <
-                           scan2.getTimes().getObservingStart();
+        } else if(!idx1.is_initialized() && idx2.is_initialized()){
 
-                } else if(!idx1.is_initialized() && idx2.is_initialized()){
+            return scan1.getTimes().getObservingTime(ts) <
+                    scan2.getTimes().getObservingTime(static_cast<int>(*idx2), ts);
 
-                    return scan1.getTimes().getObservingStart() <
-                            scan2.getTimes().getObservingStart(static_cast<int>(*idx2));
+        } else {
 
-                } else {
+            return scan1.getTimes().getObservingTime(static_cast<int>(*idx1), ts) <
+                   scan2.getTimes().getObservingTime(static_cast<int>(*idx2), ts);
 
-                    return scan1.getTimes().getObservingStart(static_cast<int>(*idx1)) <
-                           scan2.getTimes().getObservingStart(static_cast<int>(*idx2));
-
-                }
-            });
-
-
-            break;
         }
-        case Timestamp::end:{
-            stable_sort(scans_.begin(),scans_.end(), [staid](const Scan &scan1, const Scan &scan2){
 
-                boost::optional<unsigned long> idx1 = scan1.findIdxOfStationId(staid);
-                boost::optional<unsigned long> idx2 = scan2.findIdxOfStationId(staid);
-
-                if(!idx1.is_initialized() && !idx2.is_initialized()){
-
-                    return scan1.getTimes().getObservingEnd() <
-                           scan2.getTimes().getObservingEnd();
-
-                } else if(idx1.is_initialized() && !idx2.is_initialized()){
-
-                    return scan1.getTimes().getObservingEnd(static_cast<int>(*idx1)) <
-                           scan2.getTimes().getObservingEnd();
-
-                } else if(!idx1.is_initialized() && idx2.is_initialized()){
-
-                    return scan1.getTimes().getObservingEnd() <
-                           scan2.getTimes().getObservingEnd(static_cast<int>(*idx2));
-
-                } else {
-
-                    return scan1.getTimes().getObservingEnd(static_cast<int>(*idx1)) <
-                           scan2.getTimes().getObservingEnd(static_cast<int>(*idx2));
-
-                }
-            });
-
-
-            break;
-        }
-    }
-
-
+    });
 }
 
 

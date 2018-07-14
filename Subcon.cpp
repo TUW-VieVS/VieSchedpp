@@ -89,7 +89,7 @@ Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time and minimum scan time
                 int possibleEndpositionTime =
-                        times.getObservingStart(j) + minimumScanTime +5+ waitTimes.fieldSystem + waitTimes.preob;
+                        times.getObservingTime(j, Timestamp::start) + minimumScanTime +5+ waitTimes.fieldSystem + waitTimes.preob;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
@@ -152,7 +152,7 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
             unsigned long staid = thisScan.getStationId(staidx);
             PointingVector &thisPointingVector = thisScan.referencePointingVector(staidx);
             const Station &thisStation = network.getStation(staid);
-            thisPointingVector.setTime(thisScan.getTimes().getObservingStart(staidx));
+            thisPointingVector.setTime(thisScan.getTimes().getObservingTime(staidx, Timestamp::start));
             thisStation.calcAzEl(thisSource, thisPointingVector);
             bool visible = thisStation.isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
@@ -171,7 +171,7 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
                 }
             } else {
                 maxIdleTimes.push_back(thisStation.getPARA().maxWait);
-                thisScan.referenceTime().updateSlewtime(staidx, *slewtime);
+                thisScan.referenceTime().setSlewTime(staidx, *slewtime);
                 ++staidx;
             }
         }
@@ -232,7 +232,7 @@ void Subcon::calcAllScanDurations(const Network &network, const vector<Source> &
                 const auto &waitTimes = thisSta.getWaittimes();
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time
-                int possibleEndpositionTime = times.getObservingEnd(staidx) + waitTimes.fieldSystem + waitTimes.preob + 5;
+                int possibleEndpositionTime = times.getObservingTime(staidx, Timestamp::end) + waitTimes.fieldSystem + waitTimes.preob + 5;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime(staid);
@@ -335,8 +335,8 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                         if (scan1sta.size() >= sources[firstSrcId].getPARA().minNumberOfStations &&
                             scan2sta.size() >= sources[secondSrcId].getPARA().minNumberOfStations) {
 
-                            unsigned int firstTime = first.getTimes().getScanEnd();
-                            unsigned int secondTime = second.getTimes().getScanEnd();
+                            unsigned int firstTime = first.getTimes().getScanTime(Timestamp::end);
+                            unsigned int secondTime = second.getTimes().getScanTime(Timestamp::end);
 
                             if( util::absDiff(firstTime,secondTime) > 600) {
                                 continue;
@@ -406,7 +406,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
     for (auto &thisScan: singleScans_) {
         vector<double> firstScorePerPv(thisScan.getNSta(),0);
         const Source &thisSource = sources[thisScan.getSourceId()];
-        unsigned int iTime = thisScan.getTimes().getObservingStart()/interval;
+        unsigned int iTime = thisScan.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
         thisScan.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource, hiscore);
@@ -417,7 +417,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
         Scan &thisScan1 = thisScans.first;
         unsigned long srcid1 = thisScan1.getSourceId();
         const Source &thisSource1 = sources[srcid1];
-        unsigned int iTime1 = thisScan1.getTimes().getObservingStart()/interval;
+        unsigned int iTime1 = thisScan1.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap1 = hiscores[iTime1];
         double hiscore1 = thisMap1.at(thisSource1.getId());
         thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource1, hiscore1);
@@ -426,7 +426,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
         Scan &thisScan2 = thisScans.second;
         unsigned long srcid2 = thisScan2.getSourceId();
         const Source &thisSource2 = sources[srcid2];
-        unsigned int iTime2 = thisScan2.getTimes().getObservingStart()/interval;
+        unsigned int iTime2 = thisScan2.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap2 = hiscores[iTime2];
         double hiscore2 = thisMap2.at(thisSource2.getId());
         thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource2, hiscore2);
@@ -485,7 +485,7 @@ void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
     unsigned int minTime = numeric_limits<unsigned int>::max();
     for (auto &thisScan: singleScans_) {
-        unsigned int thisTime = thisScan.getTimes().getScanEnd() - thisScan.getTimes().getScanStart();
+        unsigned int thisTime = thisScan.getTimes().getScanTime(Timestamp::end) - thisScan.getTimes().getScanTime(Timestamp::start);
         if (thisTime < minTime) {
             minTime = thisTime;
         }
@@ -716,8 +716,8 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             }
 
             // check time differences between subnetting scans
-            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanTime(Timestamp::end);
+            unsigned int maxTime2 = thisScan2.getTimes().getScanTime(Timestamp::end);
             unsigned int deltaTime = util::absDiff(maxTime1,maxTime2);
             if (deltaTime > 600) {
                 continue;
@@ -837,8 +837,8 @@ boost::optional<unsigned long> Subcon::rigorousScore(const Network &network, con
                 continue;
             }
 
-            unsigned int maxTime1 = thisScan1.getTimes().getScanEnd();
-            unsigned int maxTime2 = thisScan2.getTimes().getScanEnd();
+            unsigned int maxTime1 = thisScan1.getTimes().getScanTime(Timestamp::end);
+            unsigned int maxTime2 = thisScan2.getTimes().getScanTime(Timestamp::end);
             unsigned int deltaTime;
             if (maxTime1 > maxTime2) {
                 deltaTime = maxTime1 - maxTime2;
@@ -926,9 +926,9 @@ void Subcon::checkIfEnoughTimeToReachEndposition(const Network &network, const s
 
                 // check if there is enough time
                 possibleEndpositionTime =
-                        times.getObservingEnd(istation) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
+                        times.getObservingTime(istation, Timestamp::end) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
             }else{
-                possibleEndpositionTime = times.getObservingEnd(istation);
+                possibleEndpositionTime = times.getObservingTime(istation, Timestamp::end);
             }
 
             // get minimum required endpositon time

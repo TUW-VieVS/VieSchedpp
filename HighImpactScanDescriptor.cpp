@@ -145,10 +145,10 @@ bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const
     unsigned int minTimeBetweenSource = source.getPARA().minRepeat;
 
     return std::all_of(scans.begin(),scans.end(),[target, minTimeBetweenScans=minTimeBetweenScans_, minTimeBetweenSource](const Scan &scan){
-        unsigned int targetStart = target.getTimes().getObservingStart();
-        unsigned int targetEnd = target.getTimes().getObservingEnd();
-        unsigned int scanStart = scan.getTimes().getObservingStart();
-        unsigned int scanEnd = scan.getTimes().getObservingEnd();
+        unsigned int targetStart = target.getTimes().getObservingTime(Timestamp::start);
+        unsigned int targetEnd = target.getTimes().getObservingTime(Timestamp::end);
+        unsigned int scanStart = scan.getTimes().getObservingTime(Timestamp::start);
+        unsigned int scanEnd = scan.getTimes().getObservingTime(Timestamp::end);
 
         bool valid = true;
 

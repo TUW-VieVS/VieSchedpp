@@ -70,7 +70,8 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
             }
 
             // add new baseline
-            unsigned int startTime = max({times_.getObservingStart(i), times_.getObservingStart(j)});
+            unsigned int startTime = max({times_.getObservingTime(i, Timestamp::start),
+                                          times_.getObservingTime(j, Timestamp::start)});
             observations_.emplace_back(blid, staid1, staid2, srcid, startTime);
             valid = true;
         }
@@ -169,7 +170,7 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
         idleTimeValid = true;
 
         // get end of slew times
-        const vector<unsigned int> &eosl = times_.getEndOfSlewTime();
+        const vector<unsigned int> &eosl = times_.getEndOfSlewTimes();
         auto it= max_element(eosl.begin(), eosl.end());
         latestSlewTime = *it;
         long idx = distance(eosl.begin(), it);
@@ -319,7 +320,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
     // check if it is a calibrator scan with a fixed scan duration
     if(type_ == ScanType::calibrator){
         if(CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds){
-            times_.addObservingTime(CalibratorBlock::scanLength);
+            times_.setObservingTimes(CalibratorBlock::scanLength);
             return true;
         }
     }
@@ -327,7 +328,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
     // check if there is a fixed scan duration for this source
     boost::optional<unsigned int> fixedScanDuration = source.getPARA().fixedScanDuration;
     if (fixedScanDuration.is_initialized()) {
-        times_.addObservingTime(*fixedScanDuration);
+        times_.setObservingTimes(*fixedScanDuration);
         return true;
     }
 
@@ -440,7 +441,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
                     // look at the earliest possible scan start time and remove station with latest scan start time
                     vector<unsigned int> thisScanStartTimes(maxSEFDId.size());
                     for (int i : maxSEFDId) {
-                        thisScanStartTimes[(times_.getSlewEnd(i))];
+                        thisScanStartTimes[(times_.getSlewTime(i, Timestamp::end))];
                     }
 
                     // remove station with latest slew end time. If multiple have the same value simply pick one
@@ -459,7 +460,7 @@ bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
 
     }while(!scanDurationsValid);
 
-    times_.addObservingTimes(scanTimes);
+    times_.setObservingTimes(scanTimes);
     return true;
 }
 
@@ -492,7 +493,7 @@ double Scan::calcScore_idleTime() const noexcept {
 
     double score = 0;
     for(int idx=0; idx<nsta_; ++idx){
-        unsigned int thisIdleTime = times_.getIdleTime(idx);
+        unsigned int thisIdleTime = times_.getIdleDuration(idx);
         score += static_cast<double>(thisIdleTime) / interval;
     }
 
@@ -611,12 +612,12 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
     int ista = 0;
     while (ista < nsta_) {
         PointingVector &pv = pointingVectorsStart_[ista];
-        unsigned int slewStart = times_.getSlewStart(ista);
+        unsigned int slewStart = times_.getSlewTime(ista, Timestamp::start);
         const Station &thisStation = network.getStation(pv.getStaid());
 
         // old slew end time and new slew end time, required for iteration
         unsigned int oldSlewEnd = 0;
-        unsigned int newSlewEnd = times_.getSlewEnd(ista);
+        unsigned int newSlewEnd = times_.getSlewTime(ista, Timestamp::end);
 
         // big slew indicates if the slew distance is > 180 degrees
         bool bigSlew = false;
@@ -692,7 +693,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
         // if no station was removed update slewtimes and increase counter... otherwise restart with same staid
         if(!stationRemoved){
             // update the slewtime
-            times_.updateSlewtime(ista, newSlewEnd - slewStart);
+            times_.setSlewTime(ista, newSlewEnd - slewStart);
             ++ista;
         }
     }
@@ -747,8 +748,8 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
     while (ista < nsta_) {
 
         // get all required members
-        unsigned int scanStart = times_.getObservingStart(ista);
-        unsigned int scanEnd = times_.getObservingEnd(ista);
+        unsigned int scanStart = times_.getObservingTime(ista, Timestamp::start);
+        unsigned int scanEnd = times_.getObservingTime(ista, Timestamp::end);
         PointingVector &pv = pointingVectorsStart_[ista];
         const Station &thisStation = network.getStation(pv.getStaid());
 
@@ -842,9 +843,9 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
 
             // check if there is enough time
             possibleEndpositionTime =
-                    times_.getObservingEnd(idxSta) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
+                    times_.getObservingTime(idxSta, Timestamp::end) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
         }else{
-            possibleEndpositionTime = times_.getObservingEnd(idxSta);
+            possibleEndpositionTime = times_.getObservingTime(idxSta, Timestamp::end);
         }
 
         // get minimum required endpositon time
@@ -869,12 +870,12 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
         observations_.push_back(any);
     }
     if(station.getPARA().firstScan){
-        times_.addTagalongStation(pv_start, pv_end, 0, 0, 0, 0);
+        times_.addTagalongStationTime(pv_start, pv_end, 0, 0, 0, 0);
     }else{
-        times_.addTagalongStation(pv_start, pv_end, slewtime,
-                                  station.getCurrentTime(),
-                                  station.getWaittimes().fieldSystem,
-                                  station.getWaittimes().preob);
+        times_.addTagalongStationTime(pv_start, pv_end, slewtime,
+                                      station.getCurrentTime(),
+                                      station.getWaittimes().fieldSystem,
+                                      station.getWaittimes().preob);
     }
 }
 
@@ -1115,8 +1116,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
 
     of << boost::format("Scan: no%04d  Source: %-8s (id: %3d) Ra: %s Dec %s Start_time: %s Stop_time: %s Type: %s %s (id: %d)\n")
        % observed_scan_nr % source.getName() % source.getId() % util::ra2dms(source.getRa()) % util::dc2hms(source.getDe())
-       % TimeSystem::internalTime2timeString(times_.getObservingStart())
-       % TimeSystem::internalTime2timeString(times_.getObservingEnd())
+       % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::start))
+       % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::end))
        % type % type2 %getId();
 
     for(int i=0; i<nsta_; ++i){
@@ -1126,10 +1127,11 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
         of << boost::format("    %-8s: fs: %2d [s] slew: %3d [s] idle: %4d [s] preob: %3d [s] obs: %3d [s] (%s - %s) az: %8.4f unaz: %9.4f el: %7.4f (id: %d and %d)\n")
-              % thisSta.getName() %times_.getFieldSystemTime(i) % times_.getSlewTime(i) % times_.getIdleTime(i) % times_.getPreobTime(i) %
-                times_.getObservingTime(i)
-              % TimeSystem::internalTime2timeString(times_.getObservingStart(i))
-              % TimeSystem::internalTime2timeString(times_.getObservingEnd(i))
+              % thisSta.getName() % times_.getFieldSystemDuration(i) % times_.getSlewDuration(i) % times_.getIdleDuration(i) %
+                times_.getPreobDuration(i) %
+                times_.getObservingDuration(i)
+              % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::start))
+              % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::end))
               % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
     of << "*\n";
@@ -1213,7 +1215,7 @@ double Scan::weight_baselines(const std::vector<Baseline> &baselines) {
 
 
 void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
-    times_.addObservingTime(scanDuration);
+    times_.setObservingTimes(scanDuration);
 }
 
 bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSystemTime,
@@ -1223,9 +1225,9 @@ bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSyst
     for(int i=0; i < slewTime.size(); ++i){
         times_.addTimes(i, fieldSystemTime, slewTime.at(static_cast<unsigned long>(i)), 0);
     }
-    times_.setStartTime(scanStart);
-    bool valid = times_.substractPreobTimeFromStartTime(preob);
-    times_.addObservingTimes(observingTimes);
+    times_.setObservingStarts(scanStart);
+    bool valid = times_.setPreobTime(preob);
+    times_.setObservingTimes(observingTimes);
     return valid;
 }
 
@@ -1236,15 +1238,15 @@ void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
 void Scan::createDummyObservations(const Network &network) {
     for(int i=0; i<nsta_; ++i) {
         unsigned long staid1 = pointingVectorsStart_[i].getStaid();
-        unsigned int dur1 = times_.getObservingTime(i);
+        unsigned int dur1 = times_.getObservingDuration(i);
         for (int j = i + 1; j < nsta_; ++j) {
             unsigned long staid2 = pointingVectorsStart_[j].getStaid();
-            unsigned int dur2 = times_.getObservingTime(j);
+            unsigned int dur2 = times_.getObservingDuration(j);
 
             unsigned int dur = std::max(dur1, dur2);
             unsigned long blid = network.getBlid(staid1,staid2);
 
-            Observation obs(blid, staid1, staid2, srcid_, times_.getObservingStart(), dur);
+            Observation obs(blid, staid1, staid2, srcid_, times_.getObservingTime(Timestamp::start), dur);
             observations_.push_back(std::move(obs));
         }
     }
@@ -1261,7 +1263,7 @@ unsigned long Scan::getNObs(unsigned long staid) const noexcept {
 }
 
 void Scan::setPointingVector(int idx, PointingVector pv, Timestamp ts) {
-    times_.setObservation(idx, pv.getTime(), ts);
+    times_.setObservingTime(idx, pv.getTime(), ts);
     switch (ts){
         case Timestamp::start:{
             pointingVectorsStart_[idx] = move(pv);

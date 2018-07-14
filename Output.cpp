@@ -269,7 +269,7 @@ void Output::displayScanDurationStatistics(ofstream &out) {
 
     for(const auto&any: scans_){
         unsigned long nbl = any.getNObs();
-        maxScanDurations.push_back(any.getTimes().getObservingTime());
+        maxScanDurations.push_back(any.getTimes().getObservingDuration());
 
         for (int i = 0; i < nbl; ++i) {
             const Observation &obs = any.getObservation(i);
@@ -736,7 +736,7 @@ void Output::writeStatisticsPerSourceGroup() {
             }
             for(int i=0; i<scan.getNSta(); ++i){
                 unsigned long staid = scan.getPointingVector(i).getStaid();
-                unsigned int duration = scan.getTimes().getObservingTime(i);
+                unsigned int duration = scan.getTimes().getObservingDuration(i);
                 scanTimePerStation[srcid][staid]+=duration;
             }
         }

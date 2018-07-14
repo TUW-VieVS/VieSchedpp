@@ -273,9 +273,9 @@ void SkdParser::createScans() {
             if(!valid){
                 const auto &tmp = scan.getTimes();
                 for (int i = 0; i < nsta; ++i) {
-                    if(tmp.getObservingStart(i)-tmp.getPreobTime(i) < tmp.getSlewEnd(i)-2){
-                        unsigned int eost = tmp.getSlewEnd(i);
-                        unsigned int eoit = tmp.getObservingStart(i)-tmp.getPreobTime(i);
+                    if(tmp.getObservingTime(i, Timestamp::start)- tmp.getPreobDuration(i) < tmp.getSlewTime(i, Timestamp::end)-2){
+                        unsigned int eost = tmp.getSlewTime(i, Timestamp::end);
+                        unsigned int eoit = tmp.getObservingTime(i, Timestamp::start)- tmp.getPreobDuration(i);
                         boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
                         boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
@@ -318,7 +318,7 @@ void SkdParser::copyScanMembersToObjects() {
         }
 
         unsigned long nbl = (scan.getNSta()*(scan.getNSta()-1))/2;
-        unsigned int latestTime = scan.getTimes().getObservingStart();
+        unsigned int latestTime = scan.getTimes().getObservingTime(Timestamp::start);
         Source &thisSource = sources_[srcid];
         thisSource.update(nbl, latestTime, true);
     }
@@ -342,10 +342,10 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
             }
             if (idx != -1) {
                 times.emplace_back(vector<unsigned int>{
-                        scan.getTimes().getSlewTime(idx),
-                        scan.getTimes().getIdleTime(idx),
-                        scan.getTimes().getPreobTime(idx),
-                        scan.getTimes().getObservingTime(idx)});
+                        scan.getTimes().getSlewDuration(idx),
+                        scan.getTimes().getIdleDuration(idx),
+                        scan.getTimes().getPreobDuration(idx),
+                        scan.getTimes().getObservingDuration(idx)});
             }
         }
     }
