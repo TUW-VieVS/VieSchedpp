@@ -172,6 +172,7 @@ namespace VieVS {
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, double subnettingMinSta,
                      bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                     bool idleToObservingTime,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                      const std::vector<std::string> &srcNames, const std::string &scanAlignment);
 
@@ -343,8 +344,8 @@ namespace VieVS {
          * @param lowElevationSlopeEnd end elevation of additional declination weight slope (everything below has factor 1)
          */
         void weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                          double weight_averageSources, double weight_averageStations, double weight_idleTime,
-                          unsigned int intervalIdleTime, double weightDeclination,
+                          double weight_averageSources, double weight_averageStations, double weight_averageBaselines,
+                          double weight_idleTime,  unsigned int intervalIdleTime, double weightDeclination,
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 

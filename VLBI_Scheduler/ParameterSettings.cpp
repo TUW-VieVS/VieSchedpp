@@ -22,6 +22,7 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, double subnettingMinAngle, double subnettingMinNSta,
                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                                bool idleToObservingTime,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
                                 const std::vector<std::string> &srcNames, const std::string &scanAlignment) {
     boost::property_tree::ptree general;
@@ -46,9 +47,17 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
 
 
     if(fillinmodeAPosteriori || fillinmodeDuringScan){
+        if(fillinmodeAPosteriori){
+            general.add("general.fillinmodeAPosteriori",fillinmodeAPosteriori);
+        }
+        if(fillinmodeDuringScan){
+            general.add("general.fillinmodeDuringScanSelection",fillinmodeDuringScan);
+        }
         general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
-        general.add("general.fillinmodeAPosteriori",fillinmodeAPosteriori);
-        general.add("general.fillinmodeDuringScanSelection",fillinmodeDuringScan);
+    }
+
+    if(idleToObservingTime){
+        general.add("general.idleToObservingTime",idleToObservingTime);
     }
 
     boost::property_tree::ptree all_stations;
@@ -787,8 +796,8 @@ void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influ
 
 void
 ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                                double weight_averageSources, double weight_averageStations, double weight_idleTime,
-                                unsigned int idleTimeInterval, double weightDeclination,
+                                double weight_averageSources, double weight_averageStations, double weight_averageBaselines,
+                                double weight_idleTime, unsigned int idleTimeInterval, double weightDeclination,
                                 double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                                 double lowElevationSlopeStart, double lowElevationSlopeEnd) {
     boost::property_tree::ptree weightFactor;
@@ -806,6 +815,9 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     }
     if(weight_averageStations != 0){
         weightFactor.add("weightFactor.averageStations", weight_averageStations);
+    }
+    if(weight_averageBaselines != 0){
+        weightFactor.add("weightFactor.averageBaselines", weight_averageBaselines);
     }
     if(weight_idleTime != 0){
         weightFactor.add("weightFactor.idleTime", weight_idleTime);

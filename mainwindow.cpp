@@ -2748,6 +2748,7 @@ QString MainWindow::writeXML()
     bool fillinModeAPosteriori = ui->checkBox_fillinmode_aposteriori->isChecked();
     bool fillinModeDuringScan = ui->checkBox_fillinmode_duringscan->isChecked();
     bool fillinModeInfluence = ui->checkBox_fillinModeInfluence->isChecked();
+    bool idleToObservingTime = ui->checkBox_idleToObservingTime->isChecked();
     bool subnetting = ui->groupBox_subnetting->isChecked();
     double subnettingAngle = ui->doubleSpinBox_subnettingDistance->value();
     double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
@@ -2759,9 +2760,9 @@ QString MainWindow::writeXML()
     }
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment);
     }else{
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment);
     }
 
 
@@ -2881,6 +2882,10 @@ QString MainWindow::writeXML()
     if(ui->checkBox_weightAverageStations->isChecked()){
         weightAverageStations = ui->doubleSpinBox_weightAverageStations->value();
     }
+    double weightAverageBaselines = 0;
+    if(ui->checkBox_weightAverageBaselines->isChecked()){
+        weightAverageBaselines = ui->doubleSpinBox_weightAverageBaselines->value();
+    }
     double weightIdleTime = 0;
     unsigned int intervalIdleTime = 0;
     if(ui->checkBox_weightIdleTime->isChecked()){
@@ -2904,7 +2909,7 @@ QString MainWindow::writeXML()
         weightElevationSlopeEnd = ui->doubleSpinBox_weightLowElEnd->value();
     }
     para.weightFactor(weightSkyCoverage, weightNumberOfObservations, weightDuration, weightAverageSources,
-                      weightAverageStations, weightIdleTime, intervalIdleTime, weightDeclination,
+                      weightAverageStations, weightAverageBaselines, weightIdleTime, intervalIdleTime, weightDeclination,
                       weightDeclinationSlopeStart, weightDeclinationSlopeEnd,
                       weightElevation, weightElevationSlopeStart, weightElevationSlopeEnd);
 
