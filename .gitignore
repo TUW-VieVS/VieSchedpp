@@ -4,4 +4,4 @@
 /doxygen/
 /Doxyfile
 /.idea/
-/libsofa*
+libsofa*
