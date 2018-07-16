@@ -286,7 +286,7 @@ namespace VieVS{
          * @return number of baselines already observed for this source
          */
         unsigned long getNObs() const noexcept {
-            return nBaselines_;
+            return nObs_;
         }
 
         /**
@@ -416,7 +416,7 @@ namespace VieVS{
         unsigned int lastScan_{0}; ///< last scan to this source
         unsigned int nScans_{0}; ///< number of scans to this source that have influence on scheduling algorithms
         unsigned int nTotalScans_{0}; ///< number of total scans
-        unsigned long nBaselines_{0}; ///< number of observed baselines to this source
+        unsigned long nObs_{0}; ///< number of observed baselines to this source
     };
     
     

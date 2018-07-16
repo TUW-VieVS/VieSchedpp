@@ -116,7 +116,7 @@ double Source::observedFlux(const string &band, double gmst, const std::vector<d
 void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept {
     if(addToStatistics){
         ++nScans_;
-        nBaselines_ += nbl;
+        nObs_ += nbl;
         lastScan_ = time;
     }
     ++nTotalScans_;
@@ -165,7 +165,7 @@ void Source::clearObservations() {
     lastScan_ = 0;
     nScans_ = 0;
     nTotalScans_ = 0;
-    nBaselines_ = 0;
+    nObs_ = 0;
 
     bool hardBreak = false;
     nextEvent_ = 0;
