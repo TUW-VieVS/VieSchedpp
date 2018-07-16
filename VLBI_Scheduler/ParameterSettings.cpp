@@ -950,7 +950,7 @@ void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree,
 }
 
 void ParameterSettings::multiCore(const string &threads, int nThreadsManual, const string &jobScheduler,
-                                  int chunkSize, const string &threadPlace)
+                                  int chunkSize)
 {
     boost::property_tree::ptree mc;
     mc.add("multiCore.threads",threads);
@@ -961,7 +961,6 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
     if(jobScheduler != "auto"){
         mc.add("multiCore.chunkSize",chunkSize);
     }
-    mc.add("multiCore.threadPlace",threadPlace);
 
     master_.add_child("master.multiCore", mc.get_child("multiCore"));
 }

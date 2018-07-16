@@ -409,8 +409,7 @@ namespace VieVS {
          * @param threadPlace thread affinitiy control
          */
         void multiCore(const std::string &threads, int nThreadsManual,
-                       const std::string &jobScheduler, int chunkSize,
-                       const std::string &threadPlace);
+                       const std::string &jobScheduler, int chunkSize);
 
 
         /**

@@ -3226,9 +3226,7 @@ QString MainWindow::writeXML()
         int nThreadsManual = ui->spinBox_nCores->value();
         std::string jobScheduler = ui->comboBox_jobSchedule->currentText().toStdString();
         int chunkSize = ui->spinBox_chunkSize->value();
-        std::string threadPlace = ui->comboBox_threadPlace->currentText().toStdString();
-
-        para.multiCore(threads,nThreadsManual,jobScheduler,chunkSize,threadPlace);
+        para.multiCore(threads,nThreadsManual,jobScheduler,chunkSize);
     }
 
     if(ui->groupBox_highImpactAzEl->isChecked() && ui->treeWidget_highImpactAzEl->topLevelItemCount()>0){
