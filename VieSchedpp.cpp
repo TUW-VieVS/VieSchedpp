@@ -80,14 +80,30 @@ void VieSchedpp::run() {
 
     // check if openmp is available
 #ifdef _OPENMP
-    if(flag_multiSched){
-        readMultiCoreSetup();
-        cout << "Using OpenMP to parallize multi scheduling;\n";
-        cout << (boost::format("OpenMP: starting %d threads;\n") % nThreads_).str();
-    }
     // use openmp to parallelize upcoming for loop
-    omp_set_num_threads(nThreads_);
-#pragma omp parallel for
+
+    if(flag_multiSched){
+        multiCoreSetup();
+        cout << "Using OpenMP to parallize multi scheduling;\n";
+        int nThreads = omp_get_num_threads();
+
+        omp_sched_t omp_sched;
+        int chunkSize;
+        omp_get_schedule(&omp_sched, &chunkSize);
+
+        string jobScheduling;
+        switch (omp_sched){
+            case omp_sched_static:  jobScheduling = "static";   break;
+            case omp_sched_dynamic: jobScheduling = "dynamic";  break;
+            case omp_sched_guided:  jobScheduling = "guided";   break;
+            case omp_sched_auto:    jobScheduling = "auto";     break;
+        }
+
+        cout << (boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d;\n")
+                 %nThreads %jobScheduling %chunkSize).str();
+    }
+
+#pragma omp parallel for schedule(runtime)
 #else
     if(nsched > 1){
         cout << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support!";
@@ -171,23 +187,32 @@ void VieSchedpp::readSkdCatalogs() {
     }
 }
 
-void VieSchedpp::readMultiCoreSetup() {
+#ifdef  _OPENMP
+void VieSchedpp::multiCoreSetup() {
     std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
 
+    int chunkSize = xml_.get<int>("master.multiCore.chunkSize",-1);
+
+    int nThreads = 1;
     if(threads == "manual"){
-        nThreads_ = xml_.get<int>("master.multiCore.nThreads",1);
+        nThreads = xml_.get<int>("master.multiCore.nThreads",1);
     } else if (threads == "single"){
-        nThreads_ = 1;
+        nThreads = 1;
     } else if (threads == "auto"){
-        //TODO: proper implementation of multi scheduling
-
-        nThreads_ = 4;
-
+        nThreads = thread::hardware_concurrency();
     }
 
-    jobScheduling_ = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
-    chunkSize_ = xml_.get<int>("master.multiCore.chunkSize",1);
-    threadPlace_ = xml_.get<std::string>("master.multiCore.threadPlace","auto");
+    omp_set_num_threads(nThreads);
+
+    string jobSchedulingString = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
+    if(jobSchedulingString == "auto"){
+        omp_set_schedule(omp_sched_auto,    chunkSize);
+    }else if(jobSchedulingString == "static"){
+        omp_set_schedule(omp_sched_static,  chunkSize);
+    }else if(jobSchedulingString == "dynamic"){
+        omp_set_schedule(omp_sched_dynamic, chunkSize);
+    }else if(jobSchedulingString == "guided"){
+        omp_set_schedule(omp_sched_guided,  chunkSize);
+    }
 }
-
-
+#endif

@@ -9,6 +9,7 @@
 #include <vector>
 #include <boost/format.hpp>
 #include <iostream>
+#include <thread>
 
 
 #include "Initializer.h"
@@ -32,24 +33,20 @@ namespace VieVS {
         void run();
 
 
-
     private:
         std::string inputFile_;
         std::string path_;
         std::string fileName_;
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
-        int nThreads_ {1};
-        std::string jobScheduling_ {"auto"};
-        int chunkSize_ {1};
-        std::string threadPlace_ {"auto"};
-
         SkdCatalogReader skdCatalogs_;
         std::vector<VieVS::MultiScheduling::Parameters> multiSchedParameters_;
 
         void readSkdCatalogs();
 
-        void readMultiCoreSetup();
+#ifdef _OPENMP
+        void multiCoreSetup();
+#endif
 
     };
 }

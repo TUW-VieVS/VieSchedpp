@@ -318,7 +318,6 @@ void Station::applyNextEvent(std::ofstream &of) noexcept{
         of << "###############################################\n";
         nextEvent_++;
     }
-
 }
 
 
