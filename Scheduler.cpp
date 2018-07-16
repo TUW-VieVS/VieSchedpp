@@ -2103,11 +2103,11 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 }
                 thisScan.setPointingVector(staidx, move(variable), ts);
                 if(!valid){
-                    of << (boost::format("ERROR while extending observing time to idle time:\n    "
+                    of << boost::format("ERROR while extending observing time to idle time:\n    "
                                               "source %s might not be visible from %s during %s. ")
                                 % thisSource.getName()
                                 % thisSta.getName()
-                                %TimeSystem::internalTime2timeString(maximum)).str();
+                                %TimeSystem::internalTime2timeString(maximum);
                 }
             }
         }
@@ -2115,6 +2115,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
         thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, ts);
     }
 
+    int sum = 0;
     int counter = 0;
     // output
     for (const auto &scan : scans_) {
@@ -2139,7 +2140,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             of << boost::format("| scan: %-15s    %85s |\n") % scan.printId() % right;
 
             of << "|----------------------------------------------------------------------------------------------------------------|\n";
-            if(counter%10==0){
+            if(counter%5==0){
                 of << "|     station  | increase |     new duration    | new obs |                      |     old duration    | old obs |\n"
                       "|              |    [s]   |                     |   [s]   |                      |                     |   [s]   |\n"
                       "|--------------|----------|---------------------|---------|----------------------|---------------------|---------|\n";
@@ -2152,22 +2153,27 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 if(oldObservingTime == newObservingTime){
                     continue;
                 }
-
-                of << (boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                      | %8s - %8s |  %5d  | %s\n")
+                int diff = static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime);
+                sum += diff;
+                of << boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                      | %8s - %8s |  %5d  | %s\n")
                                      % network_.getStation(staid).getName()
-                                     %(static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime))
+                                     % diff
                                      % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
                                      % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::end))
                                      % newObservingTime
                                      % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
                                      % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
                                      % oldObservingTime
-                                     % scan.getPointingVector(i, ts).printId()).str();
+                                     % scan.getPointingVector(i, ts).printId();
             }
             of << "|----------------------------------------------------------------------------------------------------------------|\n";
             ++counter;
         }
     }
+
+    string tmp = (boost::format("%d seconds") %sum).str();
+    of << boost::format("| sum of additional observing time: %-25s                                                    |\n") %tmp;
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
 }
 
 
