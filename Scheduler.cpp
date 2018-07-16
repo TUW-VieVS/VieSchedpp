@@ -238,11 +238,11 @@ void Scheduler::start() noexcept {
         highImpactScans(himp_.get(), of);
     }
 
-
+    of << ".----------------------------------------------------------------------------------------------------------------.\n";
     // check if you have some fixed high impact scans
     if(scans_.empty()){
         // no fixed scans: start creating a schedule
-        startScanSelection(TimeSystem::duration,of,Scan::ScanType::standard, endposition, subcon, 0);
+        startScanSelection(TimeSystem::duration, of, Scan::ScanType::standard, endposition, subcon, 0);
 
         // sort scans
         sortSchedule(Timestamp::start);
@@ -253,7 +253,11 @@ void Scheduler::start() noexcept {
 
     // start fillinmode a posterior
     if(parameters_.fillinmodeAPosteriori){
-        of << "* --- start fillin mode a posteriori ---\n";
+        of << "|----------------------------------------------------------------------------------------------------------------|\n";
+        of << "|                                                                                                                |\n";
+        of << "|                                         start fillin mode a posteriori                                         |\n";
+        of << "|                                                                                                                |\n";
+        of << "|----------------------------------------------------------------------------------------------------------------|\n";
         startScanSelectionBetweenScans(TimeSystem::duration, of, Scan::ScanType::fillin, false, true);
     }
 
@@ -298,9 +302,8 @@ void Scheduler::start() noexcept {
 }
 
 void Scheduler::statistics(ofstream &of) {
-    of << "*\n";
-    of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-    of << "*\n";
+    of << "\n";
+    of << "\n";
     of << "summary:\n";
     of << "number of scheduled scans         " << scans_.size() << "\n";
     of << "considered single source scans:   " << nSingleScansConsidered << "\n";
@@ -394,7 +397,7 @@ void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, i
         }else{
             right = (boost::format("considered single scans %d, subnetting scans %d") % n1scans % n2scans).str();
         }
-        of << boost::format("| depth:  %d %101s |\n") % depth % right;
+        of << boost::format("| depth:  %d %100s |\n") % depth % right;
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
     }
@@ -1176,7 +1179,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     for(int i=0; i<nMainScans-1; ++i){
 
         if(output){
-            of << "* --- start new scan selection ---\n";
+            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|                                            start new scan selection                                            |\n";
+            of << "|----------------------------------------------------------------------------------------------------------------|\n";
         }
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
@@ -1224,7 +1229,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
     // do the same between time at from last scan until duration with no endposition
     if(output){
-        of << "* --- start final scan selection ---\n";
+        of << "|----------------------------------------------------------------------------------------------------------------|\n";
+        of << "|                                           start final scan selection                                           |\n";
+        of << "|----------------------------------------------------------------------------------------------------------------|\n";
     }
 
     // get last predefined scan and set current position of station
@@ -1257,10 +1264,12 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
 
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|                                                                                                                |\n";
+    of << "|                                            fixing high impact scans                                            |\n";
+    of << "|                                                                                                                |\n";
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
 
-    of << "###############################################################################################\n";
-    of << "##                                 fixing high impact scans                                  ##\n";
-    of << "###############################################################################################\n";
     unsigned int interval = himp.getInterval();
     int n = TimeSystem::duration/interval;
 
@@ -1306,9 +1315,11 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
     sortSchedule(Timestamp::start);
 
 
-    of << "###############################################################################################\n";
-    of << "##                              start with normal scan selection                             ##\n";
-    of << "###############################################################################################\n";
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|                                                                                                                |\n";
+    of << "|                                        start with normal scan selection                                        |\n";
+    of << "|                                                                                                                |\n";
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
 
 
     // reset all events
@@ -1757,10 +1768,16 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     switch (ts){
 
         case Timestamp::start:
-            of << "increasing observing time at start of scan\n*\n";
+            of << "|                                                                                                                |\n"
+                  "|                                   increasing observing time at start of scan                                   |\n"
+                  "|                                                                                                                |\n"
+                  "|----------------------------------------------------------------------------------------------------------------|\n";
             break;
         case Timestamp::end:
-            of << "increasing observing time at end of scan\n*\n";
+            of << "|                                                                                                                |\n"
+                  "|                                    increasing observing time at end of scan                                    |\n"
+                  "|                                                                                                                |\n"
+                  "|----------------------------------------------------------------------------------------------------------------|\n";
             break;
     }
 
@@ -2098,7 +2115,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
         thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, ts);
     }
 
-
+    int counter = 0;
     // output
     for (const auto &scan : scans_) {
 
@@ -2118,7 +2135,16 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
         // output if there was a change
         if(change){
-            of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % scan.getId() % source.getName();
+            string right = (boost::format("source:  %s %s") % source.getName() % source.printId()).str();
+            of << boost::format("| scan: %-15s    %85s |\n") % scan.printId() % right;
+
+            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            if(counter%10==0){
+                of << "|     station  | increase |     new duration    | new obs |                      |     old duration    | old obs |\n"
+                      "|              |    [s]   |                     |   [s]   |                      |                     |   [s]   |\n"
+                      "|--------------|----------|---------------------|---------|----------------------|---------------------|---------|\n";
+            }
+
             for(int i=0; i<scan.getNSta(); ++i){
                 unsigned long staid = scan.getStationId(i);
                 unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
@@ -2127,25 +2153,21 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                     continue;
                 }
 
-                string id = scan.getPointingVector(i, ts).printId();
-
-                of << (boost::format("    %-8s %+5d seconds: new observing time: %s - %s (%4d sec) old observing time %s - %s (%4d sec) %s\n")
-                            % network_.getStation(staid).getName()
-                            %(static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime))
-                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
-                            % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::end))
-                            % newObservingTime
-                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
-                            % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
-                            % oldObservingTime
-                            % id).str();
+                of << (boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                      | %8s - %8s |  %5d  | %s\n")
+                                     % network_.getStation(staid).getName()
+                                     %(static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime))
+                                     % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
+                                     % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::end))
+                                     % newObservingTime
+                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
+                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
+                                     % oldObservingTime
+                                     % scan.getPointingVector(i, ts).printId()).str();
             }
+            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            ++counter;
         }
     }
-    of << "*\n";
-    of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n";
-    of << "*\n";
-
 }
 
 

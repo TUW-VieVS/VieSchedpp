@@ -1117,16 +1117,16 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
     string line1Right = (boost::format(" duration: %8s - %8s")
             % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::start))
             % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::end))).str();
-    of << boost::format("| scan:   no%04d    %93s | %s \n") % observed_scan_nr % line1Right % printId();
+    of << boost::format("| scan:   no%04d   %-15s    %74s |\n") % observed_scan_nr % printId() % line1Right;
 
     string line2Right = (boost::format(" type: %s %s") % type % type2).str();
-    of << boost::format("| Source: %8s %-15s      %73s |\n") % source.getName() % source.printId() % line2Right;
+    of << boost::format("| Source: %8s %-15s      %72s |\n") % source.getName() % source.printId() % line2Right;
 
-    of << "|-----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
     if(observed_scan_nr%5 == 0){
-        of << "|     station   | field |  slew |  idle | preob |  obs  |       duration      |     az    |    unaz   |     el    |\n"
-              "|               |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |                     |   [deg]   |   [deg]   |   [deg]   |\n"
-              "|---------------|-------|-------|-------|-------|-------|---------------------|-----------|-----------|-----------|\n";
+        of << "|     station  | field |  slew |  idle | preob |  obs  |       duration      |     az    |    unaz   |     el    |\n"
+              "|              |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |                     |   [deg]   |   [deg]   |   [deg]   |\n"
+              "|--------------|-------|-------|-------|-------|-------|---------------------|-----------|-----------|-----------|\n";
     }
 
     for(int i=0; i<nsta_; ++i){
@@ -1135,7 +1135,7 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
         const Station &thisSta = network.getStation(pv.getStaid());
         double az = util::wrapToPi(pv.getAz())*rad2deg;
 
-        of << boost::format("|     %-8s: | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %9.4f | %9.4f | %9.4f | (id: %d and %d) \n")
+        of << boost::format("|     %-8s | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %9.4f | %9.4f | %9.4f | (id: %d and %d) \n")
               % thisSta.getName() % times_.getFieldSystemDuration(i) % times_.getSlewDuration(i) % times_.getIdleDuration(i) %
                 times_.getPreobDuration(i) %
                 times_.getObservingDuration(i)
@@ -1143,7 +1143,7 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
               % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::end))
               % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
-    of << "|-----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
 }
 
 boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, const Source &source) const noexcept {

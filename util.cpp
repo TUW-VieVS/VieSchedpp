@@ -63,7 +63,7 @@ void util::outputObjectList(const std::string &title, const std::vector<std::str
 
         int n=0;
         if(longest != 0){
-            n = 80/longest;
+            n = 100/longest;
         }
         string format = (boost::format("%%%ds ")%longest).str();
 
