@@ -1,7 +1,7 @@
+*.a
 /cmake-build-debug/
 /cmake-build-release/
 /html/
 /doxygen/
 /Doxyfile
 /.idea/
-libsofa*
