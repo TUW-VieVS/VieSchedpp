@@ -1126,6 +1126,7 @@ void Output::writeOperationsNotes() {
 
     if(scans_.size()>=2){
         of << "Scans:\n";
+        of << ".----------------------------------------------------------------------------------------------------------------.\n";
         for(unsigned long i=0; i<3; ++i){
             const auto &thisScan = scans_[i];
             thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
@@ -1135,6 +1136,7 @@ void Output::writeOperationsNotes() {
             const auto &thisScan = scans_[i];
             thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
         }
+        of << "\n";
     }
 
     of << ".------------------------.\n";
