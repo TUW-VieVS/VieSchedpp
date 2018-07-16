@@ -199,10 +199,6 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                 }
             }
         }
-
-        if(depth == 0){
-            of << "* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n*\n";
-        }
     }
 
     // scan selection block is over. Change station availability back to start value
@@ -391,7 +387,14 @@ void Scheduler::update(Scan &scan, ofstream &of) noexcept {
 void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, int depth, ofstream &of) noexcept {
 
     if(n1scans+n2scans>0){
-        of << "*   depth "<< depth << " considered: single Scans " << n1scans << " subnetting scans " << n2scans << "\n";
+
+        string right;
+        if(n2scans == 0){
+            right = (boost::format("considered single scans %d") % n1scans).str();
+        }else{
+            right = (boost::format("considered single scans %d, subnetting scans %d") % n1scans % n2scans).str();
+        }
+        of << boost::format("| depth:  %d %101s |\n") % depth % right;
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
     }
