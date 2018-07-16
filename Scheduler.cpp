@@ -163,7 +163,43 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
+            unsigned long scansBefore = scans_.size();
             startScanSelection(newEndposition->getEarliestScanStart(), of, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
+
+            // check if a fillin mode scan was created and update times if necessary
+            unsigned long scansAfter = scans_.size();
+            if(scansAfter != scansBefore){
+
+                // loop over all stations
+                for(const Station &thisSta : network_.getStations()){
+                    unsigned long staid = thisSta.getId();
+
+                    // search for station in all best scans
+                    for(auto &thisScan : bestScans){
+                        boost::optional<unsigned long> oidx = thisScan.findIdxOfStationId(staid);
+                        if(oidx.is_initialized()){
+                            bool valid = true;
+                            auto idx = static_cast<int>(oidx.get());
+                            const PointingVector &slewEnd = thisScan.getPointingVector(idx, Timestamp::start);
+                            boost::optional<unsigned int> oSlewTime = thisSta.slewTime(slewEnd);
+                            if(oSlewTime.is_initialized()){
+                                unsigned int slewTime = oSlewTime.get();
+                                valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
+                                        thisSta.getWaittimes().fieldSystem, slewTime);
+                            }else{
+                                valid = false;
+                            }
+
+                            if(!valid){
+                                of << "WARNING: check fillin mode scan for station "<< thisSta.getName() << " prior to this scan!\n";
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+            }
         }
 
         // update best possible scans
