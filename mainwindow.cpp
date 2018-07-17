@@ -535,17 +535,6 @@ void MainWindow::displayStationSetupParameter(QString name)
               }
               ++r;
           }
-
-//        std::string txt = "";
-//        for(const auto &any: para.ignoreSources_str){
-//            txt.append(any).append(", ");
-//        }
-//        txt = txt.substr(0,txt.size()-2);
-//        t->insertRow(r);
-//        t->setItem(r,0,new QTableWidgetItem(QString::fromStdString(txt)));
-//        t->setVerticalHeaderItem(r,new QTableWidgetItem("ignore sources"));
-//        ++r;
-
     }
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -3339,6 +3328,14 @@ void MainWindow::readSettings()
     ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
 
 
+    std::string threads = settings.get<std::string>("multiCore.threads","auto");
+    ui->comboBox_nThreads->setCurrentText(QString::fromStdString(threads));
+    int nThreadsManual = settings.get<int>("multiCore.nThreads",1);
+    ui->spinBox_nCores->setValue(nThreadsManual);
+    std::string jobScheduler = settings.get<std::string>("multiCore.jobScheduling","auto");
+    ui->comboBox_jobSchedule->setCurrentText(QString::fromStdString(jobScheduler));
+    int chunkSize = settings.get<int>("multiCore.chunkSize",0);
+    ui->spinBox_chunkSize->setValue(chunkSize);
 
 }
 
@@ -7465,4 +7462,18 @@ void MainWindow::multi_sched_count_nsched()
     if(nsched >9999){
         QMessageBox::warning(this,"ignoring multi scheduling","Too many possible multi scheduling parameters!\nMulti scheduling will be ignored");
     }
+}
+
+void MainWindow::on_pushButton_save_multiCore_clicked()
+{
+    QString threads = ui->comboBox_nThreads->currentText();
+    QString nThreadsManual = QString::number(ui->spinBox_nCores->value());
+    QString jobScheduler = ui->comboBox_jobSchedule->currentText();
+    QString chunkSize = QString::number(ui->spinBox_chunkSize->value());
+
+    QStringList path {"multiCore.threads", "multiCore.nThreads", "multiCore.jobScheduling", "multiCore.chunkSize"};
+    QStringList value {threads, nThreadsManual, jobScheduler, chunkSize};
+    QString name = "Default multi core settings changed!";
+    changeDefaultSettings(path,value,name);
+
 }

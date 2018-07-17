@@ -471,6 +471,8 @@ private slots:
 
     void multi_sched_count_nsched();
 
+    void on_pushButton_save_multiCore_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

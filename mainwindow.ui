@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>13</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -6115,8 +6115,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -6712,7 +6712,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="tab_3">
               <attribute name="title">
@@ -7400,7 +7400,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
               <attribute name="title">
                <string>multi core support</string>
               </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_49">
+              <layout class="QVBoxLayout" name="verticalLayout_72" stretch="0,1">
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_90">
                  <item>
@@ -7525,48 +7525,14 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                       <string>chunk size for multicore processing</string>
                      </property>
                      <property name="minimum">
-                      <number>1</number>
+                      <number>0</number>
                      </property>
                      <property name="maximum">
                       <number>10000</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <widget class="QLabel" name="label_41">
-                     <property name="text">
-                      <string>thread places</string>
+                     <property name="value">
+                      <number>0</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QComboBox" name="comboBox_threadPlace">
-                     <property name="toolTip">
-                      <string>choose thread places for multicore processing</string>
-                     </property>
-                     <property name="statusTip">
-                      <string>choose thread places for multicore processing</string>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>auto</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>cores</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>threads</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>sockets</string>
-                      </property>
-                     </item>
                     </widget>
                    </item>
                   </layout>
@@ -7583,6 +7549,40 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
                     </size>
                    </property>
                   </spacer>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_49">
+                   <item>
+                    <widget class="QPushButton" name="pushButton_save_multiCore">
+                     <property name="toolTip">
+                      <string>save as default settings</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>save as default settings</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_24">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
@@ -10707,7 +10707,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>comboBox_nThreads</tabstop>
   <tabstop>spinBox_nCores</tabstop>
   <tabstop>spinBox_chunkSize</tabstop>
-  <tabstop>comboBox_threadPlace</tabstop>
   <tabstop>DoubleSpinBox_axis2low</tabstop>
   <tabstop>pushButton_16</tabstop>
   <tabstop>pushButton_setupAxisAdd</tabstop>
