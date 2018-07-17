@@ -126,6 +126,8 @@ void SkdParser::createObjects() {
 
     skd_.setStationNames(staNames);
     skd_.setCatalogFilePathes(filename_);
+    skd_.initializeStationCatalogs();
+    skd_.initializeSourceCatalogs();
 
     ofstream of;
     of.close();
