@@ -42,8 +42,10 @@
 #include "sourceparametersdialog.h"
 #include "addbanddialog.h"
 #include "savetosettingsdialog.h"
-#include "VLBI_Scheduler/VieVS_Scheduler.h"
+#include "VieSchedpp/VieSchedpp.h"
 #include "textfileviewer.h"
+#include "vieschedpp_analyser.h"
+#include "VieSchedpp/SkdParser.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -376,7 +378,6 @@ private slots:
 
     void on_influenceTimeSpinBox_valueChanged(int arg1);
 
-
     void on_actionConditions_triggered();
 
     void on_pushButton_addCondition_clicked();
@@ -423,8 +424,6 @@ private slots:
 
     void on_pushButton_12_clicked();
 
-    void initializeInspector();
-
     void on_pushButton_parameterStation_edit_clicked();
 
     void on_pushButton_parameterSource_edit_clicked();
@@ -470,6 +469,10 @@ private slots:
     void multi_sched_count_nsched();
 
     void on_pushButton_save_multiCore_clicked();
+
+    void on_pushButton_sessionBrowse_clicked();
+
+    void on_pushButton_sessionAnalyser_clicked();
 
 private:
     Ui::MainWindow *ui;

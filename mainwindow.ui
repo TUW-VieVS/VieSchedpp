@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>13</number>
+       <number>18</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -6115,8 +6115,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -9141,462 +9141,61 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
        <property name="statusTip">
         <string>skd parser</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_68">
+       <layout class="QVBoxLayout" name="verticalLayout_16">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_99">
+         <layout class="QHBoxLayout" name="horizontalLayout_46">
           <item>
-           <widget class="QLineEdit" name="lineEdit_3"/>
+           <widget class="QLabel" name="label_41">
+            <property name="text">
+             <string>session</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_27">
+           <widget class="QLineEdit" name="lineEdit_sessionPath">
+            <property name="text">
+             <string>/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180716095914_AUM003/aum003.skd</string>
+            </property>
+            <property name="placeholderText">
+             <string>*.skd</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_sessionBrowse">
             <property name="text">
              <string>browse</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_37">
+           <widget class="QPushButton" name="pushButton_sessionOpen">
             <property name="text">
-             <string>read</string>
+             <string>open</string>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_36">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QPushButton" name="pushButton_sessionAnalyser">
+            <property name="text">
+             <string>analyse</string>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+           </widget>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QSplitter" name="splitter_10">
+         <spacer name="verticalSpacer_6">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QTabWidget" name="tabWidget_10">
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <widget class="QWidget" name="tabWidget_10Page1">
-            <attribute name="title">
-             <string>sky coverage</string>
-            </attribute>
-            <layout class="QHBoxLayout" name="horizontalLayout_46" stretch="0">
-             <item>
-              <widget class="QSplitter" name="splitter_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <widget class="QSplitter" name="splitter_7">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <widget class="QTextEdit" name="textEdit_2"/>
-                <widget class="QTextEdit" name="textEdit_3"/>
-               </widget>
-               <widget class="QTabWidget" name="tabWidget_2">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="tab">
-                 <attribute name="title">
-                  <string>station statistics</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_16">
-                  <item>
-                   <widget class="QTreeWidget" name="treeWidget">
-                    <column>
-                     <property name="text">
-                      <string>Station</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string># scans</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string># obs</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>Scans/h</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>scan duration</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>scans</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </column>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-                <widget class="QWidget" name="tab_2">
-                 <attribute name="title">
-                  <string>view</string>
-                 </attribute>
-                 <layout class="QHBoxLayout" name="horizontalLayout_83">
-                  <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_50">
-                    <item>
-                     <widget class="QListWidget" name="listWidget"/>
-                    </item>
-                    <item>
-                     <widget class="QListWidget" name="listWidget_2"/>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_67" stretch="1,0,1,1,0,1">
-                    <item>
-                     <spacer name="verticalSpacer_6">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_66">
-                      <item>
-                       <widget class="QPushButton" name="pushButton_2">
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_20">
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <spacer name="verticalSpacer_11">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>18</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <spacer name="verticalSpacer_17">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>18</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_65">
-                      <item>
-                       <widget class="QPushButton" name="pushButton_21">
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="pushButton_24">
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <spacer name="verticalSpacer_20">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>18</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item>
-                   <widget class="QListView" name="listView"/>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tab_7">
-            <attribute name="title">
-             <string>sky plot</string>
-            </attribute>
-           </widget>
-           <widget class="QWidget" name="tab_8">
-            <attribute name="title">
-             <string>station overview</string>
-            </attribute>
-           </widget>
-          </widget>
-          <widget class="QTabWidget" name="tabWidget_11">
-           <property name="currentIndex">
-            <number>1</number>
-           </property>
-           <widget class="QWidget" name="tab_9">
-            <attribute name="title">
-             <string>sky coverage</string>
-            </attribute>
-           </widget>
-           <widget class="QWidget" name="tabWidget_11Page1">
-            <attribute name="title">
-             <string>sky plot</string>
-            </attribute>
-            <layout class="QHBoxLayout" name="horizontalLayout_75" stretch="0">
-             <item>
-              <widget class="QSplitter" name="splitter_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <widget class="QTextEdit" name="textEdit_4"/>
-               <widget class="QTabWidget" name="tabWidget_4">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="tab_5">
-                 <attribute name="title">
-                  <string>source statistics</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_69">
-                  <item>
-                   <widget class="QTreeWidget" name="treeWidget_3">
-                    <column>
-                     <property name="text">
-                      <string>Source</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string># scans</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string># obs</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string>scans</string>
-                     </property>
-                    </column>
-                    <column>
-                     <property name="text">
-                      <string/>
-                     </property>
-                    </column>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-                <widget class="QWidget" name="tab_6">
-                 <attribute name="title">
-                  <string>view</string>
-                 </attribute>
-                </widget>
-               </widget>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tab_10">
-            <attribute name="title">
-             <string>station overview</string>
-            </attribute>
-           </widget>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_14">
-          <property name="title">
-           <string>Time:</string>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>663</height>
+           </size>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_81">
-           <item>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="1">
-              <widget class="QSlider" name="horizontalSlider">
-               <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QSlider" name="horizontalSlider_2">
-               <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="value">
-                <number>100</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_68">
-               <property name="text">
-                <string>View end:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_67">
-               <property name="text">
-                <string>View start:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QDateTimeEdit" name="dateTimeEdit"/>
-             </item>
-             <item row="1" column="2">
-              <widget class="QDateTimeEdit" name="dateTimeEdit_2"/>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QFormLayout" name="formLayout_18">
-             <item row="0" column="0">
-              <widget class="QRadioButton" name="radioButton_4">
-               <property name="text">
-                <string>variable duration</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QSpinBox" name="spinBox_2">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="suffix">
-                <string> [s]</string>
-               </property>
-               <property name="prefix">
-                <string/>
-               </property>
-               <property name="minimum">
-                <number>0</number>
-               </property>
-               <property name="maximum">
-                <number>86400</number>
-               </property>
-               <property name="singleStep">
-                <number>1800</number>
-               </property>
-               <property name="value">
-                <number>86400</number>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QRadioButton" name="radioButton_5">
-               <property name="text">
-                <string>fixed duration</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QSpinBox" name="spinBox">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="suffix">
-                <string> [s]</string>
-               </property>
-               <property name="prefix">
-                <string/>
-               </property>
-               <property name="minimum">
-                <number>0</number>
-               </property>
-               <property name="maximum">
-                <number>86400</number>
-               </property>
-               <property name="singleStep">
-                <number>1800</number>
-               </property>
-               <property name="value">
-                <number>1800</number>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_18">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>349</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </widget>
+         </spacer>
         </item>
        </layout>
       </widget>

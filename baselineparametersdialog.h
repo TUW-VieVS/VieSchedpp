@@ -2,7 +2,7 @@
 #define BASELINEPARAMETERSDIALOG_H
 
 #include <QDialog>
-#include <VLBI_Scheduler/ParameterSettings.h>
+#include <VieSchedpp/ParameterSettings.h>
 #include <QMessageBox>
 #include <settingsloadwindow.h>
 namespace Ui {

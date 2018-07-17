@@ -46,41 +46,59 @@ SOURCES += \
     addbanddialog.cpp \
     savetosettingsdialog.cpp \
     mytextbrowser.cpp \
-    VLBI_Scheduler/Antenna.cpp \
-    VLBI_Scheduler/Baseline.cpp \
-    VLBI_Scheduler/CableWrap.cpp \
-    VLBI_Scheduler/CalibratorBlock.cpp \
-    VLBI_Scheduler/Earth.cpp \
-    VLBI_Scheduler/Equipment.cpp \
-    VLBI_Scheduler/FillinmodeEndposition.cpp \
-    VLBI_Scheduler/Flux.cpp \
-    VLBI_Scheduler/HorizonMask.cpp \
-    VLBI_Scheduler/Initializer.cpp \
-    VLBI_Scheduler/LookupTable.cpp \
-    VLBI_Scheduler/MultiScheduling.cpp \
-    VLBI_Scheduler/Nutation.cpp \
-    VLBI_Scheduler/ObservationMode.cpp \
-    VLBI_Scheduler/Output.cpp \
-    VLBI_Scheduler/ParameterGroup.cpp \
-    VLBI_Scheduler/ParameterSettings.cpp \
-    VLBI_Scheduler/ParameterSetup.cpp \
-    VLBI_Scheduler/PointingVector.cpp \
-    VLBI_Scheduler/Position.cpp \
-    VLBI_Scheduler/Scan.cpp \
-    VLBI_Scheduler/ScanTimes.cpp \
-    VLBI_Scheduler/Scheduler.cpp \
-    VLBI_Scheduler/Skd.cpp \
-    VLBI_Scheduler/SkdCatalogReader.cpp \
-    VLBI_Scheduler/SkyCoverage.cpp \
-    VLBI_Scheduler/Source.cpp \
-    VLBI_Scheduler/Station.cpp \
-    VLBI_Scheduler/Subcon.cpp \
-    VLBI_Scheduler/TimeSystem.cpp \
-    VLBI_Scheduler/Vex.cpp \
-    VLBI_Scheduler/WeightFactors.cpp \
-    VLBI_Scheduler/VieVS_Scheduler.cpp \
-    VLBI_Scheduler/VieVS_Object.cpp \
-    textfileviewer.cpp
+    VieSchedpp/Antenna.cpp \
+    VieSchedpp/Antenna_AzEl.cpp \
+    VieSchedpp/Antenna_HaDc.cpp \
+    VieSchedpp/Antenna_XYew.cpp \
+    VieSchedpp/AstronomicalParameters.cpp \
+    VieSchedpp/Baseline.cpp \
+    VieSchedpp/CableWrap.cpp \
+    VieSchedpp/CableWrap_AzEl.cpp \
+    VieSchedpp/CableWrap_HaDc.cpp \
+    VieSchedpp/CableWrap_XYew.cpp \
+    VieSchedpp/CalibratorBlock.cpp \
+    VieSchedpp/Equipment.cpp \
+    VieSchedpp/Equipment_elDependent.cpp \
+    VieSchedpp/Flux.cpp \
+    VieSchedpp/Flux_B.cpp \
+    VieSchedpp/Flux_M.cpp \
+    VieSchedpp/HighImpactScanDescriptor.cpp \
+    VieSchedpp/HorizonMask.cpp \
+    VieSchedpp/HorizonMask_line.cpp \
+    VieSchedpp/HorizonMask_step.cpp \
+    VieSchedpp/Initializer.cpp \
+    VieSchedpp/LogParser.cpp \
+    VieSchedpp/LookupTable.cpp \
+    VieSchedpp/MultiScheduling.cpp \
+    VieSchedpp/Network.cpp \
+    VieSchedpp/Observation.cpp \
+    VieSchedpp/ObservationMode.cpp \
+    VieSchedpp/Output.cpp \
+    VieSchedpp/ParameterGroup.cpp \
+    VieSchedpp/ParameterSettings.cpp \
+    VieSchedpp/ParameterSetup.cpp \
+    VieSchedpp/PointingVector.cpp \
+    VieSchedpp/Position.cpp \
+    VieSchedpp/Scan.cpp \
+    VieSchedpp/ScanTimes.cpp \
+    VieSchedpp/Scheduler.cpp \
+    VieSchedpp/Skd.cpp \
+    VieSchedpp/SkdCatalogReader.cpp \
+    VieSchedpp/SkdParser.cpp \
+    VieSchedpp/SkyCoverage.cpp \
+    VieSchedpp/Source.cpp \
+    VieSchedpp/Station.cpp \
+    VieSchedpp/StationEndposition.cpp \
+    VieSchedpp/Subcon.cpp \
+    VieSchedpp/TimeSystem.cpp \
+    VieSchedpp/Vex.cpp \
+    VieSchedpp/VieSchedpp.cpp \
+    VieSchedpp/VieVS_NamedObject.cpp \
+    VieSchedpp/VieVS_Object.cpp \
+    VieSchedpp/WeightFactors.cpp \
+    VieSchedpp/util.cpp \
+    textfileviewer.cpp \
+    vieschedpp_analyser.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -97,44 +115,63 @@ HEADERS += \
     addbanddialog.h \
     savetosettingsdialog.h \
     mytextbrowser.h \
-    VLBI_Scheduler/Antenna.h \
-    VLBI_Scheduler/Baseline.h \
-    VLBI_Scheduler/CableWrap.h \
-    VLBI_Scheduler/CalibratorBlock.h \
-    VLBI_Scheduler/Constants.h \
-    VLBI_Scheduler/Earth.h \
-    VLBI_Scheduler/Equipment.h \
-    VLBI_Scheduler/FillinmodeEndposition.h \
-    VLBI_Scheduler/Flux.h \
-    VLBI_Scheduler/HorizonMask.h \
-    VLBI_Scheduler/Initializer.h \
-    VLBI_Scheduler/LookupTable.h \
-    VLBI_Scheduler/MultiScheduling.h \
-    VLBI_Scheduler/Nutation.h \
-    VLBI_Scheduler/ObservationMode.h \
-    VLBI_Scheduler/Output.h \
-    VLBI_Scheduler/ParameterGroup.h \
-    VLBI_Scheduler/ParameterSettings.h \
-    VLBI_Scheduler/ParameterSetup.h \
-    VLBI_Scheduler/PointingVector.h \
-    VLBI_Scheduler/Position.h \
-    VLBI_Scheduler/Scan.h \
-    VLBI_Scheduler/ScanTimes.h \
-    VLBI_Scheduler/Scheduler.h \
-    VLBI_Scheduler/Skd.h \
-    VLBI_Scheduler/SkdCatalogReader.h \
-    VLBI_Scheduler/SkyCoverage.h \
-    VLBI_Scheduler/sofa.h \
-    VLBI_Scheduler/sofam.h \
-    VLBI_Scheduler/Source.h \
-    VLBI_Scheduler/Station.h \
-    VLBI_Scheduler/Subcon.h \
-    VLBI_Scheduler/TimeSystem.h \
-    VLBI_Scheduler/Vex.h \
-    VLBI_Scheduler/WeightFactors.h \
-    VLBI_Scheduler/VieVS_Scheduler.h \
-    VLBI_Scheduler/VieVS_Object.h \
-    textfileviewer.h
+    VieSchedpp/Antenna.h \
+    VieSchedpp/Antenna_AzEl.h \
+    VieSchedpp/Antenna_HaDc.h \
+    VieSchedpp/Antenna_XYew.h \
+    VieSchedpp/AstronomicalParameters.h \
+    VieSchedpp/Baseline.h \
+    VieSchedpp/CableWrap.h \
+    VieSchedpp/CableWrap_AzEl.h \
+    VieSchedpp/CableWrap_HaDc.h \
+    VieSchedpp/CableWrap_XYew.h \
+    VieSchedpp/CalibratorBlock.h \
+    VieSchedpp/Constants.h \
+    VieSchedpp/Equipment.h \
+    VieSchedpp/Equipment_elDependent.h \
+    VieSchedpp/Flux.h \
+    VieSchedpp/Flux_B.h \
+    VieSchedpp/Flux_M.h \
+    VieSchedpp/HighImpactScanDescriptor.h \
+    VieSchedpp/HorizonMask.h \
+    VieSchedpp/HorizonMask_line.h \
+    VieSchedpp/HorizonMask_step.h \
+    VieSchedpp/Initializer.h \
+    VieSchedpp/LogParser.h \
+    VieSchedpp/LookupTable.h \
+    VieSchedpp/MultiScheduling.h \
+    VieSchedpp/Network.h \
+    VieSchedpp/Observation.h \
+    VieSchedpp/ObservationMode.h \
+    VieSchedpp/Output.h \
+    VieSchedpp/ParameterGroup.h \
+    VieSchedpp/ParameterSettings.h \
+    VieSchedpp/ParameterSetup.h \
+    VieSchedpp/PointingVector.h \
+    VieSchedpp/Position.h \
+    VieSchedpp/Scan.h \
+    VieSchedpp/ScanTimes.h \
+    VieSchedpp/Scheduler.h \
+    VieSchedpp/Skd.h \
+    VieSchedpp/SkdCatalogReader.h \
+    VieSchedpp/SkdParser.h \
+    VieSchedpp/SkyCoverage.h \
+    VieSchedpp/Source.h \
+    VieSchedpp/Station.h \
+    VieSchedpp/StationEndposition.h \
+    VieSchedpp/Subcon.h \
+    VieSchedpp/Subnetting.h \
+    VieSchedpp/TimeSystem.h \
+    VieSchedpp/Vex.h \
+    VieSchedpp/VieSchedpp.h \
+    VieSchedpp/VieVS_NamedObject.h \
+    VieSchedpp/VieVS_Object.h \
+    VieSchedpp/WeightFactors.h \
+    VieSchedpp/sofa.h \
+    VieSchedpp/sofam.h \
+    VieSchedpp/util.h \
+    textfileviewer.h \
+    vieschedpp_analyser.h
 
 FORMS += \
         mainwindow.ui \
@@ -148,7 +185,8 @@ FORMS += \
     settingsloadwindow.ui \
     addbanddialog.ui \
     savetosettingsdialog.ui \
-    textfileviewer.ui
+    textfileviewer.ui \
+    vieschedpp_analyser.ui
 
 RESOURCES += \
     myresources.qrc

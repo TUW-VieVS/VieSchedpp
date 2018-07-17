@@ -242,8 +242,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->horizontalSlider_markerSizeWorldmap,SIGNAL(valueChanged(int)),this,SLOT(markerWorldmap()));
     connect(ui->horizontalSlider_markerSkymap,SIGNAL(valueChanged(int)),this,SLOT(markerSkymap()));
 
-    initializeInspector();
-
     const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     ui->plainTextEdit_notes->setFont(fixedFont);
 }
@@ -3854,7 +3852,6 @@ void MainWindow::plotWorldMap()
     worldChart->addSeries(selectedStations);
 
     connect(availableStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
-    connect(availableStations,SIGNAL(clicked(QPointF)),this,SLOT(worldmap_clicked(QPointF)));
     connect(selectedStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
 
 
@@ -6509,14 +6506,6 @@ void MainWindow::on_pushButton_faqSearch_clicked()
 
 }
 
-void MainWindow::initializeInspector()
-{
-    ui->splitter_10->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_9->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_7->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
-}
-
 // ########################################### STATISTICS ###########################################
 
 void MainWindow::setupStatisticView()
@@ -7451,3 +7440,41 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
 }
 
 
+void MainWindow::on_pushButton_sessionBrowse_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_sessionPath->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_sessionAnalyser_clicked()
+{
+    QString path = ui->lineEdit_sessionPath->text();
+    if(path.length()>4){
+        if(path.right(4) == ".skd"){
+            try{
+                VieVS::SkdParser mySkdParser(path.toStdString());
+                mySkdParser.createObjects();
+                mySkdParser.createScans();
+                mySkdParser.copyScanMembersToObjects();
+                VieVS::Scheduler sched = mySkdParser.createScheduler();
+                std::string start = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::startTime);
+                std::string end = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::endTime);
+                QDateTime qstart = QDateTime::fromString(QString::fromStdString(start),"yyyy.MM.dd HH:mm:ss");
+                QDateTime qend   = QDateTime::fromString(QString::fromStdString(end),"yyyy.MM.dd HH:mm:ss");
+
+                VieSchedpp_Analyser *analyser = new VieSchedpp_Analyser(sched,qstart,qend, this);
+                analyser->show();
+
+            }catch(...){
+                QString message = QString("Error reading session:\n").append(path);
+                QMessageBox::critical(this, "error reading session", message);
+            }
+
+        }else{
+            QString message = QString("Error reading session:\n").append(path);
+            QMessageBox::critical(this, "error reading session", message);
+        }
+    }
+}
