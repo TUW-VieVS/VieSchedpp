@@ -172,9 +172,10 @@ namespace VieVS {
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, double subnettingMinSta,
-                     bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
+                     bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                     bool idleToObservingTime,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
-                     const std::vector<std::string> &srcNames);
+                     const std::vector<std::string> &srcNames, const std::string &scanAlignment);
 
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
@@ -344,7 +345,8 @@ namespace VieVS {
          * @param lowElevationSlopeEnd end elevation of additional declination weight slope (everything below has factor 1)
          */
         void weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                          double weight_averageSources, double weight_averageStations, double weightDeclination,
+                          double weight_averageSources, double weight_averageStations, double weight_averageBaselines,
+                          double weight_idleTime,  unsigned int intervalIdleTime, double weightDeclination,
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
@@ -395,7 +397,8 @@ namespace VieVS {
          *
          * @param multiSched multisched xml tree
          */
-        void multisched(const boost::property_tree::ptree &multiSched);
+        void multisched(const boost::property_tree::ptree &multiSched, const std::string &number, int maxn,
+                        const std::string &useSeed, int seed);
 
         /**
          * @brief multiCore multi core support for scheduling
@@ -407,8 +410,7 @@ namespace VieVS {
          * @param threadPlace thread affinitiy control
          */
         void multiCore(const std::string &threads, int nThreadsManual,
-                       const std::string &jobScheduler, int chunkSize,
-                       const std::string &threadPlace);
+                       const std::string &jobScheduler, int chunkSize);
 
 
         /**
@@ -433,7 +435,8 @@ namespace VieVS {
         void output(const std::string &experimentName, const std::string &experimentDescription,
                     const std::string &scheduler, const std::string &correlator, const std::string &piName,
                     const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
-                    const std::string &notes, bool createSummary, bool createNGS, bool createSKD, bool vex, bool operNotes, bool srcGrp,
+                    const std::string &notes, bool createSummary, bool createNGS, bool createSKD, bool vex,
+                    bool operNotes, const std::string &operationNotes, bool srcGrp,
                     const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 
 
@@ -461,6 +464,10 @@ namespace VieVS {
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
                                                 const std::vector<std::pair<double, double> > &between_elevation,
                                                 unsigned int nMaxScans, unsigned int scanTime);
+
+        void highImpactAzEl(const std::vector<std::string> &members, const std::vector<double> &azs,
+                            const std::vector<double> &els, const std::vector<double> &margins,
+                            int interval, int repeat);
 
         const std::map<std::string, std::vector<std::string>> &getGroupStations() const {
             return groupStations_;

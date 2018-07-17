@@ -21,9 +21,10 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, double subnettingMinAngle, double subnettingMinNSta,
-                                bool fillinmode, bool fillinmodeInfluenceOnSchedule, bool fillinmodeAPosteriori,
+                                bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
+                                bool idleToObservingTime,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
-                                const std::vector<std::string> &srcNames) {
+                                const std::vector<std::string> &srcNames, const std::string &scanAlignment) {
     boost::property_tree::ptree general;
 
     int smonth = startTime.date().month();
@@ -44,10 +45,19 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
         general.add("general.subnettingMinNSta", subnettingMinNSta);
     }
 
-    general.add("general.fillinmode", fillinmode);
-    if(fillinmode){
+
+    if(fillinmodeAPosteriori || fillinmodeDuringScan){
+        if(fillinmodeAPosteriori){
+            general.add("general.fillinmodeAPosteriori",fillinmodeAPosteriori);
+        }
+        if(fillinmodeDuringScan){
+            general.add("general.fillinmodeDuringScanSelection",fillinmodeDuringScan);
+        }
         general.add("general.fillinmodeInfluenceOnSchedule", fillinmodeInfluenceOnSchedule);
-        general.add("general.fillinmodeAPosteriori",fillinmodeAPosteriori);
+    }
+
+    if(idleToObservingTime){
+        general.add("general.idleToObservingTime",idleToObservingTime);
     }
 
     boost::property_tree::ptree all_stations;
@@ -75,7 +85,8 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
         }
     }
 
-//    master_.insert(master_.begin(),general.get_child("general"));
+    general.add("general.scanAlignment",scanAlignment);
+
     master_.add_child("master.general", general.get_child("general"));
 }
 
@@ -701,12 +712,24 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
 
         unsigned int thisStart = setup.getStart();
         if (thisStart != 0) {
-            root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisStart);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.start", stmp);
         }
 
         unsigned int thisEnd = setup.getEnd();
         if (thisEnd < duration) {
-            root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisEnd);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.end", stmp);
         }
 
         if (setup.getTransition() != ParameterSetup::Transition::soft) {
@@ -729,12 +752,24 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
         root.add("root.parameter", setup.getParameterName());
         unsigned int thisStart = setup.getStart();
         if (thisStart != 0) {
-            root.add("root.start", start + boost::posix_time::seconds(thisStart));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisStart);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.start", stmp);
         }
 
         unsigned int thisEnd = setup.getEnd();
         if (thisEnd < duration) {
-            root.add("root.end", start + boost::posix_time::seconds(thisEnd));
+            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisEnd);
+            int smonthtmp = start.date().month();
+
+            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
+                                       % tmp.date().year() %smonthtmp %tmp.date().day()
+                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
+            root.add("root.end", stmp);
         }
         if (setup.getTransition() != ParameterSetup::Transition::soft) {
             root.add("root.transition", "hard");
@@ -760,7 +795,8 @@ void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influ
 
 void
 ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberOfObservations, double weight_duration,
-                                double weight_averageSources, double weight_averageStations, double weightDeclination,
+                                double weight_averageSources, double weight_averageStations, double weight_averageBaselines,
+                                double weight_idleTime, unsigned int idleTimeInterval, double weightDeclination,
                                 double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                                 double lowElevationSlopeStart, double lowElevationSlopeEnd) {
     boost::property_tree::ptree weightFactor;
@@ -778,6 +814,13 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
     }
     if(weight_averageStations != 0){
         weightFactor.add("weightFactor.averageStations", weight_averageStations);
+    }
+    if(weight_averageBaselines != 0){
+        weightFactor.add("weightFactor.averageBaselines", weight_averageBaselines);
+    }
+    if(weight_idleTime != 0){
+        weightFactor.add("weightFactor.idleTime", weight_idleTime);
+        weightFactor.add("weightFactor.idleTimeInterval", idleTimeInterval);
     }
     if(weightDeclination != 0){
         weightFactor.add("weightFactor.weightDeclination", weightDeclination);
@@ -891,11 +934,22 @@ void ParameterSettings::write(const std::string &name) {
     of.close();
 }
 
-void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree) {
+void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree,
+                                   const std::string &number, int maxn,
+                                   const std::string &useSeed, int seed) {
+
     master_.add_child("master.multisched", ms_tree.get_child("multisched"));
+    if(number != "all"){
+        master_.add("master.multisched.maxNumber",maxn);
+    }
+    if(useSeed != "random"){
+        master_.add("master.multisched.seed",seed);
+    }
+
 }
 
-void ParameterSettings::multiCore(const string &threads, int nThreadsManual, const string &jobScheduler, int chunkSize, const string &threadPlace)
+void ParameterSettings::multiCore(const string &threads, int nThreadsManual, const string &jobScheduler,
+                                  int chunkSize)
 {
     boost::property_tree::ptree mc;
     mc.add("multiCore.threads",threads);
@@ -906,7 +960,6 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
     if(jobScheduler != "auto"){
         mc.add("multiCore.chunkSize",chunkSize);
     }
-    mc.add("multiCore.threadPlace",threadPlace);
 
     master_.add_child("master.multiCore", mc.get_child("multiCore"));
 }
@@ -915,7 +968,7 @@ void
 ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
                           const string &contactEmail, const string &notes, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
-                          bool operNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
+                          bool operNotes, const string &operationNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     if(experimentName.empty()){
         output.add("output.experimentName", "dummy");
@@ -951,6 +1004,9 @@ ParameterSettings::output(const string &experimentName, const string &experiment
     }
     if(!notes.empty()){
         output.add("output.notes",notes);
+    }
+    if(!operationNotes.empty()){
+        output.add("output.operationNotes",operationNotes);
     }
 
     output.add("output.createSummary", createSummary);
@@ -1057,6 +1113,29 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
 
 
     master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+
+}
+
+void ParameterSettings::highImpactAzEl(const std::vector<string> &members, const std::vector<double> &azs,
+                                       const std::vector<double> &els, const std::vector<double> &margins,
+                                       int interval, int repeat)
+{
+    boost::property_tree::ptree hi;
+    hi.add("highImpact.interval",interval);
+    hi.add("highImpact.repeat",repeat);
+
+    for (int i = 0; i < members.size(); ++i) {
+        boost::property_tree::ptree azEl;
+
+        azEl.add("targetAzEl.member",members[i]);
+        azEl.add("targetAzEl.az",azs[i]);
+        azEl.add("targetAzEl.el",els[i]);
+        azEl.add("targetAzEl.margin",margins[i]);
+
+        hi.add_child("highImpact.targetAzEl", azEl.get_child("targetAzEl"));
+    }
+
+    master_.add_child("master.highImpact", hi.get_child("highImpact"));
 
 }
 
