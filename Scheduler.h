@@ -124,6 +124,23 @@ namespace VieVS{
          */
         bool checkAndStatistics(std::ofstream &of) noexcept;
 
+        const std::vector<Source> &getSources() const noexcept{
+            return sources_;
+        }
+
+        const std::vector<Station> &getStations() const noexcept{
+            return network_.getStations();
+        }
+
+        const std::vector<Baseline> &getBaselines() const noexcept{
+            return network_.getBaselines();
+        }
+
+        const std::vector<SkyCoverage> &skyCoverages() const noexcept{
+            return network_.getSkyCoverages();
+        }
+
+
     private:
         static unsigned long nextId;
         std::string path_;
