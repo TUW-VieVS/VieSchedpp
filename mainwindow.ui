@@ -6712,7 +6712,7 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
               <enum>QTabWidget::Rounded</enum>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab_3">
               <attribute name="title">

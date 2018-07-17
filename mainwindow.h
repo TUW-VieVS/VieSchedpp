@@ -168,7 +168,7 @@ private slots:
 
     void skymap_hovered(QPointF point, bool state);
 
-    void on_pushButton_modeCustomAddBAnd_clicked();
+    void on_pushButton_modeCustomAddBand_clicked();
 
     void on_listView_allSelectedStations_entered(const QModelIndex &index);
 
@@ -271,8 +271,6 @@ private slots:
     void on_pushButton_13_clicked();
 
     void on_pushButton_15_clicked();
-
-    void worldmap_clicked(QPointF point);
 
     void on_treeView_allAvailabeSources_entered(const QModelIndex &index);
 

@@ -308,6 +308,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event){
     }
 }
 
+// ########################################### DISPLAY LISTS ###########################################
+
 void MainWindow::displayStationSetupMember(QString name)
 {
     auto t = ui->tableWidget_setupStation;
@@ -427,8 +429,6 @@ void MainWindow::displayBaselineSetupMember(QString name)
     QHeaderView *hv = t->verticalHeader();
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
-
-
 
 void MainWindow::displayStationSetupParameter(QString name)
 {
@@ -759,6 +759,8 @@ void MainWindow::displayBaselineSetupParameter(QString name)
     hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
+// ########################################### NAVIGATION AND GUI SETUP ###########################################
+
 void MainWindow::on_actionWelcome_triggered()
 {
     ui->main_stacked->setCurrentIndex(0);
@@ -869,7 +871,6 @@ void MainWindow::on_actionAbout_Qt_triggered()
     QApplication::aboutQt();
 }
 
-
 void MainWindow::on_actionWhat_is_this_triggered()
 {
     QWhatsThis::enterWhatsThisMode();
@@ -886,573 +887,457 @@ QString MainWindow::on_actionSave_triggered()
     return result;
 }
 
-
-void MainWindow::on_pushButton_browseAntenna_clicked()
+void MainWindow::on_actionRun_triggered()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathAntenna->setText(path);
-    }
-}
+    QString path = on_actionSave_triggered();
 
-void MainWindow::on_pushButton_browseEquip_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathEquip->setText(path);
-    }
-}
+    QDir mydir(path);
+    QString fullPath = mydir.absolutePath();
+    if(!path.isEmpty()){
+        QDockWidget *dw = new QDockWidget(this);
+        dw->setWindowTitle("Scheduling process");
 
-void MainWindow::on_pushButton_browsePosition_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathPosition->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseMask_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathMask->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseSource_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathSource->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseFlux_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathFlux->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browsModes_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathModes->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseFreq_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathFreq->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseTracks_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathTracks->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseLoif_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathLoif->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseRec_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathRec->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseRx_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathRx->setText(path);
-    }
-}
-
-void MainWindow::on_pushButton_browseHdpos_clicked()
-{
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
-    if( !path.isEmpty() ){
-        ui->lineEdit_pathHdpos->setText(path);
-    }
-}
-
-void MainWindow::readStations()
-{
-    QString antennaPath = ui->lineEdit_pathAntenna->text();
-    QString equipPath = ui->lineEdit_pathEquip->text();
-    QString positionPath = ui->lineEdit_pathPosition->text();
-    QMap<QString,QStringList > antennaMap;
-    QMap<QString,QStringList > equipMap;
-    QMap<QString,QStringList > positionMap;
-
-    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
-    allStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
-    allStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
-    allStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
-    allStationModel->setHeaderData(4, Qt::Horizontal, QObject::tr("diam [m]"));
-    allStationModel->setHeaderData(5, Qt::Horizontal, QObject::tr("SEFD X [Jy]"));
-    allStationModel->setHeaderData(6, Qt::Horizontal, QObject::tr("SEFD S [Jy]"));
-    allStationModel->setHeaderData(7, Qt::Horizontal, QObject::tr("axis offset [m]"));
-    allStationModel->setHeaderData(8, Qt::Horizontal, QObject::tr("slew rate1 [deg/min]"));
-    allStationModel->setHeaderData(9, Qt::Horizontal, QObject::tr("constant overhead1 [sec]"));
-    allStationModel->setHeaderData(10, Qt::Horizontal, QObject::tr("lower axis limit1 [deg]"));
-    allStationModel->setHeaderData(11, Qt::Horizontal, QObject::tr("upper axis limit1 [deg]"));
-    allStationModel->setHeaderData(12, Qt::Horizontal, QObject::tr("slew rate2 [deg/min]"));
-    allStationModel->setHeaderData(13, Qt::Horizontal, QObject::tr("constant overhead2 [sec]"));
-    allStationModel->setHeaderData(14, Qt::Horizontal, QObject::tr("lower axis limit2 [deg]"));
-    allStationModel->setHeaderData(15, Qt::Horizontal, QObject::tr("upper axis limit2 [deg]"));
-    allStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
-    allStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
-    allStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
+        myTextBrowser *tb = new myTextBrowser(dw);
+        dw->setWidget(tb);
 
 
-    QFile antennaFile(antennaPath);
-    if (antennaFile.open(QIODevice::ReadOnly)){
-        QTextStream in(&antennaFile);
-        while (!in.atEnd()){
-            QString line = in.readLine();
-            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
-                continue;
-            }
-            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString antennaName = split[1];
-            antennaMap.insert(antennaName,split);
+
+        QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
+
+        if(dockWidgets.size() == 1){
+            addDockWidget(Qt::BottomDockWidgetArea,dw);
+        }else{
+            tabifyDockWidget(dockWidgets.at(0),dw);
         }
-        antennaFile.close();
-    }
 
-    QFile equipFile(equipPath);
-    if (equipFile.open(QIODevice::ReadOnly)){
-        QTextStream in(&equipFile);
-        while (!in.atEnd()){
-            QString line = in.readLine();
-            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
-                continue;
-            }
-            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString equipName = split[1] + "|" + split[0];
-            equipName = equipName.toUpper();
-            equipMap.insert(equipName,split);
+
+        QProcess *start = new QProcess(this);
+        #ifdef Q_OS_WIN
+            QString program = ui->pathToSchedulerLineEdit->text();
+            start->start("cmd.exe",
+                         QStringList() << "/c" << program << "\""+fullPath+"\"",
+                         QIODevice::ReadWrite | QIODevice::Text);
+        #else
+            QString program = ui->pathToSchedulerLineEdit->text();
+            QStringList arguments;
+            arguments << fullPath;
+            start->start(program,arguments);
+        #endif
+
+        connect(start,SIGNAL(readyReadStandardOutput()),tb,SLOT(readyReadStandardOutput()));
+        connect(start,SIGNAL(readyReadStandardError()),tb,SLOT(readyReadStandardError()));
+
+        if(start->waitForStarted()){
+            QMessageBox::information(this,"Scheduling started!","Starting scheduling " + fullPath +"!");
+        }else{
+            QMessageBox::warning(this,"Scheduling failed to start!","Could not start process:\n" + program +"\nwith arguments:\n" + fullPath);
         }
-        equipFile.close();
+    }
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    closeEvent(new QCloseEvent);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
+{
+    event->ignore();
+    if (QMessageBox::Yes == QMessageBox::question(this, "Exit?", "Do you really want to exit?", QMessageBox::Yes | QMessageBox::No))
+    {
+        QSettings settings("TU Wien","VieVS Scheduler");
+        settings.setValue("geometry", saveGeometry());
+        event->accept();
     }
 
-    QFile positionFile(positionPath);
-    if (positionFile.open(QIODevice::ReadOnly)){
-        QTextStream in(&positionFile);
-        while (!in.atEnd()){
-            QString line = in.readLine();
-            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
-                continue;
-            }
-            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString positionName = split[0];
-            positionName = positionName.toUpper();
-            positionMap.insert(positionName,split);
-        }
-        positionFile.close();
+}
+
+void MainWindow::on_pushButton_18_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(ui->pathToGUILineEdit->text());
+}
+
+void MainWindow::on_pushButton_19_clicked()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(ui->defaultSettingsFileLineEdit->text());
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+    if (QMessageBox::Yes == QMessageBox::question(this, "Restart?", "Do you really want to restart?", QMessageBox::Yes | QMessageBox::No)){
+        QApplication::exit(1000);
     }
+}
 
-    QMap<QString, QStringList>::iterator i;
-    for (i = antennaMap.begin(); i != antennaMap.end(); ++i){
-        try{
-            QString antName = i.key();
-            QStringList antList = i.value();
+void MainWindow::on_spinBox_fontSize_valueChanged(int arg1)
+{
+    QFont myFont = ui->fontComboBox_font->currentFont();
+    myFont.setPointSize(arg1);
+    worldMapCallout->setFont(myFont);
+    skyMapCallout->setFont(myFont);
+    QApplication::setFont(myFont);
+}
 
-            QString antId,eqKey,posKey;
-            double offset, rate1, con1, axis1_low, axis1_up, rate2, con2, axis2_low, axis2_up, diam;
-            if(antList.size()>14){
-                antId = antList.at(13);
+void MainWindow::on_fontComboBox_font_currentFontChanged(const QFont &f)
+{
+    QFont myFont = f;
+    myFont.setPointSize(ui->spinBox_fontSize->value());
+    worldMapCallout->setFont(myFont);
+    skyMapCallout->setFont(myFont);
+    QApplication::setFont(myFont);
+}
 
-                offset = antList.at(3).toDouble();
-                rate1 = antList.at(4).toDouble();
-                con1 = antList.at(5).toDouble();
-                axis1_low = antList.at(6).toDouble();
-                axis1_up = antList.at(7).toDouble();
-                rate2 = antList.at(8).toDouble();
-                con2 = antList.at(9).toDouble();
-                axis2_low = antList.at(10).toDouble();
-                axis2_up = antList.at(11).toDouble();
-                diam = antList.at(12).toDouble();
+void MainWindow::on_iconSizeSpinBox_valueChanged(int arg1)
+{
+    ui->fileToolBar->setIconSize(QSize(arg1,arg1));
+    ui->basicToolBar->setIconSize(QSize(arg1,arg1));
+    ui->advancedToolBar->setIconSize(QSize(arg1,arg1));
+    ui->helpToolBar->setIconSize(QSize(arg1,arg1));
+}
 
-                eqKey = antList.at(14) + "|" +antName;
-                eqKey = eqKey.toUpper();
-                posKey = antList.at(13);
-                posKey = posKey.toUpper();
-            }else{
-                continue;
-            }
-
-            QStringList eqList = equipMap.value(eqKey);
-            double SEFD_X, SEFD_S;
-            if(eqList.size()>8){
-                SEFD_X = 0;
-                if(eqList.at(5) == "X"){
-                    SEFD_X = eqList.at(6).toDouble();
-                }
-
-                SEFD_S = 0;
-                if(eqList.at(7) == "S"){
-                    SEFD_S = eqList.at(8).toDouble();
-                }
-            }else{
-                continue;
-            }
-
-            QStringList posList = positionMap.value(posKey);
-            double x, y, z, lon, lat, h;
-            if(posList.size()>8){
-                x = posList.at(2).toDouble();
-                y = posList.at(3).toDouble();
-                z = posList.at(4).toDouble();
-
-                double a = 6378136.6;
-                double f = 1/298.25642;
-                double e2 = 2*f-f*f;
-
-                lon = atan2(y,x);
-                double r = sqrt(x*x+y*y);
-                lat = atan2(z,r);
-
-                for(int i=0; i<6; ++i){
-                    double N=a/sqrt(1-e2*sin(lat)*sin(lat));
-                    h=r/cos(lat)-N;
-                    lat=atan2(z*(N+h),r*((1-e2)*N+h));
-                }
-            }else{
-                continue;
-            }
-
-            allStationModel->insertRow(0);
-            allStationModel->setData(allStationModel->index(0, 0), antName);
-            allStationModel->item(0,0)->setIcon(QIcon(":/icons/icons/station.png"));
-            allStationModel->setData(allStationModel->index(0, 1), antId);
-            allStationModel->setData(allStationModel->index(0, 2), (double)((int)(qRadiansToDegrees(lat)*100 +0.5))/100.0);
-            allStationModel->setData(allStationModel->index(0, 3), (double)((int)(qRadiansToDegrees(lon)*100 +0.5))/100.0);
-            allStationModel->setData(allStationModel->index(0, 4), (double)((int)(diam*10 +0.5))/10.0);
-
-            allStationModel->setData(allStationModel->index(0, 5), SEFD_X);
-            allStationModel->setData(allStationModel->index(0, 6), SEFD_S);
-
-            allStationModel->setData(allStationModel->index(0, 7), offset);
-
-            allStationModel->setData(allStationModel->index(0, 8), rate1);
-            allStationModel->setData(allStationModel->index(0, 9), con1);
-            allStationModel->setData(allStationModel->index(0, 10), axis1_low);
-            allStationModel->setData(allStationModel->index(0, 11), axis1_up);
-
-            allStationModel->setData(allStationModel->index(0, 12), rate2);
-            allStationModel->setData(allStationModel->index(0, 13), con2);
-            allStationModel->setData(allStationModel->index(0, 14), axis2_low);
-            allStationModel->setData(allStationModel->index(0, 15), axis2_up);
-
-
-            allStationModel->setData(allStationModel->index(0, 16), x);
-            allStationModel->setData(allStationModel->index(0, 17), y);
-            allStationModel->setData(allStationModel->index(0, 18), z);
-
-        }catch(...){
-
+void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
+{
+    for(int i = 0; i<item->childCount(); ++i){
+        if(item->checkState(0) == Qt::Checked){
+            item->child(i)->setDisabled(false);
+        }else{
+            item->child(i)->setDisabled(true);
         }
     }
 
-    for(int i=0; i<19; ++i){
-        ui->treeView_allAvailabeStations->resizeColumnToContents(i);
-    }
-
-    plotWorldMap();
-    worldMapCallout = new Callout(worldmap->chart());
-    worldMapCallout->hide();
-}
-
-void MainWindow::readSources()
-{
-    QString sourcePath = ui->lineEdit_pathSource->text();
-
-
-    allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
-    allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
-    allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
-
-    QFile sourceFile(sourcePath);
-    if (sourceFile.open(QIODevice::ReadOnly)){
-        QTextStream in(&sourceFile);
-        while (!in.atEnd()){
-            QString line = in.readLine();
-            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
-                continue;
-            }
-            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString sourceName = split.at(0);
-            QString rah = split.at(2);
-            QString ram = split.at(3);
-            QString ras = split.at(4);
-            double ra = (rah.toDouble() + ram.toDouble()/60 + ras.toDouble()/3600)*15;
-            QString ded = split.at(5);
-            QString dem = split.at(6);
-            QString des = split.at(7);
-            double de = ded.toDouble() + dem.toDouble()/60 + des.toDouble()/3600;
-
-            allSourceModel->insertRow(0);
-            allSourceModel->setData(allSourceModel->index(0,0), sourceName);
-            allSourceModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
-            allSourceModel->setData(allSourceModel->index(0, 1), (double)((int)(ra*100 +0.5))/100.0);
-            allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(de*100 +0.5))/100.0);
-
-            selectedSourceModel->insertRow(0);
-            selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
-            selectedSourceModel->sort(0);
-
-            int r = 0;
-            for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
-                QString txt = allSourcePlusGroupModel->item(i)->text();
-                if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
-                    ++r;
-                    continue;
-                }
-                if(txt>sourceName){
-                    break;
+    if(item->text(0) == "Files"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->fileToolBar->show();
+        }else{
+            ui->fileToolBar->hide();
+        }
+    } else if(item->text(0) == "Basic"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->basicToolBar->show();
+        }else{
+            ui->basicToolBar->hide();
+        }
+    } else if(item->text(0) == "Advanced"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->advancedToolBar->show();
+        }else{
+            ui->advancedToolBar->hide();
+        }
+    } else if(item->text(0) == "Help"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->helpToolBar->show();
+        }else{
+            ui->helpToolBar->hide();
+        }
+    } else if (item->text(0) == "Analysis"){
+        if(item->checkState(0) == Qt::Checked){
+            ui->analysisToolBar->show();
+        }else{
+            ui->analysisToolBar->hide();
+        }
+    } else if(item->text(0) == "Welcome"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Welcome"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
                 }else{
-                    ++r;
+                    any->setVisible(false);
                 }
             }
-
-            allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
         }
-        sourceFile.close();
-    }
-    plotSkyMap();
-    skyMapCallout = new Callout(skymap->chart());
-    skyMapCallout->hide();
-
-}
-
-void MainWindow::readAllSkedObsModes()
-{
-    QString modesPath = ui->lineEdit_pathModes->text();
-    QFile modesFile(modesPath);
-    QStringList modes;
-    if (modesFile.open(QIODevice::ReadOnly)){
-        QTextStream in(&modesFile);
-        while (!in.atEnd()){
-            QString line = in.readLine();
-            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
-                continue;
-            }
-            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
-            QString obsModeName = split[0];
-
-            modes << obsModeName;
-        }
-        modesFile.close();
-    }
-    allSkedModesModel->setStringList(modes);
-    if(ui->comboBox_skedObsModes->count()>0){
-        ui->comboBox_skedObsModes->setCurrentIndex(0);
-    }
-}
-
-void MainWindow::plotWorldMap()
-{
-    QChart *worldChart = new QChart();
-    worldChart->setAcceptHoverEvents(true);
-
-
-    QFile coastF(":/plotting/coast.txt");
-    if (coastF.open(QIODevice::ReadOnly)){
-        QTextStream in(&coastF);
-
-        int c = 0;
-        while (!in.atEnd()){
-
-            QLineSeries *coast = new QLineSeries(worldChart);
-            coast->setColor(Qt::gray);
-            coast->setName("coast");
-
-            while(!in.atEnd()){
-                QString line = in.readLine();
-
-                if(line == "NaN,NaN"){
-                    ++c;
-                    worldChart->addSeries(coast);
-                    break;
+    } else if(item->text(0) == "Settings"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Settings"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
                 }
-                QStringList split = line.split(",",QString::SplitBehavior::SkipEmptyParts);
-                QString lat = split[0];
-                QString lon = split[1];
-                coast->append(lon.toDouble(),lat.toDouble());
             }
         }
-        coastF.close();
+    } else if(item->text(0) == "New"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "New"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Open"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Open"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Save"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Save"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Run"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Run"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Exit"){
+        auto actions = ui->fileToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Exit"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Input"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Input"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Mode"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Mode"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "General"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "General"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Network"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Network"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Source List"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Source List"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Stations"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Station"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Sources"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Source"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Parameter Baselines"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Baseline"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Weight Factors"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Weight Factors"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Output"){
+        auto actions = ui->basicToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Output"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Rules"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Rules"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Multi Scheduling"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Multi Scheduling"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Sky Coverage"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Sky Coverage"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Conditions"){
+        auto actions = ui->advancedToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Conditions"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "What is this?"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "What is this?"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "FAQ"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "FAQ"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Current Reference"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Current Reference"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "About"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "About"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "About Qt"){
+        auto actions = ui->helpToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "About Qt"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Statistics"){
+        auto actions = ui->analysisToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Statistics"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
     }
-
-    availableStations = new QScatterSeries(worldChart);
-    availableStations->setColor(Qt::red);
-    availableStations->setMarkerSize(10);
-    availableStations->setName("availableStations");
-
-    selectedStations = new QScatterSeries(worldChart);
-    selectedStations->setName("selectedStations");
-    markerWorldmap();
-
-    worldChart->addSeries(availableStations);
-    worldChart->addSeries(selectedStations);
-
-    connect(availableStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
-    connect(availableStations,SIGNAL(clicked(QPointF)),this,SLOT(worldmap_clicked(QPointF)));
-    connect(selectedStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
-
-
-    for(int row = 0; row<allStationModel->rowCount(); ++row){
-        double lat = allStationModel->index(row,2).data().toDouble();
-        double lon = allStationModel->index(row,3).data().toDouble();
-        availableStations->append(lon,lat);
-    }
-
-    worldChart->createDefaultAxes();
-    worldChart->setAcceptHoverEvents(true);
-    worldChart->legend()->hide();
-    worldChart->axisX()->setRange(-180,180);
-    worldChart->axisY()->setRange(-90,90);
-    worldChart->setAnimationOptions(QChart::NoAnimation);
-
-    worldmap = new ChartView(worldChart);
-    worldmap->setStatusTip("network overview");
-    worldmap->setToolTip("network overview");
-    worldmap->setMinMax(-180,180,-90,90);
-    worldmap->setRenderHint(QPainter::Antialiasing);
-    worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
-    worldmap->setBackgroundBrush(QBrush(Qt::white));
-    worldmap->setMouseTracking(true);
-
-    ui->horizontalLayout_worldmap->insertWidget(0,worldmap,10);
 }
 
-void MainWindow::plotSkyMap(){
-    QChart *skyChart = new QChart();
-
-    for(int ra = -180; ra<=180; ra+=60){
-        QLineSeries *ral = new QLineSeries(skyChart);
-        ral->setColor(Qt::gray);
-        double lambda = qDegreesToRadians((double) ra);
-
-        for(int de = -90; de<=90; de+=5){
-            double phi = qDegreesToRadians((double) de);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            double y = (qSqrt(2) *qSin(phi) ) / hn;
-            ral->append(x,y);
-        }
-        skyChart->addSeries(ral);
-    }
-
-    for(int de = -60; de<=60; de+=30){
-        QLineSeries *del = new QLineSeries(skyChart);
-        del->setColor(Qt::gray);
-        double phi = qDegreesToRadians((double) de);
-
-        for(int ra = -180; ra<=180; ra+=5){
-            double lambda = qDegreesToRadians((double) ra);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            double y = (qSqrt(2) *qSin(phi) ) / hn;
-            del->append(x,y);
-        }
-        skyChart->addSeries(del);
-    }
-
-
-    availableSources = new QScatterSeries(skyChart);
-    availableSources->setColor(Qt::red);
-    availableSources->setMarkerSize(10);
-
-    selectedSources = new QScatterSeries(skyChart);
-    markerSkymap();
-
-    QLineSeries *ecliptic = new QLineSeries(skyChart);
-    ecliptic->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
-    double e = qDegreesToRadians(23.4);
-    for(int i=-180; i<=180; i+=5){
-        double l = qDegreesToRadians((double)i);
-        double b = 0;
-        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l));
-//        lambda-=M_PI;
-        double phi = qAsin(qSin(b)*qCos(e) + qCos(b)*qSin(e)*qSin(l));
-
-        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-        double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-
-        ecliptic->append(x,y);
-    }
-
-    skyChart->addSeries(availableSources);
-    skyChart->addSeries(selectedSources);
-    skyChart->addSeries(ecliptic);
-
-    connect(availableSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
-    connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
-
-    for(int i = 0; i< allSourceModel->rowCount(); ++i){
-        double ra = allSourceModel->item(i,1)->text().toDouble();
-        ra -=180;
-        double lambda = qDegreesToRadians(ra);
-
-        double dc = allSourceModel->item(i,2)->text().toDouble();
-        double phi = qDegreesToRadians(dc);
-
-        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-        double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-        availableSources->append(x,y);
-        selectedSources->append(x,y);
-    }
-
-
-    skyChart->createDefaultAxes();
-    skyChart->setAcceptHoverEvents(true);
-    skyChart->legend()->hide();
-    skyChart->axisX()->setRange(-2.85,2.85);
-    skyChart->axisY()->setRange(-1.45,1.45);
-    skyChart->axisX()->hide();
-    skyChart->axisY()->hide();
-    skyChart->setAnimationOptions(QChart::NoAnimation);
-
-    skymap = new ChartView(skyChart);
-    skymap->setStatusTip("source overview");
-    skymap->setToolTip("source overview");
-    skymap->setMinMax(-2.85,2.85,-1.45,1.45);
-    skymap->setRenderHint(QPainter::Antialiasing);
-    skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
-    skymap->setBackgroundBrush(QBrush(Qt::white));
-    skymap->setMouseTracking(true);
-
-
-    ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
-}
-
-
+// ########################################### READ AND WRITE XML DOCUMENT ###########################################
 
 void MainWindow::defaultParameters()
 {
@@ -1798,897 +1683,76 @@ void MainWindow::defaultParameters()
     if(lowElevationFullWeight.is_initialized()){
         ui->doubleSpinBox_weightLowElEnd->setValue(*lowElevationFullWeight);
     }
-
-
 }
 
-void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &index)
+void MainWindow::readSettings()
 {
+    std::string name = settings.get<std::string>("settings.general.name","");
+    ui->nameLineEdit->setText(QString::fromStdString(name));
+    std::string email = settings.get<std::string>("settings.general.email","");
+    ui->emailLineEdit->setText(QString::fromStdString(email));
+    std::string pathToScheduler = settings.get<std::string>("settings.general.pathToScheduler","");
+    ui->pathToSchedulerLineEdit->setText(QString::fromStdString(pathToScheduler));
 
-    QString name = selectedStationModel->item(index.row())->text();
-    selectedStationModel->removeRow(index.row());
-    clearGroup(true,false,true, name);
+    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","");
+    ui->lineEdit_pathAntenna->setText(QString::fromStdString(cAntenna));
+    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","");
+    ui->lineEdit_pathEquip->setText(QString::fromStdString(cEquip));
+    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","");
+    ui->lineEdit_pathPosition->setText(QString::fromStdString(cPosition));
+    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","");
+    ui->lineEdit_pathMask->setText(QString::fromStdString(cMask));
+    std::string cSource = settings.get<std::string>("settings.catalog_path.source","");
+    ui->lineEdit_pathSource->setText(QString::fromStdString(cSource));
+    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","");
+    ui->lineEdit_pathFlux->setText(QString::fromStdString(cFlux));
+    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","");
+    ui->lineEdit_pathModes->setText(QString::fromStdString(cModes));
+    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","");
+    ui->lineEdit_pathFreq->setText(QString::fromStdString(cFreq));
+    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","");
+    ui->lineEdit_pathTracks->setText(QString::fromStdString(cTracks));
+    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","");
+    ui->lineEdit_pathLoif->setText(QString::fromStdString(cLoif));
+    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","");
+    ui->lineEdit_pathRec->setText(QString::fromStdString(cRec));
+    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","");
+    ui->lineEdit_pathRx->setText(QString::fromStdString(cRx));
+    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","");
+    ui->lineEdit_pathHdpos->setText(QString::fromStdString(cHdpos));
 
-    int row;
-    double x;
-    double y;
-    for(int i = 0; i < allStationModel->rowCount(); ++i){
-        if (allStationModel->index(i,0).data().toString() == name){
-            row = i;
-            x = allStationModel->index(row,3).data().toDouble();
-            y = allStationModel->index(row,2).data().toDouble();
-            break;
-        }
+    std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
+    ui->lineEdit_outputPath->setText(QString::fromStdString(outputDirectory));
+    std::string outputScheduler = settings.get<std::string>("settings.output.scheduler","");
+    ui->schedulerLineEdit->setText(QString::fromStdString(outputScheduler));
+    std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
+    ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
+
+    std::string piName = settings.get<std::string>("settings.output.piName","");
+    ui->lineEdit_PIName->setText(QString::fromStdString(piName));
+    std::string piEmail = settings.get<std::string>("settings.output.piEmail","");
+    ui->lineEdit_PIEmail->setText(QString::fromStdString(piEmail));
+    std::string contactName = settings.get<std::string>("settings.output.contactName","");
+    ui->lineEdit_contactName->setText(QString::fromStdString(contactName));
+    std::string contactEmail = settings.get<std::string>("settings.output.contactEmail","");
+    ui->lineEdit_contactEmail->setText(QString::fromStdString(contactEmail));
+
+    std::string notes = settings.get<std::string>("settings.output.notes","");
+    if(!notes.empty()){
+        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(notes).replace("\\n","\n"));
     }
-
-    for(int i = 0; i<selectedStations->count(); ++i){
-        double xn = selectedStations->at(i).x();
-        double yn = selectedStations->at(i).y();
-        if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
-            selectedStations->remove(i);
-            break;
-        }
-    }
-
-    for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
-        if (allStationPlusGroupModel->index(i,0).data().toString() == name) {
-            allStationPlusGroupModel->removeRow(i);
-            break;
-        }
-    }
-
-
-    if(createBaselines){
-        createBaselineModel();
-    }
-
-    ui->treeWidget_multiSchedSelected->clear();
-    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
-        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
-    }
-}
-
-void MainWindow::on_listView_allSelectedSources_clicked(const QModelIndex &index)
-{
-    QString name = selectedSourceModel->item(index.row())->text();
-    if(ui->comboBox_calibratorBlock_calibratorSources->currentText() == name){
-        QMessageBox::warning(this,"Calibration block error!","Deleted source was choosen as calibrator source!\nCheck calibrator block!");
-        ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(0);
-    }
-    for(int i=0; i<ui->tableWidget_scanSequence->rowCount(); ++i){
-        QComboBox* cb = qobject_cast<QComboBox*>(ui->tableWidget_scanSequence->cellWidget(i,0));
-        if(cb->currentText() == name){
-            QMessageBox::warning(this,"Scan sequence error!","Deleted source was in scan sequence!\nCheck scan sequence!");
-            cb->setCurrentIndex(0);
-        }
-    }
-    selectedSourceModel->removeRow(index.row());
-
-    clearGroup(false,true,false,name);
-
-    int row;
-    double x;
-    double y;
-    for(int i = 0; i < allSourceModel->rowCount(); ++i){
-        if (allSourceModel->index(i,0).data().toString() == name){
-            row = i;
-            double ra = allSourceModel->index(i,1).data().toDouble();
-            double dc = allSourceModel->index(i,2).data().toDouble();
-            ra -=180;
-
-            double lambda = qDegreesToRadians(ra);
-            double phi = qDegreesToRadians(dc);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            y = (qSqrt(2) *qSin(phi) ) / hn;
-            break;
-        }
-    }
-
-    for(int i = 0; i<selectedSources->count(); ++i){
-        double xn = selectedSources->at(i).x();
-        double yn = selectedSources->at(i).y();
-        if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
-            selectedSources->remove(i);
-            break;
-        }
-    }
-
-    for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
-        if (allSourcePlusGroupModel->index(i,0).data().toString() == name) {
-            allSourcePlusGroupModel->removeRow(i);
-            break;
-        }
-    }
-    ui->treeWidget_multiSchedSelected->clear();
-    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
-        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
-    }
-
-}
-
-
-void MainWindow::on_groupBox_modeSked_toggled(bool arg1)
-{
-    ui->groupBox_modeCustom->setChecked(!arg1);
-}
-
-void MainWindow::on_groupBox_modeCustom_toggled(bool arg1)
-{
-    ui->groupBox_modeSked->setChecked(!arg1);
-}
-
-void MainWindow::on_lineEdit_allStationsFilter_textChanged(const QString &arg1)
-{
-    allStationProxyModel->setFilterRegExp(arg1);
-}
-
-void MainWindow::on_lineEdit_allStationsFilter_3_textChanged(const QString &arg1)
-{
-    allSourceProxyModel->setFilterRegExp(arg1);
-}
-
-
-void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &index)
-{
-    int row = index.row();
-    QString name = allStationProxyModel->index(row,0).data().toString();
-
-    if(selectedStationModel->findItems(name).isEmpty()){
-        selectedStationModel->insertRow(0);
-        selectedStationModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
-        selectedStationModel->sort(0);
-        selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
-                                 allStationProxyModel->index(row,2).data().toDouble());
-
-        int r = 0;
-        for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
-            QString txt = allStationPlusGroupModel->item(i)->text();
-            if(groupSta.find(txt.toStdString()) != groupSta.end() || txt == "__all__"){
-                ++r;
-                continue;
-            }
-            if(txt>name){
-                break;
-            }else{
-                ++r;
-            }
-        }
-
-        allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
-        if(createBaselines){
-            createBaselineModel();
-        }
-    }
-    ui->lineEdit_allStationsFilter->setFocus();
-    ui->lineEdit_allStationsFilter->selectAll();
-}
-
-void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index)
-{
-    int row = index.row();
-    QString name = allSourceProxyModel->index(row,0).data().toString();
-
-    if(selectedSourceModel->findItems(name).isEmpty()){
-        selectedSourceModel->insertRow(0);
-        selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
-        selectedSourceModel->sort(0);
-
-        double ra = allSourceProxyModel->index(row,1).data().toDouble();
-        double dc = allSourceProxyModel->index(row,2).data().toDouble();
-        ra -=180;
-
-        double lambda = qDegreesToRadians(ra);
-        double phi = qDegreesToRadians(dc);
-        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-        double y = (qSqrt(2) *qSin(phi) ) / hn;
-        selectedSources->append(x,y);
-
-        int r = 0;
-        for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
-            QString txt = allSourcePlusGroupModel->item(i)->text();
-            if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
-                ++r;
-                continue;
-            }
-            if(txt>name){
-                break;
-            }else{
-                ++r;
-            }
-        }
-
-        allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
-    }
-    ui->lineEdit_allStationsFilter_3->setFocus();
-    ui->lineEdit_allStationsFilter_3->selectAll();
-}
-
-
-void MainWindow::on_doubleSpinBox_weightLowDecStart_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_weightLowDecEnd->value() > arg1){
-        ui->doubleSpinBox_weightLowDecEnd->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_weightLowDecEnd_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_weightLowDecStart->value() < arg1){
-        ui->doubleSpinBox_weightLowDecStart->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_weightLowElStart_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_weightLowElEnd->value() > arg1){
-        ui->doubleSpinBox_weightLowElEnd->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_weightLowElEnd_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_weightLowElStart->value() < arg1){
-        ui->doubleSpinBox_weightLowElStart->setValue(arg1);
-    }
-}
-
-void MainWindow::on_spinBox_scanSequenceCadence_valueChanged(int arg1)
-{
-    if(ui->tableWidget_scanSequence->rowCount()>arg1){
-        while(ui->tableWidget_scanSequence->rowCount()>arg1){
-            ui->tableWidget_scanSequence->removeRow(ui->tableWidget_scanSequence->rowCount()-1);
-        }
-    }else{
-        while(ui->tableWidget_scanSequence->rowCount()<arg1){
-            ui->tableWidget_scanSequence->insertRow(ui->tableWidget_scanSequence->rowCount());
-            QComboBox *cBox = new QComboBox(this);
-            cBox->setModel(allSourcePlusGroupModel);
-            ui->tableWidget_scanSequence->setCellWidget(ui->tableWidget_scanSequence->rowCount()-1,0, cBox);
-        }
-    }
-}
-
-void MainWindow::on_doubleSpinBox_calibratorLowElStart_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_calibratorLowElEnd->value() > arg1){
-        ui->doubleSpinBox_calibratorLowElEnd->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_calibratorLowElEnd_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_calibratorLowElStart->value() < arg1){
-        ui->doubleSpinBox_calibratorLowElStart->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_calibratorHighElStart_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_calibratorHighElEnd->value() < arg1){
-        ui->doubleSpinBox_calibratorHighElEnd->setValue(arg1);
-    }
-}
-
-void MainWindow::on_doubleSpinBox_calibratorHighElEnd_valueChanged(double arg1)
-{
-    if(ui->doubleSpinBox_calibratorHighElStart->value() > arg1){
-        ui->doubleSpinBox_calibratorHighElStart->setValue(arg1);
-    }
-}
-
-void MainWindow::createModesPolicyTable()
-{
-    QHeaderView *hv = ui->tableWidget_ModesPolicy->horizontalHeader();
-    hv->setSectionResizeMode(QHeaderView::ResizeToContents);
-}
-
-void MainWindow::addModesPolicyTable(QString name){
-
-    ui->tableWidget_ModesPolicy->insertRow(ui->tableWidget_ModesPolicy->rowCount());
-    ui->tableWidget_ModesPolicy->setVerticalHeaderItem(ui->tableWidget_ModesPolicy->rowCount()-1,new QTableWidgetItem(name));
-    QDoubleSpinBox *dsp = new QDoubleSpinBox(this);
-    if(name == "S"){
-        dsp->setValue(15.);
-    }else{
-        dsp->setValue(20.);
-    }
-    dsp->setMaximum(1000);
-    QComboBox *psta = new QComboBox(this);
-    psta->addItem("required");
-    psta->addItem("optional");
-    QComboBox *psrc = new QComboBox(this);
-    psrc->addItem("required");
-    psrc->addItem("optional");
-    QComboBox *bsta = new QComboBox(this);
-    bsta->addItem("none");
-    bsta->addItem("value");
-    bsta->addItem("min value Times");
-    bsta->addItem("max value Times");
-    QComboBox *bsrc = new QComboBox(this);
-    bsrc->addItem("none");
-    bsrc->addItem("value");
-    bsrc->addItem("min value Times");
-    bsrc->addItem("max value Times");
-    QDoubleSpinBox *vsta = new QDoubleSpinBox(this);
-    vsta->setMinimum(0);
-    vsta->setMaximum(100000);
-    vsta->setSingleStep(.1);
-    vsta->setValue(1);
-    QDoubleSpinBox *vsrc = new QDoubleSpinBox(this);
-    vsrc->setMinimum(0);
-    vsrc->setMaximum(100000);
-    vsrc->setSingleStep(.1);
-    vsrc->setValue(1);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,0,dsp);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,1,psta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,2,bsta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,3,vsta);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,4,psrc);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,5,bsrc);
-    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,6,vsrc);
-
-
-}
-
-void MainWindow::createModesCustonBandTable()
-{
-    addModesCustomTable("X",8.590,10);
-    addModesCustomTable("S",2.260,6);
-
-    ui->tableWidget_modeCustonBand->resizeColumnsToContents();
-    ui->tableWidget_modeCustonBand->verticalHeader()->show();
-
-    QHeaderView *hv = ui->tableWidget_modeCustonBand->horizontalHeader();
-    hv->setSectionResizeMode(QHeaderView::ResizeToContents);
-
-}
-
-void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
-    name = name.trimmed();
-
-    if(name.isEmpty()){
-        QMessageBox warning;
-        warning.warning(this,"missing band name","Band name is missing!");
-        return;
-    }
-    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i ){
-        QString tmp = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
-        if(name == tmp ){
-            QMessageBox warning;
-            warning.warning(this,"already used band name","Band name " + tmp + " is already used!");
-            return;
-        }
-    }
-
-
-    ui->tableWidget_modeCustonBand->insertRow(ui->tableWidget_modeCustonBand->rowCount());
-    ui->tableWidget_modeCustonBand->setVerticalHeaderItem(ui->tableWidget_modeCustonBand->rowCount()-1,new QTableWidgetItem(name));
-
-    QDoubleSpinBox *freqSB = new QDoubleSpinBox(this);
-    freqSB->setMinimum(0);
-    freqSB->setMaximum(100);
-    freqSB->setSingleStep(.1);
-    freqSB->setValue(freq);
-    freqSB->setDecimals(4);
-    freqSB->setSuffix(" [GHz]");
-
-    QSpinBox *nChannelSB = new QSpinBox(this);
-    nChannelSB->setMinimum(1);
-    nChannelSB->setMaximum(100);
-    nChannelSB->setValue(nChannel);
-
-    QPushButton *d = new QPushButton("delete",this);
-    connect(d,SIGNAL(clicked(bool)),deleteModeMapper,SLOT(map()));
-    deleteModeMapper->setMapping(d,name);
-
-    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,0,freqSB);
-    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,1,nChannelSB);
-    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,2,d);
-    addModesPolicyTable(name);
-}
-
-void MainWindow::deleteModesCustomLine(QString name)
-{
-    int row;
-    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i ){
-        QString tmp = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
-        if(name == tmp ){
-            row = i;
-            break;
-        }
-    }
-
-    ui->tableWidget_modeCustonBand->removeRow(row);
-    ui->tableWidget_ModesPolicy->removeRow(row);
-}
-
-
-void MainWindow::createMultiSchedTable()
-{
-
-    QTreeWidget *t = ui->treeWidget_multiSched;
-
-    t->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    t->expandAll();
-    ui->treeWidget_multiSchedSelected->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-}
-
-
-void MainWindow::on_spinBox_fontSize_valueChanged(int arg1)
-{
-    QFont myFont = ui->fontComboBox_font->currentFont();
-    myFont.setPointSize(arg1);
-    worldMapCallout->setFont(myFont);
-    skyMapCallout->setFont(myFont);
-    QApplication::setFont(myFont);
-}
-
-void MainWindow::on_fontComboBox_font_currentFontChanged(const QFont &f)
-{
-    QFont myFont = f;
-    myFont.setPointSize(ui->spinBox_fontSize->value());
-    worldMapCallout->setFont(myFont);
-    skyMapCallout->setFont(myFont);
-    QApplication::setFont(myFont);
-}
-
-void MainWindow::readSkedCatalogs()
-{
-    skdCatalogReader.setCatalogFilePathes(ui->lineEdit_pathAntenna->text().toStdString(), ui->lineEdit_pathEquip->text().toStdString(),
-                                          ui->lineEdit_pathFlux->text().toStdString(), ui->lineEdit_pathFreq->text().toStdString(),
-                                          ui->lineEdit_pathHdpos->text().toStdString(), ui->lineEdit_pathLoif->text().toStdString(),
-                                          ui->lineEdit_pathMask->text().toStdString(), ui->lineEdit_pathModes->text().toStdString(),
-                                          ui->lineEdit_pathPosition->text().toStdString(), ui->lineEdit_pathRec->text().toStdString(),
-                                          ui->lineEdit_pathRx->text().toStdString(), ui->lineEdit_pathSource->text().toStdString(),
-                                          ui->lineEdit_pathTracks->text().toStdString());
-
-    skdCatalogReader.initializeStationCatalogs();
-    skdCatalogReader.initializeSourceCatalogs();
-
-    skdCatalogReader.initializeModesCatalogs(ui->comboBox_skedObsModes->currentText().toStdString());
-}
-
-void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &index)
-{
-    int row = index.row();
-    QString name = allStationProxyModel->index(row,0).data().toString();
-
-    double x = allStationProxyModel->index(row,3).data().toDouble();
-    double y = allStationProxyModel->index(row,2).data().toDouble();
-    QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
-    worldMapCallout->setText(text);
-    worldMapCallout->setAnchor(QPointF(x,y));
-    worldMapCallout->setZValue(11);
-    worldMapCallout->updateGeometry();
-    worldMapCallout->show();
-}
-
-void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index)
-{
-    int row = index.row();
-    QString name = allSourceProxyModel->index(row,0).data().toString();
-
-    double ra = allSourceProxyModel->index(row,1).data().toDouble();
-    ra -=180;
-    double dc = allSourceProxyModel->index(row,2).data().toDouble();
-
-    double lambda = qDegreesToRadians(ra);
-    double phi = qDegreesToRadians(dc);
-    double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-    double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-    double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-
-    QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
-    skyMapCallout->setText(text);
-    skyMapCallout->setAnchor(QPointF(x,y));
-    skyMapCallout->setZValue(11);
-    skyMapCallout->updateGeometry();
-    skyMapCallout->show();
-}
-
-void MainWindow::on_treeView_allSelectedBaselines_entered(const QModelIndex &index)
-{
-    int row = index.row();
-    QString txt = selectedBaselineModel->index(row,0).data().toString();
-    QString txt2 = selectedBaselineModel->index(row,1).data().toString();
-    txt.append("\n").append(txt2).append(" [km]");
-
-    double x,y;
-    for(int i=0; i<worldmap->chart()->series().count(); ++i){
-        if(worldmap->chart()->series().at(i)->name() == txt){
-            auto s = qobject_cast<QLineSeries *>(worldmap->chart()->series().at(i));
-            x = (s->at(0).x()+s->at(1).x())/2;
-            y = (s->at(0).y()+s->at(1).y())/2;
-            break;
-        }
-    }
-
-
-    worldMapCallout->setText(txt);
-    worldMapCallout->setAnchor(QPointF(x,y));
-    worldMapCallout->setZValue(11);
-    worldMapCallout->updateGeometry();
-    worldMapCallout->show();
-}
-
-
-
-void MainWindow::worldmap_hovered(QPointF point, bool state)
-{
-    if (state) {
-        QString sta;
-        for(int i = 0; i<allStationModel->rowCount();++i){
-            double x = allStationModel->index(i,3).data().toDouble();
-            double y = allStationModel->index(i,2).data().toDouble();
-
-            auto dx = x-point.x();
-            auto dy = y-point.y();
-            if(dx*dx+dy*dy < 1e-3){
-                if(sta.size()==0){
-                    sta.append(allStationModel->index(i,0).data().toString());
-                }else{
-                    sta.append(","+allStationModel->index(i,0).data().toString());
-                }
-            }
-
-        }
-
-        QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(sta).arg(point.x()).arg(point.y());
-        worldMapCallout->setText(text);
-        worldMapCallout->setAnchor(point);
-        worldMapCallout->setZValue(11);
-        worldMapCallout->updateGeometry();
-        worldMapCallout->show();
-    } else {
-        worldMapCallout->hide();
-    }
-
-}
-
-void MainWindow::skymap_hovered(QPointF point, bool state){
-
-    if (state) {
-
-        double px = point.x();
-        double py = point.y();
-
-
-        double z = qSqrt(1 - (1./4.*px)*(1./4.*px) - (1./2.*py)*(1./2.*py));
-        double pra = qRadiansToDegrees(2* qAtan( (z*px) / (2*(2*z*z-1)) ));
-        pra +=180;
-        double pde = qRadiansToDegrees(qAsin(z*py));
-
-        QString src;
-        for(int i = 0; i<allSourceModel->rowCount();++i){
-            double ra = allSourceModel->index(i,1).data().toDouble();
-            double de = allSourceModel->index(i,2).data().toDouble();
-
-            auto dra = ra-pra;
-            auto dde = de-pde;
-            if(dra*dra+dde*dde < 10){
-                if(src.size()==0){
-                    src.append(allSourceModel->index(i,0).data().toString());
-                }else{
-                    src.append(","+allSourceModel->index(i,0).data().toString());
-                }
-            }
-        }
-
-        QString text = QString("%1 \nRA: %2 [deg] \nDC: %3 [deg] ").arg(src).arg(pra).arg(pde);
-        skyMapCallout->setText(text);
-        skyMapCallout->setAnchor(point);
-        skyMapCallout->setZValue(11);
-        skyMapCallout->updateGeometry();
-        skyMapCallout->show();
-    } else {
-        skyMapCallout->hide();
-    }
-
-}
-
-
-//void MainWindow::worldmap_clicked()
-//{
-//    int i = 0;
-//}
-
-void MainWindow::on_pushButton_modeCustomAddBAnd_clicked()
-{
-    addBandDialog *dial = new addBandDialog(settings,this);
-    int result = dial->exec();
-
-    if(result == QDialog::Accepted){
-        QString name = dial->getBandName();
-        double freq = dial->getFrequency();
-        int channels = dial->getChannels();
-        addModesCustomTable(name,freq,channels);
-    }
-
-    delete(dial);
-}
-
-void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &index)
-{
-    int row = index.row();
-    QString name = selectedStationModel->index(row,0).data().toString();
-
-    for(int i = 0; i < allStationModel->rowCount(); ++i){
-        QString newName = allStationModel->index(i,0).data().toString();
-        if (newName == name){
-            double x = allStationModel->index(i,3).data().toDouble();;
-            double y = allStationModel->index(i,2).data().toDouble();;
-            QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
-            worldMapCallout->setText(text);
-            worldMapCallout->setAnchor(QPointF(x,y));
-            worldMapCallout->setZValue(11);
-            worldMapCallout->updateGeometry();
-            worldMapCallout->show();
-            break;
-        }
-    }
-}
-
-void MainWindow::on_listView_allSelectedSources_entered(const QModelIndex &index)
-{
-
-    int row = index.row();
-    QString name = selectedSourceModel->index(row,0).data().toString();
-
-    for(int i = 0; i < allSourceModel->rowCount(); ++i){
-        QString newName = allSourceModel->index(i,0).data().toString();
-
-        if (newName == name){
-            double ra = allSourceModel->index(i,1).data().toDouble();
-            ra -=180;
-            double dc = allSourceModel->index(i,2).data().toDouble();
-
-            double lambda = qDegreesToRadians(ra);
-            double phi = qDegreesToRadians(dc);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-
-            QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
-            skyMapCallout->setText(text);
-            skyMapCallout->setAnchor(QPointF(x,y));
-            skyMapCallout->setZValue(11);
-            skyMapCallout->updateGeometry();
-            skyMapCallout->show();
-            break;
-        }
-    }
-}
-
-void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
-{
-    auto tall = ui->treeWidget_multiSched;
-    auto list = tall->selectedItems();
-
-    for(const auto&any:list){
-
-        if(any->parent()){
-            QString name = any->text(0);
-            QString parameterType = any->parent()->text(0);
-
-            QStringList row2dateTimeDialog {"session start"};
-
-            QStringList row2toggle{"subnetting",
-                                   "fillinmode during scan selection",
-                                   "fillinmode influence on scan selection",
-                                   "fillinmode a posteriori"};
-
-            QStringList row2intDialog {"max slew time",
-                                       "max wait time",
-                                       "max scan time",
-                                       "min scan time",
-                                       "min number of stations",
-                                       "min repeat time",
-                                       "idle time interval",
-                                       "max number of scans"};
-
-            QStringList row2doubleDialog {"subnetting min source angle",
-                                          "subnetting min participating stations",
-                                          "sky coverage",
-                                          "number of observations",
-                                          "duration",
-                                          "average stations",
-                                          "average sources",
-                                          "average baselines",
-                                          "idle time",
-                                          "low declination",
-                                          "low declination begin",
-                                          "low declination full",
-                                          "low elevation",
-                                          "low elevation begin",
-                                          "low elevation full",
-                                          "influence distance",
-                                          "influence time",
-                                          "weight",
-                                          "min slew distance",
-                                          "max slew distance",
-                                          "min elevation",
-                                          "min flux",
-                                          "min sun distance"};
-
-            QIcon ic;
-            if(parameterType == "General"){
-                ic = QIcon(":/icons/icons/applications-internet-2.png");
-            }else if(parameterType == "Weight factor"){
-                ic = QIcon(":/icons/icons/weight.png");
-            }else if(parameterType == "Sky Coverage"){
-                ic = QIcon(":/icons/icons/sky_coverage.png");
-            }else if(parameterType == "Station"){
-                ic = QIcon(":/icons/icons/station.png");
-            }else if(parameterType == "Source"){
-                ic = QIcon(":/icons/icons/source.png");
-            }else if(parameterType == "Baseline"){
-                ic = QIcon(":/icons/icons/baseline.png");
-            }
-
-            auto t = ui->treeWidget_multiSchedSelected;
-
-            QTreeWidgetItem *itm = new QTreeWidgetItem();
-
-            if(row2toggle.indexOf(name) != -1){
-                if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
-                    any->setDisabled(true);
-                }
-                QString valuesString = "True, False";
-
-                itm->setText(0,name);
-                itm->setIcon(0,ic);
-                itm->setText(1,"global");
-                itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
-                itm->setText(2,"2");
-
-                QComboBox *cb = new QComboBox(this);
-                cb->addItem("True");
-                cb->addItem("False");
-
-                t->addTopLevelItem(itm);
-                t->setItemWidget(itm,3,cb);
-
-            }else if(row2intDialog.indexOf(name) != -1){
-                multiSchedEditDialogInt *dialog = new multiSchedEditDialogInt(this);
-                if(parameterType == "Station"){
-                    dialog->addMember(allStationPlusGroupModel);
-                }else if(parameterType == "Source"){
-                    dialog->addMember(allSourcePlusGroupModel);
-                }else if(parameterType == "Baseline"){
-                    dialog->addMember(allBaselinePlusGroupModel);
-                }
-                int result = dialog->exec();
-                if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
-                        any->setDisabled(true);
-                    }
-                    QVector<int> val = dialog->getValues();
-                    int n = val.size();
-                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
-                        QStandardItem* member = dialog->getMember();
-                        itm->setText(1,member->text());
-                        itm->setIcon(1,member->icon());
-                    }else if(parameterType == "Weight factor"){
-                        itm->setText(1,"global");
-                        itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
-                    }else{
-                        itm->setText(1,"global");
-                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
-                    }
-                    QComboBox *cb = new QComboBox(this);
-                    for(const auto& any:val){
-                        cb->addItem(QString::number(any));
-                    }
-
-                    itm->setText(2,QString::number(n));
-                    itm->setText(0,name);
-                    itm->setIcon(0,ic);
-                    t->addTopLevelItem(itm);
-                    t->setItemWidget(itm,3,cb);
-
-                }
-                delete(dialog);
-
-            }else if(row2doubleDialog.indexOf(name) != -1){
-                multiSchedEditDialogDouble *dialog = new multiSchedEditDialogDouble(this);
-                if(parameterType == "Station"){
-                    dialog->addMember(allStationPlusGroupModel);
-                }else if(parameterType == "Source"){
-                    dialog->addMember(allSourcePlusGroupModel);
-                }else if(parameterType == "Baseline"){
-                    dialog->addMember(allBaselinePlusGroupModel);
-                }else if(parameterType == "Weight factor"){
-                    itm->setText(1,"global");
-                    itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
-                }
-                int result = dialog->exec();
-                if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
-                        any->setDisabled(true);
-                    }
-                    QVector<double> val = dialog->getValues();
-                    int n = val.size();
-
-                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
-                        QStandardItem* member = dialog->getMember();
-                        itm->setText(1,member->text());
-                        itm->setIcon(1,member->icon());
-                    }else if(parameterType == "Sky Coverage"){
-                        itm->setText(1,"global");
-                        itm->setIcon(1,QIcon(":/icons/icons/sky_coverage.png"));
-                    }else{
-                        itm->setText(1,"global");
-                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
-                    }
-                    QComboBox *cb = new QComboBox(this);
-                    for(const auto& any:val){
-                        cb->addItem(QString::number(any));
-                    }
-
-                    itm->setText(2,QString::number(n));
-                    itm->setText(0,name);
-                    itm->setIcon(0,ic);
-                    t->addTopLevelItem(itm);
-                    t->setItemWidget(itm,3,cb);
-                }
-                delete(dialog);
-
-            }else if(row2dateTimeDialog.indexOf(name) != -1){
-                multiSchedEditDialogDateTime *dialog = new multiSchedEditDialogDateTime(this);
-
-                int result = dialog->exec();
-                if(result == QDialog::Accepted){
-                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
-                        any->setDisabled(true);
-                    }
-                    QVector<QDateTime> val = dialog->getValues();
-                    int n = val.size();
-
-                    itm->setText(1,"global");
-                    itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
-                    QComboBox *cb = new QComboBox(this);
-                    for(const auto& any:val){
-                        cb->addItem(any.toString("dd.MM.yyyy hh:mm"));
-                    }
-
-                    itm->setText(2,QString::number(n));
-                    itm->setText(0,name);
-                    itm->setIcon(0,ic);
-                    t->addTopLevelItem(itm);
-                    t->setItemWidget(itm,3,cb);
-                }
-                delete(dialog);
-            }
-
-            multi_sched_count_nsched();
-
-        }
-    }
-}
-
-void MainWindow::on_actionExit_triggered()
-{
-    closeEvent(new QCloseEvent);
-}
-
-
-void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
-{
-    event->ignore();
-    if (QMessageBox::Yes == QMessageBox::question(this, "Exit?", "Do you really want to exit?", QMessageBox::Yes | QMessageBox::No))
-    {
-        QSettings settings("TU Wien","VieVS Scheduler");
-        settings.setValue("geometry", saveGeometry());
-        event->accept();
-    }
+    std::string operationNotes = settings.get<std::string>("settings.output.operationNotes","");
+    ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
+
+
+    std::string threads = settings.get<std::string>("multiCore.threads","auto");
+    ui->comboBox_nThreads->setCurrentText(QString::fromStdString(threads));
+    int nThreadsManual = settings.get<int>("multiCore.nThreads",1);
+    ui->spinBox_nCores->setValue(nThreadsManual);
+    std::string jobScheduler = settings.get<std::string>("multiCore.jobScheduling","auto");
+    ui->comboBox_jobSchedule->setCurrentText(QString::fromStdString(jobScheduler));
+    int chunkSize = settings.get<int>("multiCore.chunkSize",0);
+    ui->spinBox_chunkSize->setValue(chunkSize);
 
 }
 
@@ -3268,699 +2332,447 @@ QString MainWindow::writeXML()
     return path;
 }
 
-void MainWindow::readSettings()
+void MainWindow::createDefaultParameterSettings()
 {
-    std::string name = settings.get<std::string>("settings.general.name","");
-    ui->nameLineEdit->setText(QString::fromStdString(name));
-    std::string email = settings.get<std::string>("settings.general.email","");
-    ui->emailLineEdit->setText(QString::fromStdString(email));
-    std::string pathToScheduler = settings.get<std::string>("settings.general.pathToScheduler","");
-    ui->pathToSchedulerLineEdit->setText(QString::fromStdString(pathToScheduler));
+    VieVS::ParameterSettings::ParametersStations sta;
+    sta.maxScan = 600;
+    sta.minScan = 30;
+    sta.maxSlewtime = 600;
+    sta.maxSlewDistance = 175;
+    sta.minSlewDistance = 0;
+    sta.maxWait = 600;
+    sta.maxNumberOfScans = 9999;
+    sta.weight = 1;
+    sta.minElevation = 5;
+    settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
 
-    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","");
-    ui->lineEdit_pathAntenna->setText(QString::fromStdString(cAntenna));
-    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","");
-    ui->lineEdit_pathEquip->setText(QString::fromStdString(cEquip));
-    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","");
-    ui->lineEdit_pathPosition->setText(QString::fromStdString(cPosition));
-    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","");
-    ui->lineEdit_pathMask->setText(QString::fromStdString(cMask));
-    std::string cSource = settings.get<std::string>("settings.catalog_path.source","");
-    ui->lineEdit_pathSource->setText(QString::fromStdString(cSource));
-    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","");
-    ui->lineEdit_pathFlux->setText(QString::fromStdString(cFlux));
-    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","");
-    ui->lineEdit_pathModes->setText(QString::fromStdString(cModes));
-    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","");
-    ui->lineEdit_pathFreq->setText(QString::fromStdString(cFreq));
-    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","");
-    ui->lineEdit_pathTracks->setText(QString::fromStdString(cTracks));
-    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","");
-    ui->lineEdit_pathLoif->setText(QString::fromStdString(cLoif));
-    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","");
-    ui->lineEdit_pathRec->setText(QString::fromStdString(cRec));
-    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","");
-    ui->lineEdit_pathRx->setText(QString::fromStdString(cRx));
-    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","");
-    ui->lineEdit_pathHdpos->setText(QString::fromStdString(cHdpos));
+    VieVS::ParameterSettings::ParametersSources src;
+    src.minRepeat = 1800;
+    src.minScan = 20;
+    src.maxScan = 600;
+    src.weight = 1;
+    src.minFlux = 0.05;
+    src.maxNumberOfScans = 999;
+    src.minNumberOfStations = 2;
+    src.minElevation = 0;
+    src.minSunDistance = 4;
+    settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
 
-    std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
-    ui->lineEdit_outputPath->setText(QString::fromStdString(outputDirectory));
-    std::string outputScheduler = settings.get<std::string>("settings.output.scheduler","");
-    ui->schedulerLineEdit->setText(QString::fromStdString(outputScheduler));
-    std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
-    ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
+    VieVS::ParameterSettings::ParametersBaselines bl;
+    bl.maxScan = 600;
+    bl.minScan = 30;
+    bl.weight = 1;
+    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));
+    settings.add("settings.station.waitTimes.setup",0);
+    settings.add("settings.station.waitTimes.source",5);
+    settings.add("settings.station.waitTimes.tape",1);
+    settings.add("settings.station.waitTimes.calibration",10);
+    settings.add("settings.station.waitTimes.corsynch",3);
 
-    std::string piName = settings.get<std::string>("settings.output.piName","");
-    ui->lineEdit_PIName->setText(QString::fromStdString(piName));
-    std::string piEmail = settings.get<std::string>("settings.output.piEmail","");
-    ui->lineEdit_PIEmail->setText(QString::fromStdString(piEmail));
-    std::string contactName = settings.get<std::string>("settings.output.contactName","");
-    ui->lineEdit_contactName->setText(QString::fromStdString(contactName));
-    std::string contactEmail = settings.get<std::string>("settings.output.contactEmail","");
-    ui->lineEdit_contactEmail->setText(QString::fromStdString(contactEmail));
+    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 5);
+    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 5);
+    settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
+    settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
 
-    std::string notes = settings.get<std::string>("settings.output.notes","");
-    if(!notes.empty()){
-        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(notes).replace("\\n","\n"));
-    }
-    std::string operationNotes = settings.get<std::string>("settings.output.operationNotes","");
-    ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
-
-
-    std::string threads = settings.get<std::string>("multiCore.threads","auto");
-    ui->comboBox_nThreads->setCurrentText(QString::fromStdString(threads));
-    int nThreadsManual = settings.get<int>("multiCore.nThreads",1);
-    ui->spinBox_nCores->setValue(nThreadsManual);
-    std::string jobScheduler = settings.get<std::string>("multiCore.jobScheduling","auto");
-    ui->comboBox_jobSchedule->setCurrentText(QString::fromStdString(jobScheduler));
-    int chunkSize = settings.get<int>("multiCore.chunkSize",0);
-    ui->spinBox_chunkSize->setValue(chunkSize);
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
 
 }
 
-void MainWindow::on_iconSizeSpinBox_valueChanged(int arg1)
+// ########################################### MODE ###########################################
+
+void MainWindow::createModesPolicyTable()
 {
-    ui->fileToolBar->setIconSize(QSize(arg1,arg1));
-    ui->basicToolBar->setIconSize(QSize(arg1,arg1));
-    ui->advancedToolBar->setIconSize(QSize(arg1,arg1));
-    ui->helpToolBar->setIconSize(QSize(arg1,arg1));
+    QHeaderView *hv = ui->tableWidget_ModesPolicy->horizontalHeader();
+    hv->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
+void MainWindow::addModesPolicyTable(QString name){
+
+    ui->tableWidget_ModesPolicy->insertRow(ui->tableWidget_ModesPolicy->rowCount());
+    ui->tableWidget_ModesPolicy->setVerticalHeaderItem(ui->tableWidget_ModesPolicy->rowCount()-1,new QTableWidgetItem(name));
+    QDoubleSpinBox *dsp = new QDoubleSpinBox(this);
+    if(name == "S"){
+        dsp->setValue(15.);
+    }else{
+        dsp->setValue(20.);
+    }
+    dsp->setMaximum(1000);
+    QComboBox *psta = new QComboBox(this);
+    psta->addItem("required");
+    psta->addItem("optional");
+    QComboBox *psrc = new QComboBox(this);
+    psrc->addItem("required");
+    psrc->addItem("optional");
+    QComboBox *bsta = new QComboBox(this);
+    bsta->addItem("none");
+    bsta->addItem("value");
+    bsta->addItem("min value Times");
+    bsta->addItem("max value Times");
+    QComboBox *bsrc = new QComboBox(this);
+    bsrc->addItem("none");
+    bsrc->addItem("value");
+    bsrc->addItem("min value Times");
+    bsrc->addItem("max value Times");
+    QDoubleSpinBox *vsta = new QDoubleSpinBox(this);
+    vsta->setMinimum(0);
+    vsta->setMaximum(100000);
+    vsta->setSingleStep(.1);
+    vsta->setValue(1);
+    QDoubleSpinBox *vsrc = new QDoubleSpinBox(this);
+    vsrc->setMinimum(0);
+    vsrc->setMaximum(100000);
+    vsrc->setSingleStep(.1);
+    vsrc->setValue(1);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,0,dsp);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,1,psta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,2,bsta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,3,vsta);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,4,psrc);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,5,bsrc);
+    ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,6,vsrc);
+
+
+}
+
+void MainWindow::createModesCustonBandTable()
 {
-    for(int i = 0; i<item->childCount(); ++i){
-        if(item->checkState(0) == Qt::Checked){
-            item->child(i)->setDisabled(false);
-        }else{
-            item->child(i)->setDisabled(true);
+    addModesCustomTable("X",8.590,10);
+    addModesCustomTable("S",2.260,6);
+
+    ui->tableWidget_modeCustonBand->resizeColumnsToContents();
+    ui->tableWidget_modeCustonBand->verticalHeader()->show();
+
+    QHeaderView *hv = ui->tableWidget_modeCustonBand->horizontalHeader();
+    hv->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+}
+
+void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
+    name = name.trimmed();
+
+    if(name.isEmpty()){
+        QMessageBox warning;
+        warning.warning(this,"missing band name","Band name is missing!");
+        return;
+    }
+    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i ){
+        QString tmp = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
+        if(name == tmp ){
+            QMessageBox warning;
+            warning.warning(this,"already used band name","Band name " + tmp + " is already used!");
+            return;
         }
     }
 
-    if(item->text(0) == "Files"){
-        if(item->checkState(0) == Qt::Checked){
-            ui->fileToolBar->show();
-        }else{
-            ui->fileToolBar->hide();
-        }
-    } else if(item->text(0) == "Basic"){
-        if(item->checkState(0) == Qt::Checked){
-            ui->basicToolBar->show();
-        }else{
-            ui->basicToolBar->hide();
-        }
-    } else if(item->text(0) == "Advanced"){
-        if(item->checkState(0) == Qt::Checked){
-            ui->advancedToolBar->show();
-        }else{
-            ui->advancedToolBar->hide();
-        }
-    } else if(item->text(0) == "Help"){
-        if(item->checkState(0) == Qt::Checked){
-            ui->helpToolBar->show();
-        }else{
-            ui->helpToolBar->hide();
-        }
-    } else if (item->text(0) == "Analysis"){
-        if(item->checkState(0) == Qt::Checked){
-            ui->analysisToolBar->show();
-        }else{
-            ui->analysisToolBar->hide();
-        }
-    } else if(item->text(0) == "Welcome"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Welcome"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Settings"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Settings"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "New"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "New"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Open"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Open"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Save"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Save"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Run"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Run"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Exit"){
-        auto actions = ui->fileToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Exit"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Input"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Input"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Mode"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Mode"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "General"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "General"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Network"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Network"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Source List"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Source List"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Parameter Stations"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Station"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Parameter Sources"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Source"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Parameter Baselines"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Baseline"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Weight Factors"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Weight Factors"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Output"){
-        auto actions = ui->basicToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Output"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Rules"){
-        auto actions = ui->advancedToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Rules"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Multi Scheduling"){
-        auto actions = ui->advancedToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Multi Scheduling"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Sky Coverage"){
-        auto actions = ui->advancedToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Sky Coverage"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Conditions"){
-        auto actions = ui->advancedToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Conditions"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "What is this?"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "What is this?"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "FAQ"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "FAQ"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Current Reference"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Current Reference"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "About"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "About"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "About Qt"){
-        auto actions = ui->helpToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "About Qt"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    } else if(item->text(0) == "Statistics"){
-        auto actions = ui->analysisToolBar->actions();
-        for(const auto &any:actions){
-            if(any->text() == "Statistics"){
-                if(item->checkState(0) == Qt::Checked){
-                    any->setVisible(true);
-                }else{
-                    any->setVisible(false);
-                }
-            }
-        }
-    }
+
+    ui->tableWidget_modeCustonBand->insertRow(ui->tableWidget_modeCustonBand->rowCount());
+    ui->tableWidget_modeCustonBand->setVerticalHeaderItem(ui->tableWidget_modeCustonBand->rowCount()-1,new QTableWidgetItem(name));
+
+    QDoubleSpinBox *freqSB = new QDoubleSpinBox(this);
+    freqSB->setMinimum(0);
+    freqSB->setMaximum(100);
+    freqSB->setSingleStep(.1);
+    freqSB->setValue(freq);
+    freqSB->setDecimals(4);
+    freqSB->setSuffix(" [GHz]");
+
+    QSpinBox *nChannelSB = new QSpinBox(this);
+    nChannelSB->setMinimum(1);
+    nChannelSB->setMaximum(100);
+    nChannelSB->setValue(nChannel);
+
+    QPushButton *d = new QPushButton("delete",this);
+    connect(d,SIGNAL(clicked(bool)),deleteModeMapper,SLOT(map()));
+    deleteModeMapper->setMapping(d,name);
+
+    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,0,freqSB);
+    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,1,nChannelSB);
+    ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,2,d);
+    addModesPolicyTable(name);
 }
 
-void MainWindow::addGroupStation()
+void MainWindow::deleteModesCustomLine(QString name)
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::station,this);
-    dial->addModel(selectedStationModel);
+    int row;
+    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i ){
+        QString tmp = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
+        if(name == tmp ){
+            row = i;
+            break;
+        }
+    }
+
+    ui->tableWidget_modeCustonBand->removeRow(row);
+    ui->tableWidget_ModesPolicy->removeRow(row);
+}
+
+void MainWindow::on_pushButton_modeCustomAddBand_clicked()
+{
+    addBandDialog *dial = new addBandDialog(settings,this);
     int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::vector<std::string> stdlist = dial->getSelection();
-        std::string stdname = dial->getGroupName();
-        VieVS::ParameterGroup newGroup(stdname, stdlist);
 
-        int r = 0;
-        for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
-            QString txt = allStationPlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++r;
+    if(result == QDialog::Accepted){
+        QString name = dial->getBandName();
+        double freq = dial->getFrequency();
+        int channels = dial->getChannels();
+        addModesCustomTable(name,freq,channels);
+    }
+
+    delete(dial);
+}
+
+void MainWindow::readAllSkedObsModes()
+{
+    QString modesPath = ui->lineEdit_pathModes->text();
+    QFile modesFile(modesPath);
+    QStringList modes;
+    if (modesFile.open(QIODevice::ReadOnly)){
+        QTextStream in(&modesFile);
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
                 continue;
             }
-            if(groupSta.find(txt.toStdString()) == groupSta.end()){
-                break;
-            }
-            if(txt>QString::fromStdString(stdname)){
-                break;
-            }else{
-                ++r;
+            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
+            QString obsModeName = split[0];
+
+            modes << obsModeName;
+        }
+        modesFile.close();
+    }
+    allSkedModesModel->setStringList(modes);
+    if(ui->comboBox_skedObsModes->count()>0){
+        ui->comboBox_skedObsModes->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::on_groupBox_modeSked_toggled(bool arg1)
+{
+    ui->groupBox_modeCustom->setChecked(!arg1);
+}
+
+void MainWindow::on_groupBox_modeCustom_toggled(bool arg1)
+{
+    ui->groupBox_modeSked->setChecked(!arg1);
+}
+
+void MainWindow::on_pushButton_saveMode_clicked()
+{
+    int bits = ui->sampleBitsSpinBox->value();
+    double srate = ui->sampleRateDoubleSpinBox->value();
+    QVector<QString> bands;
+    QVector<double> freqs;
+    QVector<int> chans;
+
+    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i){
+        QString band = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
+        bands.push_back(band);
+        double freq = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,0))->value();
+        freqs.push_back(freq);
+        int chan = qobject_cast<QSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
+        chans.push_back(chan);
+    }
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    dial->setType(saveToSettingsDialog::Type::modes);
+    dial->setMode(bits,srate,bands,freqs,chans);
+
+    dial->exec();
+
+}
+
+void MainWindow::on_pushButton_loadMode_clicked()
+{
+    auto modes= settings.get_child_optional("settings.modes");
+    if(!modes.is_initialized()){
+        QMessageBox::warning(this,"No modes list found!","There were no modes saved in settings.xml file\nCheck settings.modes");
+        return;
+    }
+
+    QVector<QString> names;
+    QVector<int> bits;
+    QVector<double> srates;
+    QVector<QVector<QString> > bands;
+    QVector<QVector<int> > channels;
+    QVector<QVector<double> > freqs;
+
+    for(const auto &it:*modes){
+        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
+        int bit;
+        double srate;
+        QVector<QString> band;
+        QVector<int> channel;
+        QVector<double> freq;
+
+        for(const auto &it2:it.second){
+            if(it2.first == "bits"){
+                bit = it2.second.get_value<int>();
+            }else if(it2.first == "sampleRate"){
+                srate = it2.second.get_value<double>();
+            }else if(it2.first == "band"){
+
+                channel.push_back(it2.second.get<int>("channels"));
+                freq.push_back(it2.second.get<double>("frequency"));
+                band.push_back(QString::fromStdString(it2.second.get<std::string>("<xmlattr>.name")));
+
             }
         }
-        groupSta[stdname] = stdlist;
+        names.push_back(name);
+        bits.push_back(bit);
+        srates.push_back(srate);
+        bands.push_back(band);
+        channels.push_back(channel);
+        freqs.push_back(freq);
+    }
 
-        allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(stdname) ));
-        if(sender() == ui->pushButton_addGroupStationSetup){
-            ui->comboBox_stationSettingMember->setCurrentIndex(r);
+    settingsLoadWindow *dial = new settingsLoadWindow(this);
+    dial->setModes(names,bits,srates,bands,channels,freqs);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        QString itm = dial->selectedItem();
+        int idx = dial->selectedIdx();
+
+        ui->sampleBitsSpinBox->setValue(bits.at(idx));
+        ui->sampleRateDoubleSpinBox->setValue(srates.at(idx));
+        ui->tableWidget_modeCustonBand->setRowCount(0);
+        ui->tableWidget_ModesPolicy->setRowCount(0);
+        for(int i=0; i<bands.at(idx).size(); ++i){
+            QString bName = bands.at(idx).at(i);
+            double bFreq = freqs.at(idx).at(i);
+            int bChannels = channels.at(idx).at(i);
+            addModesCustomTable(bName, bFreq, bChannels);
         }
     }
-    delete(dial);
+
 }
 
-void MainWindow::addGroupSource()
+// ########################################### CATALOGS ###########################################
+
+void MainWindow::readSkedCatalogs()
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::source,this);
-    dial->addModel(selectedSourceModel);
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::vector<std::string> stdlist = dial->getSelection();
-        std::string stdname = dial->getGroupName();
-        VieVS::ParameterGroup newGroup(stdname, stdlist);
+    skdCatalogReader.setCatalogFilePathes(ui->lineEdit_pathAntenna->text().toStdString(), ui->lineEdit_pathEquip->text().toStdString(),
+                                          ui->lineEdit_pathFlux->text().toStdString(), ui->lineEdit_pathFreq->text().toStdString(),
+                                          ui->lineEdit_pathHdpos->text().toStdString(), ui->lineEdit_pathLoif->text().toStdString(),
+                                          ui->lineEdit_pathMask->text().toStdString(), ui->lineEdit_pathModes->text().toStdString(),
+                                          ui->lineEdit_pathPosition->text().toStdString(), ui->lineEdit_pathRec->text().toStdString(),
+                                          ui->lineEdit_pathRx->text().toStdString(), ui->lineEdit_pathSource->text().toStdString(),
+                                          ui->lineEdit_pathTracks->text().toStdString());
 
-        int r = 0;
-        for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
-            QString txt = allSourcePlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++r;
-                continue;
-            }
-            if(groupSrc.find(txt.toStdString()) == groupSrc.end()){
-                break;
-            }
-            if(txt>QString::fromStdString(stdname)){
-                break;
-            }else{
-                ++r;
-            }
-        }
+    skdCatalogReader.initializeStationCatalogs();
+    skdCatalogReader.initializeSourceCatalogs();
 
-        groupSrc[stdname] = stdlist;
-
-        allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(stdname) ));
-        if(sender() == ui->pushButton_addGroupSourceSetup){
-            ui->comboBox_sourceSettingMember->setCurrentIndex(r);
-        }
-        if(sender() == ui->pushButton_addSourceGroup_Calibrator){
-            ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(r);
-        }
-        QTreeWidgetItem *itm = new QTreeWidgetItem();
-        itm->setText(0,QString::fromStdString(stdname));
-        itm->setCheckState(0,Qt::Unchecked);
-        ui->treeWidget_srcGroupForStatistics->addTopLevelItem(itm);
-    }
-    delete(dial);
+    skdCatalogReader.initializeModesCatalogs(ui->comboBox_skedObsModes->currentText().toStdString());
 }
 
-void MainWindow::addGroupBaseline()
+void MainWindow::on_pushButton_browseAntenna_clicked()
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::baseline,this);
-    dial->addModel(selectedBaselineModel);
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::vector<std::string> stdlist = dial->getSelection();
-        std::string stdname = dial->getGroupName();
-        VieVS::ParameterGroup newGroup(stdname, stdlist);
-
-        int r = 0;
-        for(int i = 0; i<allBaselinePlusGroupModel->rowCount(); ++i){
-            QString txt = allBaselinePlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++r;
-                continue;
-            }
-            if(groupBl.find(txt.toStdString()) == groupBl.end()){
-                break;
-            }
-            if(txt>QString::fromStdString(stdname)){
-                break;
-            }else{
-                ++r;
-            }
-        }
-
-        groupBl[stdname] = stdlist;
-
-        allBaselinePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(stdname) ));
-        if(sender() == ui->pushButton_addGroupBaselineSetup){
-            ui->comboBox_baselineSettingMember->setCurrentIndex(r);
-        }
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathAntenna->setText(path);
     }
-    delete(dial);
 }
 
-void MainWindow::on_pushButton_stationParameter_clicked()
+void MainWindow::on_pushButton_browseEquip_clicked()
 {
-    stationParametersDialog *dial = new stationParametersDialog(settings,this);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathEquip->setText(path);
     }
-    dial->addBandNames(bands);
-    dial->addSourceNames(allSourcePlusGroupModel);
-    dial->addDefaultParameters(paraSta["default"]);
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersStations parameter = res.second;
-
-        paraSta[name] = parameter;
-
-        ui->ComboBox_parameterStation->addItem(QString::fromStdString(name));
-        ui->ComboBox_parameterStation->setCurrentIndex(ui->ComboBox_parameterStation->count()-1);
-
-    }
-    delete(dial);
 }
 
-void MainWindow::on_pushButton_parameterStation_edit_clicked()
+void MainWindow::on_pushButton_browsePosition_clicked()
 {
-    stationParametersDialog *dial = new stationParametersDialog(settings,this);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathPosition->setText(path);
     }
-    dial->addBandNames(bands);
-    dial->addSourceNames(allSourcePlusGroupModel);
-    dial->addDefaultParameters(paraSta["default"]);
-    dial->addSelectedParameters(paraSta[ui->ComboBox_parameterStation->currentText().toStdString()],ui->ComboBox_parameterStation->currentText());
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersStations parameter = res.second;
-
-        paraSta[name] = parameter;
-
-    }
-    delete(dial);
 }
 
-
-void MainWindow::on_pushButton_sourceParameter_clicked()
+void MainWindow::on_pushButton_browseMask_clicked()
 {
-    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathMask->setText(path);
     }
-    dial->addBandNames(bands);
-
-    dial->addStationModel(allStationPlusGroupModel);
-    dial->addBaselineModel(allBaselinePlusGroupModel);
-    dial->addDefaultParameters(paraSrc["default"]);
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersSources> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersSources parameter = res.second;
-
-        paraSrc[name] = parameter;
-
-        ui->ComboBox_parameterSource->addItem(QString::fromStdString(name));
-        ui->ComboBox_parameterSource->setCurrentIndex(ui->ComboBox_parameterSource->count()-1);
-
-    }
-    delete(dial);
 }
 
-void MainWindow::on_pushButton_parameterSource_edit_clicked()
+void MainWindow::on_pushButton_browseSource_clicked()
 {
-    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathSource->setText(path);
     }
-    dial->addBandNames(bands);
-
-    dial->addStationModel(allStationPlusGroupModel);
-    dial->addBaselineModel(allBaselinePlusGroupModel);
-    dial->addDefaultParameters(paraSrc["default"]);
-    dial->addSelectedParameters(paraSrc[ui->ComboBox_parameterSource->currentText().toStdString()],ui->ComboBox_parameterSource->currentText());
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersSources> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersSources parameter = res.second;
-
-        paraSrc[name] = parameter;
-
-    }
-    delete(dial);
 }
 
-
-void MainWindow::on_pushButton__baselineParameter_clicked()
+void MainWindow::on_pushButton_browseFlux_clicked()
 {
-    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
-    dial->addDefaultParameters(paraBl["default"]);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathFlux->setText(path);
     }
-    dial->addBandNames(bands);
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
-
-        paraBl[name] = parameter;
-
-        ui->ComboBox_parameterBaseline->addItem(QString::fromStdString(name));
-        ui->ComboBox_parameterBaseline->setCurrentIndex(ui->ComboBox_parameterBaseline->count()-1);
-
-    }
-    delete(dial);
 }
 
-void MainWindow::on_pushButton_parameterBaseline_edit_clicked()
+void MainWindow::on_pushButton_browsModes_clicked()
 {
-    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
-    QStringList bands;
-    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
-        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathModes->setText(path);
     }
-    dial->addBandNames(bands);
-
-    dial->addDefaultParameters(paraBl["default"]);
-    dial->addSelectedParameters(paraBl[ui->ComboBox_parameterBaseline->currentText().toStdString()],ui->ComboBox_parameterBaseline->currentText());
-
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> res = dial->getParameters();
-        std::string name = res.first;
-        VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
-
-        paraBl[name] = parameter;
-
-    }
-    delete(dial);
-
 }
 
+void MainWindow::on_pushButton_browseFreq_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathFreq->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_browseTracks_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathTracks->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_browseLoif_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathLoif->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_browseRec_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathRec->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_browseRx_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathRx->setText(path);
+    }
+}
+
+void MainWindow::on_pushButton_browseHdpos_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    if( !path.isEmpty() ){
+        ui->lineEdit_pathHdpos->setText(path);
+    }
+}
+
+// ########################################### GENERAL ###########################################
 
 void MainWindow::on_dateTimeEdit_sessionStart_dateTimeChanged(const QDateTime &dateTime)
 {
@@ -3996,260 +2808,214 @@ void MainWindow::on_doubleSpinBox_sessionDuration_valueChanged(double arg1)
     clearSetup(true,true,true);
 }
 
-
-void MainWindow::on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime_)
+void MainWindow::on_dateTimeEdit_sessionStart_dateChanged(const QDate &date)
 {
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
-    }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
-    }
-    if(dateTime > ui->DateTimeEdit_endParameterStation->dateTime()){
-        ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
+    int doy = date.dayOfYear();
+    ui->spinBox_doy->setValue(doy);
 }
 
-void MainWindow::on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime_)
+void MainWindow::on_spinBox_doy_valueChanged(int arg1)
 {
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
-    }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
-    }
-    if(dateTime < ui->DateTimeEdit_startParameterStation->dateTime()){
-        ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
+    QDate x = ui->dateTimeEdit_sessionStart->date();
+    int y = x.year();
+    x.setDate(y,1,1);
+    x = x.addDays(arg1-1);
+    ui->dateTimeEdit_sessionStart->setDate(x);
 }
 
-void MainWindow::on_DateTimeEdit_startParameterSource_dateTimeChanged(const QDateTime &dateTime_)
+void MainWindow::on_pushButton_clicked()
 {
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    QString txt = ui->lineEdit_ivsMaster->text();
+    QString errorText = "";
+    QStringList t = txt.split("\t");
+    if(t.size()>=0){
+        QString sessionName = t.at(0);
+        ui->plainTextEdit_experimentDescription->setPlainText(sessionName);
     }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
+    if(t.size()>=1){
+        QString sessionName = t.at(1);
+        ui->experimentNameLineEdit->setText(sessionName);
     }
-    if(dateTime > ui->DateTimeEdit_endParameterSource->dateTime()){
-        ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
-}
-
-void MainWindow::on_DateTimeEdit_endParameterSource_dateTimeChanged(const QDateTime &dateTime_)
-{
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
-    }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
-    }
-    if(dateTime < ui->DateTimeEdit_startParameterSource->dateTime()){
-        ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
-}
-
-void MainWindow::on_DateTimeEdit_startParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
-{
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
-    }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
-    }
-    if(dateTime > ui->DateTimeEdit_endParameterBaseline->dateTime()){
-        ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
-}
-
-void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
-{
-    QDateTime dateTime = dateTime_;
-    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
-        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
-    }
-    if(dateTime > dateTimeEnd){
-        dateTime = dateTimeEnd;
-    }
-    if(dateTime < ui->DateTimeEdit_startParameterBaseline->dateTime()){
-        ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
-    }
-    ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
-}
-
-
-void MainWindow::createBaselineModel()
-{
-    selectedBaselineModel->removeRows(0,selectedBaselineModel->rowCount());
-
-    allBaselinePlusGroupModel->setRowCount(1);
-    for(const auto& any:groupBl){
-        allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(any.first)));
-    }
-
-    int n = selectedStationModel->rowCount();
-    for(int i = 0; i<n; ++i){
-        for(int j = i+1; j<n; ++j){
-            QString bl = selectedStationModel->index(i,0).data().toString();
-            bl.append("-").append(selectedStationModel->index(j,0).data().toString());
-            allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
-            int row = selectedBaselineModel->rowCount();
-
-            selectedBaselineModel->insertRow(row);
-            selectedBaselineModel->setItem(row,new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
-        }
-    }
-
-    auto series = worldmap->chart()->series();
-    QAbstractSeries *tmpSel;
-    QAbstractSeries *tmpAva;
-    int nn = series.count();
-    for(int i=0; i<nn; ++i){
-        QString name = series.at(i)->name();
-        if(name.size() >=5 && name.left(5) == "coast"){
-            continue;
-        }
-        if(name == "selectedStations"){
-            tmpSel = series.at(i);
-            worldmap->chart()->removeSeries(series.at(i));
-            continue;
-        }
-        if(name == "availableStations"){
-            tmpAva = series.at(i);
-            worldmap->chart()->removeSeries(series.at(i));
-            continue;
-        }
-        worldmap->chart()->removeSeries(series.at(i));
-        delete(series.at(i));
-    }
-
-    for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
-        QString txt = selectedBaselineModel->item(i,0)->text();
-        QStringList stas = txt.split("-");
-        double lat1, lat2, lon1, lon2, x1,y1,z1,x2,y2,z2;
-
-        bool found1 = false;
-        bool found2 = false;
-        for(int j=0; j<allStationModel->rowCount(); ++j){
-            auto thisSta = allStationModel->item(j,0)->text();
-            if(thisSta == stas.at(0)){
-                lon1 = allStationModel->index(j,3).data().toDouble();
-                lat1 = allStationModel->index(j,2).data().toDouble();
-                x1 = allStationModel->index(j, 16).data().toDouble();
-                y1 = allStationModel->index(j, 17).data().toDouble();
-                z1 = allStationModel->index(j, 18).data().toDouble();
-
-                found1 = true;
-            }else if(thisSta == stas.at(1)){
-                lon2 = allStationModel->index(j,3).data().toDouble();
-                lat2 = allStationModel->index(j,2).data().toDouble();
-                x2 = allStationModel->index(j, 16).data().toDouble();
-                y2 = allStationModel->index(j, 17).data().toDouble();
-                z2 = allStationModel->index(j, 18).data().toDouble();
-
-                found2 = true;
-            }
-
-            if(found1 && found2){
-                break;
-            }
-        }
-        double dist = qRound(qSqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1))/1000);
-//        selectedBaselineModel->setItem(i,1,new QStandardItem());
-        selectedBaselineModel->setData(selectedBaselineModel->index(i, 1), dist);
-
-        if(lon1>lon2){
-            auto tmp1 = lon1;
-            lon1 = lon2;
-            lon2 = tmp1;
-            auto tmp2 = lat1;
-            lat1 = lat2;
-            lat2 = tmp2;
+    if(t.size()>=2){
+        QString time = t.at(2);
+        if(time.size()>5){
+            time = time.right(5);
         }
 
-        if(qAbs(lon2-lon1)<180){
-            QLineSeries *bl = new QLineSeries(worldmap->chart());
-            bl->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
-            bl->append(lon1,lat1);
-            bl->append(lon2,lat2);
-            bl->setName(txt.append(QString("\n%1 [km]").arg(dist)));
-            connect(bl,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
-            worldmap->chart()->addSeries(bl);
-        }else{
+        QStringList ts = time.split(":");
+        int hour, min;
 
-            double dx = 180-qAbs(lon1)+180-qAbs(lon2);
-            double dy = lat2-lat1;
-
-            QLineSeries *bl1 = new QLineSeries(worldmap->chart());
-            bl1->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
-            bl1->append(lon1,lat1);
-            double fracx = (180-qAbs(lon1))/dx;
-            double fracy = dy*fracx;
-            bl1->append(-180,lat1+fracy);
-            bl1->setName(txt.append(QString("\n%1 [km]").arg(dist)));
-            connect(bl1,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
-
-            QLineSeries *bl2 = new QLineSeries(worldmap->chart());
-            bl2->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
-            bl2->append(lon2,lat2);
-            bl2->append(180,lat2-(dy-fracy));
-            bl2->setName(txt.append(QString("\n%1 [km]").arg(dist)));
-            connect(bl2,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
-
-            if(qAbs(lon1)>qAbs(lon2)){
-                worldmap->chart()->addSeries(bl2);
-                worldmap->chart()->addSeries(bl1);
+        if(ts.size()==2){
+            bool okh, okm;
+            hour = ts.at(0).toInt(&okh);
+            min = ts.at(1).toInt(&okm);
+            if(okh && okm){
+                ui->dateTimeEdit_sessionStart->setTime(QTime(hour,min,0,0));
             }else{
-                worldmap->chart()->addSeries(bl1);
-                worldmap->chart()->addSeries(bl2);
+                errorText.append("cannot convert TIME\n");
             }
+        }else{
+            errorText.append("cannot convert TIME\n");
         }
     }
-    worldmap->chart()->addSeries(tmpAva);
-    worldmap->chart()->addSeries(tmpSel);
+    if(t.size()>=3){
+        QString doys = t.at(3);
+        bool ok;
+        int doy = doys.toInt(&ok);
+        if(ok){
+            ui->spinBox_doy->setValue(doy);
+        }else{
+            errorText.append("cannot convert DOY\n");
+        }
+    }
+    if(t.size()>=4){
+        QString durs = t.at(4);
+        QStringList ts = durs.split(":");
+        int hour, min;
 
-    worldmap->chart()->createDefaultAxes();
+        if(ts.size()==2){
+            bool okh, okm;
+            hour = ts.at(0).toInt(&okh);
+            min = ts.at(1).toInt(&okm);
+            if(okh && okm){
+                ui->doubleSpinBox_sessionDuration->setValue(hour+min/60);
+            }else{
+                errorText.append("cannot convert Duration\n");
+            }
+        }else{
+            errorText.append("cannot convert Duration\n");
+        }
+    }
+    if(t.size()>=5){
+        createBaselines = false;
+
+        QString tmp = t.at(5);
+        tmp = tmp.trimmed();
+        QStringList stas = tmp.split("  ");
+        if(stas.size() >= 2){
+            int n = selectedStationModel->rowCount();
+            for(int i=0; i<n; ++i){
+                QModelIndex index = selectedStationModel->index(0,0);
+                on_listView_allSelectedStations_clicked(index);
+            }
+
+            allStationProxyModel->setFilterRegExp("");
+            for(int i=0; i<stas.size(); ++i){
+                QString sta = stas.at(i).toUpper();
+                bool found = false;
+                for(int j=0; j<allStationProxyModel->rowCount(); ++j){
+                    QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
+                    if(itsta == sta){
+                        QModelIndex index = allStationProxyModel->index(j,0);
+                        on_treeView_allAvailabeStations_clicked(index);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    errorText.append(QString("unknown station %1\n").arg(sta));
+                }
+            }
+        }else{
+            errorText.append("error while reading stations\n");
+        }
+        createBaselines = true;
+        createBaselineModel();
+    }
+    if(t.size()>=7){
+        QString sked = t.at(7);
+        ui->schedulerLineEdit->setText(sked);
+    }
+    if(t.size()>=8){
+        QString corr = t.at(8);
+        ui->correlatorLineEdit->setText(corr);
+    }
+
+    if(errorText.size() != 0){
+        QMessageBox::warning(this,"errors while reading session master line",errorText);
+    }
 }
 
-
-void MainWindow::on_pushButton_3_clicked()
+void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
 {
-
-    addSetup(ui->treeWidget_setupStation, ui->DateTimeEdit_startParameterStation, ui->DateTimeEdit_endParameterStation,
-             ui->comboBox_parameterStationTransition, ui->comboBox_stationSettingMember, ui->ComboBox_parameterStation,
-             setupStationTree, setupStation, ui->comboBox_setupStation);
+    if(arg1.length() >6){
+        QPalette p = ui->experimentNameLineEdit->palette();
+        p.setColor(QPalette::Base, Qt::red);
+        ui->experimentNameLineEdit->setPalette(p);
+    }else{
+        QPalette p = ui->experimentNameLineEdit->palette();
+        p.setColor(QPalette::Base, Qt::white);
+        ui->experimentNameLineEdit->setPalette(p);
+    }
 }
 
-void MainWindow::on_pushButton_addSetupSource_clicked()
+// ########################################### SETUP ###########################################
+
+void MainWindow::prepareSetupPlot(QChartView *figure, QVBoxLayout *container)
 {
-    addSetup(ui->treeWidget_setupSource, ui->DateTimeEdit_startParameterSource, ui->DateTimeEdit_endParameterSource,
-             ui->comboBox_parameterSourceTransition, ui->comboBox_sourceSettingMember, ui->ComboBox_parameterSource,
-             setupSourceTree, setupSource, ui->comboBox_setupSource);
+    QChart *chart = new QChart();
+    figure->setChart(chart);
+
+    QLineSeries *series = new QLineSeries();
+    QDateTime start = ui->DateTimeEdit_startParameterStation->dateTime();
+    QDateTime end = ui->DateTimeEdit_endParameterStation->dateTime();
+
+
+    series->append(start.toMSecsSinceEpoch(),-5);
+    series->append(end.toMSecsSinceEpoch(),-5);
+    chart->addSeries(series);
+
+    chart->setTitle("Setup");
+
+    QDateTimeAxis *axisX = new QDateTimeAxis;
+    axisX->setTitleText("time");
+    axisX->setFormat("hh:mm");
+    axisX->setRange(start,end);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    series->attachAxis(axisX);
+
+    QValueAxis *axisY = new QValueAxis;
+    axisY->setTitleText("Parameters");
+    axisY->setTickCount(1);
+    axisY->setRange(-10,10);
+    chart->addAxis(axisY,Qt::AlignLeft);
+    series->attachAxis(axisY);
+
+    figure->setRenderHint(QPainter::Antialiasing);
+    container->insertWidget(1,figure,1);
+    axisY->hide();
+    axisX->show();
+    chart->legend()->hide();
+
 }
 
-void MainWindow::on_pushButton_addSetupBaseline_clicked()
+void MainWindow::drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw)
 {
-    addSetup(ui->treeWidget_setupBaseline, ui->DateTimeEdit_startParameterBaseline, ui->DateTimeEdit_endParameterBaseline,
-             ui->comboBox_parameterBaselineTransition, ui->comboBox_baselineSettingMember, ui->ComboBox_parameterBaseline,
-             setupBaselineTree, setupBaseline, ui->comboBox_setupBaseline);
-}
+    QChart * ss = cv->chart();
+    ss->removeAllSeries();
+    QString name = cb->currentText();
+    ss->setTitle(QString("Setup %1").arg(name));
 
+    std::map<std::string,std::vector<std::string>> map;
+    if(cv == setupStation){
+        map = groupSta;
+    }else if(cv == setupSource){
+        map = groupSrc;
+    }else if(cv == setupBaseline){
+        map = groupBl;
+    }
+
+    QTreeWidgetItem *root = tw->topLevelItem(0);
+    plotParameter(ss,root,0,0,name,map);
+    QDateTime start = QDateTime::fromString(root->text(2),"dd.MM.yyyy hh:mm");
+    QDateTime end = QDateTime::fromString(root->text(3),"dd.MM.yyyy hh:mm");
+
+    auto axes = ss->axes();
+    axes.at(0)->setMin(start);
+    axes.at(0)->setMax(end);
+    axes.at(1)->setMin(-10);
+    axes.at(1)->setMax(1);
+}
 
 void MainWindow::addSetup(QTreeWidget *targetTreeWidget, QDateTimeEdit *paraStart, QDateTimeEdit *paraEnd,
                           QComboBox *transition, QComboBox *member, QComboBox *parameter,
@@ -4386,23 +3152,8 @@ void MainWindow::addSetup(QTreeWidget *targetTreeWidget, QDateTimeEdit *paraStar
     }
 }
 
-void MainWindow::on_pushButton_4_clicked()
-{
-    deleteSetupSelection(setupStationTree, setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
-}
-
-void MainWindow::on_pushButton_removeSetupSource_clicked()
-{
-    deleteSetupSelection(setupSourceTree, setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
-}
-
-void MainWindow::on_pushButton_removeSetupBaseline_clicked()
-{
-    deleteSetupSelection(setupBaselineTree, setupBaseline, ui->comboBox_setupBaseline, ui->treeWidget_setupBaseline);
-}
-
-
-void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *setupChartView, QComboBox *setupCB, QTreeWidget *setupTW){
+void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *setupChartView, QComboBox *setupCB,
+                                      QTreeWidget *setupTW){
     QList<QTreeWidgetItem *> sel = setupTW->selectedItems();
     for(int i = 0; i<sel.size(); ++i){
         if(sel.at(0)->parent()){
@@ -4448,101 +3199,6 @@ void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *
     }
 }
 
-
-void MainWindow::on_treeWidget_setupStation_itemEntered(QTreeWidgetItem *item, int column)
-{
-    if(column == 0){
-        displayStationSetupMember(item->text(column));
-    }else if(column == 1){
-        displayStationSetupParameter(item->text(column));
-    }
-}
-
-void MainWindow::on_treeWidget_setupSource_itemEntered(QTreeWidgetItem *item, int column)
-{
-    if(column == 0){
-        displaySourceSetupMember(item->text(column));
-    }else if(column == 1){
-        displaySourceSetupParameter(item->text(column));
-    }
-}
-
-void MainWindow::on_treeWidget_setupBaseline_itemEntered(QTreeWidgetItem *item, int column)
-{
-    if(column == 0){
-        displayBaselineSetupMember(item->text(column));
-    }else if(column == 1){
-        displayBaselineSetupParameter(item->text(column));
-    }
-}
-
-
-void MainWindow::prepareSetupPlot(QChartView *figure, QVBoxLayout *container)
-{
-    QChart *chart = new QChart();
-    figure->setChart(chart);
-
-    QLineSeries *series = new QLineSeries();
-    QDateTime start = ui->DateTimeEdit_startParameterStation->dateTime();
-    QDateTime end = ui->DateTimeEdit_endParameterStation->dateTime();
-
-
-    series->append(start.toMSecsSinceEpoch(),-5);
-    series->append(end.toMSecsSinceEpoch(),-5);
-    chart->addSeries(series);
-
-    chart->setTitle("Setup");
-
-    QDateTimeAxis *axisX = new QDateTimeAxis;
-    axisX->setTitleText("time");
-    axisX->setFormat("hh:mm");
-    axisX->setRange(start,end);
-    chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
-
-    QValueAxis *axisY = new QValueAxis;
-    axisY->setTitleText("Parameters");
-    axisY->setTickCount(1);
-    axisY->setRange(-10,10);
-    chart->addAxis(axisY,Qt::AlignLeft);
-    series->attachAxis(axisY);
-
-    figure->setRenderHint(QPainter::Antialiasing);
-    container->insertWidget(1,figure,1);
-    axisY->hide();
-    axisX->show();
-    chart->legend()->hide();
-
-}
-
-void MainWindow::drawSetupPlot(QChartView *cv, QComboBox *cb, QTreeWidget *tw)
-{
-    QChart * ss = cv->chart();
-    ss->removeAllSeries();
-    QString name = cb->currentText();
-    ss->setTitle(QString("Setup %1").arg(name));
-
-    std::map<std::string,std::vector<std::string>> map;
-    if(cv == setupStation){
-        map = groupSta;
-    }else if(cv == setupSource){
-        map = groupSrc;
-    }else if(cv == setupBaseline){
-        map = groupBl;
-    }
-
-    QTreeWidgetItem *root = tw->topLevelItem(0);
-    plotParameter(ss,root,0,0,name,map);
-    QDateTime start = QDateTime::fromString(root->text(2),"dd.MM.yyyy hh:mm");
-    QDateTime end = QDateTime::fromString(root->text(3),"dd.MM.yyyy hh:mm");
-
-    auto axes = ss->axes();
-    axes.at(0)->setMin(start);
-    axes.at(0)->setMax(end);
-    axes.at(1)->setMin(-10);
-    axes.at(1)->setMax(1);
-}
-
 void MainWindow::setBackgroundColorOfChildrenWhite(QTreeWidgetItem *item)
 {
     for(int i=0; i<item->childCount(); ++i){
@@ -4552,7 +3208,8 @@ void MainWindow::setBackgroundColorOfChildrenWhite(QTreeWidgetItem *item)
     }
 }
 
-int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, int plot, QString target, const std::map<std::string, std::vector<std::string> > &map){
+int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, int plot, QString target,
+                              const std::map<std::string, std::vector<std::string> > &map){
     QDateTime start = QDateTime::fromString(root->text(2),"dd.MM.yyyy hh:mm");
     QDateTime end = QDateTime::fromString(root->text(3),"dd.MM.yyyy hh:mm");
 
@@ -4618,21 +3275,1069 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     return plot;
 }
 
+void MainWindow::clearGroup(bool sta, bool src, bool bl, QString name)
+{
+    bool anyMapCleared = false;
+    if(sta){
+        int i=0;
+        bool mapCleared = false;
+        while(i<allStationPlusGroupModel->rowCount()){
+            QString txt = allStationPlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++i;
+                continue;
+            }
+            if(groupSta.find(txt.toStdString()) != groupSta.end()){
+                auto vec = groupSta[txt.toStdString()];
+                auto it = std::find(vec.begin(),vec.end(),name.toStdString());
+                if(it != vec.end()){
+                    vec.erase(it);
+                    groupSta[txt.toStdString()] = vec;
+                }
+                if(vec.empty()){
+                    allStationPlusGroupModel->removeRow(i);
+                    groupSta.erase(txt.toStdString());
+                    mapCleared = true;
+                }else{
+                    ++i;
+                }
+            }else{
+                break;
+            }
+        }
+        anyMapCleared = anyMapCleared || mapCleared;
+        if(mapCleared){
+            clearSetup(true,false,false);
+        }
+    }
+    if(src){
+        int i=0;
+        bool mapCleared = false;
+        while(i<allSourcePlusGroupModel->rowCount()){
+            QString txt = allSourcePlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++i;
+                continue;
+            }
+            if(groupSrc.find(txt.toStdString()) != groupSrc.end()){
+                auto vec = groupSrc[txt.toStdString()];
+                auto it = std::find(vec.begin(),vec.end(),name.toStdString());
+                if(it != vec.end()){
+                    vec.erase(it);
+                    groupSrc[txt.toStdString()] = vec;
+                }
+                if(vec.empty()){
+                    if(ui->comboBox_calibratorBlock_calibratorSources->currentText() == txt){
+                        QMessageBox::warning(this,"Calibration block error!","A source group was deleted and this group was choosen as calibrator source group!\nCheck calibrator block!");
+                        ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(0);
+                    }
+                    for(int i=0; i<ui->tableWidget_scanSequence->rowCount(); ++i){
+                        QComboBox* cb = qobject_cast<QComboBox*>(ui->tableWidget_scanSequence->cellWidget(i,0));
+                        if(cb->currentText() == txt){
+                            QMessageBox::warning(this,"Scan sequence error!","A source group was deleted and this group was choosen in scan sequence!\nCheck scan sequence!");
+                            cb->setCurrentIndex(0);
+                        }
+                    }
+                    allSourcePlusGroupModel->removeRow(i);
+                    groupSrc.erase(txt.toStdString());
+                    mapCleared = true;
+                }else{
+                    ++i;
+                }
+            }else{
+                break;
+            }
+        }
+        anyMapCleared = anyMapCleared || mapCleared;
+        if(mapCleared){
+            clearSetup(false,true,false);
+        }
+    }
+    if(bl){
+        int i=0;
+        bool mapCleared = false;
+        while(i<allBaselinePlusGroupModel->rowCount()){
+            QString txt = allBaselinePlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++i;
+                continue;
+            }
+            if(groupBl.find(txt.toStdString()) != groupBl.end()){
+                auto vec = groupBl[txt.toStdString()];
+                int j = 0;
+                while(j<vec.size()){
+                    QString itm = QString::fromStdString(vec.at(j));
+                    auto stations = itm.split("-");
+                    if(stations.indexOf(name) != -1){
+                        vec.erase(vec.begin()+j);
+                    }else{
+                        ++j;
+                    }
+                    groupBl[txt.toStdString()] = vec;
+                }
+                if(vec.empty()){
+                    allBaselinePlusGroupModel->removeRow(i);
+                    groupBl.erase(txt.toStdString());
+                    mapCleared = true;
+                }else{
+                    ++i;
+                }
+            }else{
+                break;
+            }
+        }
+        anyMapCleared = anyMapCleared || mapCleared;
+        if(mapCleared){
+            clearSetup(false,false,true);
+        }
+    }
+
+    if(anyMapCleared){
+        QMessageBox::warning(this,"Group deleted!","At least one group became empty!\nSetup might got removed... please check setup again!");
+    }
+
+}
+
+void MainWindow::clearSetup(bool sta, bool src, bool bl)
+{
+    setupChanged = false;
+    std::string parameterName = "default";
+    std::string member = "__all__";
+    QDateTime sessionStart = ui->dateTimeEdit_sessionStart->dateTime();
+    unsigned int startt = 0;
+    unsigned int endt = sessionStart.secsTo(ui->DateTimeEdit_endParameterStation->dateTime());
+
+    QDateTime e = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(sta){
+        QTreeWidgetItem *wsta = new QTreeWidgetItem();
+        wsta->setText(0,"__all__");
+        wsta->setText(1,"default");
+        wsta->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        wsta->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        wsta->setText(4,"hard");
+        wsta->setIcon(0,QIcon(":/icons/icons/station_group_2.png"));
+        ui->treeWidget_setupStation->clear();
+        ui->treeWidget_setupStation->insertTopLevelItem(0,wsta);
+        QHeaderView * hvsta = ui->treeWidget_setupStation->header();
+        hvsta->setSectionResizeMode(QHeaderView::ResizeToContents);
+        setupStationTree = VieVS::ParameterSetup(parameterName,
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        drawSetupPlot(setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
+    }
+
+    if(src){
+        QTreeWidgetItem *wsrc = new QTreeWidgetItem();
+        wsrc->setText(0,"__all__");
+        wsrc->setText(1,"default");
+        wsrc->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        wsrc->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        wsrc->setText(4,"hard");
+        wsrc->setIcon(0,QIcon(":/icons/icons/source_group.png"));
+        ui->treeWidget_setupSource->clear();
+        ui->treeWidget_setupSource->insertTopLevelItem(0,wsrc);
+        QHeaderView * hvsrc = ui->treeWidget_setupSource->header();
+        hvsrc->setSectionResizeMode(QHeaderView::ResizeToContents);
+        setupSourceTree = VieVS::ParameterSetup(parameterName,
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        drawSetupPlot(setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
+    }
+
+    if(bl){
+        QTreeWidgetItem *wbl = new QTreeWidgetItem();
+        wbl->setText(0,"__all__");
+        wbl->setText(1,"default");
+        wbl->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        wbl->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        wbl->setText(4,"hard");
+        wbl->setIcon(0,QIcon(":/icons/icons/baseline_group.png"));
+        ui->treeWidget_setupBaseline->clear();
+        ui->treeWidget_setupBaseline->insertTopLevelItem(0,wbl);
+        QHeaderView * hvbl = ui->treeWidget_setupBaseline->header();
+        hvbl->setSectionResizeMode(QHeaderView::ResizeToContents);
+        setupBaselineTree = VieVS::ParameterSetup(parameterName,
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        drawSetupPlot(setupBaseline, ui->comboBox_setupBaseline, ui->treeWidget_setupBaseline);
+    }
+}
+
+// ########################################### STATION AND BASELINE ###########################################
+
+void MainWindow::readStations()
+{
+    QString antennaPath = ui->lineEdit_pathAntenna->text();
+    QString equipPath = ui->lineEdit_pathEquip->text();
+    QString positionPath = ui->lineEdit_pathPosition->text();
+    QMap<QString,QStringList > antennaMap;
+    QMap<QString,QStringList > equipMap;
+    QMap<QString,QStringList > positionMap;
+
+    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    allStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
+    allStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
+    allStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
+    allStationModel->setHeaderData(4, Qt::Horizontal, QObject::tr("diam [m]"));
+    allStationModel->setHeaderData(5, Qt::Horizontal, QObject::tr("SEFD X [Jy]"));
+    allStationModel->setHeaderData(6, Qt::Horizontal, QObject::tr("SEFD S [Jy]"));
+    allStationModel->setHeaderData(7, Qt::Horizontal, QObject::tr("axis offset [m]"));
+    allStationModel->setHeaderData(8, Qt::Horizontal, QObject::tr("slew rate1 [deg/min]"));
+    allStationModel->setHeaderData(9, Qt::Horizontal, QObject::tr("constant overhead1 [sec]"));
+    allStationModel->setHeaderData(10, Qt::Horizontal, QObject::tr("lower axis limit1 [deg]"));
+    allStationModel->setHeaderData(11, Qt::Horizontal, QObject::tr("upper axis limit1 [deg]"));
+    allStationModel->setHeaderData(12, Qt::Horizontal, QObject::tr("slew rate2 [deg/min]"));
+    allStationModel->setHeaderData(13, Qt::Horizontal, QObject::tr("constant overhead2 [sec]"));
+    allStationModel->setHeaderData(14, Qt::Horizontal, QObject::tr("lower axis limit2 [deg]"));
+    allStationModel->setHeaderData(15, Qt::Horizontal, QObject::tr("upper axis limit2 [deg]"));
+    allStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
+    allStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
+    allStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
+
+
+    QFile antennaFile(antennaPath);
+    if (antennaFile.open(QIODevice::ReadOnly)){
+        QTextStream in(&antennaFile);
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
+                continue;
+            }
+            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
+            QString antennaName = split[1];
+            antennaMap.insert(antennaName,split);
+        }
+        antennaFile.close();
+    }
+
+    QFile equipFile(equipPath);
+    if (equipFile.open(QIODevice::ReadOnly)){
+        QTextStream in(&equipFile);
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
+                continue;
+            }
+            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
+            QString equipName = split[1] + "|" + split[0];
+            equipName = equipName.toUpper();
+            equipMap.insert(equipName,split);
+        }
+        equipFile.close();
+    }
+
+    QFile positionFile(positionPath);
+    if (positionFile.open(QIODevice::ReadOnly)){
+        QTextStream in(&positionFile);
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
+                continue;
+            }
+            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
+            QString positionName = split[0];
+            positionName = positionName.toUpper();
+            positionMap.insert(positionName,split);
+        }
+        positionFile.close();
+    }
+
+    QMap<QString, QStringList>::iterator i;
+    for (i = antennaMap.begin(); i != antennaMap.end(); ++i){
+        try{
+            QString antName = i.key();
+            QStringList antList = i.value();
+
+            QString antId,eqKey,posKey;
+            double offset, rate1, con1, axis1_low, axis1_up, rate2, con2, axis2_low, axis2_up, diam;
+            if(antList.size()>14){
+                antId = antList.at(13);
+
+                offset = antList.at(3).toDouble();
+                rate1 = antList.at(4).toDouble();
+                con1 = antList.at(5).toDouble();
+                axis1_low = antList.at(6).toDouble();
+                axis1_up = antList.at(7).toDouble();
+                rate2 = antList.at(8).toDouble();
+                con2 = antList.at(9).toDouble();
+                axis2_low = antList.at(10).toDouble();
+                axis2_up = antList.at(11).toDouble();
+                diam = antList.at(12).toDouble();
+
+                eqKey = antList.at(14) + "|" +antName;
+                eqKey = eqKey.toUpper();
+                posKey = antList.at(13);
+                posKey = posKey.toUpper();
+            }else{
+                continue;
+            }
+
+            QStringList eqList = equipMap.value(eqKey);
+            double SEFD_X, SEFD_S;
+            if(eqList.size()>8){
+                SEFD_X = 0;
+                if(eqList.at(5) == "X"){
+                    SEFD_X = eqList.at(6).toDouble();
+                }
+
+                SEFD_S = 0;
+                if(eqList.at(7) == "S"){
+                    SEFD_S = eqList.at(8).toDouble();
+                }
+            }else{
+                continue;
+            }
+
+            QStringList posList = positionMap.value(posKey);
+            double x, y, z, lon, lat, h;
+            if(posList.size()>8){
+                x = posList.at(2).toDouble();
+                y = posList.at(3).toDouble();
+                z = posList.at(4).toDouble();
+
+                double a = 6378136.6;
+                double f = 1/298.25642;
+                double e2 = 2*f-f*f;
+
+                lon = atan2(y,x);
+                double r = sqrt(x*x+y*y);
+                lat = atan2(z,r);
+
+                for(int i=0; i<6; ++i){
+                    double N=a/sqrt(1-e2*sin(lat)*sin(lat));
+                    h=r/cos(lat)-N;
+                    lat=atan2(z*(N+h),r*((1-e2)*N+h));
+                }
+            }else{
+                continue;
+            }
+
+            allStationModel->insertRow(0);
+            allStationModel->setData(allStationModel->index(0, 0), antName);
+            allStationModel->item(0,0)->setIcon(QIcon(":/icons/icons/station.png"));
+            allStationModel->setData(allStationModel->index(0, 1), antId);
+            allStationModel->setData(allStationModel->index(0, 2), (double)((int)(qRadiansToDegrees(lat)*100 +0.5))/100.0);
+            allStationModel->setData(allStationModel->index(0, 3), (double)((int)(qRadiansToDegrees(lon)*100 +0.5))/100.0);
+            allStationModel->setData(allStationModel->index(0, 4), (double)((int)(diam*10 +0.5))/10.0);
+
+            allStationModel->setData(allStationModel->index(0, 5), SEFD_X);
+            allStationModel->setData(allStationModel->index(0, 6), SEFD_S);
+
+            allStationModel->setData(allStationModel->index(0, 7), offset);
+
+            allStationModel->setData(allStationModel->index(0, 8), rate1);
+            allStationModel->setData(allStationModel->index(0, 9), con1);
+            allStationModel->setData(allStationModel->index(0, 10), axis1_low);
+            allStationModel->setData(allStationModel->index(0, 11), axis1_up);
+
+            allStationModel->setData(allStationModel->index(0, 12), rate2);
+            allStationModel->setData(allStationModel->index(0, 13), con2);
+            allStationModel->setData(allStationModel->index(0, 14), axis2_low);
+            allStationModel->setData(allStationModel->index(0, 15), axis2_up);
+
+
+            allStationModel->setData(allStationModel->index(0, 16), x);
+            allStationModel->setData(allStationModel->index(0, 17), y);
+            allStationModel->setData(allStationModel->index(0, 18), z);
+
+        }catch(...){
+
+        }
+    }
+
+    for(int i=0; i<19; ++i){
+        ui->treeView_allAvailabeStations->resizeColumnToContents(i);
+    }
+
+    plotWorldMap();
+    worldMapCallout = new Callout(worldmap->chart());
+    worldMapCallout->hide();
+}
+
+void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &index)
+{
+
+    QString name = selectedStationModel->item(index.row())->text();
+    selectedStationModel->removeRow(index.row());
+    clearGroup(true,false,true, name);
+
+    int row;
+    double x;
+    double y;
+    for(int i = 0; i < allStationModel->rowCount(); ++i){
+        if (allStationModel->index(i,0).data().toString() == name){
+            row = i;
+            x = allStationModel->index(row,3).data().toDouble();
+            y = allStationModel->index(row,2).data().toDouble();
+            break;
+        }
+    }
+
+    for(int i = 0; i<selectedStations->count(); ++i){
+        double xn = selectedStations->at(i).x();
+        double yn = selectedStations->at(i).y();
+        if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
+            selectedStations->remove(i);
+            break;
+        }
+    }
+
+    for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
+        if (allStationPlusGroupModel->index(i,0).data().toString() == name) {
+            allStationPlusGroupModel->removeRow(i);
+            break;
+        }
+    }
+
+
+    if(createBaselines){
+        createBaselineModel();
+    }
+
+    ui->treeWidget_multiSchedSelected->clear();
+    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
+        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
+    }
+}
+
+void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allStationProxyModel->index(row,0).data().toString();
+
+    if(selectedStationModel->findItems(name).isEmpty()){
+        selectedStationModel->insertRow(0);
+        selectedStationModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
+        selectedStationModel->sort(0);
+        selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
+                                 allStationProxyModel->index(row,2).data().toDouble());
+
+        int r = 0;
+        for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
+            QString txt = allStationPlusGroupModel->item(i)->text();
+            if(groupSta.find(txt.toStdString()) != groupSta.end() || txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(txt>name){
+                break;
+            }else{
+                ++r;
+            }
+        }
+
+        allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
+        if(createBaselines){
+            createBaselineModel();
+        }
+    }
+    ui->lineEdit_allStationsFilter->setFocus();
+    ui->lineEdit_allStationsFilter->selectAll();
+}
+
+void MainWindow::on_lineEdit_allStationsFilter_textChanged(const QString &arg1)
+{
+    allStationProxyModel->setFilterRegExp(arg1);
+}
+
+void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allStationProxyModel->index(row,0).data().toString();
+
+    double x = allStationProxyModel->index(row,3).data().toDouble();
+    double y = allStationProxyModel->index(row,2).data().toDouble();
+    QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
+    worldMapCallout->setText(text);
+    worldMapCallout->setAnchor(QPointF(x,y));
+    worldMapCallout->setZValue(11);
+    worldMapCallout->updateGeometry();
+    worldMapCallout->show();
+}
+
+void MainWindow::on_treeView_allSelectedBaselines_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString txt = selectedBaselineModel->index(row,0).data().toString();
+    QString txt2 = selectedBaselineModel->index(row,1).data().toString();
+    txt.append("\n").append(txt2).append(" [km]");
+
+    double x,y;
+    for(int i=0; i<worldmap->chart()->series().count(); ++i){
+        if(worldmap->chart()->series().at(i)->name() == txt){
+            auto s = qobject_cast<QLineSeries *>(worldmap->chart()->series().at(i));
+            x = (s->at(0).x()+s->at(1).x())/2;
+            y = (s->at(0).y()+s->at(1).y())/2;
+            break;
+        }
+    }
+
+
+    worldMapCallout->setText(txt);
+    worldMapCallout->setAnchor(QPointF(x,y));
+    worldMapCallout->setZValue(11);
+    worldMapCallout->updateGeometry();
+    worldMapCallout->show();
+}
+
+void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = selectedStationModel->index(row,0).data().toString();
+
+    for(int i = 0; i < allStationModel->rowCount(); ++i){
+        QString newName = allStationModel->index(i,0).data().toString();
+        if (newName == name){
+            double x = allStationModel->index(i,3).data().toDouble();;
+            double y = allStationModel->index(i,2).data().toDouble();;
+            QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
+            worldMapCallout->setText(text);
+            worldMapCallout->setAnchor(QPointF(x,y));
+            worldMapCallout->setZValue(11);
+            worldMapCallout->updateGeometry();
+            worldMapCallout->show();
+            break;
+        }
+    }
+}
+
+void MainWindow::plotWorldMap()
+{
+    QChart *worldChart = new QChart();
+    worldChart->setAcceptHoverEvents(true);
+
+
+    QFile coastF(":/plotting/coast.txt");
+    if (coastF.open(QIODevice::ReadOnly)){
+        QTextStream in(&coastF);
+
+        int c = 0;
+        while (!in.atEnd()){
+
+            QLineSeries *coast = new QLineSeries(worldChart);
+            coast->setColor(Qt::gray);
+            coast->setName("coast");
+
+            while(!in.atEnd()){
+                QString line = in.readLine();
+
+                if(line == "NaN,NaN"){
+                    ++c;
+                    worldChart->addSeries(coast);
+                    break;
+                }
+                QStringList split = line.split(",",QString::SplitBehavior::SkipEmptyParts);
+                QString lat = split[0];
+                QString lon = split[1];
+                coast->append(lon.toDouble(),lat.toDouble());
+            }
+        }
+        coastF.close();
+    }
+
+    availableStations = new QScatterSeries(worldChart);
+    availableStations->setColor(Qt::red);
+    availableStations->setMarkerSize(10);
+    availableStations->setName("availableStations");
+
+    selectedStations = new QScatterSeries(worldChart);
+    selectedStations->setName("selectedStations");
+    markerWorldmap();
+
+    worldChart->addSeries(availableStations);
+    worldChart->addSeries(selectedStations);
+
+    connect(availableStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
+    connect(availableStations,SIGNAL(clicked(QPointF)),this,SLOT(worldmap_clicked(QPointF)));
+    connect(selectedStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
+
+
+    for(int row = 0; row<allStationModel->rowCount(); ++row){
+        double lat = allStationModel->index(row,2).data().toDouble();
+        double lon = allStationModel->index(row,3).data().toDouble();
+        availableStations->append(lon,lat);
+    }
+
+    worldChart->createDefaultAxes();
+    worldChart->setAcceptHoverEvents(true);
+    worldChart->legend()->hide();
+    worldChart->axisX()->setRange(-180,180);
+    worldChart->axisY()->setRange(-90,90);
+    worldChart->setAnimationOptions(QChart::NoAnimation);
+
+    worldmap = new ChartView(worldChart);
+    worldmap->setStatusTip("network overview");
+    worldmap->setToolTip("network overview");
+    worldmap->setMinMax(-180,180,-90,90);
+    worldmap->setRenderHint(QPainter::Antialiasing);
+    worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
+    worldmap->setBackgroundBrush(QBrush(Qt::white));
+    worldmap->setMouseTracking(true);
+
+    ui->horizontalLayout_worldmap->insertWidget(0,worldmap,10);
+}
+
+void MainWindow::worldmap_hovered(QPointF point, bool state)
+{
+    if (state) {
+        QString sta;
+        for(int i = 0; i<allStationModel->rowCount();++i){
+            double x = allStationModel->index(i,3).data().toDouble();
+            double y = allStationModel->index(i,2).data().toDouble();
+
+            auto dx = x-point.x();
+            auto dy = y-point.y();
+            if(dx*dx+dy*dy < 1e-3){
+                if(sta.size()==0){
+                    sta.append(allStationModel->index(i,0).data().toString());
+                }else{
+                    sta.append(","+allStationModel->index(i,0).data().toString());
+                }
+            }
+
+        }
+
+        QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(sta).arg(point.x()).arg(point.y());
+        worldMapCallout->setText(text);
+        worldMapCallout->setAnchor(point);
+        worldMapCallout->setZValue(11);
+        worldMapCallout->updateGeometry();
+        worldMapCallout->show();
+    } else {
+        worldMapCallout->hide();
+    }
+
+}
+
+void MainWindow::addGroupStation()
+{
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::station,this);
+    dial->addModel(selectedStationModel);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::vector<std::string> stdlist = dial->getSelection();
+        std::string stdname = dial->getGroupName();
+        VieVS::ParameterGroup newGroup(stdname, stdlist);
+
+        int r = 0;
+        for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
+            QString txt = allStationPlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(groupSta.find(txt.toStdString()) == groupSta.end()){
+                break;
+            }
+            if(txt>QString::fromStdString(stdname)){
+                break;
+            }else{
+                ++r;
+            }
+        }
+        groupSta[stdname] = stdlist;
+
+        allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupStationSetup){
+            ui->comboBox_stationSettingMember->setCurrentIndex(r);
+        }
+    }
+    delete(dial);
+}
+
+void MainWindow::addGroupBaseline()
+{
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::baseline,this);
+    dial->addModel(selectedBaselineModel);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::vector<std::string> stdlist = dial->getSelection();
+        std::string stdname = dial->getGroupName();
+        VieVS::ParameterGroup newGroup(stdname, stdlist);
+
+        int r = 0;
+        for(int i = 0; i<allBaselinePlusGroupModel->rowCount(); ++i){
+            QString txt = allBaselinePlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(groupBl.find(txt.toStdString()) == groupBl.end()){
+                break;
+            }
+            if(txt>QString::fromStdString(stdname)){
+                break;
+            }else{
+                ++r;
+            }
+        }
+
+        groupBl[stdname] = stdlist;
+
+        allBaselinePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupBaselineSetup){
+            ui->comboBox_baselineSettingMember->setCurrentIndex(r);
+        }
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton_stationParameter_clicked()
+{
+    stationParametersDialog *dial = new stationParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+    dial->addSourceNames(allSourcePlusGroupModel);
+    dial->addDefaultParameters(paraSta["default"]);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersStations parameter = res.second;
+
+        paraSta[name] = parameter;
+
+        ui->ComboBox_parameterStation->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterStation->setCurrentIndex(ui->ComboBox_parameterStation->count()-1);
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton_parameterStation_edit_clicked()
+{
+    stationParametersDialog *dial = new stationParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+    dial->addSourceNames(allSourcePlusGroupModel);
+    dial->addDefaultParameters(paraSta["default"]);
+    dial->addSelectedParameters(paraSta[ui->ComboBox_parameterStation->currentText().toStdString()],ui->ComboBox_parameterStation->currentText());
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersStations> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersStations parameter = res.second;
+
+        paraSta[name] = parameter;
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton__baselineParameter_clicked()
+{
+    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
+    dial->addDefaultParameters(paraBl["default"]);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
+
+        paraBl[name] = parameter;
+
+        ui->ComboBox_parameterBaseline->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterBaseline->setCurrentIndex(ui->ComboBox_parameterBaseline->count()-1);
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton_parameterBaseline_edit_clicked()
+{
+    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    dial->addDefaultParameters(paraBl["default"]);
+    dial->addSelectedParameters(paraBl[ui->ComboBox_parameterBaseline->currentText().toStdString()],ui->ComboBox_parameterBaseline->currentText());
+
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersBaselines> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersBaselines parameter = res.second;
+
+        paraBl[name] = parameter;
+
+    }
+    delete(dial);
+
+}
+
+void MainWindow::createBaselineModel()
+{
+    selectedBaselineModel->removeRows(0,selectedBaselineModel->rowCount());
+
+    allBaselinePlusGroupModel->setRowCount(1);
+    for(const auto& any:groupBl){
+        allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),QString::fromStdString(any.first)));
+    }
+
+    int n = selectedStationModel->rowCount();
+    for(int i = 0; i<n; ++i){
+        for(int j = i+1; j<n; ++j){
+            QString bl = selectedStationModel->index(i,0).data().toString();
+            bl.append("-").append(selectedStationModel->index(j,0).data().toString());
+            allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
+            int row = selectedBaselineModel->rowCount();
+
+            selectedBaselineModel->insertRow(row);
+            selectedBaselineModel->setItem(row,new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
+        }
+    }
+
+    auto series = worldmap->chart()->series();
+    QAbstractSeries *tmpSel;
+    QAbstractSeries *tmpAva;
+    int nn = series.count();
+    for(int i=0; i<nn; ++i){
+        QString name = series.at(i)->name();
+        if(name.size() >=5 && name.left(5) == "coast"){
+            continue;
+        }
+        if(name == "selectedStations"){
+            tmpSel = series.at(i);
+            worldmap->chart()->removeSeries(series.at(i));
+            continue;
+        }
+        if(name == "availableStations"){
+            tmpAva = series.at(i);
+            worldmap->chart()->removeSeries(series.at(i));
+            continue;
+        }
+        worldmap->chart()->removeSeries(series.at(i));
+        delete(series.at(i));
+    }
+
+    for(int i=0; i<selectedBaselineModel->rowCount(); ++i){
+        QString txt = selectedBaselineModel->item(i,0)->text();
+        QStringList stas = txt.split("-");
+        double lat1, lat2, lon1, lon2, x1,y1,z1,x2,y2,z2;
+
+        bool found1 = false;
+        bool found2 = false;
+        for(int j=0; j<allStationModel->rowCount(); ++j){
+            auto thisSta = allStationModel->item(j,0)->text();
+            if(thisSta == stas.at(0)){
+                lon1 = allStationModel->index(j,3).data().toDouble();
+                lat1 = allStationModel->index(j,2).data().toDouble();
+                x1 = allStationModel->index(j, 16).data().toDouble();
+                y1 = allStationModel->index(j, 17).data().toDouble();
+                z1 = allStationModel->index(j, 18).data().toDouble();
+
+                found1 = true;
+            }else if(thisSta == stas.at(1)){
+                lon2 = allStationModel->index(j,3).data().toDouble();
+                lat2 = allStationModel->index(j,2).data().toDouble();
+                x2 = allStationModel->index(j, 16).data().toDouble();
+                y2 = allStationModel->index(j, 17).data().toDouble();
+                z2 = allStationModel->index(j, 18).data().toDouble();
+
+                found2 = true;
+            }
+
+            if(found1 && found2){
+                break;
+            }
+        }
+        double dist = qRound(qSqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)+(z2-z1)*(z2-z1))/1000);
+//        selectedBaselineModel->setItem(i,1,new QStandardItem());
+        selectedBaselineModel->setData(selectedBaselineModel->index(i, 1), dist);
+
+        if(lon1>lon2){
+            auto tmp1 = lon1;
+            lon1 = lon2;
+            lon2 = tmp1;
+            auto tmp2 = lat1;
+            lat1 = lat2;
+            lat2 = tmp2;
+        }
+
+        if(qAbs(lon2-lon1)<180){
+            QLineSeries *bl = new QLineSeries(worldmap->chart());
+            bl->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl->append(lon1,lat1);
+            bl->append(lon2,lat2);
+            bl->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+            worldmap->chart()->addSeries(bl);
+        }else{
+
+            double dx = 180-qAbs(lon1)+180-qAbs(lon2);
+            double dy = lat2-lat1;
+
+            QLineSeries *bl1 = new QLineSeries(worldmap->chart());
+            bl1->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl1->append(lon1,lat1);
+            double fracx = (180-qAbs(lon1))/dx;
+            double fracy = dy*fracx;
+            bl1->append(-180,lat1+fracy);
+            bl1->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl1,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+
+            QLineSeries *bl2 = new QLineSeries(worldmap->chart());
+            bl2->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+            bl2->append(lon2,lat2);
+            bl2->append(180,lat2-(dy-fracy));
+            bl2->setName(txt.append(QString("\n%1 [km]").arg(dist)));
+            connect(bl2,SIGNAL(hovered(QPointF,bool)),this,SLOT(baselineHovered(QPointF,bool)));
+
+            if(qAbs(lon1)>qAbs(lon2)){
+                worldmap->chart()->addSeries(bl2);
+                worldmap->chart()->addSeries(bl1);
+            }else{
+                worldmap->chart()->addSeries(bl1);
+                worldmap->chart()->addSeries(bl2);
+            }
+        }
+    }
+    worldmap->chart()->addSeries(tmpAva);
+    worldmap->chart()->addSeries(tmpSel);
+
+    worldmap->chart()->createDefaultAxes();
+}
+
+void MainWindow::on_DateTimeEdit_startParameterStation_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime > ui->DateTimeEdit_endParameterStation->dateTime()){
+        ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
+}
+
+void MainWindow::on_DateTimeEdit_endParameterStation_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime < ui->DateTimeEdit_startParameterStation->dateTime()){
+        ui->DateTimeEdit_startParameterStation->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_endParameterStation->setDateTime(dateTime);
+}
+
+void MainWindow::on_DateTimeEdit_startParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime > ui->DateTimeEdit_endParameterBaseline->dateTime()){
+        ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
+}
+
+void MainWindow::on_DateTimeEdit_endParameterBaseline_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime < ui->DateTimeEdit_startParameterBaseline->dateTime()){
+        ui->DateTimeEdit_startParameterBaseline->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_endParameterBaseline->setDateTime(dateTime);
+}
+
+void MainWindow::on_pushButton_addSetupBaseline_clicked()
+{
+    addSetup(ui->treeWidget_setupBaseline, ui->DateTimeEdit_startParameterBaseline, ui->DateTimeEdit_endParameterBaseline,
+             ui->comboBox_parameterBaselineTransition, ui->comboBox_baselineSettingMember, ui->ComboBox_parameterBaseline,
+             setupBaselineTree, setupBaseline, ui->comboBox_setupBaseline);
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+
+    addSetup(ui->treeWidget_setupStation, ui->DateTimeEdit_startParameterStation, ui->DateTimeEdit_endParameterStation,
+             ui->comboBox_parameterStationTransition, ui->comboBox_stationSettingMember, ui->ComboBox_parameterStation,
+             setupStationTree, setupStation, ui->comboBox_setupStation);
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    deleteSetupSelection(setupStationTree, setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
+}
+
+void MainWindow::on_pushButton_removeSetupBaseline_clicked()
+{
+    deleteSetupSelection(setupBaselineTree, setupBaseline, ui->comboBox_setupBaseline, ui->treeWidget_setupBaseline);
+}
+
+void MainWindow::on_treeWidget_setupStation_itemEntered(QTreeWidgetItem *item, int column)
+{
+    if(column == 0){
+        displayStationSetupMember(item->text(column));
+    }else if(column == 1){
+        displayStationSetupParameter(item->text(column));
+    }
+}
+
+void MainWindow::on_treeWidget_setupBaseline_itemEntered(QTreeWidgetItem *item, int column)
+{
+    if(column == 0){
+        displayBaselineSetupMember(item->text(column));
+    }else if(column == 1){
+        displayBaselineSetupParameter(item->text(column));
+    }
+}
+
 void MainWindow::on_comboBox_stationSettingMember_currentTextChanged(const QString &arg1)
 {
     displayStationSetupMember(arg1);
-}
-
-void MainWindow::on_comboBox_sourceSettingMember_currentTextChanged(const QString &arg1)
-{
-    displaySourceSetupMember(arg1);
 }
 
 void MainWindow::on_comboBox_baselineSettingMember_currentTextChanged(const QString &arg1)
 {
     displayBaselineSetupMember(arg1);
 }
-
 
 void MainWindow::displayStationSetupParameterFromPlot(QPointF point, bool flag){
     QLineSeries* series = qobject_cast<QLineSeries*>(sender());
@@ -4653,28 +4358,6 @@ void MainWindow::displayStationSetupParameterFromPlot(QPointF point, bool flag){
     }else{
         stationSetupCallout->hide();
     }
-
-}
-
-void MainWindow::displaySourceSetupParameterFromPlot(QPointF point, bool flag){
-    QLineSeries* series = qobject_cast<QLineSeries*>(sender());
-    QString name = series->name();
-    displaySourceSetupParameter(name);
-    if(flag){
-        sourceSetupCallout->setAnchor(point);
-        QDateTime st = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
-        QDateTime et = QDateTime::fromMSecsSinceEpoch(series->at(series->count()-1).x());
-        QString txt = QString("Parameter: ").append(name);
-        txt.append("\nfrom: ").append(st.toString("dd.MM.yyyy hh:mm"));
-        txt.append("\nuntil: ").append(et.toString("dd.MM.yyyy hh:mm"));
-        sourceSetupCallout->setText(txt);
-        sourceSetupCallout->setZValue(11);
-        sourceSetupCallout->updateGeometry();
-        sourceSetupCallout->show();
-    }else{
-        sourceSetupCallout->hide();
-    }
-
 
 }
 
@@ -4705,31 +4388,16 @@ void MainWindow::on_ComboBox_parameterStation_currentTextChanged(const QString &
     displayStationSetupParameter(arg1);
 }
 
-
-void MainWindow::on_ComboBox_parameterSource_currentTextChanged(const QString &arg1)
-{
-    displaySourceSetupParameter(arg1);
-}
-
 void MainWindow::on_ComboBox_parameterBaseline_currentTextChanged(const QString &arg1)
 {
     displayBaselineSetupParameter(arg1);
 }
-
 
 void MainWindow::on_comboBox_setupStation_currentTextChanged(const QString &arg1)
 {
     drawSetupPlot(setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
     if(!arg1.isEmpty()){
         displayStationSetupMember(arg1);
-    }
-}
-
-void MainWindow::on_comboBox_setupSource_currentTextChanged(const QString &arg1)
-{
-    drawSetupPlot(setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
-    if(!arg1.isEmpty()){
-        displaySourceSetupMember(arg1);
     }
 }
 
@@ -4919,259 +4587,6 @@ void MainWindow::on_pushButton_16_clicked()
     }
 }
 
-
-
-void MainWindow::on_pushButton_13_clicked()
-{
-    for(int i=0; i<allSourceModel->rowCount(); ++i){
-        on_treeView_allAvailabeSources_clicked(allSourceModel->index(i,0));
-    }
-}
-
-
-void MainWindow::on_pushButton_15_clicked()
-{
-    selectedSourceModel->clear();
-    selectedSources->clear();
-    int i = 0;
-    while(i<allSourcePlusGroupModel->rowCount()){
-        QString name = allSourcePlusGroupModel->item(i)->text();
-        if(name != "__all__" && groupSrc.find(name.toStdString()) == groupSrc.end()){
-            allSourcePlusGroupModel->removeRow(i);
-        }else{
-            ++i;
-        }
-    }
-    ui->treeWidget_multiSchedSelected->clear();
-    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
-        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
-    }
-    ui->label_sourceList_selected->setText("selected: ");
-}
-
-void MainWindow::worldmap_clicked(QPointF point)
-{
-    bool x = true;
-}
-
-void MainWindow::on_pushButton_18_clicked()
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(ui->pathToGUILineEdit->text());
-}
-
-void MainWindow::on_pushButton_19_clicked()
-{
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(ui->defaultSettingsFileLineEdit->text());
-}
-
-void MainWindow::on_actionNew_triggered()
-{
-    if (QMessageBox::Yes == QMessageBox::question(this, "Restart?", "Do you really want to restart?", QMessageBox::Yes | QMessageBox::No)){
-        QApplication::exit(1000);
-    }
-}
-
-
-
-void MainWindow::on_pushButton_25_clicked()
-{
-    auto list = ui->treeWidget_multiSchedSelected->selectedItems();{
-        for(const auto& any:list){
-            if(any->text(0) == "session start"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
-            }else if(any->text(0) == "subnetting"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
-            }else if(any->text(0) == "subnetting min source angle"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
-            }else if(any->text(0) == "subnetting min participating stations"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(3)->setDisabled(false);
-            }else if(any->text(0) == "fillin mode during scan selection"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(4)->setDisabled(false);
-            }else if(any->text(0) == "fillin mode influence on scan selection"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(5)->setDisabled(false);
-            }else if(any->text(0) == "fillin mode a posteriori"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(6)->setDisabled(false);
-
-            }else if(any->text(0) == "sky coverage"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
-            }else if(any->text(0) == "number of observations"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(1)->setDisabled(false);
-            }else if(any->text(0) == "duration"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(2)->setDisabled(false);
-            }else if(any->text(0) == "average stations"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(3)->setDisabled(false);
-            }else if(any->text(0) == "average sources"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(4)->setDisabled(false);
-            }else if(any->text(0) == "average baselines"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(5)->setDisabled(false);
-            }else if(any->text(0) == "idle time"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(6)->setDisabled(false);
-            }else if(any->text(0) == "idle time interval"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(7)->setDisabled(false);
-            }else if(any->text(0) == "low declination"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(8)->setDisabled(false);
-            }else if(any->text(0) == "low declination begin"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(9)->setDisabled(false);
-            }else if(any->text(0) == "low declination full"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(10)->setDisabled(false);
-            }else if(any->text(0) == "low elevation"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(11)->setDisabled(false);
-            }else if(any->text(0) == "low elevation begin"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(12)->setDisabled(false);
-            }else if(any->text(0) == "low elevation full"){
-                ui->treeWidget_multiSched->topLevelItem(1)->child(13)->setDisabled(false);
-
-            }else if(any->text(0) == "influence distance"){
-                ui->treeWidget_multiSched->topLevelItem(2)->child(0)->setDisabled(false);
-            }else if(any->text(0) == "influence time"){
-                ui->treeWidget_multiSched->topLevelItem(2)->child(1)->setDisabled(false);
-            }
-            delete(any);
-        }
-    }
-
-    multi_sched_count_nsched();
-
-}
-
-
-void MainWindow::on_pushButton_5_clicked()
-{    
-    QStringList path {"settings.general.name"};
-    QStringList value {ui->nameLineEdit->text()};
-    QString name = "Default user name changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_6_clicked()
-{    
-    QStringList path {"settings.general.email"};
-    QStringList value {ui->emailLineEdit->text()};
-    QString name = "Default user email address changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_17_clicked()
-{    
-    QStringList path {"settings.general.pathToScheduler"};
-    QStringList value {ui->pathToSchedulerLineEdit->text()};
-    QString name = "Default path to scheduler executable changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_saveCatalogPathes_clicked()
-{
-    settings.put("settings.catalog_path.antenna",ui->lineEdit_pathAntenna->text().toStdString());
-    settings.put("settings.catalog_path.equip",ui->lineEdit_pathEquip->text().toStdString());
-    settings.put("settings.catalog_path.position",ui->lineEdit_pathPosition->text().toStdString());
-    settings.put("settings.catalog_path.mask",ui->lineEdit_pathMask->text().toStdString());
-    settings.put("settings.catalog_path.source",ui->lineEdit_pathSource->text().toStdString());
-    settings.put("settings.catalog_path.flux",ui->lineEdit_pathFlux->text().toStdString());
-    settings.put("settings.catalog_path.modes",ui->lineEdit_pathModes->text().toStdString());
-    settings.put("settings.catalog_path.freq",ui->lineEdit_pathFreq->text().toStdString());
-    settings.put("settings.catalog_path.tracks",ui->lineEdit_pathTracks->text().toStdString());
-    settings.put("settings.catalog_path.loif",ui->lineEdit_pathLoif->text().toStdString());
-    settings.put("settings.catalog_path.rec",ui->lineEdit_pathRec->text().toStdString());
-    settings.put("settings.catalog_path.rx",ui->lineEdit_pathRx->text().toStdString());
-    settings.put("settings.catalog_path.hdpos",ui->lineEdit_pathHdpos->text().toStdString());
-    std::ofstream os;
-    os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
-                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
-    os.close();
-    QString txt = "Your default catalog pathes have been changed!";
-    QMessageBox::information(this,"Default settings changed",txt);
-}
-
-void MainWindow::on_pushButton_26_clicked()
-{
-    QStringList path {"settings.output.directory"};
-    QStringList value {ui->lineEdit_outputPath->text()};
-    QString name = "Default output path changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::changeDefaultSettings(QStringList path, QStringList value, QString name)
-{
-    for(int i=0; i<path.count(); ++i){
-        settings.put(path.at(i).toStdString(),value.at(i).toStdString());
-    }
-    std::ofstream os;
-    os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
-                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
-    os.close();
-    QMessageBox::information(this,"Default settings changed",name);
-}
-
-void MainWindow::on_pushButton_23_clicked()
-{
-    QStringList path {"settings.output.scheduler"};
-    QStringList value {ui->schedulerLineEdit->text()};
-    QString name = "Default scheduler changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_22_clicked()
-{
-    QStringList path {"settings.output.correlator"};
-    QStringList value {ui->correlatorLineEdit->text()};
-    QString name = "Default correlator changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::createDefaultParameterSettings()
-{
-    VieVS::ParameterSettings::ParametersStations sta;
-    sta.maxScan = 600;
-    sta.minScan = 30;
-    sta.maxSlewtime = 600;
-    sta.maxSlewDistance = 175;
-    sta.minSlewDistance = 0;
-    sta.maxWait = 600;
-    sta.maxNumberOfScans = 9999;
-    sta.weight = 1;
-    sta.minElevation = 5;
-    settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
-
-    VieVS::ParameterSettings::ParametersSources src;
-    src.minRepeat = 1800;
-    src.minScan = 20;
-    src.maxScan = 600;
-    src.weight = 1;
-    src.minFlux = 0.05;
-    src.maxNumberOfScans = 999;
-    src.minNumberOfStations = 2;
-    src.minElevation = 0;
-    src.minSunDistance = 4;
-    settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
-
-    VieVS::ParameterSettings::ParametersBaselines bl;
-    bl.maxScan = 600;
-    bl.minScan = 30;
-    bl.weight = 1;
-    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));    
-    settings.add("settings.station.waitTimes.setup",0);
-    settings.add("settings.station.waitTimes.source",5);
-    settings.add("settings.station.waitTimes.tape",1);
-    settings.add("settings.station.waitTimes.calibration",10);
-    settings.add("settings.station.waitTimes.corsynch",3);
-
-    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 5);
-    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 5);
-    settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
-    settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
-
-    std::ofstream os;
-    os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
-                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
-    os.close();
-
-}
-
 void MainWindow::on_pushButton_saveNetwork_clicked()
 {
     QVector<QString> selSta;
@@ -5249,6 +4664,679 @@ void MainWindow::on_pushButton_loadNetwork_clicked()
     }
 }
 
+void MainWindow::networkSizeChanged()
+{
+    int size = selectedStationModel->rowCount();
+    ui->label_network_selected->setText(QString("selected: %1").arg(size));
+}
+
+void MainWindow::baselineListChanged()
+{
+    int size = selectedBaselineModel->rowCount();
+    ui->label_network_baselines->setText(QString("baselines: %1").arg(size));
+}
+
+void MainWindow::markerWorldmap()
+{
+    if(ui->radioButton_marker_worldmap->isChecked()){
+        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
+        selectedStations->setPen(QColor(Qt::white));
+    }else{
+        QImage img(":/icons/icons/station_white.png");
+        img = img.scaled(ui->horizontalSlider_markerSizeWorldmap->value(),ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setBrush(QBrush(img));
+        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
+        selectedStations->setPen(QColor(Qt::transparent));
+    }
+}
+
+void MainWindow::on_radioButton_imageWorldmap_toggled(bool checked)
+{
+    if(checked){
+        ui->horizontalSlider_markerSizeWorldmap->setValue(30);
+    }else{
+        ui->horizontalSlider_markerSizeWorldmap->setValue(15);
+    }
+    markerWorldmap();
+}
+
+void MainWindow::baselineHovered(QPointF point, bool flag)
+{
+    if (flag) {
+        auto tmp = sender();
+        auto x = qobject_cast<QLineSeries *>(tmp);
+        QString name = x->name();
+        QString text = QString("%1").arg(name);
+        worldMapCallout->setText(text);
+        worldMapCallout->setAnchor(point);
+        worldMapCallout->setZValue(11);
+        worldMapCallout->updateGeometry();
+        worldMapCallout->show();
+    } else {
+        worldMapCallout->hide();
+    }
+}
+
+void MainWindow::on_checkBox_showBaselines_clicked(bool checked)
+{
+    auto series = worldmap->chart()->series();
+    for(int i=0; i<series.count(); ++i){
+        QString name = series.at(i)->name();
+        if(name.size() >=5 && name.left(5) == "coast"){
+            continue;
+        }
+        if(name == "selectedStations"){
+            continue;
+        }
+        if(name == "availableStations"){
+            continue;
+        }
+        if(checked){
+            series.at(i)->setVisible(true);
+        }else{
+            series.at(i)->setVisible(false);
+        }
+    }
+}
+
+// ########################################### SOURCE ###########################################
+
+void MainWindow::readSources()
+{
+    QString sourcePath = ui->lineEdit_pathSource->text();
+
+
+    allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
+    allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
+    allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
+
+    QFile sourceFile(sourcePath);
+    if (sourceFile.open(QIODevice::ReadOnly)){
+        QTextStream in(&sourceFile);
+        while (!in.atEnd()){
+            QString line = in.readLine();
+            if(line.isEmpty() || line[0] == "*" || line[0] == "!" || line[0] == "&"){
+                continue;
+            }
+            QStringList split = line.split(" ",QString::SplitBehavior::SkipEmptyParts);
+            QString sourceName = split.at(0);
+            QString rah = split.at(2);
+            QString ram = split.at(3);
+            QString ras = split.at(4);
+            double ra = (rah.toDouble() + ram.toDouble()/60 + ras.toDouble()/3600)*15;
+            QString ded = split.at(5);
+            QString dem = split.at(6);
+            QString des = split.at(7);
+            double de = ded.toDouble() + dem.toDouble()/60 + des.toDouble()/3600;
+
+            allSourceModel->insertRow(0);
+            allSourceModel->setData(allSourceModel->index(0,0), sourceName);
+            allSourceModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
+            allSourceModel->setData(allSourceModel->index(0, 1), (double)((int)(ra*100 +0.5))/100.0);
+            allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(de*100 +0.5))/100.0);
+
+            selectedSourceModel->insertRow(0);
+            selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
+            selectedSourceModel->sort(0);
+
+            int r = 0;
+            for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+                QString txt = allSourcePlusGroupModel->item(i)->text();
+                if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
+                    ++r;
+                    continue;
+                }
+                if(txt>sourceName){
+                    break;
+                }else{
+                    ++r;
+                }
+            }
+
+            allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
+        }
+        sourceFile.close();
+    }
+    plotSkyMap();
+    skyMapCallout = new Callout(skymap->chart());
+    skyMapCallout->hide();
+
+}
+
+void MainWindow::on_listView_allSelectedSources_clicked(const QModelIndex &index)
+{
+    QString name = selectedSourceModel->item(index.row())->text();
+    if(ui->comboBox_calibratorBlock_calibratorSources->currentText() == name){
+        QMessageBox::warning(this,"Calibration block error!","Deleted source was choosen as calibrator source!\nCheck calibrator block!");
+        ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(0);
+    }
+    for(int i=0; i<ui->tableWidget_scanSequence->rowCount(); ++i){
+        QComboBox* cb = qobject_cast<QComboBox*>(ui->tableWidget_scanSequence->cellWidget(i,0));
+        if(cb->currentText() == name){
+            QMessageBox::warning(this,"Scan sequence error!","Deleted source was in scan sequence!\nCheck scan sequence!");
+            cb->setCurrentIndex(0);
+        }
+    }
+    selectedSourceModel->removeRow(index.row());
+
+    clearGroup(false,true,false,name);
+
+    int row;
+    double x;
+    double y;
+    for(int i = 0; i < allSourceModel->rowCount(); ++i){
+        if (allSourceModel->index(i,0).data().toString() == name){
+            row = i;
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            double dc = allSourceModel->index(i,2).data().toDouble();
+            ra -=180;
+
+            double lambda = qDegreesToRadians(ra);
+            double phi = qDegreesToRadians(dc);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            y = (qSqrt(2) *qSin(phi) ) / hn;
+            break;
+        }
+    }
+
+    for(int i = 0; i<selectedSources->count(); ++i){
+        double xn = selectedSources->at(i).x();
+        double yn = selectedSources->at(i).y();
+        if( (x-xn)*(x-xn) + (y-yn)*(y-yn) < 1e-3 ){
+            selectedSources->remove(i);
+            break;
+        }
+    }
+
+    for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+        if (allSourcePlusGroupModel->index(i,0).data().toString() == name) {
+            allSourcePlusGroupModel->removeRow(i);
+            break;
+        }
+    }
+    ui->treeWidget_multiSchedSelected->clear();
+    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
+        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
+    }
+
+}
+
+void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allSourceProxyModel->index(row,0).data().toString();
+
+    if(selectedSourceModel->findItems(name).isEmpty()){
+        selectedSourceModel->insertRow(0);
+        selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
+        selectedSourceModel->sort(0);
+
+        double ra = allSourceProxyModel->index(row,1).data().toDouble();
+        double dc = allSourceProxyModel->index(row,2).data().toDouble();
+        ra -=180;
+
+        double lambda = qDegreesToRadians(ra);
+        double phi = qDegreesToRadians(dc);
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+        selectedSources->append(x,y);
+
+        int r = 0;
+        for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+            QString txt = allSourcePlusGroupModel->item(i)->text();
+            if(groupSrc.find(txt.toStdString()) != groupSrc.end() || txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(txt>name){
+                break;
+            }else{
+                ++r;
+            }
+        }
+
+        allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
+    }
+    ui->lineEdit_allStationsFilter_3->setFocus();
+    ui->lineEdit_allStationsFilter_3->selectAll();
+}
+
+void MainWindow::on_lineEdit_allStationsFilter_3_textChanged(const QString &arg1)
+{
+    allSourceProxyModel->setFilterRegExp(arg1);
+}
+
+void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index)
+{
+    int row = index.row();
+    QString name = allSourceProxyModel->index(row,0).data().toString();
+
+    double ra = allSourceProxyModel->index(row,1).data().toDouble();
+    ra -=180;
+    double dc = allSourceProxyModel->index(row,2).data().toDouble();
+
+    double lambda = qDegreesToRadians(ra);
+    double phi = qDegreesToRadians(dc);
+    double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+    double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+    double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+    QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+    skyMapCallout->setText(text);
+    skyMapCallout->setAnchor(QPointF(x,y));
+    skyMapCallout->setZValue(11);
+    skyMapCallout->updateGeometry();
+    skyMapCallout->show();
+}
+
+void MainWindow::on_listView_allSelectedSources_entered(const QModelIndex &index)
+{
+
+    int row = index.row();
+    QString name = selectedSourceModel->index(row,0).data().toString();
+
+    for(int i = 0; i < allSourceModel->rowCount(); ++i){
+        QString newName = allSourceModel->index(i,0).data().toString();
+
+        if (newName == name){
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            ra -=180;
+            double dc = allSourceModel->index(i,2).data().toDouble();
+
+            double lambda = qDegreesToRadians(ra);
+            double phi = qDegreesToRadians(dc);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+            QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+            skyMapCallout->setText(text);
+            skyMapCallout->setAnchor(QPointF(x,y));
+            skyMapCallout->setZValue(11);
+            skyMapCallout->updateGeometry();
+            skyMapCallout->show();
+            break;
+        }
+    }
+}
+
+void MainWindow::plotSkyMap(){
+    QChart *skyChart = new QChart();
+
+    for(int ra = -180; ra<=180; ra+=60){
+        QLineSeries *ral = new QLineSeries(skyChart);
+        ral->setColor(Qt::gray);
+        double lambda = qDegreesToRadians((double) ra);
+
+        for(int de = -90; de<=90; de+=5){
+            double phi = qDegreesToRadians((double) de);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+            ral->append(x,y);
+        }
+        skyChart->addSeries(ral);
+    }
+
+    for(int de = -60; de<=60; de+=30){
+        QLineSeries *del = new QLineSeries(skyChart);
+        del->setColor(Qt::gray);
+        double phi = qDegreesToRadians((double) de);
+
+        for(int ra = -180; ra<=180; ra+=5){
+            double lambda = qDegreesToRadians((double) ra);
+            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+            double y = (qSqrt(2) *qSin(phi) ) / hn;
+            del->append(x,y);
+        }
+        skyChart->addSeries(del);
+    }
+
+
+    availableSources = new QScatterSeries(skyChart);
+    availableSources->setColor(Qt::red);
+    availableSources->setMarkerSize(10);
+
+    selectedSources = new QScatterSeries(skyChart);
+    markerSkymap();
+
+    QLineSeries *ecliptic = new QLineSeries(skyChart);
+    ecliptic->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
+    double e = qDegreesToRadians(23.4);
+    for(int i=-180; i<=180; i+=5){
+        double l = qDegreesToRadians((double)i);
+        double b = 0;
+        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l));
+//        lambda-=M_PI;
+        double phi = qAsin(qSin(b)*qCos(e) + qCos(b)*qSin(e)*qSin(l));
+
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+
+        ecliptic->append(x,y);
+    }
+
+    skyChart->addSeries(availableSources);
+    skyChart->addSeries(selectedSources);
+    skyChart->addSeries(ecliptic);
+
+    connect(availableSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
+    connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
+
+    for(int i = 0; i< allSourceModel->rowCount(); ++i){
+        double ra = allSourceModel->item(i,1)->text().toDouble();
+        ra -=180;
+        double lambda = qDegreesToRadians(ra);
+
+        double dc = allSourceModel->item(i,2)->text().toDouble();
+        double phi = qDegreesToRadians(dc);
+
+        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+
+        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
+        double y = (qSqrt(2) *qSin(phi) ) / hn;
+
+        availableSources->append(x,y);
+        selectedSources->append(x,y);
+    }
+
+
+    skyChart->createDefaultAxes();
+    skyChart->setAcceptHoverEvents(true);
+    skyChart->legend()->hide();
+    skyChart->axisX()->setRange(-2.85,2.85);
+    skyChart->axisY()->setRange(-1.45,1.45);
+    skyChart->axisX()->hide();
+    skyChart->axisY()->hide();
+    skyChart->setAnimationOptions(QChart::NoAnimation);
+
+    skymap = new ChartView(skyChart);
+    skymap->setStatusTip("source overview");
+    skymap->setToolTip("source overview");
+    skymap->setMinMax(-2.85,2.85,-1.45,1.45);
+    skymap->setRenderHint(QPainter::Antialiasing);
+    skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
+    skymap->setBackgroundBrush(QBrush(Qt::white));
+    skymap->setMouseTracking(true);
+
+
+    ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
+}
+
+void MainWindow::skymap_hovered(QPointF point, bool state){
+
+    if (state) {
+
+        double px = point.x();
+        double py = point.y();
+
+
+        double z = qSqrt(1 - (1./4.*px)*(1./4.*px) - (1./2.*py)*(1./2.*py));
+        double pra = qRadiansToDegrees(2* qAtan( (z*px) / (2*(2*z*z-1)) ));
+        pra +=180;
+        double pde = qRadiansToDegrees(qAsin(z*py));
+
+        QString src;
+        for(int i = 0; i<allSourceModel->rowCount();++i){
+            double ra = allSourceModel->index(i,1).data().toDouble();
+            double de = allSourceModel->index(i,2).data().toDouble();
+
+            auto dra = ra-pra;
+            auto dde = de-pde;
+            if(dra*dra+dde*dde < 10){
+                if(src.size()==0){
+                    src.append(allSourceModel->index(i,0).data().toString());
+                }else{
+                    src.append(","+allSourceModel->index(i,0).data().toString());
+                }
+            }
+        }
+
+        QString text = QString("%1 \nRA: %2 [deg] \nDC: %3 [deg] ").arg(src).arg(pra).arg(pde);
+        skyMapCallout->setText(text);
+        skyMapCallout->setAnchor(point);
+        skyMapCallout->setZValue(11);
+        skyMapCallout->updateGeometry();
+        skyMapCallout->show();
+    } else {
+        skyMapCallout->hide();
+    }
+
+}
+
+void MainWindow::addGroupSource()
+{
+    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::source,this);
+    dial->addModel(selectedSourceModel);
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::vector<std::string> stdlist = dial->getSelection();
+        std::string stdname = dial->getGroupName();
+        VieVS::ParameterGroup newGroup(stdname, stdlist);
+
+        int r = 0;
+        for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+            QString txt = allSourcePlusGroupModel->item(i)->text();
+            if(txt == "__all__"){
+                ++r;
+                continue;
+            }
+            if(groupSrc.find(txt.toStdString()) == groupSrc.end()){
+                break;
+            }
+            if(txt>QString::fromStdString(stdname)){
+                break;
+            }else{
+                ++r;
+            }
+        }
+
+        groupSrc[stdname] = stdlist;
+
+        allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source_group.png"),QString::fromStdString(stdname) ));
+        if(sender() == ui->pushButton_addGroupSourceSetup){
+            ui->comboBox_sourceSettingMember->setCurrentIndex(r);
+        }
+        if(sender() == ui->pushButton_addSourceGroup_Calibrator){
+            ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(r);
+        }
+        QTreeWidgetItem *itm = new QTreeWidgetItem();
+        itm->setText(0,QString::fromStdString(stdname));
+        itm->setCheckState(0,Qt::Unchecked);
+        ui->treeWidget_srcGroupForStatistics->addTopLevelItem(itm);
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton_sourceParameter_clicked()
+{
+    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    dial->addStationModel(allStationPlusGroupModel);
+    dial->addBaselineModel(allBaselinePlusGroupModel);
+    dial->addDefaultParameters(paraSrc["default"]);
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersSources> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersSources parameter = res.second;
+
+        paraSrc[name] = parameter;
+
+        ui->ComboBox_parameterSource->addItem(QString::fromStdString(name));
+        ui->ComboBox_parameterSource->setCurrentIndex(ui->ComboBox_parameterSource->count()-1);
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_pushButton_parameterSource_edit_clicked()
+{
+    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
+    QStringList bands;
+    for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
+        bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
+    }
+    dial->addBandNames(bands);
+
+    dial->addStationModel(allStationPlusGroupModel);
+    dial->addBaselineModel(allBaselinePlusGroupModel);
+    dial->addDefaultParameters(paraSrc["default"]);
+    dial->addSelectedParameters(paraSrc[ui->ComboBox_parameterSource->currentText().toStdString()],ui->ComboBox_parameterSource->currentText());
+
+    int result = dial->exec();
+    if(result == QDialog::Accepted){
+        std::pair<std::string, VieVS::ParameterSettings::ParametersSources> res = dial->getParameters();
+        std::string name = res.first;
+        VieVS::ParameterSettings::ParametersSources parameter = res.second;
+
+        paraSrc[name] = parameter;
+
+    }
+    delete(dial);
+}
+
+void MainWindow::on_DateTimeEdit_startParameterSource_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime > ui->DateTimeEdit_endParameterSource->dateTime()){
+        ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
+}
+
+void MainWindow::on_DateTimeEdit_endParameterSource_dateTimeChanged(const QDateTime &dateTime_)
+{
+    QDateTime dateTime = dateTime_;
+    QDateTime dateTimeEnd = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
+    if(dateTime < ui->dateTimeEdit_sessionStart->dateTime()){
+        dateTime = ui->dateTimeEdit_sessionStart->dateTime();
+    }
+    if(dateTime > dateTimeEnd){
+        dateTime = dateTimeEnd;
+    }
+    if(dateTime < ui->DateTimeEdit_startParameterSource->dateTime()){
+        ui->DateTimeEdit_startParameterSource->setDateTime(dateTime);
+    }
+    ui->DateTimeEdit_endParameterSource->setDateTime(dateTime);
+}
+
+void MainWindow::on_pushButton_addSetupSource_clicked()
+{
+    addSetup(ui->treeWidget_setupSource, ui->DateTimeEdit_startParameterSource, ui->DateTimeEdit_endParameterSource,
+             ui->comboBox_parameterSourceTransition, ui->comboBox_sourceSettingMember, ui->ComboBox_parameterSource,
+             setupSourceTree, setupSource, ui->comboBox_setupSource);
+}
+
+void MainWindow::on_pushButton_removeSetupSource_clicked()
+{
+    deleteSetupSelection(setupSourceTree, setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
+}
+
+void MainWindow::on_treeWidget_setupSource_itemEntered(QTreeWidgetItem *item, int column)
+{
+    if(column == 0){
+        displaySourceSetupMember(item->text(column));
+    }else if(column == 1){
+        displaySourceSetupParameter(item->text(column));
+    }
+}
+
+void MainWindow::on_comboBox_sourceSettingMember_currentTextChanged(const QString &arg1)
+{
+    displaySourceSetupMember(arg1);
+}
+
+void MainWindow::displaySourceSetupParameterFromPlot(QPointF point, bool flag){
+    QLineSeries* series = qobject_cast<QLineSeries*>(sender());
+    QString name = series->name();
+    displaySourceSetupParameter(name);
+    if(flag){
+        sourceSetupCallout->setAnchor(point);
+        QDateTime st = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
+        QDateTime et = QDateTime::fromMSecsSinceEpoch(series->at(series->count()-1).x());
+        QString txt = QString("Parameter: ").append(name);
+        txt.append("\nfrom: ").append(st.toString("dd.MM.yyyy hh:mm"));
+        txt.append("\nuntil: ").append(et.toString("dd.MM.yyyy hh:mm"));
+        sourceSetupCallout->setText(txt);
+        sourceSetupCallout->setZValue(11);
+        sourceSetupCallout->updateGeometry();
+        sourceSetupCallout->show();
+    }else{
+        sourceSetupCallout->hide();
+    }
+
+
+}
+
+void MainWindow::on_ComboBox_parameterSource_currentTextChanged(const QString &arg1)
+{
+    displaySourceSetupParameter(arg1);
+}
+
+void MainWindow::on_comboBox_setupSource_currentTextChanged(const QString &arg1)
+{
+    drawSetupPlot(setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
+    if(!arg1.isEmpty()){
+        displaySourceSetupMember(arg1);
+    }
+}
+
+void MainWindow::on_pushButton_13_clicked()
+{
+    for(int i=0; i<allSourceModel->rowCount(); ++i){
+        on_treeView_allAvailabeSources_clicked(allSourceModel->index(i,0));
+    }
+}
+
+void MainWindow::on_pushButton_15_clicked()
+{
+    selectedSourceModel->clear();
+    selectedSources->clear();
+    int i = 0;
+    while(i<allSourcePlusGroupModel->rowCount()){
+        QString name = allSourcePlusGroupModel->item(i)->text();
+        if(name != "__all__" && groupSrc.find(name.toStdString()) == groupSrc.end()){
+            allSourcePlusGroupModel->removeRow(i);
+        }else{
+            ++i;
+        }
+    }
+    ui->treeWidget_multiSchedSelected->clear();
+    for(int i=0; i<ui->treeWidget_multiSched->topLevelItemCount(); ++i){
+        ui->treeWidget_multiSched->topLevelItem(i)->setDisabled(false);
+    }
+    ui->label_sourceList_selected->setText("selected: ");
+}
+
 void MainWindow::on_pushButton_saveSourceList_clicked()
 {
     QVector<QString> selSrc;
@@ -5321,298 +5409,1040 @@ void MainWindow::on_pushButton_loadSourceList_clicked()
     }
 }
 
-void MainWindow::on_pushButton_saveMode_clicked()
+void MainWindow::sourceListChanged()
 {
-    int bits = ui->sampleBitsSpinBox->value();
-    double srate = ui->sampleRateDoubleSpinBox->value();
-    QVector<QString> bands;
-    QVector<double> freqs;
-    QVector<int> chans;
-
-    for(int i = 0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i){
-        QString band = ui->tableWidget_modeCustonBand->verticalHeaderItem(i)->text();
-        bands.push_back(band);
-        double freq = qobject_cast<QDoubleSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,0))->value();
-        freqs.push_back(freq);
-        int chan = qobject_cast<QSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
-        chans.push_back(chan);
-    }
-    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
-    dial->setType(saveToSettingsDialog::Type::modes);
-    dial->setMode(bits,srate,bands,freqs,chans);
-
-    dial->exec();
-
+    int size = selectedSourceModel->rowCount();
+    ui->label_sourceList_selected->setText(QString("selected: %1").arg(size));
 }
 
-void MainWindow::on_pushButton_loadMode_clicked()
+void MainWindow::markerSkymap()
 {
-    auto modes= settings.get_child_optional("settings.modes");
-    if(!modes.is_initialized()){
-        QMessageBox::warning(this,"No modes list found!","There were no modes saved in settings.xml file\nCheck settings.modes");
-        return;
-    }
-
-    QVector<QString> names;
-    QVector<int> bits;
-    QVector<double> srates;
-    QVector<QVector<QString> > bands;
-    QVector<QVector<int> > channels;
-    QVector<QVector<double> > freqs;
-
-    for(const auto &it:*modes){
-        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
-        int bit;
-        double srate;
-        QVector<QString> band;
-        QVector<int> channel;
-        QVector<double> freq;
-
-        for(const auto &it2:it.second){
-            if(it2.first == "bits"){
-                bit = it2.second.get_value<int>();
-            }else if(it2.first == "sampleRate"){
-                srate = it2.second.get_value<double>();
-            }else if(it2.first == "band"){
-
-                channel.push_back(it2.second.get<int>("channels"));
-                freq.push_back(it2.second.get<double>("frequency"));
-                band.push_back(QString::fromStdString(it2.second.get<std::string>("<xmlattr>.name")));
-
-            }
-        }
-        names.push_back(name);
-        bits.push_back(bit);
-        srates.push_back(srate);
-        bands.push_back(band);
-        channels.push_back(channel);
-        freqs.push_back(freq);
-    }
-
-    settingsLoadWindow *dial = new settingsLoadWindow(this);
-    dial->setModes(names,bits,srates,bands,channels,freqs);
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        QString itm = dial->selectedItem();
-        int idx = dial->selectedIdx();
-
-        ui->sampleBitsSpinBox->setValue(bits.at(idx));
-        ui->sampleRateDoubleSpinBox->setValue(srates.at(idx));
-        ui->tableWidget_modeCustonBand->setRowCount(0);
-        ui->tableWidget_ModesPolicy->setRowCount(0);
-        for(int i=0; i<bands.at(idx).size(); ++i){
-            QString bName = bands.at(idx).at(i);
-            double bFreq = freqs.at(idx).at(i);
-            int bChannels = channels.at(idx).at(i);
-            addModesCustomTable(bName, bFreq, bChannels);
-        }
+    if(ui->radioButton_markerSkymap->isChecked()){
+        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
+        selectedSources->setPen(QColor(Qt::white));
+    }else{
+        QImage img(":/icons/icons/source_white.png");
+        img = img.scaled(ui->horizontalSlider_markerSkymap->value(),ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setBrush(QBrush(img));
+        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
+        selectedSources->setPen(QColor(Qt::transparent));
     }
 
 }
 
-void MainWindow::clearGroup(bool sta, bool src, bool bl, QString name)
+void MainWindow::on_radioButton_imageSkymap_toggled(bool checked)
 {
-    bool anyMapCleared = false;
-    if(sta){
-        int i=0;
-        bool mapCleared = false;
-        while(i<allStationPlusGroupModel->rowCount()){
-            QString txt = allStationPlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++i;
-                continue;
-            }
-            if(groupSta.find(txt.toStdString()) != groupSta.end()){
-                auto vec = groupSta[txt.toStdString()];
-                auto it = std::find(vec.begin(),vec.end(),name.toStdString());
-                if(it != vec.end()){
-                    vec.erase(it);
-                    groupSta[txt.toStdString()] = vec;
-                }
-                if(vec.empty()){
-                    allStationPlusGroupModel->removeRow(i);
-                    groupSta.erase(txt.toStdString());
-                    mapCleared = true;
-                }else{
-                    ++i;
-                }
-            }else{
-                break;
-            }
+    if(checked){
+        ui->horizontalSlider_markerSkymap->setValue(30);
+        auto series = skymap->chart()->series();
+        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        tmp->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
+
+    }else{
+        ui->horizontalSlider_markerSkymap->setValue(15);
+        auto series = skymap->chart()->series();
+        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        tmp->setPen(QPen(QBrush(Qt::blue),3,Qt::DashLine));
+        selectedSources->setPen(QColor(Qt::transparent));
+    }
+    markerSkymap();
+}
+
+void MainWindow::on_checkBox_showEcliptic_clicked(bool checked)
+{
+    if(checked){
+        auto series = skymap->chart()->series();
+        series.back()->setVisible(true);
+    }else{
+        auto series = skymap->chart()->series();
+        series.back()->setVisible(false);
+    }
+}
+
+
+// ########################################### WEIGHT FACTORS ###########################################
+
+void MainWindow::on_doubleSpinBox_weightLowDecStart_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_weightLowDecEnd->value() > arg1){
+        ui->doubleSpinBox_weightLowDecEnd->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_weightLowDecEnd_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_weightLowDecStart->value() < arg1){
+        ui->doubleSpinBox_weightLowDecStart->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_weightLowElStart_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_weightLowElEnd->value() > arg1){
+        ui->doubleSpinBox_weightLowElEnd->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_weightLowElEnd_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_weightLowElStart->value() < arg1){
+        ui->doubleSpinBox_weightLowElStart->setValue(arg1);
+    }
+}
+
+// ########################################### RULES ###########################################
+
+void MainWindow::on_spinBox_scanSequenceCadence_valueChanged(int arg1)
+{
+    if(ui->tableWidget_scanSequence->rowCount()>arg1){
+        while(ui->tableWidget_scanSequence->rowCount()>arg1){
+            ui->tableWidget_scanSequence->removeRow(ui->tableWidget_scanSequence->rowCount()-1);
         }
-        anyMapCleared = anyMapCleared || mapCleared;
-        if(mapCleared){
-            clearSetup(true,false,false);
+    }else{
+        while(ui->tableWidget_scanSequence->rowCount()<arg1){
+            ui->tableWidget_scanSequence->insertRow(ui->tableWidget_scanSequence->rowCount());
+            QComboBox *cBox = new QComboBox(this);
+            cBox->setModel(allSourcePlusGroupModel);
+            ui->tableWidget_scanSequence->setCellWidget(ui->tableWidget_scanSequence->rowCount()-1,0, cBox);
         }
     }
-    if(src){
-        int i=0;
-        bool mapCleared = false;
-        while(i<allSourcePlusGroupModel->rowCount()){
-            QString txt = allSourcePlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++i;
-                continue;
+}
+
+void MainWindow::on_doubleSpinBox_calibratorLowElStart_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_calibratorLowElEnd->value() > arg1){
+        ui->doubleSpinBox_calibratorLowElEnd->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_calibratorLowElEnd_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_calibratorLowElStart->value() < arg1){
+        ui->doubleSpinBox_calibratorLowElStart->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_calibratorHighElStart_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_calibratorHighElEnd->value() < arg1){
+        ui->doubleSpinBox_calibratorHighElEnd->setValue(arg1);
+    }
+}
+
+void MainWindow::on_doubleSpinBox_calibratorHighElEnd_valueChanged(double arg1)
+{
+    if(ui->doubleSpinBox_calibratorHighElStart->value() > arg1){
+        ui->doubleSpinBox_calibratorHighElStart->setValue(arg1);
+    }
+}
+
+// ########################################### MULTI SCHED ###########################################
+
+void MainWindow::createMultiSchedTable()
+{
+
+    QTreeWidget *t = ui->treeWidget_multiSched;
+
+    t->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    t->expandAll();
+    ui->treeWidget_multiSchedSelected->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+}
+
+void MainWindow::on_pushButton_multiSchedAddSelected_clicked()
+{
+    auto tall = ui->treeWidget_multiSched;
+    auto list = tall->selectedItems();
+
+    for(const auto&any:list){
+
+        if(any->parent()){
+            QString name = any->text(0);
+            QString parameterType = any->parent()->text(0);
+
+            QStringList row2dateTimeDialog {"session start"};
+
+            QStringList row2toggle{"subnetting",
+                                   "fillinmode during scan selection",
+                                   "fillinmode influence on scan selection",
+                                   "fillinmode a posteriori"};
+
+            QStringList row2intDialog {"max slew time",
+                                       "max wait time",
+                                       "max scan time",
+                                       "min scan time",
+                                       "min number of stations",
+                                       "min repeat time",
+                                       "idle time interval",
+                                       "max number of scans"};
+
+            QStringList row2doubleDialog {"subnetting min source angle",
+                                          "subnetting min participating stations",
+                                          "sky coverage",
+                                          "number of observations",
+                                          "duration",
+                                          "average stations",
+                                          "average sources",
+                                          "average baselines",
+                                          "idle time",
+                                          "low declination",
+                                          "low declination begin",
+                                          "low declination full",
+                                          "low elevation",
+                                          "low elevation begin",
+                                          "low elevation full",
+                                          "influence distance",
+                                          "influence time",
+                                          "weight",
+                                          "min slew distance",
+                                          "max slew distance",
+                                          "min elevation",
+                                          "min flux",
+                                          "min sun distance"};
+
+            QIcon ic;
+            if(parameterType == "General"){
+                ic = QIcon(":/icons/icons/applications-internet-2.png");
+            }else if(parameterType == "Weight factor"){
+                ic = QIcon(":/icons/icons/weight.png");
+            }else if(parameterType == "Sky Coverage"){
+                ic = QIcon(":/icons/icons/sky_coverage.png");
+            }else if(parameterType == "Station"){
+                ic = QIcon(":/icons/icons/station.png");
+            }else if(parameterType == "Source"){
+                ic = QIcon(":/icons/icons/source.png");
+            }else if(parameterType == "Baseline"){
+                ic = QIcon(":/icons/icons/baseline.png");
             }
-            if(groupSrc.find(txt.toStdString()) != groupSrc.end()){
-                auto vec = groupSrc[txt.toStdString()];
-                auto it = std::find(vec.begin(),vec.end(),name.toStdString());
-                if(it != vec.end()){
-                    vec.erase(it);
-                    groupSrc[txt.toStdString()] = vec;
+
+            auto t = ui->treeWidget_multiSchedSelected;
+
+            QTreeWidgetItem *itm = new QTreeWidgetItem();
+
+            if(row2toggle.indexOf(name) != -1){
+                if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
+                    any->setDisabled(true);
                 }
-                if(vec.empty()){
-                    if(ui->comboBox_calibratorBlock_calibratorSources->currentText() == txt){
-                        QMessageBox::warning(this,"Calibration block error!","A source group was deleted and this group was choosen as calibrator source group!\nCheck calibrator block!");
-                        ui->comboBox_calibratorBlock_calibratorSources->setCurrentIndex(0);
+                QString valuesString = "True, False";
+
+                itm->setText(0,name);
+                itm->setIcon(0,ic);
+                itm->setText(1,"global");
+                itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                itm->setText(2,"2");
+
+                QComboBox *cb = new QComboBox(this);
+                cb->addItem("True");
+                cb->addItem("False");
+
+                t->addTopLevelItem(itm);
+                t->setItemWidget(itm,3,cb);
+
+            }else if(row2intDialog.indexOf(name) != -1){
+                multiSchedEditDialogInt *dialog = new multiSchedEditDialogInt(this);
+                if(parameterType == "Station"){
+                    dialog->addMember(allStationPlusGroupModel);
+                }else if(parameterType == "Source"){
+                    dialog->addMember(allSourcePlusGroupModel);
+                }else if(parameterType == "Baseline"){
+                    dialog->addMember(allBaselinePlusGroupModel);
+                }
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
+                        any->setDisabled(true);
                     }
-                    for(int i=0; i<ui->tableWidget_scanSequence->rowCount(); ++i){
-                        QComboBox* cb = qobject_cast<QComboBox*>(ui->tableWidget_scanSequence->cellWidget(i,0));
-                        if(cb->currentText() == txt){
-                            QMessageBox::warning(this,"Scan sequence error!","A source group was deleted and this group was choosen in scan sequence!\nCheck scan sequence!");
-                            cb->setCurrentIndex(0);
+                    QVector<int> val = dialog->getValues();
+                    int n = val.size();
+                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
+                        QStandardItem* member = dialog->getMember();
+                        itm->setText(1,member->text());
+                        itm->setIcon(1,member->icon());
+                    }else if(parameterType == "Weight factor"){
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
+                    }else{
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    }
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(QString::number(any));
+                    }
+
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
+
+                }
+                delete(dialog);
+
+            }else if(row2doubleDialog.indexOf(name) != -1){
+                multiSchedEditDialogDouble *dialog = new multiSchedEditDialogDouble(this);
+                if(parameterType == "Station"){
+                    dialog->addMember(allStationPlusGroupModel);
+                }else if(parameterType == "Source"){
+                    dialog->addMember(allSourcePlusGroupModel);
+                }else if(parameterType == "Baseline"){
+                    dialog->addMember(allBaselinePlusGroupModel);
+                }else if(parameterType == "Weight factor"){
+                    itm->setText(1,"global");
+                    itm->setIcon(1,QIcon(":/icons/icons/weight.png"));
+                }
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
+                        any->setDisabled(true);
+                    }
+                    QVector<double> val = dialog->getValues();
+                    int n = val.size();
+
+                    if(parameterType == "Station" || parameterType == "Source" || parameterType == "Baseline"){
+                        QStandardItem* member = dialog->getMember();
+                        itm->setText(1,member->text());
+                        itm->setIcon(1,member->icon());
+                    }else if(parameterType == "Sky Coverage"){
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/sky_coverage.png"));
+                    }else{
+                        itm->setText(1,"global");
+                        itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    }
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(QString::number(any));
+                    }
+
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
+                }
+                delete(dialog);
+
+            }else if(row2dateTimeDialog.indexOf(name) != -1){
+                multiSchedEditDialogDateTime *dialog = new multiSchedEditDialogDateTime(this);
+
+                int result = dialog->exec();
+                if(result == QDialog::Accepted){
+                    if(parameterType == "General" || parameterType == "Weight factor" || parameterType == "Sky Coverage"){
+                        any->setDisabled(true);
+                    }
+                    QVector<QDateTime> val = dialog->getValues();
+                    int n = val.size();
+
+                    itm->setText(1,"global");
+                    itm->setIcon(1,QIcon(":/icons/icons/applications-internet-2.png"));
+                    QComboBox *cb = new QComboBox(this);
+                    for(const auto& any:val){
+                        cb->addItem(any.toString("dd.MM.yyyy hh:mm"));
+                    }
+
+                    itm->setText(2,QString::number(n));
+                    itm->setText(0,name);
+                    itm->setIcon(0,ic);
+                    t->addTopLevelItem(itm);
+                    t->setItemWidget(itm,3,cb);
+                }
+                delete(dialog);
+            }
+
+            multi_sched_count_nsched();
+
+        }
+    }
+}
+
+void MainWindow::on_pushButton_25_clicked()
+{
+    auto list = ui->treeWidget_multiSchedSelected->selectedItems();{
+        for(const auto& any:list){
+            if(any->text(0) == "session start"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "subnetting"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
+            }else if(any->text(0) == "subnetting min source angle"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
+            }else if(any->text(0) == "subnetting min participating stations"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(3)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode during scan selection"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(4)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode influence on scan selection"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(5)->setDisabled(false);
+            }else if(any->text(0) == "fillin mode a posteriori"){
+                ui->treeWidget_multiSched->topLevelItem(0)->child(6)->setDisabled(false);
+
+            }else if(any->text(0) == "sky coverage"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "number of observations"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(1)->setDisabled(false);
+            }else if(any->text(0) == "duration"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(2)->setDisabled(false);
+            }else if(any->text(0) == "average stations"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(3)->setDisabled(false);
+            }else if(any->text(0) == "average sources"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(4)->setDisabled(false);
+            }else if(any->text(0) == "average baselines"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(5)->setDisabled(false);
+            }else if(any->text(0) == "idle time"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(6)->setDisabled(false);
+            }else if(any->text(0) == "idle time interval"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(7)->setDisabled(false);
+            }else if(any->text(0) == "low declination"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(8)->setDisabled(false);
+            }else if(any->text(0) == "low declination begin"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(9)->setDisabled(false);
+            }else if(any->text(0) == "low declination full"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(10)->setDisabled(false);
+            }else if(any->text(0) == "low elevation"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(11)->setDisabled(false);
+            }else if(any->text(0) == "low elevation begin"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(12)->setDisabled(false);
+            }else if(any->text(0) == "low elevation full"){
+                ui->treeWidget_multiSched->topLevelItem(1)->child(13)->setDisabled(false);
+
+            }else if(any->text(0) == "influence distance"){
+                ui->treeWidget_multiSched->topLevelItem(2)->child(0)->setDisabled(false);
+            }else if(any->text(0) == "influence time"){
+                ui->treeWidget_multiSched->topLevelItem(2)->child(1)->setDisabled(false);
+            }
+            delete(any);
+        }
+    }
+
+    multi_sched_count_nsched();
+
+}
+
+void MainWindow::on_comboBox_nThreads_currentTextChanged(const QString &arg1)
+{
+    if(arg1 == "manual"){
+        ui->label_nCores->setEnabled(true);
+        ui->spinBox_nCores->setEnabled(true);
+    }else{
+        ui->label_nCores->setEnabled(false);
+        ui->spinBox_nCores->setEnabled(false);
+    }
+}
+
+void MainWindow::on_comboBox_jobSchedule_currentTextChanged(const QString &arg1)
+{
+    if(arg1 == "auto"){
+        ui->label_chunkSize->setEnabled(false);
+        ui->spinBox_chunkSize->setEnabled(false);
+    }else{
+        ui->label_chunkSize->setEnabled(true);
+        ui->spinBox_chunkSize->setEnabled(true);
+    }
+}
+
+void MainWindow::on_comboBox_multiSched_maxNumber_currentIndexChanged(const QString &arg1)
+{
+    if(arg1 == "all"){
+        ui->spinBox_multiSched_maxNumber->setEnabled(false);
+        ui->comboBox_multiSched_seed->setEnabled(false);
+        ui->label_multiSched_seed->setEnabled(false);
+        ui->spinBox_multiSched_seed->setEnabled(false);
+    } else {
+        ui->spinBox_multiSched_maxNumber->setEnabled(true);
+        ui->comboBox_multiSched_seed->setEnabled(true);
+        ui->label_multiSched_seed->setEnabled(true);
+        on_comboBox_multiSched_seed_currentIndexChanged(ui->comboBox_multiSched_seed->currentText());
+    }
+}
+
+void MainWindow::on_comboBox_multiSched_seed_currentIndexChanged(const QString &arg1)
+{
+    if(arg1 == "random"){
+        ui->spinBox_multiSched_seed->setEnabled(false);
+    } else {
+        ui->spinBox_multiSched_seed->setEnabled(true);
+    }
+}
+
+void MainWindow::multi_sched_count_nsched()
+{
+
+    auto t = ui->treeWidget_multiSchedSelected;
+
+    int nsched = 1;
+    double wsky_ = 0;
+    if(ui->checkBox_weightCoverage->isChecked()){
+        wsky_ = ui->doubleSpinBox_weightSkyCoverage->value();
+    }
+    double wobs_ = 0;
+    if(ui->checkBox_weightNobs->isChecked()){
+        wobs_ = ui->doubleSpinBox_weightNumberOfObservations->value();
+    }
+    double wdur_ = 0;
+    if(ui->checkBox_weightDuration->isChecked()){
+        wdur_ = ui->doubleSpinBox_weightDuration->value();
+    }
+    double wasrc_ = 0;
+    if(ui->checkBox_weightAverageSources->isChecked()){
+        wasrc_ = ui->doubleSpinBox_weightAverageSources->value();
+    }
+    double wasta_ = 0;
+    if(ui->checkBox_weightAverageStations->isChecked()){
+        wasta_ = ui->doubleSpinBox_weightAverageStations->value();
+    }
+    double wabls_ = 0;
+    if(ui->checkBox_weightAverageBaselines->isChecked()){
+        wabls_ = ui->doubleSpinBox_weightAverageBaselines->value();
+    }
+    double widle_ = 0;
+    if(ui->checkBox_weightIdleTime->isChecked()){
+        widle_ = ui->doubleSpinBox_weightIdleTime->value();
+    }
+    double wdec_ = 0;
+    if(ui->checkBox_weightLowDeclination->isChecked()){
+        wdec_ = ui->doubleSpinBox_weightLowDec->value();
+    }
+    double wel_ = 0;
+    if(ui->checkBox_weightLowElevation->isChecked()){
+        wel_ = ui->doubleSpinBox_weightLowEl->value();
+    }
+
+
+    std::map<std::string,std::vector<double>> weightFactors = {{"weight_factor_sky_coverage",std::vector<double>{wsky_}},
+                                                    {"weight_factor_number_of_observations",std::vector<double>{wobs_}},
+                                                    {"weight_factor_duration",std::vector<double>{wdur_}},
+                                                    {"weight_factor_average_sources",std::vector<double>{wasrc_}},
+                                                    {"weight_factor_average_stations",std::vector<double>{wasta_}},
+                                                    {"weight_factor_idle_time",std::vector<double>{widle_}},
+                                                    {"weight_factor_low_declination",std::vector<double>{wdec_}},
+                                                    {"weight_factor_low_elevation",std::vector<double>{wel_}}};
+
+    bool weigthFactorFound = false;
+    for(int i = 0; i<t->topLevelItemCount(); ++i){
+        if(t->topLevelItem(i)->text(0) == "sky coverage"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_sky_coverage"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "number of observations"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_number_of_observations"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "duration"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_duration"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "average stations"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_stations"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "average baselines"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_baselines"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "average sources"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_average_sources"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "idle time"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_idle_time"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "low declination"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_low_declination"] = values;
+            weigthFactorFound = true;
+        }else if(t->topLevelItem(i)->text(0) == "low elevation"){
+            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
+            std::vector<double> values;
+            for(int ilist = 0; ilist<list->count(); ++ilist){
+                values.push_back( QString(list->itemText(ilist)).toDouble());
+            }
+            weightFactors["weight_factor_low_elevation"] = values;
+            weigthFactorFound = true;
+        }
+    }
+
+    std::vector<std::vector<double> > weightFactorValues;
+    if(weigthFactorFound){
+        for (double wsky: weightFactors["weight_factor_sky_coverage"]) {
+            for (double wobs: weightFactors["weight_factor_number_of_observations"]) {
+                for (double wdur: weightFactors["weight_factor_duration"]) {
+                    for (double wasrc: weightFactors["weight_factor_average_sources"]) {
+                        for (double wasta: weightFactors["weight_factor_average_stations"]) {
+                            for (double wabls: weightFactors["weight_factor_average_baselines"]) {
+                                for (double widle: weightFactors["weight_factor_idle_time"]) {
+                                    for (double wdec: weightFactors["weight_factor_low_declination"]) {
+                                        for (double wel: weightFactors["weight_factor_low_elevation"]) {
+
+                                            double sum = wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec + wel;
+
+                                            if (sum == 0) {
+                                                continue;
+                                            }
+
+                                            std::vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum,
+                                                                   wabls/sum, widle/sum, wdec/sum, wel/sum};
+                                            weightFactorValues.push_back(std::move(wf));
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-//                    int j=0;
-//                    while(j<ui->treeWidget_multiSchedSelected->topLevelItemCount()){
-//                        if(ui->treeWidget_multiSchedSelected->topLevelItem(j)->text(1) == txt){
-//                            QMessageBox::warning(this,"Multi scheduling error!","A source group was deleted and this group was choosen in multi scheduling!\nCheck multi scheduling!");
-//                            delete(ui->treeWidget_multiSchedSelected->topLevelItem(j));
-//                        }else{
-//                            ++j;
-//                        }
-//                    }
-                    allSourcePlusGroupModel->removeRow(i);
-                    groupSrc.erase(txt.toStdString());
-                    mapCleared = true;
-                }else{
-                    ++i;
                 }
-            }else{
-                break;
             }
-        }
-        anyMapCleared = anyMapCleared || mapCleared;
-        if(mapCleared){
-            clearSetup(false,true,false);
-        }
-    }
-    if(bl){
-        int i=0;
-        bool mapCleared = false;
-        while(i<allBaselinePlusGroupModel->rowCount()){
-            QString txt = allBaselinePlusGroupModel->item(i)->text();
-            if(txt == "__all__"){
-                ++i;
-                continue;
-            }
-            if(groupBl.find(txt.toStdString()) != groupBl.end()){
-                auto vec = groupBl[txt.toStdString()];
-                int j = 0;
-                while(j<vec.size()){
-                    QString itm = QString::fromStdString(vec.at(j));
-                    auto stations = itm.split("-");
-                    if(stations.indexOf(name) != -1){
-                        vec.erase(vec.begin()+j);
-                    }else{
-                        ++j;
-                    }
-                    groupBl[txt.toStdString()] = vec;
-                }
-                if(vec.empty()){
-                    allBaselinePlusGroupModel->removeRow(i);
-                    groupBl.erase(txt.toStdString());
-                    mapCleared = true;
-                }else{
-                    ++i;
-                }
-            }else{
-                break;
-            }
-        }
-        anyMapCleared = anyMapCleared || mapCleared;
-        if(mapCleared){
-            clearSetup(false,false,true);
         }
     }
 
-    if(anyMapCleared){
-        QMessageBox::warning(this,"Group deleted!","At least one group became empty!\nSetup might got removed... please check setup again!");
+    // remove duplicated weight factors
+    int i1 = 0;
+    while (i1 < weightFactorValues.size()) {
+        const std::vector<double> &v1 = weightFactorValues[i1];
+        int i2 = i1 + 1;
+
+        while (i2 < weightFactorValues.size()) {
+            const std::vector<double> &v2 = weightFactorValues[i2];
+            int equal = 0;
+            for (int i3 = 0; i3 < v1.size(); ++i3) {
+                if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                    ++equal;
+                }
+            }
+            if (equal == v1.size()) {
+                weightFactorValues.erase(next(weightFactorValues.begin(), i2));
+            } else {
+                ++i2;
+            }
+        }
+        ++i1;
     }
 
+    if (!weightFactorValues.empty()) {
+        nsched = weightFactorValues.size();
+    }
+
+    QStringList weightFactorsStr {"sky coverage",
+                                  "number of observations",
+                                  "duration",
+                                  "average stations",
+                                  "average sources",
+                                  "average baselines",
+                                  "idle time",
+                                  "low declination",
+                                  "low elevation"};
+
+    for(int i = 0; i<t->topLevelItemCount(); ++i){
+        if(weightFactorsStr.indexOf(t->topLevelItem(i)->text(0)) != -1){
+            continue;
+        }
+        nsched *= t->topLevelItem(i)->text(2).toInt();
+    }
+    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+    if(nsched>999){
+        ui->spinBox_multiSched_maxNumber->setValue(999);
+        ui->comboBox_multiSched_maxNumber->setCurrentIndex(1);
+        ui->comboBox_multiSched_maxNumber->setEnabled(false);
+    }else{
+        ui->spinBox_multiSched_maxNumber->setValue(nsched);
+        ui->comboBox_multiSched_maxNumber->setEnabled(true);
+    }
+
+    if(nsched >9999){
+        QMessageBox::warning(this,"ignoring multi scheduling","Too many possible multi scheduling parameters!\nMulti scheduling will be ignored");
+    }
 }
 
-void MainWindow::clearSetup(bool sta, bool src, bool bl)
+// ########################################### SAVE DEFAULT PARAMETERS ###########################################
+
+void MainWindow::changeDefaultSettings(QStringList path, QStringList value, QString name)
 {
-    setupChanged = false;
-    std::string parameterName = "default";
-    std::string member = "__all__";
-    QDateTime sessionStart = ui->dateTimeEdit_sessionStart->dateTime();
-    unsigned int startt = 0;
-    unsigned int endt = sessionStart.secsTo(ui->DateTimeEdit_endParameterStation->dateTime());
-
-    QDateTime e = ui->dateTimeEdit_sessionStart->dateTime().addSecs(ui->doubleSpinBox_sessionDuration->value()*3600);
-    if(sta){
-        QTreeWidgetItem *wsta = new QTreeWidgetItem();
-        wsta->setText(0,"__all__");
-        wsta->setText(1,"default");
-        wsta->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
-        wsta->setText(3,e.toString("dd.MM.yyyy hh:mm"));
-        wsta->setText(4,"hard");
-        wsta->setIcon(0,QIcon(":/icons/icons/station_group_2.png"));
-        ui->treeWidget_setupStation->clear();
-        ui->treeWidget_setupStation->insertTopLevelItem(0,wsta);
-        QHeaderView * hvsta = ui->treeWidget_setupStation->header();
-        hvsta->setSectionResizeMode(QHeaderView::ResizeToContents);
-        setupStationTree = VieVS::ParameterSetup(parameterName,
-                                      member,
-                                      startt,
-                                      endt,
-                                      VieVS::ParameterSetup::Transition::hard);
-        drawSetupPlot(setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
+    for(int i=0; i<path.count(); ++i){
+        settings.put(path.at(i).toStdString(),value.at(i).toStdString());
     }
-
-    if(src){
-        QTreeWidgetItem *wsrc = new QTreeWidgetItem();
-        wsrc->setText(0,"__all__");
-        wsrc->setText(1,"default");
-        wsrc->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
-        wsrc->setText(3,e.toString("dd.MM.yyyy hh:mm"));
-        wsrc->setText(4,"hard");
-        wsrc->setIcon(0,QIcon(":/icons/icons/source_group.png"));
-        ui->treeWidget_setupSource->clear();
-        ui->treeWidget_setupSource->insertTopLevelItem(0,wsrc);
-        QHeaderView * hvsrc = ui->treeWidget_setupSource->header();
-        hvsrc->setSectionResizeMode(QHeaderView::ResizeToContents);
-        setupSourceTree = VieVS::ParameterSetup(parameterName,
-                                      member,
-                                      startt,
-                                      endt,
-                                      VieVS::ParameterSetup::Transition::hard);
-        drawSetupPlot(setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
-    }
-
-    if(bl){
-        QTreeWidgetItem *wbl = new QTreeWidgetItem();
-        wbl->setText(0,"__all__");
-        wbl->setText(1,"default");
-        wbl->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
-        wbl->setText(3,e.toString("dd.MM.yyyy hh:mm"));
-        wbl->setText(4,"hard");
-        wbl->setIcon(0,QIcon(":/icons/icons/baseline_group.png"));
-        ui->treeWidget_setupBaseline->clear();
-        ui->treeWidget_setupBaseline->insertTopLevelItem(0,wbl);
-        QHeaderView * hvbl = ui->treeWidget_setupBaseline->header();
-        hvbl->setSectionResizeMode(QHeaderView::ResizeToContents);
-        setupBaselineTree = VieVS::ParameterSetup(parameterName,
-                                      member,
-                                      startt,
-                                      endt,
-                                      VieVS::ParameterSetup::Transition::hard);
-        drawSetupPlot(setupBaseline, ui->comboBox_setupBaseline, ui->treeWidget_setupBaseline);
-    }
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
+    QMessageBox::information(this,"Default settings changed",name);
 }
+
+void MainWindow::on_pushButton_5_clicked()
+{    
+    QStringList path {"settings.general.name"};
+    QStringList value {ui->nameLineEdit->text()};
+    QString name = "Default user name changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{    
+    QStringList path {"settings.general.email"};
+    QStringList value {ui->emailLineEdit->text()};
+    QString name = "Default user email address changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_17_clicked()
+{    
+    QStringList path {"settings.general.pathToScheduler"};
+    QStringList value {ui->pathToSchedulerLineEdit->text()};
+    QString name = "Default path to scheduler executable changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_saveCatalogPathes_clicked()
+{
+    settings.put("settings.catalog_path.antenna",ui->lineEdit_pathAntenna->text().toStdString());
+    settings.put("settings.catalog_path.equip",ui->lineEdit_pathEquip->text().toStdString());
+    settings.put("settings.catalog_path.position",ui->lineEdit_pathPosition->text().toStdString());
+    settings.put("settings.catalog_path.mask",ui->lineEdit_pathMask->text().toStdString());
+    settings.put("settings.catalog_path.source",ui->lineEdit_pathSource->text().toStdString());
+    settings.put("settings.catalog_path.flux",ui->lineEdit_pathFlux->text().toStdString());
+    settings.put("settings.catalog_path.modes",ui->lineEdit_pathModes->text().toStdString());
+    settings.put("settings.catalog_path.freq",ui->lineEdit_pathFreq->text().toStdString());
+    settings.put("settings.catalog_path.tracks",ui->lineEdit_pathTracks->text().toStdString());
+    settings.put("settings.catalog_path.loif",ui->lineEdit_pathLoif->text().toStdString());
+    settings.put("settings.catalog_path.rec",ui->lineEdit_pathRec->text().toStdString());
+    settings.put("settings.catalog_path.rx",ui->lineEdit_pathRx->text().toStdString());
+    settings.put("settings.catalog_path.hdpos",ui->lineEdit_pathHdpos->text().toStdString());
+    std::ofstream os;
+    os.open("settings.xml");
+    boost::property_tree::xml_parser::write_xml(os, settings,
+                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
+    os.close();
+    QString txt = "Your default catalog pathes have been changed!";
+    QMessageBox::information(this,"Default settings changed",txt);
+}
+
+void MainWindow::on_pushButton_26_clicked()
+{
+    QStringList path {"settings.output.directory"};
+    QStringList value {ui->lineEdit_outputPath->text()};
+    QString name = "Default output path changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_23_clicked()
+{
+    QStringList path {"settings.output.scheduler"};
+    QStringList value {ui->schedulerLineEdit->text()};
+    QString name = "Default scheduler changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_22_clicked()
+{
+    QStringList path {"settings.output.correlator"};
+    QStringList value {ui->correlatorLineEdit->text()};
+    QString name = "Default correlator changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    QStringList path {"settings.mode.skdMode"};
+    QStringList value {ui->comboBox_skedObsModes->currentText()};
+    QString name = "Default skd observing mode changed";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    QStringList path {"settings.general.subnetting"};
+    QStringList value;
+    if(ui->groupBox_subnetting->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.subnettingMinAngle";
+    value << QString::number(ui->doubleSpinBox_subnettingDistance->value());
+
+    path << "settings.general.subnettingMinNSta";
+    value << QString::number(ui->doubleSpinBox_subnettingMinStations->value());
+
+    path << "settings.general.fillinmodeInfluenceOnSchedule";
+    if(ui->checkBox_fillinModeInfluence->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.fillinmodeAPosteriori";
+    if(ui->checkBox_fillinmode_aposteriori->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.fillinmodeDuringScanSelection";
+    if(ui->checkBox_fillinmode_duringscan->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+
+    path << "settings.general.alignObservingTime";
+    if(ui->radioButton_alignStart->isChecked()){
+        value << "start";
+    }else if(ui->radioButton_alignEnd->isChecked()){
+        value << "end";
+    }else{
+        value << "individual";
+    }
+
+    QString name = "Default general parameters changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_9_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.weightFactor.skyCoverageChecked";
+    if(ui->checkBox_weightCoverage->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.skyCoverage";
+    value << QString("%1").arg(ui->doubleSpinBox_weightSkyCoverage->value());
+
+    path << "settings.weightFactor.numberOfObservationsChecked";
+    if(ui->checkBox_weightNobs->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.numberOfObservations";
+    value << QString("%1").arg(ui->doubleSpinBox_weightNumberOfObservations->value());
+
+    path << "settings.weightFactor.durationChecked";
+    if(ui->checkBox_weightDuration->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.duration";
+    value << QString("%1").arg(ui->doubleSpinBox_weightDuration->value());
+
+    path << "settings.weightFactor.averageSourcesChecked";
+    if(ui->checkBox_weightAverageSources->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.averageSources";
+    value << QString("%1").arg(ui->doubleSpinBox_weightAverageSources->value());
+
+    path << "settings.weightFactor.averageStationsChecked";
+    if(ui->checkBox_weightAverageStations->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.averageStations";
+    value << QString("%1").arg(ui->doubleSpinBox_weightAverageStations->value());
+
+    path << "settings.weightFactor.idleTimeChecked";
+    if(ui->checkBox_weightIdleTime->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.weightIdleTime";
+    value << QString("%1").arg(ui->doubleSpinBox_weightIdleTime->value());
+    path << "settings.weightFactor.idleTimeInterval";
+    value << QString("%1").arg(ui->spinBox_idleTimeInterval->value());
+
+
+    path << "settings.weightFactor.weightDeclinationChecked";
+    if(ui->checkBox_weightLowDeclination->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.weightDeclination";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDec->value());
+    path << "settings.weightFactor.declinationStartWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecStart->value());
+    path << "settings.weightFactor.declinationFullWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecEnd->value());
+
+    path << "settings.weightFactor.weightLowElevationChecked";
+    if(ui->checkBox_weightLowElevation->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
+    path << "settings.weightFactor.weightLowElevation";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowEl->value());
+    path << "settings.weightFactor.lowElevationStartWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowElStart->value());
+    path << "settings.weightFactor.lowElevationFullWeight";
+    value << QString("%1").arg(ui->doubleSpinBox_weightLowElEnd->value());
+
+    QString name = "Default weight factors changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.skyCoverage.influenceDistance";
+    value << QString("%1").arg(ui->influenceDistanceDoubleSpinBox->value());
+    path << "settings.skyCoverage.influenceInterval";
+    value << QString("%1").arg(ui->influenceTimeSpinBox->value());
+    path << "settings.skyCoverage.distanceType";
+    value << ui->comboBox_skyCoverageDistanceType->currentText();
+    path << "settings.skyCoverage.timeType";
+    value << ui->comboBox_skyCoverageTimeType->currentText();
+    path << "settings.skyCoverage.maxTwinTelecopeDistance";
+    value << QString("%1").arg(ui->maxDistanceForCombiningAntennasDoubleSpinBox->value());
+
+    QString name = "Default sky coverage parametrization changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.station.waitTimes.fieldSystem";
+    value << QString("%1").arg(ui->SpinBox_fieldSystem->value());
+    path << "settings.station.waitTimes.preob";
+    value << QString("%1").arg(ui->SpinBox_preob->value());
+    path << "settings.station.waitTimes.midob";
+    value << QString("%1").arg(ui->SpinBox_midob->value());
+    path << "settings.station.waitTimes.postob";
+    value << QString("%1").arg(ui->SpinBox_postob->value());
+
+    QString name = "Default wait times changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    QStringList path;
+    QStringList value;
+
+    path << "settings.station.cableWrapBuffers.axis1LowOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis1low->value());
+    path << "settings.station.cableWrapBuffers.axis1UpOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis1up->value());
+    path << "settings.station.cableWrapBuffers.axis2LowOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis2low->value());
+    path << "settings.station.cableWrapBuffers.axis2UpOffset";
+    value << QString("%1").arg(ui->DoubleSpinBox_axis2up->value());
+
+    QString name = "Default cable wrap buffers changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_31_clicked()
+{
+    QStringList path {"settings.output.piName"};
+    QStringList value {ui->lineEdit_PIName->text()};
+    QString name = "Default pi name changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_29_clicked()
+{
+    QStringList path {"settings.output.piEmail"};
+    QStringList value {ui->lineEdit_PIEmail->text()};
+    QString name = "Default pi email changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_28_clicked()
+{
+    QStringList path {"settings.output.contactName"};
+    QStringList value {ui->lineEdit_contactName->text()};
+    QString name = "Default contact name changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_30_clicked()
+{
+    QStringList path {"settings.output.contactEmail"};
+    QStringList value {ui->lineEdit_contactEmail->text()};
+    QString name = "Default contact email changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_41_clicked()
+{
+    QStringList path {"settings.output.notes"};
+    QStringList value {ui->plainTextEdit_notes->toPlainText().replace("\n","\\n")};
+    QString name = "Default notes changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_40_clicked()
+{
+    QStringList path {"settings.output.operationNotes"};
+    QStringList value {ui->plainTextEdit_operationNotes->toPlainText().replace("\n","\\n")};
+    QString name = "Default operation notes changed!";
+    changeDefaultSettings(path,value,name);
+}
+
+void MainWindow::on_pushButton_save_multiCore_clicked()
+{
+    QString threads = ui->comboBox_nThreads->currentText();
+    QString nThreadsManual = QString::number(ui->spinBox_nCores->value());
+    QString jobScheduler = ui->comboBox_jobSchedule->currentText();
+    QString chunkSize = QString::number(ui->spinBox_chunkSize->value());
+
+    QStringList path {"multiCore.threads", "multiCore.nThreads", "multiCore.jobScheduling", "multiCore.chunkSize"};
+    QStringList value {threads, nThreadsManual, jobScheduler, chunkSize};
+    QString name = "Default multi core settings changed!";
+    changeDefaultSettings(path,value,name);
+
+}
+
+// ########################################### GUI UTILITY ###########################################
 
 void MainWindow::splitterMoved() {
   QSplitter* senderSplitter = static_cast<QSplitter*>(sender());
@@ -5679,96 +6509,15 @@ void MainWindow::on_pushButton_faqSearch_clicked()
 
 }
 
-
-void MainWindow::on_actionRun_triggered()
+void MainWindow::initializeInspector()
 {
-    QString path = on_actionSave_triggered();
-
-    QDir mydir(path);
-    QString fullPath = mydir.absolutePath();
-    if(!path.isEmpty()){
-        QDockWidget *dw = new QDockWidget(this);
-        dw->setWindowTitle("Scheduling process");
-
-        myTextBrowser *tb = new myTextBrowser(dw);
-        dw->setWidget(tb);
-
-
-
-        QList<QDockWidget *> dockWidgets = this->findChildren<QDockWidget *>();
-
-        if(dockWidgets.size() == 1){
-            addDockWidget(Qt::BottomDockWidgetArea,dw);
-        }else{
-            tabifyDockWidget(dockWidgets.at(0),dw);
-        }
-
-
-        QProcess *start = new QProcess(this);
-        #ifdef Q_OS_WIN
-            QString program = ui->pathToSchedulerLineEdit->text();
-            start->start("cmd.exe",
-                         QStringList() << "/c" << program << "\""+fullPath+"\"",
-                         QIODevice::ReadWrite | QIODevice::Text);
-        #else
-            QString program = ui->pathToSchedulerLineEdit->text();
-            QStringList arguments;
-            arguments << fullPath;
-            start->start(program,arguments);
-        #endif
-
-        connect(start,SIGNAL(readyReadStandardOutput()),tb,SLOT(readyReadStandardOutput()));
-        connect(start,SIGNAL(readyReadStandardError()),tb,SLOT(readyReadStandardError()));
-
-        if(start->waitForStarted()){
-            QMessageBox::information(this,"Scheduling started!","Starting scheduling " + fullPath +"!");
-        }else{
-            QMessageBox::warning(this,"Scheduling failed to start!","Could not start process:\n" + program +"\nwith arguments:\n" + fullPath);
-        }
-    }
+    ui->splitter_10->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_9->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_7->setSizes(QList<int>({INT_MAX, INT_MAX}));
+    ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
 }
 
-
-
-void MainWindow::networkSizeChanged()
-{
-    int size = selectedStationModel->rowCount();
-    ui->label_network_selected->setText(QString("selected: %1").arg(size));
-}
-
-void MainWindow::sourceListChanged()
-{
-    int size = selectedSourceModel->rowCount();
-    ui->label_sourceList_selected->setText(QString("selected: %1").arg(size));
-}
-
-void MainWindow::baselineListChanged()
-{
-    int size = selectedBaselineModel->rowCount();
-    ui->label_network_baselines->setText(QString("baselines: %1").arg(size));
-}
-
-void MainWindow::on_comboBox_nThreads_currentTextChanged(const QString &arg1)
-{
-    if(arg1 == "manual"){
-        ui->label_nCores->setEnabled(true);
-        ui->spinBox_nCores->setEnabled(true);
-    }else{
-        ui->label_nCores->setEnabled(false);
-        ui->spinBox_nCores->setEnabled(false);
-    }
-}
-
-void MainWindow::on_comboBox_jobSchedule_currentTextChanged(const QString &arg1)
-{
-    if(arg1 == "auto"){
-        ui->label_chunkSize->setEnabled(false);
-        ui->spinBox_chunkSize->setEnabled(false);
-    }else{
-        ui->label_chunkSize->setEnabled(true);
-        ui->spinBox_chunkSize->setEnabled(true);
-    }
-}
+// ########################################### STATISTICS ###########################################
 
 void MainWindow::setupStatisticView()
 {
@@ -5946,7 +6695,6 @@ void MainWindow::addEmptyStatistic(int idx)
         }
     }
 }
-
 
 void MainWindow::on_pushButton_removeStatistic_clicked()
 {
@@ -6235,7 +6983,6 @@ void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
     }
 }
 
-
 QBarSet *MainWindow::statisticsBarSet(int idx, QString name)
 {
     QVector<double> v;
@@ -6333,6 +7080,7 @@ void MainWindow::on_spinBox_statistics_show_valueChanged(int arg1)
     plotStatistics(false);
 }
 
+// ########################################### SKY COVERAGE ###########################################
 
 void MainWindow::setupSkyCoverageTemplatePlot()
 {
@@ -6570,7 +7318,6 @@ void MainWindow::on_influenceTimeSpinBox_valueChanged(int arg1)
 
 }
 
-
 double MainWindow::interpolate( QVector<double> &xData, QVector<double> &yData, double x, bool extrapolate )
 {
    int size = xData.size();
@@ -6595,6 +7342,7 @@ double MainWindow::interpolate( QVector<double> &xData, QVector<double> &yData, 
    return yL + dydx * ( x - xL );
 }
 
+// ########################################### CONDITIONS ###########################################
 
 void MainWindow::on_pushButton_addCondition_clicked()
 {
@@ -6635,530 +7383,12 @@ void MainWindow::on_pushButton_removeCondition_clicked()
     }
 }
 
-
-
-void MainWindow::on_dateTimeEdit_sessionStart_dateChanged(const QDate &date)
-{
-    int doy = date.dayOfYear();
-    ui->spinBox_doy->setValue(doy);
-}
-
-
-void MainWindow::on_spinBox_doy_valueChanged(int arg1)
-{
-    QDate x = ui->dateTimeEdit_sessionStart->date();
-    int y = x.year();
-    x.setDate(y,1,1);
-    x = x.addDays(arg1-1);
-    ui->dateTimeEdit_sessionStart->setDate(x);
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    QString txt = ui->lineEdit_ivsMaster->text();
-    QString errorText = "";
-    QStringList t = txt.split("\t");
-    if(t.size()>=0){
-        QString sessionName = t.at(0);
-        ui->plainTextEdit_experimentDescription->setPlainText(sessionName);
-    }
-    if(t.size()>=1){
-        QString sessionName = t.at(1);
-        ui->experimentNameLineEdit->setText(sessionName);
-    }
-    if(t.size()>=2){
-        QString time = t.at(2);
-        if(time.size()>5){
-            time = time.right(5);
-        }
-
-        QStringList ts = time.split(":");
-        int hour, min;
-
-        if(ts.size()==2){
-            bool okh, okm;
-            hour = ts.at(0).toInt(&okh);
-            min = ts.at(1).toInt(&okm);
-            if(okh && okm){
-                ui->dateTimeEdit_sessionStart->setTime(QTime(hour,min,0,0));
-            }else{
-                errorText.append("cannot convert TIME\n");
-            }
-        }else{
-            errorText.append("cannot convert TIME\n");
-        }
-    }
-    if(t.size()>=3){
-        QString doys = t.at(3);
-        bool ok;
-        int doy = doys.toInt(&ok);
-        if(ok){
-            ui->spinBox_doy->setValue(doy);
-        }else{
-            errorText.append("cannot convert DOY\n");
-        }
-    }
-    if(t.size()>=4){
-        QString durs = t.at(4);
-        QStringList ts = durs.split(":");
-        int hour, min;
-
-        if(ts.size()==2){
-            bool okh, okm;
-            hour = ts.at(0).toInt(&okh);
-            min = ts.at(1).toInt(&okm);
-            if(okh && okm){
-                ui->doubleSpinBox_sessionDuration->setValue(hour+min/60);
-            }else{
-                errorText.append("cannot convert Duration\n");
-            }
-        }else{
-            errorText.append("cannot convert Duration\n");
-        }
-    }
-    if(t.size()>=5){
-        createBaselines = false;
-
-        QString tmp = t.at(5);
-        tmp = tmp.trimmed();
-        QStringList stas = tmp.split("  ");
-        if(stas.size() >= 2){
-            int n = selectedStationModel->rowCount();
-            for(int i=0; i<n; ++i){
-                QModelIndex index = selectedStationModel->index(0,0);
-                on_listView_allSelectedStations_clicked(index);
-            }
-
-            allStationProxyModel->setFilterRegExp("");
-            for(int i=0; i<stas.size(); ++i){
-                QString sta = stas.at(i).toUpper();
-                bool found = false;
-                for(int j=0; j<allStationProxyModel->rowCount(); ++j){
-                    QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
-                    if(itsta == sta){
-                        QModelIndex index = allStationProxyModel->index(j,0);
-                        on_treeView_allAvailabeStations_clicked(index);
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found){
-                    errorText.append(QString("unknown station %1\n").arg(sta));
-                }
-            }
-        }else{
-            errorText.append("error while reading stations\n");
-        }
-        createBaselines = true;
-        createBaselineModel();
-    }
-    if(t.size()>=7){
-        QString sked = t.at(7);
-        ui->schedulerLineEdit->setText(sked);
-    }
-    if(t.size()>=8){
-        QString corr = t.at(8);
-        ui->correlatorLineEdit->setText(corr);
-    }
-
-    if(errorText.size() != 0){
-        QMessageBox::warning(this,"errors while reading session master line",errorText);
-    }
-}
-
-void MainWindow::markerWorldmap()
-{
-    if(ui->radioButton_marker_worldmap->isChecked()){
-        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
-        selectedStations->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
-        selectedStations->setPen(QColor(Qt::white));
-    }else{
-        QImage img(":/icons/icons/station_white.png");
-        img = img.scaled(ui->horizontalSlider_markerSizeWorldmap->value(),ui->horizontalSlider_markerSizeWorldmap->value());
-        selectedStations->setBrush(QBrush(img));
-        selectedStations->setMarkerSize(ui->horizontalSlider_markerSizeWorldmap->value());
-        selectedStations->setPen(QColor(Qt::transparent));
-    }
-}
-
-void MainWindow::markerSkymap()
-{
-    if(ui->radioButton_markerSkymap->isChecked()){
-        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
-        selectedSources->setBrush(QBrush(Qt::darkGreen,Qt::SolidPattern));
-        selectedSources->setPen(QColor(Qt::white));
-    }else{
-        QImage img(":/icons/icons/source_white.png");
-        img = img.scaled(ui->horizontalSlider_markerSkymap->value(),ui->horizontalSlider_markerSkymap->value());
-        selectedSources->setBrush(QBrush(img));
-        selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
-        selectedSources->setPen(QColor(Qt::transparent));
-    }
-
-}
-
-void MainWindow::on_radioButton_imageSkymap_toggled(bool checked)
-{
-    if(checked){
-        ui->horizontalSlider_markerSkymap->setValue(30);
-        auto series = skymap->chart()->series();
-        auto tmp = qobject_cast<QLineSeries *>(series.back());
-        tmp->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
-
-    }else{
-        ui->horizontalSlider_markerSkymap->setValue(15);
-        auto series = skymap->chart()->series();
-        auto tmp = qobject_cast<QLineSeries *>(series.back());
-        tmp->setPen(QPen(QBrush(Qt::blue),3,Qt::DashLine));
-        selectedSources->setPen(QColor(Qt::transparent));
-    }
-    markerSkymap();
-}
-
-void MainWindow::on_radioButton_imageWorldmap_toggled(bool checked)
-{
-    if(checked){
-        ui->horizontalSlider_markerSizeWorldmap->setValue(30);
-    }else{
-        ui->horizontalSlider_markerSizeWorldmap->setValue(15);
-    }
-    markerWorldmap();
-}
-
-void MainWindow::on_checkBox_showEcliptic_clicked(bool checked)
-{
-    if(checked){
-        auto series = skymap->chart()->series();
-        series.back()->setVisible(true);
-    }else{
-        auto series = skymap->chart()->series();
-        series.back()->setVisible(false);
-    }
-}
-
-void MainWindow::baselineHovered(QPointF point, bool flag)
-{
-    if (flag) {
-        auto tmp = sender();
-        auto x = qobject_cast<QLineSeries *>(tmp);
-        QString name = x->name();
-        QString text = QString("%1").arg(name);
-        worldMapCallout->setText(text);
-        worldMapCallout->setAnchor(point);
-        worldMapCallout->setZValue(11);
-        worldMapCallout->updateGeometry();
-        worldMapCallout->show();
-    } else {
-        worldMapCallout->hide();
-    }
-}
-
-
-void MainWindow::on_checkBox_showBaselines_clicked(bool checked)
-{
-    auto series = worldmap->chart()->series();
-    for(int i=0; i<series.count(); ++i){
-        QString name = series.at(i)->name();
-        if(name.size() >=5 && name.left(5) == "coast"){
-            continue;
-        }
-        if(name == "selectedStations"){
-            continue;
-        }
-        if(name == "availableStations"){
-            continue;
-        }
-        if(checked){
-            series.at(i)->setVisible(true);
-        }else{
-            series.at(i)->setVisible(false);
-        }
-    }
-}
-
-void MainWindow::on_pushButton_7_clicked()
-{
-    QStringList path {"settings.mode.skdMode"};
-    QStringList value {ui->comboBox_skedObsModes->currentText()};
-    QString name = "Default skd observing mode changed";
-    changeDefaultSettings(path,value,name);
-
-}
-
-void MainWindow::on_pushButton_8_clicked()
-{
-    QStringList path {"settings.general.subnetting"};
-    QStringList value;
-    if(ui->groupBox_subnetting->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-
-    path << "settings.general.subnettingMinAngle";
-    value << QString::number(ui->doubleSpinBox_subnettingDistance->value());
-
-    path << "settings.general.subnettingMinNSta";
-    value << QString::number(ui->doubleSpinBox_subnettingMinStations->value());
-
-    path << "settings.general.fillinmodeInfluenceOnSchedule";
-    if(ui->checkBox_fillinModeInfluence->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-
-    path << "settings.general.fillinmodeAPosteriori";
-    if(ui->checkBox_fillinmode_aposteriori->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-
-    path << "settings.general.fillinmodeDuringScanSelection";
-    if(ui->checkBox_fillinmode_duringscan->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-
-    path << "settings.general.alignObservingTime";
-    if(ui->radioButton_alignStart->isChecked()){
-        value << "start";
-    }else if(ui->radioButton_alignEnd->isChecked()){
-        value << "end";
-    }else{
-        value << "individual";
-    }
-
-    QString name = "Default general parameters changed!";
-    changeDefaultSettings(path,value,name);
-
-}
-
-void MainWindow::on_pushButton_9_clicked()
-{
-    QStringList path;
-    QStringList value;
-
-    path << "settings.weightFactor.skyCoverageChecked";
-    if(ui->checkBox_weightCoverage->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.skyCoverage";
-    value << QString("%1").arg(ui->doubleSpinBox_weightSkyCoverage->value());
-
-    path << "settings.weightFactor.numberOfObservationsChecked";
-    if(ui->checkBox_weightNobs->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.numberOfObservations";
-    value << QString("%1").arg(ui->doubleSpinBox_weightNumberOfObservations->value());
-
-    path << "settings.weightFactor.durationChecked";
-    if(ui->checkBox_weightDuration->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.duration";
-    value << QString("%1").arg(ui->doubleSpinBox_weightDuration->value());
-
-    path << "settings.weightFactor.averageSourcesChecked";
-    if(ui->checkBox_weightAverageSources->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.averageSources";
-    value << QString("%1").arg(ui->doubleSpinBox_weightAverageSources->value());
-
-    path << "settings.weightFactor.averageStationsChecked";
-    if(ui->checkBox_weightAverageStations->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.averageStations";
-    value << QString("%1").arg(ui->doubleSpinBox_weightAverageStations->value());
-
-    path << "settings.weightFactor.idleTimeChecked";
-    if(ui->checkBox_weightIdleTime->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.weightIdleTime";
-    value << QString("%1").arg(ui->doubleSpinBox_weightIdleTime->value());
-    path << "settings.weightFactor.idleTimeInterval";
-    value << QString("%1").arg(ui->spinBox_idleTimeInterval->value());
-
-
-    path << "settings.weightFactor.weightDeclinationChecked";
-    if(ui->checkBox_weightLowDeclination->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.weightDeclination";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowDec->value());
-    path << "settings.weightFactor.declinationStartWeight";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecStart->value());
-    path << "settings.weightFactor.declinationFullWeight";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowDecEnd->value());
-
-    path << "settings.weightFactor.weightLowElevationChecked";
-    if(ui->checkBox_weightLowElevation->isChecked()){
-        value << "true";
-    }else{
-        value << "false";
-    }
-    path << "settings.weightFactor.weightLowElevation";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowEl->value());
-    path << "settings.weightFactor.lowElevationStartWeight";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowElStart->value());
-    path << "settings.weightFactor.lowElevationFullWeight";
-    value << QString("%1").arg(ui->doubleSpinBox_weightLowElEnd->value());
-
-    QString name = "Default weight factors changed!";
-    changeDefaultSettings(path,value,name);
-
-}
-
-void MainWindow::on_pushButton_10_clicked()
-{
-    QStringList path;
-    QStringList value;
-
-    path << "settings.skyCoverage.influenceDistance";
-    value << QString("%1").arg(ui->influenceDistanceDoubleSpinBox->value());
-    path << "settings.skyCoverage.influenceInterval";
-    value << QString("%1").arg(ui->influenceTimeSpinBox->value());
-    path << "settings.skyCoverage.distanceType";
-    value << ui->comboBox_skyCoverageDistanceType->currentText();
-    path << "settings.skyCoverage.timeType";
-    value << ui->comboBox_skyCoverageTimeType->currentText();
-    path << "settings.skyCoverage.maxTwinTelecopeDistance";
-    value << QString("%1").arg(ui->maxDistanceForCombiningAntennasDoubleSpinBox->value());
-
-    QString name = "Default sky coverage parametrization changed!";
-    changeDefaultSettings(path,value,name);
-
-}
-
-void MainWindow::on_pushButton_11_clicked()
-{
-    QStringList path;
-    QStringList value;
-
-    path << "settings.station.waitTimes.fieldSystem";
-    value << QString("%1").arg(ui->SpinBox_fieldSystem->value());
-    path << "settings.station.waitTimes.preob";
-    value << QString("%1").arg(ui->SpinBox_preob->value());
-    path << "settings.station.waitTimes.midob";
-    value << QString("%1").arg(ui->SpinBox_midob->value());
-    path << "settings.station.waitTimes.postob";
-    value << QString("%1").arg(ui->SpinBox_postob->value());
-
-    QString name = "Default wait times changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_12_clicked()
-{
-    QStringList path;
-    QStringList value;
-
-    path << "settings.station.cableWrapBuffers.axis1LowOffset";
-    value << QString("%1").arg(ui->DoubleSpinBox_axis1low->value());
-    path << "settings.station.cableWrapBuffers.axis1UpOffset";
-    value << QString("%1").arg(ui->DoubleSpinBox_axis1up->value());
-    path << "settings.station.cableWrapBuffers.axis2LowOffset";
-    value << QString("%1").arg(ui->DoubleSpinBox_axis2low->value());
-    path << "settings.station.cableWrapBuffers.axis2UpOffset";
-    value << QString("%1").arg(ui->DoubleSpinBox_axis2up->value());
-
-    QString name = "Default cable wrap buffers changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::initializeInspector()
-{
-    ui->splitter_10->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_9->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_7->setSizes(QList<int>({INT_MAX, INT_MAX}));
-    ui->splitter_8->setSizes(QList<int>({INT_MAX, INT_MAX}));
-}
-
 void MainWindow::on_spinBox_maxNumberOfIterations_valueChanged(int arg1)
 {
     ui->spinBox_gentleSourceReduction->setMaximum(arg1);
 }
 
-void MainWindow::on_pushButton_31_clicked()
-{
-    QStringList path {"settings.output.piName"};
-    QStringList value {ui->lineEdit_PIName->text()};
-    QString name = "Default pi name changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_29_clicked()
-{
-    QStringList path {"settings.output.piEmail"};
-    QStringList value {ui->lineEdit_PIEmail->text()};
-    QString name = "Default pi email changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_28_clicked()
-{
-    QStringList path {"settings.output.contactName"};
-    QStringList value {ui->lineEdit_contactName->text()};
-    QString name = "Default contact name changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_30_clicked()
-{
-    QStringList path {"settings.output.contactEmail"};
-    QStringList value {ui->lineEdit_contactEmail->text()};
-    QString name = "Default contact email changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
-{
-    if(arg1.length() >6){
-        QPalette p = ui->experimentNameLineEdit->palette();
-        p.setColor(QPalette::Base, Qt::red);
-        ui->experimentNameLineEdit->setPalette(p);
-    }else{
-        QPalette p = ui->experimentNameLineEdit->palette();
-        p.setColor(QPalette::Base, Qt::white);
-        ui->experimentNameLineEdit->setPalette(p);
-    }
-}
-
-void MainWindow::on_pushButton_41_clicked()
-{
-    QStringList path {"settings.output.notes"};
-    QStringList value {ui->plainTextEdit_notes->toPlainText().replace("\n","\\n")};
-    QString name = "Default notes changed!";
-    changeDefaultSettings(path,value,name);
-}
-
-void MainWindow::on_pushButton_40_clicked()
-{
-    QStringList path {"settings.output.operationNotes"};
-    QStringList value {ui->plainTextEdit_operationNotes->toPlainText().replace("\n","\\n")};
-    QString name = "Default operation notes changed!";
-    changeDefaultSettings(path,value,name);
-}
+// ########################################### HIGH IMPACT ###########################################
 
 void MainWindow::on_pushButton_addHighImpactAzEl_clicked()
 {
@@ -7196,6 +7426,7 @@ void MainWindow::on_pushButton_removeHighImpactAzEl_clicked()
     }
 }
 
+// ########################################### AUXILIARY FILES ###########################################
 
 void MainWindow::on_pushButton_readLogFile_read_clicked()
 {
@@ -7220,260 +7451,3 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
 }
 
 
-void MainWindow::on_comboBox_multiSched_maxNumber_currentIndexChanged(const QString &arg1)
-{
-    if(arg1 == "all"){
-        ui->spinBox_multiSched_maxNumber->setEnabled(false);
-        ui->comboBox_multiSched_seed->setEnabled(false);
-        ui->label_multiSched_seed->setEnabled(false);
-        ui->spinBox_multiSched_seed->setEnabled(false);
-    } else {
-        ui->spinBox_multiSched_maxNumber->setEnabled(true);
-        ui->comboBox_multiSched_seed->setEnabled(true);
-        ui->label_multiSched_seed->setEnabled(true);
-        on_comboBox_multiSched_seed_currentIndexChanged(ui->comboBox_multiSched_seed->currentText());
-    }
-}
-
-void MainWindow::on_comboBox_multiSched_seed_currentIndexChanged(const QString &arg1)
-{
-    if(arg1 == "random"){
-        ui->spinBox_multiSched_seed->setEnabled(false);
-    } else {
-        ui->spinBox_multiSched_seed->setEnabled(true);
-    }
-}
-
-void MainWindow::multi_sched_count_nsched()
-{
-
-    auto t = ui->treeWidget_multiSchedSelected;
-
-    int nsched = 1;
-    double wsky_ = 0;
-    if(ui->checkBox_weightCoverage->isChecked()){
-        wsky_ = ui->doubleSpinBox_weightSkyCoverage->value();
-    }
-    double wobs_ = 0;
-    if(ui->checkBox_weightNobs->isChecked()){
-        wobs_ = ui->doubleSpinBox_weightNumberOfObservations->value();
-    }
-    double wdur_ = 0;
-    if(ui->checkBox_weightDuration->isChecked()){
-        wdur_ = ui->doubleSpinBox_weightDuration->value();
-    }
-    double wasrc_ = 0;
-    if(ui->checkBox_weightAverageSources->isChecked()){
-        wasrc_ = ui->doubleSpinBox_weightAverageSources->value();
-    }
-    double wasta_ = 0;
-    if(ui->checkBox_weightAverageStations->isChecked()){
-        wasta_ = ui->doubleSpinBox_weightAverageStations->value();
-    }
-    double wabls_ = 0;
-    if(ui->checkBox_weightAverageBaselines->isChecked()){
-        wabls_ = ui->doubleSpinBox_weightAverageBaselines->value();
-    }
-    double widle_ = 0;
-    if(ui->checkBox_weightIdleTime->isChecked()){
-        widle_ = ui->doubleSpinBox_weightIdleTime->value();
-    }
-    double wdec_ = 0;
-    if(ui->checkBox_weightLowDeclination->isChecked()){
-        wdec_ = ui->doubleSpinBox_weightLowDec->value();
-    }
-    double wel_ = 0;
-    if(ui->checkBox_weightLowElevation->isChecked()){
-        wel_ = ui->doubleSpinBox_weightLowEl->value();
-    }
-
-
-    std::map<std::string,std::vector<double>> weightFactors = {{"weight_factor_sky_coverage",std::vector<double>{wsky_}},
-                                                    {"weight_factor_number_of_observations",std::vector<double>{wobs_}},
-                                                    {"weight_factor_duration",std::vector<double>{wdur_}},
-                                                    {"weight_factor_average_sources",std::vector<double>{wasrc_}},
-                                                    {"weight_factor_average_stations",std::vector<double>{wasta_}},
-                                                    {"weight_factor_idle_time",std::vector<double>{widle_}},
-                                                    {"weight_factor_low_declination",std::vector<double>{wdec_}},
-                                                    {"weight_factor_low_elevation",std::vector<double>{wel_}}};
-
-    bool weigthFactorFound = false;
-    for(int i = 0; i<t->topLevelItemCount(); ++i){
-        if(t->topLevelItem(i)->text(0) == "sky coverage"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_sky_coverage"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "number of observations"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_number_of_observations"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "duration"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_duration"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "average stations"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_average_stations"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "average baselines"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_average_baselines"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "average sources"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_average_sources"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "idle time"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_idle_time"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "low declination"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_low_declination"] = values;
-            weigthFactorFound = true;
-        }else if(t->topLevelItem(i)->text(0) == "low elevation"){
-            QComboBox *list = qobject_cast<QComboBox*>(t->itemWidget(t->topLevelItem(i),3));
-            std::vector<double> values;
-            for(int ilist = 0; ilist<list->count(); ++ilist){
-                values.push_back( QString(list->itemText(ilist)).toDouble());
-            }
-            weightFactors["weight_factor_low_elevation"] = values;
-            weigthFactorFound = true;
-        }
-    }
-
-    std::vector<std::vector<double> > weightFactorValues;
-    if(weigthFactorFound){
-        for (double wsky: weightFactors["weight_factor_sky_coverage"]) {
-            for (double wobs: weightFactors["weight_factor_number_of_observations"]) {
-                for (double wdur: weightFactors["weight_factor_duration"]) {
-                    for (double wasrc: weightFactors["weight_factor_average_sources"]) {
-                        for (double wasta: weightFactors["weight_factor_average_stations"]) {
-                            for (double wabls: weightFactors["weight_factor_average_baselines"]) {
-                                for (double widle: weightFactors["weight_factor_idle_time"]) {
-                                    for (double wdec: weightFactors["weight_factor_low_declination"]) {
-                                        for (double wel: weightFactors["weight_factor_low_elevation"]) {
-
-                                            double sum = wsky + wobs + wdur + wasrc + wasta + wabls + widle + wdec + wel;
-
-                                            if (sum == 0) {
-                                                continue;
-                                            }
-
-                                            std::vector<double> wf{wsky/sum, wobs/sum, wdur/sum, wasrc/sum, wasta/sum,
-                                                                   wabls/sum, widle/sum, wdec/sum, wel/sum};
-                                            weightFactorValues.push_back(std::move(wf));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // remove duplicated weight factors
-    int i1 = 0;
-    while (i1 < weightFactorValues.size()) {
-        const std::vector<double> &v1 = weightFactorValues[i1];
-        int i2 = i1 + 1;
-
-        while (i2 < weightFactorValues.size()) {
-            const std::vector<double> &v2 = weightFactorValues[i2];
-            int equal = 0;
-            for (int i3 = 0; i3 < v1.size(); ++i3) {
-                if (abs(v1[i3] - v2[i3]) < 1e-10) {
-                    ++equal;
-                }
-            }
-            if (equal == v1.size()) {
-                weightFactorValues.erase(next(weightFactorValues.begin(), i2));
-            } else {
-                ++i2;
-            }
-        }
-        ++i1;
-    }
-
-    if (!weightFactorValues.empty()) {
-        nsched = weightFactorValues.size();
-    }
-
-    QStringList weightFactorsStr {"sky coverage",
-                                  "number of observations",
-                                  "duration",
-                                  "average stations",
-                                  "average sources",
-                                  "average baselines",
-                                  "idle time",
-                                  "low declination",
-                                  "low elevation"};
-
-    for(int i = 0; i<t->topLevelItemCount(); ++i){
-        if(weightFactorsStr.indexOf(t->topLevelItem(i)->text(0)) != -1){
-            continue;
-        }
-        nsched *= t->topLevelItem(i)->text(2).toInt();
-    }
-    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
-    if(nsched>999){
-        ui->spinBox_multiSched_maxNumber->setValue(999);
-        ui->comboBox_multiSched_maxNumber->setCurrentIndex(1);
-        ui->comboBox_multiSched_maxNumber->setEnabled(false);
-    }else{
-        ui->spinBox_multiSched_maxNumber->setValue(nsched);
-        ui->comboBox_multiSched_maxNumber->setEnabled(true);
-    }
-
-    if(nsched >9999){
-        QMessageBox::warning(this,"ignoring multi scheduling","Too many possible multi scheduling parameters!\nMulti scheduling will be ignored");
-    }
-}
-
-void MainWindow::on_pushButton_save_multiCore_clicked()
-{
-    QString threads = ui->comboBox_nThreads->currentText();
-    QString nThreadsManual = QString::number(ui->spinBox_nCores->value());
-    QString jobScheduler = ui->comboBox_jobSchedule->currentText();
-    QString chunkSize = QString::number(ui->spinBox_chunkSize->value());
-
-    QStringList path {"multiCore.threads", "multiCore.nThreads", "multiCore.jobScheduling", "multiCore.chunkSize"};
-    QStringList value {threads, nThreadsManual, jobScheduler, chunkSize};
-    QString name = "Default multi core settings changed!";
-    changeDefaultSettings(path,value,name);
-
-}
