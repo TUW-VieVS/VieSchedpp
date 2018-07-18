@@ -1,10 +1,8 @@
 #include "vieschedpp_analyser.h"
 #include "ui_vieschedpp_analyser.h"
 
-QT_CHARTS_USE_NAMESPACE
-
 VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime start, QDateTime end, QWidget *parent) :
-    QMainWindow(parent), schedule_{std::move(schedule)}, sessionStart_{start}, sessionEnd_{end},
+    QMainWindow(parent), schedule_{schedule}, sessionStart_{start}, sessionEnd_{end},
     ui(new Ui::VieSchedpp_Analyser)
 {
     ui->setupUi(this);
@@ -86,6 +84,7 @@ void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
     }else{
         updateDuration();
     }
+    updateSkyCoverageTimes();
 }
 
 void VieSchedpp_Analyser::on_horizontalSlider_end_valueChanged(int value)
@@ -101,6 +100,7 @@ void VieSchedpp_Analyser::on_horizontalSlider_end_valueChanged(int value)
     }else{
         updateDuration();
     }
+    updateSkyCoverageTimes();
 }
 
 void VieSchedpp_Analyser::on_dateTimeEdit_start_dateTimeChanged(const QDateTime &dateTime)
@@ -160,10 +160,10 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 
             QChartView *chartView = new QChartView(this);
             QPolarChart *chart = new QPolarChart();
-            chart->removeAllSeries();
 
             chart->layout()->setContentsMargins(0, 0, 0, 0);
             chart->setBackgroundRoundness(0);
+            chart->legend()->hide();
 
             QValueAxis *angularAxis = new QValueAxis();
             angularAxis->setTickCount(13); // First and last ticks are co-located on 0/360 angle.
@@ -185,7 +185,7 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             layout->addWidget(chartView);
 
             c1->setCurrentIndex(counter);
-            connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(skyCoverageChanged(QString)));
+            connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(updateSkyCoverage(QString)));
 
             QGroupBox *groupBox = new QGroupBox(this);
             groupBox->setLayout(layout);
@@ -194,6 +194,12 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             updateSkyCoverage(counter, c1->currentText());
             ++counter;
         }
+    }
+    for(int i=0; i<rows; ++i){
+        ui->gridLayout_skyCoverage->setRowStretch(i,1);
+    }
+    for(int j=0; j<columns; ++j){
+        ui->gridLayout_skyCoverage->setColumnStretch(j,1);
     }
 
 }
@@ -230,7 +236,7 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLayout_clicked()
 
 }
 
-void VieSchedpp_Analyser::skyCoverageChanged(QString name)
+void VieSchedpp_Analyser::updateSkyCoverage(QString name)
 {
     QObject *obj = sender();
     QObject *parent = obj->parent();
@@ -248,9 +254,13 @@ void VieSchedpp_Analyser::skyCoverageChanged(QString name)
 
 void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
 {
+    if(name.isEmpty()){
+        return;
+    }
     QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(idx)->widget());
     QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
     QChart *chart = chartView->chart();
+    chart->removeAllSeries();
 
     const VieVS::Network &network = schedule_.getNetwork();
     const VieVS::Station &thisSta = network.getStation(name.toStdString());
@@ -261,16 +271,22 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
 
     QLineSeries *hmaskUp = new QLineSeries();
     for(int i=0; i<az.size(); ++i){
-        hmaskUp->append(az[i]*rad2deg,el[i]*rad2deg);
+        hmaskUp->append(az[i]*rad2deg,90-el[i]*rad2deg);
+    }
+    if(hmaskUp->count() == 0){
+        for(int i=0; i<=360; ++i){
+            hmaskUp->append(static_cast<double>(i),89);
+        }
     }
     QLineSeries *hmaskDown = new QLineSeries();
     for(int i=0; i<=360; ++i){
-        hmaskDown->append(static_cast<double>(i),0);
+        hmaskDown->append(static_cast<double>(i),90);
     }
     QAreaSeries *hmask = new QAreaSeries();
     hmask->setName("horizon mask");
-    hmask->setUpperSeries(hmaskUp);
-    hmask->setLowerSeries(hmaskDown);
+    hmask->setUpperSeries(hmaskDown);
+    hmask->setLowerSeries(hmaskUp);
+    hmask->setBrush(Qt::gray);
     hmask->setOpacity(0.5);
     chart->addSeries(hmask);
     hmask->attachAxis(chart->axisX());
@@ -278,6 +294,141 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
 
     const VieVS::SkyCoverage &thisSkyCoverage = network.getSkyCoverage(network.getStaid2skyCoverageId().at(thisSta.getId()));
 
-    QList<std::tuple<int, double, double>> list = qtUtil::pointingVectors2Lists(thisSkyCoverage.getPointingVectors());
+    QList<std::tuple<int, double, double, int>> list = qtUtil::pointingVectors2Lists(thisSkyCoverage.getPointingVectors());
+
+    QScatterSeriesExtended *data = new QScatterSeriesExtended();
+    for(const auto &any : list){
+        double unaz = std::get<1>(any);
+        double az = VieVS::util::wrapToPi(unaz)*rad2deg;
+        if(az<0){
+            az+=360;
+        }
+        VieVS::CableWrap::CableWrapFlag flag = thisSta.getCableWrap().cableWrapFlag(unaz);
+        data->append(std::get<0>(any), az, 90-std::get<2>(any)*rad2deg, flag, std::get<3>(any));
+    }
+    data->setBrush(Qt::gray);
+    data->setMarkerSize(7);
+    data->setName("data");
+
+    chart->addSeries(data);
+    data->attachAxis(chart->axisX());
+    data->attachAxis(chart->axisY());
+
+    QScatterSeriesExtended *ccw = new QScatterSeriesExtended();
+    ccw->setBrush(Qt::red);
+    ccw->setName("ccw");
+
+    chart->addSeries(ccw);
+    ccw->attachAxis(chart->axisX());
+    ccw->attachAxis(chart->axisY());
+
+    QScatterSeriesExtended *cw = new QScatterSeriesExtended();
+    cw->setBrush(Qt::blue);
+    cw->setName("cw");
+
+    chart->addSeries(cw);
+    cw->attachAxis(chart->axisX());
+    cw->attachAxis(chart->axisY());
+
+    QScatterSeriesExtended *n = new QScatterSeriesExtended();
+    n->setBrush(Qt::green);
+    n->setName("n");
+
+    chart->addSeries(n);
+    n->attachAxis(chart->axisX());
+    n->attachAxis(chart->axisY());
+
+    QScatterSeriesExtended *highlight = new QScatterSeriesExtended();
+    highlight->setBrush(Qt::yellow);
+    highlight->setPen(QPen(Qt::black));
+    highlight->setName("highlight");
+
+    chart->addSeries(highlight);
+    highlight->attachAxis(chart->axisX());
+    highlight->attachAxis(chart->axisY());
+
+    updateSkyCoverageTimes(idx);
+}
+
+void VieSchedpp_Analyser::updateSkyCoverageTimes()
+{
+    for(int i=0; i<ui->gridLayout_skyCoverage->count(); ++i){
+        updateSkyCoverageTimes(i);
+    }
+}
+
+void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
+{
+    QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(idx)->widget());
+    QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+    QChart *chart = chartView->chart();
+
+    QList<QAbstractSeries *> series = chart->series();
+    QScatterSeriesExtended * data;
+    QScatterSeriesExtended * ccw;
+    QScatterSeriesExtended * cw;
+    QScatterSeriesExtended * n;
+    QScatterSeriesExtended * highlight;
+
+    for(const auto &any:series){
+        if(any->name() == "data"){
+            data = static_cast<QScatterSeriesExtended *>(any);
+        }
+        if(any->name() == "ccw"){
+            ccw = static_cast<QScatterSeriesExtended *>(any);
+        }
+        if(any->name() == "cw"){
+            cw = static_cast<QScatterSeriesExtended *>(any);
+        }
+        if(any->name() == "n"){
+            n = static_cast<QScatterSeriesExtended *>(any);
+        }
+        if(any->name() == "highlight"){
+            highlight = static_cast<QScatterSeriesExtended *>(any);
+        }
+    }
+
+    ccw->clear();
+    cw->clear();
+    n->clear();
+    highlight->clear();
+
+    int start = ui->horizontalSlider_start->value();
+    int end = ui->horizontalSlider_end->value();
+
+    for(int i=0; i<data->count(); ++i){
+        if(data->getTime(i) >= start && data->getTime(i) <= end){
+            switch(data->getCableWrapFlag(i)){
+                case VieVS::CableWrap::CableWrapFlag::n:{
+                    n->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    break;
+                }
+                case VieVS::CableWrap::CableWrapFlag::ccw:{
+                    ccw->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    break;
+                }
+                case VieVS::CableWrap::CableWrapFlag::cw:{
+                    cw->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    break;
+                }
+            }
+        }
+    }
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

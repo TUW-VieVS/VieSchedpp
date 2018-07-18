@@ -232,6 +232,12 @@
          </item>
          <item>
           <widget class="QSlider" name="horizontalSlider_start">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="maximum">
             <number>86400</number>
            </property>
@@ -254,6 +260,12 @@
          </item>
          <item>
           <widget class="QDateTimeEdit" name="dateTimeEdit_start">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="dateTime">
             <datetime>
              <hour>0</hour>
@@ -263,6 +275,12 @@
              <month>1</month>
              <day>1</day>
             </datetime>
+           </property>
+           <property name="displayFormat">
+            <string>dd.MM.yy HH:mm:ss</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -303,7 +321,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QDateTimeEdit" name="dateTimeEdit_end"/>
+          <widget class="QDateTimeEdit" name="dateTimeEdit_end">
+           <property name="displayFormat">
+            <string>dd.MM.yy HH:mm:ss</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
