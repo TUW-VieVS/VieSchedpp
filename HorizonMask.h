@@ -38,6 +38,8 @@ namespace VieVS{
 
         virtual std::string vexOutput() const noexcept = 0;
 
+        virtual std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept  = 0;
+
     private:
         static unsigned long nextId;
     };

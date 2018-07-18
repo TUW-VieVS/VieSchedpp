@@ -18,11 +18,7 @@ bool HorizonMask_step::visible(const PointingVector &pv) const noexcept {
     }
 
     double el = pv.getEl();
-    unsigned long i = 1;
-    while(az>azimuth_.at(i)){
-        ++i;
-    }
-    double el_mask = elevation_.at(i-1);
+    double el_mask = az2el(az);
 
     return el >= el_mask;
 
@@ -56,4 +52,27 @@ std::string HorizonMask_step::vexOutput() const noexcept {
     out << ";\n";
 
     return out.str();
+}
+
+pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const {
+    vector<double> az_;
+    vector<double> el_;
+
+    for(int az = 0; az <=360; az+=1){
+        double azrad = static_cast<double>(az)*deg2rad;
+        double el = az2el(azrad);
+
+        az_.push_back(azrad);
+        el_.push_back(el);
+    }
+
+    return {az_,el_};
+}
+
+double HorizonMask_step::az2el(double az) const noexcept {
+    unsigned long i = 1;
+    while(az>azimuth_.at(i)){
+        ++i;
+    }
+    return elevation_.at(i-1);
 }

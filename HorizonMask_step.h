@@ -16,9 +16,13 @@ namespace VieVS{
 
         std::string vexOutput() const noexcept override;
 
+        std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept override;
+
     private:
         std::vector<double> azimuth_; ///< horizon mask knots in radians
         std::vector<double> elevation_; ///< minimum elevation values in radians
+
+        double az2el(double az) const noexcept;
 
     };
 }

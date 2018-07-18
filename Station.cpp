@@ -336,5 +336,9 @@ void Station::clearObservations() {
     parameters_.firstScan=true;
 }
 
+std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() {
+    return mask_->getHorizonMask();
+}
+
 
 
