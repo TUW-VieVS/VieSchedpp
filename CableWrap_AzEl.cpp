@@ -45,20 +45,20 @@ void CableWrap_AzEl::unwrapAzNearAz(PointingVector &new_pointingVector, double a
     new_pointingVector.setAz(this_unaz);
 }
 
-std::string CableWrap_AzEl::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
+CableWrap::CableWrapFlag CableWrap_AzEl::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
     double az = pointingVector.getAz();
 
     if (az <= getNUp() && az >= getNLow()) {
-        return "-";
+        return CableWrap::CableWrapFlag::n;
     }
     if (az <= getCUp() && az >= getCLow()) {
-        return "C";
+        return CableWrap::CableWrapFlag::cw;
     }
     if (az <= getWUp() && az >= getWLow()) {
-        return "W";
+        return CableWrap::CableWrapFlag::ccw;
     }
 
-    return "-";
+    return CableWrap::CableWrapFlag::n;
 }
 
 bool CableWrap_AzEl::unwrapAzInSection(PointingVector &pv, char section) const noexcept {

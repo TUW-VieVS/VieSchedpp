@@ -28,6 +28,7 @@ namespace VieVS{
     class CableWrap: public VieVS_Object {
     public:
 
+
         /**
          * @brief constructor
          *
@@ -38,6 +39,11 @@ namespace VieVS{
          */
         CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
 
+        enum class CableWrapFlag{
+            ccw,
+            n,
+            cw
+        };
 
         /**
          * @brief sets safety margins for axis limits
@@ -120,7 +126,7 @@ namespace VieVS{
 
         virtual bool unwrapAzInSection(PointingVector &pv, char section) const noexcept = 0;
 
-        virtual std::string cableWrapFlag(const PointingVector &pointingVector) const noexcept = 0;
+        virtual CableWrapFlag cableWrapFlag(const PointingVector &pointingVector) const noexcept = 0;
 
         virtual std::pair<std::string, std::string> getMotions() const noexcept = 0;
 

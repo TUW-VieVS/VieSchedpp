@@ -316,13 +316,12 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             const Station &thisStation = stations.at(staid);
             const string &thisTlc = thisStation.getAlternativeName();
             string cwvex;
-            const string &cwskd = thisStation.getCableWrap().cableWrapFlag(pv);
-            if(cwskd == "-"){
-                cwvex = "&n";
-            }else if(cwskd == "C"){
-                cwvex = "&cw";
-            }else if (cwskd == "W"){
-                cwvex = "&ccw";
+
+            switch (thisStation.getCableWrap().cableWrapFlag(pv)){
+
+                case CableWrap::CableWrapFlag::ccw: cwvex = "&ccw"; break;
+                case CableWrap::CableWrapFlag::n:   cwvex = "&n"; break;
+                case CableWrap::CableWrapFlag::cw:  cwvex = "&cw"; break;
             }
 
             int dataGood = times.getObservingTime(j, Timestamp::start);

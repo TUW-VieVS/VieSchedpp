@@ -524,7 +524,12 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
             const PointingVector &pv = scan.getPointingVector(i);
             const Station &thisSta = stations[pv.getStaid()];
             const string &staName = thisSta.getName();
-            of << olc.at(staName) << thisSta.getCableWrap().cableWrapFlag(pv);
+            of << olc.at(staName);
+            switch (thisSta.getCableWrap().cableWrapFlag(pv)){
+                case CableWrap::CableWrapFlag::ccw: of << "W"; break;
+                case CableWrap::CableWrapFlag::n:   of << "-"; break;
+                case CableWrap::CableWrapFlag::cw:  of << "C"; break;
+            }
         }
         of << " ";
         for (int i = 0; i < scan.getNSta(); ++i) {

@@ -21,8 +21,8 @@ void CableWrap_HaDc::unwrapAzNearAz(PointingVector &new_pointingVector, double a
 }
 
 
-std::string CableWrap_HaDc::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
-    return "-";
+CableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
+    return CableWrap::CableWrapFlag::n;
 }
 
 bool CableWrap_HaDc::unwrapAzInSection(PointingVector &pv, char section) const noexcept {
