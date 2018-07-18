@@ -54,7 +54,7 @@ std::string HorizonMask_step::vexOutput() const noexcept {
     return out.str();
 }
 
-pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const {
+pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const noexcept{
     vector<double> az_;
     vector<double> el_;
 
