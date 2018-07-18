@@ -244,6 +244,11 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         // if first element is not an '-' this line belongs to new station mask
                         if (line.at(0) != '-' && !splitVector_total.empty()) {
 
+
+                            if(fromSkdFile){
+                                splitVector_total.insert(splitVector_total.begin()+1," ");
+                            }
+
                             // get key and convert it to upper case for case insensitivity
                             string key = boost::algorithm::to_upper_copy(splitVector_total[indexOfKey]);
 
@@ -265,6 +270,15 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         }
                     }
                 }
+
+
+                if(fromSkdFile){
+                    splitVector_total.insert(splitVector_total.begin()+1," ");
+                }
+                string key = boost::algorithm::to_upper_copy(splitVector_total[indexOfKey]);
+
+                all.insert(pair<string, vector<string>>(key, splitVector_total));
+
             }
             break;
         }

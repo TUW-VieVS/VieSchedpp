@@ -41,17 +41,18 @@ int main(int argc, char *argv[])
     mainScheduler.run();
 
 //    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("/data/CONT17/c1701.skd");
+//    VieVS::SkdParser mySkdParser("/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180716095914_AUM003/aum003.skd");
 //    mySkdParser.createObjects();
 //    mySkdParser.createScans();
 //    mySkdParser.copyScanMembersToObjects();
+//    VieVS::Scheduler sched = mySkdParser.createScheduler();
+//
 //
 ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
 ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
 ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
 ////    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
 //
-//    VieVS::Scheduler sched = mySkdParser.createScheduler();
 //
 //    std::ofstream of("/data/CONT17/c1701.log");
 //    sched.checkAndStatistics(of);
@@ -59,7 +60,6 @@ int main(int argc, char *argv[])
 //    VieVS::Output out(sched,"/data/CONT17/",0);
 //    out.writeNGS();
 //    out.writeOperationsNotes();
-
 //
 
 
