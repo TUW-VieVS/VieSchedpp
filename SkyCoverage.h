@@ -72,6 +72,10 @@ namespace VieVS{
          */
         void update(const PointingVector &pv) noexcept;
 
+        const std::vector<PointingVector> & getPointingVectors() const noexcept {
+            return pointingVectors_;
+        }
+
     private:
         static unsigned long nextId;
 
