@@ -61,18 +61,13 @@
           <widget class="QWidget" name="gridLayoutWidget">
            <layout class="QGridLayout" name="gridLayout_skyCoverage"/>
           </widget>
-          <widget class="QTreeWidget" name="treeWidget_skyCoverage_sources">
+          <widget class="QTreeView" name="treeView_skyCoverage_sources">
            <property name="sortingEnabled">
             <bool>true</bool>
            </property>
            <property name="headerHidden">
             <bool>false</bool>
            </property>
-           <column>
-            <property name="text">
-             <string>sources</string>
-            </property>
-           </column>
           </widget>
          </widget>
         </item>

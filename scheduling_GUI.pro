@@ -98,7 +98,8 @@ SOURCES += \
     VieSchedpp/WeightFactors.cpp \
     VieSchedpp/util.cpp \
     textfileviewer.cpp \
-    vieschedpp_analyser.cpp
+    vieschedpp_analyser.cpp \
+    qtutil.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -171,7 +172,8 @@ HEADERS += \
     VieSchedpp/sofam.h \
     VieSchedpp/util.h \
     textfileviewer.h \
-    vieschedpp_analyser.h
+    vieschedpp_analyser.h \
+    qtutil.h
 
 FORMS += \
         mainwindow.ui \

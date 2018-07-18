@@ -1,8 +1,10 @@
 #include "vieschedpp_analyser.h"
 #include "ui_vieschedpp_analyser.h"
 
+QT_CHARTS_USE_NAMESPACE
+
 VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime start, QDateTime end, QWidget *parent) :
-    QMainWindow(parent), schedule_{schedule}, sessionStart_{start}, sessionEnd_{end},
+    QMainWindow(parent), schedule_{std::move(schedule)}, sessionStart_{start}, sessionEnd_{end},
     ui(new Ui::VieSchedpp_Analyser)
 {
     ui->setupUi(this);
@@ -19,27 +21,56 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
     ui->horizontalSlider_end->setRange(0,duration);
 
     updateDuration();
-
-    ui->splitter_skyCoverage->setSizes(QList<int>({INT_MAX, INT_MAX/5}));
-
-    const std::vector<VieVS::Source> &source = schedule.getSources();
-    for(const auto &any:source){
-        QTreeWidgetItem *itm = new QTreeWidgetItem(QStringList() << QString::fromStdString(any.getName()));
-        itm->setIcon(0,QIcon(":/icons/icons/source.png"));
-
-        ui->treeWidget_skyCoverage_sources->addTopLevelItem(itm);
-    }
-    ui->treeWidget_skyCoverage_sources->sortItems(0,Qt::AscendingOrder);
-
-    ui->label_fileName->setText(QString::fromStdString(schedule.getName()));
-
-
-    setSkyCoverageLayout(1,2);
 }
 
 VieSchedpp_Analyser::~VieSchedpp_Analyser()
 {
     delete ui;
+}
+
+void VieSchedpp_Analyser::setup()
+{
+    ui->label_fileName->setText(QString::fromStdString(schedule_.getName()));
+
+
+    srcModel = new QStandardItemModel(0,3,this);
+    srcModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("ra [deg]"));
+    srcModel->setHeaderData(2, Qt::Horizontal, QObject::tr("de [deg]"));
+
+    for(const VieVS::Source &any : schedule_.getSources()){
+        QString sourceName = QString::fromStdString(any.getName());
+        double ra = qRadiansToDegrees(any.getRa());
+        double de = qRadiansToDegrees(any.getDe());
+        srcModel->insertRow(0);
+        srcModel->setData(srcModel->index(0,0), sourceName);
+        srcModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
+        srcModel->setData(srcModel->index(0, 1), (double)((int)(ra*100000 +0.5))/100000.0);
+        srcModel->setData(srcModel->index(0, 2), (double)((int)(de*100000 +0.5))/100000.0);
+    }
+
+    ui->treeView_skyCoverage_sources->setModel(srcModel);
+    ui->treeView_skyCoverage_sources->resizeColumnToContents(0);
+
+    staModel = new QStandardItemModel(0,1,this);
+    staModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+
+    for(const VieVS::Station &any : schedule_.getNetwork().getStations()){
+        QString staName = QString::fromStdString(any.getName());
+        double lat = qRadiansToDegrees(any.getPosition().getLat());
+        double lon = qRadiansToDegrees(any.getPosition().getLon());
+        staModel->insertRow(0);
+        staModel->setData(staModel->index(0,0), staName);
+        staModel->item(0,0)->setIcon(QIcon(":/icons/icons/station.png"));
+        staModel->setData(staModel->index(0, 1), (double)((int)(lat*100000 +0.5))/100000.0);
+        staModel->setData(staModel->index(0, 2), (double)((int)(lon*100000 +0.5))/100000.0);
+    }
+
+//    comboBox2skyCoverage = new QSignalMapper(this);
+
+    setSkyCoverageLayout(1,2);
+    ui->splitter_skyCoverage->setStretchFactor(0,5);
+    ui->splitter_skyCoverage->setStretchFactor(1,1);
 }
 
 void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
@@ -107,14 +138,64 @@ void VieSchedpp_Analyser::on_doubleSpinBox_hours_valueChanged(double arg1)
 
 void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 {
-    for(int i=0; i<rows; ++i){
-        for(int j=0; j<columns; ++j){
-            QVBoxLayout *layout = new QVBoxLayout(this);
-            QComboBox *c = new QComboBox(this);
-            layout->addWidget(c);
-            ui->gridLayout_skyCoverage->addLayout(layout,i,j);
+
+    while( ui->gridLayout_skyCoverage->count() >0){
+        auto itm = ui->gridLayout_skyCoverage->takeAt(0);
+        if(itm->widget()){
+            delete itm->widget();
+        }
+        if(itm->layout()){
+            delete itm->layout();
         }
     }
+
+    int counter = 0;
+    for(int i=0; i<rows; ++i){
+        for(int j=0; j<columns; ++j){
+            QVBoxLayout *layout = new QVBoxLayout();
+            QComboBox *c1 = new QComboBox();
+            c1->setModel(staModel);
+
+            layout->addWidget(c1);
+
+            QChartView *chartView = new QChartView(this);
+            QPolarChart *chart = new QPolarChart();
+            chart->removeAllSeries();
+
+            chart->layout()->setContentsMargins(0, 0, 0, 0);
+            chart->setBackgroundRoundness(0);
+
+            QValueAxis *angularAxis = new QValueAxis();
+            angularAxis->setTickCount(13); // First and last ticks are co-located on 0/360 angle.
+            angularAxis->setLabelFormat("%.0f");
+            angularAxis->setShadesVisible(true);
+            angularAxis->setShadesBrush(QBrush(QColor(249, 249, 255)));
+            angularAxis->setRange(0,360);
+            chart->addAxis(angularAxis, QPolarChart::PolarOrientationAngular);
+
+            QValueAxis *radialAxis = new QValueAxis();
+            radialAxis->setTickCount(10);
+            radialAxis->setLabelFormat("");
+            radialAxis->setRange(0,90);
+            chart->addAxis(radialAxis, QPolarChart::PolarOrientationRadial);
+
+            chartView->setChart(chart);
+            chartView->setRenderHint(QPainter::Antialiasing);
+
+            layout->addWidget(chartView);
+
+            c1->setCurrentIndex(counter);
+            connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(skyCoverageChanged(QString)));
+
+            QGroupBox *groupBox = new QGroupBox(this);
+            groupBox->setLayout(layout);
+
+            ui->gridLayout_skyCoverage->addWidget(groupBox,i,j);
+            updateSkyCoverage(counter, c1->currentText());
+            ++counter;
+        }
+    }
+
 }
 
 void VieSchedpp_Analyser::on_pushButton_skyCoverageLayout_clicked()
@@ -146,5 +227,57 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLayout_clicked()
 
         setSkyCoverageLayout(rowBox->value(), colBox->value());
     }
+
+}
+
+void VieSchedpp_Analyser::skyCoverageChanged(QString name)
+{
+    QObject *obj = sender();
+    QObject *parent = obj->parent();
+
+    int idx = -1;
+    for(int i=0; i<ui->gridLayout_skyCoverage->count(); ++i){
+        auto itm = ui->gridLayout_skyCoverage->itemAt(i)->widget();
+        if(parent == itm){
+            idx = i;
+            break;
+        }
+    }
+    updateSkyCoverage(idx, name);
+}
+
+void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
+{
+    QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(idx)->widget());
+    QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+    QChart *chart = chartView->chart();
+
+    const VieVS::Network &network = schedule_.getNetwork();
+    const VieVS::Station &thisSta = network.getStation(name.toStdString());
+
+    std::pair<std::vector<double>, std::vector<double>> mask = thisSta.getHorizonMask();
+    const std::vector<double> &az = mask.first;
+    const std::vector<double> &el = mask.second;
+
+    QLineSeries *hmaskUp = new QLineSeries();
+    for(int i=0; i<az.size(); ++i){
+        hmaskUp->append(az[i]*rad2deg,el[i]*rad2deg);
+    }
+    QLineSeries *hmaskDown = new QLineSeries();
+    for(int i=0; i<=360; ++i){
+        hmaskDown->append(static_cast<double>(i),0);
+    }
+    QAreaSeries *hmask = new QAreaSeries();
+    hmask->setName("horizon mask");
+    hmask->setUpperSeries(hmaskUp);
+    hmask->setLowerSeries(hmaskDown);
+    hmask->setOpacity(0.5);
+    chart->addSeries(hmask);
+    hmask->attachAxis(chart->axisX());
+    hmask->attachAxis(chart->axisY());
+
+    const VieVS::SkyCoverage &thisSkyCoverage = network.getSkyCoverage(network.getStaid2skyCoverageId().at(thisSta.getId()));
+
+    QList<std::tuple<int, double, double>> list = qtUtil::pointingVectors2Lists(thisSkyCoverage.getPointingVectors());
 
 }
