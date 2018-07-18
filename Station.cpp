@@ -337,7 +337,11 @@ void Station::clearObservations() {
 }
 
 std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() const noexcept{
-    return mask_->getHorizonMask();
+    if(mask_ != nullptr){
+        return mask_->getHorizonMask();
+    }else{
+        return std::pair<std::vector<double>, std::vector<double>>();
+    }
 }
 
 
