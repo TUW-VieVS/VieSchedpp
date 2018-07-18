@@ -394,7 +394,7 @@ namespace VieVS{
             return statistics_;
         }
 
-        std::pair<std::vector<double>, std::vector<double>>  getHorizonMask();
+        std::pair<std::vector<double>, std::vector<double>>  getHorizonMask() const noexcept;
 
     private:
         static unsigned long nextId;

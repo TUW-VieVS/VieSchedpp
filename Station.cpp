@@ -336,7 +336,7 @@ void Station::clearObservations() {
     parameters_.firstScan=true;
 }
 
-std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() {
+std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() const noexcept{
     return mask_->getHorizonMask();
 }
 
