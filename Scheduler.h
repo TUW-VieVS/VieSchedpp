@@ -128,16 +128,8 @@ namespace VieVS{
             return sources_;
         }
 
-        const std::vector<Station> &getStations() const noexcept{
-            return network_.getStations();
-        }
-
-        const std::vector<Baseline> &getBaselines() const noexcept{
-            return network_.getBaselines();
-        }
-
-        const std::vector<SkyCoverage> &skyCoverages() const noexcept{
-            return network_.getSkyCoverages();
+        const Network &getNetwork() const noexcept{
+            return network_;
         }
 
 
