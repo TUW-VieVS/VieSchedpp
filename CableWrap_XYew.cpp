@@ -30,7 +30,7 @@ void CableWrap_XYew::unwrapAzNearAz(PointingVector &new_pointingVector, double a
 }
 
 
-CableWrap::CableWrapFlag CableWrap_XYew::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
+CableWrap::CableWrapFlag CableWrap_XYew::cableWrapFlag(double unaz) const noexcept {
     return CableWrap::CableWrapFlag::n;
 }
 

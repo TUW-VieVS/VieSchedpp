@@ -17,7 +17,7 @@ namespace VieVS {
 
         bool unwrapAzInSection(PointingVector &pv, char section) const noexcept override;
 
-        CableWrap::CableWrapFlag cableWrapFlag(const PointingVector &pointingVector) const noexcept override;
+        CableWrap::CableWrapFlag cableWrapFlag(double unaz) const noexcept override;
 
         std::pair<std::string, std::string> getMotions() const noexcept override;
 

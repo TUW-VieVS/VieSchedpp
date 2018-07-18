@@ -21,7 +21,7 @@ void CableWrap_HaDc::unwrapAzNearAz(PointingVector &new_pointingVector, double a
 }
 
 
-CableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(const PointingVector &pointingVector) const noexcept {
+CableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(double unaz) const noexcept {
     return CableWrap::CableWrapFlag::n;
 }
 
