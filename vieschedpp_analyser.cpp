@@ -198,8 +198,14 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
     for(int i=0; i<rows; ++i){
         ui->gridLayout_skyCoverage->setRowStretch(i,1);
     }
+    for(int i=rows; i< ui->gridLayout_skyCoverage->rowCount(); ++i){
+        ui->gridLayout_skyCoverage->setRowStretch(i,0);
+    }
     for(int j=0; j<columns; ++j){
         ui->gridLayout_skyCoverage->setColumnStretch(j,1);
+    }
+    for(int i=columns; i< ui->gridLayout_skyCoverage->columnCount(); ++i){
+        ui->gridLayout_skyCoverage->setColumnStretch(i,0);
     }
 
 }
@@ -213,9 +219,11 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLayout_clicked()
 
     QSpinBox *rowBox = new QSpinBox(&dialog);
     rowBox->setMinimum(1);
+    rowBox->setValue(ui->gridLayout_skyCoverage->rowCount());
     form.addRow("rows: ", rowBox);
     QSpinBox *colBox = new QSpinBox(&dialog);
     colBox->setMinimum(1);
+    colBox->setValue(ui->gridLayout_skyCoverage->columnCount());
     form.addRow("columns: ", colBox);
 
 
