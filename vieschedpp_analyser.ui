@@ -28,7 +28,7 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
-       <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,1">
+       <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,1">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
@@ -43,6 +43,22 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_skyCoverageLegend">
+            <property name="text">
+             <string>legend</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_skyCoverageLayout">
@@ -61,13 +77,29 @@
           <widget class="QWidget" name="gridLayoutWidget">
            <layout class="QGridLayout" name="gridLayout_skyCoverage"/>
           </widget>
-          <widget class="QTreeView" name="treeView_skyCoverage_sources">
-           <property name="sortingEnabled">
-            <bool>true</bool>
-           </property>
-           <property name="headerHidden">
-            <bool>false</bool>
-           </property>
+          <widget class="QWidget" name="">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QTreeView" name="treeView_skyCoverage_sources">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+              <property name="headerHidden">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_skyCoverageSourceFilter">
+              <property name="placeholderText">
+               <string>filter</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>

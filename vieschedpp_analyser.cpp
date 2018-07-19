@@ -19,6 +19,8 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
     ui->horizontalSlider_end->setRange(0,duration);
 
     updateDuration();
+
+    setup();
 }
 
 VieSchedpp_Analyser::~VieSchedpp_Analyser()
@@ -30,43 +32,69 @@ void VieSchedpp_Analyser::setup()
 {
     ui->label_fileName->setText(QString::fromStdString(schedule_.getName()));
 
-
-    srcModel = new QStandardItemModel(0,3,this);
+    srcModel = new QStandardItemModel(0,5,this);
     srcModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
-    srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("ra [deg]"));
-    srcModel->setHeaderData(2, Qt::Horizontal, QObject::tr("de [deg]"));
+    srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("#scans"));
+    srcModel->setHeaderData(2, Qt::Horizontal, QObject::tr("#obs"));
+    srcModel->setHeaderData(3, Qt::Horizontal, QObject::tr("ra [deg]"));
+    srcModel->setHeaderData(4, Qt::Horizontal, QObject::tr("de [deg]"));
+    srcModel->setRowCount(schedule_.getSources().size());
 
+    int i = 0;
     for(const VieVS::Source &any : schedule_.getSources()){
         QString sourceName = QString::fromStdString(any.getName());
         double ra = qRadiansToDegrees(any.getRa());
         double de = qRadiansToDegrees(any.getDe());
-        srcModel->insertRow(0);
-        srcModel->setData(srcModel->index(0,0), sourceName);
-        srcModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
-        srcModel->setData(srcModel->index(0, 1), (double)((int)(ra*100000 +0.5))/100000.0);
-        srcModel->setData(srcModel->index(0, 2), (double)((int)(de*100000 +0.5))/100000.0);
+        srcModel->setData(srcModel->index(i,0), sourceName);
+        srcModel->item(i,0)->setIcon(QIcon(":/icons/icons/source.png"));
+        srcModel->setData(srcModel->index(i, 1), static_cast<unsigned int>(any.getNscans()));
+        srcModel->setData(srcModel->index(i, 2), static_cast<unsigned int>(any.getNObs()));
+        srcModel->setData(srcModel->index(i, 3), (double)((int)(ra*100000 +0.5))/100000.0);
+        srcModel->setData(srcModel->index(i, 4), (double)((int)(de*100000 +0.5))/100000.0);
+        srcModel->item(i,1)->setTextAlignment(Qt::AlignRight);
+        srcModel->item(i,2)->setTextAlignment(Qt::AlignRight);
+        srcModel->item(i,3)->setTextAlignment(Qt::AlignRight);
+        srcModel->item(i,4)->setTextAlignment(Qt::AlignRight);
+        ++i;
     }
-
-    ui->treeView_skyCoverage_sources->setModel(srcModel);
-    ui->treeView_skyCoverage_sources->resizeColumnToContents(0);
+    QSortFilterProxyModel *srcSkyCoverage = new QSortFilterProxyModel(this);
+    srcSkyCoverage->setSourceModel(srcModel);
+    srcSkyCoverage->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->treeView_skyCoverage_sources->setModel(srcSkyCoverage);
+    for( int i=0 ; i<ui->treeView_skyCoverage_sources->model()->columnCount(); ++i){
+        ui->treeView_skyCoverage_sources->resizeColumnToContents(i);
+    }
+    srcSkyCoverage->sort(0);
 
     staModel = new QStandardItemModel(0,1,this);
     staModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    staModel->setRowCount(schedule_.getNetwork().getStations().size());
 
+    i=0;
     for(const VieVS::Station &any : schedule_.getNetwork().getStations()){
         QString staName = QString::fromStdString(any.getName());
         double lat = qRadiansToDegrees(any.getPosition().getLat());
         double lon = qRadiansToDegrees(any.getPosition().getLon());
-        staModel->insertRow(0);
-        staModel->setData(staModel->index(0,0), staName);
-        staModel->item(0,0)->setIcon(QIcon(":/icons/icons/station.png"));
-        staModel->setData(staModel->index(0, 1), (double)((int)(lat*100000 +0.5))/100000.0);
-        staModel->setData(staModel->index(0, 2), (double)((int)(lon*100000 +0.5))/100000.0);
+        staModel->setData(staModel->index(i,0), staName);
+        staModel->item(i,0)->setIcon(QIcon(":/icons/icons/station.png"));
+        staModel->setData(staModel->index(i, 1), (double)((int)(lat*100000 +0.5))/100000.0);
+        staModel->setData(staModel->index(i, 2), (double)((int)(lon*100000 +0.5))/100000.0);
+        ++i;
     }
 
 //    comboBox2skyCoverage = new QSignalMapper(this);
 
-    setSkyCoverageLayout(1,2);
+    int stas = staModel->rowCount();
+    if(stas == 2){
+        setSkyCoverageLayout(1,2);
+    }else if(stas == 3){
+        setSkyCoverageLayout(1,3);
+    }else if(stas == 4){
+        setSkyCoverageLayout(2,2);
+    }else if(stas >4){
+        setSkyCoverageLayout(2,3);
+    }
+
     ui->splitter_skyCoverage->setStretchFactor(0,5);
     ui->splitter_skyCoverage->setStretchFactor(1,1);
 }
@@ -158,12 +186,17 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 
             layout->addWidget(c1);
 
-            QChartView *chartView = new QChartView(this);
+            QGroupBox *groupBox = new QGroupBox(this);
             QPolarChart *chart = new QPolarChart();
+            QChartView *chartView = new QChartView(chart,groupBox);
 
             chart->layout()->setContentsMargins(0, 0, 0, 0);
             chart->setBackgroundRoundness(0);
             chart->legend()->hide();
+            chart->acceptHoverEvents();
+            chartView->setMouseTracking(true);
+            Callout *callout = new Callout(chart);
+            callout->hide();
 
             QValueAxis *angularAxis = new QValueAxis();
             angularAxis->setTickCount(13); // First and last ticks are co-located on 0/360 angle.
@@ -179,7 +212,6 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             radialAxis->setRange(0,90);
             chart->addAxis(radialAxis, QPolarChart::PolarOrientationRadial);
 
-            chartView->setChart(chart);
             chartView->setRenderHint(QPainter::Antialiasing);
 
             layout->addWidget(chartView);
@@ -187,7 +219,6 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             c1->setCurrentIndex(counter);
             connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(updateSkyCoverage(QString)));
 
-            QGroupBox *groupBox = new QGroupBox(this);
             groupBox->setLayout(layout);
 
             ui->gridLayout_skyCoverage->addWidget(groupBox,i,j);
@@ -316,44 +347,49 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
     }
     data->setBrush(Qt::gray);
     data->setMarkerSize(7);
-    data->setName("data");
+    data->setName("outside timespan");
 
     chart->addSeries(data);
     data->attachAxis(chart->axisX());
     data->attachAxis(chart->axisY());
+    connect(data, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *ccw = new QScatterSeriesExtended();
-    ccw->setBrush(Qt::red);
+    ccw->setBrush(QBrush(QColor(228,26,28)));
     ccw->setName("ccw");
 
     chart->addSeries(ccw);
     ccw->attachAxis(chart->axisX());
     ccw->attachAxis(chart->axisY());
+    connect(ccw, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *cw = new QScatterSeriesExtended();
-    cw->setBrush(Qt::blue);
+    cw->setBrush(QBrush(QColor(55,126,184)));
     cw->setName("cw");
 
     chart->addSeries(cw);
     cw->attachAxis(chart->axisX());
     cw->attachAxis(chart->axisY());
+    connect(cw, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *n = new QScatterSeriesExtended();
-    n->setBrush(Qt::green);
+    n->setBrush(QBrush(QColor(77,174,74)));
     n->setName("n");
 
     chart->addSeries(n);
     n->attachAxis(chart->axisX());
     n->attachAxis(chart->axisY());
+    connect(n, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
-    QScatterSeriesExtended *highlight = new QScatterSeriesExtended();
-    highlight->setBrush(Qt::yellow);
-    highlight->setPen(QPen(Qt::black));
-    highlight->setName("highlight");
+    QScatterSeriesExtended *selected = new QScatterSeriesExtended();
+    selected->setBrush(Qt::yellow);
+    selected->setPen(QPen(Qt::black));
+    selected->setName("selected");
 
-    chart->addSeries(highlight);
-    highlight->attachAxis(chart->axisX());
-    highlight->attachAxis(chart->axisY());
+    chart->addSeries(selected);
+    selected->attachAxis(chart->axisX());
+    selected->attachAxis(chart->axisY());
+    connect(selected, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     updateSkyCoverageTimes(idx);
 }
@@ -376,10 +412,10 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
     QScatterSeriesExtended * ccw;
     QScatterSeriesExtended * cw;
     QScatterSeriesExtended * n;
-    QScatterSeriesExtended * highlight;
+    QScatterSeriesExtended * selected;
 
     for(const auto &any:series){
-        if(any->name() == "data"){
+        if(any->name() == "outside timespan"){
             data = static_cast<QScatterSeriesExtended *>(any);
         }
         if(any->name() == "ccw"){
@@ -391,15 +427,15 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
         if(any->name() == "n"){
             n = static_cast<QScatterSeriesExtended *>(any);
         }
-        if(any->name() == "highlight"){
-            highlight = static_cast<QScatterSeriesExtended *>(any);
+        if(any->name() == "selected"){
+            selected = static_cast<QScatterSeriesExtended *>(any);
         }
     }
 
     ccw->clear();
     cw->clear();
     n->clear();
-    highlight->clear();
+    selected->clear();
 
     int start = ui->horizontalSlider_start->value();
     int end = ui->horizontalSlider_end->value();
@@ -423,20 +459,120 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
         }
     }
 
-
+    on_treeView_skyCoverage_sources_clicked(QModelIndex());
 }
 
+void VieSchedpp_Analyser::skyCoverageHovered(QPointF point, bool flag)
+{
+    QObject *obj = sender();
+    QScatterSeriesExtended *series = static_cast<QScatterSeriesExtended *>(obj);
 
+    QChart *chart = qobject_cast<QChart *>(obj->parent()->parent());
 
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *c = dynamic_cast<Callout *>(childItem)){
+            if(flag){
+                c->setAnchor(point);
 
+                QString name = series->name();
+                int idx = 0;
+                while(idx<series->count()){
+                    const QPointF &p = series->at(idx);
 
+                    if(point == p){
+                        break;
+                    }
+                    ++idx;
+                }
 
+                int srcid = series->getSrcid(idx);
+                QString source = srcModel->item(srcid,0)->text().append("\n");
+                int time = series->getTime(idx);
+                QDateTime qtime = sessionStart_.addSecs(time);
+                QString timeStr = qtime.toString("hh:mm:ss").append("\n");
+                QString az = QString().sprintf("az: %.2f\n", point.x());
+                QString el = QString().sprintf("el: %.2f", point.y());
 
+                QString txt = source;
+                txt.append(timeStr).append(az).append(el);
 
+                c->setText(txt);
+                c->setZValue(11);
+                c->updateGeometry();
+                c->show();
+            }else{
+                c->hide();
+            }
 
+        }
+    }
+}
 
+void VieSchedpp_Analyser::on_lineEdit_skyCoverageSourceFilter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_skyCoverage_sources->model());
+    model->setFilterFixedString(arg1);
+}
 
+void VieSchedpp_Analyser::on_treeView_skyCoverage_sources_clicked(const QModelIndex &index)
+{
+    QModelIndexList sel = ui->treeView_skyCoverage_sources->selectionModel()->selectedRows();
+    QVector<int> ids;
+    for(const auto &any : sel){
+        QString name = ui->treeView_skyCoverage_sources->model()->data(any).toString();
+        int id = srcModel->findItems(name).at(0)->row();
+        ids.push_back(id);
+    }
 
+    for(int idx = 0; idx < ui->gridLayout_skyCoverage->count(); ++idx){
+        QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(idx)->widget());
+        QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+        QChart *chart = chartView->chart();
 
+        QList<QAbstractSeries *> series = chart->series();
+        QScatterSeriesExtended * data;
+        QScatterSeriesExtended * selected;
 
+        for(const auto &any:series){
+            if(any->name() == "outside timespan"){
+                data = static_cast<QScatterSeriesExtended *>(any);
+            }
+            if(any->name() == "selected"){
+                selected = static_cast<QScatterSeriesExtended *>(any);
+            }
+        }
+        selected->clear();
 
+        int start = ui->horizontalSlider_start->value();
+        int end = ui->horizontalSlider_end->value();
+
+        for(int i=0; i<data->count(); ++i){
+
+            if(data->getTime(i) >= start && data->getTime(i) <= end){
+                if( ids.indexOf(data->getSrcid(i)) != -1){
+                    selected->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                }
+            }
+        }
+    }
+}
+
+void VieSchedpp_Analyser::on_pushButton_skyCoverageLegend_clicked()
+{
+    if(ui->pushButton_skyCoverageLegend->isChecked()){
+        QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(0)->widget());
+        QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+        QChart *chart = chartView->chart();
+        QLegend *l = chart->legend();
+        l->show();
+
+    }else{
+
+        QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(0)->widget());
+        QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+        QChart *chart = chartView->chart();
+        QLegend *l = chart->legend();
+        l->hide();
+
+    }
+}

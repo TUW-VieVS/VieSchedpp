@@ -17,9 +17,11 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QAreaSeries>
 #include <QSignalMapper>
+#include <QSortFilterProxyModel>
 
 #include "../VieSchedpp/Scheduler.h"
 #include "qtutil.h"
+#include "callout.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -64,6 +66,14 @@ private slots:
 
     void updateSkyCoverageTimes(int idx);
 
+    void skyCoverageHovered(QPointF point, bool flag);
+
+    void on_lineEdit_skyCoverageSourceFilter_textChanged(const QString &arg1);
+
+    void on_treeView_skyCoverage_sources_clicked(const QModelIndex &index);
+
+    void on_pushButton_skyCoverageLegend_clicked();
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
@@ -73,6 +83,7 @@ private:
 
     QStandardItemModel *srcModel;
     QStandardItemModel *staModel;
+
 
 //    QSignalMapper *comboBox2skyCoverage;
 
