@@ -2,7 +2,7 @@
 #define SETTINGSLOADWINDOW_H
 
 #include <QDialog>
-#include "VieSchedpp/ParameterSettings.h"
+#include "../VieSchedpp/ParameterSettings.h"
 #include <QListWidgetItem>
 #include <QMessageBox>
 namespace Ui {

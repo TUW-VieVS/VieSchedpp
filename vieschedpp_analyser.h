@@ -18,7 +18,7 @@
 #include <QtCharts/QAreaSeries>
 #include <QSignalMapper>
 
-#include "VieSchedpp/Scheduler.h"
+#include "../VieSchedpp/Scheduler.h"
 #include "qtutil.h"
 
 QT_CHARTS_USE_NAMESPACE

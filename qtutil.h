@@ -3,7 +3,7 @@
 
 #include <QList>
 #include <tuple>
-#include "VieSchedpp/Scheduler.h"
+#include "../VieSchedpp/Scheduler.h"
 
 namespace qtUtil {
 

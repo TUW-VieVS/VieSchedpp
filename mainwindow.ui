@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>18</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -2433,6 +2433,51 @@ If you only want to run simulations you can deselect this to avoid error message
                   </property>
                   <property name="text">
                    <string>convert idle to observing time</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_11">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QGroupBox" name="groupBox_10">
+               <property name="title">
+                <string>observations per scan</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_50">
+                <item>
+                 <widget class="QRadioButton" name="radioButton_5">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>always schedule all observations</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="radioButton_4">
+                  <property name="text">
+                   <string>allow to drop single observations</string>
+                  </property>
+                  <property name="checked">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -5121,12 +5166,15 @@ If you only want to run simulations you can deselect this to avoid error message
               <property name="text">
                <string>extra weight after long idle time</string>
               </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
             <item row="6" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightIdleTime">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string>weight</string>
@@ -5145,7 +5193,7 @@ If you only want to run simulations you can deselect this to avoid error message
             <item row="7" column="0">
              <widget class="QLabel" name="label_idleTimeInterval">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="text">
                <string>interval</string>
@@ -5155,7 +5203,7 @@ If you only want to run simulations you can deselect this to avoid error message
             <item row="7" column="1">
              <widget class="QSpinBox" name="spinBox_idleTimeInterval">
               <property name="enabled">
-               <bool>false</bool>
+               <bool>true</bool>
               </property>
               <property name="toolTip">
                <string>interval after which full weight is reached in seconds</string>
@@ -5995,12 +6043,7 @@ If you only want to run simulations you can deselect this to avoid error message
                  <string>additional notes </string>
                 </property>
                 <property name="plainText">
-                 <string>########################################################################################################
-This file was produced by the new VieVS Scheduling Software VieSched++ 
-it is still in experimental stage! Please double check that file is correct!
-if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
-########################################################################################################
-</string>
+                 <string/>
                 </property>
                </widget>
               </item>
@@ -6115,8 +6158,8 @@ if you found any bugs please contact matthias.schartner@geo.tuwien.ac.at
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">

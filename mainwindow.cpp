@@ -1375,6 +1375,8 @@ void MainWindow::defaultParameters()
                         sta.minSlewDistance = it2.second.get_value < double > ();
                     } else if (paraName == "maxWait") {
                         sta.maxWait = it2.second.get_value < unsigned int > ();
+                    } else if (paraName == "minElevation") {
+                        sta.minElevation = it2.second.get_value < unsigned int > ();
                     } else if (paraName == "maxNumberOfScans") {
                         sta.maxNumberOfScans = it2.second.get_value < unsigned int > ();
                     } else {
@@ -1743,13 +1745,13 @@ void MainWindow::readSettings()
     ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
 
 
-    std::string threads = settings.get<std::string>("multiCore.threads","auto");
+    std::string threads = settings.get<std::string>("settings.multiCore.threads","auto");
     ui->comboBox_nThreads->setCurrentText(QString::fromStdString(threads));
-    int nThreadsManual = settings.get<int>("multiCore.nThreads",1);
+    int nThreadsManual = settings.get<int>("settings.multiCore.nThreads",1);
     ui->spinBox_nCores->setValue(nThreadsManual);
-    std::string jobScheduler = settings.get<std::string>("multiCore.jobScheduling","auto");
+    std::string jobScheduler = settings.get<std::string>("settings.multiCore.jobScheduling","auto");
     ui->comboBox_jobSchedule->setCurrentText(QString::fromStdString(jobScheduler));
-    int chunkSize = settings.get<int>("multiCore.chunkSize",0);
+    int chunkSize = settings.get<int>("settings.multiCore.chunkSize",0);
     ui->spinBox_chunkSize->setValue(chunkSize);
 
 }
@@ -6432,7 +6434,7 @@ void MainWindow::on_pushButton_save_multiCore_clicked()
     QString jobScheduler = ui->comboBox_jobSchedule->currentText();
     QString chunkSize = QString::number(ui->spinBox_chunkSize->value());
 
-    QStringList path {"multiCore.threads", "multiCore.nThreads", "multiCore.jobScheduling", "multiCore.chunkSize"};
+    QStringList path {"settings.multiCore.threads", "settings.multiCore.nThreads", "settings.multiCore.jobScheduling", "settings.multiCore.chunkSize"};
     QStringList value {threads, nThreadsManual, jobScheduler, chunkSize};
     QString name = "Default multi core settings changed!";
     changeDefaultSettings(path,value,name);

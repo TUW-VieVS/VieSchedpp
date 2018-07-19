@@ -5,7 +5,7 @@
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
 #include <QMessageBox>
-#include <VieSchedpp/ParameterSettings.h>
+#include <../VieSchedpp/ParameterSettings.h>
 #include <settingsloadwindow.h>
 
 namespace Ui {

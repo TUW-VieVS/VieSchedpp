@@ -42,10 +42,10 @@
 #include "sourceparametersdialog.h"
 #include "addbanddialog.h"
 #include "savetosettingsdialog.h"
-#include "VieSchedpp/VieSchedpp.h"
+#include "../VieSchedpp/VieSchedpp.h"
 #include "textfileviewer.h"
 #include "vieschedpp_analyser.h"
-#include "VieSchedpp/SkdParser.h"
+#include "../VieSchedpp/SkdParser.h"
 
 QT_CHARTS_USE_NAMESPACE
 
