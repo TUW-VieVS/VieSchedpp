@@ -64,7 +64,7 @@ set(SOURCE_FILES
         Network.cpp Network.h
         Observation.cpp Observation.h)
 
-add_executable(VLBI_scheduler ${SOURCE_FILES})
+add_executable(VieSchedpp ${SOURCE_FILES})
 
 ############################## OpenMP ###################################
 find_package(OpenMP)
@@ -102,7 +102,7 @@ if (Boost_FOUND)
     message("Boost INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
     message("Boost Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
     message("Boost LIBRARIES: ${Boost_LIBRARIES}")
-    TARGET_LINK_LIBRARIES(VLBI_scheduler ${Boost_LIBRARIES})
+    TARGET_LINK_LIBRARIES(VieSchedpp ${Boost_LIBRARIES})
 endif ()
 
 
@@ -124,10 +124,10 @@ FIND_LIBRARY(SOFA_LNX libsofa_c.a ./)
 FIND_LIBRARY(SOFA_WIN libsofa_c.lib ./)
 if (SOFA_LNX)
     message("SOFA library found: ${SOFA_LNX}")
-    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA_LNX})
+    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_LNX})
 elseif(SOFA_WIN)
     message("SOFA library found: ${SOFA_WIN}")
-    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA_WIN})
+    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_WIN})
 else()
     message("ERROR: SOFA library not found!")
 endif ()
