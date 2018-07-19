@@ -15,7 +15,6 @@ set(SOURCE_FILES
         Flux.cpp Flux.h
         HorizonMask.cpp HorizonMask.h
         Initializer.cpp Initializer.h
-        libsofa_c.a
         LookupTable.cpp LookupTable.h
         main.cpp
         MultiScheduling.cpp MultiScheduling.h

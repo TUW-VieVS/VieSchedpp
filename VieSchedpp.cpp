@@ -199,7 +199,7 @@ void VieSchedpp::multiCoreSetup() {
     } else if (threads == "single"){
         nThreads = 1;
     } else if (threads == "auto"){
-        nThreads = thread::hardware_concurrency();
+        nThreads = 4;
     }
 
     omp_set_num_threads(nThreads);
