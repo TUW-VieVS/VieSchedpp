@@ -30,7 +30,6 @@ void VieSchedpp_Analyser::setup()
 {
     ui->label_fileName->setText(QString::fromStdString(schedule_.getName()));
 
-
     srcModel = new QStandardItemModel(0,3,this);
     srcModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
     srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("ra [deg]"));
@@ -66,7 +65,17 @@ void VieSchedpp_Analyser::setup()
 
 //    comboBox2skyCoverage = new QSignalMapper(this);
 
-    setSkyCoverageLayout(1,2);
+    int stas = staModel->rowCount();
+    if(stas == 2){
+        setSkyCoverageLayout(1,2);
+    }else if(stas == 3){
+        setSkyCoverageLayout(1,3);
+    }else if(stas == 4){
+        setSkyCoverageLayout(2,2);
+    }else if(stas >4){
+        setSkyCoverageLayout(2,3);
+    }
+
     ui->splitter_skyCoverage->setStretchFactor(0,5);
     ui->splitter_skyCoverage->setStretchFactor(1,1);
 }
@@ -158,12 +167,17 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 
             layout->addWidget(c1);
 
-            QChartView *chartView = new QChartView(this);
+            QGroupBox *groupBox = new QGroupBox(this);
             QPolarChart *chart = new QPolarChart();
+            QChartView *chartView = new QChartView(chart,groupBox);
 
             chart->layout()->setContentsMargins(0, 0, 0, 0);
             chart->setBackgroundRoundness(0);
             chart->legend()->hide();
+            chart->acceptHoverEvents();
+            chartView->setMouseTracking(true);
+            Callout *callout = new Callout(chart);
+            callout->hide();
 
             QValueAxis *angularAxis = new QValueAxis();
             angularAxis->setTickCount(13); // First and last ticks are co-located on 0/360 angle.
@@ -179,7 +193,6 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             radialAxis->setRange(0,90);
             chart->addAxis(radialAxis, QPolarChart::PolarOrientationRadial);
 
-            chartView->setChart(chart);
             chartView->setRenderHint(QPainter::Antialiasing);
 
             layout->addWidget(chartView);
@@ -187,7 +200,6 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             c1->setCurrentIndex(counter);
             connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(updateSkyCoverage(QString)));
 
-            QGroupBox *groupBox = new QGroupBox(this);
             groupBox->setLayout(layout);
 
             ui->gridLayout_skyCoverage->addWidget(groupBox,i,j);
@@ -321,30 +333,34 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
     chart->addSeries(data);
     data->attachAxis(chart->axisX());
     data->attachAxis(chart->axisY());
+    connect(data, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *ccw = new QScatterSeriesExtended();
-    ccw->setBrush(Qt::red);
+    ccw->setBrush(QBrush(QColor(228,26,28)));
     ccw->setName("ccw");
 
     chart->addSeries(ccw);
     ccw->attachAxis(chart->axisX());
     ccw->attachAxis(chart->axisY());
+    connect(ccw, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *cw = new QScatterSeriesExtended();
-    cw->setBrush(Qt::blue);
+    cw->setBrush(QBrush(QColor(55,126,184)));
     cw->setName("cw");
 
     chart->addSeries(cw);
     cw->attachAxis(chart->axisX());
     cw->attachAxis(chart->axisY());
+    connect(cw, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *n = new QScatterSeriesExtended();
-    n->setBrush(Qt::green);
+    n->setBrush(QBrush(QColor(77,174,74)));
     n->setName("n");
 
     chart->addSeries(n);
     n->attachAxis(chart->axisX());
     n->attachAxis(chart->axisY());
+    connect(n, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     QScatterSeriesExtended *highlight = new QScatterSeriesExtended();
     highlight->setBrush(Qt::yellow);
@@ -354,6 +370,7 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
     chart->addSeries(highlight);
     highlight->attachAxis(chart->axisX());
     highlight->attachAxis(chart->axisY());
+    connect(highlight, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
 
     updateSkyCoverageTimes(idx);
 }
@@ -424,6 +441,52 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
     }
 
 
+}
+
+void VieSchedpp_Analyser::skyCoverageHovered(QPointF point, bool flag)
+{
+    QObject *obj = sender();
+    QScatterSeriesExtended *series = static_cast<QScatterSeriesExtended *>(obj);
+
+    QChart *chart = qobject_cast<QChart *>(obj->parent()->parent());
+
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *c = dynamic_cast<Callout *>(childItem)){
+            if(flag){
+                c->setAnchor(point);
+
+                QString name = series->name();
+                int idx = 0;
+                while(idx<series->count()){
+                    const QPointF &p = series->at(idx);
+
+                    if(point == p){
+                        break;
+                    }
+                    ++idx;
+                }
+
+                int srcid = series->getSrcid(idx);
+                QString source = srcModel->item(srcid,0)->text().append("\n");
+                int time = series->getTime(idx);
+                QDateTime qtime = sessionStart_.addSecs(time);
+                QString timeStr = qtime.toString("hh:mm:ss").append("\n");
+                QString az = QString().sprintf("az: %.2f\n", point.x());
+                QString el = QString().sprintf("el: %.2f", point.y());
+
+                QString txt = source;
+                txt.append(timeStr).append(az).append(el);
+
+                c->setText(txt);
+                c->setZValue(11);
+                c->updateGeometry();
+                c->show();
+            }else{
+                c->hide();
+            }
+
+        }
+    }
 }
 
 

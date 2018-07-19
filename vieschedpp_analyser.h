@@ -20,6 +20,7 @@
 
 #include "../VieSchedpp/Scheduler.h"
 #include "qtutil.h"
+#include "callout.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -64,6 +65,8 @@ private slots:
 
     void updateSkyCoverageTimes(int idx);
 
+    void skyCoverageHovered(QPointF point, bool flag);
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
@@ -73,6 +76,7 @@ private:
 
     QStandardItemModel *srcModel;
     QStandardItemModel *staModel;
+
 
 //    QSignalMapper *comboBox2skyCoverage;
 
