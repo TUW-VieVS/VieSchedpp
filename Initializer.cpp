@@ -617,7 +617,11 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 name1 = commonname;
                 name2 = name;
             }
-            sources_.emplace_back(name1, name2, ra, de, flux);
+            Source src(name1,name2,ra,de,flux);
+            if(src.getId() != sources_.size()){
+                src.setId(sources_.size());
+            }
+            sources_.push_back(std::move(src));
             created++;
             src_created.push_back(name);
         }

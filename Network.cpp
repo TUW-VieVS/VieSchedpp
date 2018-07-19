@@ -16,8 +16,6 @@ Network::Network(): VieVS_Object(nextId++) {
 
 void Network::addStation(Station station) {
     if(station.getId() != stations_.size()) {
-        cerr << "Changing id of " << station.getName() << " from " << station.getId() << " to " << stations_.size()
-             << "\n";
         station.setId(stations_.size());
     }
 
@@ -27,7 +25,11 @@ void Network::addStation(Station station) {
         // create baseline
         string name = (boost::format("%s-%s") %any.getName() %station.getName()).str();
         string alternativeName = (boost::format("%s-%s") %station.getName() %any.getName()).str();
-        baselines_.emplace_back(name,alternativeName,any.getId(),station.getId());
+        Baseline bl(name,alternativeName,any.getId(),station.getId());
+        if(bl.getId() != baselines_.size()) {
+            bl.setId(baselines_.size());
+        }
+        baselines_.push_back(std::move(bl));
         staids2blid_[{any.getId(), station.getId()}] = baselines_.back().getId();
 
         // create delta xyz
@@ -46,7 +48,13 @@ void Network::addStation(Station station) {
     // if necessary create new sky coverage object
     if(!skyCoveragFound){
         staids2skyCoverageId_[station.getId()] = skyCoverages_.size();
-        skyCoverages_.emplace_back();
+        SkyCoverage skyCoverage;
+
+        if(skyCoverage.getId() != skyCoverages_.size()) {
+            skyCoverage.setId(skyCoverages_.size());
+        }
+
+        skyCoverages_.push_back(std::move(skyCoverage));
     }
 
     // finally push back station
