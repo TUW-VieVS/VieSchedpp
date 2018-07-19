@@ -7467,7 +7467,6 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
                 QDateTime qend   = QDateTime::fromString(QString::fromStdString(end),"yyyy.MM.dd HH:mm:ss");
 
                 VieSchedpp_Analyser *analyser = new VieSchedpp_Analyser(sched,qstart,qend, this);
-                analyser->setup();
                 analyser->show();
 
             }catch(...){
