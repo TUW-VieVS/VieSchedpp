@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -2484,6 +2484,68 @@ If you only want to run simulations you can deselect this to avoid error message
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QGroupBox" name="groupBox_11">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>debug level</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_65">
+                <item>
+                 <widget class="QComboBox" name="comboBox">
+                  <property name="currentIndex">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>trace</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>debug</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>info</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>warning</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>error</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>fatal</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_17">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
