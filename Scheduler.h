@@ -132,6 +132,10 @@ namespace VieVS{
             return network_;
         }
 
+        const std::vector<Scan> &getScans() const noexcept{
+            return scans_;
+        }
+
 
     private:
         static unsigned long nextId;
