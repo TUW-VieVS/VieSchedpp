@@ -2306,9 +2306,15 @@ QString MainWindow::writeXML()
     path = path.simplified();
     path.replace("\\\\","/");
     path.replace("\\","/");
-    if(path.right(1) != "/"){
+    if(!path.isEmpty() && path.right(1) != "/"){
         path.append("/");
     }
+
+    QDir mainDir(path);
+    if(!path.isEmpty() && !mainDir.exists() ){
+        QDir().mkpath(path);
+    }
+
     QString ename = QString::fromStdString(experimentName).trimmed();
     ename.simplified();
     ename.replace(" ","_");
@@ -7457,9 +7463,7 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         if(path.right(4) == ".skd"){
             try{
                 VieVS::SkdParser mySkdParser(path.toStdString());
-                mySkdParser.createObjects();
-                mySkdParser.createScans();
-                mySkdParser.copyScanMembersToObjects();
+                mySkdParser.read();
                 VieVS::Scheduler sched = mySkdParser.createScheduler();
                 std::string start = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::startTime);
                 std::string end = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::endTime);
