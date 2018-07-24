@@ -12,7 +12,7 @@ SkdParser::SkdParser(const std::string &filename):VieVS_Object(nextId++), filena
 
 }
 
-void SkdParser::createObjects() {
+void SkdParser::read() {
 
     Initializer init;
     vector<string> staNames;
@@ -129,8 +129,9 @@ void SkdParser::createObjects() {
     skd_.initializeStationCatalogs();
     skd_.initializeSourceCatalogs();
 
-    ofstream of;
-    of.close();
+    string path = filename_.substr(0,filename_.find_last_of('/'));
+    path.append("/skdParser.log");
+    ofstream of(path);
 
     ObservationMode::bands.emplace_back("X");
     ObservationMode::bands.emplace_back("S");
@@ -142,13 +143,18 @@ void SkdParser::createObjects() {
     sources_ = move(init.sources_);
 
     init.initializeAstronomicalParameteres();
+
+    createScans(of);
+    copyScanMembersToObjects(of);
+
+    of.close();
 }
 
-void SkdParser::createScans() {
+void SkdParser::createScans(std::ofstream &of) {
 
     ifstream fid(filename_);
     if (!fid.is_open()) {
-        cerr << "ERROR: Unable to open " << filename_ << " file!;\n";
+        of << "ERROR: Unable to open " << filename_ << " file!;\n";
         return;
     } else {
 
@@ -207,7 +213,7 @@ void SkdParser::createScans() {
 
             int sec = util::duration(TimeSystem::startTime,scanStart);
             if (sec < 0) {
-                cerr << "ERROR: duration is less than zero seconds!;\n";
+                of << "ERROR: duration is less than zero seconds!;\n";
             }
             auto time = static_cast<unsigned int>(sec);
 
@@ -240,7 +246,7 @@ void SkdParser::createScans() {
                 bool error = thisSta.getCableWrap().unwrapAzInSection(p,cwflag);
                 if(error){
                     pair<double,double>limits = thisSta.getCableWrap().getLimits(cwflag);
-                    cerr << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) calculated: %7.2f (or %7.2f)\n")
+                    of << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) calculated: %7.2f (or %7.2f)\n")
                             %thisSta.getName()%counter%thisSource.getName()%TimeSystem::ptime2string_doy(scanStart)%cwflag%(limits.first*rad2deg)%(limits.second*rad2deg)%(p.getAz()*rad2deg)%(p.getAz()*rad2deg-360);
                 }
                 pv.push_back(p);
@@ -281,7 +287,7 @@ void SkdParser::createScans() {
                         boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
                         boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
-                        cerr << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
+                        of << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
                                 %network_.getStation(scan.getPointingVector(i).getStaid()).getName()
                                 %counter
                                 %sources_[scan.getPointingVector(i).getSrcid()].getName()
@@ -303,7 +309,7 @@ void SkdParser::createScans() {
     }
 }
 
-void SkdParser::copyScanMembersToObjects() {
+void SkdParser::copyScanMembersToObjects(std::ofstream &of) {
     for(const auto &scan:scans_){
         unsigned long srcid = scan.getSourceId();
 
