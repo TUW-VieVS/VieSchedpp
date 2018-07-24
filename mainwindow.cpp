@@ -7450,9 +7450,10 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
 
 void MainWindow::on_pushButton_sessionBrowse_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", mainPath, tr("skd files (*.skd)"));
     if( !path.isEmpty() ){
         ui->lineEdit_sessionPath->setText(path);
+        ui->lineEdit_sessionPath->setFocus();
     }
 }
 

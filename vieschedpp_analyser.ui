@@ -28,47 +28,7 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
-       <layout class="QVBoxLayout" name="verticalLayout_8" stretch="0,1">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_skyCoverageLegend">
-            <property name="text">
-             <string>legend</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="checked">
-             <bool>false</bool>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_skyCoverageLayout">
-            <property name="text">
-             <string>layout</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QSplitter" name="splitter_skyCoverage">
           <property name="orientation">
@@ -77,10 +37,53 @@
           <widget class="QWidget" name="gridLayoutWidget">
            <layout class="QGridLayout" name="gridLayout_skyCoverage"/>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_skyCoverageLegend">
+                <property name="text">
+                 <string>legend</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="flat">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_skyCoverageLayout">
+                <property name="text">
+                 <string>layout</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
              <widget class="QTreeView" name="treeView_skyCoverage_sources">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::MultiSelection</enum>
               </property>
