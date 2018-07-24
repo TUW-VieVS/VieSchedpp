@@ -153,6 +153,13 @@ void VieSchedpp_Analyser::on_spinBox_duration_valueChanged(int arg1)
 {
     int newEnd = ui->horizontalSlider_start->value() + arg1;
     ui->horizontalSlider_end->setValue(newEnd);
+    if(arg1 < 3600){
+        ui->horizontalSlider_start->setSingleStep(arg1/2);
+        ui->horizontalSlider_end->setSingleStep(arg1/2);
+    }else{
+        ui->horizontalSlider_start->setSingleStep(1800);
+        ui->horizontalSlider_end->setSingleStep(1800);
+    }
 }
 
 void VieSchedpp_Analyser::updateDuration()
