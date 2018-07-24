@@ -105,16 +105,23 @@ void VieSchedpp_Analyser::setup()
     ui->splitter_skyCoverage->setStretchFactor(1,1);
 }
 
+// -----------------------------------------------------------------------------
+
 void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
 {
+    const QSignalBlocker b1(ui->horizontalSlider_end);
+
     QDateTime newStart = sessionStart_.addSecs(value);
     ui->dateTimeEdit_start->setDateTime(newStart);
 
     if(value>ui->horizontalSlider_end->value()){
         ui->horizontalSlider_end->setValue(value);
+        ui->dateTimeEdit_end->setDateTime(newStart);
     }
     if(ui->checkBox_fixDuration->isChecked()){
         ui->horizontalSlider_end->setValue(value+ui->spinBox_duration->value());
+        QDateTime newEnd = sessionStart_.addSecs(value+ui->spinBox_duration->value());
+        ui->dateTimeEdit_end->setDateTime(newEnd);
     }else{
         updateDuration();
     }
@@ -123,14 +130,19 @@ void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
 
 void VieSchedpp_Analyser::on_horizontalSlider_end_valueChanged(int value)
 {
+    const QSignalBlocker b0(ui->horizontalSlider_start);
+
     QDateTime newEnd = sessionStart_.addSecs(value);
     ui->dateTimeEdit_end->setDateTime(newEnd);
 
     if(value<ui->horizontalSlider_start->value()){
         ui->horizontalSlider_start->setValue(value);
+        ui->dateTimeEdit_start->setDateTime(newEnd);
     }
     if(ui->checkBox_fixDuration->isChecked()){
         ui->horizontalSlider_start->setValue(value-ui->spinBox_duration->value());
+        QDateTime newStart = sessionStart_.addSecs(value-ui->spinBox_duration->value());
+        ui->dateTimeEdit_start->setDateTime(newStart);
     }else{
         updateDuration();
     }
@@ -176,6 +188,8 @@ void VieSchedpp_Analyser::on_doubleSpinBox_hours_valueChanged(double arg1)
     int dur = arg1*3600;
     ui->spinBox_duration->setValue(dur);
 }
+
+// -----------------------------------------------------------------------------
 
 void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 {

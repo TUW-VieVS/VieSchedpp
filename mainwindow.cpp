@@ -7454,6 +7454,7 @@ void MainWindow::on_pushButton_sessionBrowse_clicked()
     if( !path.isEmpty() ){
         ui->lineEdit_sessionPath->setText(path);
         ui->lineEdit_sessionPath->setFocus();
+        ui->pushButton_sessionAnalyser->click();
     }
 }
 

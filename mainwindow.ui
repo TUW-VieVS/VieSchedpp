@@ -5478,6 +5478,12 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
             <item row="5" column="0">
              <widget class="QCheckBox" name="checkBox_weightAverageBaselines">
+              <property name="toolTip">
+               <string>prefer scans with baselines with low number of scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans with baselines with low number of scans</string>
+              </property>
               <property name="text">
                <string>average baselines</string>
               </property>
@@ -5487,6 +5493,12 @@ If you only want to run simulations you can deselect this to avoid error message
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageBaselines">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>prefer scans with baselines with low number of scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans with baselines with low number of scans</string>
               </property>
               <property name="singleStep">
                <double>0.250000000000000</double>
@@ -9196,6 +9208,12 @@ If you only want to run simulations you can deselect this to avoid error message
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_sessionPath">
+            <property name="toolTip">
+             <string>path to skd file</string>
+            </property>
+            <property name="statusTip">
+             <string>path to skd file</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -9206,22 +9224,52 @@ If you only want to run simulations you can deselect this to avoid error message
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_sessionBrowse">
-            <property name="text">
-             <string>browse</string>
+            <property name="toolTip">
+             <string>browse for skd file</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_sessionOpen">
+            <property name="statusTip">
+             <string>browse for skd file</string>
+            </property>
             <property name="text">
-             <string>open</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_sessionAnalyser">
+            <property name="toolTip">
+             <string>analyse skd file</string>
+            </property>
+            <property name="statusTip">
+             <string>analyse skd file</string>
+            </property>
             <property name="text">
-             <string>analyse</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/sky_coverage_analyser.png</normaloff>:/icons/icons/sky_coverage_analyser.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_sessionOpen">
+            <property name="toolTip">
+             <string>open skd file</string>
+            </property>
+            <property name="statusTip">
+             <string>open skd file</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/utilities-terminal-3.png</normaloff>:/icons/icons/utilities-terminal-3.png</iconset>
             </property>
            </widget>
           </item>
@@ -10119,7 +10167,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionSkd_Parser">
    <property name="icon">
     <iconset resource="myresources.qrc">
-     <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
+     <normaloff>:/icons/icons/sky_coverage_analyser.png</normaloff>:/icons/icons/sky_coverage_analyser.png</iconset>
    </property>
    <property name="text">
     <string>Skd Parser</string>
