@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>18</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -5120,327 +5120,6 @@ If you only want to run simulations you can deselect this to avoid error message
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QCheckBox" name="checkBox_weightAverageStations">
-              <property name="toolTip">
-               <string>prefer scans with stations with low number of scans</string>
-              </property>
-              <property name="statusTip">
-               <string>prefer scans with stations with low number of scans</string>
-              </property>
-              <property name="text">
-               <string>average stations</string>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageStations">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>weight</string>
-              </property>
-              <property name="statusTip">
-               <string>weight</string>
-              </property>
-              <property name="singleStep">
-               <double>0.250000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="0">
-             <widget class="QCheckBox" name="checkBox_weightIdleTime">
-              <property name="toolTip">
-               <string>prefer scans with stations which had long idle times</string>
-              </property>
-              <property name="statusTip">
-               <string>prefer scans with stations which had long idle times</string>
-              </property>
-              <property name="text">
-               <string>extra weight after long idle time</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightIdleTime">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="toolTip">
-               <string>weight</string>
-              </property>
-              <property name="statusTip">
-               <string>weight</string>
-              </property>
-              <property name="singleStep">
-               <double>0.250000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_idleTimeInterval">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="text">
-               <string>interval</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QSpinBox" name="spinBox_idleTimeInterval">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="toolTip">
-               <string>interval after which full weight is reached in seconds</string>
-              </property>
-              <property name="statusTip">
-               <string>interval after which full weight is reached in seconds</string>
-              </property>
-              <property name="suffix">
-               <string> [s]</string>
-              </property>
-              <property name="prefix">
-               <string/>
-              </property>
-              <property name="maximum">
-               <number>86400</number>
-              </property>
-              <property name="singleStep">
-               <number>60</number>
-              </property>
-              <property name="value">
-               <number>300</number>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="0">
-             <widget class="QCheckBox" name="checkBox_weightLowDeclination">
-              <property name="toolTip">
-               <string>prefer scans to sources with low declination</string>
-              </property>
-              <property name="statusTip">
-               <string>prefer scans to sources with low declination</string>
-              </property>
-              <property name="text">
-               <string>low declination</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDec">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>weight</string>
-              </property>
-              <property name="statusTip">
-               <string>weight</string>
-              </property>
-              <property name="singleStep">
-               <double>0.250000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="0">
-             <widget class="QLabel" name="label_weightLowDecStart">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>low declination begin weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDecStart">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>minimum declination for extra weight in degrees</string>
-              </property>
-              <property name="statusTip">
-               <string>minimum declination for extra weight in degrees</string>
-              </property>
-              <property name="suffix">
-               <string> [deg]</string>
-              </property>
-              <property name="minimum">
-               <double>-90.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>90.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>5.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="0">
-             <widget class="QLabel" name="label_weightLowDecEnd">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>low declination full weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDecEnd">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>minimum declination for full weight in degrees</string>
-              </property>
-              <property name="statusTip">
-               <string>minimum declination for full weight in degrees</string>
-              </property>
-              <property name="suffix">
-               <string> [deg]</string>
-              </property>
-              <property name="minimum">
-               <double>-90.000000000000000</double>
-              </property>
-              <property name="maximum">
-               <double>90.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>-45.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0">
-             <widget class="QCheckBox" name="checkBox_weightLowElevation">
-              <property name="acceptDrops">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>prefer scans to sources with low elevation</string>
-              </property>
-              <property name="statusTip">
-               <string>prefer scans to sources with low elevation</string>
-              </property>
-              <property name="text">
-               <string>low elevation</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowEl">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>weight</string>
-              </property>
-              <property name="statusTip">
-               <string>weight</string>
-              </property>
-              <property name="maximum">
-               <double>90.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.250000000000000</double>
-              </property>
-              <property name="value">
-               <double>1.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="0">
-             <widget class="QLabel" name="label_weightLowElStart">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>low elevation begin weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowElStart">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>minimum elevation for extra weight in degrees</string>
-              </property>
-              <property name="statusTip">
-               <string>minimum elevation for extra weight in degrees</string>
-              </property>
-              <property name="suffix">
-               <string> [deg]</string>
-              </property>
-              <property name="maximum">
-               <double>90.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>30.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="0">
-             <widget class="QLabel" name="label_weightLowElEnd">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>low elevation full weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="13" column="1">
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowElEnd">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>minimum elevation for full weight in degrees</string>
-              </property>
-              <property name="statusTip">
-               <string>minimum elevation for full weight in degrees</string>
-              </property>
-              <property name="suffix">
-               <string> [deg]</string>
-              </property>
-              <property name="maximum">
-               <double>90.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>5.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>20.000000000000000</double>
-              </property>
-             </widget>
-            </item>
             <item row="3" column="0">
              <widget class="QCheckBox" name="checkBox_weightAverageSources">
               <property name="toolTip">
@@ -5459,6 +5138,41 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
             <item row="3" column="1">
              <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageSources">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight</string>
+              </property>
+              <property name="statusTip">
+               <string>weight</string>
+              </property>
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="checkBox_weightAverageStations">
+              <property name="toolTip">
+               <string>prefer scans with stations with low number of scans</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans with stations with low number of scans</string>
+              </property>
+              <property name="text">
+               <string>average stations</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightAverageStations">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -5505,6 +5219,313 @@ If you only want to run simulations you can deselect this to avoid error message
               </property>
               <property name="value">
                <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QCheckBox" name="checkBox_weightIdleTime">
+              <property name="toolTip">
+               <string>prefer scans with stations which had long idle times</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans with stations which had long idle times</string>
+              </property>
+              <property name="text">
+               <string>extra weight after long idle time</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightIdleTime">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight</string>
+              </property>
+              <property name="statusTip">
+               <string>weight</string>
+              </property>
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_idleTimeInterval">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>interval</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QSpinBox" name="spinBox_idleTimeInterval">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="toolTip">
+               <string>interval after which full weight is reached in seconds</string>
+              </property>
+              <property name="statusTip">
+               <string>interval after which full weight is reached in seconds</string>
+              </property>
+              <property name="suffix">
+               <string> [s]</string>
+              </property>
+              <property name="prefix">
+               <string/>
+              </property>
+              <property name="maximum">
+               <number>86400</number>
+              </property>
+              <property name="singleStep">
+               <number>60</number>
+              </property>
+              <property name="value">
+               <number>300</number>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="0">
+             <widget class="QCheckBox" name="checkBox_weightLowDeclination">
+              <property name="toolTip">
+               <string>prefer scans to sources with low declination</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans to sources with low declination</string>
+              </property>
+              <property name="text">
+               <string>low declination</string>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDec">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight</string>
+              </property>
+              <property name="statusTip">
+               <string>weight</string>
+              </property>
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0">
+             <widget class="QLabel" name="label_weightLowDecStart">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>low declination begin weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDecStart">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum declination for extra weight in degrees</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum declination for extra weight in degrees</string>
+              </property>
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+              <property name="minimum">
+               <double>-90.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>5.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="0">
+             <widget class="QLabel" name="label_weightLowDecEnd">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>low declination full weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="12" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowDecEnd">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum declination for full weight in degrees</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum declination for full weight in degrees</string>
+              </property>
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+              <property name="minimum">
+               <double>-90.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>-45.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="14" column="0">
+             <widget class="QCheckBox" name="checkBox_weightLowElevation">
+              <property name="acceptDrops">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>prefer scans to sources with low elevation</string>
+              </property>
+              <property name="statusTip">
+               <string>prefer scans to sources with low elevation</string>
+              </property>
+              <property name="text">
+               <string>low elevation</string>
+              </property>
+             </widget>
+            </item>
+            <item row="14" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowEl">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>weight</string>
+              </property>
+              <property name="statusTip">
+               <string>weight</string>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="0">
+             <widget class="QLabel" name="label_weightLowElStart">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>low elevation begin weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowElStart">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum elevation for extra weight in degrees</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum elevation for extra weight in degrees</string>
+              </property>
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>30.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="16" column="0">
+             <widget class="QLabel" name="label_weightLowElEnd">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>low elevation full weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="16" column="1">
+             <widget class="QDoubleSpinBox" name="doubleSpinBox_weightLowElEnd">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>minimum elevation for full weight in degrees</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum elevation for full weight in degrees</string>
+              </property>
+              <property name="suffix">
+               <string> [deg]</string>
+              </property>
+              <property name="maximum">
+               <double>90.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>20.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="Line" name="line_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="0" colspan="2">
+             <widget class="Line" name="line_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="13" column="0" colspan="2">
+             <widget class="Line" name="line_11">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
