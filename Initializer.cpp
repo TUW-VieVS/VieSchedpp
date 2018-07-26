@@ -400,6 +400,8 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
     of << "Finished! " << created << " of " << nant << " stations created\n\n";
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nant << " stations";
+    #else
+    cout << "successfully created " << created << " of " << nant << " stations";
     #endif
 }
 
@@ -750,6 +752,8 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     of << "Finished! " << created << " of " << nsrc << " sources created\n\n";
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nsrc << " sources";
+    #else
+    cout << "successfully created " << created << " of " << nsrc << " sources";
     #endif
 
     util::outputObjectList("Created sources",src_created,of);
@@ -2073,6 +2077,8 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
 
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
+    #else
+    cout << boost::format("observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
     #endif
     of << "Observing Mode:\n";
     of << "  sample rate:    " << ObservationMode::sampleRate << "\n";
@@ -2085,6 +2091,8 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         of << boost::format("    %2s: channels: %2d wavelength: %5.3f [m]\n") %any %channels %wavelength;
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
+        #else
+        cout << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
         #endif
     }
     of << "\n";

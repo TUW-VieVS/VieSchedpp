@@ -258,6 +258,8 @@ void Scheduler::start() noexcept {
 
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing scheduling file to: " << fileName;
+    #else
+    cout << "writing scheduling file to: " << fileName;
     #endif
 
     if(parameters_.currentIteration>0){
@@ -339,6 +341,8 @@ void Scheduler::start() noexcept {
 
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "source optimization conditions not met -> restarting schedule with reduced number of sources";
+        #else
+        cout << "source optimization conditions not met -> restarting schedule with reduced number of sources";
         #endif
 
         // restart schedule
@@ -359,6 +363,8 @@ void Scheduler::statistics(ofstream &of) {
     of << "number of observations:           " << nobs << "\n";
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "created schedule with " << scans_.size() << " scans and " << nobs << " observations";
+    #else
+    cout << "created schedule with " << scans_.size() << " scans and " << nobs << " observations";
     #endif
 
 }

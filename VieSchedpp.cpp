@@ -47,6 +47,9 @@ void VieSchedpp::run() {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "start initializing scheduler";
     BOOST_LOG_TRIVIAL(info) << "writing initializer output to: initializer.txt";
+    #else
+    cout << "start initializing scheduler";
+    cout << "writing initializer output to: initializer.txt";
     #endif
 
     ofstream of(path_+"initializer.txt");
@@ -86,6 +89,8 @@ void VieSchedpp::run() {
         nsched = multiSchedParameters_.size();
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "multi scheduling found ... creating " << nsched << " schedules!";
+        #else
+        cout << "multi scheduling found ... creating " << nsched << " schedules!";
         #endif
     }
     of.close();
@@ -98,6 +103,8 @@ void VieSchedpp::run() {
         multiCoreSetup();
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "Using OpenMP to parallize multi scheduling!";
+        #else
+        cout << "Using OpenMP to parallize multi scheduling!";
         #endif
         int nThreads = omp_get_num_threads();
 
@@ -115,6 +122,8 @@ void VieSchedpp::run() {
 
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d") %nThreads %jobScheduling %chunkSize;
+        #else
+        cout << boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d") %nThreads %jobScheduling %chunkSize;
         #endif
     }
 
@@ -148,6 +157,8 @@ void VieSchedpp::run() {
             fname.append((boost::format("_v%03d") % (i+1)).str());
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(info) << boost::format("creating multi scheduling version %d of %d") % (i+1) % nsched;
+            #else
+            cout << boost::format("creating multi scheduling version %d of %d") % (i+1) % nsched;
             #endif
         }
 
@@ -159,6 +170,8 @@ void VieSchedpp::run() {
         // create scheduler and start scheduling
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "start scheduling";
+        #else
+        cout << "start scheduling";
         #endif
         VieVS::Scheduler scheduler = VieVS::Scheduler(newInit, path_, fname);
         scheduler.start();
@@ -166,6 +179,8 @@ void VieSchedpp::run() {
         // create output
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "start writing output";
+        #else
+        cout << "start writing output";
         #endif
 
         VieVS::Output output(scheduler, path_, fname, version);
@@ -174,6 +189,8 @@ void VieSchedpp::run() {
         if(flag_multiSched){
         #ifdef VIESCHEDPP_LOG
          BOOST_LOG_TRIVIAL(info) << boost::format("version %d finished") % (i + 1);
+        #else
+        cout << boost::format("version %d finished") % (i + 1);
         #endif
         }
     }
@@ -184,6 +201,11 @@ void VieSchedpp::run() {
     BOOST_LOG_TRIVIAL(info) << "created scans: " << Scan::numberOfCreatedObjects();
     BOOST_LOG_TRIVIAL(info) << "created observations: " << Observation::numberOfCreatedObjects();
     BOOST_LOG_TRIVIAL(info) << "created antenna pointings: " << PointingVector::numberOfCreatedObjects();
+    #else
+    cout << "VieSchedpp is closing";
+    cout << "created scans: " << Scan::numberOfCreatedObjects();
+    cout << "created observations: " << Observation::numberOfCreatedObjects();
+    cout << "created antenna pointings: " << PointingVector::numberOfCreatedObjects();
     #endif
 }
 
