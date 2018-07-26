@@ -83,7 +83,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             ifstream fid(filepath);
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(error) << "ERROR: Unable to open " << filepath << " file";
+                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath << " file";
+                #else
+                cout << "unable to open " << filepath << " file";
                 #endif
             } else {
                 string line;
@@ -192,6 +194,8 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         } else {
                             #ifdef VIESCHEDPP_LOG
                             BOOST_LOG_TRIVIAL(warning) << "Duplicated element of '" << key << "' in " << filepath << " -> ignored";
+                            #else
+                            cout << "Duplicated element of '" << key << "' in " << filepath << " -> ignored";
                             #endif
                         }
                     }
@@ -209,6 +213,8 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                #else
+                cout << "unable to open " << filepath;
                 #endif
             } else {
                 string line;
@@ -295,6 +301,8 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                #else
+                cout << "unable to open " << filepath;
                 #endif
             } else {
                 string line;
@@ -531,8 +539,9 @@ void SkdCatalogReader::readRecCatalog() {
                             staName2recFormatMap_[thisStaName] = splitVector2[4];
                             if (splitVector2.size() > 5) {
                                 #ifdef VIESCHEDPP_LOG
-                                BOOST_LOG_TRIVIAL(warning) << "barrel_roll and max_bw information ignored for station "
-                                     << thisStaName << " in rec.cat";
+                                BOOST_LOG_TRIVIAL(warning) << "barrel_roll and max_bw information ignored for station " << thisStaName << " in rec.cat";
+                                #else
+                                cout << "barrel_roll and max_bw information ignored for station " << thisStaName << " in rec.cat";
                                 #endif
                             }
                         }
@@ -575,6 +584,8 @@ void SkdCatalogReader::readTracksCatalog() {
                     } else if(bits_ != bits){
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "number of recorded bits is different for different track ids -> ignored";
+                        #else
+                        cout << "number of recorded bits is different for different track ids -> ignored";
                         #endif
                     }
                     tracksId2bitsMap_[tracksId] = bits;
@@ -768,6 +779,8 @@ void SkdCatalogReader::saveOneLetterCode() {
 
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "changing one letter code of station " << staName << " to '"<< oneLetterCode <<"'";
+            #else
+            cout << "changing one letter code of station " << staName << " to '"<< oneLetterCode <<"'";
             #endif
 
         }

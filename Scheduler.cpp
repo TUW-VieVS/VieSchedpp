@@ -324,8 +324,9 @@ void Scheduler::start() noexcept {
     // check if there was an error during the session
     if (!checkAndStatistics(of)) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule")
-                                            % getName() %(parameters_.currentIteration);
+        BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
+        #else
+        cout << boost::format("%s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
         #endif
     }
 

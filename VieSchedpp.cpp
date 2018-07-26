@@ -27,6 +27,8 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     } catch(const boost::property_tree::ptree_error &e){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
+        #else
+        cout << "unable to open " << inputFile_;
         #endif
         terminate();
     }
@@ -132,6 +134,8 @@ void VieSchedpp::run() {
     if(nsched > 1){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(warning) << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
+        #else
+        cout << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
         #endif
     }
     #endif
