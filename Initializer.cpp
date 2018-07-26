@@ -17,18 +17,27 @@ Initializer::Initializer(): VieVS_Object(nextId++){
 
 Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
+
+    BOOST_LOG_TRIVIAL(debug) << "constructing initializer for:" << path;
+
     boost::property_tree::read_xml(is, xml_,boost::property_tree::xml_parser::trim_whitespace);
     double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
     network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
 Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(nextId++), xml_{xml} {
+
+    BOOST_LOG_TRIVIAL(debug) << "constructing initializer " << this->getId();
+
     double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
     network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
+
+    BOOST_LOG_TRIVIAL(debug) << "calculating subnetting source combinations";
+
     unsigned long nsrc = sources_.size();
     vector<vector<unsigned long> > subnettingSrcIds(nsrc);
     for (int i = 0; i < nsrc; ++i) {
@@ -38,6 +47,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
             double dist = acos(tmp);
 
             if (dist > parameters_.subnettingMinAngle){
+                BOOST_LOG_TRIVIAL(trace) << "possible subnetting between source " << i << " and " << j;
                 subnettingSrcIds.at(i).push_back(j);
             }
         }
@@ -46,6 +56,8 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
 }
 
 void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) noexcept {
+
+    BOOST_LOG_TRIVIAL(debug) << "creating stations";
 
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
     const map<string, vector<string> > &positionCatalog = reader.getPositionCatalog();
@@ -72,6 +84,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         // get antenna name
         string name = any.first;
 
+        BOOST_LOG_TRIVIAL(trace) << "try to create station " << name;
+
         // check if station is in PARA.selectedStations or if PARA.selectedStations is not empty
         if (!selectedStations.empty() &&
             (find(selectedStations.begin(), selectedStations.end(), name) == selectedStations.end())) {
@@ -80,6 +94,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
         // look if vector in antenna.cat is long enough. Otherwise not all information is available!
         if (any.second.size() < 16){
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " antenna.cat: not enough elements in catalog";
+
             of << "*** ERROR: " << any.first << ": antenna.cat to small ***\n";
             continue;
         }
@@ -93,10 +109,12 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         // check if corresponding position and equip CATALOG exists.
         if (positionCatalog.find(id_PO) == positionCatalog.end()){
             of << "*** ERROR: creating station "<< name <<": position CATALOG not found ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: not found";
             continue;
         }
         if (equipCatalog.find(id_EQ) == equipCatalog.end()){
             of << "*** ERROR: creating station "<< name <<": equip CATALOG not found ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: not found";
             continue;
         }
 
@@ -117,6 +135,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         }
         catch(const std::exception& e){
             of << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " antenna.cat: cannot cast text to number";
             continue;
         }
 
@@ -124,6 +143,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         vector<string> po_cat = positionCatalog.at(id_PO);
         if (po_cat.size()<5){
             of << "*** ERROR: creating station "<< name <<": " << any.first << ": positon.cat to small ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: not enough elements in catalog";
             continue;
         }
 
@@ -136,6 +156,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         }
         catch(const std::exception& e){
             of << "*** ERROR: creating station "<< name <<": " << e.what() << " ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: cannot cast text to number";
             continue;
         }
 
@@ -143,11 +164,13 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         vector<string> eq_cat = equipCatalog.at(id_EQ);
         if (eq_cat.size()<9){
             of << "*** ERROR: creating station "<< name <<": " << any.first << ": equip.cat to small ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: not enough elements in catalog";
             continue;
         }
         // check if SEFD_ information is in X and S band
         if (eq_cat[5] != "X" || eq_cat[7] != "S") {
             of << "*** ERROR: creating station "<< name <<": " << any.first << ": we only support SX equipment ***\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: unknown band name";
             continue;
         }
 
@@ -160,6 +183,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         }
         catch(const std::exception& e){
             of << "*** ERROR: creating station "<< name <<": " << e.what() << "\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: cannot cast text to number";
             continue;
         }
         bool everythingOkWithBands = true;
@@ -175,13 +199,15 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
             }
         }
         if(!everythingOkWithBands){
-            cerr << "ERROR: creating station "<< name <<": required SEFD_ information missing!;\n";
+            of << "*** ERROR: creating station "<< name <<": required SEFD information missing!;\n";
+            BOOST_LOG_TRIVIAL(error) << "station " << name << " required SEFD information missing";
             continue;
         }
 
         if(SEFDs.size() != ObservationMode::bands.size()){
             if(SEFDs.empty()){
-                cerr << "ERROR: creating station "<< name <<": no SEFD_ information found to calculate backup value!;\n";
+                of << "*** ERROR: creating station "<< name <<": no SEFD information found to calculate backup value!;\n";
+                BOOST_LOG_TRIVIAL(error) << "station " << name << " no SEFD information found to calculate backup value";
                 continue;
             }
             double max = 0;
@@ -227,7 +253,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
+                    of << "*** ERROR: creating station "<< name <<": elevation dependent SEFD value not understood and therefore ignored!!;\n";
+                    BOOST_LOG_TRIVIAL(warning) << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     elSEFD = false;
                 }
             }
@@ -244,7 +271,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
 
                 }catch (const std::exception& e){
-                    cerr << "ERROR: creating station "<< name <<": elevation dependent SEFD value not understood - ignored!!;\n";
+                    of << "*** ERROR: creating station "<< name <<": elevation dependent SEFD value not understood and therefore ignored!!;\n";
+                    BOOST_LOG_TRIVIAL(warning) << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     elSEFD = false;
                 }
             }
@@ -262,11 +290,14 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
                 }
                 catch(const std::exception& e){
                     of << "*** ERROR: creating station "<< name <<": mask catalog entry "<< mask_cat.at(i) << " not understood \n";
+                    BOOST_LOG_TRIVIAL(error) << "station " << name << " mask.cat: cannot cast text to number";
+                    continue;
                 }
             }
         } else {
             if (id_MS != "--"){
                 of << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
+                BOOST_LOG_TRIVIAL(warning) << "station " << name << " mask.cat: not found";
             }
         }
 
@@ -319,9 +350,11 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
         created++;
         of << boost::format("  %-8s added\n") % name;
+        BOOST_LOG_TRIVIAL(debug) << "station " << name << " successfully created " << network_.getStation(name).printId();
 
     }
     of << "Finished! " << created << " of " << nant << " stations created\n\n";
+    BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nant << " stations";
 }
 
 void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &of) noexcept {
@@ -335,6 +368,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     unsigned long nsrc = sourceCatalog.size();
     int created = 0;
     of << "Create Sources:\n";
+    BOOST_LOG_TRIVIAL(debug) << "creating sources";
 
     vector<string> src_created;
     vector<string> src_ignored;
@@ -367,9 +401,11 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     for (auto any: sourceCatalog){
         counter ++;
         string name = any.first;
+        BOOST_LOG_TRIVIAL(trace) << "try to create source " << name;
 
         if (any.second.size() < 8){
             of << "*** ERROR: " << any.first << ": source.cat to small ***\n";
+            BOOST_LOG_TRIVIAL(warning) << "source " << name << " source.cat: not enough elements in catalog";
             src_failed.push_back(name);
             continue;
         }
@@ -382,12 +418,14 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             if(find(sel_sources.begin(),sel_sources.end(),name) == sel_sources.end() &&
                find(sel_sources.begin(),sel_sources.end(),commonname) == sel_sources.end()){
                 src_ignored.push_back(name);
+                BOOST_LOG_TRIVIAL(trace) << "source " << name << " not in list of allowed sources";
                 continue;
             }
         }else{
             if(find(ignore_sources.begin(),ignore_sources.end(),name) != ignore_sources.end() ||
                find(ignore_sources.begin(),ignore_sources.end(),commonname) != ignore_sources.end()){
                 src_ignored.push_back(name);
+                BOOST_LOG_TRIVIAL(trace) << "source " << name << " in list of ignored sources";
                 continue;
             }
         }
@@ -398,6 +436,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 
         if ( !foundName && !foundCommName){
             src_fluxInformationNotFound.push_back(name);
+            BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: source not found";
             continue;
         }
 
@@ -415,6 +454,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         catch(const std::exception& e){
             src_failed.push_back(name);
             of << "*** ERROR: reading right ascension and declination for " << name << " ***\n";
+            BOOST_LOG_TRIVIAL(warning) << "source " << name << " source.cat: cannot cast text to number";
             continue;
         }
         double ra = 15*(ra_h + ra_m/60 + ra_s/3600);
@@ -470,6 +510,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
                 if (flagAdd){
                     of << "*** WARNING: Flux of type M lacks elements! zeros added!\n";
+                    BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: lacking element in M format, zeros added";
                 }
             }
 
@@ -482,8 +523,9 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                         alreadyConsidered.push_back(i);
                     }else {
                         src_failed.push_back(name);
-                        cerr << "ERROR: Source:" << name << "Flux: " << thisBand
+                        of << "*** ERROR: Source:" << name << "Flux: " << thisBand
                              << " You can not mix B and M flux information for one band!;\n";
+                        BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: both B and M flux information found";
                     }
                 }
             }
@@ -510,7 +552,8 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                     catch(const std::exception& e){
                         errorWhileReadingFlux = true;
                         src_failed.push_back(name);
-                        cout << "ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information;\n";
+                        of << "*** ERROR: " << parameters[0] << " " << parameters[1] << " " << e.what() << " reading flux information;\n";
+                        BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: cannot cast text to number";
                         break;
                     }
                 }
@@ -535,7 +578,8 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                     catch(const std::exception& e){
                         errorWhileReadingFlux = true;
                         src_failed.push_back(name);
-                        cout << "ERROR: reading flux information; \n";
+                        of << "*** ERROR: reading flux information; \n";
+                        BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: cannot cast text to number";
                         break;
                     }
                 }
@@ -568,13 +612,15 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             }
         }
         if(!fluxBandInfoOk){
-            cerr << "WARNING: source " << name << " required flux information missing!;\n";
+            of << "*** WARNING: source " << name << " required flux information missing!;\n";
+            BOOST_LOG_TRIVIAL(warning) << "source " << name << " required flux information missing";
         }
 
         if(flux.size() != ObservationMode::bands.size()){
             if(flux.empty()){
                 src_failed.push_back(name);
-                cerr << "ERROR: source " << name << " no flux information found to calculate backup value!;\n";
+                of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
+                BOOST_LOG_TRIVIAL(warning) << "source " << name << " no flux information found to calculate backup value";
                 continue;
             }
             double max = 0;
@@ -624,9 +670,11 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             sources_.push_back(std::move(src));
             created++;
             src_created.push_back(name);
+            BOOST_LOG_TRIVIAL(debug) << "source " << name << " successfully created " << sources_.back().printId();
         }
     }
     of << "Finished! " << created << " of " << nsrc << " sources created\n\n";
+    BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nsrc << " sources";
 
     util::outputObjectList("Created sources",src_created,of);
     util::outputObjectList("ignored sources",src_ignored,of);
@@ -636,11 +684,13 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 }
 
 void Initializer::initializeGeneral(ofstream &of) noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize general";
     try {
 
         string startString = xml_.get<string>("master.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
         of << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
+        BOOST_LOG_TRIVIAL(debug) << "session start time: " << TimeSystem::ptime2string(startTime);
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
@@ -648,6 +698,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         string endString = xml_.get<string>("master.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
         of << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
+        BOOST_LOG_TRIVIAL(debug) << "session end time: " << TimeSystem::ptime2string(endTime);
 
 
         int sec = util::duration(startTime,endTime);
@@ -656,6 +707,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         }
         auto duration = static_cast<unsigned int>(sec);
         of << "duration: " << duration << " [s]\n";
+        BOOST_LOG_TRIVIAL(debug) << "session duration: " << duration << "[s]";
 
         TimeSystem::mjdStart = mjdStart;
         TimeSystem::startTime = startTime;
@@ -701,6 +753,8 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
 
 void Initializer::initializeStations() noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize stations";
+
     // get station tree
     const auto & PARA_station_o = xml_.get_child_optional("master.station");
     if(PARA_station_o.is_initialized()) {
@@ -716,6 +770,8 @@ void Initializer::initializeStations() noexcept {
             string name = it.first;
             if (name == "parameter") {
                 string parameterName = it.second.get_child("<xmlattr>.name").data();
+                BOOST_LOG_TRIVIAL(trace) << "read station parameter " << parameterName;
+
                 ParameterSettings::ParametersStations PARA;
                 auto PARA_ = ParameterSettings::ptree2parameterStation(it.second);
                 PARA = PARA_.second;
@@ -738,6 +794,7 @@ void Initializer::initializeStations() noexcept {
 
         // define backup parameter
         Station::Parameters parentPARA("backup");
+        BOOST_LOG_TRIVIAL(trace) << "create backup station parameters";
 
         // store events for each station
         vector<vector<Station::Event> > events(network_.getNSta());
@@ -768,6 +825,7 @@ void Initializer::initializeStations() noexcept {
         // set to start state
         for (unsigned long ista = 0; ista < network_.getNSta(); ++ista) {
             Station &thisStation = network_.refStation(ista);
+            BOOST_LOG_TRIVIAL(trace) << "set events for station " << thisStation.getName();
 
             PointingVector pV(ista, 0);
             pV.setAz(0);
@@ -818,6 +876,8 @@ void Initializer::initializeStations() noexcept {
                 for (const auto &any: waitTimesNow) {
                     for (auto &sta: network_.refStations()) {
                         if (sta.hasName(any)) {
+                            BOOST_LOG_TRIVIAL(trace) << "set wait times for " << sta.getName();
+
                             Station::WaitTimes wtimes;
                             wtimes.fieldSystem = it.second.get<double>("fieldSystem");
                             wtimes.preob = it.second.get<double>("preob");
@@ -866,6 +926,8 @@ void Initializer::initializeStations() noexcept {
                 for (const auto &any: cableNow) {
                     for (auto &sta:network_.refStations()) {
                         if (sta.hasName(any)) {
+                            BOOST_LOG_TRIVIAL(trace) << "set cable wrap buffers for  " << sta.getName();
+
                             auto axis1Low = it.second.get<double>("axis1LowOffset");
                             auto axis1Up = it.second.get<double>("axis1UpOffset");
                             auto axis2Low = it.second.get<double>("axis2LowOffset");
@@ -879,8 +941,7 @@ void Initializer::initializeStations() noexcept {
             }
         }
     }else{
-        cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <station> block?;" << endl;
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in parameters.xml file";
     }
 }
 
@@ -890,7 +951,9 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                                const unordered_map<std::string, std::vector<std::string> > &groups,
                                const Station::Parameters &parentPARA) noexcept {
 
+    BOOST_LOG_TRIVIAL(debug) << "station setup";
     vector<string> members;
+    BOOST_LOG_TRIVIAL(trace) << "creating new station parameter " << tree.get<string>("parameter");
     Station::Parameters combinedPARA = Station::Parameters(tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
@@ -984,7 +1047,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <station><setup> block -> set to 'soft'";
             }
         }
     }
@@ -1006,6 +1069,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
                 break;
             }
         }
@@ -1014,6 +1078,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
                 break;
             }
         }
@@ -1028,6 +1093,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
 }
 
 void Initializer::initializeSources() noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize sources";
 
     // get source tree
     const auto & PARA_source_o = xml_.get_child_optional("master.source");
@@ -1044,6 +1110,7 @@ void Initializer::initializeSources() noexcept {
             string name = it.first;
             if (name == "parameter") {
                 string parameterName = it.second.get_child("<xmlattr>.name").data();
+                BOOST_LOG_TRIVIAL(trace) << "read source parameter " << parameterName;
 
                 ParameterSettings::ParametersSources PARA;
 
@@ -1080,6 +1147,7 @@ void Initializer::initializeSources() noexcept {
 
         // define backup parameter
         Source::Parameters parentPARA("backup");
+        BOOST_LOG_TRIVIAL(trace) << "create backup source parameters";
 
         // set observation mode band names
         for (const auto &any:ObservationMode::bands) {
@@ -1109,6 +1177,7 @@ void Initializer::initializeSources() noexcept {
         // set events for all sources
         for (int i = 0; i < sources_.size(); ++i) {
             sources_[i].setEVENTS(events[i]);
+            BOOST_LOG_TRIVIAL(trace) << "set events for source " << sources_[i].getName();
         }
 
         // set to start event
@@ -1117,8 +1186,7 @@ void Initializer::initializeSources() noexcept {
             any.checkForNewEvent(0, hardBreak);
         }
     }else{
-        cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <source> block?;" << endl;
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <source> block in parameters.xml file";
     }
 }
 
@@ -1129,7 +1197,9 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
                               const unordered_map<std::string, std::vector<std::string> > &groups,
                               const Source::Parameters &parentPARA) noexcept {
 
+    BOOST_LOG_TRIVIAL(debug) << "source setup";
     vector<string> members;
+    BOOST_LOG_TRIVIAL(trace) << "creating new source parameter " << tree.get<string>("parameter");
     Source::Parameters combinedPARA = Source::Parameters( tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
@@ -1247,7 +1317,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <source><setup> block -> set to 'soft'";
             }
         }
     }
@@ -1295,6 +1365,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
                 break;
             }
         }
@@ -1303,6 +1374,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
                 break;
             }
         }
@@ -1322,6 +1394,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
 }
 
 void Initializer::initializeBaselines() noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize baselines";
     // get baseline tree
     const auto & PARA_baseline_o = xml_.get_child_optional("master.baseline");
     if(PARA_baseline_o.is_initialized()){
@@ -1349,6 +1422,7 @@ void Initializer::initializeBaselines() noexcept {
 
         // define backup parameter
         Baseline::Parameters parentPARA("backup");
+        BOOST_LOG_TRIVIAL(trace) << "create backup baseline parameters";
 
         // set observation mode band names
         for (const auto &any:ObservationMode::bands) {
@@ -1379,6 +1453,7 @@ void Initializer::initializeBaselines() noexcept {
         for (unsigned int i = 0; i < network_.getNBls(); ++i) {
             Baseline &bl = network_.refBaseline(i);
             bl.setEVENTS(events[i]);
+            BOOST_LOG_TRIVIAL(trace) << "set events for baseline " << bl.getName();
         }
 
         // set to start event
@@ -1388,8 +1463,7 @@ void Initializer::initializeBaselines() noexcept {
         }
 
     }else{
-        cout << "ERROR: reading parameters.xml file!" <<
-             "    probably missing <baseline> block?;" << endl;
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <baseline> block in parameters.xml file";
     }
 
 }
@@ -1400,7 +1474,9 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
                                 const unordered_map<std::string, std::vector<std::string> > &groups,
                                 const Baseline::Parameters &parentPARA) noexcept {
 
+    BOOST_LOG_TRIVIAL(debug) << "baseline setup";
     vector<string> members;
+    BOOST_LOG_TRIVIAL(trace) << "creating new baseline parameter " << tree.get<string>("parameter");
     Baseline::Parameters combinedPARA = Baseline::Parameters( tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
@@ -1460,7 +1536,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
             } else if (tmp == "soft") {
                 softTransition = true;
             } else {
-                cout << "ERROR: unknown transition type in <setup> block: " << tmp << ";\n";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <baseline><setup> block -> set to 'soft'";
             }
         }
     }
@@ -1483,6 +1559,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
                 break;
             }
         }
@@ -1491,6 +1568,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
+                BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
                 break;
             }
         }
@@ -1506,6 +1584,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
 
 
 void Initializer::initializeAstronomicalParameteres() noexcept{
+    BOOST_LOG_TRIVIAL(debug) << "initialize astronomical parameters";
     // earth velocity
     double date1 = 2400000.5;
     double date2 = TimeSystem::mjdStart+static_cast<double>(TimeSystem::duration)/2/86400;
@@ -1588,6 +1667,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept{
 }
 
 void Initializer::initializeWeightFactors() noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize weight factors";
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
     WeightFactors::weightNumberOfObservations = xml_.get<double>("master.weightFactor.numberOfObservations", 0);
     WeightFactors::weightDuration = xml_.get<double>("master.weightFactor.duration", 0);
@@ -1609,6 +1689,7 @@ void Initializer::initializeWeightFactors() noexcept {
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize sky coverage";
 
     SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
     SkyCoverage::maxInfluenceTime = xml_.get<double>("master.skyCoverage.skyCoverageInterval", 3600);
@@ -1634,9 +1715,11 @@ void Initializer::initializeSkyCoverages() noexcept {
 }
 
 void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &of) noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "initialize observing mode";
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
+            BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
 
             const string &name = it.second.get_value<string>();
             ObservationMode::sampleRate = reader.getSampleRate();
@@ -1713,8 +1796,11 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
 
         } else if (it.first == "sampleRate") {
             ObservationMode::sampleRate = it.second.get_value<double>();
+            BOOST_LOG_TRIVIAL(trace) << "sample rate set to " << it.second.get_value<double>();
+
         } else if(it.first == "bits"){
             ObservationMode::bits = it.second.get_value<unsigned int>();
+            BOOST_LOG_TRIVIAL(trace) << "bits set to " << it.second.get_value<unsigned int>();
         } else if(it.first == "bands"){
             ObservationMode::manual = true;
             for(const auto &itt: it.second){
@@ -1733,6 +1819,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                     }
                 }
                 ObservationMode::bands.push_back(name);
+                BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << ") added with " << channels << " channels";
 
                 ObservationMode::nChannels[name] = channels;
                 ObservationMode::wavelength[name] = wavelength;
@@ -1752,6 +1839,8 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                 for(const auto &it_bandPolicy:it_bandPolicies.second){
                     if(it_bandPolicy.first == "<xmlattr>"){
                         name = it_bandPolicy.second.get_child("name").data();
+                        BOOST_LOG_TRIVIAL(trace) << "setting band policy for '"<< name << "'";
+
                     }else if(it_bandPolicy.first == "minSNR"){
                         minSNR = it_bandPolicy.second.get_value<double>();
                     }else if(it_bandPolicy.first == "station"){
@@ -1813,19 +1902,23 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         }
     }
 
+    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: sample rate %f recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
     of << "Observing Mode:\n";
     of << "  sample rate:    " << ObservationMode::sampleRate << "\n";
     of << "  recording bits: " << ObservationMode::bits << "\n";
     of << "  Bands: \n";
+
     for(const auto &any:ObservationMode::bands){
         unsigned int channels = ObservationMode::nChannels.at(any);
         double wavelength = ObservationMode::wavelength.at(any);
         of << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
+        BOOST_LOG_TRIVIAL(info) << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
     }
     of << "\n";
 }
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
+    BOOST_LOG_TRIVIAL(debug) << "create groups";
     unordered_map<std::string, std::vector<std::string> > groups;
     auto groupTree = root.get_child_optional("groups");
     if(groupTree.is_initialized()){
@@ -1833,6 +1926,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
             string name = it.first;
             if (name == "group") {
                 string groupName = it.second.get_child("<xmlattr>.name").data();
+                BOOST_LOG_TRIVIAL(trace) << "create new group "<< groupName;
                 std::vector<std::string> members;
                 for (auto &it2: it.second) {
                     if (it2.first == "member") {
@@ -1876,6 +1970,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
 
 void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
 //    parameters.output(bodyLog);
+    BOOST_LOG_TRIVIAL(debug) << "apply multi scheduling parameters";
 
 //    Initializer copyOfInit(*this);
     multiSchedulingParameters_ = parameters;
@@ -2169,6 +2264,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
     MultiScheduling ms;
     boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("master.multisched");
     if(mstree_o.is_initialized()) {
+        BOOST_LOG_TRIVIAL(debug) << "read multi scheduling parameters";
         boost::property_tree::ptree mstree = *mstree_o;
 
         boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
@@ -2241,6 +2337,7 @@ void Initializer::initializeSourceSequence() noexcept{
     boost::optional< boost::property_tree::ptree& > sq = xml_.get_child_optional( "master.rules.sourceSequence" );
     if( sq.is_initialized() )
     {
+        BOOST_LOG_TRIVIAL(debug) << "initialize source sequence";
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
@@ -2294,6 +2391,7 @@ void Initializer::initializeSourceSequence() noexcept{
 void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("master.rules.calibratorBlock");
     if (cb.is_initialized()) {
+        BOOST_LOG_TRIVIAL(debug) << "initialize calibration block";
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
@@ -2368,6 +2466,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
 
 unsigned int Initializer::minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start,
                                          unsigned int end) {
+    BOOST_LOG_TRIVIAL(trace) << "calculate possible observing time for source " << source.getName();
     unsigned int minutes = 0;
     unsigned int minVisible = parameters.minNumberOfStations;
 
@@ -2428,6 +2527,7 @@ void Initializer::statisticsLogHeader(ofstream &of) {
 void Initializer::initializeOptimization(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.optimization");
     if (ctree.is_initialized()) {
+        BOOST_LOG_TRIVIAL(debug) << "initialize optimization";
 
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
@@ -2471,6 +2571,7 @@ void Initializer::initializeOptimization(std::ofstream &of) {
 void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
     if (ctree.is_initialized()) {
+        BOOST_LOG_TRIVIAL(debug) << "initialize high impact scan descriptor";
 
         of << "High impact block found!\n";
         unsigned int interval = ctree->get("interval",60);

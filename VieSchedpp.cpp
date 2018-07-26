@@ -33,50 +33,52 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
 
 
 void VieSchedpp::run() {
-    cout << "writing header log file to: log_initializer.txt;\n";
+
+    init_log();
 
     // get path of input file
     VieVS::Initializer init(xml_);
 
     // open headerlog and statistics file
-    ofstream headerLog(path_+"log_initializer.txt");
-    ofstream statisticsLog(path_+"statistics.csv");
-    init.statisticsLogHeader(statisticsLog);
+    BOOST_LOG_TRIVIAL(info) << "writing initializer output to: initializer.txt";
+    ofstream of(path_+"initializer.txt");
+    ofstream statisticsOf(path_+"statistics.csv");
+    init.statisticsLogHeader(statisticsOf);
 
     // initialize skd catalogs and lookup table
     readSkdCatalogs();
     LookupTable::initialize();
 
     // initialize all Parameters
-    init.initializeGeneral( headerLog );
+    init.initializeGeneral( of );
     init.initializeAstronomicalParameteres();
-    init.initializeObservingMode(skdCatalogs_, headerLog);
+    init.initializeObservingMode(skdCatalogs_, of);
 
-    init.createStations(skdCatalogs_, headerLog);
+    init.createStations(skdCatalogs_, of);
     init.initializeStations();
     init.initializeBaselines();
 
-    init.createSources(skdCatalogs_, headerLog);
+    init.createSources(skdCatalogs_, of);
     init.precalcSubnettingSrcIds();
     init.initializeSources();
     init.initializeSourceSequence();
-    init.initializeCalibrationBlocks( headerLog );
-    init.initializeOptimization(headerLog);
+    init.initializeCalibrationBlocks( of );
+    init.initializeOptimization(of);
 
-    init.initializeHighImpactScanDescriptor(headerLog);
+    init.initializeHighImpactScanDescriptor(of);
     init.initializeWeightFactors();
     init.initializeSkyCoverages();
 
     // check if multi scheduling is selected
     bool flag_multiSched = false;
     unsigned long nsched = 1;
-    multiSchedParameters_ = init.readMultiSched(headerLog);
+    multiSchedParameters_ = init.readMultiSched(of);
     if (!multiSchedParameters_.empty()) {
         flag_multiSched = true;
         nsched = multiSchedParameters_.size();
         cout << "multi scheduling found ... creating " << nsched << " schedules!;\n";
     }
-    headerLog.close();
+    of.close();
 
     // check if openmp is available
 #ifdef _OPENMP
@@ -154,13 +156,13 @@ void VieSchedpp::run() {
 
         // create output
         VieVS::Output output(scheduler, path_, fname, version);
-        output.createAllOutputFiles(statisticsLog, skdCatalogs_);
+        output.createAllOutputFiles(statisticsOf, skdCatalogs_);
 
         if(flag_multiSched){
             cout << threadNumberPrefix+(boost::format("version %d finished;\n") % (i + 1)).str();
         }
     }
-    statisticsLog.close();
+    statisticsOf.close();
     cout << "everything finally finished!;\n";
     cout << "created scans:                " << Scan::numberOfCreatedObjects() << ";\n";
     cout << "created observations:         " << Observation::numberOfCreatedObjects() << ";\n";
@@ -216,3 +218,64 @@ void VieSchedpp::multiCoreSetup() {
     }
 }
 #endif
+
+void VieSchedpp::init_log() {
+
+    boost::log::add_common_attributes();
+
+    string logSeverity = xml_.get<string>("master.general.logSeverity","info");
+    if(logSeverity == "trace"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::trace
+        );
+    } else if(logSeverity == "debug"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::debug
+        );
+    } else if(logSeverity == "info"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::info
+        );
+    } else if(logSeverity == "warning"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::warning
+        );
+    } else if(logSeverity == "error"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::error
+        );
+    } else if(logSeverity == "fatal"){
+        boost::log::core::get()->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::fatal
+        );
+    }
+
+    auto fmtTimeStamp = boost::log::expressions::
+    format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f");
+    auto fmtThreadId = boost::log::expressions::
+    attr<boost::log::attributes::current_thread_id::value_type>("ThreadID");
+    auto fmtSeverity = boost::log::expressions::
+    attr<boost::log::trivial::severity_level>("Severity");
+    boost::log::formatter logFmt =
+            boost::log::expressions::format("[%1%] (%2%) [%3%] %4%")
+            % fmtTimeStamp % fmtThreadId % fmtSeverity
+            % boost::log::expressions::smessage;
+
+    /* console sink */
+    auto consoleSink = boost::log::add_console_log(std::clog);
+    consoleSink->set_formatter(logFmt);
+    consoleSink->set_filter(
+            boost::log::trivial::severity >= boost::log::trivial::info
+    );
+
+
+    /* fs sink */
+    auto fsSink = boost::log::add_file_log(
+//            boost::log::keywords::file_name = path_+"VieSchedpp_%Y-%m-%d_%H-%M-%S.%3N.log",
+            boost::log::keywords::file_name = path_+"VieSchedpp_%3N.log",
+            boost::log::keywords::rotation_size = 10 * 1024 * 1024,
+            boost::log::keywords::min_free_space = 30 * 1024 * 1024,
+            boost::log::keywords::open_mode = std::ios_base::app);
+    fsSink->set_formatter(logFmt);
+    fsSink->locked_backend()->auto_flush(true);
+}

@@ -17,6 +17,7 @@
 #include <numeric>
 #include <thread>
 #include <memory>
+#include <boost/log/trivial.hpp>
 
 #include "Antenna_AzEl.h"
 #include "Antenna_HaDc.h"

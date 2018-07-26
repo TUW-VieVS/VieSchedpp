@@ -246,7 +246,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
 void Scheduler::start() noexcept {
 
-    string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".log";
+    string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".txt";
     ofstream of(path_ + fileName);
 
     if(network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0){

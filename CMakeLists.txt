@@ -88,11 +88,11 @@ SET(BOOST_ROOT "C:/boost")
 
 #SET(Boost_NO_SYSTEM_PATHS OFF)
 #SET(Boost_USE_MULTITHREADED ON)
-#SET(Boost_USE_STATIC_LIBS OFF)
 #SET(Boost_USE_STATIC_RUNTIME OFF)
 #SET(Boost_ALL_DYN_LINK OFF)
+SET(Boost_USE_STATIC_LIBS     ON)
 
-find_package(Boost 1.64.0 REQUIRED)
+find_package(Boost COMPONENTS log log_setup system REQUIRED)
 #find_package(BOOST 1.64.0 COMPONENTS system filesystem)
 
 if (Boost_FOUND)
