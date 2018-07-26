@@ -703,7 +703,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
         int sec = util::duration(startTime,endTime);
         if (sec < 0) {
-            cerr << "ERROR: duration is less than zero seconds!;\n";
+            BOOST_LOG_TRIVIAL(error) << "duration is less than zero seconds";
         }
         auto duration = static_cast<unsigned int>(sec);
         of << "duration: " << duration << " [s]\n";
@@ -863,8 +863,8 @@ void Initializer::initializeStations() noexcept {
                 for (const auto &any:waitTimesNow) {
                     if (find(waitTimesInitialized.begin(), waitTimesInitialized.end(), any) !=
                         waitTimesInitialized.end()) {
-                        cerr << "ERROR: double use of station/group " << name
-                             << " in wait times block! This whole block is ignored!;\n";
+                        BOOST_LOG_TRIVIAL(error) << "double use of station/group " << name
+                             << " in wait times block! This whole block is ignored";
                         errorFlagWaitTime = true;
                     }
                 }
@@ -913,8 +913,8 @@ void Initializer::initializeStations() noexcept {
                 bool errorFlagWaitTime = false;
                 for (const auto &any:cableNow) {
                     if (find(cableInitialized.begin(), cableInitialized.end(), any) != cableInitialized.end()) {
-                        cerr << "ERROR: double use of station/group " << name
-                             << " in wait times block! This whole block is ignored!;\n";
+                        BOOST_LOG_TRIVIAL(error) << "ERROR: double use of station/group " << name
+                             << " in cable wrap buffer block! This whole block is ignored!";
                         errorFlagWaitTime = true;
                     }
                 }
@@ -1819,7 +1819,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                     }
                 }
                 ObservationMode::bands.push_back(name);
-                BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << ") added with " << channels << " channels";
+                BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << " [m]) added with " << channels << " channels";
 
                 ObservationMode::nChannels[name] = channels;
                 ObservationMode::wavelength[name] = wavelength;
@@ -1902,7 +1902,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         }
     }
 
-    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: sample rate %f recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
+    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
     of << "Observing Mode:\n";
     of << "  sample rate:    " << ObservationMode::sampleRate << "\n";
     of << "  recording bits: " << ObservationMode::bits << "\n";
@@ -1911,7 +1911,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
     for(const auto &any:ObservationMode::bands){
         unsigned int channels = ObservationMode::nChannels.at(any);
         double wavelength = ObservationMode::wavelength.at(any);
-        of << boost::format("    %2s: channels: %2d wavelength: %5.3f\n") %any %channels %wavelength;
+        of << boost::format("    %2s: channels: %2d wavelength: %5.3f [m]\n") %any %channels %wavelength;
         BOOST_LOG_TRIVIAL(info) << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
     }
     of << "\n";

@@ -24,8 +24,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     try {
         fileName_ = boost::to_lower_copy(xml_.get<std::string>("master.output.experimentName"));
     } catch(const boost::property_tree::ptree_error &e){
-        cerr << "cannot open parameter file: " << inputFile_ << endl;
-        cerr << e.what() << endl;
+        BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
         terminate();
     }
 
@@ -40,6 +39,7 @@ void VieSchedpp::run() {
     VieVS::Initializer init(xml_);
 
     // open headerlog and statistics file
+    BOOST_LOG_TRIVIAL(info) << "start initializing scheduler";
     BOOST_LOG_TRIVIAL(info) << "writing initializer output to: initializer.txt";
     ofstream of(path_+"initializer.txt");
     ofstream statisticsOf(path_+"statistics.csv");
@@ -76,7 +76,7 @@ void VieSchedpp::run() {
     if (!multiSchedParameters_.empty()) {
         flag_multiSched = true;
         nsched = multiSchedParameters_.size();
-        cout << "multi scheduling found ... creating " << nsched << " schedules!;\n";
+        BOOST_LOG_TRIVIAL(info) << "multi scheduling found ... creating " << nsched << " schedules!";
     }
     of.close();
 
@@ -86,7 +86,7 @@ void VieSchedpp::run() {
 
     if(flag_multiSched){
         multiCoreSetup();
-        cout << "Using OpenMP to parallize multi scheduling;\n";
+        BOOST_LOG_TRIVIAL(info) << "Using OpenMP to parallize multi scheduling!";
         int nThreads = omp_get_num_threads();
 
         omp_sched_t omp_sched;
@@ -101,14 +101,13 @@ void VieSchedpp::run() {
             case omp_sched_auto:    jobScheduling = "auto";     break;
         }
 
-        cout << (boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d;\n")
-                 %nThreads %jobScheduling %chunkSize).str();
+        BOOST_LOG_TRIVIAL(info) << boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d") %nThreads %jobScheduling %chunkSize;
     }
 
 #pragma omp parallel for schedule(runtime)
 #else
     if(nsched > 1){
-        cout << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support!";
+        BOOST_LOG_TRIVIAL(warning) << "VLBI Scheduler was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
     }
 #endif
     // create all required schedules
@@ -131,18 +130,7 @@ void VieSchedpp::run() {
         // if you have multi schedule append version number to file name
         if (flag_multiSched) {
             fname.append((boost::format("_v%03d") % (i+1)).str());
-        }
-
-        // if you have multicore support add thread number as prefix to output
-        string threadNumberPrefix;
-        if (flag_multiSched){
-            // get thread number if you use openmp
-            #ifdef  _OPENMP
-            threadNumberPrefix = (boost::format("thread %d: ") % omp_get_thread_num()).str();
-            #endif
-
-            cout << boost::format("%screating multi scheduling version %d of %d;\n") % threadNumberPrefix % (i+1) % nsched;
-            cout << boost::format("version %d: writing log file to: %s.log;\n") % (i+1) % fname;
+            BOOST_LOG_TRIVIAL(info) << boost::format("creating multi scheduling version %d of %d") % (i+1) % nsched;
         }
 
         // add multi scheduling parameters
@@ -151,26 +139,30 @@ void VieSchedpp::run() {
         }
 
         // create scheduler and start scheduling
+        BOOST_LOG_TRIVIAL(info) << "start scheduling";
         VieVS::Scheduler scheduler = VieVS::Scheduler(newInit, path_, fname);
         scheduler.start();
 
         // create output
+        BOOST_LOG_TRIVIAL(info) << "start writing output";
         VieVS::Output output(scheduler, path_, fname, version);
         output.createAllOutputFiles(statisticsOf, skdCatalogs_);
 
         if(flag_multiSched){
-            cout << threadNumberPrefix+(boost::format("version %d finished;\n") % (i + 1)).str();
+            BOOST_LOG_TRIVIAL(info) << boost::format("version %d finished") % (i + 1);
         }
     }
     statisticsOf.close();
-    cout << "everything finally finished!;\n";
-    cout << "created scans:                " << Scan::numberOfCreatedObjects() << ";\n";
-    cout << "created observations:         " << Observation::numberOfCreatedObjects() << ";\n";
-    cout << "created antenna pointings:    " << PointingVector::numberOfCreatedObjects() << ";\n\n";
+
+    BOOST_LOG_TRIVIAL(info) << "VieSchedpp is closing";
+    BOOST_LOG_TRIVIAL(info) << "created scans: " << Scan::numberOfCreatedObjects();
+    BOOST_LOG_TRIVIAL(info) << "created observations: " << Observation::numberOfCreatedObjects();
+    BOOST_LOG_TRIVIAL(info) << "created antenna pointings: " << PointingVector::numberOfCreatedObjects();
 }
 
 void VieSchedpp::readSkdCatalogs() {
 
+    BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     vector<string> staNames;
     boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
     auto it = ptree_stations.begin();
@@ -191,6 +183,7 @@ void VieSchedpp::readSkdCatalogs() {
 
 #ifdef  _OPENMP
 void VieSchedpp::multiCoreSetup() {
+    BOOST_LOG_TRIVIAL(debug) << "read parallel processing setup";
     std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
 
     int chunkSize = xml_.get<int>("master.multiCore.chunkSize",-1);
@@ -271,8 +264,8 @@ void VieSchedpp::init_log() {
 
     /* fs sink */
     auto fsSink = boost::log::add_file_log(
-//            boost::log::keywords::file_name = path_+"VieSchedpp_%Y-%m-%d_%H-%M-%S.%3N.log",
-            boost::log::keywords::file_name = path_+"VieSchedpp_%3N.log",
+            boost::log::keywords::file_name = path_+"VieSchedpp_%Y-%m-%d_%H-%M-%S.%3N.log",
+//            boost::log::keywords::file_name = path_+"VieSchedpp_%3N.log",
             boost::log::keywords::rotation_size = 10 * 1024 * 1024,
             boost::log::keywords::min_free_space = 30 * 1024 * 1024,
             boost::log::keywords::open_mode = std::ios_base::app);

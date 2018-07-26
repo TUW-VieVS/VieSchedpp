@@ -88,20 +88,6 @@ double Source::getSunDistance() const noexcept{
     return acos(tmp);
 }
 
-namespace VieVS {
-    ostream &operator<<(ostream &out, const Source &src) noexcept {
-        cout << boost::format("%=36s\n") % src.getName();
-        double ra_deg = src.ra_ * rad2deg;
-        double de_deg = src.de_ * rad2deg;
-        cout << "position:\n";
-        cout << boost::format("  RA: %10.6f [deg]\n") % ra_deg;
-        cout << boost::format("  DE: %10.6f [deg]\n") % de_deg;
-//        cout << src.flux;
-        cout << "------------------------------------\n";
-        return out;
-    }
-}
-
 double Source::observedFlux(const string &band, double gmst, const std::vector<double> &dxyz) const noexcept {
 
     double ha = gmst - ra_;

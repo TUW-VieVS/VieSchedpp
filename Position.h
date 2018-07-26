@@ -90,14 +90,6 @@ namespace VieVS{
          */
         double getDistance(const Position &other) const noexcept;
 
-        /**
-         * @brief overload of the << operator for output to stream
-         *
-         * @param out output stream object
-         * @param position position information that should be printed to stream
-         * @return stream object
-         */
-        friend std::ostream &operator<<(std::ostream &out, const Position &position) noexcept;
 
         void geodetic2Local(double g2l[3][3]){
             g2l = g2l_;

@@ -15,6 +15,8 @@
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 #include <set>
+#include <boost/log/trivial.hpp>
+
 #include "VieVS_Object.h"
 #include "util.h"
 

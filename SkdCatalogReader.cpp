@@ -82,7 +82,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
+                BOOST_LOG_TRIVIAL(error) << "ERROR: Unable to open " << filepath << " file";
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -188,7 +188,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         if (all.find(key) == all.end()) {
                             all.insert(pair<string, vector<string>>(key, splitVector));
                         } else {
-                            cerr << "WARNING: Duplicated element of '" << key << "' in " << filepath << ";\n";
+                            BOOST_LOG_TRIVIAL(warning) << "Duplicated element of '" << key << "' in " << filepath << " -> ignored";
                         }
                     }
                 }
@@ -203,7 +203,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
+                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -287,7 +287,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
-                cerr << "ERROR: Unable to open " << filepath << " file!;\n";
+                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
             } else {
                 string line;
                 vector<string> lines;
@@ -522,8 +522,8 @@ void SkdCatalogReader::readRecCatalog() {
 
                             staName2recFormatMap_[thisStaName] = splitVector2[4];
                             if (splitVector2.size() > 5) {
-                                cout << "WARNING: barrel_roll and max_bw information ignored for station "
-                                     << thisStaName << " in rec.cat" << ";" << endl;
+                                BOOST_LOG_TRIVIAL(warning) << "barrel_roll and max_bw information ignored for station "
+                                     << thisStaName << " in rec.cat";
                             }
                         }
                     }
@@ -563,7 +563,7 @@ void SkdCatalogReader::readTracksCatalog() {
                     if(bits_ == 0){
                         bits_ = bits;
                     } else if(bits_ != bits){
-                        cerr << "ERROR: Number of recorded bits is different for different track ids;\n";
+                        BOOST_LOG_TRIVIAL(error) << "number of recorded bits is different for different track ids -> ignored";
                     }
                     tracksId2bitsMap_[tracksId] = bits;
 
@@ -746,14 +746,16 @@ void SkdCatalogReader::saveOneLetterCode() {
         auto tmp = ant.at(staName);
         char oneLetterCode = tmp[0][0];
         if (charsUsed.find(oneLetterCode) != charsUsed.end()) {
-            cout << "WARNING: One letter code " << oneLetterCode << " of station " << staName << " already used!";
+
             for (char l = 'A'; l <= 'Z'; ++l) {
                 if (charsUsed.find(l) == charsUsed.end()) {
-                    cout << "--> using \"" << l << "\" insted!; \n";
                     oneLetterCode = l;
                     break;
                 }
             }
+
+            BOOST_LOG_TRIVIAL(warning) << "changing one letter code of station " << staName << " to '"<< oneLetterCode <<"'";
+
         }
         charsUsed.insert(oneLetterCode);
         oneLetterCode_[staName] = oneLetterCode;

@@ -27,7 +27,7 @@ void Output::writeSkdsum() {
     string fileName = getName();
     fileName.append("_skdsum.txt");
 
-    cout << (boost::format("writing statistics to: %s;\n") % fileName).str();
+    BOOST_LOG_TRIVIAL(info) << "writing statistics to: " << fileName;
 
     ofstream of(path_+fileName);
     displayGeneralStatistics(of);
@@ -548,13 +548,10 @@ void Output::writeNGS() {
     string fname;
     if (version_ == 0) {
         fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("VS_N000");
-        string txt = (boost::format("writing NGS file: %s;\n") % fname).str();
-        cout << txt;
     } else {
         fname = (boost::format("%sVS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
-        string txt = (boost::format("version %d: writing empty ngs file: %s;\n") % version_ % fname).str();
-        cout << txt;
     }
+    BOOST_LOG_TRIVIAL(info) << "writing empty NGS file to " << fname;
     ofstream of(path_+fname);
 
 
@@ -616,7 +613,7 @@ void Output::writeNGS() {
 void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     string fileName = getName();
     fileName.append(".vex");
-    cout << (boost::format("writing vex file: %s;\n") % fileName).str();
+    BOOST_LOG_TRIVIAL(info) << "writing vex file to: " << fileName;
     Vex vex(path_+fileName);
     vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
 }
@@ -624,7 +621,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     string fileName = getName();
     fileName.append(".skd");
-    cout << (boost::format("writing skd file: %s;\n") % fileName).str();
+    BOOST_LOG_TRIVIAL(info) << "writing skd file to: " << fileName;
     Skd skd(path_+fileName);
     skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
@@ -641,7 +638,7 @@ void Output::writeStatisticsPerSourceGroup() {
         string expName = xml_.get("master.output.experimentName","schedule");
         string fileName = getName();
         fileName.append("_sourceStatistics.txt");
-        cout << (boost::format("writing source statistics file: %s;\n") % fileName).str();
+        BOOST_LOG_TRIVIAL(info) << "writing source statistics file to: " << fileName;
 
         vector<string> interestedSrcGroups;
         const auto & tmp = xml_.get_child_optional("master.output.sourceGroupsForStatistic");
@@ -1055,7 +1052,7 @@ void Output::writeOperationsNotes() {
 
     string fileName = getName();
     fileName.append("_operationsNotes.txt");
-    cout << (boost::format("writing operationsNotes file: %s;\n") % fileName).str();
+    BOOST_LOG_TRIVIAL(info) << "writing operationsNotes file to: " << fileName;
     ofstream of(path_+fileName);
 
     of << "Session Notes for: " << expName << "\n";

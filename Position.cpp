@@ -65,16 +65,6 @@ Position::Position(double x_m, double y_m, double z_m):VieVS_Object(nextId++), x
              {g2l_[2][0], g2l_[2][1], g2l_[2][2]}};
 }
 
-namespace VieVS{
-    ostream &operator<<(ostream &out, const Position &position) noexcept {
-        double latDeg = rad2deg*position.lat_;
-        double lonDeg = rad2deg*position.lon_;
-        cout << "Location: \n";
-        cout << boost::format("    lat: %6.2f [deg]\n") % latDeg;
-        cout << boost::format("    lon: %6.2f [deg]\n") % lonDeg;
-        return out;
-    }
-}
 
 double Position::getDistance(const Position &other) const noexcept {
     double dx = x_-other.x_;

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <boost/format.hpp>
 #include <cmath>
+#include <boost/log/trivial.hpp>
 
 #include "PointingVector.h"
 #include "Constants.h"

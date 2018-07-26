@@ -382,15 +382,6 @@ namespace VieVS{
 
         void clearObservations();
 
-        /**
-         * @brief overload of the << operator for output to stream
-         *
-         * @param out output stream object
-         * @param src source information that should be printed to stream
-         * @return stream object
-         */
-        friend std::ostream &operator<<(std::ostream &out, const Source &src) noexcept;
-
         void setStatistics(const Statistics &stat){
             statistics_ = stat;
         }

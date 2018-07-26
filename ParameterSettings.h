@@ -16,6 +16,7 @@
 #include <utility>
 #include <unordered_map>
 #include <boost/format.hpp>
+#include <boost/log/trivial.hpp>
 
 #include "util.h"
 #include "ParameterSetup.h"

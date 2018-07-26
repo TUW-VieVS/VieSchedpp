@@ -256,7 +256,7 @@ void Scheduler::start() noexcept {
         return;
     }
 
-    cout << (boost::format("writing scheduling log file: %s;\n") % fileName).str();
+    BOOST_LOG_TRIVIAL(info) << "writing scheduling file to: " << fileName;
     if(parameters_.currentIteration>0){
         of << "Iteration number: " << parameters_.currentIteration << "\n";
     }
@@ -318,8 +318,8 @@ void Scheduler::start() noexcept {
 
     // check if there was an error during the session
     if (!checkAndStatistics(of)) {
-        cout << boost::format("ERROR: %s iteration %d while checking the schedule (see log file);\n")
-                % getName() %(parameters_.currentIteration);
+        BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule")
+                                    % getName() %(parameters_.currentIteration);
     }
 
     // output some statistics
@@ -332,6 +332,7 @@ void Scheduler::start() noexcept {
     if(newScheduleNecessary){
         ++parameters_.currentIteration;
         // restart schedule
+        BOOST_LOG_TRIVIAL(info) << "source optimization conditions not met -> restarting schedule with reduced number of sources";
         start();
     }
 
@@ -345,8 +346,10 @@ void Scheduler::statistics(ofstream &of) {
     of << "considered single source scans:   " << nSingleScansConsidered << "\n";
     of << "considered subnetting combiation: " << nSubnettingScansConsidered << "\n";
     of << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
-    int nbl = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
-    of << "number of observations:           " << nbl << "\n";
+    int nobs = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
+    of << "number of observations:           " << nobs << "\n";
+    BOOST_LOG_TRIVIAL(info) << "created schedule with " << scans_.size() << " scans and " << nobs << " observations";
+
 }
 
 Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
@@ -757,13 +760,11 @@ void Scheduler::startCalibrationBlock(std::ofstream &of) {
             double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
             double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
 
-//            cout << "new Scan\n";
             for(int j = 0; j<scan.getNSta(); ++j){
                 const PointingVector &pv = scan.getPointingVector(j);
                 unsigned long staid = pv.getStaid();
 
                 double el = pv.getEl();
-//                cout << "el: " << el << "\n";
                 double lowElScore;
                 if(el>lowElevationSlopeStart) {
                     lowElScore = 0;
@@ -772,7 +773,6 @@ void Scheduler::startCalibrationBlock(std::ofstream &of) {
                 } else {
                     lowElScore = (lowElevationSlopeStart-el)/(lowElevationSlopeStart-lowElevationSlopeEnd);
                 }
-//                cout << "lowElScore: " << lowElScore << " before " << prevLowElevationScores[staid] <<"\n";
                 if(lowElScore>prevLowElevationScores[staid]){
                     prevLowElevationScores[staid] = lowElScore;
                 }
@@ -788,7 +788,6 @@ void Scheduler::startCalibrationBlock(std::ofstream &of) {
                 } else {
                     highElScore = (el-highElevationSlopeStart)/(highElevationSlopeEnd-lowElevationSlopeStart);
                 }
-//                cout << "highElScore: " << highElScore << " before " << prevHighElevationScores[staid] << "\n";
                 if(highElScore>prevHighElevationScores[staid]){
                     prevHighElevationScores[staid] = highElScore;
                 }

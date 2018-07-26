@@ -579,8 +579,8 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
         }
         for (const auto &sta:stations) {
             if (skd.getStaName2tracksMap().find(sta.getName()) == skd.getStaName2tracksMap().end()) {
-                cerr << "WARNING: skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
-                     << sta.getName() << " MISSING in this mode!;\n";
+                BOOST_LOG_TRIVIAL(warning) << "skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
+                                              << sta.getName() << " MISSING in this mode";
                 of << "* F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName()
                    << " MISSING in this mode!\n";
             }

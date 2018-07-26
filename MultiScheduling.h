@@ -18,6 +18,7 @@
 #include <boost/format.hpp>
 #include <numeric>
 #include <random>
+#include <boost/log/trivial.hpp>
 
 #include "ParameterGroup.h"
 #include "WeightFactors.h"

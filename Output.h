@@ -9,6 +9,9 @@
 
 #ifndef OUTPUT_H
 #define OUTPUT_H
+
+#include <boost/log/trivial.hpp>
+
 #include "Scheduler.h"
 #include "boost/format.hpp"
 #include "Vex.h"

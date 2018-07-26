@@ -18,7 +18,7 @@ void SkdParser::read() {
     vector<string> staNames;
     ifstream fid(filename_);
     if (!fid.is_open()) {
-        cerr << "ERROR: Unable to open " << filename_ << " file!;\n";
+        BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_;
         return;
     } else {
         vector <string> splitVector;
@@ -41,13 +41,13 @@ void SkdParser::read() {
                 if(splitVector[4] == "START"){
                     TimeSystem::startTime = TimeSystem::string_doy2ptime(splitVector[5]);
                 }else{
-                    cerr << "ERROR: Start time not found! Instead: " << splitVector[4] << ";\n";
+                    BOOST_LOG_TRIVIAL(error) << "session start time not found";
                     return;
                 }
                 if(splitVector[6] == "END"){
                     TimeSystem::endTime = TimeSystem::string_doy2ptime(splitVector[7]);
                 }else{
-                    cerr << "ERROR: End time not found! Instead: " << splitVector[6] << ";\n";
+                    BOOST_LOG_TRIVIAL(error) << "session end time not found";
                     return;
                 }
             }
@@ -118,7 +118,7 @@ void SkdParser::read() {
 
     int sec = util::duration(TimeSystem::startTime,TimeSystem::endTime);
     if (sec < 0) {
-        cerr << "ERROR: duration is less than zero seconds!;\n";
+        BOOST_LOG_TRIVIAL(error) << "duration is less than zero seconds";
     }
     auto duration = static_cast<unsigned int>(sec);
     TimeSystem::duration = duration;
@@ -337,7 +337,7 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
 
     unsigned long staid = network_.getStation(station).getId();
     if(staid == -1){
-        cerr << "ERROR: get scheduled slew times: station name "<< station << "unknown!;\n";
+        BOOST_LOG_TRIVIAL(error) << "station name "<< station << "unknown";
     }else {
         for (const auto &scan:scans_) {
             int idx = -1;
