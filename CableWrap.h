@@ -12,7 +12,10 @@
 #include <iostream>
 #include <boost/format.hpp>
 #include <cmath>
+
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "PointingVector.h"
 #include "Constants.h"

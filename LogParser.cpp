@@ -14,7 +14,9 @@ LogParser::LogParser(const std::string &filename): VieVS_Object(nextId++), filen
 void LogParser::parseLogFile(const string &slewStart, const string &slewEnd) {
     ifstream fid(filename_);
     if (!fid.is_open()) {
+        #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_ << " file";
+        #endif
         return;
     } else {
         string line;

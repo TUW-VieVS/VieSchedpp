@@ -27,7 +27,9 @@ void Output::writeSkdsum() {
     string fileName = getName();
     fileName.append("_skdsum.txt");
 
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing statistics to: " << fileName;
+    #endif
 
     ofstream of(path_+fileName);
     displayGeneralStatistics(of);
@@ -551,7 +553,9 @@ void Output::writeNGS() {
     } else {
         fname = (boost::format("%sVS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
     }
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing empty NGS file to " << fname;
+    #endif
     ofstream of(path_+fname);
 
 
@@ -613,7 +617,9 @@ void Output::writeNGS() {
 void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     string fileName = getName();
     fileName.append(".vex");
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing vex file to: " << fileName;
+    #endif
     Vex vex(path_+fileName);
     vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
 }
@@ -621,7 +627,9 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     string fileName = getName();
     fileName.append(".skd");
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing skd file to: " << fileName;
+    #endif
     Skd skd(path_+fileName);
     skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
@@ -638,7 +646,9 @@ void Output::writeStatisticsPerSourceGroup() {
         string expName = xml_.get("master.output.experimentName","schedule");
         string fileName = getName();
         fileName.append("_sourceStatistics.txt");
+        #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "writing source statistics file to: " << fileName;
+        #endif
 
         vector<string> interestedSrcGroups;
         const auto & tmp = xml_.get_child_optional("master.output.sourceGroupsForStatistic");
@@ -1052,7 +1062,9 @@ void Output::writeOperationsNotes() {
 
     string fileName = getName();
     fileName.append("_operationsNotes.txt");
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing operationsNotes file to: " << fileName;
+    #endif
     ofstream of(path_+fileName);
 
     of << "Session Notes for: " << expName << "\n";

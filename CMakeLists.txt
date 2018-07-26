@@ -66,7 +66,10 @@ set(SOURCE_FILES
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 
-############################## OpenMP ###################################
+#############################################################################################
+########################################## OpenMP ###########################################
+#############################################################################################
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     message("OpenMP found")
@@ -75,25 +78,27 @@ if (OPENMP_FOUND)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-############################## BOOST ###################################
-
-#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/home/mschartn/boost_1_64_0")
-#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/home/mschartn/boost_1_64_0")
-
-#SET(BOOST_ROOT "/home/mschartn/boost_1_64_0")
+#############################################################################################
+########################################### BOOST ###########################################
+#############################################################################################
 SET(BOOST_ROOT "C:/boost")
 
-#SET(Boost_DEBUG ON)
-#SET(Boost_DETAILED_FAILURE_MSG ON)
+##### uncommend the following lines to use boost libraries and therefore enable logging #####
+#                                                                                           #
+add_definitions( -DVIESCHEDPP_LOG )                                                        #
+SET(Boost_USE_STATIC_LIBS     ON)                                                          #
+find_package(Boost COMPONENTS log log_setup system REQUIRED)                               #
+#                                                                                           #
+######################################## end of block #######################################
 
-#SET(Boost_NO_SYSTEM_PATHS OFF)
-#SET(Boost_USE_MULTITHREADED ON)
-#SET(Boost_USE_STATIC_RUNTIME OFF)
-#SET(Boost_ALL_DYN_LINK OFF)
-SET(Boost_USE_STATIC_LIBS     ON)
+# OR:
 
-find_package(Boost COMPONENTS log log_setup system REQUIRED)
-#find_package(BOOST 1.64.0 COMPONENTS system filesystem)
+#### uncommend the following lines to only use header only libraries and  disable logging ###
+#                                                                                           #
+# find_package(Boost  REQUIRED)                                                             #
+#                                                                                           #
+######################################## end of block #######################################
+
 
 if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -106,29 +111,34 @@ if (Boost_FOUND)
 endif ()
 
 
-############################## SOFA ###################################
+#############################################################################################
+########################################### SOFA ############################################
+#############################################################################################
 
-# uncommend the following lines to manually link SOFA to your project
-#
-#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)
-#if (SOFA)
-#    message("SOFA found here: ${SOFA}")
-#    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})
-#endif()
+############ uncommend the following lines to manually link SOFA to your project ############
+#                                                                                           #
+#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)        #
+#if (SOFA)                                                                                  #
+#    message("SOFA found here: ${SOFA}")                                                    #
+#    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})                                          #
+#endif()                                                                                    #
+#                                                                                           #
+######################################## end of block #######################################
 
+# OR:
 
-
-# uncommend the following lines to automatically look for SOFA and link it to your project
-#
-FIND_LIBRARY(SOFA_LNX libsofa_c.a ./)
-FIND_LIBRARY(SOFA_WIN libsofa_c.lib ./)
-if (SOFA_LNX)
-    message("SOFA library found: ${SOFA_LNX}")
-    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_LNX})
-elseif(SOFA_WIN)
-    message("SOFA library found: ${SOFA_WIN}")
-    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_WIN})
-else()
-    message("ERROR: SOFA library not found!")
-endif ()
-
+######### uncommend the following lines to automatically look for SOFA and link it ##########
+#                                                                                           #
+FIND_LIBRARY(SOFA_LNX libsofa_c.a ./)                                                      #
+FIND_LIBRARY(SOFA_WIN libsofa_c.lib ./)                                                    #
+if (SOFA_LNX)                                                                              #
+    message("SOFA library found: ${SOFA_LNX}")                                             #
+    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_LNX})                                          #
+elseif(SOFA_WIN)                                                                           #
+    message("SOFA library found: ${SOFA_WIN}")                                             #
+    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_WIN})                                          #
+else()                                                                                     #
+    message("ERROR: SOFA library not found!")                                              #
+endif ()                                                                                   #
+#                                                                                           #
+######################################## end of block #######################################

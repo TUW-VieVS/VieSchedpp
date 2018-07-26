@@ -256,7 +256,10 @@ void Scheduler::start() noexcept {
         return;
     }
 
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing scheduling file to: " << fileName;
+    #endif
+
     if(parameters_.currentIteration>0){
         of << "Iteration number: " << parameters_.currentIteration << "\n";
     }
@@ -318,8 +321,10 @@ void Scheduler::start() noexcept {
 
     // check if there was an error during the session
     if (!checkAndStatistics(of)) {
+        #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule")
-                                    % getName() %(parameters_.currentIteration);
+                                            % getName() %(parameters_.currentIteration);
+        #endif
     }
 
     // output some statistics
@@ -331,8 +336,12 @@ void Scheduler::start() noexcept {
     // check if new iteration is necessary
     if(newScheduleNecessary){
         ++parameters_.currentIteration;
-        // restart schedule
+
+        #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "source optimization conditions not met -> restarting schedule with reduced number of sources";
+        #endif
+
+        // restart schedule
         start();
     }
 
@@ -348,7 +357,9 @@ void Scheduler::statistics(ofstream &of) {
     of << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nobs = std::accumulate(scans_.begin(), scans_.end(), 0, [](int sum, const Scan &any){ return sum + any.getNObs(); });
     of << "number of observations:           " << nobs << "\n";
+    #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "created schedule with " << scans_.size() << " scans and " << nobs << " observations";
+    #endif
 
 }
 

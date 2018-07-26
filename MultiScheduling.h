@@ -18,7 +18,10 @@
 #include <boost/format.hpp>
 #include <numeric>
 #include <random>
+
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "ParameterGroup.h"
 #include "WeightFactors.h"

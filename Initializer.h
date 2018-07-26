@@ -17,7 +17,10 @@
 #include <numeric>
 #include <thread>
 #include <memory>
+
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "Antenna_AzEl.h"
 #include "Antenna_HaDc.h"

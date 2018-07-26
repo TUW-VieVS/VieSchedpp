@@ -82,7 +82,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "ERROR: Unable to open " << filepath << " file";
+                #endif
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -188,7 +190,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         if (all.find(key) == all.end()) {
                             all.insert(pair<string, vector<string>>(key, splitVector));
                         } else {
+                            #ifdef VIESCHEDPP_LOG
                             BOOST_LOG_TRIVIAL(warning) << "Duplicated element of '" << key << "' in " << filepath << " -> ignored";
+                            #endif
                         }
                     }
                 }
@@ -203,7 +207,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                #endif
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -287,7 +293,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             // open file
             ifstream fid(filepath);
             if (!fid.is_open()) {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                #endif
             } else {
                 string line;
                 vector<string> lines;
@@ -522,8 +530,10 @@ void SkdCatalogReader::readRecCatalog() {
 
                             staName2recFormatMap_[thisStaName] = splitVector2[4];
                             if (splitVector2.size() > 5) {
+                                #ifdef VIESCHEDPP_LOG
                                 BOOST_LOG_TRIVIAL(warning) << "barrel_roll and max_bw information ignored for station "
                                      << thisStaName << " in rec.cat";
+                                #endif
                             }
                         }
                     }
@@ -563,7 +573,9 @@ void SkdCatalogReader::readTracksCatalog() {
                     if(bits_ == 0){
                         bits_ = bits;
                     } else if(bits_ != bits){
+                        #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "number of recorded bits is different for different track ids -> ignored";
+                        #endif
                     }
                     tracksId2bitsMap_[tracksId] = bits;
 
@@ -754,7 +766,9 @@ void SkdCatalogReader::saveOneLetterCode() {
                 }
             }
 
+            #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "changing one letter code of station " << staName << " to '"<< oneLetterCode <<"'";
+            #endif
 
         }
         charsUsed.insert(oneLetterCode);

@@ -148,7 +148,9 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
     Parameters thisPARA;
     if(n_total>9999){
+        #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(warning) << "too many multi scheduling parameters! (" << n_total << ") -> multi scheduling ignored";
+        #endif
         return std::vector<Parameters>{};
     }
 

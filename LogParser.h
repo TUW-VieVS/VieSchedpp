@@ -9,7 +9,10 @@
 #include <fstream>
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
+
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "TimeSystem.h"
 #include "VieVS_Object.h"

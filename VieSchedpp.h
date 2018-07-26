@@ -11,6 +11,7 @@
 #include <iostream>
 #include <thread>
 
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/expressions.hpp>
@@ -23,8 +24,7 @@
 #include <boost/log/sinks/text_file_backend.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/attributes/named_scope.hpp>
-
-
+#endif
 
 #include "Initializer.h"
 #include "Scheduler.h"
@@ -59,11 +59,13 @@ namespace VieVS {
 
         void readSkdCatalogs();
 
-#ifdef _OPENMP
+        #ifdef _OPENMP
         void multiCoreSetup();
-#endif
+        #endif
 
+        #ifdef VIESCHEDPP_LOG
         void init_log();
+        #endif
 
     };
 }

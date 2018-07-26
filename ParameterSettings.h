@@ -16,7 +16,10 @@
 #include <utility>
 #include <unordered_map>
 #include <boost/format.hpp>
+
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "util.h"
 #include "ParameterSetup.h"

@@ -589,8 +589,10 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
     for (const auto &any:PARA_station) {
         if (any.first == "waitTimes") {
             if (name == "__all__") {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                      << " in cable wrap buffer block -> ignored";
+                #endif
                 return;
             }
             string memberName = any.second.get_child("<xmlattr>.member").data();
@@ -598,8 +600,10 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
                 membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
                                           groupStations_[memberName].end());
             } else if (memberName == "__all__") {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                      << " in wait time block -> ignored";
+                #endif
                 return;
             } else {
                 membersAlreadyUsed.push_back(memberName);
@@ -608,8 +612,10 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
     }
     for (const auto &any:members) {
         if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
+            #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                  << " in wait times block -> ignored";
+            #endif
             return;
         }
     }
@@ -638,8 +644,10 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
     for (const auto &any:PARA_station) {
         if (any.first == "cableWrapBuffer") {
             if (name == "__all__") {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                      << " in cable wrap buffer block -> ignored";
+                #endif
                 return;
             }
             string memberName = any.second.get_child("<xmlattr>.member").data();
@@ -647,8 +655,10 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
                 membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
                                           groupStations_[memberName].end());
             } else if (memberName == "__all__") {
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                      << " in cable wrap buffer block -> ignored";
+                #endif
                 return;
             } else {
                 membersAlreadyUsed.push_back(memberName);
@@ -658,8 +668,10 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
 
     for (const auto &any:members) {
         if (find(membersAlreadyUsed.begin(), membersAlreadyUsed.end(), any) != membersAlreadyUsed.end()) {
+            #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name
                  << " in cable wrap buffer block -> ignored";
+            #endif
             return;
         }
     }

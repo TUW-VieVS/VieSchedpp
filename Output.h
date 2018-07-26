@@ -10,7 +10,9 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
+#ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
+#endif
 
 #include "Scheduler.h"
 #include "boost/format.hpp"
