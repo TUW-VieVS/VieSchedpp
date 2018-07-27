@@ -7486,3 +7486,4 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
