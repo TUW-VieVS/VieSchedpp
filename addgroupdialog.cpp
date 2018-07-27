@@ -120,64 +120,69 @@ void AddGroupDialog::on_pushButton_Save_clicked()
 
 void AddGroupDialog::on_pushButton_Load_clicked()
 {
-    boost::property_tree::ptree groupstree;
+    boost::optional<boost::property_tree::ptree> groupstree;
     switch (type) {
-        case Type::station:{ groupstree = settings.get_child("settings.station.groups"); break; }
-        case Type::source:{ groupstree = settings.get_child("settings.source.groups"); break; }
-        case Type::baseline:{ groupstree = settings.get_child("settings.baseline.groups"); break; }
+        case Type::station:{ groupstree = settings.get_child_optional("settings.station.groups"); break; }
+        case Type::source:{ groupstree = settings.get_child_optional("settings.source.groups"); break; }
+        case Type::baseline:{ groupstree = settings.get_child_optional("settings.baseline.groups"); break; }
         default:{ break; }
     }
 
-    QVector<QString> names;
-    QVector<QVector<QString> > groups;
+    if(groupstree.is_initialized()){
+        QVector<QString> names;
+        QVector<QVector<QString> > groups;
 
-    for(const auto &it:groupstree){
-        QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
-        QVector<QString> group;
+        for(const auto &it:*groupstree){
+            QString name = QString::fromStdString(it.second.get_child("<xmlattr>.name").data());
+            QVector<QString> group;
 
-        for(const auto &it2:it.second){
-            if(it2.first == "member"){
-                group.push_back(QString::fromStdString(it2.second.data()));
+            for(const auto &it2:it.second){
+                if(it2.first == "member"){
+                    group.push_back(QString::fromStdString(it2.second.data()));
+                }
+            }
+
+            names.push_back(name);
+            groups.push_back(group);
+        }
+        settingsLoadWindow *dial = new settingsLoadWindow(this);
+
+        switch (type) {
+            case Type::station:{ dial->setStationGroups(names,groups); break; }
+            case Type::source:{ dial->setSourceGroups(names,groups); break; }
+            case Type::baseline:{ dial->setBaselineGroups(names,groups); break; }
+            default:{ break; }
+        }
+
+
+        int result = dial->exec();
+        if(result == QDialog::Accepted){
+            QString warningTxt;
+
+            QString itm = dial->selectedItem();
+            int idx = dial->selectedIdx();
+            QVector<QString> members = groups.at(idx);
+
+            ui->listWidget_selected->clear();
+            for(const auto&any:members){
+                auto list = all->findItems(any);
+                if(list.size() >= 1){
+                    ui->listWidget_selected->addItem(list.at(0)->text());
+                }else{
+                    warningTxt.append("    unknown member: ").append(any).append("!\n");
+                }
+            }
+
+            ui->lineEdit_groupName->setText(itm);
+
+            if(!warningTxt.isEmpty()){
+                QString txt = "The following errors occurred while loading the group:\n";
+                txt.append(warningTxt).append("These members were ignored!\nPlease double check members again!");
+                QMessageBox::warning(this,"Unknown group members!",txt);
             }
         }
+    }else{
+        QMessageBox::warning(this,"No groups found!","No previously saved group found in settings.xml");
 
-        names.push_back(name);
-        groups.push_back(group);
-    }
-    settingsLoadWindow *dial = new settingsLoadWindow(this);
-
-    switch (type) {
-        case Type::station:{ dial->setStationGroups(names,groups); break; }
-        case Type::source:{ dial->setSourceGroups(names,groups); break; }
-        case Type::baseline:{ dial->setBaselineGroups(names,groups); break; }
-        default:{ break; }
-    }
-
-
-    int result = dial->exec();
-    if(result == QDialog::Accepted){
-        QString warningTxt;
-
-        QString itm = dial->selectedItem();
-        int idx = dial->selectedIdx();
-        QVector<QString> members = groups.at(idx);
-
-        ui->listWidget_selected->clear();
-        for(const auto&any:members){
-            auto list = all->findItems(any);
-            if(list.size() >= 1){
-                ui->listWidget_selected->addItem(list.at(0)->text());
-            }else{
-                warningTxt.append("    unknown member: ").append(any).append("!\n");
-            }
-        }
-
-        ui->lineEdit_groupName->setText(itm);
-
-        if(!warningTxt.isEmpty()){
-            QString txt = "The following errors occurred while loading the group:\n";
-            txt.append(warningTxt).append("These members were ignored!\nPlease double check members again!");
-            QMessageBox::warning(this,"Unknown group members!",txt);
-        }
     }
 }

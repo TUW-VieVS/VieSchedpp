@@ -91,24 +91,37 @@ void VieSchedpp_Analyser::setup()
         setSkyCoverageLayout(1,3);
     }else if(stas == 4){
         setSkyCoverageLayout(2,2);
-    }else if(stas >4){
+    }else if(stas == 5){
         setSkyCoverageLayout(2,3);
+    }else if(stas == 6){
+        setSkyCoverageLayout(2,3);
+    }else if(stas == 7){
+        setSkyCoverageLayout(2,4);
+    }else if(stas >= 8){
+        setSkyCoverageLayout(2,4);
     }
 
     ui->splitter_skyCoverage->setStretchFactor(0,5);
     ui->splitter_skyCoverage->setStretchFactor(1,1);
 }
 
+// -----------------------------------------------------------------------------
+
 void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
 {
+    const QSignalBlocker b1(ui->horizontalSlider_end);
+
     QDateTime newStart = sessionStart_.addSecs(value);
     ui->dateTimeEdit_start->setDateTime(newStart);
 
     if(value>ui->horizontalSlider_end->value()){
         ui->horizontalSlider_end->setValue(value);
+        ui->dateTimeEdit_end->setDateTime(newStart);
     }
     if(ui->checkBox_fixDuration->isChecked()){
         ui->horizontalSlider_end->setValue(value+ui->spinBox_duration->value());
+        QDateTime newEnd = sessionStart_.addSecs(value+ui->spinBox_duration->value());
+        ui->dateTimeEdit_end->setDateTime(newEnd);
     }else{
         updateDuration();
     }
@@ -117,14 +130,19 @@ void VieSchedpp_Analyser::on_horizontalSlider_start_valueChanged(int value)
 
 void VieSchedpp_Analyser::on_horizontalSlider_end_valueChanged(int value)
 {
+    const QSignalBlocker b0(ui->horizontalSlider_start);
+
     QDateTime newEnd = sessionStart_.addSecs(value);
     ui->dateTimeEdit_end->setDateTime(newEnd);
 
     if(value<ui->horizontalSlider_start->value()){
         ui->horizontalSlider_start->setValue(value);
+        ui->dateTimeEdit_start->setDateTime(newEnd);
     }
     if(ui->checkBox_fixDuration->isChecked()){
         ui->horizontalSlider_start->setValue(value-ui->spinBox_duration->value());
+        QDateTime newStart = sessionStart_.addSecs(value-ui->spinBox_duration->value());
+        ui->dateTimeEdit_start->setDateTime(newStart);
     }else{
         updateDuration();
     }
@@ -147,6 +165,13 @@ void VieSchedpp_Analyser::on_spinBox_duration_valueChanged(int arg1)
 {
     int newEnd = ui->horizontalSlider_start->value() + arg1;
     ui->horizontalSlider_end->setValue(newEnd);
+    if(arg1 < 3600){
+        ui->horizontalSlider_start->setSingleStep(arg1/2);
+        ui->horizontalSlider_end->setSingleStep(arg1/2);
+    }else{
+        ui->horizontalSlider_start->setSingleStep(1800);
+        ui->horizontalSlider_end->setSingleStep(1800);
+    }
 }
 
 void VieSchedpp_Analyser::updateDuration()
@@ -163,6 +188,8 @@ void VieSchedpp_Analyser::on_doubleSpinBox_hours_valueChanged(double arg1)
     int dur = arg1*3600;
     ui->spinBox_duration->setValue(dur);
 }
+
+// -----------------------------------------------------------------------------
 
 void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 {
@@ -333,17 +360,18 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
 
     const VieVS::SkyCoverage &thisSkyCoverage = network.getSkyCoverage(network.getStaid2skyCoverageId().at(thisSta.getId()));
 
-    QList<std::tuple<int, double, double, int>> list = qtUtil::pointingVectors2Lists(thisSkyCoverage.getPointingVectors());
+    QList<qtUtil::ObsData> list = qtUtil::getObsData(thisSta.getId(), schedule_.getScans());
+//    QList<std::tuple<int, double, double, int>> list = qtUtil::pointingVectors2Lists(thisSkyCoverage.getPointingVectors());
 
     QScatterSeriesExtended *data = new QScatterSeriesExtended();
     for(const auto &any : list){
-        double unaz = std::get<1>(any);
+        double unaz = any.az;
         double az = VieVS::util::wrapToPi(unaz)*rad2deg;
         if(az<0){
             az+=360;
         }
         VieVS::CableWrap::CableWrapFlag flag = thisSta.getCableWrap().cableWrapFlag(unaz);
-        data->append(std::get<0>(any), az, 90-std::get<2>(any)*rad2deg, flag, std::get<3>(any));
+        data->append(az, 90-any.el*rad2deg, any.startTime, any.endTime, flag, any.srcid, any.nsta);
     }
     data->setBrush(Qt::gray);
     data->setMarkerSize(7);
@@ -441,18 +469,23 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
     int end = ui->horizontalSlider_end->value();
 
     for(int i=0; i<data->count(); ++i){
-        if(data->getTime(i) >= start && data->getTime(i) <= end){
+        bool flag1 = data->getStartTime(i) >= start && data->getStartTime(i) <= end;
+        bool flag2 = data->getEndTime(i) >= start && data->getEndTime(i) <= end;
+        bool flag3 = data->getStartTime(i) <= start && data->getEndTime(i) >= end;
+        bool flag = flag1 || flag2 || flag3;
+
+        if(flag){
             switch(data->getCableWrapFlag(i)){
                 case VieVS::CableWrap::CableWrapFlag::n:{
-                    n->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    n->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }
                 case VieVS::CableWrap::CableWrapFlag::ccw:{
-                    ccw->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    ccw->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }
                 case VieVS::CableWrap::CableWrapFlag::cw:{
-                    cw->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    cw->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }
             }
@@ -487,14 +520,19 @@ void VieSchedpp_Analyser::skyCoverageHovered(QPointF point, bool flag)
 
                 int srcid = series->getSrcid(idx);
                 QString source = srcModel->item(srcid,0)->text().append("\n");
-                int time = series->getTime(idx);
-                QDateTime qtime = sessionStart_.addSecs(time);
-                QString timeStr = qtime.toString("hh:mm:ss").append("\n");
+                int startTime = series->getStartTime(idx);
+                int endTime = series->getEndTime(idx);
+                QDateTime qStartTime = sessionStart_.addSecs(startTime);
+                QDateTime qEndTime   = sessionStart_.addSecs(endTime);
+                QString startTimeStr = qStartTime.toString("hh:mm:ss");
+                QString endTimeStr   = qEndTime.toString("hh:mm:ss");
+                QString timeStr = startTimeStr.append("-").append(endTimeStr).append("\n");
                 QString az = QString().sprintf("az: %.2f\n", point.x());
-                QString el = QString().sprintf("el: %.2f", point.y());
+                QString el = QString().sprintf("el: %.2f\n", 90-point.y());
+                QString nsta = QString().sprintf("#sta: %d", series->getNSta(idx));
 
                 QString txt = source;
-                txt.append(timeStr).append(az).append(el);
+                txt.append(timeStr).append(az).append(el).append(nsta);
 
                 c->setText(txt);
                 c->setZValue(11);
@@ -548,9 +586,14 @@ void VieSchedpp_Analyser::on_treeView_skyCoverage_sources_clicked(const QModelIn
 
         for(int i=0; i<data->count(); ++i){
 
-            if(data->getTime(i) >= start && data->getTime(i) <= end){
+            bool flag1 = data->getStartTime(i) >= start && data->getStartTime(i) <= end;
+            bool flag2 = data->getEndTime(i) >= start && data->getEndTime(i) <= end;
+            bool flag3 = data->getStartTime(i) <= start && data->getEndTime(i) >= end;
+            bool flag = flag1 || flag2 || flag3;
+
+            if(flag){
                 if( ids.indexOf(data->getSrcid(i)) != -1){
-                    selected->append(data->getTime(i), data->at(i).x(), data->at(i).y(), data->getCableWrapFlag(i), data->getSrcid(i));
+                    selected->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                 }
             }
         }
@@ -560,19 +603,23 @@ void VieSchedpp_Analyser::on_treeView_skyCoverage_sources_clicked(const QModelIn
 void VieSchedpp_Analyser::on_pushButton_skyCoverageLegend_clicked()
 {
     if(ui->pushButton_skyCoverageLegend->isChecked()){
-        QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(0)->widget());
-        QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
-        QChart *chart = chartView->chart();
-        QLegend *l = chart->legend();
-        l->show();
+        for(int i=0; i<ui->gridLayout_skyCoverage->count(); ++i){
+            QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(i)->widget());
+            QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+            QChart *chart = chartView->chart();
+            QLegend *l = chart->legend();
+            l->show();
+        }
 
     }else{
 
-        QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(0)->widget());
-        QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
-        QChart *chart = chartView->chart();
-        QLegend *l = chart->legend();
-        l->hide();
+        for(int i=0; i<ui->gridLayout_skyCoverage->count(); ++i){
+            QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(i)->widget());
+            QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+            QChart *chart = chartView->chart();
+            QLegend *l = chart->legend();
+            l->hide();
+        }
 
     }
 }
