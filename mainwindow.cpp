@@ -1805,6 +1805,8 @@ QString MainWindow::writeXML()
     bool subnetting = ui->groupBox_subnetting->isChecked();
     double subnettingAngle = ui->doubleSpinBox_subnettingDistance->value();
     double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
+    std::string logConsole = ui->comboBox_log_console->currentText().toStdString();
+    std::string logFile = ui->comboBox_log_file->currentText().toStdString();
     std::string scanAlignment = "start";
     if(ui->radioButton_alignEnd->isChecked()){
         scanAlignment = "end";
@@ -1813,9 +1815,9 @@ QString MainWindow::writeXML()
     }
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment, logConsole, logFile);
     }else{
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment);
+        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment, logConsole, logFile);
     }
 
 
@@ -2952,6 +2954,32 @@ void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
         QPalette p = ui->experimentNameLineEdit->palette();
         p.setColor(QPalette::Base, Qt::white);
         ui->experimentNameLineEdit->setPalette(p);
+    }
+}
+
+void MainWindow::on_comboBox_log_file_currentIndexChanged(const QString &arg1)
+{
+    if(arg1 == "trace" || arg1 == "debug"){
+        ui->label_log->setText("high log level can slow down application");
+    }else{
+        if(ui->comboBox_log_console->currentText() == "trace" || ui->comboBox_log_console->currentText() == "debug"){
+            ui->label_log->setText("heavy logging can slow down application");
+        }else{
+            ui->label_log->setText("");
+        }
+    }
+}
+
+void MainWindow::on_comboBox_log_console_currentIndexChanged(const QString &arg1)
+{
+    if(arg1 == "trace" || arg1 == "debug"){
+        ui->label_log->setText("high log level can slow down application");
+    }else{
+        if(ui->comboBox_log_file->currentText() == "trace" || ui->comboBox_log_file->currentText() == "debug"){
+            ui->label_log->setText("heavy logging can slow down application");
+        }else{
+            ui->label_log->setText("");
+        }
     }
 }
 
@@ -7486,4 +7514,6 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
+
 

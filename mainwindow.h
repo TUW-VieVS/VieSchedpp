@@ -474,6 +474,10 @@ private slots:
 
     void on_pushButton_sessionAnalyser_clicked();
 
+    void on_comboBox_log_file_currentIndexChanged(const QString &arg1);
+
+    void on_comboBox_log_console_currentIndexChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

@@ -64,6 +64,7 @@
         <file>icons/edit-redo-7.png</file>
         <file>icons/sky_coverage_analyser.png</file>
         <file>icons/utilities-terminal-3.png</file>
+        <file>icons/warning.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/logo.png</file>
