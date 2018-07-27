@@ -35,7 +35,7 @@ CableWrap::CableWrapFlag CableWrap_XYew::cableWrapFlag(double unaz) const noexce
 }
 
 bool CableWrap_XYew::unwrapAzInSection(PointingVector &pv, char section) const noexcept {
-    return section == '-';
+    return section != '-';
 }
 
 std::pair<std::string, std::string> CableWrap_XYew::getMotions() const noexcept {

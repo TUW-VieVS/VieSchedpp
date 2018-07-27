@@ -140,7 +140,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         }
                         if(fromSkdFile && type == CATALOG::equip && line.at(0)!='T'){
                             if( line.at(0) == 'A'){
-                                eqId2staName[splitVector[15]] = splitVector[2];
+                                eqId2staName[boost::algorithm::to_upper_copy(splitVector[15])] = splitVector[2];
                             }
                             continue;
                         }
@@ -148,7 +148,7 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                             splitVector.erase(splitVector.begin());
                         }
                         if(fromSkdFile && type == CATALOG::equip){
-                            splitVector.insert(splitVector.begin(),eqId2staName[splitVector[indexOfKey-1]]);
+                            splitVector.insert(splitVector.begin(),eqId2staName[boost::algorithm::to_upper_copy(splitVector[indexOfKey-1])]);
                         }
 
 

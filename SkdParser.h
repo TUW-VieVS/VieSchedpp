@@ -14,11 +14,7 @@ namespace VieVS{
 
         explicit SkdParser(const std::string &filename);
 
-        void createObjects();
-
-        void createScans();
-
-        void copyScanMembersToObjects();
+        void read();
 
         Scheduler createScheduler();
 
@@ -39,6 +35,9 @@ namespace VieVS{
         std::vector<Source> sources_; ///< all sources
         std::vector<Scan> scans_; ///< all scans in schedule
 
+        void createScans(std::ofstream &of);
+
+        void copyScanMembersToObjects(std::ofstream &of);
 
     };
 

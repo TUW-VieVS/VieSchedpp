@@ -26,7 +26,7 @@ CableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(double unaz) const noexce
 }
 
 bool CableWrap_HaDc::unwrapAzInSection(PointingVector &pv, char section) const noexcept {
-    return section == '-';
+    return section != '-';
 }
 
 std::pair<std::string, std::string> CableWrap_HaDc::getMotions() const noexcept {
