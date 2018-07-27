@@ -5,6 +5,9 @@
 #-------------------------------------------------
 CONFIG += c++14
 
+QMAKE_CXXFLAGS+= -fopenmp
+LIBS += -fopenmp
+
 QT       += core gui
 QT       += charts
 

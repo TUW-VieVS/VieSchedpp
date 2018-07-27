@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>10</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -33,7 +33,7 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:28pt; font-weight:600;&quot;&gt;VieVS Scheduler&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:28pt; font-weight:600;&quot;&gt;VieSched++&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -68,7 +68,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Welcome to VieVS Scheduler!&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Welcome to VieSched++!&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Please read the following &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reference:&lt;/span&gt;&lt;/p&gt;
@@ -79,16 +79,20 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and save them &lt;img src=&quot;:/icons/icons/document-export.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;&lt;img src=&quot;:/icons/icons/view-pim-calendar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_list.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output files &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;6. Try out some of the advanced tools like applying some special &lt;span style=&quot; font-weight:600;&quot;&gt;rules&lt;/span&gt; &lt;img src=&quot;:/icons/icons/system-run-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, the very useful &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, optimize your &lt;span style=&quot; font-weight:600;&quot;&gt;sky coverage&lt;/span&gt; representation &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, add some &lt;span style=&quot; font-weight:600;&quot;&gt;optimization conditions&lt;/span&gt; &lt;img src=&quot;:/icons/icons/conditions.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or try to fix some &lt;span style=&quot; font-weight:600;&quot;&gt;high impact&lt;/span&gt; scans &lt;img src=&quot;:/icons/icons/emblem-important-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Optimize your schedule:&lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simly create only on schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then comare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Start by varying some of the &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a station is still underrepresented &lt;span style=&quot; font-weight:600;&quot;&gt;increase the weight&lt;/span&gt; of this station &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or adjust the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;average stations&lt;/span&gt;&amp;quot; weight factor &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simly create only a single schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then comare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Start by varying some of the &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. This usually brings the best improvment. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a station is still underrepresented &lt;span style=&quot; font-weight:600;&quot;&gt;increase the weight&lt;/span&gt; of this station &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or adjust the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;average stations&lt;/span&gt;&amp;quot; weight factor &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. The same is true for sources and baselines. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;optimization conditions&lt;/span&gt; &lt;img src=&quot;:/icons/icons/conditions.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to reduce the amount of scheduled sources and increase the number of scans per source. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Simulate the created empty NGS files using a third party software like VieVS.&lt;/p&gt;
+&lt;hr /&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Look at your schedule:&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can compare schedules using the statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the session analyser &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to get a better impression of a single schedule &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/p&gt;
@@ -100,7 +104,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;beta version&lt;/span&gt;! &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Although a checking routine runs at the end of each created schedule, it might be advisable to double check your schedule via a different software package like &lt;span style=&quot; font-weight:600;&quot;&gt;SKED&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;SKED check &lt;/span&gt;command or &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS checking routines&lt;/span&gt;. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please tell us!&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please contact us!&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Missing GUI features:&lt;/span&gt;&lt;/p&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;load function&lt;/span&gt;&lt;/li&gt;
@@ -854,8 +858,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>247</width>
-             <height>611</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -2480,6 +2484,68 @@ If you only want to run simulations you can deselect this to avoid error message
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QGroupBox" name="groupBox_11">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>debug level</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_65">
+                <item>
+                 <widget class="QComboBox" name="comboBox">
+                  <property name="currentIndex">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <property name="text">
+                    <string>trace</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>debug</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>info</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>warning</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>error</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>fatal</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_17">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -10444,8 +10510,8 @@ p, li { white-space: pre-wrap; }
      <y>99</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
@@ -10456,12 +10522,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -10472,12 +10538,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>99</y>
+     <x>103</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>170</y>
     </hint>
    </hints>
   </connection>
@@ -10488,12 +10554,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -10504,12 +10570,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -10520,12 +10586,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>307</y>
     </hint>
    </hints>
   </connection>
@@ -10536,12 +10602,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>99</y>
+     <x>101</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>81</x>
-     <y>99</y>
+     <x>72</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -10552,12 +10618,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -10568,12 +10634,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>
@@ -10584,12 +10650,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>412</y>
     </hint>
    </hints>
   </connection>
@@ -10600,12 +10666,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>444</y>
     </hint>
    </hints>
   </connection>
@@ -10616,12 +10682,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>412</y>
     </hint>
    </hints>
   </connection>
@@ -10632,12 +10698,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>444</y>
     </hint>
    </hints>
   </connection>
@@ -10648,12 +10714,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>485</y>
     </hint>
    </hints>
   </connection>
@@ -10664,12 +10730,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>517</y>
     </hint>
    </hints>
   </connection>
@@ -10680,12 +10746,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>99</y>
+     <x>118</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -10696,12 +10762,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>99</y>
+     <x>113</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>517</y>
     </hint>
    </hints>
   </connection>
@@ -10712,12 +10778,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>99</y>
+     <x>116</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -10728,12 +10794,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>99</y>
+     <x>85</x>
+     <y>556</y>
     </hint>
     <hint type="destinationlabel">
-     <x>51</x>
-     <y>99</y>
+     <x>85</x>
+     <y>585</y>
     </hint>
    </hints>
   </connection>
@@ -10744,12 +10810,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>99</y>
+     <x>119</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>99</y>
+     <x>370</x>
+     <y>266</y>
     </hint>
    </hints>
   </connection>
@@ -10764,8 +10830,40 @@ p, li { white-space: pre-wrap; }
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>934</x>
+     <x>927</x>
      <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dateTimeEdit_sessionStart</sender>
+   <signal>dateChanged(QDate)</signal>
+   <receiver>calendarWidget</receiver>
+   <slot>setSelectedDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>618</x>
+     <y>300</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>calendarWidget</sender>
+   <signal>clicked(QDate)</signal>
+   <receiver>dateTimeEdit_sessionStart</receiver>
+   <slot>setDate(QDate)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>523</x>
+     <y>347</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>215</x>
+     <y>292</y>
     </hint>
    </hints>
   </connection>
