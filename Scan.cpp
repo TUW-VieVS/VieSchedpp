@@ -41,6 +41,9 @@ Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs):
 }
 
 bool Scan::constructObservations(const Network &network, const Source &source) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observations";
+    #endif
     observations_.clear();
     bool valid = false;
     unsigned long srcid = source.getId();
@@ -51,19 +54,25 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
 
             unsigned long staid1 = pointingVectorsStart_[i].getStaid();
             unsigned long staid2 = pointingVectorsStart_[j].getStaid();
-            unsigned long blid = network.getBaseline(staid1,staid2).getId();
+            const Baseline &bl = network.getBaseline(staid1,staid2);
+            unsigned long blid = bl.getId();
 
             // check if Baseline is ignored
-            if(network.getBaseline(staid1,staid2).getParameters().ignore){
+            if(bl.getParameters().ignore){
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+                #endif
                 continue;
             }
             // check if this source has to ignore this baseline
             if (!source.getPARA().ignoreBaselines.empty()) {
                 const auto &PARA = source.getPARA();
-                const Baseline &bl = network.getBaseline(staid1,staid2);
                 unsigned long blid = bl.getId();
                 if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), blid) !=
                     PARA.ignoreBaselines.end()) {
+                    #ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+                    #endif
                     continue;
                 }
 
@@ -72,6 +81,9 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
             // add new baseline
             unsigned int startTime = max({times_.getObservingTime(i, Timestamp::start),
                                           times_.getObservingTime(j, Timestamp::start)});
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+            #endif
             observations_.emplace_back(blid, staid1, staid2, srcid, startTime);
             valid = true;
         }
@@ -84,18 +96,27 @@ void Scan::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsign
 }
 
 bool Scan::removeStation(int idx, const Source &source) noexcept {
+    unsigned long staid = pointingVectorsStart_[idx].getStaid();
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "scan " << this->printId() << " remove station " << staid;
+    #endif
 
     --nsta_;
-    // check if you have still enough stations
+    // check if you still have enough stations
     if (nsta_ < source.getPARA().minNumberOfStations) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " not enough stations left";
+        #endif
         return false;
     }
 
     // check if you want to remove a required station
-    unsigned long staid = pointingVectorsStart_[idx].getStaid();
     if (!source.getPARA().requiredStations.empty()) {
         const vector<unsigned long> &rsta = source.getPARA().requiredStations;
         if (find(rsta.begin(), rsta.end(), staid) != rsta.end()) {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " this was a required station";
+            #endif
             return false;
         }
     }
@@ -114,6 +135,9 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     int i=0;
     while (i<observations_.size()){
         if(observations_[i].containsStation(staid)){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << observations_[i].getStaid1() << " and " << observations_[i].getStaid2();
+            #endif
             observations_.erase(next(observations_.begin(),i));
         } else {
             ++i;
@@ -123,13 +147,19 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     return !(nbl_before != 0 && observations_.empty());
 }
 
-bool Scan::removeObservation(int idx_bl, const Source &source) noexcept {
+bool Scan::removeObservation(int iobs, const Source &source) noexcept {
 
     // remove observation
-    unsigned long staid1 = observations_[idx_bl].getStaid1();
-    unsigned long staid2 = observations_[idx_bl].getStaid2();
-    observations_.erase(next(observations_.begin(),idx_bl));
+    unsigned long staid1 = observations_[iobs].getStaid1();
+    unsigned long staid2 = observations_[iobs].getStaid2();
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << staid1 << " and " << staid2;
+    #endif
+    observations_.erase(next(observations_.begin(),iobs));
     if (observations_.empty()) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation left";
+        #endif
         return false;
     }
 
@@ -149,10 +179,16 @@ bool Scan::removeObservation(int idx_bl, const Source &source) noexcept {
     // remove station if necessary
     if(counterStaid1==0){
         boost::optional<unsigned long> idx_pv = findIdxOfStationId(staid1);
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid1 << "left";
+        #endif
         scanValid = removeStation(static_cast<int>(*idx_pv), source);
     }
     if(scanValid && counterStaid2==0){
         boost::optional<unsigned long> idx_pv = findIdxOfStationId(staid2);
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid2 << "left";
+        #endif
         scanValid = removeStation(static_cast<int>(*idx_pv), source);
     }
     return scanValid;
@@ -161,6 +197,9 @@ bool Scan::removeObservation(int idx_bl, const Source &source) noexcept {
 
 bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &source) noexcept {
 
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " check idle times";
+    #endif
 
     bool scan_valid = true;
     bool idleTimeValid;
@@ -202,6 +241,9 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
 }
 
 bool Scan::calcObservationDuration(const Network &network, const Source &source) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per observation";
+    #endif
 
     // check if it is a calibrator scan and there is a fixed scan duration for calibrator scans
     if(type_ == ScanType::calibrator){
@@ -250,7 +292,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
         unsigned int maxDuration = 0;
 
         // loop over each band
-        bool flag_baselineRemoved = false;
+        bool flag_observationRemoved = false;
         for (auto &band:ObservationMode::bands) {
 
             // calculate observed flux density for each band
@@ -295,7 +337,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
                 if(!scanValid){
                     return false;
                 }
-                flag_baselineRemoved = true;
+                flag_observationRemoved = true;
                 break;
             }
 
@@ -306,7 +348,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
         }
 
         // if you have not removed the baseline increment counter and set the baseline scan duration
-        if(!flag_baselineRemoved){
+        if(!flag_observationRemoved){
             ++idxObs;
             thisObservation.setObservingTime(maxDuration);
         }
@@ -316,6 +358,9 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
 }
 
 bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per station";
+    #endif
 
     // check if it is a calibrator scan with a fixed scan duration
     if(type_ == ScanType::calibrator){
@@ -566,6 +611,9 @@ double Scan::calcScore_lowElevation() {
 bool Scan::rigorousUpdate(const Network &network, const Source &source,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update";
+    #endif
 
     //check if source is available during whole scan and iteratively check everything
     bool stationRemoved;
@@ -605,6 +653,9 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
 }
 
 bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update slewtime";
+    #endif
 
     bool scanValid = true;
 
@@ -703,6 +754,9 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
 
 bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept{
     bool scanValid;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update scan start time";
+    #endif
 
     // iteratively align start times
     unsigned long nsta_beginning;
@@ -740,6 +794,9 @@ bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &
 }
 
 bool Scan::rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept{
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update visibility";
+    #endif
 
     pointingVectorsEnd_.clear();
 
@@ -821,6 +878,9 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
     if(!endposition.is_initialized()){
         return true;
     }
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update to reach endposition";
+    #endif
 
     for(int idxSta=0; idxSta<nsta_; ++idxSta){
         // start position for slewing
@@ -863,10 +923,16 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
 void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVector &pv_end,
                               const std::vector<Observation> &observations,
                               unsigned int slewtime, const Station &station) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong station " << station.getName();
+    #endif
     pointingVectorsStart_.push_back(pv_start);
     pointingVectorsEnd_.push_back(pv_end);
     ++nsta_;
     for(auto &any:observations){
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong observation between stations " << any.getStaid1() << " and " << any.getStaid2();
+        #endif
         observations_.push_back(any);
     }
     if(station.getPARA().firstScan){
@@ -985,6 +1051,9 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
     }
 
     score_ = calcScore_secondPart(this_score,network,source);
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    #endif
 }
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
@@ -1001,6 +1070,9 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
     }
 
     score_ = calcScore_secondPart(this_score, network, source);
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    #endif
 }
 
 
@@ -1018,6 +1090,9 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
     }
 
     score_ = calcScore_secondPart(this_score, network, source);
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    #endif
 }
 
 void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
@@ -1027,6 +1102,9 @@ void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &
 
 
     score_ = calcScore_secondPart(this_score, network, source)*hiscore;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    #endif
 
 }
 
@@ -1094,6 +1172,9 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
     this_score *= source.getPARA().weight * weight_stations(network.getStations()) * weight_baselines(network.getBaselines());
 
     score_ = this_score;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    #endif
     return true;
 }
 
@@ -1254,6 +1335,9 @@ void Scan::createDummyObservations(const Network &network) {
 
             unsigned int dur = std::max(dur1, dur2);
             unsigned long blid = network.getBlid(staid1,staid2);
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observation between stations " << staid1 << " and " << staid2;
+            #endif
 
             Observation obs(blid, staid1, staid2, srcid_, times_.getObservingTime(Timestamp::start), dur);
             observations_.push_back(std::move(obs));
@@ -1287,7 +1371,7 @@ void Scan::setPointingVector(int idx, PointingVector pv, Timestamp ts) {
 
 void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts) {
 
-     int idx = times_.removeUnnecessaryObservingTime(ts);
+    int idx = times_.removeUnnecessaryObservingTime(ts);
     unsigned int t = times_.getObservingTime(idx, ts);
     PointingVector &pv = referencePointingVector(idx, ts);
     double az = pv.getAz();
@@ -1298,6 +1382,12 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
     thisSta.getCableWrap().unwrapAzNearAz(pv, az);
     bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
     if(!visible){
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(error) << "scan " << this->printId() << " source " << thisSource.getName() << " might not be visible from " << thisSta.getName();
+        #else
+        cout << "[error] scan " << this->printId() << " source " << thisSource.getName() << " might not be visible from " << thisSta.getName();
+        #endif
+
         of << (boost::format("ERROR while extending observing time to idle time:\n    "
                               "source %s might not be visible from %s during %s. ")
                 % thisSource.getName()
@@ -1307,10 +1397,10 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
 }
 
 
-void Scan::removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
+void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisSta, const Source &thisSource,
                                          std::ofstream &of, Timestamp ts){
 
-    unsigned long staid = station.getId();
+    unsigned long staid = thisSta.getId();
     auto oidx = findIdxOfStationId(staid);
 
     if(oidx.is_initialized()){
@@ -1323,16 +1413,23 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &stati
             PointingVector &pv = referencePointingVector(idx, ts);
             double az = pv.getAz();
             pv.setTime(t);
-            station.calcAzEl(thisSource, pv);
-            station.getCableWrap().unwrapAzNearAz(pv, az);
+            thisSta.calcAzEl(thisSource, pv);
+            thisSta.getCableWrap().unwrapAzNearAz(pv, az);
 
-            bool visible = station.isVisible(pv,thisSource.getPARA().minElevation);
+            bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
 
             if(!visible){
+
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(error) << "scan " << this->printId() << " source " << thisSource.getName() << " might not be visible from " << thisSta.getName();
+                #else
+                cout << "[error] scan " << this->printId() << " source " << thisSource.getName() << " might not be visible from " << thisSta.getName();
+                #endif
+
                 of << (boost::format("ERROR while extending observing time to idle time:\n    "
                                       "source %s might not be visible from %s during %s. ")
                         % thisSource.getName()
-                        % station.getName()
+                        % thisSta.getName()
                         %TimeSystem::internalTime2timeString(t)).str();
             }
         }

@@ -275,28 +275,29 @@ void VieSchedpp::init_log() {
 
     boost::log::add_common_attributes();
 
-    string logSeverity = xml_.get<string>("master.general.logSeverity","info");
-    if(logSeverity == "trace"){
+    string logSeverityFile = xml_.get<string>("master.general.logSeverityFile","info");
+    string logSeverityConsole = xml_.get<string>("master.general.logSeverityConsole","info");
+    if(logSeverityFile == "trace"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::trace
         );
-    } else if(logSeverity == "debug"){
+    } else if(logSeverityFile == "debug"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::debug
         );
-    } else if(logSeverity == "info"){
+    } else if(logSeverityFile == "info"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::info
         );
-    } else if(logSeverity == "warning"){
+    } else if(logSeverityFile == "warning"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::warning
         );
-    } else if(logSeverity == "error"){
+    } else if(logSeverityFile == "error"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::error
         );
-    } else if(logSeverity == "fatal"){
+    } else if(logSeverityFile == "fatal"){
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::fatal
         );
@@ -314,11 +315,34 @@ void VieSchedpp::init_log() {
             % boost::log::expressions::smessage;
 
     /* console sink */
-    auto consoleSink = boost::log::add_console_log(std::clog);
+    auto consoleSink = boost::log::add_console_log(std::cout);
     consoleSink->set_formatter(logFmt);
-    consoleSink->set_filter(
-            boost::log::trivial::severity >= boost::log::trivial::info
-    );
+
+    if(logSeverityConsole == "trace"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::trace
+        );
+    } else if(logSeverityConsole == "debug"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::debug
+        );
+    } else if(logSeverityConsole == "info"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::info
+        );
+    } else if(logSeverityConsole == "warning"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::warning
+        );
+    } else if(logSeverityConsole == "error"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::error
+        );
+    } else if(logSeverityConsole == "fatal"){
+        consoleSink->set_filter(
+                boost::log::trivial::severity >= boost::log::trivial::fatal
+        );
+    }
 
 
     /* fs sink */

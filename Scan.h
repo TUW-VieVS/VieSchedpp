@@ -256,10 +256,10 @@ namespace VieVS{
          *
          * If a station has no longer any baselines it also gets removed
          *
-         * @param idxObs
+         * @param iobs
          * @return
          */
-        bool removeObservation(int idxObs, const Source &source) noexcept;
+        bool removeObservation(int iobs, const Source &source) noexcept;
 
         /**
          * @brief finds the index of an station id
@@ -474,7 +474,7 @@ namespace VieVS{
 
         void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts);
 
-        void removeAdditionalObservingTime(unsigned int time, const Station &station, const Source &thisSource,
+        void removeAdditionalObservingTime(unsigned int time, const Station &thisSta, const Source &thisSource,
                                            std::ofstream &of, Timestamp ts);
 
     private:

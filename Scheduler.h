@@ -195,8 +195,6 @@ namespace VieVS{
 
         void ignoreTagalongParameter();
 
-        void idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &of);
-
         void idleToScanTime(Timestamp ts, std::ofstream &of);
 
         void sortSchedule(Timestamp ts = Timestamp::start);

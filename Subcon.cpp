@@ -21,6 +21,10 @@ Subcon::Subcon(): VieVS_Object(nextId++), nSingleScans_{0}, nSubnettingScans_{0}
 }
 
 void Subcon::addScan(Scan &&scan) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " add scan " << scan.printId();
+    #endif
+
     singleScans_.push_back(std::move(scan));
     nSingleScans_++;
 }
@@ -28,6 +32,9 @@ void Subcon::addScan(Scan &&scan) noexcept {
 void
 Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
                        const boost::optional<StationEndposition> & endposition) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calc scan start times";
+    #endif
 
     int i=0;
     // loop through all scans
@@ -115,6 +122,9 @@ Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
         if (scanValid_slew && scanValid_endposition && scanValid_idle){
             ++i;
         }else{
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
             singleScans_.erase(next(singleScans_.begin(),i));
             --nSingleScans_;
         }
@@ -122,6 +132,9 @@ Subcon::calcStartTimes(const Network &network, const vector<Source> &sources,
 }
 
 void Subcon::constructAllBaselines(const Network &network, const vector<Source> &sources) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " construct all observations";
+    #endif
     int i = 0;
     while (i < nSingleScans_) {
         Scan &thisScan = singleScans_[i];
@@ -130,6 +143,9 @@ void Subcon::constructAllBaselines(const Network &network, const vector<Source> 
         if (scanValid) {
             ++i;
         } else {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
             --nSingleScans_;
             singleScans_.erase(next(singleScans_.begin(),i));
         }
@@ -137,6 +153,10 @@ void Subcon::constructAllBaselines(const Network &network, const vector<Source> 
 }
 
 void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " update azimuth and elevation";
+    #endif
+
     int i = 0;
     while (i < nSingleScans_) {
 
@@ -182,6 +202,9 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
         }
 
         if (!scanValid_slew || !scanValid_idle){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
             singleScans_.erase(next(singleScans_.begin(),i));
             --nSingleScans_;
         }else{
@@ -192,6 +215,10 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
 
 void
 Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calc observing durations";
+    #endif
+
     int i = 0;
     while ( i < nSingleScans_ ) {
         Scan& thisScan = singleScans_[i];
@@ -199,6 +226,9 @@ Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &s
         if (scanValid){
             ++i;
         } else {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
             --nSingleScans_;
             singleScans_.erase(next(singleScans_.begin(),i));
         }
@@ -207,6 +237,9 @@ Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &s
 
 void Subcon::calcAllScanDurations(const Network &network, const vector<Source> &sources,
                                   const boost::optional<StationEndposition> & endposition) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calc scan durations";
+    #endif
     // loop through all scans
     int i=0;
     while (i<nSingleScans_){
@@ -253,6 +286,9 @@ void Subcon::calcAllScanDurations(const Network &network, const vector<Source> &
         if (scanValid_scanDuration && scanValid_endposition){
             ++i;
         } else {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
             --nSingleScans_;
             singleScans_.erase(next(singleScans_.begin(),i));
         }
@@ -267,6 +303,10 @@ void Subcon::calcCalibratorScanDuration(const vector<Station> &stations, const v
 
 
 void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<Source> &sources) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " create subnetting scans";
+    #endif
+
     subnettingScans_.clear();
     vector<unsigned long> sourceIds(nSingleScans_);
     for (int i = 0; i < nSingleScans_; ++i) {
@@ -352,6 +392,10 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                                 continue;
                             }
 
+                            #ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " add subnetting scans with " << new_first->printId() << " and " << new_second->printId();
+                            #endif
+
                             ++nSubnettingScans_;
                             pair<Scan, Scan>tmp = make_pair(move(*new_first),move(*new_second));
 //                            tmp.first = ;
@@ -366,6 +410,9 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
 }
 
 void Subcon::generateScore(const Network &network, const vector<Source> &sources) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " generate scores ";
+    #endif
 
     precalcScore(network, sources);
 //    unsigned long nmaxsta = stations.size();
@@ -400,6 +447,9 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
 
 void Subcon::generateScore(const Network &network, const std::vector<Source> &sources,
                            const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " generate scores ";
+    #endif
 
     precalcScore(network, sources);
 //    unsigned long nmaxsta = stations.size();
@@ -438,6 +488,9 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
 
 void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
                            const Network &network, const std::vector<Source> &sources) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " generate scores ";
+    #endif
 
     minMaxTime();
 //    auto nsta = static_cast<unsigned int>(stations.size());
@@ -532,8 +585,6 @@ void Subcon::prepareAverageScore(const vector<Baseline> &objects) noexcept{
 
     abls_ = prepareAverageScore_base(nobs);
 }
-
-
 
 void Subcon::prepareAverageScore(const vector<Source> &objects) noexcept {
     vector<unsigned long> nobs;
@@ -642,6 +693,9 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
 
 vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " select best scan ";
+    #endif
 
     vector<Scan> bestScans;
 
@@ -678,11 +732,18 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
 
             // get scan with highest score
             Scan &thisScan = singleScans_[thisIdx];
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " highest score for scan " << thisScan.printId();
+            #endif
+
             const Source &thisSource = sources[thisScan.getSourceId()];
             // make rigorous update
             bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()], endposition);
             if (!flag) {
                 scansToRemove.push_back(idx);
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+                #endif
                 continue;
             }
 
@@ -703,15 +764,26 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             Scan &thisScan2 = thisScans.second;
             const Source &thisSource2 = sources[thisScan2.getSourceId()];
 
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " highest score for scan " << thisScan1.printId() << " and " << thisScan2.printId();
+            #endif
+
             // make rigorous update
             bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()], endposition);
             if (!flag1) {
                 scansToRemove.push_back(idx);
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan1.printId() << " no longer valid -> removed";
+                #endif
+
                 continue;
             }
             bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()], endposition);
             if (!flag2) {
                 scansToRemove.push_back(idx);
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan2.printId() << " no longer valid -> removed";
+                #endif
                 continue;
             }
 
@@ -720,6 +792,9 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             unsigned int maxTime2 = thisScan2.getTimes().getScanTime(Timestamp::end);
             unsigned int deltaTime = util::absDiff(maxTime1,maxTime2);
             if (deltaTime > 600) {
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " too much time between subnetting scans -> removed";
+                #endif
                 continue;
             }
 
@@ -742,12 +817,18 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
 
     if (idx < nSingleScans_) {
         Scan bestScan = takeSingleSourceScan(idx);
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << bestScan.printId() << " is valid best scan";
+        #endif
         bestScans.push_back(std::move(bestScan));
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
         pair<Scan, Scan> bestScan_pair = takeSubnettingScans(thisIdx);
         Scan bestScan1 = bestScan_pair.first;
         Scan bestScan2 = bestScan_pair.second;
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << bestScan1.printId() << " and " << bestScan2.printId() << " are valid best scans";
+        #endif
 
         bestScans.push_back(std::move(bestScan1));
         bestScans.push_back(std::move(bestScan2));
@@ -758,11 +839,15 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
     });
 
     // remove all scans which are invalid
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " remove invalid scan(s) ";
+    #endif
     for(auto invalidIdx:scansToRemove){
         // if invalid index is larger as idx decrement it (source(s) with idx are already removed!)
         if(invalidIdx>idx){
             --invalidIdx;
         }
+
         removeScan(invalidIdx);
     }
 
@@ -775,6 +860,9 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
 boost::optional<unsigned long> Subcon::rigorousScore(const Network &network, const vector<Source> &sources,
                                                      const vector<double> &prevLowElevationScores,
                                                      const vector<double> &prevHighElevationScores) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calculate rigorous score ";
+    #endif
 
     vector<double> scores;
     for(const auto&any: singleScans_){
@@ -869,13 +957,21 @@ boost::optional<unsigned long> Subcon::rigorousScore(const Network &network, con
 
 
 void Subcon::removeScan(unsigned long idx) noexcept {
+
     if (idx < nSingleScans_) {
         unsigned long thisIdx = idx;
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " remove scan " << singleScans_[idx].printId();
+        #endif
         singleScans_.erase(next(singleScans_.begin(), static_cast<int>(thisIdx)));
         --nSingleScans_;
 
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " remove scans " << subnettingScans_[thisIdx].first.printId() << " and " << subnettingScans_[thisIdx].second.printId();
+        #endif
+
         subnettingScans_.erase(next(subnettingScans_.begin(), static_cast<int>(thisIdx)));
         --nSubnettingScans_;
     }
@@ -893,6 +989,10 @@ void Subcon::checkIfEnoughTimeToReachEndposition(const Network &network, const s
     if(!endposition.is_initialized()) {
         return;
     }
+
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " check if required endposition can be reached ";
+    #endif
 
     // loop through all scans
     int iscan = 0;
@@ -949,6 +1049,10 @@ void Subcon::checkIfEnoughTimeToReachEndposition(const Network &network, const s
         if (scanValid){
             ++iscan;
         }else{
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+            #endif
+
             singleScans_.erase(next(singleScans_.begin(),iscan));
             --nSingleScans_;
         }
@@ -966,30 +1070,50 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
     unsigned long srcid = thisSource.getId();
 
     if (!thisSource.getPARA().available || !thisSource.getPARA().globalAvailable) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available";
+        #endif
         return;
     }
 
     if (type == Scan::ScanType::fillin && !thisSource.getPARA().availableForFillinmode) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available for fillin mode";
+        #endif
         return;
     }
 
-    if(type == Scan::ScanType::calibrator &&
-       find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()){
+    if(type == Scan::ScanType::calibrator && find(CalibratorBlock::calibratorSourceIds.begin(),CalibratorBlock::calibratorSourceIds.end(),thisSource.getId()) == CalibratorBlock::calibratorSourceIds.end()) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available as calibrator";
+        #endif
         return;
     }
 
     if(observedSources.find(srcid) != observedSources.end()){
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available - already observed in next scans";
+        #endif
         return;
     }
 
-    if (thisSource.getNscans() > 0 &&
-        currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat) {
+    if (thisSource.getNscans() > 0 && currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available - observed recently";
+        #endif
         return;
     }
 
     if (thisSource.getNscans() >= thisSource.getPARA().maxNumberOfScans) {
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " source " << thisSource.getName() << " not available - max number of scans reached";
+        #endif
         return;
     }
+
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " create scan for source " << thisSource.getName();
+    #endif
 
     unsigned int visibleSta = 0;
     vector<PointingVector> pointingVectors;
@@ -998,16 +1122,25 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
         unsigned long staid = thisSta.getId();
 
         if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (not available)";
+            #endif
             continue;
         }
 
         if (thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (not available - max number of allowed scans reached)";
+            #endif
             continue;
         }
 
         if (!thisSta.getPARA().ignoreSources.empty()) {
             auto &PARA = thisSta.getPARA();
             if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), srcid) != PARA.ignoreSources.end()) {
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (source should be ignored for this station)";
+                #endif
                 continue;
             }
         }
@@ -1016,6 +1149,9 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
             const auto &PARA = thisSource.getPARA();
             if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid) !=
                 PARA.ignoreStations.end()) {
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (station should be ignored for this source)";
+                #endif
                 continue;
             }
         }
@@ -1034,6 +1170,13 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
             visibleSta++;
             endOfLastScans.push_back(thisSta.getCurrentTime());
             pointingVectors.push_back(std::move(p));
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " add station " << thisSta.getName();
+            #endif
+        }else{
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (source not visible)";
+            #endif
         }
     }
     if (visibleSta >= thisSource.getPARA().minNumberOfStations) {

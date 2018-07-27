@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     auto start = std::chrono::high_resolution_clock::now();
 
     // V1: standard usage:
-    std::cout << "Processing file: " << file << ";\n";
+    std::cout << "Processing file: " << file << "\n";
     VieVS::VieSchedpp mainScheduler(file);
     mainScheduler.run();
 
@@ -65,8 +65,32 @@ int main(int argc, char *argv[])
 
     auto finish = std::chrono::high_resolution_clock::now();
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
-    std::cout << "execution time: " << static_cast<double>(microseconds.count()) / 1e6 << " [s];\n";
+    long long int usec = microseconds.count();
 
+    auto milliseconds = usec/1000            % 1000;
+    auto seconds =      usec/1000/1000       % 60;
+    auto minutes =      usec/1000/1000/60    % 60;
+    auto hours =        usec/1000/1000/60/60;
+    std::stringstream t;
+    t << "execution time: ";
+    if(hours > 0){
+        t << hours << "h ";
+    }
+    if(minutes > 0){
+        t << minutes << "m ";
+    }
+    if(seconds > 0){
+        t << seconds << "s ";
+    }
+    if(milliseconds > 0){
+        t << milliseconds << "ms ";
+    }
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << t.str();
+    #else
+    cout << "[info] " << t;
+    #endif
+    std::cout << std::endl;
 
     return 0;
 }

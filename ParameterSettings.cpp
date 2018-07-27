@@ -24,7 +24,8 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
                                 bool idleToObservingTime,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
-                                const std::vector<std::string> &srcNames, const std::string &scanAlignment) {
+                                const std::vector<std::string> &srcNames, const std::string &scanAlignment,
+                                const std::string &logConsole, const std::string &logFile) {
     boost::property_tree::ptree general;
 
     int smonth = startTime.date().month();
@@ -86,6 +87,9 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     }
 
     general.add("general.scanAlignment",scanAlignment);
+
+    general.add("general.logSeverityConsole",logConsole);
+    general.add("general.logSeverityFile",logFile);
 
     master_.add_child("master.general", general.get_child("general"));
 }

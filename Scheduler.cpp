@@ -56,6 +56,9 @@ Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sour
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan::ScanType type,
                                    boost::optional<StationEndposition> &opt_endposition,
                                    boost::optional<Subcon> &opt_subcon, int depth) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "start scan selection (depth " << depth << ")";
+    #endif
 
     // Check if there is a required opt_endposition. If yes change station availability with respect to opt_endposition
     if(opt_endposition.is_initialized()){
@@ -107,7 +110,13 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                         maxScanEnd = pv.getTime();
                     }
                 }
-                of << (boost::format("ERROR! no valid scan found! Checking 1 minute later: %s\n")
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(warning) << "no valid scan found, checking one minute later";
+                #else
+                cout << "[warning] no valid scan found, checking one minute later\n";
+                #endif
+
+                of << (boost::format("[warning] no valid scan found, checking one minute later: %s\n")
                                           % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
                 checkForNewEvents(maxScanEnd,true,of);
                 if( maxScanEnd > endTime){
@@ -191,7 +200,13 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                             }
 
                             if(!valid){
-                                of << "WARNING: check fillin mode scan for station "<< thisSta.getName() << " prior to this scan!\n";
+                                #ifdef VIESCHEDPP_LOG
+                                BOOST_LOG_TRIVIAL(warning) << "check fillin mode scan for station "<< thisSta.getName() << " prior to this scan";
+                                #else
+                                cout << "[warning] check fillin mode scan for station "<< thisSta.getName() << " prior to this scan\n";
+                                #endif
+
+                                of << "[warning] check fillin mode scan for station "<< thisSta.getName() << " prior to this scan!\n";
                             }
 
                             break;
@@ -405,6 +420,10 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 
     // create subcon with all visible scans
     Subcon subcon;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "creating new subcon " << subcon.printId();
+    #endif
+
     for (const auto &thisSource : sources_) {
         subcon.visibleScan(currentTime, type, network_, thisSource, observedSources);
     }
@@ -414,6 +433,9 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 
 
 void Scheduler::update(Scan &scan, ofstream &of) noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "adding scan " << scan.printId() << " to schedule";
+    #endif
 
     // check if scan has influence (only required for fillin mode scans)
     bool influence;
@@ -462,6 +484,9 @@ void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, i
 
 bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
     bool everythingOk = true;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "checking schedule";
+    #endif
 
     of << "starting check routine!\n";
 
@@ -469,6 +494,10 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
     int countWarnings = 0;
 
     for (auto& thisStation : network_.refStations()){
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "checking station " << thisStation.getName();
+        #endif
+
         of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
         unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
@@ -534,6 +563,10 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                     of << "           start time of next scan:    " << nextStartTime_.time_of_day()
                             << " " << nextStart.printId() << "\n";
                     of << "*\n";
+                    #ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(error) << "start time of next scan is before end time of previouse scan! scans: "
+                                             << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                    #endif
                     everythingOk = false;
                 }else{
                     // check slew time
@@ -569,6 +602,11 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                         of << "           difference:     " << (long) availableTime - (long) min_neededTime << "\n";
                         of << "*\n";
                         everythingOk = false;
+                        #ifdef VIESCHEDPP_LOG
+                        BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! scans: "
+                                << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                        #endif
+
                     }else{
                         if(idleTime > 1200){
                             ++countWarnings;
@@ -582,6 +620,10 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                             of << "               start time of next scan:    " << nextStartTime_.time_of_day()
                                     << " " << nextStart.printId() << "\n";
                             of << "*\n";
+                            #ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL(warning) << "long idle time! ("<< idleTime <<" [s]) scans: "
+                                                     << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                            #endif
                         }
                     }
                 }
@@ -630,12 +672,18 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
 
 bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) noexcept {
     bool hard_break = false;
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "check for parameter changes";
+    #endif
 
     // check if it is required to tagalong a station
     for (auto &any:network_.refStations()){
         bool tagalong = any.checkForTagalongMode(time);
         if(tagalong){
             of << "TAGALONG for station " << any.getName() << " required!\n";
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "tagalong for station " << any.getName() << " required";
+            #endif
             startTagelongMode(any, of);
         }
     }
@@ -646,6 +694,10 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         bool changed = any.checkForNewEvent(time, hard_break);
         if(changed){
             stationChanged.push_back(any.getName());
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "changed parameters for station " << any.getName();
+            #endif
+
         }
     }
     if(!stationChanged.empty() && output && time<TimeSystem::duration){
@@ -658,6 +710,9 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         bool changed = any.checkForNewEvent(time, hard_break);
         if(changed){
             sourcesChanged.push_back(any.getName());
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "changed parameters for source " << any.getName();
+            #endif
         }
     }
     if(!sourcesChanged.empty() &&output && time<TimeSystem::duration){
@@ -671,6 +726,9 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         bool changed = any.checkForNewEvent(time, hard_break);
         if(changed){
             baselineChanged.push_back(any.getName());
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "changed parameters for baseline " << any.getName();
+            #endif
         }
     }
     if(!baselineChanged.empty() && output && time<TimeSystem::duration){
@@ -909,6 +967,9 @@ void Scheduler::startCalibrationBlock(std::ofstream &of) {
 void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
     unsigned long staid = station.getId();
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "start tagalong mode for station " << station.getName();
+    #endif
 
     of << "Start tagalong mode for station " << station.getName() << ": \n";
 
@@ -928,6 +989,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
         // look if this scan is possible for tagalong mode
         if (scanStartTime > currentStationTime){
+
             unsigned long srcid = scan.getSourceId();
             Source &source = sources_[scan.getSourceId()];
 
@@ -940,6 +1002,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             // check if source is up from station
             bool flag = station.isVisible(pv_new_start, source.getPARA().minElevation);
             if(!flag){
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
+                #endif
                 continue;
             }
 
@@ -947,11 +1012,17 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
             auto slewtime = station.slewTime(pv_new_start);
             if (!slewtime.is_initialized()) {
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (unallowed slew time)";
+                #endif
                 continue;
             }
 
             // check if there is enough time to slew to source before scan starts
             if (scanStartTime < currentStationTime + *slewtime + stationConstTimes) {
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (cannot reach source in time)";
+                #endif
                 continue;
             }
 
@@ -966,15 +1037,20 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                 const Baseline &bl = network_.getBaseline(sta1.getId(),sta2.getId());
 
                 if(bl.getParameters().ignore){
+                    #ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
+                    #endif
                     continue;
                 }
                 if (!source.getPARA().ignoreBaselines.empty()) {
                     const auto &PARA = source.getPARA();
                     if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), bl.getId()) !=
                         PARA.ignoreBaselines.end()) {
+                        #ifdef VIESCHEDPP_LOG
+                        BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
+                        #endif
                         continue;
                     }
-
                 }
                 Observation obs(bl.getId(), sta1.getId(), sta2.getId(), srcid, scanStartTime);
 
@@ -1046,6 +1122,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                                                            source.getPARA().maxScan});
 
                         if (new_duration_uint > maxScanBl) {
+                            #ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName() << " (too long observing time)";
+                            #endif
                             continue;
                         }
 
@@ -1062,9 +1141,15 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                     }
                 }
                 obs.setObservingTime(maxScanDuration);
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " add observation on baseline " << bl.getName();
+                #endif
                 newObs.push_back(obs);
             }
             if(newObs.empty()){
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (no valid observation possible)";
+                #endif
                 continue;
             }
 
@@ -1085,20 +1170,32 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             // check if source is up from station
             flag = station.isVisible(pv_new_end, source.getPARA().minElevation);
             if(!flag){
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
+                #endif
                 continue;
             }
 
             station.getCableWrap().calcUnwrappedAz(pv_new_start,pv_new_end);
             if(abs(pv_new_end.getAz() - pv_new_start.getAz()) > halfpi){
+                #ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (change of cable wrap required)";
+                #endif
                 continue;
             }
 
             scan.addTagalongStation(pv_new_start, pv_new_end, newObs, *slewtime, station);
-            of << boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
+            auto txt = boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
                        %source.getName()
                        %counter
                        %TimeSystem::internalTime2timeString(pv_new_start.getTime())
                        %TimeSystem::internalTime2timeString(pv_new_end.getTime());
+
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << txt;
+            #endif
+
+            of << txt;
             if(station.referencePARA().firstScan){
                 station.referencePARA().firstScan = false;
             }
@@ -1110,6 +1207,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 }
 
 bool Scheduler::checkOptimizationConditions(ofstream &of) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "checking optimization condition";
+    #endif
     bool newScheduleNecessary = false;
     vector<string> excludedSources;
     int excludedScans = 0;
@@ -1143,11 +1243,18 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions){
                 if(lastExcluded){
                     lastExcluded = false;
+                    #ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
+                    #endif
                     continue;
                 }else {
                     lastExcluded = true;
                 }
             }
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
+            #endif
+
             excludedScans += thisSource.getNTotalScans();
             excludedBaselines += thisSource.getNObs();
             excludedSources.push_back(thisSource.getName());
@@ -1158,14 +1265,23 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     if(parameters_.currentIteration>parameters_.maxNumberOfIterations){
         newScheduleNecessary = false;
         of << "max number of iterations reached ";
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "max number of iterations reached";
+        #endif
     }
     if(excludedSources.size() < parameters_.minNumberOfSourcesToReduce){
         newScheduleNecessary = false;
         of << "only " << excludedSources.size() <<
            " sources have to be excluded (minimum = " << parameters_.minNumberOfSourcesToReduce << ") ";
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "not enough sources left for new iteration";
+        #endif
     }
 
     if(newScheduleNecessary && excludedScans>0){
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "new schedule with reduced source list necessary";
+        #endif
         of << "new schedule with reduced source list necessary\n";
         CalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
@@ -1191,7 +1307,10 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
     }else{
-        of << "no new schedule needed!\n";
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(debug) << "no new iteration needed";
+        #endif
+        of << "no new iteration needed!\n";
         newScheduleNecessary = false;
     }
     return newScheduleNecessary;
@@ -1217,6 +1336,9 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
 
 void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &of, Scan::ScanType type,
                                                bool output, bool ignoreTagalong) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "start scan selection between scans";
+    #endif
 
     // save number of predefined scans (new scans will be added at end of those)
     auto nMainScans = static_cast<int>(scans_.size());
@@ -1316,6 +1438,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
 void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "fix high impact scans";
+    #endif
 
     of << "|----------------------------------------------------------------------------------------------------------------|\n";
     of << "|                                                                                                                |\n";
@@ -1388,6 +1513,9 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 }
 
 void Scheduler::resetAllEvents(std::ofstream &of) {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "reset all events";
+    #endif
 
     // reset all events
     for(auto &any:network_.refStations()){
@@ -1405,428 +1533,23 @@ void Scheduler::resetAllEvents(std::ofstream &of) {
     checkForNewEvents(0, false, of);
 }
 
-void Scheduler::idleToScanTime(ScanTimes::AlignmentAnchor anchor, std::ofstream &of) {
-
-    switch (anchor){
-        case ScanTimes::AlignmentAnchor::start:{
-            of << "Extend observing time at end of scan:\n\n";
-            resetAllEvents(of);
-            checkForNewEvents(0, false, of);
-
-            // start with each scan
-            for(int iscan=0; iscan<scans_.size(); ++iscan){
-                Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, of);
-
-                // save station ids of this scan (only these stations can be affected)
-                vector<unsigned long> staids= thisScan.getStationIds();
-                unsigned long nThisSta = staids.size();
-
-                vector<char> found(nThisSta);
-                vector<unsigned int> constantTime(nThisSta,0);
-                vector<unsigned int> slewTimes(nThisSta,0);
-
-                StationEndposition endp(network_.getNSta());
-
-                ScanTimes copyOfScanTimes = thisScan.getTimes();
-
-                // look in each following scan when each station is next used. Save the next position in endp
-                for(int iNextScan = iscan+1; iNextScan<scans_.size(); ++iNextScan){
-                    const Scan &nextScan = scans_[iNextScan];
-
-                    // search each station in this next scan
-                    for(int idx = 0; idx<nThisSta; ++idx){
-                        if(!found[idx]){
-                            unsigned long staid = staids[idx];
-                            const Station &thisSta = network_.getStation(staid);
-                            boost::optional<unsigned long> oidx = nextScan.findIdxOfStationId(staid);
-
-                            // check if station is part of this next scan
-                            if(oidx.is_initialized()){
-
-                                // if yes save endposition
-                                auto nidx = static_cast<int>(oidx.get());
-                                const PointingVector &endposition = nextScan.getPointingVector(nidx);
-                                endp.addPointingVectorAsEndposition(endposition);
-                                constantTime[idx] = thisSta.getWaittimes().fieldSystem + thisSta.getWaittimes().preob;
-                                slewTimes[idx] = nextScan.getTimes().getSlewDuration(nidx);
-                                found[idx] = true;
-                            }
-                        }
-                    }
-                    // if all stations are found you can stop searching for next scan
-                    if( all_of(found.begin(), found.end(), [](bool i){ return i; } ) ){
-                        break;
-                    }
-                }
-
-                unsigned long srcid = thisScan.getSourceId();
-                const Source & thisSource = sources_[srcid];
-
-                //extend scan time
-                for(int idx = 0; idx<nThisSta; ++idx){
-                    unsigned long staid = staids[idx];
-                    const Station &thisSta = network_.getStation(staid);
-                    const PointingVector &start = thisScan.getPointingVector(idx, Timestamp::end);
-                    unsigned int startTime = start.getTime();
-
-                    // get variable pointing vector (it will change time)
-                    PointingVector variable(start);
-                    variable.setId(start.getId());
-
-                    if(found[idx]){
-                        const PointingVector &end = endp.getFinalPosition(staid).get();
-                        unsigned int availableTime = end.getTime()-startTime;
-                        unsigned int idleTime = availableTime - constantTime[idx] - slewTimes[idx];
-
-                        // update azimuth and elevation of variable
-                        variable.setTime(startTime + idleTime);
-                        thisSta.calcAzEl(thisSource,variable);
-                        thisSta.getCableWrap().calcUnwrappedAz(start, variable);
-
-                        // check if cable wrap changes
-                        if( abs(start.getAz() - variable.getAz()) > pi/2){
-                            continue;
-                        }
-
-                        // check if azimuth and elevation is visible
-                        if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
-                            continue;
-                        }
-
-                        // calc new slew time
-                        unsigned int slewTime = thisSta.getAntenna().slewTime(variable,end);
-
-                        // iteratively adjust observing time
-                        int offset = 0;
-                        bool valid = true;
-                        while(slewTime+offset != slewTimes[idx]){
-                            offset = slewTimes[idx]-slewTime;
-
-                            // update azimuth and elevation of variable
-                            variable.setTime(startTime + idleTime + offset);
-                            thisSta.calcAzEl(sources_[srcid],variable);
-                            thisSta.getCableWrap().calcUnwrappedAz(start, variable);
-
-                            // check if cable wrap changes
-                            if( abs(start.getAz() - variable.getAz()) > pi/2){
-                                valid = false;
-                                break;
-                            }
-
-                            // check if azimuth and elevation is visible
-                            if( !thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
-                                valid = false;
-                                break;
-                            }
-
-                            // get new slewtime
-                            slewTime = thisSta.getAntenna().slewTime(variable,end);
-
-                            // live safer: If you are within one second you are ok
-                            if(slewTime+offset == slewTimes[idx]-1){
-                                break;
-                            }
-                        }
-
-                        // continue if azimuth and elevation is not visible
-                        if(!valid){
-                            continue;
-                        }
-
-                        // if scan time would be reduced skip station!
-                        if(offset + static_cast<int>(idleTime) < 0){
-                            continue;
-                        }
-
-                        // adjust observing times
-                        thisScan.setPointingVector(idx, move(variable), Timestamp::end);
-
-                    }else{
-                        // update azimuth and elevation of variable
-                        variable.setTime(TimeSystem::duration);
-                        thisSta.calcAzEl(sources_[srcid],variable);
-                        thisSta.getCableWrap().calcUnwrappedAz(start, variable);
-
-                        // check if azimuth and elevation is visible and adjust observing times
-                        if( thisSta.isVisible(variable,thisSource.getPARA().minElevation) ){
-                            thisScan.setPointingVector(idx, move(variable), Timestamp::end);
-                        }
-                    }
-                }
-
-                // get minimum allowed observing times (until station is not available) and change scheduled time if necessary
-                for(int idx=0; idx<nThisSta; ++idx){
-                    unsigned long staid = staids[idx];
-                    const Station &sta = network_.getStation(staid);
-                    unsigned int maxObsTime = sta.maximumAllowedObservingTime(Timestamp::end);
-                    thisScan.removeAdditionalObservingTime(maxObsTime, sta, thisSource, of, Timestamp::end);
-                }
-
-                thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, Timestamp::end);
-
-
-                bool change = false;
-                for(int i=0; i<nThisSta; ++i) {
-                    unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
-                    unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
-                    if(oldObservingTime != newObservingTime){
-                        change = true;
-                        break;
-                    }
-                }
-
-                if(change){
-                    of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
-                    for(int i=0; i<nThisSta; ++i){
-                        unsigned long staid = thisScan.getStationId(i);
-                        unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
-                        unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
-                        if(oldObservingTime == newObservingTime){
-                            continue;
-                        }
-
-                        string id = thisScan.getPointingVector(i, Timestamp::end).printId();
-
-                        of << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
-                                    % network_.getStation(staid).getName()
-                                    %(static_cast<int>(newObservingTime-oldObservingTime))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::end))
-                                    % newObservingTime
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
-                                    % oldObservingTime
-                                    % id).str();
-                    }
-                }
-            }
-            of << "\n";
-            break;
-        }
-        case ScanTimes::AlignmentAnchor::end:{
-            of << "Extend observing time at start of scan:\n\n";
-            resetAllEvents(of);
-            checkForNewEvents(0, false, of);
-
-            // sort scans per endtime
-            sortSchedule(Timestamp::end);
-
-            // loop over each scan
-            for(int iscan=0; iscan<scans_.size(); ++iscan) {
-                Scan &thisScan = scans_[iscan];
-                checkForNewEvents(thisScan.getTimes().getScanTime(Timestamp::start), true, of);
-
-                // save station ids of this scan (only these stations can be affected)
-                vector<unsigned long> staids = thisScan.getStationIds();
-                unsigned long nThisSta = staids.size();
-
-                vector<char> found(nThisSta);
-
-                StationEndposition endp(network_.getNSta());
-
-                ScanTimes copyOfScanTimes = thisScan.getTimes();
-
-                // look in each previous scan when each station is next used.
-                for (int iPrevScan = iscan - 1; iPrevScan >= 0; --iPrevScan) {
-                    const Scan &prevScan = scans_[iPrevScan];
-
-                    // search each station in this next scan
-                    for (int idx = 0; idx < nThisSta; ++idx) {
-                        if (!found[idx]) {
-                            unsigned long staid = staids[idx];
-                            const Station &thisSta = network_.getStation(staid);
-                            boost::optional<unsigned long> oidx = prevScan.findIdxOfStationId(staid);
-
-                            // check if station is part of this next scan
-                            if (oidx.is_initialized()) {
-
-                                // if yes save endposition
-                                auto nidx = static_cast<int>(oidx.get());
-                                const PointingVector &endposition = prevScan.getPointingVector(nidx, Timestamp::end);
-                                endp.addPointingVectorAsEndposition(endposition);
-                                found[idx] = true;
-                            }
-                        }
-                    }
-                    // if all stations are found you can stop searching for next scan
-                    if (all_of(found.begin(), found.end(), [](bool i) { return i; })) {
-                        break;
-                    }
-                }
-
-                unsigned long srcid = thisScan.getSourceId();
-                const Source &thisSource = sources_[srcid];
-
-                //extend scan time
-                for (int idx = 0; idx < nThisSta; ++idx) {
-                    unsigned long staid = staids[idx];
-                    const Station &thisSta = network_.getStation(staid);
-
-                    const PointingVector &end = thisScan.getPointingVector(idx);
-                    unsigned int endTime = end.getTime();
-
-                    // get variable pointing vector (it will change time)
-                    PointingVector variable(end);
-                    variable.setId(end.getId());
-
-                    if (found[idx]) {
-                        const PointingVector &start = endp.getFinalPosition(staid).get();
-                        unsigned int prevSlewTime = thisSta.getAntenna().slewTime(start,end);
-
-                        unsigned int availableTime = end.getTime() - start.getTime();
-                        unsigned int idleTime = availableTime - thisScan.getTimes().getFieldSystemDuration(idx) -
-                                thisScan.getTimes().getPreobDuration(idx) - prevSlewTime;
-
-                        // update azimuth and elevation of variable
-                        variable.setTime(endTime - idleTime);
-                        thisSta.calcAzEl(thisSource, variable);
-                        thisSta.getCableWrap().calcUnwrappedAz(end, variable);
-
-                        // check if cable wrap changes
-                        if (abs(end.getAz() - variable.getAz()) > pi / 2) {
-                            continue;
-                        }
-
-                        // check if azimuth and elevation is visible
-                        if (!thisSta.isVisible(variable, thisSource.getPARA().minElevation)) {
-                            continue;
-                        }
-
-                        // calc new slew time
-                        unsigned int slewTime = thisSta.getAntenna().slewTime(start, variable);
-
-                        // iteratively adjust observing time
-                        int offset = 0;
-                        bool valid = true;
-                        while (slewTime + offset != prevSlewTime) {
-                            offset = prevSlewTime - slewTime;
-
-                            // update azimuth and elevation of variable
-                            variable.setTime(endTime - idleTime - offset);
-                            thisSta.calcAzEl(sources_[srcid], variable);
-                            thisSta.getCableWrap().calcUnwrappedAz(end, variable);
-
-                            // check if cable wrap changes
-                            if (abs(end.getAz() - variable.getAz()) > pi / 2) {
-                                valid = false;
-                                break;
-                            }
-
-                            // check if azimuth and elevation is visible
-                            if (!thisSta.isVisible(variable, thisSource.getPARA().minElevation)) {
-                                valid = false;
-                                break;
-                            }
-
-                            // get new slewtime
-                            slewTime = thisSta.getAntenna().slewTime(start, variable);
-
-                            // live safer: If you are within one second you are ok
-                            if (slewTime + offset == prevSlewTime - 1) {
-                                break;
-                            }
-                        }
-
-                        // continue if azimuth and elevation is not visible
-                        if (!valid) {
-                            continue;
-                        }
-
-                        // if scan time would be reduced skip station!
-                        if (offset + static_cast<int>(idleTime) < 0) {
-                            continue;
-                        }
-
-                        // adjust observing times
-                        thisScan.setPointingVector(idx, move(variable), Timestamp::start);
-
-                    } else {
-                        // update azimuth and elevation of variable
-                        variable.setTime(0);
-                        thisSta.calcAzEl(sources_[srcid], variable);
-                        thisSta.getCableWrap().calcUnwrappedAz(end, variable);
-
-                        // check if azimuth and elevation is visible and adjust observing times
-                        if (thisSta.isVisible(variable, thisSource.getPARA().minElevation)) {
-                            thisScan.setPointingVector(idx, move(variable), Timestamp::start);
-                        }
-                    }
-                }
-
-
-                // get maximum allowed observing times (until station is not available) and change scheduled time if necessary
-                for(int idx=0; idx<nThisSta; ++idx){
-                    unsigned long staid = staids[idx];
-                    const Station &sta = network_.getStation(staid);
-                    unsigned int minObsTime = sta.maximumAllowedObservingTime(Timestamp::start);
-                    thisScan.removeAdditionalObservingTime(minObsTime, sta, thisSource, of, Timestamp::start);
-                }
-
-                thisScan.removeUnnecessaryObservingTime(network_, thisSource, of, Timestamp::start);
-
-
-                bool change = false;
-                for(int i=0; i<nThisSta; ++i) {
-                    unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
-                    unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
-                    if(oldObservingTime != newObservingTime){
-                        change = true;
-                        break;
-                    }
-                }
-
-                if(change){
-                    of << boost::format("Scan (id: %d) source %-8s changing idle time to observing time:\n") % thisScan.getId() % thisSource.getName();
-                    for(int i=0; i<nThisSta; ++i){
-                        unsigned long staid = thisScan.getStationId(i);
-                        unsigned int oldObservingTime = copyOfScanTimes.getObservingDuration(i);
-                        unsigned int newObservingTime = thisScan.getTimes().getObservingDuration(i);
-                        if(oldObservingTime == newObservingTime){
-                            continue;
-                        }
-
-                        string id = thisScan.getPointingVector(i).printId();
-
-                        of << (boost::format("    %-8s %+4d seconds: new observing time: %s - %s (%3d sec) old observing time %s - %s (%3d sec) %s\n")
-                                    % network_.getStation(staid).getName()
-                                    %(static_cast<int>(newObservingTime-oldObservingTime))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::start))
-                                    % TimeSystem::internalTime2timeString(thisScan.getTimes().getObservingTime(i, Timestamp::end))
-                                    % newObservingTime
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
-                                    % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
-                                    % oldObservingTime
-                                    % id).str();
-                    }
-                }
-            }
-
-            // sort scans back with respect to observing start
-            sortSchedule(Timestamp::start);
-
-            break;
-        }
-        case ScanTimes::AlignmentAnchor::individual:{
-            of << "idle to scan time is not supported for individual scan alignment:\n\n";
-//            idleToScanTime(ScanTimes::AlignmentAnchor::start, of);
-//            idleToScanTime(ScanTimes::AlignmentAnchor::end, of);
-            break;
-        }
-    }
-}
-
 void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
     switch (ts){
 
         case Timestamp::start:
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at start of scan";
+            #endif
             of << "|                                                                                                                |\n"
                   "|                                   increasing observing time at start of scan                                   |\n"
                   "|                                                                                                                |\n"
                   "|----------------------------------------------------------------------------------------------------------------|\n";
             break;
         case Timestamp::end:
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at end of scan";
+            #endif
             of << "|                                                                                                                |\n"
                   "|                                    increasing observing time at end of scan                                    |\n"
                   "|                                                                                                                |\n"
@@ -2094,6 +1817,9 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     sortSchedule(Timestamp::start);
 
     resetAllEvents(of);
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(debug) << "remove unnecessary observing time (single antenna time)";
+    #endif
     // remove unnecessary observing times
     for(auto &thisScan : scans_){
         const Source &thisSource = sources_[thisScan.getSourceId()];
@@ -2156,11 +1882,16 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 }
                 thisScan.setPointingVector(staidx, move(variable), ts);
                 if(!valid){
-                    of << boost::format("ERROR while extending observing time to idle time:\n    "
-                                              "source %s might not be visible from %s during %s. ")
-                                % thisSource.getName()
-                                % thisSta.getName()
-                                %TimeSystem::internalTime2timeString(maximum);
+                    auto txt = boost::format("extending observing time to idle time: source %s might not be visible from %s during %s. ")
+                               % thisSource.getName()
+                               % thisSta.getName()
+                               %TimeSystem::internalTime2timeString(maximum);
+                    #ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(error) << txt;
+                    #else
+                    cout << "[error] " << txt;
+                    #endif
+                    of << "[error] " << txt;
                 }
             }
         }
