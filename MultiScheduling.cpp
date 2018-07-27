@@ -151,7 +151,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(warning) << "too many multi scheduling parameters! (" << n_total << ") -> multi scheduling ignored";
         #else
-        cout << "too many multi scheduling parameters! (" << n_total << ") -> multi scheduling ignored";
+        cout << "[warning] too many multi scheduling parameters! (" << n_total << ") -> multi scheduling ignored";
         #endif
         return std::vector<Parameters>{};
     }

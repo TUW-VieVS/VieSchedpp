@@ -583,7 +583,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
                 BOOST_LOG_TRIVIAL(warning) << "skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
                                               << sta.getName() << " MISSING in this mode";
                 #else
-                cout << "skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
+                cout << "[warning] skd output: F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " "
                                               << sta.getName() << " MISSING in this mode";
                 #endif
                 of << "* F" << skd.getFreqName() << " " << skd.getFreqTwoLetterCode() << " " << sta.getName()

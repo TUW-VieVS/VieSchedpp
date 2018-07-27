@@ -25,9 +25,9 @@ CableWrap::CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low
         double overlapping = (axis1Up_ - axis1Low_) - twopi;
         if (overlapping>twopi){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(error) << "ERROR: cable wrap limits to large";
+            BOOST_LOG_TRIVIAL(error) << "cable wrap limits to large";
             #else
-            cout << "ERROR: cable wrap limits to large";
+            cout << "[error] cable wrap limits to large";
             #endif
         }
         wLow_ = axis1Low_;

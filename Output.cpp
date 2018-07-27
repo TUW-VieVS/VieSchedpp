@@ -30,7 +30,7 @@ void Output::writeSkdsum() {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing statistics to: " << fileName;
     #else
-    cout << "writing statistics to: " << fileName;
+    cout << "[info] writing statistics to: " << fileName;
     #endif
 
     ofstream of(path_+fileName);
@@ -558,7 +558,7 @@ void Output::writeNGS() {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing empty NGS file to " << fname;
     #else
-    cout << "writing empty NGS file to " << fname;
+    cout << "[info] writing empty NGS file to " << fname;
     #endif
     ofstream of(path_+fname);
 
@@ -624,7 +624,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing vex file to: " << fileName;
     #else
-    cout << "writing vex file to: " << fileName;
+    cout << "[info] writing vex file to: " << fileName;
     #endif
     Vex vex(path_+fileName);
     vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
@@ -636,7 +636,7 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing skd file to: " << fileName;
     #else
-    cout << "writing skd file to: " << fileName;
+    cout << "[info] writing skd file to: " << fileName;
     #endif
     Skd skd(path_+fileName);
     skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
@@ -657,7 +657,7 @@ void Output::writeStatisticsPerSourceGroup() {
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << "writing source statistics file to: " << fileName;
         #else
-        cout << "writing source statistics file to: " << fileName;
+        cout << "[info] writing source statistics file to: " << fileName;
         #endif
 
         vector<string> interestedSrcGroups;
@@ -1075,7 +1075,7 @@ void Output::writeOperationsNotes() {
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing operationsNotes file to: " << fileName;
     #else
-    cout << "writing operationsNotes file to: " << fileName;
+    cout << "[info] writing operationsNotes file to: " << fileName;
     #endif
     ofstream of(path_+fileName);
 

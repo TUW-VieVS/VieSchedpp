@@ -592,7 +592,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #else
-                cout << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
+                cout << "[warning] double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #endif
                 return;
             }
@@ -604,7 +604,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in wait time block -> ignored";
                 #else
-                cout << "double use of station/group " << name << " in wait time block -> ignored";
+                cout << "[warning] double use of station/group " << name << " in wait time block -> ignored";
                 #endif
                 return;
             } else {
@@ -617,7 +617,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in wait time block -> ignored";
             #else
-            cout << "double use of station/group " << name << " in wait time block -> ignored";
+            cout << "[warning] double use of station/group " << name << " in wait time block -> ignored";
             #endif
             return;
         }
@@ -650,7 +650,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #else
-                cout << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
+                cout << "[warning] double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #endif
                 return;
             }
@@ -662,7 +662,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #else
-                cout << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
+                cout << "[warning] double use of station/group " << name << " in cable wrap buffer block -> ignored";
                 #endif
                 return;
             } else {
@@ -676,7 +676,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
             #else
-            cout << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
+            cout << "[warning] double use of station/group " << name << " in cable wrap buffer block -> ignored";
             #endif
             return;
         }

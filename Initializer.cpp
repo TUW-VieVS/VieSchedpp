@@ -109,7 +109,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " antenna.cat: not enough elements in catalog";
             #else
-            cout << "station " << name << " antenna.cat: not enough elements in catalog";
+            cout << "[error] station " << name << " antenna.cat: not enough elements in catalog";
             #endif
 
             of << "*** ERROR: " << any.first << ": antenna.cat to small ***\n";
@@ -128,7 +128,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: not found";
             #else
-            cout << "station " << name << " position.cat: not found";
+            cout << "[error] station " << name << " position.cat: not found";
             #endif
             continue;
         }
@@ -137,7 +137,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: not found";
             #else
-            cout << "station " << name << " equip.cat: not found";
+            cout << "[error] station " << name << " equip.cat: not found";
             #endif
             continue;
         }
@@ -162,7 +162,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " antenna.cat: cannot cast text to number";
             #else
-            cout << "station " << name << " antenna.cat: cannot cast text to number";
+            cout << "[error] station " << name << " antenna.cat: cannot cast text to number";
             #endif
             continue;
         }
@@ -174,7 +174,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: not enough elements in catalog";
             #else
-            cout << "station " << name << " position.cat: not enough elements in catalog";
+            cout << "[error] station " << name << " position.cat: not enough elements in catalog";
             #endif
             continue;
         }
@@ -191,7 +191,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " position.cat: cannot cast text to number";
             #else
-            cout << "station " << name << " position.cat: cannot cast text to number";
+            cout << "[error] station " << name << " position.cat: cannot cast text to number";
             #endif
             continue;
         }
@@ -203,7 +203,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: not enough elements in catalog";
             #else
-            cout << "station " << name << " equip.cat: not enough elements in catalog";
+            cout << "[error] station " << name << " equip.cat: not enough elements in catalog";
             #endif
             continue;
         }
@@ -213,7 +213,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: unknown band name";
             #else
-            cout << "station " << name << " equip.cat: unknown band name";
+            cout << "[error] station " << name << " equip.cat: unknown band name";
             #endif
             continue;
         }
@@ -230,7 +230,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " equip.cat: cannot cast text to number";
             #else
-            cout << "station " << name << " equip.cat: cannot cast text to number";
+            cout << "[error] station " << name << " equip.cat: cannot cast text to number";
             #endif
             continue;
         }
@@ -251,7 +251,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "station " << name << " required SEFD information missing";
             #else
-            cout << "station " << name << " required SEFD information missing";
+            cout << "[error] station " << name << " required SEFD information missing";
             #endif
             continue;
         }
@@ -262,7 +262,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(error) << "station " << name << " no SEFD information found to calculate backup value";
                 #else
-                cout << "station " << name << " no SEFD information found to calculate backup value";
+                cout << "[error] station " << name << " no SEFD information found to calculate backup value";
                 #endif
                 continue;
             }
@@ -313,7 +313,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning) << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     #else
-                    cout << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
+                    cout << "[warning] station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     #endif
                     elSEFD = false;
                 }
@@ -335,7 +335,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning) << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     #else
-                    cout << "station " << name << " elevation dependent SEFD value not understood and therefore ignored";
+                    cout << "[warning] station " << name << " elevation dependent SEFD value not understood and therefore ignored";
                     #endif
                     elSEFD = false;
                 }
@@ -357,7 +357,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(error) << "station " << name << " mask.cat: cannot cast text to number";
                     #else
-                    cout << "station " << name << " mask.cat: cannot cast text to number";
+                    cout << "[error] station " << name << " mask.cat: cannot cast text to number";
                     #endif
                     continue;
                 }
@@ -368,7 +368,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "station " << name << " mask.cat: not found";
                 #else
-                cout << "station " << name << " mask.cat: not found";
+                cout << "[warning] station " << name << " mask.cat: not found";
                 #endif
             }
         }
@@ -431,7 +431,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nant << " stations";
     #else
-    cout << "successfully created " << created << " of " << nant << " stations";
+    cout << "[info] successfully created " << created << " of " << nant << " stations";
     #endif
 }
 
@@ -490,7 +490,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "source " << name << " source.cat: not enough elements in catalog";
             #else
-            cout << "source " << name << " source.cat: not enough elements in catalog";
+            cout << "[warning] source " << name << " source.cat: not enough elements in catalog";
             #endif
             src_failed.push_back(name);
             continue;
@@ -529,7 +529,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: source not found";
             #else
-            cout << "source " << name << " flux.cat: source not found";
+            cout << "[warning] source " << name << " flux.cat: source not found";
             #endif
             continue;
         }
@@ -551,7 +551,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "source " << name << " source.cat: cannot cast text to number";
             #else
-            cout << "source " << name << " source.cat: cannot cast text to number";
+            cout << "[warning] source " << name << " source.cat: cannot cast text to number";
             #endif
             continue;
         }
@@ -611,7 +611,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: lacking element in M format, zeros added";
                     #else
-                    cout << "source " << name << " flux.cat: lacking element in M format, zeros added";
+                    cout << "[warning] source " << name << " flux.cat: lacking element in M format, zeros added";
                     #endif
                 }
             }
@@ -630,7 +630,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: both B and M flux information found";
                         #else
-                        cout << "source " << name << " flux.cat: both B and M flux information found";
+                        cout << "[warning] source " << name << " flux.cat: both B and M flux information found";
                         #endif
                     }
                 }
@@ -662,7 +662,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: cannot cast text to number";
                         #else
-                        cout << "source " << name << " flux.cat: cannot cast text to number";
+                        cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
                         #endif
                         break;
                     }
@@ -692,7 +692,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: cannot cast text to number";
                         #else
-                        cout << "source " << name << " flux.cat: cannot cast text to number";
+                        cout << "[warning] source " << name << " flux.cat: cannot cast text to number";
                         #endif
                         break;
                     }
@@ -730,7 +730,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "source " << name << " required flux information missing";
             #else
-            cout << "source " << name << " required flux information missing";
+            cout << "[warning] source " << name << " required flux information missing";
             #endif
         }
 
@@ -741,7 +741,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "source " << name << " no flux information found to calculate backup value";
                 #else
-                cout << "source " << name << " no flux information found to calculate backup value";
+                cout << "[warning] source " << name << " no flux information found to calculate backup value";
                 #endif
                 continue;
             }
@@ -801,7 +801,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nsrc << " sources";
     #else
-    cout << "successfully created " << created << " of " << nsrc << " sources";
+    cout << "[info] successfully created " << created << " of " << nsrc << " sources";
     #endif
 
     util::outputObjectList("Created sources",src_created,of);
@@ -840,7 +840,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(error) << "duration is less than zero seconds";
             #else
-            cout << "duration is less than zero seconds";
+            cout << "[error] duration is less than zero seconds";
             #endif
         }
         auto duration = static_cast<unsigned int>(sec);
@@ -1014,7 +1014,7 @@ void Initializer::initializeStations() noexcept {
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "double use of station/group " << name << " in wait times block! This whole block is ignored";
                         #else
-                        cout << "double use of station/group " << name << " in wait times block! This whole block is ignored";
+                        cout << "[error] double use of station/group " << name << " in wait times block! This whole block is ignored";
                         #endif
                         errorFlagWaitTime = true;
                     }
@@ -1069,7 +1069,7 @@ void Initializer::initializeStations() noexcept {
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
                         #else
-                        cout << "double use of station/group " << name << " in cable wrap buffer block -> ignored";
+                        cout << "[error] double use of station/group " << name << " in cable wrap buffer block -> ignored";
                         #endif
                         errorFlagWaitTime = true;
                     }
@@ -1216,7 +1216,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <station><setup> block -> set to 'soft'";
                 #else
-                cout << "unknown transition type in <station><setup> block -> set to 'soft'";
+                cout << "[warning] unknown transition type in <station><setup> block -> set to 'soft'";
                 #endif
             }
         }
@@ -1510,7 +1510,7 @@ BOOST_LOG_TRIVIAL(trace) << "creating new source parameter " << tree.get<string>
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <source><setup> block -> set to 'soft'";
                 #else
-                cout << "unknown transition type in <source><setup> block -> set to 'soft'";
+                cout << "[warning] unknown transition type in <source><setup> block -> set to 'soft'";
                 #endif
             }
         }
@@ -1750,7 +1750,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <baseline><setup> block -> set to 'soft'";
                 #else
-                cout << "unknown transition type in <baseline><setup> block -> set to 'soft'";
+                cout << "[warning] unknown transition type in <baseline><setup> block -> set to 'soft'";
                 #endif
             }
         }
@@ -2142,7 +2142,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
     #else
-    cout << boost::format("observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
+    cout << boost::format("[info] observing mode: sample rate %f [Mhz] recording bits %d") %ObservationMode::sampleRate %ObservationMode::bits;
     #endif
     of << "Observing Mode:\n";
     of << "  sample rate:    " << ObservationMode::sampleRate << "\n";
@@ -2156,7 +2156,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(info) << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
         #else
-        cout << boost::format("band %s channels %d wavelength %f") %any %channels %wavelength;
+        cout << boost::format("[info] band %s channels %d wavelength %f") %any %channels %wavelength;
         #endif
     }
     of << "\n";

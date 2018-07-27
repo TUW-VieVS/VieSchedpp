@@ -17,7 +17,7 @@ void LogParser::parseLogFile(const string &slewStart, const string &slewEnd) {
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_ << " file";
         #else
-        cout << "unable to open " << filename_ << " file";
+        cout << "[error] unable to open " << filename_ << " file";
         #endif
         return;
     } else {

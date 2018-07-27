@@ -21,7 +21,7 @@ void SkdParser::read() {
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_;
         #else
-        cout << "unable to open " << filename_;
+        cout << "[error] unable to open " << filename_;
         #endif
         return;
     } else {
@@ -48,7 +48,7 @@ void SkdParser::read() {
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(error) << "session start time not found";
                     #else
-                    cout << "session start time not found";
+                    cout << "[error] session start time not found";
                     #endif
                     return;
                 }
@@ -58,7 +58,7 @@ void SkdParser::read() {
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(error) << "session end time not found";
                     #else
-                    cout << "session end time not found";
+                    cout << "[error] session end time not found";
                     #endif
                     return;
                 }
@@ -133,7 +133,7 @@ void SkdParser::read() {
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "duration is less than zero seconds";
         #else
-        cout << "duration is less than zero seconds";
+        cout << "[error] duration is less than zero seconds";
         #endif
     }
     auto duration = static_cast<unsigned int>(sec);
@@ -356,7 +356,7 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes(const string &sta
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "station name "<< station << "unknown";
         #else
-        cout << "station name "<< station << "unknown";
+        cout << "[error] station name "<< station << "unknown";
         #endif
     }else {
         for (const auto &scan:scans_) {
