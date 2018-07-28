@@ -23,9 +23,15 @@ void StationEndposition::addPointingVectorAsEndposition(const PointingVector &pv
     // check if there is already an earlier endposition
     if(finalPosition_[staid].is_initialized()){
         if(pv.getTime() < finalPosition_[staid]->getTime()){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "set required endposition for station " << pv.getStaid();
+            #endif
             finalPosition_[staid] = pv;
         }
     }else{
+        #ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(trace) << "set required endposition for station " << pv.getStaid();
+        #endif
         finalPosition_[staid] = pv;
     }
 

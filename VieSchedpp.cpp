@@ -275,29 +275,29 @@ void VieSchedpp::init_log() {
 
     boost::log::add_common_attributes();
 
-    string logSeverityFile = xml_.get<string>("master.general.logSeverityFile","info");
-    string logSeverityConsole = xml_.get<string>("master.general.logSeverityConsole","info");
-    if(logSeverityFile == "trace"){
+    string logSeverityFile = xml_.get<string>("master.general.logSeverityFile", "info");
+    string logSeverityConsole = xml_.get<string>("master.general.logSeverityConsole", "info");
+    if (logSeverityFile == "trace") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::trace
         );
-    } else if(logSeverityFile == "debug"){
+    } else if (logSeverityFile == "debug") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::debug
         );
-    } else if(logSeverityFile == "info"){
+    } else if (logSeverityFile == "info") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::info
         );
-    } else if(logSeverityFile == "warning"){
+    } else if (logSeverityFile == "warning") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::warning
         );
-    } else if(logSeverityFile == "error"){
+    } else if (logSeverityFile == "error") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::error
         );
-    } else if(logSeverityFile == "fatal"){
+    } else if (logSeverityFile == "fatal") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::fatal
         );
@@ -305,14 +305,41 @@ void VieSchedpp::init_log() {
 
     auto fmtTimeStamp = boost::log::expressions::
     format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f");
-    auto fmtThreadId = boost::log::expressions::
-    attr<boost::log::attributes::current_thread_id::value_type>("ThreadID");
     auto fmtSeverity = boost::log::expressions::
     attr<boost::log::trivial::severity_level>("Severity");
-    boost::log::formatter logFmt =
-            boost::log::expressions::format("[%1%] (%2%) [%3%] %4%")
-            % fmtTimeStamp % fmtThreadId % fmtSeverity
-            % boost::log::expressions::smessage;
+
+    auto tmp = xml_.get_child_optional("master.multisched");
+    bool withThreadId;
+    if (tmp.is_initialized()){
+        std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
+        int nThreads = xml_.get<int>("master.multiCore.nThreads",1);
+        if(threads == "single" || (threads == "manual" && nThreads == 1)){
+            withThreadId = false;
+        }else{
+            #ifdef  _OPENMP
+            withThreadId = true;
+            #else
+            withThreadId = false;
+            #endif
+        }
+    }else{
+        withThreadId = false;
+    }
+
+    boost::log::formatter logFmt;
+    if(withThreadId){
+        auto fmtThreadId = boost::log::expressions::
+        attr<boost::log::attributes::current_thread_id::value_type>("ThreadID");
+        logFmt = boost::log::expressions::format("[%1%] (%2%) [%3%] %4%")
+                 % fmtTimeStamp % fmtThreadId % fmtSeverity
+                 % boost::log::expressions::smessage;
+
+    }else{
+        logFmt = boost::log::expressions::format("[%1%] [%3%] %4%")
+                 % fmtTimeStamp  % fmtSeverity
+                 % boost::log::expressions::smessage;
+    }
+
 
     /* console sink */
     auto consoleSink = boost::log::add_console_log(std::cout);

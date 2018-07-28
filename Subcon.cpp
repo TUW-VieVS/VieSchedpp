@@ -22,7 +22,7 @@ Subcon::Subcon(): VieVS_Object(nextId++), nSingleScans_{0}, nSubnettingScans_{0}
 
 void Subcon::addScan(Scan &&scan) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " add scan " << scan.printId();
+    BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " add scan " << scan.printId() << " to source " << scan.getSourceId();
     #endif
 
     singleScans_.push_back(std::move(scan));
@@ -1123,14 +1123,14 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
 
         if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (not available)";
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station " << thisSta.getName() << " (not available)";
             #endif
             continue;
         }
 
         if (thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (not available - max number of allowed scans reached)";
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId()<< " source " << thisSource.getName() << " ignore station " << thisSta.getName() << " (not available - max number of allowed scans reached)";
             #endif
             continue;
         }
@@ -1139,7 +1139,7 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
             auto &PARA = thisSta.getPARA();
             if (find(PARA.ignoreSources.begin(), PARA.ignoreSources.end(), srcid) != PARA.ignoreSources.end()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (source should be ignored for this station)";
+                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId()<< " source " << thisSource.getName() << " ignore station " << thisSta.getName() << " (source should be ignored for this station)";
                 #endif
                 continue;
             }
@@ -1150,7 +1150,7 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
             if (find(PARA.ignoreStations.begin(), PARA.ignoreStations.end(), staid) !=
                 PARA.ignoreStations.end()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (station should be ignored for this source)";
+                BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station " << thisSta.getName() << " (station should be ignored for this source)";
                 #endif
                 continue;
             }
@@ -1171,11 +1171,11 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
             endOfLastScans.push_back(thisSta.getCurrentTime());
             pointingVectors.push_back(std::move(p));
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " add station " << thisSta.getName();
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " source " << thisSource.getName() << " add station " << thisSta.getName();
             #endif
         }else{
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " ignore station " << thisSta.getName() << " (source not visible)";
+            BOOST_LOG_TRIVIAL(trace) << "subcon " << this->printId() << " source " << thisSource.getName() << " ignore station " << thisSta.getName() << " (source not visible)";
             #endif
         }
     }

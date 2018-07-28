@@ -19,6 +19,10 @@
 #include <unordered_map>
 #include <memory>
 
+#ifdef VIESCHEDPP_LOG
+#include <boost/log/trivial.hpp>
+#endif
+
 #include "Flux.h"
 #include "Constants.h"
 #include "TimeSystem.h"

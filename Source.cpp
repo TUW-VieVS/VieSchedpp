@@ -89,6 +89,9 @@ double Source::getSunDistance() const noexcept{
 }
 
 double Source::observedFlux(const string &band, double gmst, const std::vector<double> &dxyz) const noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "source " << this->getName() << " get observed flux density";
+    #endif
 
     double ha = gmst - ra_;
 

@@ -623,18 +623,27 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         // calc earliest possible slew end times for each station:
         scanValid = rigorousSlewtime(network, source);
         if(!scanValid){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            #endif
             return scanValid;
         }
 
         // align start times to earliest possible one:
         scanValid = rigorousScanStartTimeAlignment(network, source);
         if(!scanValid){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            #endif
             return scanValid;
         }
 
         // check if source is available during whole scan
         scanValid = rigorousScanVisibility(network, source, stationRemoved);
-        if(!scanValid){
+            if(!scanValid){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            #endif
             return scanValid;
         }
         if(stationRemoved){
@@ -644,6 +653,9 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         // check if end position can be reached
         scanValid = rigorousScanCanReachEndposition(network, source, endposition, stationRemoved);
         if(!scanValid){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            #endif
             return scanValid;
         }
 

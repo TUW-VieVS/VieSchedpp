@@ -70,6 +70,9 @@ void Station::setCurrentPointingVector(const PointingVector &pointingVector) noe
 }
 
 bool Station::isVisible(const PointingVector &p, double minElevationSource) const noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "station " << this->getName() << " check if source " << p.getSrcid() << " is visible";
+    #endif
 
     if(p.getEl()<parameters_.minElevation){
         return false;
@@ -86,6 +89,9 @@ bool Station::isVisible(const PointingVector &p, double minElevationSource) cons
 
 void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model) const noexcept {
 
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "station " << this->getName() << " calculate azimuth and elevation to source " << p.getSrcid();
+    #endif
 
     double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
@@ -223,6 +229,9 @@ double Station::distance(const Station &other) const noexcept {
 }
 
 boost::optional<unsigned int> Station::slewTime(const PointingVector &pointingVector) const noexcept {
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(trace) << "station " << this->getName() << " calculate slew time to source " << pointingVector.getSrcid();
+    #endif
     if (parameters_.firstScan) {
         return 0;
     } else {
