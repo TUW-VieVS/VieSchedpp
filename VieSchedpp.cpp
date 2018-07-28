@@ -335,7 +335,7 @@ void VieSchedpp::init_log() {
                  % boost::log::expressions::smessage;
 
     }else{
-        logFmt = boost::log::expressions::format("[%1%] [%3%] %4%")
+        logFmt = boost::log::expressions::format("[%1%] [%2%] %3%")
                  % fmtTimeStamp  % fmtSeverity
                  % boost::log::expressions::smessage;
     }
