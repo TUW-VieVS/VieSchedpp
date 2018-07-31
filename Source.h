@@ -28,6 +28,7 @@
 #include "TimeSystem.h"
 #include "VieVS_NamedObject.h"
 #include "AstronomicalParameters.h"
+#include "Flags.h"
 
 namespace VieVS{
     /**

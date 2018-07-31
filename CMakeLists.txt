@@ -61,7 +61,8 @@ set(SOURCE_FILES
         Subnetting.h
         util.h util.cpp
         Network.cpp Network.h
-        Observation.cpp Observation.h)
+        Observation.cpp Observation.h
+        Flags.h Flags.cpp)
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 

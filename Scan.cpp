@@ -42,7 +42,7 @@ Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs):
 
 bool Scan::constructObservations(const Network &network, const Source &source) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observations";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observations";
     #endif
     observations_.clear();
     bool valid = false;
@@ -60,7 +60,7 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
             // check if Baseline is ignored
             if(bl.getParameters().ignore){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
                 #endif
                 continue;
             }
@@ -71,7 +71,7 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
                 if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), blid) !=
                     PARA.ignoreBaselines.end()) {
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+                    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
                     #endif
                     continue;
                 }
@@ -82,7 +82,7 @@ bool Scan::constructObservations(const Network &network, const Source &source) n
             unsigned int startTime = max({times_.getObservingTime(i, Timestamp::start),
                                           times_.getObservingTime(j, Timestamp::start)});
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " ignore baseline " << bl.getName();
             #endif
             observations_.emplace_back(blid, staid1, staid2, srcid, startTime);
             valid = true;
@@ -98,14 +98,14 @@ void Scan::addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsign
 bool Scan::removeStation(int idx, const Source &source) noexcept {
     unsigned long staid = pointingVectorsStart_[idx].getStaid();
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "scan " << this->printId() << " remove station " << staid;
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << this->printId() << " remove station " << staid;
     #endif
 
     --nsta_;
     // check if you still have enough stations
     if (nsta_ < source.getPARA().minNumberOfStations) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " not enough stations left";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " not enough stations left";
         #endif
         return false;
     }
@@ -115,7 +115,7 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
         const vector<unsigned long> &rsta = source.getPARA().requiredStations;
         if (find(rsta.begin(), rsta.end(), staid) != rsta.end()) {
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " this was a required station";
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " this was a required station";
             #endif
             return false;
         }
@@ -136,7 +136,7 @@ bool Scan::removeStation(int idx, const Source &source) noexcept {
     while (i<observations_.size()){
         if(observations_[i].containsStation(staid)){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << observations_[i].getStaid1() << " and " << observations_[i].getStaid2();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << observations_[i].getStaid1() << " and " << observations_[i].getStaid2();
             #endif
             observations_.erase(next(observations_.begin(),i));
         } else {
@@ -153,12 +153,12 @@ bool Scan::removeObservation(int iobs, const Source &source) noexcept {
     unsigned long staid1 = observations_[iobs].getStaid1();
     unsigned long staid2 = observations_[iobs].getStaid2();
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << staid1 << " and " << staid2;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " remove observation between stations: " << staid1 << " and " << staid2;
     #endif
     observations_.erase(next(observations_.begin(),iobs));
     if (observations_.empty()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation left";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation left";
         #endif
         return false;
     }
@@ -180,14 +180,14 @@ bool Scan::removeObservation(int iobs, const Source &source) noexcept {
     if(counterStaid1==0){
         boost::optional<unsigned long> idx_pv = findIdxOfStationId(staid1);
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid1 << "left";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid1 << "left";
         #endif
         scanValid = removeStation(static_cast<int>(*idx_pv), source);
     }
     if(scanValid && counterStaid2==0){
         boost::optional<unsigned long> idx_pv = findIdxOfStationId(staid2);
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid2 << "left";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no observation with station " << staid2 << "left";
         #endif
         scanValid = removeStation(static_cast<int>(*idx_pv), source);
     }
@@ -198,7 +198,7 @@ bool Scan::removeObservation(int iobs, const Source &source) noexcept {
 bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &source) noexcept {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " check idle times";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " check idle times";
     #endif
 
     bool scan_valid = true;
@@ -242,7 +242,7 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
 
 bool Scan::calcObservationDuration(const Network &network, const Source &source) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per observation";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per observation";
     #endif
 
     // check if it is a calibrator scan and there is a fixed scan duration for calibrator scans
@@ -359,7 +359,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source)
 
 bool Scan::scanDuration(const Network &network, const Source &source) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per station";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per station";
     #endif
 
     // check if it is a calibrator scan with a fixed scan duration
@@ -612,7 +612,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update";
     #endif
 
     //check if source is available during whole scan and iteratively check everything
@@ -624,7 +624,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         scanValid = rigorousSlewtime(network, source);
         if(!scanValid){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
             #endif
             return scanValid;
         }
@@ -633,7 +633,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         scanValid = rigorousScanStartTimeAlignment(network, source);
         if(!scanValid){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
             #endif
             return scanValid;
         }
@@ -642,7 +642,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         scanValid = rigorousScanVisibility(network, source, stationRemoved);
             if(!scanValid){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
             #endif
             return scanValid;
         }
@@ -654,7 +654,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
         scanValid = rigorousScanCanReachEndposition(network, source, endposition, stationRemoved);
         if(!scanValid){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " no longer valid";
             #endif
             return scanValid;
         }
@@ -666,7 +666,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
 
 bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update slewtime";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update slewtime";
     #endif
 
     bool scanValid = true;
@@ -767,7 +767,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
 bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept{
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update scan start time";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update scan start time";
     #endif
 
     // iteratively align start times
@@ -807,7 +807,7 @@ bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &
 
 bool Scan::rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept{
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update visibility";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update visibility";
     #endif
 
     pointingVectorsEnd_.clear();
@@ -891,7 +891,7 @@ bool Scan::rigorousScanCanReachEndposition(const Network &network, const Source 
         return true;
     }
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update to reach endposition";
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update to reach endposition";
     #endif
 
     for(int idxSta=0; idxSta<nsta_; ++idxSta){
@@ -936,14 +936,14 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
                               const std::vector<Observation> &observations,
                               unsigned int slewtime, const Station &station) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong station " << station.getName();
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong station " << station.getName();
     #endif
     pointingVectorsStart_.push_back(pv_start);
     pointingVectorsEnd_.push_back(pv_end);
     ++nsta_;
     for(auto &any:observations){
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong observation between stations " << any.getStaid1() << " and " << any.getStaid2();
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " add tagalong observation between stations " << any.getStaid1() << " and " << any.getStaid2();
         #endif
         observations_.push_back(any);
     }
@@ -1064,7 +1064,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
     score_ = calcScore_secondPart(this_score,network,source);
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif
 }
 
@@ -1083,7 +1083,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 
     score_ = calcScore_secondPart(this_score, network, source);
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif
 }
 
@@ -1103,7 +1103,7 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
 
     score_ = calcScore_secondPart(this_score, network, source);
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif
 }
 
@@ -1115,7 +1115,7 @@ void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &
 
     score_ = calcScore_secondPart(this_score, network, source)*hiscore;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif
 
 }
@@ -1185,7 +1185,7 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
 
     score_ = this_score;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif
     return true;
 }
@@ -1348,7 +1348,7 @@ void Scan::createDummyObservations(const Network &network) {
             unsigned int dur = std::max(dur1, dur2);
             unsigned long blid = network.getBlid(staid1,staid2);
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observation between stations " << staid1 << " and " << staid2;
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observation between stations " << staid1 << " and " << staid2;
             #endif
 
             Observation obs(blid, staid1, staid2, srcid_, times_.getObservingTime(Timestamp::start), dur);

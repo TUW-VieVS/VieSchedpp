@@ -19,7 +19,7 @@ Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     ifstream is(path);
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "constructing initializer for:" << path;
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "constructing initializer for:" << path;
     #endif
 
     boost::property_tree::read_xml(is, xml_,boost::property_tree::xml_parser::trim_whitespace);
@@ -30,7 +30,7 @@ Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
 Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(nextId++), xml_{xml} {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "constructing initializer " << this->getId();
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "constructing initializer " << this->getId();
     #endif
 
     double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
@@ -41,7 +41,7 @@ Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(n
 void Initializer::precalcSubnettingSrcIds() noexcept {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "calculating subnetting source combinations";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "calculating subnetting source combinations";
     #endif
 
     unsigned long nsrc = sources_.size();
@@ -54,7 +54,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
 
             if (dist > parameters_.subnettingMinAngle){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "possible subnetting between source " << i << " and " << j;
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "possible subnetting between source " << i << " and " << j;
                 #endif
                 subnettingSrcIds.at(i).push_back(j);
             }
@@ -66,7 +66,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
 void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) noexcept {
 
     #ifdef VIESCHEDPP_LOG
-BOOST_LOG_TRIVIAL(debug) << "creating stations";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "creating stations";
 #endif
 
     const map<string, vector<string> > &antennaCatalog = reader.getAntennaCatalog();
@@ -95,7 +95,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
         string name = any.first;
 
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "try to create station " << name;
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "try to create station " << name;
         #endif
 
         // check if station is in PARA.selectedStations or if PARA.selectedStations is not empty
@@ -423,7 +423,7 @@ BOOST_LOG_TRIVIAL(debug) << "creating stations";
         created++;
         of << boost::format("  %-8s added\n") % name;
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "station " << name << " successfully created " << network_.getStation(name).printId();
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "station " << name << " successfully created " << network_.getStation(name).printId();
         #endif
 
     }
@@ -447,7 +447,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     int created = 0;
     of << "Create Sources:\n";
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "creating sources";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "creating sources";
     #endif
 
     vector<string> src_created;
@@ -482,7 +482,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         counter ++;
         string name = any.first;
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "try to create source " << name;
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "try to create source " << name;
         #endif
 
         if (any.second.size() < 8){
@@ -505,7 +505,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                find(sel_sources.begin(),sel_sources.end(),commonname) == sel_sources.end()){
                 src_ignored.push_back(name);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "source " << name << " not in list of allowed sources";
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "source " << name << " not in list of allowed sources";
                 #endif
                 continue;
             }
@@ -514,7 +514,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                find(ignore_sources.begin(),ignore_sources.end(),commonname) != ignore_sources.end()){
                 src_ignored.push_back(name);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "source " << name << " in list of ignored sources";
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "source " << name << " in list of ignored sources";
                 #endif
                 continue;
             }
@@ -793,7 +793,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             created++;
             src_created.push_back(name);
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "source " << name << " successfully created " << sources_.back().printId();
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << name << " successfully created " << sources_.back().printId();
             #endif
         }
     }
@@ -813,7 +813,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 
 void Initializer::initializeGeneral(ofstream &of) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize general";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize general";
     #endif
     try {
 
@@ -821,7 +821,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
         of << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "session start time: " << TimeSystem::ptime2string(startTime);
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session start time: " << TimeSystem::ptime2string(startTime);
         #endif
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
@@ -831,7 +831,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
         of << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "session end time: " << TimeSystem::ptime2string(endTime);
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session end time: " << TimeSystem::ptime2string(endTime);
         #endif
 
 
@@ -846,7 +846,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         auto duration = static_cast<unsigned int>(sec);
         of << "duration: " << duration << " [s]\n";
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "session duration: " << duration << "[s]";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session duration: " << duration << "[s]";
         #endif
 
         TimeSystem::mjdStart = mjdStart;
@@ -894,7 +894,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
 void Initializer::initializeStations() noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize stations";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize stations";
     #endif
 
     // get station tree
@@ -913,7 +913,7 @@ void Initializer::initializeStations() noexcept {
             if (name == "parameter") {
                 string parameterName = it.second.get_child("<xmlattr>.name").data();
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "read station parameter " << parameterName;
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "read station parameter " << parameterName;
                 #endif
 
                 ParameterSettings::ParametersStations PARA;
@@ -939,7 +939,7 @@ void Initializer::initializeStations() noexcept {
         // define backup parameter
         Station::Parameters parentPARA("backup");
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "create backup station parameters";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "create backup station parameters";
         #endif
 
         // store events for each station
@@ -972,11 +972,11 @@ void Initializer::initializeStations() noexcept {
         for (unsigned long ista = 0; ista < network_.getNSta(); ++ista) {
             Station &thisStation = network_.refStation(ista);
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "set events for station " << thisStation.getName();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set events for station " << thisStation.getName();
             #endif
 
             PointingVector pV(ista, 0);
-            pV.setAz(0);
+            pV.setAz((thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp())/2);
             pV.setEl(0);
             pV.setTime(0);
 
@@ -1028,7 +1028,7 @@ void Initializer::initializeStations() noexcept {
                     for (auto &sta: network_.refStations()) {
                         if (sta.hasName(any)) {
                             #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(trace) << "set wait times for " << sta.getName();
+                            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set wait times for " << sta.getName();
                             #endif
 
                             Station::WaitTimes wtimes;
@@ -1083,7 +1083,7 @@ void Initializer::initializeStations() noexcept {
                     for (auto &sta:network_.refStations()) {
                         if (sta.hasName(any)) {
                             #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(trace) << "set cable wrap buffers for  " << sta.getName();
+                            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set cable wrap buffers for  " << sta.getName();
                             #endif
 
                             auto axis1Low = it.second.get<double>("axis1LowOffset");
@@ -1114,11 +1114,11 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                                const Station::Parameters &parentPARA) noexcept {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "station setup";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "station setup";
     #endif
     vector<string> members;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "creating new station parameter " << tree.get<string>("parameter");
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "creating new station parameter " << tree.get<string>("parameter");
     #endif
     Station::Parameters combinedPARA = Station::Parameters(tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
@@ -1240,7 +1240,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
                 #endif
                 break;
             }
@@ -1251,7 +1251,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for station " << network_.getStation(id).getName();
                 #endif
                 break;
             }
@@ -1268,7 +1268,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
 
 void Initializer::initializeSources() noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize sources";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize sources";
     #endif
 
     // get source tree
@@ -1287,7 +1287,7 @@ void Initializer::initializeSources() noexcept {
             if (name == "parameter") {
                 string parameterName = it.second.get_child("<xmlattr>.name").data();
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "read source parameter " << parameterName;
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "read source parameter " << parameterName;
                 #endif
 
                 ParameterSettings::ParametersSources PARA;
@@ -1326,7 +1326,7 @@ void Initializer::initializeSources() noexcept {
         // define backup parameter
         Source::Parameters parentPARA("backup");
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "create backup source parameters";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "create backup source parameters";
         #endif
 
         // set observation mode band names
@@ -1358,7 +1358,7 @@ void Initializer::initializeSources() noexcept {
         for (int i = 0; i < sources_.size(); ++i) {
             sources_[i].setEVENTS(events[i]);
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "set events for source " << sources_[i].getName();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set events for source " << sources_[i].getName();
             #endif
         }
 
@@ -1384,11 +1384,11 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
                               const Source::Parameters &parentPARA) noexcept {
 
     #ifdef VIESCHEDPP_LOG
-BOOST_LOG_TRIVIAL(debug) << "source setup";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source setup";
 #endif
     vector<string> members;
     #ifdef VIESCHEDPP_LOG
-BOOST_LOG_TRIVIAL(trace) << "creating new source parameter " << tree.get<string>("parameter");
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "creating new source parameter " << tree.get<string>("parameter");
 #endif
     Source::Parameters combinedPARA = Source::Parameters( tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
@@ -1560,7 +1560,7 @@ BOOST_LOG_TRIVIAL(trace) << "creating new source parameter " << tree.get<string>
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
                 #ifdef VIESCHEDPP_LOG
-BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
 #endif
                 break;
             }
@@ -1571,7 +1571,7 @@ BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName()
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
                 #ifdef VIESCHEDPP_LOG
-BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName();
 #endif
                 break;
             }
@@ -1593,7 +1593,7 @@ BOOST_LOG_TRIVIAL(trace) << "insert event for source " << sources_[id].getName()
 
 void Initializer::initializeBaselines() noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize baselines";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize baselines";
     #endif
     // get baseline tree
     const auto & PARA_baseline_o = xml_.get_child_optional("master.baseline");
@@ -1623,7 +1623,7 @@ void Initializer::initializeBaselines() noexcept {
         // define backup parameter
         Baseline::Parameters parentPARA("backup");
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(trace) << "create backup baseline parameters";
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "create backup baseline parameters";
         #endif
         // set observation mode band names
         for (const auto &any:ObservationMode::bands) {
@@ -1655,7 +1655,7 @@ void Initializer::initializeBaselines() noexcept {
             Baseline &bl = network_.refBaseline(i);
             bl.setEVENTS(events[i]);
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "set events for baseline " << bl.getName();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set events for baseline " << bl.getName();
             #endif
         }
 
@@ -1682,11 +1682,11 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
                                 const Baseline::Parameters &parentPARA) noexcept {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "baseline setup";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "baseline setup";
     #endif
     vector<string> members;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "creating new baseline parameter " << tree.get<string>("parameter");
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "creating new baseline parameter " << tree.get<string>("parameter");
     #endif
     Baseline::Parameters combinedPARA = Baseline::Parameters( tree.get<string>("parameter"));
     combinedPARA.setParameters(parentPARA);
@@ -1775,7 +1775,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
             if (iit->time > newEvent_start.time) {
                 thisEvents.insert(iit, newEvent_start);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
                 #endif
                 break;
             }
@@ -1786,7 +1786,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
             if (iit->time >= newEvent_end.time) {
                 thisEvents.insert(iit, newEvent_end);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "insert event for baseline " << network_.getBaseline(id).getName();
                 #endif
                 break;
             }
@@ -1804,7 +1804,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
 
 void Initializer::initializeAstronomicalParameteres() noexcept{
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize astronomical parameters";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize astronomical parameters";
     #endif
     // earth velocity
     double date1 = 2400000.5;
@@ -1889,7 +1889,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept{
 
 void Initializer::initializeWeightFactors() noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize weight factors";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize weight factors";
     #endif
     WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
     WeightFactors::weightNumberOfObservations = xml_.get<double>("master.weightFactor.numberOfObservations", 0);
@@ -1913,7 +1913,7 @@ void Initializer::initializeWeightFactors() noexcept {
 
 void Initializer::initializeSkyCoverages() noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize sky coverage";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize sky coverage";
     #endif
 
     SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
@@ -1941,13 +1941,13 @@ void Initializer::initializeSkyCoverages() noexcept {
 
 void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstream &of) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "initialize observing mode";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize observing mode";
     #endif
     auto PARA_mode = xml_.get_child("master.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
             #endif
 
             const string &name = it.second.get_value<string>();
@@ -2026,13 +2026,13 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
         } else if (it.first == "sampleRate") {
             ObservationMode::sampleRate = it.second.get_value<double>();
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "sample rate set to " << it.second.get_value<double>();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "sample rate set to " << it.second.get_value<double>();
             #endif
 
         } else if(it.first == "bits"){
             ObservationMode::bits = it.second.get_value<unsigned int>();
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(trace) << "bits set to " << it.second.get_value<unsigned int>();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "bits set to " << it.second.get_value<unsigned int>();
             #endif
         } else if(it.first == "bands"){
             ObservationMode::manual = true;
@@ -2053,7 +2053,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                 }
                 ObservationMode::bands.push_back(name);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << " [m]) added with " << channels << " channels";
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << " [m]) added with " << channels << " channels";
                 #endif
 
                 ObservationMode::nChannels[name] = channels;
@@ -2075,7 +2075,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                     if(it_bandPolicy.first == "<xmlattr>"){
                         name = it_bandPolicy.second.get_child("name").data();
                         #ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL(trace) << "setting band policy for '"<< name << "'";
+                        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "setting band policy for '"<< name << "'";
                         #endif
 
                     }else if(it_bandPolicy.first == "minSNR"){
@@ -2164,7 +2164,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "create groups";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "create groups";
     #endif
     unordered_map<std::string, std::vector<std::string> > groups;
     auto groupTree = root.get_child_optional("groups");
@@ -2174,7 +2174,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
             if (name == "group") {
                 string groupName = it.second.get_child("<xmlattr>.name").data();
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "create new group "<< groupName;
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "create new group "<< groupName;
                 #endif
                 std::vector<std::string> members;
                 for (auto &it2: it.second) {
@@ -2220,7 +2220,7 @@ unordered_map<string, vector<string> > Initializer::readGroups(boost::property_t
 void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters) {
 //    parameters.output(bodyLog);
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "apply multi scheduling parameters";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "apply multi scheduling parameters";
     #endif
 
 //    Initializer copyOfInit(*this);
@@ -2516,7 +2516,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
     boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("master.multisched");
     if(mstree_o.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "read multi scheduling parameters";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read multi scheduling parameters";
         #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
@@ -2591,7 +2591,7 @@ void Initializer::initializeSourceSequence() noexcept{
     if( sq.is_initialized() )
     {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "initialize source sequence";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize source sequence";
         #endif
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
@@ -2647,7 +2647,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("master.rules.calibratorBlock");
     if (cb.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "initialize calibration block";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize calibration block";
         #endif
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
@@ -2724,7 +2724,7 @@ void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
 unsigned int Initializer::minutesVisible(const Source &source, const Source::Parameters &parameters, unsigned int start,
                                          unsigned int end) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(trace) << "calculate possible observing time for source " << source.getName();
+    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "calculate possible observing time for source " << source.getName();
     #endif
     unsigned int minutes = 0;
     unsigned int minVisible = parameters.minNumberOfStations;
@@ -2787,7 +2787,7 @@ void Initializer::initializeOptimization(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.optimization");
     if (ctree.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "initialize optimization";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize optimization";
         #endif
 
         boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
@@ -2833,7 +2833,7 @@ void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
     if (ctree.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "initialize high impact scan descriptor";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize high impact scan descriptor";
         #endif
 
         of << "High impact block found!\n";

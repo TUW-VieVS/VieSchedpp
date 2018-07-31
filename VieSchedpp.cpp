@@ -216,7 +216,7 @@ void VieSchedpp::run() {
 void VieSchedpp::readSkdCatalogs() {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     #endif
     vector<string> staNames;
     boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
@@ -240,7 +240,7 @@ void VieSchedpp::readSkdCatalogs() {
 void VieSchedpp::multiCoreSetup() {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "read parallel processing setup";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read parallel processing setup";
     #endif
     std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
 
@@ -281,10 +281,13 @@ void VieSchedpp::init_log() {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::trace
         );
+        Flags::logTrace = true;
     } else if (logSeverityFile == "debug") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::debug
         );
+        Flags::logDebug = true;
+        Flags::logTrace = true;
     } else if (logSeverityFile == "info") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::info
@@ -349,10 +352,13 @@ void VieSchedpp::init_log() {
         consoleSink->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::trace
         );
+        Flags::logTrace = true;
     } else if(logSeverityConsole == "debug"){
         consoleSink->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::debug
         );
+        Flags::logDebug = true;
+        Flags::logTrace = true;
     } else if(logSeverityConsole == "info"){
         consoleSink->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::info

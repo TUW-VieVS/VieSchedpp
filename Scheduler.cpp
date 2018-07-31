@@ -57,7 +57,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                                    boost::optional<StationEndposition> &opt_endposition,
                                    boost::optional<Subcon> &opt_subcon, int depth) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "start scan selection (depth " << depth << ")";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start scan selection (depth " << depth << ")";
     #endif
 
     // Check if there is a required opt_endposition. If yes change station availability with respect to opt_endposition
@@ -421,7 +421,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
     // create subcon with all visible scans
     Subcon subcon;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "creating new subcon " << subcon.printId();
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "creating new subcon " << subcon.printId();
     #endif
 
     for (const auto &thisSource : sources_) {
@@ -434,7 +434,7 @@ Subcon Scheduler::allVisibleScans(Scan::ScanType type, const boost::optional<Sta
 
 void Scheduler::update(Scan &scan, ofstream &of) noexcept {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "adding scan " << scan.printId() << " to schedule";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "adding scan " << scan.printId() << " to schedule";
     #endif
 
     // check if scan has influence (only required for fillin mode scans)
@@ -485,7 +485,7 @@ void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, i
 bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
     bool everythingOk = true;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "checking schedule";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "checking schedule";
     #endif
 
     of << "starting check routine!\n";
@@ -495,7 +495,7 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
 
     for (auto& thisStation : network_.refStations()){
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "checking station " << thisStation.getName();
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "checking station " << thisStation.getName();
         #endif
 
         of << "    checking station " << thisStation.getName() << ":\n";
@@ -673,7 +673,7 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
 bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) noexcept {
     bool hard_break = false;
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "check for parameter changes";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "check for parameter changes";
     #endif
 
     // check if it is required to tagalong a station
@@ -682,7 +682,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         if(tagalong){
             of << "TAGALONG for station " << any.getName() << " required!\n";
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "tagalong for station " << any.getName() << " required";
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "tagalong for station " << any.getName() << " required";
             #endif
             startTagelongMode(any, of);
         }
@@ -695,7 +695,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         if(changed){
             stationChanged.push_back(any.getName());
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "changed parameters for station " << any.getName();
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "changed parameters for station " << any.getName();
             #endif
 
         }
@@ -711,7 +711,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         if(changed){
             sourcesChanged.push_back(any.getName());
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "changed parameters for source " << any.getName();
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "changed parameters for source " << any.getName();
             #endif
         }
     }
@@ -727,7 +727,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
         if(changed){
             baselineChanged.push_back(any.getName());
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "changed parameters for baseline " << any.getName();
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "changed parameters for baseline " << any.getName();
             #endif
         }
     }
@@ -968,7 +968,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
     unsigned long staid = station.getId();
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "start tagalong mode for station " << station.getName();
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start tagalong mode for station " << station.getName();
     #endif
 
     of << "Start tagalong mode for station " << station.getName() << ": \n";
@@ -1003,7 +1003,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             bool flag = station.isVisible(pv_new_start, source.getPARA().minElevation);
             if(!flag){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
                 #endif
                 continue;
             }
@@ -1013,7 +1013,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             auto slewtime = station.slewTime(pv_new_start);
             if (!slewtime.is_initialized()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (unallowed slew time)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (unallowed slew time)";
                 #endif
                 continue;
             }
@@ -1021,7 +1021,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             // check if there is enough time to slew to source before scan starts
             if (scanStartTime < currentStationTime + *slewtime + stationConstTimes) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (cannot reach source in time)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (cannot reach source in time)";
                 #endif
                 continue;
             }
@@ -1038,7 +1038,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
                 if(bl.getParameters().ignore){
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
+                    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
                     #endif
                     continue;
                 }
@@ -1047,7 +1047,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                     if (find(PARA.ignoreBaselines.begin(), PARA.ignoreBaselines.end(), bl.getId()) !=
                         PARA.ignoreBaselines.end()) {
                         #ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
+                        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName();
                         #endif
                         continue;
                     }
@@ -1123,7 +1123,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
                         if (new_duration_uint > maxScanBl) {
                             #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName() << " (too long observing time)";
+                            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " ignore observation on baseline " << bl.getName() << " (too long observing time)";
                             #endif
                             continue;
                         }
@@ -1142,13 +1142,13 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                 }
                 obs.setObservingTime(maxScanDuration);
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " add observation on baseline " << bl.getName();
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << scan.printId() << " add observation on baseline " << bl.getName();
                 #endif
                 newObs.push_back(obs);
             }
             if(newObs.empty()){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (no valid observation possible)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (no valid observation possible)";
                 #endif
                 continue;
             }
@@ -1171,7 +1171,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             flag = station.isVisible(pv_new_end, source.getPARA().minElevation);
             if(!flag){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (source not visible)";
                 #endif
                 continue;
             }
@@ -1179,7 +1179,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             station.getCableWrap().calcUnwrappedAz(pv_new_start,pv_new_end);
             if(abs(pv_new_end.getAz() - pv_new_start.getAz()) > halfpi){
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (change of cable wrap required)";
+                if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "scan " << scan.printId() << " not possible (change of cable wrap required)";
                 #endif
                 continue;
             }
@@ -1192,7 +1192,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                        %TimeSystem::internalTime2timeString(pv_new_end.getTime());
 
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << txt;
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << txt;
             #endif
 
             of << txt;
@@ -1208,7 +1208,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
 bool Scheduler::checkOptimizationConditions(ofstream &of) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "checking optimization condition";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "checking optimization condition";
     #endif
     bool newScheduleNecessary = false;
     vector<string> excludedSources;
@@ -1244,7 +1244,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
                 if(lastExcluded){
                     lastExcluded = false;
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
+                    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
                     #endif
                     continue;
                 }else {
@@ -1252,7 +1252,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
                 }
             }
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
             #endif
 
             excludedScans += thisSource.getNTotalScans();
@@ -1266,7 +1266,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         newScheduleNecessary = false;
         of << "max number of iterations reached ";
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "max number of iterations reached";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "max number of iterations reached";
         #endif
     }
     if(excludedSources.size() < parameters_.minNumberOfSourcesToReduce){
@@ -1274,13 +1274,13 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         of << "only " << excludedSources.size() <<
            " sources have to be excluded (minimum = " << parameters_.minNumberOfSourcesToReduce << ") ";
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "not enough sources left for new iteration";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "not enough sources left for new iteration";
         #endif
     }
 
     if(newScheduleNecessary && excludedScans>0){
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "new schedule with reduced source list necessary";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "new schedule with reduced source list necessary";
         #endif
         of << "new schedule with reduced source list necessary\n";
         CalibratorBlock::nextBlock = 0;
@@ -1308,7 +1308,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
 
     }else{
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(debug) << "no new iteration needed";
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "no new iteration needed";
         #endif
         of << "no new iteration needed!\n";
         newScheduleNecessary = false;
@@ -1337,7 +1337,7 @@ void Scheduler::changeStationAvailability(const boost::optional<StationEndpositi
 void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstream &of, Scan::ScanType type,
                                                bool output, bool ignoreTagalong) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "start scan selection between scans";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start scan selection between scans";
     #endif
 
     // save number of predefined scans (new scans will be added at end of those)
@@ -1439,7 +1439,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "fix high impact scans";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "fix high impact scans";
     #endif
 
     of << "|----------------------------------------------------------------------------------------------------------------|\n";
@@ -1514,7 +1514,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
 void Scheduler::resetAllEvents(std::ofstream &of) {
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "reset all events";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "reset all events";
     #endif
 
     // reset all events
@@ -1539,7 +1539,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
         case Timestamp::start:
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at start of scan";
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at start of scan";
             #endif
             of << "|                                                                                                                |\n"
                   "|                                   increasing observing time at start of scan                                   |\n"
@@ -1548,7 +1548,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             break;
         case Timestamp::end:
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at end of scan";
+            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at end of scan";
             #endif
             of << "|                                                                                                                |\n"
                   "|                                    increasing observing time at end of scan                                    |\n"
@@ -1818,7 +1818,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
     resetAllEvents(of);
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(debug) << "remove unnecessary observing time (single antenna time)";
+    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "remove unnecessary observing time (single antenna time)";
     #endif
     // remove unnecessary observing times
     for(auto &thisScan : scans_){

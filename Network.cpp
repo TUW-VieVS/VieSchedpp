@@ -30,7 +30,7 @@ void Network::addStation(Station station) {
             bl.setId(baselines_.size());
         }
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(info) << "Baseline " << bl.getName() << " successfully created " << bl.printId();
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "Baseline " << bl.getName() << " successfully created " << bl.printId();
         #endif
         baselines_.push_back(std::move(bl));
         staids2blid_[{any.getId(), station.getId()}] = baselines_.back().getId();
