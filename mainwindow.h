@@ -116,7 +116,7 @@ private slots:
 
     void on_pushButton_browseHdpos_clicked();
 
-    void on_listView_allSelectedStations_clicked(const QModelIndex &index);
+    void on_treeView_allSelectedStations_clicked(const QModelIndex &index);
 
     void on_groupBox_modeSked_toggled(bool arg1);
 
@@ -172,7 +172,7 @@ private slots:
 
     void on_pushButton_modeCustomAddBand_clicked();
 
-    void on_listView_allSelectedStations_entered(const QModelIndex &index);
+    void on_treeView_allSelectedStations_entered(const QModelIndex &index);
 
     void on_actionSky_Coverage_triggered();
 
@@ -268,7 +268,7 @@ private slots:
 
     void on_treeView_allAvailabeSources_clicked(const QModelIndex &index);
 
-    void on_listView_allSelectedSources_clicked(const QModelIndex &index);
+    void on_treeView_allSelectedSources_clicked(const QModelIndex &index);
 
     void on_pushButton_13_clicked();
 
@@ -276,7 +276,7 @@ private slots:
 
     void on_treeView_allAvailabeSources_entered(const QModelIndex &index);
 
-    void on_listView_allSelectedSources_entered(const QModelIndex &index);
+    void on_treeView_allSelectedSources_entered(const QModelIndex &index);
 
     void on_pushButton_18_clicked();
 

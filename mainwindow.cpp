@@ -83,7 +83,29 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dateTimeEdit_sessionStart->setDate(QDate::currentDate());
 
     allStationModel = new QStandardItemModel(0,19,this);
+    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    allStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
+    allStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
+    allStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
+    allStationModel->setHeaderData(4, Qt::Horizontal, QObject::tr("diam [m]"));
+    allStationModel->setHeaderData(5, Qt::Horizontal, QObject::tr("SEFD X [Jy]"));
+    allStationModel->setHeaderData(6, Qt::Horizontal, QObject::tr("SEFD S [Jy]"));
+    allStationModel->setHeaderData(7, Qt::Horizontal, QObject::tr("axis offset [m]"));
+    allStationModel->setHeaderData(8, Qt::Horizontal, QObject::tr("slew rate1 [deg/min]"));
+    allStationModel->setHeaderData(9, Qt::Horizontal, QObject::tr("constant overhead1 [sec]"));
+    allStationModel->setHeaderData(10, Qt::Horizontal, QObject::tr("lower axis limit1 [deg]"));
+    allStationModel->setHeaderData(11, Qt::Horizontal, QObject::tr("upper axis limit1 [deg]"));
+    allStationModel->setHeaderData(12, Qt::Horizontal, QObject::tr("slew rate2 [deg/min]"));
+    allStationModel->setHeaderData(13, Qt::Horizontal, QObject::tr("constant overhead2 [sec]"));
+    allStationModel->setHeaderData(14, Qt::Horizontal, QObject::tr("lower axis limit2 [deg]"));
+    allStationModel->setHeaderData(15, Qt::Horizontal, QObject::tr("upper axis limit2 [deg]"));
+    allStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
+    allStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
+    allStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
     allSourceModel = new QStandardItemModel(0,3,this);
+    allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
+    allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
+    allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
     allStationProxyModel = new QSortFilterProxyModel(this);
     allStationProxyModel->setSourceModel(allStationModel);
     allStationProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -92,8 +114,30 @@ MainWindow::MainWindow(QWidget *parent) :
     allSourceProxyModel->setSourceModel(allSourceModel);
 
 
-    selectedStationModel = new QStandardItemModel();
-    selectedSourceModel = new QStandardItemModel();
+    selectedStationModel = new QStandardItemModel(0,19,this);
+    selectedStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    selectedStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
+    selectedStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
+    selectedStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
+    selectedStationModel->setHeaderData(4, Qt::Horizontal, QObject::tr("diam [m]"));
+    selectedStationModel->setHeaderData(5, Qt::Horizontal, QObject::tr("SEFD X [Jy]"));
+    selectedStationModel->setHeaderData(6, Qt::Horizontal, QObject::tr("SEFD S [Jy]"));
+    selectedStationModel->setHeaderData(7, Qt::Horizontal, QObject::tr("axis offset [m]"));
+    selectedStationModel->setHeaderData(8, Qt::Horizontal, QObject::tr("slew rate1 [deg/min]"));
+    selectedStationModel->setHeaderData(9, Qt::Horizontal, QObject::tr("constant overhead1 [sec]"));
+    selectedStationModel->setHeaderData(10, Qt::Horizontal, QObject::tr("lower axis limit1 [deg]"));
+    selectedStationModel->setHeaderData(11, Qt::Horizontal, QObject::tr("upper axis limit1 [deg]"));
+    selectedStationModel->setHeaderData(12, Qt::Horizontal, QObject::tr("slew rate2 [deg/min]"));
+    selectedStationModel->setHeaderData(13, Qt::Horizontal, QObject::tr("constant overhead2 [sec]"));
+    selectedStationModel->setHeaderData(14, Qt::Horizontal, QObject::tr("lower axis limit2 [deg]"));
+    selectedStationModel->setHeaderData(15, Qt::Horizontal, QObject::tr("upper axis limit2 [deg]"));
+    selectedStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
+    selectedStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
+    selectedStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
+    selectedSourceModel = new QStandardItemModel(0,3,this);
+    selectedSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
+    selectedSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
+    selectedSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
     selectedBaselineModel = new QStandardItemModel(0,2,this);
     selectedBaselineModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
     selectedBaselineModel->setHeaderData(1, Qt::Horizontal, QObject::tr("distance [km]"));
@@ -140,9 +184,21 @@ MainWindow::MainWindow(QWidget *parent) :
     hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
     createBaselines = true;
 
-    ui->listView_allSelectedStations->setModel(selectedStationModel);
+    ui->treeView_allSelectedStations->setModel(selectedStationModel);
+    ui->treeView_allSelectedStations->setRootIsDecorated(false);
+    ui->treeView_allSelectedStations->setSortingEnabled(true);
+    ui->treeView_allSelectedStations->sortByColumn(0, Qt::AscendingOrder);
+    auto hv4 = ui->treeView_allSelectedStations->header();
+    hv4->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->treeView_allSelectedSources->setModel(selectedSourceModel);
+    ui->treeView_allSelectedSources->setRootIsDecorated(false);
+    ui->treeView_allSelectedSources->setSortingEnabled(true);
+    ui->treeView_allSelectedSources->sortByColumn(0, Qt::AscendingOrder);
+    auto hv5 = ui->treeView_allSelectedSources->header();
+    hv5->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     ui->comboBox_skedObsModes->setModel(allSkedModesModel);
-    ui->listView_allSelectedSources->setModel(selectedSourceModel);
 
     ui->comboBox_stationSettingMember->setModel(allStationPlusGroupModel);
     ui->comboBox_stationSettingMember_axis->setModel(allStationPlusGroupModel);
@@ -209,10 +265,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->spinBox_fontSize->setValue(QApplication::font().pointSize());
     ui->iconSizeSpinBox->setValue(ui->fileToolBar->iconSize().width());
 
-    auto hv4 = ui->treeWidget_setupStationWait->header();
-    hv4->setSectionResizeMode(QHeaderView::ResizeToContents);
-    auto hv5 = ui->treeWidget_setupStationAxis->header();
-    hv5->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv6 = ui->treeWidget_setupStationWait->header();
+    hv6->setSectionResizeMode(QHeaderView::ResizeToContents);
+    auto hv7 = ui->treeWidget_setupStationAxis->header();
+    hv7->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     connect(ui->pushButton_setupAxisAdd,SIGNAL(clicked(bool)),this,SLOT(setupStationAxisBufferAddRow()));
     connect(ui->pushButton_setupWaitAdd,SIGNAL(clicked(bool)),this,SLOT(setupStationWaitAddRow()));
@@ -2099,7 +2155,20 @@ QString MainWindow::writeXML()
 
     if (ui->groupBox_multiScheduling->isChecked() && ui->treeWidget_multiSchedSelected->topLevelItemCount()>0){
 
-        VieVS::MultiScheduling ms;
+        std::unordered_map<std::string, std::vector<std::string>> gsta;
+        std::unordered_map<std::string, std::vector<std::string>> gsrc;
+        std::unordered_map<std::string, std::vector<std::string>> gbl;
+        for(const auto &any: groupSta){
+            gsta[any.first] = any.second;
+        }
+        for(const auto &any: groupSrc){
+            gsrc[any.first] = any.second;
+        }
+        for(const auto &any: groupBl){
+            gbl[any.first] = any.second;
+        }
+
+        VieVS::MultiScheduling ms(gsta, gsrc, gbl);
         QIcon icSta = QIcon(":/icons/icons/station.png");
         QIcon icSrc = QIcon(":/icons/icons/source.png");
         QIcon icBl = QIcon(":/icons/icons/baseline.png");
@@ -2915,7 +2984,7 @@ void MainWindow::on_pushButton_clicked()
             int n = selectedStationModel->rowCount();
             for(int i=0; i<n; ++i){
                 QModelIndex index = selectedStationModel->index(0,0);
-                on_listView_allSelectedStations_clicked(index);
+                on_treeView_allSelectedStations_clicked(index);
             }
 
             allStationProxyModel->setFilterRegExp("");
@@ -3584,27 +3653,6 @@ void MainWindow::readStations()
     QMap<QString,QStringList > equipMap;
     QMap<QString,QStringList > positionMap;
 
-    allStationModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
-    allStationModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Id"));
-    allStationModel->setHeaderData(2, Qt::Horizontal, QObject::tr("lat [deg]"));
-    allStationModel->setHeaderData(3, Qt::Horizontal, QObject::tr("lon [deg]"));
-    allStationModel->setHeaderData(4, Qt::Horizontal, QObject::tr("diam [m]"));
-    allStationModel->setHeaderData(5, Qt::Horizontal, QObject::tr("SEFD X [Jy]"));
-    allStationModel->setHeaderData(6, Qt::Horizontal, QObject::tr("SEFD S [Jy]"));
-    allStationModel->setHeaderData(7, Qt::Horizontal, QObject::tr("axis offset [m]"));
-    allStationModel->setHeaderData(8, Qt::Horizontal, QObject::tr("slew rate1 [deg/min]"));
-    allStationModel->setHeaderData(9, Qt::Horizontal, QObject::tr("constant overhead1 [sec]"));
-    allStationModel->setHeaderData(10, Qt::Horizontal, QObject::tr("lower axis limit1 [deg]"));
-    allStationModel->setHeaderData(11, Qt::Horizontal, QObject::tr("upper axis limit1 [deg]"));
-    allStationModel->setHeaderData(12, Qt::Horizontal, QObject::tr("slew rate2 [deg/min]"));
-    allStationModel->setHeaderData(13, Qt::Horizontal, QObject::tr("constant overhead2 [sec]"));
-    allStationModel->setHeaderData(14, Qt::Horizontal, QObject::tr("lower axis limit2 [deg]"));
-    allStationModel->setHeaderData(15, Qt::Horizontal, QObject::tr("upper axis limit2 [deg]"));
-    allStationModel->setHeaderData(16, Qt::Horizontal, QObject::tr("x [m]"));
-    allStationModel->setHeaderData(17, Qt::Horizontal, QObject::tr("y [m]"));
-    allStationModel->setHeaderData(18, Qt::Horizontal, QObject::tr("z [m]"));
-
-
     QFile antennaFile(antennaPath);
     if (antennaFile.open(QIODevice::ReadOnly)){
         QTextStream in(&antennaFile);
@@ -3764,7 +3812,7 @@ void MainWindow::readStations()
     worldMapCallout->hide();
 }
 
-void MainWindow::on_listView_allSelectedStations_clicked(const QModelIndex &index)
+void MainWindow::on_treeView_allSelectedStations_clicked(const QModelIndex &index)
 {
 
     QString name = selectedStationModel->item(index.row())->text();
@@ -3817,7 +3865,12 @@ void MainWindow::on_treeView_allAvailabeStations_clicked(const QModelIndex &inde
 
     if(selectedStationModel->findItems(name).isEmpty()){
         selectedStationModel->insertRow(0);
-        selectedStationModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/station.png"),name));
+
+        int nrow = allStationModel->findItems(name).at(0)->row();
+        for(int i=0; i<allStationModel->columnCount(); ++i){
+            selectedStationModel->setItem(0, i, allStationModel->item(nrow,i)->clone() );
+        }
+
         selectedStationModel->sort(0);
         selectedStations->append(allStationProxyModel->index(row,3).data().toDouble(),
                                  allStationProxyModel->index(row,2).data().toDouble());
@@ -3890,7 +3943,7 @@ void MainWindow::on_treeView_allSelectedBaselines_entered(const QModelIndex &ind
     worldMapCallout->show();
 }
 
-void MainWindow::on_listView_allSelectedStations_entered(const QModelIndex &index)
+void MainWindow::on_treeView_allSelectedStations_entered(const QModelIndex &index)
 {
     int row = index.row();
     QString name = selectedStationModel->index(row,0).data().toString();
@@ -4204,8 +4257,8 @@ void MainWindow::createBaselineModel()
     int n = selectedStationModel->rowCount();
     for(int i = 0; i<n; ++i){
         for(int j = i+1; j<n; ++j){
-            QString bl = selectedStationModel->index(i,0).data().toString();
-            bl.append("-").append(selectedStationModel->index(j,0).data().toString());
+            QString bl = selectedStationModel->index(i,1).data().toString();
+            bl.append("-").append(selectedStationModel->index(j,1).data().toString());
             allBaselinePlusGroupModel->appendRow(new QStandardItem(QIcon(":/icons/icons/baseline.png"),bl));
             int row = selectedBaselineModel->rowCount();
 
@@ -4244,22 +4297,22 @@ void MainWindow::createBaselineModel()
 
         bool found1 = false;
         bool found2 = false;
-        for(int j=0; j<allStationModel->rowCount(); ++j){
-            auto thisSta = allStationModel->item(j,0)->text();
+        for(int j=0; j<selectedStationModel->rowCount(); ++j){
+            auto thisSta = selectedStationModel->item(j,1)->text();
             if(thisSta == stas.at(0)){
-                lon1 = allStationModel->index(j,3).data().toDouble();
-                lat1 = allStationModel->index(j,2).data().toDouble();
-                x1 = allStationModel->index(j, 16).data().toDouble();
-                y1 = allStationModel->index(j, 17).data().toDouble();
-                z1 = allStationModel->index(j, 18).data().toDouble();
+                lon1 = selectedStationModel->index(j,3).data().toDouble();
+                lat1 = selectedStationModel->index(j,2).data().toDouble();
+                x1 = selectedStationModel->index(j, 16).data().toDouble();
+                y1 = selectedStationModel->index(j, 17).data().toDouble();
+                z1 = selectedStationModel->index(j, 18).data().toDouble();
 
                 found1 = true;
             }else if(thisSta == stas.at(1)){
-                lon2 = allStationModel->index(j,3).data().toDouble();
-                lat2 = allStationModel->index(j,2).data().toDouble();
-                x2 = allStationModel->index(j, 16).data().toDouble();
-                y2 = allStationModel->index(j, 17).data().toDouble();
-                z2 = allStationModel->index(j, 18).data().toDouble();
+                lon2 = selectedStationModel->index(j,3).data().toDouble();
+                lat2 = selectedStationModel->index(j,2).data().toDouble();
+                x2 = selectedStationModel->index(j, 16).data().toDouble();
+                y2 = selectedStationModel->index(j, 17).data().toDouble();
+                z2 = selectedStationModel->index(j, 18).data().toDouble();
 
                 found2 = true;
             }
@@ -4736,7 +4789,7 @@ void MainWindow::on_pushButton_loadNetwork_clicked()
 
         for(int i=0; i<selectedStationModel->rowCount(); ++i){
             QModelIndex idx = selectedStationModel->index(0,0);
-            on_listView_allSelectedStations_clicked(idx);
+            on_treeView_allSelectedStations_clicked(idx);
         }
 
         QString warningTxt;
@@ -4849,11 +4902,6 @@ void MainWindow::readSources()
 {
     QString sourcePath = ui->lineEdit_pathSource->text();
 
-
-    allSourceModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Name"));
-    allSourceModel->setHeaderData(1, Qt::Horizontal, QObject::tr("RA [deg]"));
-    allSourceModel->setHeaderData(2, Qt::Horizontal, QObject::tr("DC [deg]"));
-
     QFile sourceFile(sourcePath);
     if (sourceFile.open(QIODevice::ReadOnly)){
         QTextStream in(&sourceFile);
@@ -4880,8 +4928,11 @@ void MainWindow::readSources()
             allSourceModel->setData(allSourceModel->index(0, 2), (double)((int)(de*100 +0.5))/100.0);
 
             selectedSourceModel->insertRow(0);
-            selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),sourceName));
-            selectedSourceModel->sort(0);
+            selectedSourceModel->setData(selectedSourceModel->index(0,0), sourceName);
+            selectedSourceModel->item(0,0)->setIcon(QIcon(":/icons/icons/source.png"));
+            selectedSourceModel->setData(selectedSourceModel->index(0, 1), (double)((int)(ra*100 +0.5))/100.0);
+            selectedSourceModel->setData(selectedSourceModel->index(0, 2), (double)((int)(de*100 +0.5))/100.0);
+
 
             int r = 0;
             for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
@@ -4907,7 +4958,7 @@ void MainWindow::readSources()
 
 }
 
-void MainWindow::on_listView_allSelectedSources_clicked(const QModelIndex &index)
+void MainWindow::on_treeView_allSelectedSources_clicked(const QModelIndex &index)
 {
     QString name = selectedSourceModel->item(index.row())->text();
     if(ui->comboBox_calibratorBlock_calibratorSources->currentText() == name){
@@ -4973,8 +5024,15 @@ void MainWindow::on_treeView_allAvailabeSources_clicked(const QModelIndex &index
     QString name = allSourceProxyModel->index(row,0).data().toString();
 
     if(selectedSourceModel->findItems(name).isEmpty()){
+
+
         selectedSourceModel->insertRow(0);
-        selectedSourceModel->setItem(0,new QStandardItem(QIcon(":/icons/icons/source.png"),name));
+
+        int nrow = allSourceModel->findItems(name).at(0)->row();
+        for(int i=0; i<allSourceModel->columnCount(); ++i){
+            selectedSourceModel->setItem(0, i, allSourceModel->item(nrow,i)->clone() );
+        }
+
         selectedSourceModel->sort(0);
 
         double ra = allSourceProxyModel->index(row,1).data().toDouble();
@@ -5039,7 +5097,7 @@ void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index
     skyMapCallout->show();
 }
 
-void MainWindow::on_listView_allSelectedSources_entered(const QModelIndex &index)
+void MainWindow::on_treeView_allSelectedSources_entered(const QModelIndex &index)
 {
 
     int row = index.row();
@@ -5422,7 +5480,7 @@ void MainWindow::on_pushButton_13_clicked()
 
 void MainWindow::on_pushButton_15_clicked()
 {
-    selectedSourceModel->clear();
+    selectedSourceModel->removeRows(0, selectedSourceModel->rowCount());
     selectedSources->clear();
     int i = 0;
     while(i<allSourcePlusGroupModel->rowCount()){

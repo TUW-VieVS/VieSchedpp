@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>2</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -858,8 +858,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>247</width>
+             <height>611</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -2733,7 +2733,7 @@ If you only want to run simulations you can deselect this to avoid error message
        <property name="statusTip">
         <string>network</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_57" stretch="0,2">
+       <layout class="QVBoxLayout" name="verticalLayout_57" stretch="1,2">
         <item>
          <widget class="QSplitter" name="splitter_4">
           <property name="orientation">
@@ -2793,101 +2793,115 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
-              <item>
-               <widget class="QLabel" name="label_network_selected">
-                <property name="text">
-                 <string>selected</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QListView" name="listView_allSelectedStations">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>list of all selected stations - click to deselect station</string>
-                </property>
-                <property name="statusTip">
-                 <string>list of all selected stations - click to deselect station</string>
-                </property>
-                <property name="editTriggers">
-                 <set>QAbstractItemView::NoEditTriggers</set>
-                </property>
-                <property name="alternatingRowColors">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_3">
-                <item>
-                 <widget class="QPushButton" name="pushButton_saveNetwork">
-                  <property name="toolTip">
-                   <string>save network</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>save network</string>
-                  </property>
-                  <property name="text">
-                   <string> save</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_loadNetwork">
-                  <property name="toolTip">
-                   <string>load network</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>load network</string>
-                  </property>
-                  <property name="text">
-                   <string> load</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_61">
-              <item>
-               <widget class="QLabel" name="label_network_baselines">
-                <property name="text">
-                 <string>baselines </string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QTreeView" name="treeView_allSelectedBaselines">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>list of all baselines</string>
-                </property>
-                <property name="statusTip">
-                 <string>list of all baselines</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+          <widget class="QSplitter" name="splitter_a">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <widget class="QWidget" name="">
+            <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+             <item>
+              <widget class="QLabel" name="label_network_selected">
+               <property name="text">
+                <string>selected</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTreeView" name="treeView_allSelectedStations">
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>list of all selected stations - click to deselect station</string>
+               </property>
+               <property name="statusTip">
+                <string>list of all selected stations - click to deselect station</string>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <spacer name="horizontalSpacer_36">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_saveNetwork">
+                 <property name="toolTip">
+                  <string>save network</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>save network</string>
+                 </property>
+                 <property name="text">
+                  <string> save</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_loadNetwork">
+                 <property name="toolTip">
+                  <string>load network</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>load network</string>
+                 </property>
+                 <property name="text">
+                  <string> load</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="">
+            <layout class="QVBoxLayout" name="verticalLayout_61">
+             <item>
+              <widget class="QLabel" name="label_network_baselines">
+               <property name="text">
+                <string>baselines </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTreeView" name="treeView_allSelectedBaselines">
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>list of all baselines</string>
+               </property>
+               <property name="statusTip">
+                <string>list of all baselines</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </widget>
         </item>
@@ -3053,122 +3067,121 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QHBoxLayout" name="horizontalLayout_98" stretch="1,1">
-            <item>
-             <layout class="QVBoxLayout" name="verticalLayout_42">
-              <item>
-               <widget class="QLabel" name="label_sourceList_selected">
-                <property name="text">
-                 <string>selected</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QListView" name="listView_allSelectedSources">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip">
-                 <string>list of all selected sources - click to deselect source</string>
-                </property>
-                <property name="statusTip">
-                 <string>list of all selected sources - click to deselect source</string>
-                </property>
-                <property name="editTriggers">
-                 <set>QAbstractItemView::NoEditTriggers</set>
-                </property>
-                <property name="alternatingRowColors">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_82">
-                <item>
-                 <widget class="QPushButton" name="pushButton_13">
-                  <property name="toolTip">
-                   <string>add all sources</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>add all sources</string>
-                  </property>
-                  <property name="text">
-                   <string>all</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_15">
-                  <property name="toolTip">
-                   <string>remove all sources</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>remove all sources</string>
-                  </property>
-                  <property name="text">
-                   <string>none</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_79">
-                <item>
-                 <widget class="QPushButton" name="pushButton_saveSourceList">
-                  <property name="toolTip">
-                   <string>save source list</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>save source list</string>
-                  </property>
-                  <property name="text">
-                   <string> save</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="pushButton_loadSourceList">
-                  <property name="toolTip">
-                   <string>load source list</string>
-                  </property>
-                  <property name="statusTip">
-                   <string>load source list</string>
-                  </property>
-                  <property name="text">
-                   <string> load</string>
-                  </property>
-                  <property name="icon">
-                   <iconset resource="myresources.qrc">
-                    <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_6">
-              <property name="title">
-               <string>additional filters</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <widget class="QSplitter" name="splitter_b">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <widget class="QWidget" name="">
+            <layout class="QVBoxLayout" name="verticalLayout_42">
+             <item>
+              <widget class="QLabel" name="label_sourceList_selected">
+               <property name="text">
+                <string>selected</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTreeView" name="treeView_allSelectedSources">
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="toolTip">
+                <string>list of all selected sources - click to deselect source</string>
+               </property>
+               <property name="statusTip">
+                <string>list of all selected sources - click to deselect source</string>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::NoEditTriggers</set>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_82">
+               <item>
+                <widget class="QPushButton" name="pushButton_13">
+                 <property name="toolTip">
+                  <string>add all sources</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>add all sources</string>
+                 </property>
+                 <property name="text">
+                  <string>all</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/edit-add.png</normaloff>:/icons/icons/edit-add.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_15">
+                 <property name="toolTip">
+                  <string>remove all sources</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>remove all sources</string>
+                 </property>
+                 <property name="text">
+                  <string>none</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/edit-delete-6.png</normaloff>:/icons/icons/edit-delete-6.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_79">
+               <item>
+                <widget class="QPushButton" name="pushButton_saveSourceList">
+                 <property name="toolTip">
+                  <string>save source list</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>save source list</string>
+                 </property>
+                 <property name="text">
+                  <string> save</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pushButton_loadSourceList">
+                 <property name="toolTip">
+                  <string>load source list</string>
+                 </property>
+                 <property name="statusTip">
+                  <string>load source list</string>
+                 </property>
+                 <property name="text">
+                  <string> load</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="myresources.qrc">
+                   <normaloff>:/icons/icons/folder-open-5.png</normaloff>:/icons/icons/folder-open-5.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QGroupBox" name="groupBox_6">
+            <property name="title">
+             <string>additional filters</string>
+            </property>
+           </widget>
           </widget>
          </widget>
         </item>
@@ -6375,8 +6388,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -10464,7 +10477,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>calendarWidget</tabstop>
   <tabstop>treeView_allAvailabeStations</tabstop>
   <tabstop>lineEdit_allStationsFilter</tabstop>
-  <tabstop>listView_allSelectedStations</tabstop>
+  <tabstop>treeView_allSelectedStations</tabstop>
   <tabstop>pushButton_saveNetwork</tabstop>
   <tabstop>pushButton_loadNetwork</tabstop>
   <tabstop>treeView_allSelectedBaselines</tabstop>
@@ -10474,7 +10487,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>checkBox_showBaselines</tabstop>
   <tabstop>treeView_allAvailabeSources</tabstop>
   <tabstop>lineEdit_allStationsFilter_3</tabstop>
-  <tabstop>listView_allSelectedSources</tabstop>
+  <tabstop>treeView_allSelectedSources</tabstop>
   <tabstop>pushButton_13</tabstop>
   <tabstop>pushButton_15</tabstop>
   <tabstop>pushButton_saveSourceList</tabstop>
