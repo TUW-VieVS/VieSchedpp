@@ -430,6 +430,9 @@ void MainWindow::displayBaselineSetupMember(QString name)
 
 void MainWindow::displayStationSetupParameter(QString name)
 {
+    if(name == "multi scheduling"){
+        return;
+    }
     auto t = ui->tableWidget_setupStation;
     t->clear();
     t->setColumnCount(1);
@@ -540,6 +543,10 @@ void MainWindow::displayStationSetupParameter(QString name)
 
 void MainWindow::displaySourceSetupParameter(QString name){
     auto t = ui->tableWidget_setupSource;
+    if(name == "multi scheduling"){
+        return;
+    }
+
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
@@ -713,6 +720,10 @@ void MainWindow::displaySourceSetupParameter(QString name){
 void MainWindow::displayBaselineSetupParameter(QString name)
 {
     auto t = ui->tableWidget_setupBaseline;
+    if(name == "multi scheduling"){
+        return;
+    }
+
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
@@ -3190,8 +3201,10 @@ void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *
                                       QTreeWidget *setupTW){
     QList<QTreeWidgetItem *> sel = setupTW->selectedItems();
     for(int i = 0; i<sel.size(); ++i){
-        if(sel.at(0)->parent()){
-
+        if(sel.at(0)->text(1) == "multi scheduling" || !sel.at(0)->parent()){
+            QMessageBox *ms = new QMessageBox;
+            ms->warning(this,"Wrong selection","You can not delete top level parameters!");
+        }else{
             QString txt2 = sel.at(0)->text(2);
             QString txt3 = sel.at(0)->text(3);
             QDateTime start2 = QDateTime::fromString(txt2,"dd.MM.yyyy hh:mm");
@@ -3226,9 +3239,6 @@ void MainWindow::deleteSetupSelection(VieVS::ParameterSetup &setup, QChartView *
 
             delete(sel.at(0));
             drawSetupPlot(setupChartView, setupCB, setupTW);
-        }else{
-            QMessageBox *ms = new QMessageBox;
-            ms->warning(this,"Wrong selection","You can not delete top level default parameter item!");
         }
     }
 }
@@ -3255,14 +3265,15 @@ int MainWindow::plotParameter(QChart* chart, QTreeWidgetItem *root, int level, i
     QColor c;
     switch (plot%9) {
     case 0: c = QColor(228,26,28); break;
-    case 1: c = QColor(55,126,184); break;
-    case 2: c = QColor(77,175,74); break;
-    case 3: c = QColor(152,78,163); break;
-    case 4: c = QColor(255,127,0); break;
-    case 5: c = QColor(255,255,51); break;
-    case 6: c = QColor(166,86,40); break;
-    case 7: c = QColor(247,129,191); break;
-    case 8: c = QColor(153,153,153); break;
+    case 1: c = QColor(200,200,200); break;
+    case 2: c = QColor(55,126,184); break;
+    case 3: c = QColor(77,175,74); break;
+    case 4: c = QColor(152,78,163); break;
+    case 5: c = QColor(255,127,0); break;
+    case 6: c = QColor(255,255,51); break;
+    case 7: c = QColor(166,86,40); break;
+    case 8: c = QColor(247,129,191); break;
+    case 9: c = QColor(153,153,153); break;
     default:c = QColor(153,153,153);break;
     }
     root->setBackgroundColor(5,c);
@@ -3450,8 +3461,19 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
         wsta->setText(3,e.toString("dd.MM.yyyy hh:mm"));
         wsta->setText(4,"hard");
         wsta->setIcon(0,QIcon(":/icons/icons/station_group_2.png"));
+
+        QTreeWidgetItem *ms = new QTreeWidgetItem();
+        ms->setText(0,"__all__");
+        ms->setText(1,"multi scheduling");
+        ms->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        ms->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        ms->setText(4,"hard");
+        ms->setIcon(0,QIcon(":/icons/icons/station_group_2.png"));
+        wsta->addChild(ms);
+
         ui->treeWidget_setupStation->clear();
         ui->treeWidget_setupStation->insertTopLevelItem(0,wsta);
+        ui->treeWidget_setupStation->expandAll();
         QHeaderView * hvsta = ui->treeWidget_setupStation->header();
         hvsta->setSectionResizeMode(QHeaderView::ResizeToContents);
         setupStationTree = VieVS::ParameterSetup(parameterName,
@@ -3459,6 +3481,14 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
                                       startt,
                                       endt,
                                       VieVS::ParameterSetup::Transition::hard);
+
+        VieVS::ParameterSetup mss = VieVS::ParameterSetup("multi scheduling",
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        setupStationTree.addChild(mss);
+
         drawSetupPlot(setupStation, ui->comboBox_setupStation, ui->treeWidget_setupStation);
     }
 
@@ -3470,8 +3500,20 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
         wsrc->setText(3,e.toString("dd.MM.yyyy hh:mm"));
         wsrc->setText(4,"hard");
         wsrc->setIcon(0,QIcon(":/icons/icons/source_group.png"));
+
+        QTreeWidgetItem *ms = new QTreeWidgetItem();
+        ms->setText(0,"__all__");
+        ms->setText(1,"multi scheduling");
+        ms->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        ms->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        ms->setText(4,"hard");
+        ms->setIcon(0,QIcon(":/icons/icons/source_group.png"));
+        wsrc->addChild(ms);
+
         ui->treeWidget_setupSource->clear();
         ui->treeWidget_setupSource->insertTopLevelItem(0,wsrc);
+        ui->treeWidget_setupSource->expandAll();
+
         QHeaderView * hvsrc = ui->treeWidget_setupSource->header();
         hvsrc->setSectionResizeMode(QHeaderView::ResizeToContents);
         setupSourceTree = VieVS::ParameterSetup(parameterName,
@@ -3479,6 +3521,14 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
                                       startt,
                                       endt,
                                       VieVS::ParameterSetup::Transition::hard);
+
+        VieVS::ParameterSetup mss = VieVS::ParameterSetup("multi scheduling",
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        setupSourceTree.addChild(mss);
+
         drawSetupPlot(setupSource, ui->comboBox_setupSource, ui->treeWidget_setupSource);
     }
 
@@ -3490,8 +3540,20 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
         wbl->setText(3,e.toString("dd.MM.yyyy hh:mm"));
         wbl->setText(4,"hard");
         wbl->setIcon(0,QIcon(":/icons/icons/baseline_group.png"));
+
+        QTreeWidgetItem *ms = new QTreeWidgetItem();
+        ms->setText(0,"__all__");
+        ms->setText(1,"multi scheduling");
+        ms->setText(2,ui->dateTimeEdit_sessionStart->dateTime().toString("dd.MM.yyyy hh:mm"));
+        ms->setText(3,e.toString("dd.MM.yyyy hh:mm"));
+        ms->setText(4,"hard");
+        ms->setIcon(0,QIcon(":/icons/icons/baseline_group.png"));
+        wbl->addChild(ms);
+
         ui->treeWidget_setupBaseline->clear();
         ui->treeWidget_setupBaseline->insertTopLevelItem(0,wbl);
+        ui->treeWidget_setupBaseline->expandAll();
+
         QHeaderView * hvbl = ui->treeWidget_setupBaseline->header();
         hvbl->setSectionResizeMode(QHeaderView::ResizeToContents);
         setupBaselineTree = VieVS::ParameterSetup(parameterName,
@@ -3499,6 +3561,14 @@ void MainWindow::clearSetup(bool sta, bool src, bool bl)
                                       startt,
                                       endt,
                                       VieVS::ParameterSetup::Transition::hard);
+
+        VieVS::ParameterSetup mss = VieVS::ParameterSetup("multi scheduling",
+                                      member,
+                                      startt,
+                                      endt,
+                                      VieVS::ParameterSetup::Transition::hard);
+        setupBaselineTree.addChild(mss);
+
         drawSetupPlot(setupBaseline, ui->comboBox_setupBaseline, ui->treeWidget_setupBaseline);
     }
 }
