@@ -100,6 +100,7 @@ SOURCES += \
         ../VieSchedpp/VieVS_Object.cpp \
         ../VieSchedpp/WeightFactors.cpp \
         ../VieSchedpp/util.cpp \
+        ../VieSchedpp/Flags.cpp \
         textfileviewer.cpp \
         vieschedpp_analyser.cpp \
         qtutil.cpp
@@ -174,6 +175,7 @@ HEADERS += \
         ../VieSchedpp/sofa.h \
         ../VieSchedpp/sofam.h \
         ../VieSchedpp/util.h \
+        ../VieSchedpp/Flags.h \
         textfileviewer.h \
         vieschedpp_analyser.h \
         qtutil.h

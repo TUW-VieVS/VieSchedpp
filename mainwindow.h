@@ -531,6 +531,9 @@ private:
     QSignalMapper *deleteModeMapper;
 
     bool setupChanged;
+    boost::property_tree::ptree setupStation_;
+    boost::property_tree::ptree setupSource_;
+    boost::property_tree::ptree setupBaseline_;
     VieVS::ParameterSetup setupStationTree;
     VieVS::ParameterSetup setupSourceTree;
     VieVS::ParameterSetup setupBaselineTree;
