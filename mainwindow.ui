@@ -3140,6 +3140,19 @@ If you only want to run simulations you can deselect this to avoid error message
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_79">
                <item>
+                <spacer name="horizontalSpacer_45">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
                 <widget class="QPushButton" name="pushButton_saveSourceList">
                  <property name="toolTip">
                   <string>save source list</string>
