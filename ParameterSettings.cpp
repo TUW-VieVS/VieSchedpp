@@ -558,7 +558,20 @@ void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup
 
     boost::property_tree::ptree root;
     boost::property_tree::ptree defaultTree = getChildTree(setup);
-    root.add_child("setup", defaultTree.get_child("root"));
+    auto tmp = defaultTree.get_child_optional("root.setup");
+
+    if(tmp.is_initialized()){
+        boost::property_tree::ptree copy = *tmp;
+        defaultTree.get_child("root").erase("setup");
+        root.add_child("setup", defaultTree.get_child("root"));
+        for(const auto &any:copy){
+            root.add_child("setup.setup", any.second);
+        }
+    }else{
+        root.add_child("setup", defaultTree.get_child("root"));
+    }
+
+//    root.add_child("setup", defaultTree.get_child("root"));
 
 //    if (!setup.getChildren().empty()) {
 //        for (const auto &any:setup.getChildren()) {
@@ -722,7 +735,9 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
     int sec = util::duration(start,end);
     auto duration = static_cast<unsigned int>(sec);
 
-    if (!setup.getChildren().empty()) {
+    bool ms = true;
+    if(setup.getParameterName() != "multi scheduling"){
+        ms = false;
         const std::vector<string> &members = setup.getMembers();
         const string &memberName = setup.getMemberName();
         if (members.size() == 1 && members[0] == memberName) {
@@ -757,47 +772,18 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
         if (setup.getTransition() != ParameterSetup::Transition::soft) {
             root.add("root.transition", "hard");
         }
+    }
 
+    if (!setup.getChildren().empty()){
         for (const auto &any:setup.getChildren()) {
             boost::property_tree::ptree thisChildTree = getChildTree(any);
-            root.add_child("root.setup", thisChildTree.get_child("root"));
+            auto tmp = thisChildTree.get_child_optional("root");
+            if(tmp.is_initialized()){
+                root.add_child("root.setup", *tmp);
+            }
         }
-    } else {
-        const std::vector<string> &members = setup.getMembers();
-        const string &memberName = setup.getMemberName();
-
-        if (members.size() == 1 && members[0] == memberName) {
-            root.add("root.member", setup.getMemberName());
-        } else {
-            root.add("root.group", setup.getMemberName());
-        }
-        root.add("root.parameter", setup.getParameterName());
-        unsigned int thisStart = setup.getStart();
-        if (thisStart != 0) {
-            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisStart);
-            int smonthtmp = start.date().month();
-
-            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                                       % tmp.date().year() %smonthtmp %tmp.date().day()
-                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
-            root.add("root.start", stmp);
-        }
-
-        unsigned int thisEnd = setup.getEnd();
-        if (thisEnd < duration) {
-            boost::posix_time::ptime tmp = start+boost::posix_time::seconds(thisEnd);
-            int smonthtmp = start.date().month();
-
-            string stmp = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
-                                       % tmp.date().year() %smonthtmp %tmp.date().day()
-                                       % tmp.time_of_day().hours() %tmp.time_of_day().minutes() %tmp.time_of_day().seconds()).str();
-            root.add("root.end", stmp);
-        }
-        if (setup.getTransition() != ParameterSetup::Transition::soft) {
-            root.add("root.transition", "hard");
-        }
-
     }
+
     return root;
 }
 
