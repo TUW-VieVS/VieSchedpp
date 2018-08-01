@@ -23,8 +23,8 @@ void Network::addStation(Station station) {
     bool skyCoveragFound = false;
     for(const auto &any: stations_){
         // create baseline
-        string name = (boost::format("%s-%s") %any.getName() %station.getName()).str();
-        string alternativeName = (boost::format("%s-%s") %station.getName() %any.getName()).str();
+        string name = (boost::format("%s-%s") %any.getAlternativeName() %station.getAlternativeName()).str();
+        string alternativeName = (boost::format("%s-%s") %station.getAlternativeName() %any.getAlternativeName()).str();
         Baseline bl(name,alternativeName,any.getId(),station.getId());
         if(bl.getId() != baselines_.size()) {
             bl.setId(baselines_.size());

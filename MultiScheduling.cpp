@@ -10,7 +10,13 @@ using namespace VieVS;
 
 unsigned long MultiScheduling::nextId = 0;
 
-MultiScheduling::MultiScheduling(): VieVS_Object(nextId++){
+MultiScheduling::MultiScheduling(std::unordered_map<std::string, std::vector<std::string> > sta_group,
+                                 std::unordered_map<std::string, std::vector<std::string> > src_group,
+                                 std::unordered_map<std::string, std::vector<std::string> > bls_group):
+        VieVS_Object(nextId++),
+        stationGroups_{move(sta_group)},
+        sourceGroups_{move(src_group)},
+        baselineGroups_{move(bls_group)}{
 }
 
 void MultiScheduling::addParameters(const std::string &name) {
@@ -325,192 +331,192 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
         for (int i_item = 0; i_item < n_items; ++i_item) {
 
             if(name == "station_weight"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationWeight[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].stationWeight[name] = thisValue;
+                    allPara[c].stationWeight[member] = thisValue;
                 }
 
             }else if(name == "station_max_slew_time"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMaxSlewtime[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].stationMaxSlewtime[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].stationMaxSlewtime[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "station_max_slew_time"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMinSlewDistance[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].stationMinSlewDistance[name] = thisValue;
+                    allPara[c].stationMinSlewDistance[member] = thisValue;
                 }
 
             }else if(name == "station_max_slew_distance"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMaxSlewDistance[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].stationMaxSlewDistance[name] = thisValue;
+                    allPara[c].stationMaxSlewDistance[member] = thisValue;
                 }
 
             }else if(name == "station_max_wait_time"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMaxWait[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].stationMaxWait[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].stationMaxWait[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "station_min_elevation"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMinElevation[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].stationMinElevation[name] = thisValue;
+                    allPara[c].stationMinElevation[member] = thisValue;
                 }
 
             }else if(name == "station_max_number_of_scans"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMaxNumberOfScans[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].stationMaxNumberOfScans[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].stationMaxNumberOfScans[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "station_max_scan_time"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].stationMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].stationMaxScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "station_min_scan_time"){
-                if (stationGroups_.find(name) != stationGroups_.end()) {
-                    for (const auto &thisId: stationGroups_[name]) {
+                if (stationGroups_.find(member) != stationGroups_.end()) {
+                    for (const auto &thisId: stationGroups_[member]) {
                         allPara[c].stationMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].stationMinScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].stationMinScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "source_weight"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceWeight[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].sourceWeight[name] = thisValue;
+                    allPara[c].sourceWeight[member] = thisValue;
                 }
 
             }else if(name == "source_min_number_of_stations"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinNumberOfStations[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].sourceMinNumberOfStations[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].sourceMinNumberOfStations[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "source_min_flux"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinFlux[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].sourceMinFlux[name] = thisValue;
+                    allPara[c].sourceMinFlux[member] = thisValue;
                 }
 
             }else if(name == "source_max_number_of_scans"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMaxNumberOfScans[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].sourceMaxNumberOfScans[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].sourceMaxNumberOfScans[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "source_min_elevation"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinElevation[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].sourceMinElevation[name] = thisValue;
+                    allPara[c].sourceMinElevation[member] = thisValue;
                 }
 
             }else if(name == "source_min_sun_distance"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinSunDistance[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].sourceMinSunDistance[name] = thisValue;
+                    allPara[c].sourceMinSunDistance[member] = thisValue;
                 }
 
             }else if(name == "source_max_scan_time"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].sourceMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].sourceMaxScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "source_min_scan_time"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].sourceMinScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].sourceMinScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "source_min_repeat_time"){
-                if (sourceGroups_.find(name) != sourceGroups_.end()) {
-                    for (const auto &thisId: sourceGroups_[name]) {
+                if (sourceGroups_.find(member) != sourceGroups_.end()) {
+                    for (const auto &thisId: sourceGroups_[member]) {
                         allPara[c].sourceMinRepeat[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].sourceMinRepeat[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].sourceMinRepeat[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "baseline_weight"){
-                if (baselineGroups_.find(name) != baselineGroups_.end()) {
-                    for (const auto &thisId: baselineGroups_[name]) {
+                if (baselineGroups_.find(member) != baselineGroups_.end()) {
+                    for (const auto &thisId: baselineGroups_[member]) {
                         allPara[c].baselineWeight[thisId] = thisValue;
                     }
                 } else {
-                    allPara[c].baselineWeight[name] = thisValue;
+                    allPara[c].baselineWeight[member] = thisValue;
                 }
 
             }else if(name == "baseline_max_scan_time"){
-                if (baselineGroups_.find(name) != baselineGroups_.end()) {
-                    for (const auto &thisId: baselineGroups_[name]) {
+                if (baselineGroups_.find(member) != baselineGroups_.end()) {
+                    for (const auto &thisId: baselineGroups_[member]) {
                         allPara[c].baselineMaxScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].baselineMaxScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].baselineMaxScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }else if(name == "baseline_min_scan_time"){
-                if (baselineGroups_.find(name) != baselineGroups_.end()) {
-                    for (const auto &thisId: baselineGroups_[name]) {
+                if (baselineGroups_.find(member) != baselineGroups_.end()) {
+                    for (const auto &thisId: baselineGroups_[member]) {
                         allPara[c].baselineMinScan[thisId] = static_cast<unsigned int>(lround(thisValue));
                     }
                 } else {
-                    allPara[c].baselineMinScan[name] = static_cast<unsigned int>(lround(thisValue));
+                    allPara[c].baselineMinScan[member] = static_cast<unsigned int>(lround(thisValue));
                 }
 
             }

@@ -247,9 +247,11 @@ namespace VieVS {
 
 
         /**
-         * @brief empty default constructor
+         * @brief constructor
          */
-        MultiScheduling();
+        MultiScheduling(std::unordered_map<std::string, std::vector<std::string> > sta_group,
+                        std::unordered_map<std::string, std::vector<std::string> > src_group,
+                        std::unordered_map<std::string, std::vector<std::string> > bls_group);
 
         /**
          * @brief set session start times
@@ -264,7 +266,6 @@ namespace VieVS {
         void addParameters(const std::string &name, const std::vector<double> &values);
 
         void addParameters(const std::string &name, const std::string &member, const std::vector<double> &values);
-
 
 
         /**

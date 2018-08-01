@@ -323,14 +323,14 @@ void Output::displayScanDurationStatistics(ofstream &of) {
     of << "\n";
 
     of << "required scan length:\n";
-    of << ".----------------------------------------------------------------------------------------------.\n";
-    of << "| STATION1-STATION2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
-    of << "|-------------------|---------------------------------------------------------|----------------|\n";
+    of << ".----------------------------------------------------------------------------------.\n";
+    of << "| S1-S2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
+    of << "|-------|---------------------------------------------------------|----------------|\n";
 
     {
         auto n = static_cast<int>(maxScanDurations.size() - 1);
         sort(maxScanDurations.begin(),maxScanDurations.end());
-        of << boost::format("|        ALL        | ");
+        of << boost::format("|  ALL  | ");
         of << boost::format("%4d   ") % maxScanDurations[0];
         of << boost::format("%4d   ") % maxScanDurations[n * 0.1];
         of << boost::format("%4d   ") % maxScanDurations[n / 2];
@@ -345,7 +345,7 @@ void Output::displayScanDurationStatistics(ofstream &of) {
         of << "\n";
     }
 
-    of << "|-------------------|---------------------------------------------------------|----------------|\n";
+    of << "|-------|---------------------------------------------------------|----------------|\n";
 
     for (unsigned long i = 1; i < nsta; ++i) {
         for (unsigned long j = 0; j < i; ++j) {
@@ -355,7 +355,7 @@ void Output::displayScanDurationStatistics(ofstream &of) {
             }
             int n = (int) this_duration.size()-1;
             sort(this_duration.begin(),this_duration.end());
-            of << boost::format("| %17s | ") % network_.getBaseline(i,j).getName();
+            of << boost::format("| %5s | ") % network_.getBaseline(i,j).getName();
             of << boost::format("%4d   ") % this_duration[0];
             of << boost::format("%4d   ") % this_duration[n * 0.1];
             of << boost::format("%4d   ") % this_duration[n / 2];
@@ -371,7 +371,7 @@ void Output::displayScanDurationStatistics(ofstream &of) {
         }
 
     }
-    of << "'----------------------------------------------------------------------------------------------'\n\n";
+    of << "'----------------------------------------------------------------------------------'\n\n";
 }
 
 void Output::displayTimeStatistics(std::ofstream &of) {

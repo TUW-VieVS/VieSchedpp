@@ -427,11 +427,14 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         #endif
 
     }
-    of << "Finished! " << created << " of " << nant << " stations created\n\n";
+    of << "Finished! " << created << " of " << nant << " stations created\n";
+    of << "          " << network_.getBaselines().size() << " of " << nant*(nant-1)/2 << " baselines created\n\n";
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "successfully created " << created << " of " << nant << " stations";
+    BOOST_LOG_TRIVIAL(info) << "successfully created " << network_.getBaselines().size() << " of " << nant*(nant-1)/2 << " baselines";
     #else
     cout << "[info] successfully created " << created << " of " << nant << " stations";
+    cout << "[info] successfully created " << network_.getBaselines().size() << " of " << nant*(nant-1)/2 << " baselines";
     #endif
 }
 
@@ -2512,7 +2515,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
 vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &out) {
     vector<MultiScheduling::Parameters> para;
 
-    MultiScheduling ms;
+    MultiScheduling ms(staGroups_, srcGroups_, blGroups_);
     boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("master.multisched");
     if(mstree_o.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
