@@ -110,17 +110,13 @@
       </widget>
       <widget class="QWidget" name="world"/>
       <widget class="QWidget" name="sources">
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_sourceList"/>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="verticalLayout_4"/>
       </widget>
       <widget class="QWidget" name="uv"/>
       <widget class="QWidget" name="statistics_general">
-       <layout class="QVBoxLayout" name="verticalLayout_8" stretch="2,1">
+       <layout class="QVBoxLayout" name="verticalLayout_10" stretch="2,1">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
            <layout class="QFormLayout" name="formLayout">
             <item row="0" column="0">
@@ -131,17 +127,41 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QSpinBox" name="spinBox_scans">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QSpinBox" name="spinBox_scans">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>of</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinBox_scans_total">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_3">
@@ -151,17 +171,41 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="spinBox_observations">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QSpinBox" name="spinBox_observations">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>of</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinBox_observations_total">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="2" column="0">
              <widget class="QLabel" name="label_4">
@@ -171,17 +215,41 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QSpinBox" name="spinBox_stations">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QSpinBox" name="spinBox_stations">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>of</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinBox_stations_total">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item row="3" column="0">
              <widget class="QLabel" name="label_5">
@@ -191,52 +259,98 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="spinBox_sources">
-              <property name="enabled">
-               <bool>true</bool>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QSpinBox" name="spinBox_sources">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>of</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="spinBox_sources_total">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::NoButtons</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>stations per scans</string>
               </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-              <property name="buttonSymbols">
-               <enum>QAbstractSpinBox::NoButtons</enum>
-              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="tableWidget_sta_per_scan">
+              <row>
+               <property name="text">
+                <string>2 stations</string>
+               </property>
+              </row>
+              <column>
+               <property name="text">
+                <string>scans</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>percent</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QTableWidget" name="tableWidget">
-            <row>
-             <property name="text">
-              <string>2 stations</string>
-             </property>
-            </row>
-            <column>
-             <property name="text">
-              <string>stations per scan</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>percent</string>
-             </property>
-            </column>
-           </widget>
-          </item>
-          <item>
-           <widget class="QTableWidget" name="tableWidget_2">
-            <row>
-             <property name="text">
-              <string>0-30</string>
-             </property>
-            </row>
-            <column>
-             <property name="text">
-              <string>percent</string>
-             </property>
-            </column>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>scan durations</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="tableWidget_scan_duration">
+              <row>
+               <property name="text">
+                <string>0-30 [s]</string>
+               </property>
+              </row>
+              <column>
+               <property name="text">
+                <string>percent</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
