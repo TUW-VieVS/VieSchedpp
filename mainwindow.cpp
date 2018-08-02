@@ -3991,37 +3991,11 @@ void MainWindow::on_treeView_allSelectedStations_entered(const QModelIndex &inde
 
 void MainWindow::plotWorldMap()
 {
-    QChart *worldChart = new QChart();
-    worldChart->setAcceptHoverEvents(true);
 
+    worldmap = new ChartView(this);
+    qtUtil::worldMap(worldmap);
+    QChart *worldChart = worldmap->chart();
 
-    QFile coastF(":/plotting/coast.txt");
-    if (coastF.open(QIODevice::ReadOnly)){
-        QTextStream in(&coastF);
-
-        int c = 0;
-        while (!in.atEnd()){
-
-            QLineSeries *coast = new QLineSeries(worldChart);
-            coast->setColor(Qt::gray);
-            coast->setName("coast");
-
-            while(!in.atEnd()){
-                QString line = in.readLine();
-
-                if(line == "NaN,NaN"){
-                    ++c;
-                    worldChart->addSeries(coast);
-                    break;
-                }
-                QStringList split = line.split(",",QString::SplitBehavior::SkipEmptyParts);
-                QString lat = split[0];
-                QString lon = split[1];
-                coast->append(lon.toDouble(),lat.toDouble());
-            }
-        }
-        coastF.close();
-    }
 
     availableStations = new QScatterSeries(worldChart);
     availableStations->setColor(Qt::red);
@@ -4045,21 +4019,6 @@ void MainWindow::plotWorldMap()
         availableStations->append(lon,lat);
     }
 
-    worldChart->createDefaultAxes();
-    worldChart->setAcceptHoverEvents(true);
-    worldChart->legend()->hide();
-    worldChart->axisX()->setRange(-180,180);
-    worldChart->axisY()->setRange(-90,90);
-    worldChart->setAnimationOptions(QChart::NoAnimation);
-
-    worldmap = new ChartView(worldChart);
-    worldmap->setStatusTip("network overview");
-    worldmap->setToolTip("network overview");
-    worldmap->setMinMax(-180,180,-90,90);
-    worldmap->setRenderHint(QPainter::Antialiasing);
-    worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
-    worldmap->setBackgroundBrush(QBrush(Qt::white));
-    worldmap->setMouseTracking(true);
 
     ui->horizontalLayout_worldmap->insertWidget(0,worldmap,10);
 }

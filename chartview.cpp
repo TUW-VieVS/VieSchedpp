@@ -30,6 +30,15 @@
 #include "chartview.h"
 #include <QtGui/QMouseEvent>
 
+ChartView::ChartView(QWidget *parent) :
+    QChartView(parent),
+    m_isTouching(false)
+{
+    setRubberBand(QChartView::RectangleRubberBand);
+//    setDragMode(QGraphicsView::NoDrag);
+//    this->setMouseTracking(true);
+}
+
 ChartView::ChartView(QChart *chart, QWidget *parent) :
     QChartView(chart, parent),
     m_isTouching(false)

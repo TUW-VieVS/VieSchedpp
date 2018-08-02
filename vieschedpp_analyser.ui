@@ -25,7 +25,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -108,7 +108,13 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="world"/>
+      <widget class="QWidget" name="world">
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_worldmap"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="sources">
        <layout class="QVBoxLayout" name="verticalLayout_4"/>
       </widget>
@@ -657,7 +663,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menusky_coverage">

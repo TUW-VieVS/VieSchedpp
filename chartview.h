@@ -42,7 +42,10 @@ class ChartView : public QChartView
 //![1]
 {
 public:
+    ChartView(QWidget *parent = 0);
+
     ChartView(QChart *chart, QWidget *parent = 0);
+
     void setMinMax(double minx, double maxx, double miny, double maxy);
 
 //![2]

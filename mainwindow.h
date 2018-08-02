@@ -46,6 +46,7 @@
 #include "textfileviewer.h"
 #include "vieschedpp_analyser.h"
 #include "../VieSchedpp/SkdParser.h"
+#include "qtutil.h"
 
 QT_CHARTS_USE_NAMESPACE
 

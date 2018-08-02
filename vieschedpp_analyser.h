@@ -90,6 +90,10 @@ private slots:
 
     void on_treeView_skyCoverage_sources_clicked(const QModelIndex &index);
 
+    void setupWorldmap();
+
+    void worldmap_hovered(QPointF point, bool state);
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 

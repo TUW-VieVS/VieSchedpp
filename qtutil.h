@@ -3,7 +3,10 @@
 
 #include <QList>
 #include <tuple>
+#include <QtCharts/QLineSeries>
+
 #include "../VieSchedpp/Scheduler.h"
+#include "chartview.h"
 
 namespace qtUtil {
 
@@ -19,6 +22,8 @@ namespace qtUtil {
     QList<ObsData> getObsData(unsigned long staid, const std::vector<VieVS::Scan> &scans);
 
     QList<std::tuple<int, double, double, int>> pointingVectors2Lists(const std::vector<VieVS::PointingVector> &pvs);
+
+    void worldMap(ChartView *worldmap);
 
 }
 
