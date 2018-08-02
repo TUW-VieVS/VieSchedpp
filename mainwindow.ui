@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>6</number>
+       <number>18</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -1951,16 +1951,30 @@ If you only want to run simulations you can deselect this to avoid error message
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QPlainTextEdit" name="plainTextEdit_experimentDescription">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_66">
+            <property name="text">
+             <string>import from master</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="experimentNameLabel">
+            <property name="text">
+             <string>session code</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEdit_ivsMaster">
             <property name="toolTip">
-             <string>short session description</string>
+             <string>import data from session master</string>
             </property>
             <property name="statusTip">
-             <string>short session description</string>
+             <string>import data from session master</string>
             </property>
             <property name="placeholderText">
-             <string/>
+             <string>e.g.: IVS-R1824	R1824	2018-01-08 17:00	8	24:00	Ft  Ht  Is  Ke  Kv  Ny  Wn  Yg  Sh	XA	NASA	WASH	Released	NASA</string>
             </property>
            </widget>
           </item>
@@ -1978,37 +1992,10 @@ If you only want to run simulations you can deselect this to avoid error message
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_ivsMaster">
-            <property name="toolTip">
-             <string>import data from session master</string>
-            </property>
-            <property name="statusTip">
-             <string>import data from session master</string>
-            </property>
-            <property name="placeholderText">
-             <string>e.g.: IVS-R1824	R1824	2018-01-08 17:00	8	24:00	Ft  Ht  Is  Ke  Kv  Ny  Wn  Yg  Sh	XA	NASA	WASH	Released	NASA</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_66">
-            <property name="text">
-             <string>import from master</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="experimentNameLabel">
-            <property name="text">
-             <string>session code</string>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="0">
            <widget class="QLabel" name="experimentDesctiptionLabel">
             <property name="text">
-             <string>session desctiption</string>
+             <string>session description</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -2019,6 +2006,28 @@ If you only want to run simulations you can deselect this to avoid error message
            <widget class="Line" name="line_4">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="lineEdit_experimentDescription">
+            <property name="toolTip">
+             <string>experiment description</string>
+            </property>
+            <property name="statusTip">
+             <string>experiment description</string>
+            </property>
+            <property name="inputMask">
+             <string/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="maxLength">
+             <number>50</number>
+            </property>
+            <property name="placeholderText">
+             <string>max 50 characters (use notes in &quot;Output&quot; for longer descriptions)</string>
             </property>
            </widget>
           </item>
@@ -2235,7 +2244,7 @@ If you only want to run simulations you can deselect this to avoid error message
                    <string>use this if every scan should end at same time</string>
                   </property>
                   <property name="text">
-                   <string>scan end (Experimental)</string>
+                   <string>scan end (experimental)</string>
                   </property>
                  </widget>
                 </item>
@@ -2248,7 +2257,7 @@ If you only want to run simulations you can deselect this to avoid error message
                    <string>use this if every scan is allowed to start/end at individual times</string>
                   </property>
                   <property name="text">
-                   <string>individual (Experimental)</string>
+                   <string>individual (experimental)</string>
                   </property>
                  </widget>
                 </item>
@@ -2797,7 +2806,7 @@ If you only want to run simulations you can deselect this to avoid error message
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
              <item>
               <widget class="QLabel" name="label_network_selected">
@@ -2878,7 +2887,7 @@ If you only want to run simulations you can deselect this to avoid error message
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <layout class="QVBoxLayout" name="verticalLayout_61">
              <item>
               <widget class="QLabel" name="label_network_baselines">
@@ -3071,7 +3080,7 @@ If you only want to run simulations you can deselect this to avoid error message
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <layout class="QVBoxLayout" name="verticalLayout_42">
              <item>
               <widget class="QLabel" name="label_sourceList_selected">
@@ -6401,8 +6410,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -10483,7 +10492,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>lineEdit_ivsMaster</tabstop>
   <tabstop>pushButton</tabstop>
   <tabstop>experimentNameLineEdit</tabstop>
-  <tabstop>plainTextEdit_experimentDescription</tabstop>
   <tabstop>dateTimeEdit_sessionStart</tabstop>
   <tabstop>spinBox_doy</tabstop>
   <tabstop>doubleSpinBox_sessionDuration</tabstop>

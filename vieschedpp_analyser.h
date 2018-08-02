@@ -40,6 +40,24 @@ public:
     void setup();
 
 private slots:
+    void on_pushButton_skyCoverageLegend_clicked();
+
+    void on_actiongeneral_triggered();
+
+    void on_actionsky_coverage_triggered();
+
+    void on_actionper_station_triggered();
+
+    void on_actionper_source_triggered();
+
+    void on_actionper_baseline_triggered();
+
+    void on_actionworld_map_triggered();
+
+    void on_actionsky_map_triggered();
+
+    void on_actionuv_coverage_triggered();
+
     void on_horizontalSlider_start_valueChanged(int value);
 
     void on_horizontalSlider_end_valueChanged(int value);
@@ -71,8 +89,6 @@ private slots:
     void on_lineEdit_skyCoverageSourceFilter_textChanged(const QString &arg1);
 
     void on_treeView_skyCoverage_sources_clicked(const QModelIndex &index);
-
-    void on_pushButton_skyCoverageLegend_clicked();
 
 private:
     Ui::VieSchedpp_Analyser *ui;

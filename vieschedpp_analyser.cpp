@@ -28,6 +28,48 @@ VieSchedpp_Analyser::~VieSchedpp_Analyser()
     delete ui;
 }
 
+void VieSchedpp_Analyser::on_actionsky_coverage_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(0);
+}
+
+void VieSchedpp_Analyser::on_actionworld_map_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(1);
+}
+
+void VieSchedpp_Analyser::on_actionuv_coverage_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(2);
+}
+
+void VieSchedpp_Analyser::on_actionsky_map_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(3);
+}
+
+
+void VieSchedpp_Analyser::on_actiongeneral_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(4);
+}
+
+void VieSchedpp_Analyser::on_actionper_station_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(5);
+}
+
+void VieSchedpp_Analyser::on_actionper_source_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(6);
+}
+
+void VieSchedpp_Analyser::on_actionper_baseline_triggered()
+{
+    ui->stackedWidget->setCurrentIndex(7);
+}
+
+
 void VieSchedpp_Analyser::setup()
 {
     ui->label_fileName->setText(QString::fromStdString(schedule_.getName()));
@@ -623,3 +665,7 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLegend_clicked()
 
     }
 }
+
+
+
+

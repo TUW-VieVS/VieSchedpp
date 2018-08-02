@@ -369,6 +369,7 @@ void MainWindow::displayStationSetupMember(QString name)
     auto t = ui->tableWidget_setupStation;
     t->clear();    
     t->setColumnCount(1);
+    t->verticalHeader()->show();
     if (name == "__all__"){
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/station_group_2.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedStationModel->rowCount());
@@ -406,6 +407,7 @@ void MainWindow::displaySourceSetupMember(QString name)
     auto t = ui->tableWidget_setupSource;
     t->clear();
     t->setColumnCount(1);
+    t->verticalHeader()->show();
     if (name == "__all__"){
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/source_group.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedSourceModel->rowCount());
@@ -443,6 +445,7 @@ void MainWindow::displayBaselineSetupMember(QString name)
     auto t = ui->tableWidget_setupBaseline;
     t->clear();
     t->setColumnCount(1);
+    t->verticalHeader()->show();
     if (name == "__all__"){
         t->setHorizontalHeaderItem(0,new QTableWidgetItem(QIcon(":/icons/icons/baseline_group.png"),QString("Group: %1").arg(name)));
         t->setRowCount(selectedBaselineModel->rowCount());
@@ -486,10 +489,18 @@ void MainWindow::displayBaselineSetupMember(QString name)
 
 void MainWindow::displayStationSetupParameter(QString name)
 {
+    auto t = ui->tableWidget_setupStation;
     if(name == "multi scheduling"){
+        t->clear();
+        t->setRowCount(0);
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0, new QTableWidgetItem("multi scheduling"));
+        t->verticalHeader()->hide();
+        t->insertRow(0);
+        t->setItem(0,0,new QTableWidgetItem(QIcon(":/icons/icons/multi_sched.png"),"see multi scheduling setup"));
         return;
     }
-    auto t = ui->tableWidget_setupStation;
+    t->verticalHeader()->show();
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
@@ -600,9 +611,16 @@ void MainWindow::displayStationSetupParameter(QString name)
 void MainWindow::displaySourceSetupParameter(QString name){
     auto t = ui->tableWidget_setupSource;
     if(name == "multi scheduling"){
+        t->clear();
+        t->setRowCount(0);
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0, new QTableWidgetItem("multi scheduling"));
+        t->verticalHeader()->hide();
+        t->insertRow(0);
+        t->setItem(0,0,new QTableWidgetItem(QIcon(":/icons/icons/multi_sched.png"),"see multi scheduling setup"));
         return;
     }
-
+    t->verticalHeader()->show();
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
@@ -777,9 +795,16 @@ void MainWindow::displayBaselineSetupParameter(QString name)
 {
     auto t = ui->tableWidget_setupBaseline;
     if(name == "multi scheduling"){
+        t->clear();
+        t->setRowCount(0);
+        t->setColumnCount(1);
+        t->setHorizontalHeaderItem(0, new QTableWidgetItem("multi scheduling"));
+        t->verticalHeader()->hide();
+        t->insertRow(0);
+        t->setItem(0,0,new QTableWidgetItem(QIcon(":/icons/icons/multi_sched.png"),"see multi scheduling setup"));
         return;
     }
-
+    t->verticalHeader()->show();
     t->clear();
     t->setColumnCount(1);
     t->setHorizontalHeaderItem(0,new QTableWidgetItem(QString("Parameter: %1").arg(name)));
@@ -1889,7 +1914,7 @@ QString MainWindow::writeXML()
 
 
     std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
-    std::string experimentDescription = ui->plainTextEdit_experimentDescription->toPlainText().simplified().toStdString();
+    std::string experimentDescription = ui->lineEdit_experimentDescription->text().toStdString();
     std::string scheduler = ui->schedulerLineEdit->text().toStdString();
     std::string correlator = ui->correlatorLineEdit->text().toStdString();
     std::string piName = ui->lineEdit_PIName->text().toStdString();
@@ -2918,7 +2943,7 @@ void MainWindow::on_pushButton_clicked()
     QStringList t = txt.split("\t");
     if(t.size()>=0){
         QString sessionName = t.at(0);
-        ui->plainTextEdit_experimentDescription->setPlainText(sessionName);
+        ui->lineEdit_experimentDescription->setText(sessionName);
     }
     if(t.size()>=1){
         QString sessionName = t.at(1);
