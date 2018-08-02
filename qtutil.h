@@ -25,6 +25,10 @@ namespace qtUtil {
 
     void worldMap(ChartView *worldmap);
 
+    void skyMap(ChartView *skymap);
+
+    std::pair<double,double> raDc2xy(double ra, double dc);
+
 }
 
 #endif // QTUTIL_H

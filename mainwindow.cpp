@@ -5115,39 +5115,11 @@ void MainWindow::on_treeView_allSelectedSources_entered(const QModelIndex &index
 }
 
 void MainWindow::plotSkyMap(){
-    QChart *skyChart = new QChart();
+    skymap = new ChartView();
 
-    for(int ra = -180; ra<=180; ra+=60){
-        QLineSeries *ral = new QLineSeries(skyChart);
-        ral->setColor(Qt::gray);
-        double lambda = qDegreesToRadians((double) ra);
+    qtUtil::skyMap(skymap);
 
-        for(int de = -90; de<=90; de+=5){
-            double phi = qDegreesToRadians((double) de);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            double y = (qSqrt(2) *qSin(phi) ) / hn;
-            ral->append(x,y);
-        }
-        skyChart->addSeries(ral);
-    }
-
-    for(int de = -60; de<=60; de+=30){
-        QLineSeries *del = new QLineSeries(skyChart);
-        del->setColor(Qt::gray);
-        double phi = qDegreesToRadians((double) de);
-
-        for(int ra = -180; ra<=180; ra+=5){
-            double lambda = qDegreesToRadians((double) ra);
-            double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-            double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-            double y = (qSqrt(2) *qSin(phi) ) / hn;
-            del->append(x,y);
-        }
-        skyChart->addSeries(del);
-    }
+    QChart *skyChart = skyMap->chart();
 
 
     availableSources = new QScatterSeries(skyChart);
@@ -5156,25 +5128,6 @@ void MainWindow::plotSkyMap(){
 
     selectedSources = new QScatterSeries(skyChart);
     markerSkymap();
-
-    QLineSeries *ecliptic = new QLineSeries(skyChart);
-    ecliptic->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
-    double e = qDegreesToRadians(23.4);
-    for(int i=-180; i<=180; i+=5){
-        double l = qDegreesToRadians((double)i);
-        double b = 0;
-        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l));
-//        lambda-=M_PI;
-        double phi = qAsin(qSin(b)*qCos(e) + qCos(b)*qSin(e)*qSin(l));
-
-        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
-
-        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-        double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-
-        ecliptic->append(x,y);
-    }
 
     skyChart->addSeries(availableSources);
     skyChart->addSeries(selectedSources);
@@ -5191,34 +5144,11 @@ void MainWindow::plotSkyMap(){
         double dc = allSourceModel->item(i,2)->text().toDouble();
         double phi = qDegreesToRadians(dc);
 
-        double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+        auto xy = qtUtil::raDc2xy(lambda, phi)
 
-        double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-        double y = (qSqrt(2) *qSin(phi) ) / hn;
-
-        availableSources->append(x,y);
-        selectedSources->append(x,y);
+        availableSources->append(xy.first, xy.second);
+        selectedSources->append(xy.first, xy.second);
     }
-
-
-    skyChart->createDefaultAxes();
-    skyChart->setAcceptHoverEvents(true);
-    skyChart->legend()->hide();
-    skyChart->axisX()->setRange(-2.85,2.85);
-    skyChart->axisY()->setRange(-1.45,1.45);
-    skyChart->axisX()->hide();
-    skyChart->axisY()->hide();
-    skyChart->setAnimationOptions(QChart::NoAnimation);
-
-    skymap = new ChartView(skyChart);
-    skymap->setStatusTip("source overview");
-    skymap->setToolTip("source overview");
-    skymap->setMinMax(-2.85,2.85,-1.45,1.45);
-    skymap->setRenderHint(QPainter::Antialiasing);
-    skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
-    skymap->setBackgroundBrush(QBrush(Qt::white));
-    skymap->setMouseTracking(true);
-
 
     ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
 }

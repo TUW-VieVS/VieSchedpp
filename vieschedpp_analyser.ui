@@ -25,7 +25,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -116,7 +116,11 @@
        </layout>
       </widget>
       <widget class="QWidget" name="sources">
-       <layout class="QVBoxLayout" name="verticalLayout_4"/>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_skymap"/>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="uv"/>
       <widget class="QWidget" name="statistics_general">

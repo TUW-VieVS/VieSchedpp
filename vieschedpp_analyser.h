@@ -94,6 +94,10 @@ private slots:
 
     void worldmap_hovered(QPointF point, bool state);
 
+    void setupSkymap();
+
+    void skymap_hovered(QPointF point, bool state);
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
