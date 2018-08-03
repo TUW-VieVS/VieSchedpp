@@ -111,18 +111,92 @@
       <widget class="QWidget" name="world">
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_worldmap"/>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="sources">
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_skymap"/>
+         <widget class="QSplitter" name="splitter_worldmap">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="">
+           <layout class="QHBoxLayout" name="horizontalLayout_worldmap"/>
+          </widget>
+          <widget class="QWidget" name="layoutWidget_3">
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QTreeView" name="treeView_worldmap_stations">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+              <property name="headerHidden">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_worldmapStationFilter">
+              <property name="placeholderText">
+               <string>filter</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="uv"/>
+      <widget class="QWidget" name="sources">
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <item>
+         <widget class="QSplitter" name="splitter_skymap">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="">
+           <layout class="QHBoxLayout" name="horizontalLayout_skymap"/>
+          </widget>
+          <widget class="QWidget" name="layoutWidget_2">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QTreeView" name="treeView_skymap_sources">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+              <property name="headerHidden">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_skymapSourceFilter">
+              <property name="placeholderText">
+               <string>filter</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="statistics_general">
        <layout class="QVBoxLayout" name="verticalLayout_10" stretch="2,1">
         <item>
@@ -308,6 +382,19 @@
            </layout>
           </item>
           <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
              <widget class="QLabel" name="label_11">
@@ -318,6 +405,12 @@
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget_sta_per_scan">
+              <property name="minimumSize">
+               <size>
+                <width>279</width>
+                <height>0</height>
+               </size>
+              </property>
               <row>
                <property name="text">
                 <string>2 stations</string>
@@ -348,6 +441,12 @@
             </item>
             <item>
              <widget class="QTableWidget" name="tableWidget_scan_duration">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <row>
                <property name="text">
                 <string>0-30 [s]</string>
@@ -366,6 +465,18 @@
         </item>
         <item>
          <widget class="QTableWidget" name="tableWidget_general">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>113</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>150</height>
+           </size>
+          </property>
           <row>
            <property name="text">
             <string>scans per station</string>
@@ -667,7 +778,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menusky_coverage">
@@ -687,57 +798,127 @@
     <addaction name="actionper_station"/>
     <addaction name="actionper_source"/>
     <addaction name="actionper_baseline"/>
+    <addaction name="actiontimes"/>
    </widget>
    <addaction name="menusky_coverage"/>
    <addaction name="menustatistics"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionsky_coverage"/>
+   <addaction name="actionworld_map"/>
+   <addaction name="actionuv_coverage"/>
+   <addaction name="actionsky_map"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actiongeneral"/>
+   <addaction name="actionper_station"/>
+   <addaction name="actionper_source"/>
+   <addaction name="actionper_baseline"/>
+   <addaction name="actiontimes"/>
+  </widget>
   <action name="actionsky_coverage">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/sky_coverage_analyser.png</normaloff>:/icons/icons/sky_coverage_analyser.png</iconset>
+   </property>
    <property name="text">
     <string>sky coverage</string>
    </property>
   </action>
   <action name="actionuv_coverage">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/warning.png</normaloff>:/icons/icons/warning.png</iconset>
+   </property>
    <property name="text">
     <string>uv coverage</string>
    </property>
   </action>
   <action name="actiongeneral">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/office-chart-bar.png</normaloff>:/icons/icons/office-chart-bar.png</iconset>
+   </property>
    <property name="text">
     <string>general</string>
    </property>
   </action>
-  <action name="actiontimes">
-   <property name="text">
-    <string>times</string>
-   </property>
-  </action>
   <action name="actionper_station">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/station.png</normaloff>:/icons/icons/station.png</iconset>
+   </property>
    <property name="text">
     <string>per station</string>
    </property>
   </action>
   <action name="actionper_source">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/source.png</normaloff>:/icons/icons/source.png</iconset>
+   </property>
    <property name="text">
     <string>per source</string>
    </property>
   </action>
   <action name="actionper_baseline">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/baseline.png</normaloff>:/icons/icons/baseline.png</iconset>
+   </property>
    <property name="text">
     <string>per baseline</string>
    </property>
   </action>
   <action name="actionworld_map">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/applications-internet-2.png</normaloff>:/icons/icons/applications-internet-2.png</iconset>
+   </property>
    <property name="text">
     <string>world map</string>
    </property>
   </action>
   <action name="actionsky_map">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/source_list.png</normaloff>:/icons/icons/source_list.png</iconset>
+   </property>
    <property name="text">
     <string>sky map</string>
    </property>
   </action>
+  <action name="actiontimes">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/view-pim-calendar.png</normaloff>:/icons/icons/view-pim-calendar.png</iconset>
+   </property>
+   <property name="text">
+    <string>times</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="myresources.qrc"/>
+ </resources>
  <connections/>
 </ui>

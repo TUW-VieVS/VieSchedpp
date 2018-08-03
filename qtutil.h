@@ -4,6 +4,8 @@
 #include <QList>
 #include <tuple>
 #include <QtCharts/QLineSeries>
+#include <QTextStream>
+#include <QtMath>
 
 #include "../VieSchedpp/Scheduler.h"
 #include "chartview.h"
@@ -27,7 +29,7 @@ namespace qtUtil {
 
     void skyMap(ChartView *skymap);
 
-    std::pair<double,double> raDc2xy(double ra, double dc);
+    std::pair<double,double> radec2xy(double ra, double dc);
 
 }
 

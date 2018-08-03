@@ -22,6 +22,7 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
 
     setup();
     setupWorldmap();
+    setupSkymap();
 }
 
 VieSchedpp_Analyser::~VieSchedpp_Analyser()
@@ -75,29 +76,32 @@ void VieSchedpp_Analyser::setup()
 {
     ui->label_fileName->setText(QString::fromStdString(schedule_.getName()));
 
-    srcModel = new QStandardItemModel(0,5,this);
+    srcModel = new QStandardItemModel(0,6,this);
     srcModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
-    srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("#scans"));
-    srcModel->setHeaderData(2, Qt::Horizontal, QObject::tr("#obs"));
-    srcModel->setHeaderData(3, Qt::Horizontal, QObject::tr("ra [deg]"));
-    srcModel->setHeaderData(4, Qt::Horizontal, QObject::tr("de [deg]"));
+    srcModel->setHeaderData(1, Qt::Horizontal, QObject::tr("2nd name"));
+    srcModel->setHeaderData(2, Qt::Horizontal, QObject::tr("#scans"));
+    srcModel->setHeaderData(3, Qt::Horizontal, QObject::tr("#obs"));
+    srcModel->setHeaderData(4, Qt::Horizontal, QObject::tr("ra [deg]"));
+    srcModel->setHeaderData(5, Qt::Horizontal, QObject::tr("de [deg]"));
     srcModel->setRowCount(schedule_.getSources().size());
 
     int i = 0;
     for(const VieVS::Source &any : schedule_.getSources()){
         QString sourceName = QString::fromStdString(any.getName());
+        QString aSourceName = QString::fromStdString(any.getAlternativeName());
         double ra = qRadiansToDegrees(any.getRa());
         double de = qRadiansToDegrees(any.getDe());
         srcModel->setData(srcModel->index(i,0), sourceName);
+        srcModel->setData(srcModel->index(i,1), aSourceName);
         srcModel->item(i,0)->setIcon(QIcon(":/icons/icons/source.png"));
-        srcModel->setData(srcModel->index(i, 1), static_cast<unsigned int>(any.getNscans()));
-        srcModel->setData(srcModel->index(i, 2), static_cast<unsigned int>(any.getNObs()));
-        srcModel->setData(srcModel->index(i, 3), (double)((int)(ra*100000 +0.5))/100000.0);
-        srcModel->setData(srcModel->index(i, 4), (double)((int)(de*100000 +0.5))/100000.0);
-        srcModel->item(i,1)->setTextAlignment(Qt::AlignRight);
+        srcModel->setData(srcModel->index(i,2), static_cast<int>(any.getNTotalScans()));
+        srcModel->setData(srcModel->index(i,3), static_cast<int>(any.getNObs()));
+        srcModel->setData(srcModel->index(i,4), (double)((int)(ra*100000 +0.5))/100000.0);
+        srcModel->setData(srcModel->index(i,5), (double)((int)(de*100000 +0.5))/100000.0);
         srcModel->item(i,2)->setTextAlignment(Qt::AlignRight);
         srcModel->item(i,3)->setTextAlignment(Qt::AlignRight);
         srcModel->item(i,4)->setTextAlignment(Qt::AlignRight);
+        srcModel->item(i,5)->setTextAlignment(Qt::AlignRight);
         ++i;
     }
     QSortFilterProxyModel *srcSkyCoverage = new QSortFilterProxyModel(this);
@@ -109,21 +113,53 @@ void VieSchedpp_Analyser::setup()
     }
     srcSkyCoverage->sort(0);
 
-    staModel = new QStandardItemModel(0,1,this);
+    QSortFilterProxyModel *srcSkymap = new QSortFilterProxyModel(this);
+    srcSkymap->setSourceModel(srcModel);
+    srcSkymap->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->treeView_skymap_sources->setModel(srcSkymap);
+    for( int i=0 ; i<ui->treeView_skymap_sources->model()->columnCount(); ++i){
+        ui->treeView_skymap_sources->resizeColumnToContents(i);
+    }
+    srcSkymap->sort(0);
+
+    staModel = new QStandardItemModel(0,6,this);
     staModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
+    staModel->setHeaderData(1, Qt::Horizontal, QObject::tr("id"));
+    staModel->setHeaderData(2, Qt::Horizontal, QObject::tr("#scans"));
+    staModel->setHeaderData(3, Qt::Horizontal, QObject::tr("#obs"));
+    staModel->setHeaderData(4, Qt::Horizontal, QObject::tr("lat [deg]"));
+    staModel->setHeaderData(5, Qt::Horizontal, QObject::tr("lon [deg]"));
     staModel->setRowCount(schedule_.getNetwork().getStations().size());
 
     i=0;
     for(const VieVS::Station &any : schedule_.getNetwork().getStations()){
         QString staName = QString::fromStdString(any.getName());
+        QString id = QString::fromStdString(any.getAlternativeName());
         double lat = qRadiansToDegrees(any.getPosition().getLat());
         double lon = qRadiansToDegrees(any.getPosition().getLon());
         staModel->setData(staModel->index(i,0), staName);
         staModel->item(i,0)->setIcon(QIcon(":/icons/icons/station.png"));
-        staModel->setData(staModel->index(i, 1), (double)((int)(lat*100000 +0.5))/100000.0);
-        staModel->setData(staModel->index(i, 2), (double)((int)(lon*100000 +0.5))/100000.0);
+        staModel->setData(staModel->index(i,1), id);
+        staModel->setData(staModel->index(i,2), static_cast<int>(any.getNTotalScans()));
+        staModel->setData(staModel->index(i,3), static_cast<int>(any.getNObs()));
+        staModel->setData(staModel->index(i,4), (double)((int)(lat*100000 +0.5))/100000.0);
+        staModel->setData(staModel->index(i,5), (double)((int)(lon*100000 +0.5))/100000.0);
+        staModel->item(i,2)->setTextAlignment(Qt::AlignRight);
+        staModel->item(i,3)->setTextAlignment(Qt::AlignRight);
+        staModel->item(i,4)->setTextAlignment(Qt::AlignRight);
+        staModel->item(i,5)->setTextAlignment(Qt::AlignRight);
         ++i;
     }
+
+    QSortFilterProxyModel *staWorldmap = new QSortFilterProxyModel(this);
+    staWorldmap->setSourceModel(staModel);
+    staWorldmap->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->treeView_worldmap_stations->setModel(staWorldmap);
+    for( int i=0 ; i<ui->treeView_worldmap_stations->model()->columnCount(); ++i){
+        ui->treeView_worldmap_stations->resizeColumnToContents(i);
+    }
+    staWorldmap->sort(0);
+
 
 //    comboBox2skyCoverage = new QSignalMapper(this);
 
@@ -146,6 +182,31 @@ void VieSchedpp_Analyser::setup()
 
     ui->splitter_skyCoverage->setStretchFactor(0,5);
     ui->splitter_skyCoverage->setStretchFactor(1,1);
+
+    ui->splitter_worldmap->setStretchFactor(0,6);
+    ui->splitter_worldmap->setStretchFactor(1,1);
+
+    ui->splitter_skymap->setStretchFactor(0,6);
+    ui->splitter_skymap->setStretchFactor(1,1);
+
+    int totalObs = 0;
+    const std::vector<VieVS::Scan> &scans = schedule_.getScans();
+    for(const VieVS::Scan &any: scans){
+        totalObs += any.getNObs();
+    }
+    ui->spinBox_observations->setValue(totalObs);
+    ui->spinBox_observations_total->setValue(totalObs);
+    ui->spinBox_scans->setValue(scans.size());
+    ui->spinBox_scans_total->setValue(scans.size());
+    ui->spinBox_sources->setValue(srcModel->rowCount());
+    ui->spinBox_sources_total->setValue(srcModel->rowCount());
+    ui->spinBox_stations->setValue(staModel->rowCount());
+    ui->spinBox_stations_total->setValue(staModel->rowCount());
+
+    for(int i=3; i<=staModel->rowCount(); ++i){
+        ui->tableWidget_sta_per_scan->insertRow(i-2);
+        ui->tableWidget_sta_per_scan->setVerticalHeaderItem(i-2, new QTableWidgetItem(QString("%1 stations").arg(i)));
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -208,13 +269,15 @@ void VieSchedpp_Analyser::on_spinBox_duration_valueChanged(int arg1)
 {
     int newEnd = ui->horizontalSlider_start->value() + arg1;
     ui->horizontalSlider_end->setValue(newEnd);
-    if(arg1 < 3600){
-        ui->horizontalSlider_start->setSingleStep(arg1/2);
-        ui->horizontalSlider_end->setSingleStep(arg1/2);
-    }else{
-        ui->horizontalSlider_start->setSingleStep(1800);
-        ui->horizontalSlider_end->setSingleStep(1800);
-    }
+
+
+//    if(arg1 < 3600){
+//        ui->horizontalSlider_start->setSingleStep(arg1/2);
+//        ui->horizontalSlider_end->setSingleStep(arg1/2);
+//    }else{
+//        ui->horizontalSlider_start->setSingleStep(1800);
+//        ui->horizontalSlider_end->setSingleStep(1800);
+//    }
 }
 
 void VieSchedpp_Analyser::updateDuration()
@@ -673,16 +736,13 @@ void VieSchedpp_Analyser::setupWorldmap()
 {
     ChartView *worldmap = new ChartView(this);
     qtUtil::worldMap(worldmap);
-    QChart *worldChart = ChartView->chart();
+    QChart *worldChart = worldmap->chart();
 
     QScatterSeries *selectedStations = new QScatterSeries(worldChart);
     selectedStations->setName("selectedStations");
-    QImage img(":/icons/icons/station_white.png");
-
-    img = img.scaled(20,20);
-    selectedStations->setBrush(QBrush(img));
-    selectedStations->setMarkerSize(20);
-    selectedStations->setPen(QColor(Qt::transparent));
+    selectedStations->setMarkerSize(10);
+    selectedStations->setBrush(QBrush(Qt::red,Qt::SolidPattern));
+    selectedStations->setPen(QColor(Qt::white));
 
 
     worldChart->addSeries(selectedStations);
@@ -697,6 +757,8 @@ void VieSchedpp_Analyser::setupWorldmap()
     }
     Callout *callout = new Callout(worldChart);
     callout->hide();
+    selectedStations->attachAxis(worldChart->axisX());
+    selectedStations->attachAxis(worldChart->axisY());
 
     ui->horizontalLayout_worldmap->insertWidget(0,worldmap,1);
 }
@@ -712,24 +774,40 @@ void VieSchedpp_Analyser::worldmap_hovered(QPointF point, bool state)
 
             if (state) {
                 QString sta;
+                QString scans;
+                QString obs;
                 const std::vector<VieVS::Station> &stations = schedule_.getNetwork().getStations();
                 for(const VieVS::Station &station : stations){
-                    double x = station.getPosition().getLat()*rad2deg;
-                    double y = station.getPosition().getLon()*rad2deg;
+                    double y = station.getPosition().getLat()*rad2deg;
+                    double x = station.getPosition().getLon()*rad2deg;
 
                     auto dx = x-point.x();
                     auto dy = y-point.y();
                     if(dx*dx+dy*dy < 1e-3){
                         if(sta.size()==0){
-                            sta.append(QString::fromStdString(station.getName()));
+                            sta.append(QString("%1 (%2)").arg(QString::fromStdString(station.getName())).arg(QString::fromStdString(station.getAlternativeName())));
                         }else{
-                            sta.append(","+QString::fromStdString(station.getName()));
+                            sta.append(QString(", %1 (%2)").arg(QString::fromStdString(station.getName())).arg(QString::fromStdString(station.getAlternativeName())));
+                        }
+                        auto stations = staModel->findItems(QString::fromStdString(station.getName()));
+                        int row = stations.at(0)->row();
+                        QString nscans = staModel->item(row,2)->text();
+                        QString nobs = staModel->item(row,3)->text();
+
+                        if(scans.size()==0){
+                            scans.append(QString("%1").arg(nscans));
+                        }else{
+                            scans.append(QString(", %1").arg(nscans));
+                        }
+                        if(obs.size()==0){
+                            obs.append(QString("%1").arg(nobs));
+                        }else{
+                            obs.append(QString(", %1").arg(nobs));
                         }
                     }
-
                 }
 
-                QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(sta).arg(point.x()).arg(point.y());
+                QString text = QString("%1 \n#scans %2\n#obs %3\nlat %4 [deg] \nlon %5 [deg] ").arg(sta).arg(scans).arg(obs).arg(point.y()).arg(point.x());
                 worldMapCallout->setText(text);
                 worldMapCallout->setAnchor(point);
                 worldMapCallout->setZValue(11);
@@ -748,36 +826,37 @@ void VieSchedpp_Analyser::setupSkymap()
 
     qtUtil::skyMap(skymap);
 
-    QChart *skyChart = skyMap->chart();
+    QChart *skyChart = skymap->chart();
 
 
 
     QScatterSeries *selectedSources = new QScatterSeries(skyChart);
-    QImage img(":/icons/icons/source_white.png");
-    img = img.scaled(ui->horizontalSlider_markerSkymap->value(),ui->horizontalSlider_markerSkymap->value());
-    selectedSources->setBrush(QBrush(img));
-    selectedSources->setMarkerSize(ui->horizontalSlider_markerSkymap->value());
-    selectedSources->setPen(QColor(Qt::transparent));
+    selectedSources->setMarkerSize(10);
+    selectedSources->setBrush(QBrush(Qt::gray,Qt::SolidPattern));
+    selectedSources->setPen(QColor(Qt::white));
 
     skyChart->addSeries(selectedSources);
-    skyChart->addSeries(ecliptic);
 
     connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
 
     const std::vector<VieVS::Source> &sources = schedule_.getSources();
     for(const VieVS::Source &source : sources){
         double ra = source.getRa();
-        double lambda = ra - halfpi;
+        double lambda = ra;
 
         double phi = source.getDe();
 
-        auto xy = qtUtil::raDc2xy(lambda, phi)
+        auto xy = qtUtil::radec2xy(lambda, phi);
 
         selectedSources->append(xy.first, xy.second);
     }
+    Callout *callout = new Callout(skyChart);
+    callout->hide();
 
-    ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
+    selectedSources->attachAxis(skyChart->axisX());
+    selectedSources->attachAxis(skyChart->axisY());
 
+    ui->horizontalLayout_skymap->insertWidget(0,skymap,1);
 }
 
 void VieSchedpp_Analyser::skymap_hovered(QPointF point, bool state)
@@ -790,36 +869,113 @@ void VieSchedpp_Analyser::skymap_hovered(QPointF point, bool state)
         if(Callout *skyMapCallout = dynamic_cast<Callout *>(childItem)){
 
             if (state) {
-                QString src;
                 const std::vector<VieVS::Source> &sources = schedule_.getSources();
-                for(const VieVS::Station &source : sources){
-                    double x = source.getRa();
-                    double y = source.getDe();
+                QString text;
+                for(const VieVS::Source &source : sources){
+                    double ra = source.getRa();
+                    double dec = source.getDe();
 
-                    auto dx = x-point.x();
-                    auto dy = y-point.y();
+                    auto xy = qtUtil::radec2xy(ra, dec);
+
+                    auto dx = xy.first-point.x();
+                    auto dy = xy.second-point.y();
                     if(dx*dx+dy*dy < 1e-3){
-                        if(sta.size()==0){
-                            sta.append(QString::fromStdString(station.getName()));
+                        if(source.hasAlternativeName()){
+                            text = QString("%1 (%2)\n#scans %3 \n#obs %4\nra %5 [deg] \ndec %6 [deg] ").arg(QString::fromStdString(source.getName())).arg(QString::fromStdString(source.getAlternativeName())).arg(source.getNscans()).arg(source.getNObs()).arg(ra*rad2deg).arg(dec*rad2deg);
                         }else{
-                            sta.append(","+QString::fromStdString(station.getName()));
+                            text = QString("%1 \n#scans %2 \n#obs %3\nra %4 [deg] \ndec %5 [deg] ").arg(QString::fromStdString(source.getName())).arg(source.getNscans()).arg(source.getNObs()).arg(ra*rad2deg).arg(dec*rad2deg);
                         }
+                        break;
                     }
-
                 }
 
-                QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(sta).arg(point.x()).arg(point.y());
-                worldMapCallout->setText(text);
-                worldMapCallout->setAnchor(point);
-                worldMapCallout->setZValue(11);
-                worldMapCallout->updateGeometry();
-                worldMapCallout->show();
+                skyMapCallout->setText(text);
+                skyMapCallout->setAnchor(point);
+                skyMapCallout->setZValue(11);
+                skyMapCallout->updateGeometry();
+                skyMapCallout->show();
             } else {
-                worldMapCallout->hide();
+                skyMapCallout->hide();
             }
         }
     }
 
 }
 
+void VieSchedpp_Analyser::on_lineEdit_skymapSourceFilter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_skymap_sources->model());
+    model->setFilterFixedString(arg1);
+}
 
+void VieSchedpp_Analyser::on_lineEdit_worldmapStationFilter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_worldmap_stations->model());
+    model->setFilterFixedString(arg1);
+}
+
+void VieSchedpp_Analyser::on_treeView_worldmap_stations_entered(const QModelIndex &index)
+{
+    auto model = ui->treeView_worldmap_stations->model();
+    int row = index.row();
+    QString name = model->index(row,0).data().toString();
+    QString id = model->index(row,1).data().toString();
+
+    int scans = model->index(row,2).data().toInt();
+    int obs = model->index(row,3).data().toInt();
+    double lat = model->index(row,4).data().toDouble();
+    double lon = model->index(row,5).data().toDouble();
+
+    QString text = QString("%1 (%2) \n#scans %3\n #obs %4\nlat %5 [deg] \nlon %6 [deg] ").arg(name).arg(id).arg(scans).arg(obs).arg(lat).arg(lon);
+
+    auto chartview = static_cast<ChartView *>(ui->horizontalLayout_worldmap->itemAt(0)->widget());
+    QChart *chart = chartview->chart();
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *worldMapCallout = dynamic_cast<Callout *>(childItem)){
+
+            worldMapCallout->setText(text);
+            worldMapCallout->setAnchor(QPointF(lon, lat));
+            worldMapCallout->setZValue(11);
+            worldMapCallout->updateGeometry();
+            worldMapCallout->show();
+
+        }
+    }
+
+
+}
+
+void VieSchedpp_Analyser::on_treeView_skymap_sources_entered(const QModelIndex &index)
+{
+    auto model = ui->treeView_skymap_sources->model();
+    int row = index.row();
+    QString name = model->index(row,0).data().toString();
+    QString id = model->index(row,1).data().toString();
+
+    int scans = model->index(row,2).data().toInt();
+    int obs = model->index(row,3).data().toInt();
+    double ra = model->index(row,4).data().toDouble();
+    double dec = model->index(row,5).data().toDouble();
+    auto xy = qtUtil::radec2xy(ra*deg2rad,dec*deg2rad);
+
+    QString text;
+    if(id.isEmpty()){
+        text = QString("%1 \n#scans %2\n#obs %3\nra %4 [deg] \ndec %5 [deg] ").arg(name).arg(scans).arg(obs).arg(ra).arg(dec);
+    }else{
+        text = QString("%1 (%2) \n#scans %3\n#obs %4\nra %5 [deg] \ndec %6 [deg] ").arg(name).arg(id).arg(scans).arg(obs).arg(ra).arg(dec);
+    }
+
+    auto chartview = static_cast<ChartView *>(ui->horizontalLayout_skymap->itemAt(0)->widget());
+    QChart *chart = chartview->chart();
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *skymapCallout = dynamic_cast<Callout *>(childItem)){
+
+            skymapCallout->setText(text);
+            skymapCallout->setAnchor(QPointF(xy.first, xy.second));
+            skymapCallout->setZValue(11);
+            skymapCallout->updateGeometry();
+            skymapCallout->show();
+
+        }
+    }
+}

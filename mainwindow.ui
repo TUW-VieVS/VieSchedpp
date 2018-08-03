@@ -9972,7 +9972,6 @@ p, li { white-space: pre-wrap; }
    <addaction name="separator"/>
    <addaction name="actionExit"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="basicToolBar">
    <property name="windowTitle">
     <string>toolBar_2</string>
@@ -10129,17 +10128,7 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionLog_parser"/>
    <addaction name="actionSkd_Parser"/>
   </widget>
-  <widget class="QToolBar" name="toolBar">
-   <property name="windowTitle">
-    <string>toolBar</string>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNew">
    <property name="icon">
     <iconset resource="myresources.qrc">

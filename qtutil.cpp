@@ -73,8 +73,6 @@ void qtUtil::worldMap(ChartView *worldmap)
     worldChart->setAnimationOptions(QChart::NoAnimation);
 
     worldmap->setChart(worldChart);
-    worldmap->setStatusTip("network overview");
-    worldmap->setToolTip("network overview");
     worldmap->setMinMax(-180,180,-90,90);
     worldmap->setRenderHint(QPainter::Antialiasing);
     worldmap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);
@@ -83,12 +81,13 @@ void qtUtil::worldMap(ChartView *worldmap)
 
 }
 
-std::pair<double, double> qtUtil::raDc2xy(double ra, double de)
+std::pair<double, double> qtUtil::radec2xy(double ra, double de)
 {
-    double hn = qSqrt( 1 + qCos(phi)*qCos(lambda/2) );
+    ra -= pi;
+    double hn = qSqrt( 1 + qCos(de)*qCos(ra/2) );
 
-    double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
-    double y = (qSqrt(2) *qSin(phi) ) / hn;
+    double x = (2 * qSqrt(2) *qCos(de) *qSin(ra/2) ) / hn;
+    double y = (qSqrt(2) *qSin(de) ) / hn;
 
     return {x,y};
 }
@@ -97,15 +96,15 @@ void qtUtil::skyMap(ChartView *skymap)
 {
     QChart *skyChart = new QChart();
 
-    for(int ra = -180; ra<=180; ra+=60){
+    for(int ra = 0; ra<=360; ra+=60){
         QLineSeries *ral = new QLineSeries(skyChart);
         ral->setColor(Qt::gray);
-        double lambda = qDegreesToRadians((double) ra);
+        double lambda = ra * deg2rad;
 
         for(int de = -90; de<=90; de+=5){
-            double phi = qDegreesToRadians((double) de);
+            double phi = de * deg2rad;
 
-            auto xy = qtUtil::raDc2xy(lambda, phi)
+            auto xy = qtUtil::radec2xy(lambda, phi);
 
             ral->append(xy.first, xy.second);
         }
@@ -115,11 +114,11 @@ void qtUtil::skyMap(ChartView *skymap)
     for(int de = -60; de<=60; de+=30){
         QLineSeries *del = new QLineSeries(skyChart);
         del->setColor(Qt::gray);
-        double phi = qDegreesToRadians((double) de);
+        double phi = de * deg2rad;
 
-        for(int ra = -180; ra<=180; ra+=5){
-            double lambda = qDegreesToRadians((double) ra);
-            auto xy = qtUtil::raDc2xy(lambda, phi)
+        for(int ra = 0; ra<=360; ra+=5){
+            double lambda = ra * deg2rad;
+            auto xy = qtUtil::radec2xy(lambda, phi);
 
             del->append(xy.first, xy.second);
         }
@@ -132,18 +131,16 @@ void qtUtil::skyMap(ChartView *skymap)
     for(int i=-180; i<=180; i+=5){
         double l = qDegreesToRadians((double)i);
         double b = 0;
-        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l));
+        double lambda = qAtan2(qSin(l)*qCos(e) - qTan(b)*qSin(e),qCos(l)) + pi;
 //        lambda-=M_PI;
         double phi = qAsin(qSin(b)*qCos(e) + qCos(b)*qSin(e)*qSin(l));
 
-        auto xy = qtUtil::raDc2xy(lambda, phi)
+        auto xy = qtUtil::radec2xy(lambda,phi);
 
-        ecliptic->append(xy.first, xy.second);
+        ecliptic->append(xy.first,xy.second);
     }
 
     skyChart->addSeries(ecliptic);
-
-
 
     skyChart->createDefaultAxes();
     skyChart->setAcceptHoverEvents(true);
@@ -155,8 +152,6 @@ void qtUtil::skyMap(ChartView *skymap)
     skyChart->setAnimationOptions(QChart::NoAnimation);
 
     skymap->setChart(skyChart);
-    skymap->setStatusTip("source overview");
-    skymap->setToolTip("source overview");
     skymap->setMinMax(-2.85,2.85,-1.45,1.45);
     skymap->setRenderHint(QPainter::Antialiasing);
     skymap->setFrameStyle(QFrame::Raised | QFrame::StyledPanel);

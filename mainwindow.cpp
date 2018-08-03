@@ -3932,10 +3932,12 @@ void MainWindow::on_treeView_allAvailabeStations_entered(const QModelIndex &inde
 {
     int row = index.row();
     QString name = allStationProxyModel->index(row,0).data().toString();
+    QString id = allStationProxyModel->index(row,1).data().toString();
 
     double x = allStationProxyModel->index(row,3).data().toDouble();
     double y = allStationProxyModel->index(row,2).data().toDouble();
-    QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
+
+    QString text = QString("%1 (%2) \nlat: %3 [deg] \nlon: %4 [deg] ").arg(name).arg(id).arg(x).arg(y);
     worldMapCallout->setText(text);
     worldMapCallout->setAnchor(QPointF(x,y));
     worldMapCallout->setZValue(11);
@@ -3972,13 +3974,14 @@ void MainWindow::on_treeView_allSelectedStations_entered(const QModelIndex &inde
 {
     int row = index.row();
     QString name = selectedStationModel->index(row,0).data().toString();
+    QString id = selectedStationModel->index(row,1).data().toString();
 
     for(int i = 0; i < allStationModel->rowCount(); ++i){
         QString newName = allStationModel->index(i,0).data().toString();
         if (newName == name){
             double x = allStationModel->index(i,3).data().toDouble();;
             double y = allStationModel->index(i,2).data().toDouble();;
-            QString text = QString("%1 \nlat: %2 [deg] \nlon: %3 [deg] ").arg(name).arg(x).arg(y);
+            QString text = QString("%1 (%2) \nlat: %3 [deg] \nlon: %4 [deg] ").arg(name).arg(id).arg(x).arg(y);
             worldMapCallout->setText(text);
             worldMapCallout->setAnchor(QPointF(x,y));
             worldMapCallout->setZValue(11);
@@ -4019,6 +4022,10 @@ void MainWindow::plotWorldMap()
         availableStations->append(lon,lat);
     }
 
+    availableStations->attachAxis(worldChart->axisX());
+    availableStations->attachAxis(worldChart->axisY());
+    selectedStations->attachAxis(worldChart->axisX());
+    selectedStations->attachAxis(worldChart->axisY());
 
     ui->horizontalLayout_worldmap->insertWidget(0,worldmap,10);
 }
@@ -4027,17 +4034,21 @@ void MainWindow::worldmap_hovered(QPointF point, bool state)
 {
     if (state) {
         QString sta;
+        int scans;
+        int obs;
         for(int i = 0; i<allStationModel->rowCount();++i){
             double x = allStationModel->index(i,3).data().toDouble();
             double y = allStationModel->index(i,2).data().toDouble();
+            QString name = allStationModel->index(i,0).data().toString();
+            QString id = allStationModel->index(i,1).data().toString();
 
             auto dx = x-point.x();
             auto dy = y-point.y();
             if(dx*dx+dy*dy < 1e-3){
                 if(sta.size()==0){
-                    sta.append(allStationModel->index(i,0).data().toString());
+                    sta.append(QString("%1 (%2)").arg(name).arg(id));
                 }else{
-                    sta.append(","+allStationModel->index(i,0).data().toString());
+                    sta.append(",").append(QString("%1 (%2)").arg(name).arg(id));
                 }
             }
 
@@ -5072,8 +5083,7 @@ void MainWindow::on_treeView_allAvailabeSources_entered(const QModelIndex &index
     double x = (2 * qSqrt(2) *qCos(phi) *qSin(lambda/2) ) / hn;
     double y = (qSqrt(2) *qSin(phi) ) / hn;
 
-
-    QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+    QString text = QString("%1 \nra: %2 [deg] \ndec: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
     skyMapCallout->setText(text);
     skyMapCallout->setAnchor(QPointF(x,y));
     skyMapCallout->setZValue(11);
@@ -5103,7 +5113,7 @@ void MainWindow::on_treeView_allSelectedSources_entered(const QModelIndex &index
             double y = (qSqrt(2) *qSin(phi) ) / hn;
 
 
-            QString text = QString("%1 \nra: %2 [deg] \ndc: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
+            QString text = QString("%1 \nra: %2 [deg] \ndec: %3 [deg] ").arg(name).arg(ra+180).arg(dc);
             skyMapCallout->setText(text);
             skyMapCallout->setAnchor(QPointF(x,y));
             skyMapCallout->setZValue(11);
@@ -5119,7 +5129,7 @@ void MainWindow::plotSkyMap(){
 
     qtUtil::skyMap(skymap);
 
-    QChart *skyChart = skyMap->chart();
+    QChart *skyChart = skymap->chart();
 
 
     availableSources = new QScatterSeries(skyChart);
@@ -5131,24 +5141,27 @@ void MainWindow::plotSkyMap(){
 
     skyChart->addSeries(availableSources);
     skyChart->addSeries(selectedSources);
-    skyChart->addSeries(ecliptic);
 
     connect(availableSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
     connect(selectedSources,SIGNAL(hovered(QPointF,bool)),this,SLOT(skymap_hovered(QPointF,bool)));
 
     for(int i = 0; i< allSourceModel->rowCount(); ++i){
         double ra = allSourceModel->item(i,1)->text().toDouble();
-        ra -=180;
         double lambda = qDegreesToRadians(ra);
 
         double dc = allSourceModel->item(i,2)->text().toDouble();
         double phi = qDegreesToRadians(dc);
 
-        auto xy = qtUtil::raDc2xy(lambda, phi)
+        auto xy = qtUtil::radec2xy(lambda, phi);
 
         availableSources->append(xy.first, xy.second);
         selectedSources->append(xy.first, xy.second);
     }
+
+    availableSources->attachAxis(skyChart->axisX());
+    availableSources->attachAxis(skyChart->axisY());
+    selectedSources->attachAxis(skyChart->axisX());
+    selectedSources->attachAxis(skyChart->axisY());
 
     ui->horizontalLayout_skymap->insertWidget(0,skymap,10);
 }

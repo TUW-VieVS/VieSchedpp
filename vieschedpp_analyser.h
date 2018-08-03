@@ -18,6 +18,7 @@
 #include <QtCharts/QAreaSeries>
 #include <QSignalMapper>
 #include <QSortFilterProxyModel>
+#include <QtMath>
 
 #include "../VieSchedpp/Scheduler.h"
 #include "qtutil.h"
@@ -97,6 +98,14 @@ private slots:
     void setupSkymap();
 
     void skymap_hovered(QPointF point, bool state);
+
+    void on_lineEdit_skymapSourceFilter_textChanged(const QString &arg1);
+
+    void on_lineEdit_worldmapStationFilter_textChanged(const QString &arg1);
+
+    void on_treeView_worldmap_stations_entered(const QModelIndex &index);
+
+    void on_treeView_skymap_sources_entered(const QModelIndex &index);
 
 private:
     Ui::VieSchedpp_Analyser *ui;
