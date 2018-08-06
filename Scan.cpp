@@ -1345,7 +1345,7 @@ void Scan::createDummyObservations(const Network &network) {
             unsigned long staid2 = pointingVectorsStart_[j].getStaid();
             unsigned int dur2 = times_.getObservingDuration(j);
 
-            unsigned int dur = std::max(dur1, dur2);
+            unsigned int dur = std::min(dur1, dur2);
             unsigned long blid = network.getBlid(staid1,staid2);
             #ifdef VIESCHEDPP_LOG
             if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " create observation between stations " << staid1 << " and " << staid2;
