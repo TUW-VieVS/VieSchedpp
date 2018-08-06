@@ -16,9 +16,19 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QAreaSeries>
+#include <QtCharts/QPieSeries>
 #include <QSignalMapper>
 #include <QSortFilterProxyModel>
 #include <QtMath>
+
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/mean.hpp>
+#include <boost/accumulators/statistics/median.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
+#include <boost/accumulators/statistics/min.hpp>
+#include <boost/accumulators/statistics/max.hpp>
+#include <boost/accumulators/statistics/tail_quantile.hpp>
 
 #include "../VieSchedpp/Scheduler.h"
 #include "qtutil.h"
@@ -107,6 +117,18 @@ private slots:
 
     void on_treeView_skymap_sources_entered(const QModelIndex &index);
 
+    void statisticsGeneralSetup();
+
+    void staPerScanPieHovered(QPieSlice * slice, bool state);
+
+    void updatePlotsAndModels();
+
+    void updateWorldmapTimes();
+
+    void updateSkymapTimes();
+
+    void updateGeneralStatistics();
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
@@ -116,6 +138,7 @@ private:
 
     QStandardItemModel *srcModel;
     QStandardItemModel *staModel;
+    QStandardItemModel *blModel;
 
 
 //    QSignalMapper *comboBox2skyCoverage;
