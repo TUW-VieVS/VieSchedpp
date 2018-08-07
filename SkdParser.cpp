@@ -186,7 +186,6 @@ void SkdParser::createScans(std::ofstream &of) {
             }
         }
 
-        bool firstScan = true;
         vector<unsigned int>eols(network_.getNSta(),0); // end of last scan
         // Read SKED block
         int counter = 1;
@@ -238,6 +237,8 @@ void SkdParser::createScans(std::ofstream &of) {
             vector<PointingVector> pv_end;
             vector<unsigned int>thisEols(nsta,0);
             vector<unsigned int>slewTimes(nsta,0);
+            vector<unsigned int>preobTimes(nsta,0);
+            vector<unsigned int>fieldSystemTimes(nsta,0);
 //            vector<unsigned int>idleTimes(nsta,0);
             for(int i=0; i<nsta; ++i){
                 char olc = oneLetterCode[i];
@@ -276,23 +277,29 @@ void SkdParser::createScans(std::ofstream &of) {
                 thisEols[i] = eols[staid];
                 eols[staid] = p_end.getTime();
 
-                if(!firstScan){
-                    unsigned int thisSlewTime = thisSta.getAntenna().slewTime(thisSta.getCurrentPointingVector(), p);
 
+                if(thisSta.getPARA().firstScan){
+
+                    thisSta.referencePARA().firstScan = false;
+                    fieldSystemTimes[i] = 0;
+                    preobTimes[i] = 0;
+                    slewTimes[i] = 0;
+
+                }else{
+
+                    unsigned int thisSlewTime = thisSta.getAntenna().slewTime(thisSta.getCurrentPointingVector(), p);
+                    fieldSystemTimes[i] = fieldSystemTimes_;
+                    preobTimes[i] = preob;
                     slewTimes[i] = thisSlewTime;
-//                    idleTimes[i] = (time-preob)-(thisEols[i]+fieldSystemTimes_+thisSlewTime);
+
                 }
                 thisSta.setCurrentPointingVector(p_end);
             }
 
             Scan scan(pv,thisEols,Scan::ScanType::standard);
             bool valid;
-            if(firstScan){
-                firstScan = false;
-                valid = scan.setScanTimes(thisEols,0,slewTimes,0,time,durations);
-            }else{
-                valid = scan.setScanTimes(thisEols,fieldSystemTimes_,slewTimes,preob,time,durations);
-            }
+
+            valid = scan.setScanTimes(thisEols,fieldSystemTimes,slewTimes,preobTimes,time,durations);
 
             if(!valid){
                 const auto &tmp = scan.getTimes();

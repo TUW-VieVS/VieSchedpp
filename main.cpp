@@ -41,10 +41,8 @@ int main(int argc, char *argv[])
     mainScheduler.run();
 
 //    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180716095914_AUM003/aum003.skd");
-//    mySkdParser.createObjects();
-//    mySkdParser.createScans();
-//    mySkdParser.copyScanMembersToObjects();
+//    VieVS::SkdParser mySkdParser("/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180709143715_C1701/c1701.skd");
+//    mySkdParser.read();
 //    VieVS::Scheduler sched = mySkdParser.createScheduler();
 //
 //

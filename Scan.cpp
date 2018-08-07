@@ -1320,18 +1320,19 @@ void Scan::setFixedScanDuration(unsigned int scanDuration) noexcept{
     times_.setObservingTimes(scanDuration);
 }
 
-bool Scan::setScanTimes(const vector<unsigned int> &eols, unsigned int fieldSystemTime,
-                        const vector<unsigned int> &slewTime, unsigned int preob,
-                        unsigned int scanStart, const vector<unsigned int> &observingTimes) {
+bool Scan::setScanTimes(const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
+                        const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
+                        unsigned int scanStart, const std::vector<unsigned int> &observingTimes) {
     times_.setEndOfLastScan(eols);
     for(int i=0; i < slewTime.size(); ++i){
-        times_.addTimes(i, fieldSystemTime, slewTime.at(static_cast<unsigned long>(i)), 0);
+        times_.addTimes(i, fieldSystemTime[i], slewTime.at(static_cast<unsigned long>(i)), 0);
     }
     times_.setObservingStarts(scanStart);
     bool valid = times_.setPreobTime(preob);
     times_.setObservingTimes(observingTimes);
     return valid;
 }
+
 
 void Scan::setPointingVectorsEndtime(vector<PointingVector> pv_end) {
     pointingVectorsEnd_ = std::move(pv_end);

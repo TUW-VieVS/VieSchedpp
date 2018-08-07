@@ -63,6 +63,7 @@ Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna>
         mask_{move(sta_mask)},
         currentPositionVector_{PointingVector(nextId-1,numeric_limits<unsigned long>::max())},
         parameters_{Parameters("empty")}{
+    parameters_.firstScan = true;
 }
 
 void Station::setCurrentPointingVector(const PointingVector &pointingVector) noexcept {

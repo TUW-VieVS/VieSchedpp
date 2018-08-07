@@ -459,8 +459,9 @@ namespace VieVS{
         void output(unsigned long observed_scan_nr, const Network &network, const Source &source,
                     std::ofstream &of) const noexcept;
 
-        bool setScanTimes(const std::vector<unsigned int> &eols, unsigned int fieldSystemTime, const std::vector<unsigned int> &slewTime,
-                          unsigned int preob, unsigned int scanStart, const std::vector<unsigned int> &observingTimes);
+        bool setScanTimes(const std::vector<unsigned int> &eols, const std::vector<unsigned int> & fieldSystemTime,
+                          const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
+                          unsigned int scanStart, const std::vector<unsigned int> &observingTimes);
 
         void setPointingVectorsEndtime(std::vector<PointingVector> pv_end);
 

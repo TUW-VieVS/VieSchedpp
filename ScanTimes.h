@@ -244,7 +244,7 @@ namespace VieVS {
                                     unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
                                     unsigned int preob);
 
-        bool setPreobTime(unsigned int preob);
+        bool setPreobTime(const std::vector<unsigned int> &preob);
 
         int removeUnnecessaryObservingTime(Timestamp ts);
 
