@@ -8,7 +8,7 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
     ui->setupUi(this);
     srcModel = new QStandardItemModel(0,6,this);
     staModel = new QStandardItemModel(0,6,this);
-    blModel = new QStandardItemModel(0,2,this);
+    blModel = new QStandardItemModel(0,4,this);
     setup();
     setupWorldmap();
     setupSkymap();
@@ -28,6 +28,20 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
     ui->doubleSpinBox_hours->setRange(0,duration/3600.0);
 
     updateDuration();
+
+    ui->splitter_skyCoverage->setStretchFactor(0,4);
+    ui->splitter_skyCoverage->setStretchFactor(1,1);
+
+    ui->splitter_worldmap->setStretchFactor(0,4);
+    ui->splitter_worldmap->setStretchFactor(1,1);
+
+    ui->splitter_skymap->setStretchFactor(0,4);
+    ui->splitter_skymap->setStretchFactor(1,1);
+
+
+    QHeaderView *hv = ui->tableWidget_general->verticalHeader();
+    hv->setSectionResizeMode(QHeaderView::ResizeToContents);
+
 }
 
 VieSchedpp_Analyser::~VieSchedpp_Analyser()
@@ -38,27 +52,32 @@ VieSchedpp_Analyser::~VieSchedpp_Analyser()
 void VieSchedpp_Analyser::on_actionsky_coverage_triggered()
 {
     ui->stackedWidget->setCurrentIndex(0);
+    updateSkyCoverageTimes();
 }
 
 void VieSchedpp_Analyser::on_actionworld_map_triggered()
 {
     ui->stackedWidget->setCurrentIndex(1);
+    updateWorldmapTimes();
 }
 
 void VieSchedpp_Analyser::on_actionuv_coverage_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
+
 }
 
 void VieSchedpp_Analyser::on_actionsky_map_triggered()
 {
     ui->stackedWidget->setCurrentIndex(3);
+    updateSkymapTimes();
 }
 
 
 void VieSchedpp_Analyser::on_actiongeneral_triggered()
 {
     ui->stackedWidget->setCurrentIndex(4);
+    updateGeneralStatistics();
 }
 
 void VieSchedpp_Analyser::on_actionper_station_triggered()
@@ -157,19 +176,29 @@ void VieSchedpp_Analyser::setup()
 
 
     blModel->setHeaderData(0, Qt::Horizontal, QObject::tr("name"));
-    blModel->setHeaderData(1, Qt::Horizontal, QObject::tr("#scans"));
+    blModel->setHeaderData(1, Qt::Horizontal, QObject::tr("long name"));
+    blModel->setHeaderData(2, Qt::Horizontal, QObject::tr("#obs"));
+    blModel->setHeaderData(3, Qt::Horizontal, QObject::tr("distance [km]"));
     blModel->setRowCount(schedule_.getNetwork().getBaselines().size());
     i=0;
     for(const VieVS::Baseline &any : schedule_.getNetwork().getBaselines()){
         QString name = QString::fromStdString(any.getName());
-        QString name2 = QString::fromStdString(any.getAlternativeName());
+        std::string id1 = name.left(2).toStdString();
+        std::string id2 = name.right(2).toStdString();
+        std::string name1 = schedule_.getNetwork().getStation(id1).getName();
+        std::string name2 = schedule_.getNetwork().getStation(id2).getName();
+        double dist = schedule_.getNetwork().getStation(id1).distance(schedule_.getNetwork().getStation(id2));
+        QString longName = QString("%1-%2").arg(QString::fromStdString(name1)).arg(QString::fromStdString(name2));
+
         blModel->setData(blModel->index(i,0), name);
         blModel->item(i,0)->setIcon(QIcon(":/icons/icons/baseline.png"));
-        blModel->setData(blModel->index(i,1), static_cast<int>(any.getNObs()));
-        blModel->item(i,1)->setTextAlignment(Qt::AlignRight);
+        blModel->setData(blModel->index(i,1), longName);
+        blModel->setData(blModel->index(i,2), static_cast<int>(any.getNObs()));
+        blModel->setData(blModel->index(i,3), dist/1000);
+        blModel->item(i,2)->setTextAlignment(Qt::AlignRight);
+        blModel->item(i,3)->setTextAlignment(Qt::AlignRight);
         ++i;
     }
-
 
     QSortFilterProxyModel *staWorldmap = new QSortFilterProxyModel(this);
     staWorldmap->setSourceModel(staModel);
@@ -179,6 +208,15 @@ void VieSchedpp_Analyser::setup()
         ui->treeView_worldmap_stations->resizeColumnToContents(i);
     }
     staWorldmap->sort(0);
+
+    QSortFilterProxyModel *blsWorldmap = new QSortFilterProxyModel(this);
+    blsWorldmap->setSourceModel(blModel);
+    blsWorldmap->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->treeView_worldmap_baselines->setModel(blsWorldmap);
+    for( int i=0 ; i<ui->treeView_worldmap_baselines->model()->columnCount(); ++i){
+        ui->treeView_worldmap_baselines->resizeColumnToContents(i);
+    }
+    blsWorldmap->sort(0);
 
 
 //    comboBox2skyCoverage = new QSignalMapper(this);
@@ -200,14 +238,10 @@ void VieSchedpp_Analyser::setup()
         setSkyCoverageLayout(2,4);
     }
 
-    ui->splitter_skyCoverage->setStretchFactor(0,5);
-    ui->splitter_skyCoverage->setStretchFactor(1,1);
+//    ui->splitter_skyCoverage->setSizes(QList<int>({std::numeric_limits<int>::max(), std::numeric_limits<int>::max()/4}));
+//    ui->splitter_worldmap->setSizes(QList<int>({std::numeric_limits<int>::max(), std::numeric_limits<int>::max()/4}));
+//    ui->splitter_worldmap->setSizes(QList<int>({std::numeric_limits<int>::max(), std::numeric_limits<int>::max()/4}));
 
-    ui->splitter_worldmap->setStretchFactor(0,6);
-    ui->splitter_worldmap->setStretchFactor(1,1);
-
-    ui->splitter_skymap->setStretchFactor(0,6);
-    ui->splitter_skymap->setStretchFactor(1,1);
 
     int totalObs = 0;
     const std::vector<VieVS::Scan> &scans = schedule_.getScans();
@@ -338,6 +372,7 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 
             QGroupBox *groupBox = new QGroupBox(this);
             QPolarChart *chart = new QPolarChart();
+            chart->setAnimationOptions(QPolarChart::NoAnimation);
             QChartView *chartView = new QChartView(chart,groupBox);
 
             chart->layout()->setContentsMargins(0, 0, 0, 0);
@@ -352,7 +387,7 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
             angularAxis->setTickCount(13); // First and last ticks are co-located on 0/360 angle.
             angularAxis->setLabelFormat("%.0f");
             angularAxis->setShadesVisible(true);
-            angularAxis->setShadesBrush(QBrush(QColor(249, 249, 255)));
+            angularAxis->setShadesBrush(QBrush(QColor(230, 238, 255)));
             angularAxis->setRange(0,360);
             chart->addAxis(angularAxis, QPolarChart::PolarOrientationAngular);
 
@@ -664,7 +699,7 @@ void VieSchedpp_Analyser::skyCoverageHovered(QPointF point, bool flag)
             }else{
                 c->hide();
             }
-
+            break;
         }
     }
 }
@@ -724,9 +759,9 @@ void VieSchedpp_Analyser::on_treeView_skyCoverage_sources_clicked(const QModelIn
 }
 
 
-void VieSchedpp_Analyser::on_pushButton_skyCoverageLegend_clicked()
+void VieSchedpp_Analyser::on_checkBox_skyCoverageLegend_toggled(bool checked)
 {
-    if(ui->pushButton_skyCoverageLegend->isChecked()){
+    if(ui->checkBox_skyCoverageLegend->isChecked()){
         for(int i=0; i<ui->gridLayout_skyCoverage->count(); ++i){
             QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_skyCoverage->itemAt(i)->widget());
             QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
@@ -746,6 +781,7 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLegend_clicked()
         }
 
     }
+
 }
 
 
@@ -769,8 +805,6 @@ void VieSchedpp_Analyser::setupWorldmap()
     observingStations->setMarkerSize(27);
     observingStations->setPen(QColor(Qt::transparent));
 
-    worldChart->addSeries(selectedStations);
-    worldChart->addSeries(observingStations);
 
     connect(selectedStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
     connect(observingStations,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
@@ -781,6 +815,31 @@ void VieSchedpp_Analyser::setupWorldmap()
         double lon = station.getPosition().getLon()*rad2deg;
         selectedStations->append(lon,lat);
     }
+    for(int i=0; i<stations.size(); ++i){
+        double lat1 = stations.at(i).getPosition().getLat()*rad2deg;
+        double lon1 = stations.at(i).getPosition().getLon()*rad2deg;
+        QString name1 = QString::fromStdString(stations.at(i).getAlternativeName());
+
+        for(int j=i+1; j<stations.size(); ++j){
+            double lat2 = stations.at(j).getPosition().getLat()*rad2deg;
+            double lon2 = stations.at(j).getPosition().getLon()*rad2deg;
+            QString name2 = QString::fromStdString(stations.at(j).getAlternativeName());
+
+            QList<QLineSeries *>series = qtUtil::baselineSeries(lat1,lon1,name1,lat2,lon2,name2);
+            for(const auto &any: series){
+                worldChart->addSeries(any);
+                any->attachAxis(worldChart->axisX());
+                any->attachAxis(worldChart->axisY());
+                connect(any,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_baseline_hovered(QPointF,bool)));
+
+            }
+
+        }
+    }
+
+    worldChart->addSeries(selectedStations);
+    worldChart->addSeries(observingStations);
+
     Callout *callout = new Callout(worldChart);
     callout->hide();
     selectedStations->attachAxis(worldChart->axisX());
@@ -789,6 +848,8 @@ void VieSchedpp_Analyser::setupWorldmap()
     observingStations->attachAxis(worldChart->axisY());
 
     ui->horizontalLayout_worldmap->insertWidget(0,worldmap,1);
+
+    connect(ui->checkBox_showBaselines,SIGNAL(toggled(bool)),this,SLOT(updateWorldmapTimes()));
 }
 
 void VieSchedpp_Analyser::worldmap_hovered(QPointF point, bool state)
@@ -844,9 +905,46 @@ void VieSchedpp_Analyser::worldmap_hovered(QPointF point, bool state)
             } else {
                 worldMapCallout->hide();
             }
+            break;
         }
     }
 }
+
+void VieSchedpp_Analyser::worldmap_baseline_hovered(QPointF point, bool state)
+{
+    QObject *obj = sender();
+
+    QLineSeries *series = qobject_cast<QLineSeries *>(obj);
+    QChart *chart = qobject_cast<QChart *>(obj->parent()->parent());
+
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *worldMapCallout = dynamic_cast<Callout *>(childItem)){
+
+            if (state) {
+
+                QString name = series->name().left(5);
+                int row = blModel->findItems(name).at(0)->row();
+                int obs = blModel->index(row,2).data().toInt();
+
+                QString longName = blModel->index(row,1).data().toString();
+                double dist = blModel->index(row,3).data().toDouble();
+
+                QString text = QString("%1 \n%2 \n#scans %3\ndist %4 [km] ").arg(name).arg(longName).arg(obs).arg(dist);
+
+                worldMapCallout->setText(text);
+                worldMapCallout->setAnchor(point);
+                worldMapCallout->setZValue(11);
+                worldMapCallout->updateGeometry();
+                worldMapCallout->show();
+            } else {
+                worldMapCallout->hide();
+            }
+            break;
+        }
+    }
+
+}
+
 
 void VieSchedpp_Analyser::setupSkymap()
 {
@@ -937,6 +1035,8 @@ void VieSchedpp_Analyser::skymap_hovered(QPointF point, bool state)
             } else {
                 skyMapCallout->hide();
             }
+
+            break;
         }
     }
 
@@ -948,11 +1048,20 @@ void VieSchedpp_Analyser::on_lineEdit_skymapSourceFilter_textChanged(const QStri
     model->setFilterFixedString(arg1);
 }
 
+
+
 void VieSchedpp_Analyser::on_lineEdit_worldmapStationFilter_textChanged(const QString &arg1)
 {
     QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_worldmap_stations->model());
     model->setFilterFixedString(arg1);
 }
+
+void VieSchedpp_Analyser::on_lineEdit_worldmapBaselineFilter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_worldmap_baselines->model());
+    model->setFilterFixedString(arg1);
+}
+
 
 void VieSchedpp_Analyser::on_treeView_worldmap_stations_entered(const QModelIndex &index)
 {
@@ -978,12 +1087,63 @@ void VieSchedpp_Analyser::on_treeView_worldmap_stations_entered(const QModelInde
             worldMapCallout->setZValue(11);
             worldMapCallout->updateGeometry();
             worldMapCallout->show();
-
+            break;
         }
     }
-
-
 }
+
+void VieSchedpp_Analyser::on_treeView_worldmap_baselines_entered(const QModelIndex &index)
+{
+
+    auto chartview = static_cast<ChartView *>(ui->horizontalLayout_worldmap->itemAt(0)->widget());
+    QChart *chart = chartview->chart();
+
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *worldMapCallout = dynamic_cast<Callout *>(childItem)){
+
+            auto model = ui->treeView_worldmap_baselines->model();
+            int row = index.row();
+            QString name = model->index(row,0).data().toString();
+            QString longName = model->index(row,1).data().toString();
+            int obs = model->index(row,2).data().toInt();
+            double dist = model->index(row,3).data().toDouble();
+
+            if(obs>0){
+                QString text = QString("%1 \n%2 \n#scans %3\ndist %4 [km] ").arg(name).arg(longName).arg(obs).arg(dist);
+
+                auto series = chart->series();
+
+                QList<QLineSeries *>found;
+                for(const auto &any:series){
+                    if(any->name().left(5) == name){
+                        found.append(qobject_cast<QLineSeries *>(any));
+                    }
+                }
+                QList<double> fd;
+                for(const auto &any: found){
+
+                    QPointF delta = any->at(0) - any->at(1);
+                    fd.append( std::sqrt(delta.x()*delta.x()+delta.y()*delta.y()) );
+                }
+
+                int i = std::distance(fd.begin(),std::max_element(fd.begin(),fd.end()));
+                QPointF latlon = (found.at(i)->at(0)+found.at(i)->at(1))/2;
+
+                worldMapCallout->setText(text);
+                worldMapCallout->setAnchor(latlon);
+                worldMapCallout->setZValue(11);
+                worldMapCallout->updateGeometry();
+                worldMapCallout->show();
+                break;
+            } else {
+                worldMapCallout->hide();
+                break;
+            }
+        }
+
+    }
+}
+
 
 void VieSchedpp_Analyser::on_treeView_skymap_sources_entered(const QModelIndex &index)
 {
@@ -1045,12 +1205,65 @@ void VieSchedpp_Analyser::statisticsGeneralSetup()
     staPerScan->setLabelsPosition(QPieSlice::LabelOutside);
 
     QChart *staPerScanChart = new QChart();
+    staPerScanChart->setAnimationOptions(QChart::NoAnimation);
     staPerScanChart->createDefaultAxes();
     staPerScanChart->addSeries(staPerScan);
     QChartView *staPerScanChartView = new QChartView(staPerScanChart,this);
     staPerScanChart->setTitle("number of station per scan");
     staPerScanChartView->setRenderHint(QPainter::Antialiasing);
     ui->horizontalLayout_general_total->insertWidget(1,staPerScanChartView,1);
+
+    QBarSeries *barSeries = new QBarSeries();
+    QBarSet *barSet = new QBarSet("time [s]");
+    barSeries->append(barSet);
+
+    QChart *obsDurChart = new QChart();
+    obsDurChart->legend()->hide();
+    obsDurChart->setAnimationOptions(QChart::NoAnimation);
+    obsDurChart->addSeries(barSeries);
+
+    QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    QValueAxis *axisY = new QValueAxis;
+    axisX->setTitleText("[s]");
+    axisY->setTitleText("# obs");
+    obsDurChart->setAxisY(axisY, barSeries);
+    obsDurChart->setAxisX(axisX, barSeries);
+    obsDurChart->setTitle("time per observation");
+    QChartView *obsDurChartView = new QChartView(obsDurChart,this);
+    obsDurChartView->setRenderHint(QPainter::Antialiasing);
+    ui->horizontalLayout_general_total->insertWidget(2,obsDurChartView,1);
+
+    int maxObsDur = 0;
+    for(const VieVS::Scan &scan: schedule_.getScans()){
+        for(int i=0; i<scan.getNSta(); ++i){
+            if(scan.getTimes().getObservingDuration(i) > maxObsDur){
+                maxObsDur = scan.getTimes().getObservingDuration(i);
+            }
+        }
+    }
+
+    int newMax = maxObsDur/10*10+10;
+    int cache = (1+newMax/100)*10;
+
+    int upper_bound = cache;
+    while (upper_bound < newMax+cache){
+        histogram_upperLimits_.append(upper_bound);
+        upper_bound += cache;
+    }
+
+    int lower = 0;
+    QStringList labels;
+    for(int i=0; i<histogram_upperLimits_.count(); ++i){
+        int higher = histogram_upperLimits_.at(i)-1;
+        labels << QString("%0-%1").arg(lower).arg(higher);
+        lower = higher+1;
+    }
+    axisX->append(labels);
+    axisX->setLabelsAngle(-90);
+
+//    barSeries->attachAxis(axisX);
+//    barSeries->attachAxis(axisY);
+
 
     staPerScanChart->legend()->hide();
     staPerScanChartView->setMouseTracking(true);
@@ -1122,6 +1335,11 @@ void VieSchedpp_Analyser::updatePlotsAndModels()
         if(flag){
             ++scansSource[scan.getSourceId()];
             for(int i = 0; i<scan.getNSta(); ++i){
+                unsigned int pvStart = scan.getPointingVector(i,VieVS::Timestamp::start).getTime();
+                unsigned int pvEnd = scan.getPointingVector(i,VieVS::Timestamp::end).getTime();
+                unsigned int obsStart = scan.getTimes().getObservingTime(i,VieVS::Timestamp::start);
+                unsigned int obsEnd = scan.getTimes().getObservingTime(i,VieVS::Timestamp::end);
+
                 bool flag11 = scan.getPointingVector(i,VieVS::Timestamp::start).getTime() >= start && scan.getPointingVector(i,VieVS::Timestamp::start).getTime() <= end;
                 bool flag21 = scan.getPointingVector(i,VieVS::Timestamp::end).getTime()   >= start && scan.getPointingVector(i,VieVS::Timestamp::end).getTime()   <= end;
                 bool flag31 = scan.getPointingVector(i,VieVS::Timestamp::start).getTime() <= start && scan.getPointingVector(i,VieVS::Timestamp::end).getTime()   >= end;
@@ -1153,18 +1371,26 @@ void VieSchedpp_Analyser::updatePlotsAndModels()
         staModel->setData(staModel->index(i,3), obsStation[i]);
     }
     for(int i=0; i<blModel->rowCount();++i){
-        blModel->setData(staModel->index(i,1), scansBaseline[i]);
+        blModel->setData(blModel->index(i,2), scansBaseline[i]);
     }
     for(int i=0; i<srcModel->rowCount();++i){
         srcModel->setData(srcModel->index(i,2), scansSource[i]);
         srcModel->setData(srcModel->index(i,3), obsSource[i]);
     }
 
+    int idx = ui->stackedWidget->currentIndex();
+    switch(idx){
+        case 0:{ updateSkyCoverageTimes(); break; }
+        case 1:{ updateWorldmapTimes(); break; }
+        case 2:{ break; }
+        case 3:{ updateSkymapTimes(); break; }
+        case 4:{ updateGeneralStatistics(); break; }
+        case 5:{ break; }
+        case 6:{ break; }
+        case 7:{ break; }
+        default:{ break;}
+    }
 
-    updateSkyCoverageTimes();
-    updateWorldmapTimes();
-    updateSkymapTimes();
-    updateGeneralStatistics();
 }
 
 void VieSchedpp_Analyser::updateWorldmapTimes()
@@ -1183,7 +1409,16 @@ void VieSchedpp_Analyser::updateWorldmapTimes()
                     series->append(staModel->index(i,5).data().toDouble(), staModel->index(i,4).data().toDouble());
                 }
             }
+        }else if(any->name() != "stations" && any->name() != "coast" ){
+            QString name = any->name().left(5);
 
+            int row = blModel->findItems(name).at(0)->row();
+            int n = blModel->index(row,2).data().toInt();
+            if(n>0 && ui->checkBox_showBaselines->isChecked()){
+                any->show();
+            }else{
+                any->hide();
+            }
         }
     }
 }
@@ -1252,17 +1487,21 @@ void VieSchedpp_Analyser::updateGeneralStatistics()
         accStaScan (thisScan);
         accStaObs (thisObs);
     }
+    double h = (ui->horizontalSlider_end->value()-ui->horizontalSlider_start->value())/3600.;
     ui->tableWidget_general->setItem(0,0,new QTableWidgetItem(QString::number(mean(accStaScan),'f',2)));
     ui->tableWidget_general->setItem(0,1,new QTableWidgetItem(QString::number(std::sqrt(variance(accStaScan)),'f',2)));
     ui->tableWidget_general->setItem(0,2,new QTableWidgetItem(QString::number(median(accStaScan),'f',2)));
     ui->tableWidget_general->setItem(0,3,new QTableWidgetItem(QString::number(min(accStaScan))));
     ui->tableWidget_general->setItem(0,4,new QTableWidgetItem(QString::number(max(accStaScan))));
+    ui->tableWidget_general->setItem(0,5,new QTableWidgetItem(QString::number(mean(accStaScan)/h,'f',2)));
+
 
     ui->tableWidget_general->setItem(3,0,new QTableWidgetItem(QString::number(mean(accStaObs),'f',2)));
     ui->tableWidget_general->setItem(3,1,new QTableWidgetItem(QString::number(std::sqrt(variance(accStaObs)),'f',2)));
     ui->tableWidget_general->setItem(3,2,new QTableWidgetItem(QString::number(median(accStaObs),'f',2)));
     ui->tableWidget_general->setItem(3,3,new QTableWidgetItem(QString::number(min(accStaObs))));
     ui->tableWidget_general->setItem(3,4,new QTableWidgetItem(QString::number(max(accStaObs))));
+    ui->tableWidget_general->setItem(3,5,new QTableWidgetItem(QString::number(mean(accStaObs)/h,'f',2)));
 
 
     accumulator_set<double, stats< tag::mean, tag::median, tag::variance, tag::min, tag::max> > accSrcScan;
@@ -1288,18 +1527,20 @@ void VieSchedpp_Analyser::updateGeneralStatistics()
     ui->tableWidget_general->setItem(1,2,new QTableWidgetItem(QString::number(median(accSrcScan),'f',2)));
     ui->tableWidget_general->setItem(1,3,new QTableWidgetItem(QString::number(min(accSrcScan))));
     ui->tableWidget_general->setItem(1,4,new QTableWidgetItem(QString::number(max(accSrcScan))));
+    ui->tableWidget_general->setItem(1,5,new QTableWidgetItem(QString::number(mean(accSrcScan)/h,'f',2)));
 
     ui->tableWidget_general->setItem(4,0,new QTableWidgetItem(QString::number(mean(accSrcObs),'f',2)));
     ui->tableWidget_general->setItem(4,1,new QTableWidgetItem(QString::number(std::sqrt(variance(accSrcObs)),'f',2)));
     ui->tableWidget_general->setItem(4,2,new QTableWidgetItem(QString::number(median(accSrcObs),'f',2)));
     ui->tableWidget_general->setItem(4,3,new QTableWidgetItem(QString::number(min(accSrcObs))));
     ui->tableWidget_general->setItem(4,4,new QTableWidgetItem(QString::number(max(accSrcObs))));
+    ui->tableWidget_general->setItem(4,5,new QTableWidgetItem(QString::number(mean(accSrcObs)/h,'f',2)));
 
     accumulator_set<double, stats< tag::mean, tag::median, tag::variance, tag::min, tag::max> > accBlScan;
 
     int bl = 0;
     for(int i=0; i<blModel->rowCount();++i){
-        int thisScan = blModel->data(blModel->index(i,1)).toInt();
+        int thisScan = blModel->data(blModel->index(i,2)).toInt();
         if(thisScan > 0){
             ++bl;
         }
@@ -1310,6 +1551,7 @@ void VieSchedpp_Analyser::updateGeneralStatistics()
     ui->tableWidget_general->setItem(2,2,new QTableWidgetItem(QString::number(median(accBlScan),'f',2)));
     ui->tableWidget_general->setItem(2,3,new QTableWidgetItem(QString::number(min(accBlScan))));
     ui->tableWidget_general->setItem(2,4,new QTableWidgetItem(QString::number(max(accBlScan))));
+    ui->tableWidget_general->setItem(2,5,new QTableWidgetItem(QString::number(mean(accBlScan)/h,'f',2)));
 
 
     ui->spinBox_scans->setValue(scans);
@@ -1337,8 +1579,51 @@ void VieSchedpp_Analyser::updateGeneralStatistics()
     for(int r = 0; r<ui->tableWidget_general->rowCount(); ++r){
         for(int c = 0; c<ui->tableWidget_general->columnCount(); ++c){
             ui->tableWidget_general->item(r,c)->setTextAlignment(Qt::AlignRight | Qt::AlignVCenter);
-//            ui->tableWidget_general->item(r,c)->setTextAlignment();
         }
     }
 
+    QChartView *barChartView = qobject_cast<QChartView *>(ui->horizontalLayout_general_total->itemAt(2)->widget());
+    QChart *barChart = barChartView->chart();
+    QBarSeries *barSeries= qobject_cast<QBarSeries *>(barChart->series().at(0));
+    QBarSet *barSet = barSeries->barSets().at(0);
+    barSet->remove(0,barSet->count());
+
+    QValueAxis *axisY = qobject_cast<QValueAxis *>(barChart->axisY());
+
+    QVector<int> values;
+    for(const VieVS::Scan &scan: schedule_.getScans()){
+        for(int i=0; i<scan.getNSta(); ++i){
+            int tstart = scan.getTimes().getObservingTime(i,VieVS::Timestamp::start);
+            int tend = scan.getTimes().getObservingTime(i,VieVS::Timestamp::end);
+            bool flag1 = tstart >= start && tstart <= end;
+            bool flag2 = tend   >= start && tend <= end;
+            bool flag3 = tstart <= start && tend >= end;
+            bool flag = flag1 || flag2 || flag3;
+            if(flag){
+                values.append(scan.getTimes().getObservingDuration(i));
+            }
+        }
+    }
+    qSort(values.begin(),values.end());
+
+    if(values.empty()){
+        return;
+    }
+
+    QVector<int> hist(histogram_upperLimits_.count(),0);
+    for (int any:values) {
+        int i = 0;
+        while(any>=histogram_upperLimits_[i]){
+            ++i;
+        }
+        ++hist[i];
+    }
+    for(auto any: hist){
+        barSet->append(any);
+    }
+
+    axisY->setRange(0, *std::max_element(hist.begin(),hist.end())/10*10+10);
 }
+
+
+

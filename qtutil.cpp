@@ -35,6 +35,8 @@ QList<qtUtil::ObsData> qtUtil::getObsData(unsigned long staid, const std::vector
 void qtUtil::worldMap(ChartView *worldmap)
 {
     QChart *worldChart = new QChart();
+    worldChart->setAnimationOptions(QChart::NoAnimation);
+
     worldChart->setAcceptHoverEvents(true);
 
     QFile coastF(":/plotting/coast.txt");
@@ -95,6 +97,7 @@ std::pair<double, double> qtUtil::radec2xy(double ra, double de)
 void qtUtil::skyMap(ChartView *skymap)
 {
     QChart *skyChart = new QChart();
+    skyChart->setAnimationOptions(QChart::NoAnimation);
 
     for(int ra = 0; ra<=360; ra+=60){
         QLineSeries *ral = new QLineSeries(skyChart);
@@ -158,4 +161,50 @@ void qtUtil::skyMap(ChartView *skymap)
     skymap->setBackgroundBrush(QBrush(Qt::white));
     skymap->setMouseTracking(true);
 
+}
+
+QList<QLineSeries *> qtUtil::baselineSeries(double lat1, double lon1, QString name1, double lat2, double lon2, QString name2)
+{
+
+    QList<QLineSeries *>series;
+    if(lon1>lon2){
+        auto tmp1 = lon1;
+        lon1 = lon2;
+        lon2 = tmp1;
+        auto tmp2 = lat1;
+        lat1 = lat2;
+        lat2 = tmp2;
+    }
+
+    if(qAbs(lon2-lon1)<180){
+        QLineSeries *bl = new QLineSeries();
+        bl->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+        bl->append(lon1,lat1);
+        bl->append(lon2,lat2);
+        bl->setName(QString("%1-%2").arg(name1).arg(name2));
+        series.append(bl);
+    }else{
+
+        double dx = 180-qAbs(lon1)+180-qAbs(lon2);
+        double dy = lat2-lat1;
+
+        QLineSeries *bl1 = new QLineSeries();
+        bl1->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+        bl1->append(lon1,lat1);
+        double fracx = (180-qAbs(lon1))/dx;
+        double fracy = dy*fracx;
+        bl1->append(-180,lat1+fracy);
+        bl1->setName(QString("%1-%2_p1").arg(name1).arg(name2));
+
+        QLineSeries *bl2 = new QLineSeries();
+        bl2->setPen(QPen(QBrush(Qt::darkGreen),1.5,Qt::DashLine));
+        bl2->append(lon2,lat2);
+        bl2->append(180,lat2-(dy-fracy));
+        bl2->setName(QString("%1-%2_p2").arg(name1).arg(name2));
+
+        series.append(bl1);
+        series.append(bl2);
+    }
+
+    return series;
 }

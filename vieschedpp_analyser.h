@@ -17,6 +17,9 @@
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QAreaSeries>
 #include <QtCharts/QPieSeries>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QBarSet>
 #include <QSignalMapper>
 #include <QSortFilterProxyModel>
 #include <QtMath>
@@ -51,7 +54,6 @@ public:
     void setup();
 
 private slots:
-    void on_pushButton_skyCoverageLegend_clicked();
 
     void on_actiongeneral_triggered();
 
@@ -105,6 +107,8 @@ private slots:
 
     void worldmap_hovered(QPointF point, bool state);
 
+    void worldmap_baseline_hovered(QPointF point, bool state);
+
     void setupSkymap();
 
     void skymap_hovered(QPointF point, bool state);
@@ -129,6 +133,12 @@ private slots:
 
     void updateGeneralStatistics();
 
+    void on_lineEdit_worldmapBaselineFilter_textChanged(const QString &arg1);
+
+    void on_treeView_worldmap_baselines_entered(const QModelIndex &index);
+
+    void on_checkBox_skyCoverageLegend_toggled(bool checked);
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
@@ -140,6 +150,7 @@ private:
     QStandardItemModel *staModel;
     QStandardItemModel *blModel;
 
+    QList<int> histogram_upperLimits_;
 
 //    QSignalMapper *comboBox2skyCoverage;
 

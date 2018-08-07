@@ -31,6 +31,8 @@ namespace qtUtil {
 
     std::pair<double,double> radec2xy(double ra, double dc);
 
+    QList<QLineSeries *> baselineSeries(double lat1, double lon1, QString name1, double lat2, double lon2, QString name2);
+
 }
 
 #endif // QTUTIL_H
