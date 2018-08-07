@@ -583,7 +583,7 @@
           </column>
           <column>
            <property name="text">
-            <string>average per hour</string>
+            <string>per hour</string>
            </property>
           </column>
           <item row="0" column="0">

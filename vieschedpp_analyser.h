@@ -125,6 +125,8 @@ private slots:
 
     void staPerScanPieHovered(QPieSlice * slice, bool state);
 
+    void timePerObservation(bool state, int idx);
+
     void updatePlotsAndModels();
 
     void updateWorldmapTimes();

@@ -1215,6 +1215,7 @@ void VieSchedpp_Analyser::statisticsGeneralSetup()
 
     QBarSeries *barSeries = new QBarSeries();
     QBarSet *barSet = new QBarSet("time [s]");
+    connect(barSet,SIGNAL(hovered(bool,int)),this,SLOT(timePerObservation(bool,int)));
     barSeries->append(barSet);
 
     QChart *obsDurChart = new QChart();
@@ -1310,6 +1311,11 @@ void VieSchedpp_Analyser::staPerScanPieHovered(QPieSlice *slice, bool state)
             }
         }
     }
+}
+
+void VieSchedpp_Analyser::timePerObservation(bool state, int idx)
+{
+
 }
 
 void VieSchedpp_Analyser::updatePlotsAndModels()
