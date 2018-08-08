@@ -18,6 +18,7 @@
 #include <QtCharts/QAreaSeries>
 #include <QtCharts/QPieSeries>
 #include <QtCharts/QBarSeries>
+#include <QtCharts/QPercentBarSeries>
 #include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QBarSet>
 #include <QSignalMapper>
@@ -125,7 +126,7 @@ private slots:
 
     void staPerScanPieHovered(QPieSlice * slice, bool state);
 
-    void timePerObservation(bool state, int idx);
+    void timePerObservation_hovered(bool state, int idx);
 
     void updatePlotsAndModels();
 
@@ -140,6 +141,16 @@ private slots:
     void on_treeView_worldmap_baselines_entered(const QModelIndex &index);
 
     void on_checkBox_skyCoverageLegend_toggled(bool checked);
+
+    void statisticsStationsSetup();
+
+    void updateStatisticsStations();
+
+    void stationsScansPieHovered(QPieSlice *slice, bool state);
+
+    void stationsObsPieHovered(QPieSlice *slice, bool state);
+
+    void on_treeView_statistics_station_model_entered(const QModelIndex &index);
 
 private:
     Ui::VieSchedpp_Analyser *ui;

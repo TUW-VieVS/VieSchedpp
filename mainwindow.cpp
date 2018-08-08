@@ -300,6 +300,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     const QFont fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     ui->plainTextEdit_notes->setFont(fixedFont);
+
+    connect(ui->lineEdit_outputPath,SIGNAL(textChanged(QString)),ui->lineEdit_sessionPath,SLOT(setText(QString)));
 }
 
 MainWindow::~MainWindow()
@@ -7533,7 +7535,8 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
 
 void MainWindow::on_pushButton_sessionBrowse_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", mainPath, tr("skd files (*.skd)"));
+    QString startPath = mainPath +'/'+ ui->lineEdit_sessionPath->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", startPath, tr("skd files (*.skd)"));
     if( !path.isEmpty() ){
         ui->lineEdit_sessionPath->setText(path);
         ui->lineEdit_sessionPath->setFocus();
