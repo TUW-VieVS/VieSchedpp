@@ -179,8 +179,18 @@ bool ScanTimes::setPreobTime(const vector<unsigned int> &preob) {
     bool valid = true;
     for(int i=0; i<endOfObservingTime_.size(); ++i){
         endOfIdleTime_[i] = endOfPreobTime_[i]-preob[i];
+
         if(endOfIdleTime_[i] < endOfSlewTime_[i]){
             valid = false;
+            endOfSlewTime_[i] = endOfIdleTime_[i];
+
+            if(endOfSlewTime_[i] < endOfFieldSystemTime_[i]){
+                endOfFieldSystemTime_[i] = endOfSlewTime_[i];
+
+                if(endOfFieldSystemTime_[i] < endOfLastScan_[i]){
+                    endOfLastScan_[i] = endOfFieldSystemTime_[i];
+                }
+            }
         }
     }
     return valid;

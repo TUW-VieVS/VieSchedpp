@@ -310,14 +310,11 @@ void SkdParser::createScans(std::ofstream &of) {
                         boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
                         boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
-                        of << boost::format("Station %8s scan %4d source %8s time %s idle time error! end of slew time: %s end of idle time: %s (diff -%d [s])\n")
+                        of << boost::format("Station %8s scan %4d source %8s time %s idle time error!\n")
                                 %network_.getStation(scan.getPointingVector(i).getStaid()).getName()
                                 %counter
                                 %sources_[scan.getPointingVector(i).getSrcid()].getName()
-                                %TimeSystem::ptime2string_doy(scanStart)
-                                %TimeSystem::ptime2string_doy(eostp)
-                                %TimeSystem::ptime2string_doy(eoitp)
-                                %(eost-eoit);
+                                %TimeSystem::ptime2string_doy(scanStart);
                     }
                 }
             }
