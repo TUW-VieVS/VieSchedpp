@@ -56,7 +56,6 @@ void VieSchedpp::run() {
 
     ofstream of(path_+"initializer.txt");
     ofstream statisticsOf(path_+"statistics.csv");
-    init.statisticsLogHeader(statisticsOf);
 
     // initialize skd catalogs and lookup table
     readSkdCatalogs();
@@ -81,6 +80,8 @@ void VieSchedpp::run() {
     init.initializeHighImpactScanDescriptor(of);
     init.initializeWeightFactors();
     init.initializeSkyCoverages();
+
+    init.statisticsLogHeader(statisticsOf);
 
     // check if multi scheduling is selected
     bool flag_multiSched = false;
