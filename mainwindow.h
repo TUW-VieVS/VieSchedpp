@@ -520,7 +520,6 @@ private:
 
     Callout *worldMapCallout;
     Callout *skyMapCallout;
-    Callout *statisticsCallout;
     Callout *stationSetupCallout;
     Callout *sourceSetupCallout;
     Callout *baselineSetupCallout;

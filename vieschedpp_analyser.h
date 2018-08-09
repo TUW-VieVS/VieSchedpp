@@ -21,9 +21,11 @@
 #include <QtCharts/QPercentBarSeries>
 #include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QBarSet>
+#include <QtCharts/QDateTimeAxis>
 #include <QSignalMapper>
 #include <QSortFilterProxyModel>
 #include <QtMath>
+#include <QtCharts/QLegendMarker>
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -146,11 +148,21 @@ private slots:
 
     void updateStatisticsStations();
 
+    void statisticsSourceSetup();
+
+    void updateStatisticsSource();
+
+    void statisticsSourceHovered(QPointF p, bool state);
+
     void stationsScansPieHovered(QPieSlice *slice, bool state);
 
     void stationsObsPieHovered(QPieSlice *slice, bool state);
 
+    void stationsTimeBarHovered(bool state,int idx,QBarSet* set);
+
     void on_treeView_statistics_station_model_entered(const QModelIndex &index);
+
+    void on_treeWidget_statistics_station_time_entered(const QModelIndex &index);
 
 private:
     Ui::VieSchedpp_Analyser *ui;

@@ -6410,8 +6410,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -9047,7 +9047,7 @@ If you only want to run simulations you can deselect this to avoid error message
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_53" stretch="1,3">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_92">
+         <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0,0">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_51">
             <item>
@@ -9119,13 +9119,6 @@ If you only want to run simulations you can deselect this to avoid error message
              </layout>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="Line" name="line_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
           </item>
           <item>
            <widget class="QTreeWidget" name="treeWidget_statisticGeneral">
@@ -9294,57 +9287,51 @@ If you only want to run simulations you can deselect this to avoid error message
            </widget>
           </item>
           <item>
-           <widget class="QTreeWidget" name="treeWidget_statisticSource">
-            <property name="toolTip">
-             <string>display and weight parameter</string>
+           <widget class="Line" name="line_12">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
             </property>
-            <property name="statusTip">
-             <string>display and weight parameter</string>
-            </property>
-            <column>
-             <property name="text">
-              <string>sources</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>color</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>weight</string>
-             </property>
-            </column>
-            <item>
-             <property name="text">
-              <string># scans</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string># baselines</string>
-             </property>
-             <property name="checkState">
-              <enum>Unchecked</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-            </item>
            </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_66">
+            <item>
+             <widget class="QLabel" name="label_statistics_hoveredItem_title">
+              <property name="text">
+               <string>hovered item</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeWidget" name="treeWidget_statisticHovered">
+              <property name="toolTip">
+               <string>display and weight parameter</string>
+              </property>
+              <property name="statusTip">
+               <string>display and weight parameter</string>
+              </property>
+              <property name="columnCount">
+               <number>2</number>
+              </property>
+              <attribute name="headerVisible">
+               <bool>false</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string notr="true">1</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string notr="true">2</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -10627,7 +10614,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>pushButton_removeStatistic</tabstop>
   <tabstop>treeWidget_statisticGeneral</tabstop>
   <tabstop>treeWidget_statisticStation</tabstop>
-  <tabstop>treeWidget_statisticSource</tabstop>
   <tabstop>radioButton_statistics_absolute</tabstop>
   <tabstop>radioButton_statistics_relative</tabstop>
   <tabstop>checkBox_statistics_removeMinimum</tabstop>

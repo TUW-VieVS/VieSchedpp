@@ -5135,10 +5135,12 @@ void MainWindow::plotSkyMap(){
 
 
     availableSources = new QScatterSeries(skyChart);
+    availableSources->setName("available");
     availableSources->setColor(Qt::red);
     availableSources->setMarkerSize(10);
 
     selectedSources = new QScatterSeries(skyChart);
+    selectedSources->setName("selected");
     markerSkymap();
 
     skyChart->addSeries(availableSources);
@@ -5526,13 +5528,23 @@ void MainWindow::on_radioButton_imageSkymap_toggled(bool checked)
     if(checked){
         ui->horizontalSlider_markerSkymap->setValue(30);
         auto series = skymap->chart()->series();
-        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        QScatterSeries *tmp;
+        for(const auto&serie : series){
+            if(serie->name() == "selected"){
+                tmp = qobject_cast<QScatterSeries *>(serie);
+            }
+        }
         tmp->setPen(QPen(QBrush(Qt::darkGreen),3,Qt::DashLine));
 
     }else{
         ui->horizontalSlider_markerSkymap->setValue(15);
         auto series = skymap->chart()->series();
-        auto tmp = qobject_cast<QLineSeries *>(series.back());
+        QScatterSeries *tmp;
+        for(const auto&serie : series){
+            if(serie->name() == "selected"){
+                tmp = qobject_cast<QScatterSeries *>(serie);
+            }
+        }
         tmp->setPen(QPen(QBrush(Qt::blue),3,Qt::DashLine));
         selectedSources->setPen(QColor(Qt::transparent));
     }
@@ -6607,7 +6619,7 @@ void MainWindow::setupStatisticView()
     hv1->setSectionResizeMode(QHeaderView::ResizeToContents);
     auto hv2 = ui->treeWidget_statisticStation->header();
     hv2->setSectionResizeMode(QHeaderView::ResizeToContents);
-    auto hv3 = ui->treeWidget_statisticSource->header();
+    auto hv3 = ui->treeWidget_statisticHovered->header();
     hv3->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     statisticsView = new QChartView(this);
@@ -6628,8 +6640,9 @@ void MainWindow::setupStatisticView()
 
     connect(ui->radioButton_statistics_absolute,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
     connect(ui->checkBox_statistics_removeMinimum,SIGNAL(toggled(bool)),this,SLOT(plotStatistics()));
-    statisticsCallout = new Callout(statisticsView->chart());
-    statisticsCallout->hide();
+
+    ui->label_statistics_hoveredItem_title->setStyleSheet("font-weight: bold");
+
 }
 
 void MainWindow::on_pushButton_addStatistic_clicked()
@@ -6798,7 +6811,6 @@ void MainWindow::plotStatistics(bool animation)
 
     ui->treeWidget_statisticGeneral->blockSignals(true);
     ui->treeWidget_statisticStation->blockSignals(true);
-    ui->treeWidget_statisticSource->blockSignals(true);
 
     int nsta=0;
     for(int i=8; i<statisticsName.count(); ++i){
@@ -6991,13 +7003,11 @@ void MainWindow::plotStatistics(bool animation)
     connect(sortedSeries,SIGNAL(hovered(bool,int,QBarSet*)),this,SLOT(statisticsHovered(bool,int,QBarSet*)));
     ui->treeWidget_statisticGeneral->blockSignals(false);
     ui->treeWidget_statisticStation->blockSignals(false);
-    ui->treeWidget_statisticSource->blockSignals(false);
 
     }catch(...){
         QMessageBox::warning(this,"keep it slow!","A Error occured! Maybe because you canged too many values too fast!");
         ui->treeWidget_statisticGeneral->blockSignals(false);
         ui->treeWidget_statisticStation->blockSignals(false);
-        ui->treeWidget_statisticSource->blockSignals(false);
     }
 
 }
@@ -7024,12 +7034,10 @@ void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
         translateGeneral["# fillin mode scans"] = 4;
         translateGeneral["# calibration scans"] = 5;
 
-        QString txt = barset->label().append("\n");
 
         auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
         auto categories = axis->categories();
         QString catName = categories.at(index);
-        txt.append(catName).append("\n");
         QStringList splitCatName = catName.split(" ");
         int version = splitCatName.at(0).right(splitCatName.at(0).count()-1).toInt();
         QString name = splitCatName.at(1);
@@ -7047,21 +7055,15 @@ void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
                 value = statistics[name][version][idx];
             }
         }
-        txt.append("value: ").append(QString("%1").arg(value)).append("\n");
 
-        auto point = QCursor::pos();
-        point = statisticsView->mapFromGlobal(point);
-        auto pointF = statisticsView->mapToScene(point);
-        pointF = statisticsView->chart()->mapFromScene(point);
-        pointF = statisticsView->chart()->mapToValue(point,statisticsView->chart()->series().at(0));
-
-        statisticsCallout->setAnchor(pointF);
-        statisticsCallout->setText(txt);
-        statisticsCallout->setZValue(11);
-        statisticsCallout->updateGeometry();
-        statisticsCallout->show();
+        ui->label_statistics_hoveredItem_title->setText(barset->label());
+        ui->treeWidget_statisticHovered->clear();
+        ui->treeWidget_statisticHovered->addTopLevelItem(new QTreeWidgetItem(QStringList() << "session" << name));
+        ui->treeWidget_statisticHovered->addTopLevelItem(new QTreeWidgetItem(QStringList() << "version" << QString("%1").arg(version)));
+        ui->treeWidget_statisticHovered->addTopLevelItem(new QTreeWidgetItem(QStringList() << "value" << QString("%1").arg(value)));
     } else {
-        statisticsCallout->hide();
+        ui->label_statistics_hoveredItem_title->setText("hovered item");
+        ui->treeWidget_statisticHovered->clear();
     }
 }
 
@@ -7142,7 +7144,8 @@ void MainWindow::on_horizontalScrollBar_statistics_valueChanged(int value)
 {
 
     statisticsView->chart()->setAnimationOptions(QChart::NoAnimation);
-    statisticsCallout->hide();
+    ui->label_statistics_hoveredItem_title->setText("hovered item");
+    ui->treeWidget_statisticHovered->clear();
 
     auto axis = qobject_cast<QBarCategoryAxis*>(statisticsView->chart()->axisX());
     auto categories = axis->categories();
@@ -7157,7 +7160,8 @@ void MainWindow::on_horizontalScrollBar_statistics_valueChanged(int value)
 
 void MainWindow::on_spinBox_statistics_show_valueChanged(int arg1)
 {
-    statisticsCallout->hide();
+    ui->label_statistics_hoveredItem_title->setText("hovered item");
+    ui->treeWidget_statisticHovered->clear();
 
     plotStatistics(false);
 }
@@ -7535,7 +7539,7 @@ void MainWindow::on_pushButton_readSkdFile_read_clicked()
 
 void MainWindow::on_pushButton_sessionBrowse_clicked()
 {
-    QString startPath = mainPath +'/'+ ui->lineEdit_sessionPath->text();
+    QString startPath = ui->lineEdit_sessionPath->text();
     QString path = QFileDialog::getOpenFileName(this, "Browse to skd file", startPath, tr("skd files (*.skd)"));
     if( !path.isEmpty() ){
         ui->lineEdit_sessionPath->setText(path);

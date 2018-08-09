@@ -25,7 +25,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -769,6 +769,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
             </property>
@@ -835,7 +838,45 @@
        </layout>
       </widget>
       <widget class="QWidget" name="statistics_source">
-       <layout class="QVBoxLayout" name="verticalLayout_6"/>
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item>
+         <widget class="QSplitter" name="splitter_statistics_source">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QLabel" name="label_14">
+              <property name="styleSheet">
+               <string notr="true">font: bold</string>
+              </property>
+              <property name="text">
+               <string>select source</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeView_statistics_source">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="horizontalLayoutWidget">
+           <layout class="QHBoxLayout" name="horizontalLayout_statistics_source"/>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="statistics_baseline">
        <layout class="QVBoxLayout" name="verticalLayout_7"/>
@@ -1054,13 +1095,12 @@
    </widget>
    <widget class="QMenu" name="menustatistics">
     <property name="title">
-     <string>statistics</string>
+     <string>info</string>
     </property>
     <addaction name="actiongeneral"/>
     <addaction name="actionper_station"/>
     <addaction name="actionper_source"/>
     <addaction name="actionper_baseline"/>
-    <addaction name="actiontimes"/>
    </widget>
    <addaction name="menusky_coverage"/>
    <addaction name="menustatistics"/>
@@ -1095,7 +1135,6 @@
    <addaction name="actionper_station"/>
    <addaction name="actionper_source"/>
    <addaction name="actionper_baseline"/>
-   <addaction name="actiontimes"/>
   </widget>
   <action name="actionsky_coverage">
    <property name="icon">
@@ -1130,7 +1169,7 @@
      <normaloff>:/icons/icons/station.png</normaloff>:/icons/icons/station.png</iconset>
    </property>
    <property name="text">
-    <string>per station</string>
+    <string>station</string>
    </property>
   </action>
   <action name="actionper_source">
@@ -1139,7 +1178,7 @@
      <normaloff>:/icons/icons/source.png</normaloff>:/icons/icons/source.png</iconset>
    </property>
    <property name="text">
-    <string>per source</string>
+    <string>source</string>
    </property>
   </action>
   <action name="actionper_baseline">
@@ -1148,7 +1187,7 @@
      <normaloff>:/icons/icons/baseline.png</normaloff>:/icons/icons/baseline.png</iconset>
    </property>
    <property name="text">
-    <string>per baseline</string>
+    <string>baseline</string>
    </property>
   </action>
   <action name="actionworld_map">
