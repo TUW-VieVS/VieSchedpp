@@ -25,7 +25,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>6</number>
+       <number>7</number>
       </property>
       <widget class="QWidget" name="skyCoverage">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -90,6 +90,9 @@
              <widget class="QTreeView" name="treeView_skyCoverage_sources">
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
               </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::MultiSelection</enum>
@@ -162,6 +165,9 @@
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::NoSelection</enum>
               </property>
@@ -187,6 +193,9 @@
               </property>
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
               </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::NoSelection</enum>
@@ -235,6 +244,9 @@
               </property>
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
               </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::NoSelection</enum>
@@ -682,6 +694,9 @@
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
               <property name="selectionMode">
                <enum>QAbstractItemView::NoSelection</enum>
               </property>
@@ -731,6 +746,9 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="alternatingRowColors">
+               <bool>false</bool>
+              </property>
               <property name="columnCount">
                <number>2</number>
               </property>
@@ -774,6 +792,9 @@
             </property>
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
             </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::NoSelection</enum>
@@ -864,8 +885,18 @@
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
               <property name="sortingEnabled">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_statistics_source_filter">
+              <property name="placeholderText">
+               <string>filter</string>
               </property>
              </widget>
             </item>
@@ -879,7 +910,92 @@
        </layout>
       </widget>
       <widget class="QWidget" name="statistics_baseline">
-       <layout class="QVBoxLayout" name="verticalLayout_7"/>
+       <layout class="QVBoxLayout" name="verticalLayout_13">
+        <item>
+         <widget class="QSplitter" name="splitter_statistics_baseline">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="verticalLayoutWidget_2">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="styleSheet">
+               <string notr="true">font:bold</string>
+              </property>
+              <property name="text">
+               <string>filter baselines</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeView_statistics_baseline">
+              <property name="mouseTracking">
+               <bool>true</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit_statistics_baseline_filter">
+              <property name="placeholderText">
+               <string>filter</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="verticalLayoutWidget_3">
+           <layout class="QVBoxLayout" name="verticalLayout_statistics_baseline">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_12">
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_statistics_baseline_showStations">
+                <property name="text">
+                 <string>show stations</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <property name="tristate">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -1233,8 +1349,8 @@
      <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>741</x>
-     <y>333</y>
+     <x>770</x>
+     <y>532</y>
     </hint>
    </hints>
   </connection>
@@ -1249,8 +1365,8 @@
      <y>121</y>
     </hint>
     <hint type="destinationlabel">
-     <x>702</x>
-     <y>463</y>
+     <x>731</x>
+     <y>563</y>
     </hint>
    </hints>
   </connection>

@@ -152,6 +152,8 @@ private slots:
 
     void updateStatisticsSource();
 
+    void updateStatisticsSourceTimes();
+
     void statisticsSourceHovered(QPointF p, bool state);
 
     void stationsScansPieHovered(QPieSlice *slice, bool state);
@@ -163,6 +165,18 @@ private slots:
     void on_treeView_statistics_station_model_entered(const QModelIndex &index);
 
     void on_treeWidget_statistics_station_time_entered(const QModelIndex &index);
+
+    void on_lineEdit_statistics_source_filter_textChanged(const QString &arg1);
+
+    void on_lineEdit_statistics_baseline_filter_textChanged(const QString &arg1);
+
+    void statisticsBaselineSetup();
+
+    void updateStatisticsBaseline();
+
+    void on_treeView_statistics_baseline_entered(const QModelIndex &index);
+
+    void on_checkBox_statistics_baseline_showStations_toggled(bool checked);
 
 private:
     Ui::VieSchedpp_Analyser *ui;
@@ -222,6 +236,47 @@ private:
     QVector<int> nsta_;
     QVector<int> srcid_;
     QVector<VieVS::CableWrap::CableWrapFlag> cableWrap_;
+};
+
+
+class QLineSeriesExtended: public QLineSeries{
+public:
+
+    QLineSeriesExtended(QWidget *parent = 0) :
+        QLineSeries(parent){
+    }
+
+    int getStartTime(){
+        return startTime_;
+    }
+    int getEndTime(){
+        return endTime_;
+    }
+    int getNSta(){
+        return nsta_;
+    }
+    int getNObs(){
+        return nobs_;
+    }
+
+    void setStartTime(int s){
+        startTime_ = s;
+    }
+    void setEndTime(int e){
+        endTime_ = e;
+    }
+    void setNSta(int n){
+        nsta_ = n;
+    }
+    void setNObs(int n){
+        nobs_ = n;
+    }
+
+private:
+    int startTime_;
+    int endTime_;
+    int nsta_;
+    int nobs_;
 };
 
 #endif // VIESCHEDPP_ANALYSER_H

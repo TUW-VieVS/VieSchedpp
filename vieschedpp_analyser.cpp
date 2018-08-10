@@ -15,6 +15,7 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
     statisticsGeneralSetup();
     statisticsStationsSetup();
     statisticsSourceSetup();
+    statisticsBaselineSetup();
 
     ui->dateTimeEdit_start->setDateTimeRange(sessionStart_,sessionEnd_);
     ui->dateTimeEdit_end->setDateTimeRange(sessionStart_,sessionEnd_);
@@ -31,14 +32,17 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime st
 
     updateDuration();
 
-    ui->splitter_skyCoverage->setStretchFactor(0,4);
+    ui->splitter_skyCoverage->setStretchFactor(0,6);
     ui->splitter_skyCoverage->setStretchFactor(1,1);
+    ui->splitter_skyCoverage->setSizes({5000,1000});
 
-    ui->splitter_worldmap->setStretchFactor(0,4);
+    ui->splitter_worldmap->setStretchFactor(0,5);
     ui->splitter_worldmap->setStretchFactor(1,1);
+    ui->splitter_worldmap->setSizes({5000,1000});
 
-    ui->splitter_skymap->setStretchFactor(0,4);
+    ui->splitter_skymap->setStretchFactor(0,5);
     ui->splitter_skymap->setStretchFactor(1,1);
+    ui->splitter_skymap->setSizes({5000,1000});
 
 
     QHeaderView *hv = ui->tableWidget_general->verticalHeader();
@@ -97,6 +101,7 @@ void VieSchedpp_Analyser::on_actionper_source_triggered()
 void VieSchedpp_Analyser::on_actionper_baseline_triggered()
 {
     ui->stackedWidget->setCurrentIndex(7);
+    updateStatisticsBaseline();
 }
 
 
@@ -498,6 +503,7 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
     QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
     QChart *chart = chartView->chart();
     chart->removeAllSeries();
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeRectangle);
 
     const VieVS::Network &network = schedule_.getNetwork();
     const VieVS::Station &thisSta = network.getStation(name.toStdString());
@@ -589,6 +595,8 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
     selected->attachAxis(chart->axisX());
     selected->attachAxis(chart->axisY());
     connect(selected, SIGNAL(hovered(QPointF,bool)), this, SLOT(skyCoverageHovered(QPointF,bool)));
+
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 
     updateSkyCoverageTimes(idx);
 }
@@ -1425,8 +1433,8 @@ void VieSchedpp_Analyser::updatePlotsAndModels()
         case 3:{ updateSkymapTimes(); break; }
         case 4:{ updateGeneralStatistics(); break; }
         case 5:{ updateStatisticsStations(); break; }
-        case 6:{ updateStatisticsSource(); break; }
-        case 7:{ break; }
+        case 6:{ updateStatisticsSourceTimes(); break; }
+        case 7:{ updateStatisticsBaseline(); break; }
         default:{ break;}
     }
 
@@ -1977,9 +1985,7 @@ void VieSchedpp_Analyser::statisticsSourceSetup()
     }
     pmodel->sort(0);
 
-    ui->treeView_statistics_source->setCurrentIndex(ui->treeView_statistics_source->model()->index(0,0));
 //    connect(ui->treeView_statistics_source,SIGNAL(clicked(QModelIndex)),this,SLOT(updateStatisticsSource()));
-    connect(ui->treeView_statistics_source->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(updateStatisticsSource()));
 
     ui->splitter_statistics_source->setStretchFactor(0,1);
     ui->splitter_statistics_source->setStretchFactor(1,5);
@@ -2052,6 +2058,10 @@ void VieSchedpp_Analyser::statisticsSourceSetup()
     callout->hide();
 
     ui->horizontalLayout_statistics_source->insertWidget(0,chartView,1);
+
+    connect(ui->treeView_statistics_source->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),SLOT(updateStatisticsSource()));
+    ui->treeView_statistics_source->setCurrentIndex(ui->treeView_statistics_source->model()->index(0,0));
+
 }
 
 void VieSchedpp_Analyser::updateStatisticsSource()
@@ -2079,7 +2089,6 @@ void VieSchedpp_Analyser::updateStatisticsSource()
     int iend   = ui->horizontalSlider_end->value();
     QDateTime start = sessionStart_.addSecs(istart);
     QDateTime end = sessionStart_.addSecs(iend);
-    axisX->setRange(start,end);
 
     auto series = chart->series();
 
@@ -2094,10 +2103,7 @@ void VieSchedpp_Analyser::updateStatisticsSource()
         }
         serie->clear();
 
-        int pstart = std::max({0,istart-300});
-        int pend   = std::min({ui->horizontalSlider_end->maximum(),iend+300});
-
-        for(int i = pstart; i<=pend; i+=300){
+        for(int i = 0; i<=ui->horizontalSlider_end->maximum()+300; i+=300){
             QDateTime t = sessionStart_.addSecs(i);
 
             VieVS::PointingVector pv(sta.getId(),src.getId());
@@ -2110,7 +2116,7 @@ void VieSchedpp_Analyser::updateStatisticsSource()
     }
 
     for(const auto &any:series){
-        if(any->name() == "o"){
+        if(any->name().left(4) == "obs_"){
             chart->removeSeries(any);
             delete(any);
         }
@@ -2122,8 +2128,10 @@ void VieSchedpp_Analyser::updateStatisticsSource()
         if(scan.getSourceId() == idx){
 
             for(int i=0; i<scan.getNSta(); ++i){
-                QLineSeries *series = new QLineSeries();
-                series->setName("o");
+                QLineSeriesExtended *series = new QLineSeriesExtended();
+                int staid = scan.getStationId(i);
+                QString name = QString::fromStdString(stations.at(staid).getName());
+                series->setName("obs_" + name);
                 chart->addSeries(series);
                 series->attachAxis(axisX);
                 series->attachAxis(chart->axisY());
@@ -2138,13 +2146,32 @@ void VieSchedpp_Analyser::updateStatisticsSource()
                 int st = s.getTime();
                 int et = e.getTime();
 
-                series->append(sessionStart_.addSecs(st).toMSecsSinceEpoch(), sel);
-                series->append(sessionStart_.addSecs(et).toMSecsSinceEpoch(), eel);
+                series->append(sessionStart_.addSecs(st).toMSecsSinceEpoch(),sel);
+                series->append(sessionStart_.addSecs(et).toMSecsSinceEpoch(),eel);
+                series->setNSta(scan.getNSta());
+                series->setNObs(scan.getNObs());
+                series->setStartTime(st);
+                series->setEndTime(et);
+
+                connect(series,SIGNAL(hovered(QPointF,bool)),this,SLOT(statisticsSourceHovered(QPointF, bool)));
             }
         }
     }
     chart->legend()->setMarkerShape(QLegend::MarkerShapeFromSeries);
 
+    updateStatisticsSourceTimes();
+}
+
+void VieSchedpp_Analyser::updateStatisticsSourceTimes()
+{
+    QChartView *chartView = qobject_cast<QChartView *>(ui->horizontalLayout_statistics_source->itemAt(0)->widget());
+    QChart *chart = chartView->chart();
+    QDateTimeAxis *axisX = qobject_cast<QDateTimeAxis *>(chart->axisX());
+    int istart = ui->horizontalSlider_start->value();
+    int iend   = ui->horizontalSlider_end->value();
+    QDateTime start = sessionStart_.addSecs(istart);
+    QDateTime end = sessionStart_.addSecs(iend);
+    axisX->setRange(start,end);
 
 }
 
@@ -2158,12 +2185,33 @@ void VieSchedpp_Analyser::statisticsSourceHovered(QPointF point, bool state)
     for(QGraphicsItem *childItem: chart->childItems()){
         if(Callout *c = dynamic_cast<Callout *>(childItem)){
             if(state){
-                QLineSeries *series = qobject_cast<QLineSeries *>(sender());
-                QString name = series->name();
-                QDateTime time = QDateTime::fromMSecsSinceEpoch(point.x());
-                double el = point.y();
+                QAbstractSeries *as = qobject_cast<QAbstractSeries *>(sender());
+                QString txt;
+                if(as->name().left(4) == "obs_"){
+                    QLineSeriesExtended *series = static_cast<QLineSeriesExtended *>(as);
 
-                QString txt = QString("%1\n%2\nelevation: %3 [deg]").arg(name).arg(time.toString("yy.MM.dd hh:mm:ss")).arg(el,0,'f',2);
+                    int startTime = series->getStartTime();
+                    int endTime = series->getEndTime();
+                    QDateTime qStartTime = sessionStart_.addSecs(startTime);
+                    QDateTime qEndTime   = sessionStart_.addSecs(endTime);
+                    QString startTimeStr = qStartTime.toString("hh:mm:ss");
+                    QString endTimeStr   = qEndTime.toString("hh:mm:ss");
+                    QString timeStr = startTimeStr.append("-").append(endTimeStr).append("\n");
+                    QString el = QString().sprintf("elevation: %.2f [deg]\n", point.y());
+                    QString nsta = QString().sprintf("#sta: %d\n#obs: %d", series->getNSta(), series->getNObs());
+
+                    txt.append(as->name().mid(4)+"\n").append(timeStr).append(el).append(nsta);
+
+
+                }else{
+                    QLineSeries *series = qobject_cast<QLineSeries *>(as);
+                    QString name = series->name();
+                    QDateTime time = QDateTime::fromMSecsSinceEpoch(point.x());
+                    double el = point.y();
+
+                    txt = QString("%1\n%2\nelevation: %3 [deg]").arg(name).arg(time.toString("yy.MM.dd hh:mm:ss")).arg(el,0,'f',2);
+                }
+
 
                 c->setText(txt);
                 c->setAnchor(point);
@@ -2385,3 +2433,241 @@ void VieSchedpp_Analyser::on_treeView_statistics_station_model_entered(const QMo
 
 }
 
+
+void VieSchedpp_Analyser::on_lineEdit_statistics_source_filter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_statistics_source->model());
+    model->setFilterFixedString(arg1);
+}
+
+void VieSchedpp_Analyser::on_lineEdit_statistics_baseline_filter_textChanged(const QString &arg1)
+{
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(ui->treeView_statistics_baseline->model());
+    model->setFilterFixedString(arg1);
+    updateStatisticsBaseline();
+}
+
+void VieSchedpp_Analyser::statisticsBaselineSetup()
+{
+
+    ui->splitter_statistics_baseline->setStretchFactor(0,1);
+    ui->splitter_statistics_baseline->setStretchFactor(1,5);
+    ui->splitter_statistics_baseline->setSizes({1000,5000});
+
+    QSortFilterProxyModel *m = new QSortFilterProxyModel(this);
+    m->setSourceModel(blModel);
+    m->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    ui->treeView_statistics_baseline->setModel(m);
+    for( int i=0 ; i<ui->treeView_statistics_baseline->model()->columnCount(); ++i){
+        ui->treeView_statistics_baseline->resizeColumnToContents(i);
+    }
+    m->sort(0);
+
+
+    ChartView *worldmap = new ChartView(this);
+    qtUtil::worldMap(worldmap);
+    QChart *worldChart = worldmap->chart();
+
+    QScatterSeries *stationsSeries = new QScatterSeries(worldChart);
+    stationsSeries->setName("stations");
+    QImage img(":/icons/icons/station_white.png");
+    img = img.scaled(27,27);
+    stationsSeries->setBrush(QBrush(img));
+    stationsSeries->setMarkerSize(27);
+    stationsSeries->setPen(QColor(Qt::transparent));
+
+
+    connect(stationsSeries,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_hovered(QPointF,bool)));
+
+    const std::vector<VieVS::Station> &stations = schedule_.getNetwork().getStations();
+    for(const VieVS::Station &station : stations){
+        double lat = station.getPosition().getLat()*rad2deg;
+        double lon = station.getPosition().getLon()*rad2deg;
+        stationsSeries->append(lon,lat);
+    }
+    for(int i=0; i<stations.size(); ++i){
+        double lat1 = stations.at(i).getPosition().getLat()*rad2deg;
+        double lon1 = stations.at(i).getPosition().getLon()*rad2deg;
+        QString name1 = QString::fromStdString(stations.at(i).getAlternativeName());
+
+        for(int j=i+1; j<stations.size(); ++j){
+            double lat2 = stations.at(j).getPosition().getLat()*rad2deg;
+            double lon2 = stations.at(j).getPosition().getLon()*rad2deg;
+            QString name2 = QString::fromStdString(stations.at(j).getAlternativeName());
+
+            QList<QLineSeries *>series = qtUtil::baselineSeries(lat1,lon1,name1,lat2,lon2,name2);
+            for(const auto &any: series){
+                worldChart->addSeries(any);
+                any->attachAxis(worldChart->axisX());
+                any->attachAxis(worldChart->axisY());
+                connect(any,SIGNAL(hovered(QPointF,bool)),this,SLOT(worldmap_baseline_hovered(QPointF,bool)));
+            }
+        }
+    }
+
+    worldChart->addSeries(stationsSeries);
+
+    Callout *callout = new Callout(worldChart);
+    callout->hide();
+    stationsSeries->attachAxis(worldChart->axisX());
+    stationsSeries->attachAxis(worldChart->axisY());
+
+    ui->verticalLayout_statistics_baseline->insertWidget(1,worldmap,1);
+
+}
+
+void VieSchedpp_Analyser::updateStatisticsBaseline()
+{
+
+    QTreeView *t = ui->treeView_statistics_baseline;
+    QSortFilterProxyModel *model = qobject_cast<QSortFilterProxyModel *>(t->model());
+
+    QStringList allBls;
+    for(int i=0; i<blModel->rowCount();++i){
+        allBls.append(blModel->data(blModel->index(i,0)).toString());
+    }
+
+
+    QList<QColor>ref;
+    ref.append(QColor(255,255,229));
+    ref.append(QColor(247,252,185));
+    ref.append(QColor(217,240,163));
+    ref.append(QColor(173,221,142));
+    ref.append(QColor(120,198,121));
+    ref.append(QColor(65,171,93));
+    ref.append(QColor(35,132,67));
+    ref.append(QColor(0,104,55));
+    ref.append(QColor(0,69,41));
+
+    QStringList bls;
+    QVector<int> n;
+
+    for(int i=0; i<model->rowCount(); ++i){
+        QString name = model->data(model->index(i,0)).toString();
+        int thisObs =  model->data(model->index(i,2)).toInt();
+        bls.append(name);
+        n.append(thisObs);
+    }
+
+    double nMax = *std::max_element(n.begin(),n.end());
+    double nMin = 0;
+
+    double step = (nMax-nMin)/8;
+    QVector<double> edges;
+
+    for(int i=0; i<9; ++i){
+        edges.append(nMin+i*step);
+    }
+    edges.append(nMax);
+
+    QList<QColor> colors;
+    for(const auto &any: n){
+
+        for(int istart=0; istart<edges.size()-1; ++istart){
+            if(any>= edges[istart] && any<=edges[istart+1]){
+                QColor sColor = ref[istart];
+                QColor eColor = ref[istart+1];
+                double sv = edges[istart];
+                double ev = edges[istart+1];
+
+                double d = (any-sv)/(ev-sv);
+
+                int r = std::roundl(sColor.red()+d*(eColor.red()-sColor.red()));
+                int g = std::roundl(sColor.green()+d*(eColor.green()-sColor.green()));
+                int b = std::roundl(sColor.blue()+d*(eColor.blue()-sColor.blue()));
+
+                colors.append(QColor(r,g,b));
+                break;
+            }
+        }
+    }
+
+    auto chartview = static_cast<ChartView *>(ui->verticalLayout_statistics_baseline->itemAt(1)->widget());
+    QChart *chart = chartview->chart();
+    auto series = chart->series();
+
+
+    for(const auto &s : series){
+        QString name = s->name().left(5);
+
+        if( allBls.indexOf(name) != -1 ){
+            QLineSeries *ls = qobject_cast<QLineSeries *>(s);
+            int idx = bls.indexOf(name);
+            if( idx == -1){
+                ls->hide();
+            }else{
+                ls->setPen(QPen(QBrush(colors.at(idx)),1.5,Qt::DashLine));
+                ls->show();
+            }
+        }
+    }
+}
+
+void VieSchedpp_Analyser::on_treeView_statistics_baseline_entered(const QModelIndex &index)
+{
+    auto chartview = static_cast<ChartView *>(ui->verticalLayout_statistics_baseline->itemAt(1)->widget());
+    QChart *chart = chartview->chart();
+
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *worldMapCallout = dynamic_cast<Callout *>(childItem)){
+
+            auto model = ui->treeView_statistics_baseline->model();
+            int row = index.row();
+            QString name = model->index(row,0).data().toString();
+            QString longName = model->index(row,1).data().toString();
+            int obs = model->index(row,2).data().toInt();
+            double dist = model->index(row,3).data().toDouble();
+
+            if(obs>0){
+                QString text = QString("%1 \n%2 \n#scans %3\ndist %4 [km] ").arg(name).arg(longName).arg(obs).arg(dist);
+
+                auto series = chart->series();
+
+                QList<QLineSeries *>found;
+                for(const auto &any:series){
+                    if(any->name().left(5) == name){
+                        found.append(qobject_cast<QLineSeries *>(any));
+                    }
+                }
+                QList<double> fd;
+                for(const auto &any: found){
+
+                    QPointF delta = any->at(0) - any->at(1);
+                    fd.append( std::sqrt(delta.x()*delta.x()+delta.y()*delta.y()) );
+                }
+
+                int i = std::distance(fd.begin(),std::max_element(fd.begin(),fd.end()));
+                QPointF latlon = (found.at(i)->at(0)+found.at(i)->at(1))/2;
+
+                worldMapCallout->setText(text);
+                worldMapCallout->setAnchor(latlon);
+                worldMapCallout->setZValue(11);
+                worldMapCallout->updateGeometry();
+                worldMapCallout->show();
+                break;
+            } else {
+                worldMapCallout->hide();
+                break;
+            }
+        }
+
+    }
+}
+
+void VieSchedpp_Analyser::on_checkBox_statistics_baseline_showStations_toggled(bool checked)
+{
+    auto chartview = static_cast<ChartView *>(ui->verticalLayout_statistics_baseline->itemAt(1)->widget());
+    QChart *chart = chartview->chart();
+    auto series = chart->series();
+    for(const auto &s : series){
+        QString name = s->name();
+        if(name == "stations"){
+            if(checked){
+                s->show();
+            }else{
+                s->hide();
+            }
+            break;
+        }
+    }
+}
