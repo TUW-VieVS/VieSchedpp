@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>18</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -849,6 +849,50 @@ p, li { white-space: pre-wrap; }
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_19">
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_87">
+          <item>
+           <widget class="QLabel" name="label_84">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;get latest catalogs from: &lt;a href=&quot;https://vlbi.gsfc.nasa.gov/software/sked/catalogs/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;https://vlbi.gsfc.nasa.gov/software/sked/catalogs/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_saveCatalogPathes">
+            <property name="toolTip">
+             <string>save all pathes</string>
+            </property>
+            <property name="statusTip">
+             <string>save all pathes</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <widget class="QScrollArea" name="scrollArea">
           <property name="widgetResizable">
            <bool>true</bool>
@@ -858,8 +902,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>247</width>
-             <height>611</height>
+             <width>929</width>
+             <height>717</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_47">
@@ -868,181 +912,213 @@ p, li { white-space: pre-wrap; }
               <property name="title">
                <string>Station</string>
               </property>
-              <layout class="QFormLayout" name="formLayout_7">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_50">
-                 <property name="text">
-                  <string>antenna</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_49">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathAntenna">
-                   <property name="acceptDrops">
-                    <bool>true</bool>
-                   </property>
-                   <property name="toolTip">
-                    <string>path to skd antenna catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd antenna catalog</string>
-                   </property>
+              <layout class="QVBoxLayout" name="verticalLayout_67">
+               <item>
+                <layout class="QFormLayout" name="formLayout_7">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_50">
                    <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to antenna.cat file</string>
+                    <string>antenna</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseAntenna">
-                   <property name="toolTip">
-                    <string>browse for skd antenna catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd antenna catalog</string>
-                   </property>
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_49">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathAntenna">
+                     <property name="acceptDrops">
+                      <bool>true</bool>
+                     </property>
+                     <property name="toolTip">
+                      <string>path to skd antenna catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd antenna catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to antenna.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseAntenna">
+                     <property name="toolTip">
+                      <string>browse for skd antenna catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd antenna catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_51">
                    <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <string>equip</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_50">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathEquip">
+                     <property name="toolTip">
+                      <string>path to skd equip catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd equip catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to equip.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseEquip">
+                     <property name="toolTip">
+                      <string>browse for skd equp catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd equip catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_53">
+                   <property name="text">
+                    <string>position</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_51">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathPosition">
+                     <property name="toolTip">
+                      <string>path to skd position catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd position catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to position.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browsePosition">
+                     <property name="toolTip">
+                      <string>browse for skd position catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd position catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_54">
+                   <property name="text">
+                    <string>mask</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_52">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathMask">
+                     <property name="toolTip">
+                      <string>path to skd mask catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd mask catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to mask.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseMask">
+                     <property name="toolTip">
+                      <string>browse for skd mask catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd mask catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_51">
-                 <property name="text">
-                  <string>equip</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_50">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_94">
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_pathEquip">
-                   <property name="toolTip">
-                    <string>path to skd equip catalog</string>
+                  <spacer name="horizontalSpacer_46">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
                    </property>
-                   <property name="statusTip">
-                    <string>path to skd equip catalog</string>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
                    </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to equip.cat file</string>
-                   </property>
-                  </widget>
+                  </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pushButton_browseEquip">
-                   <property name="toolTip">
-                    <string>browse for skd equp catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd equip catalog</string>
-                   </property>
+                  <widget class="QPushButton" name="pushButton_stations">
                    <property name="text">
-                    <string>browse</string>
+                    <string> reload</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_53">
-                 <property name="text">
-                  <string>position</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_51">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathPosition">
-                   <property name="toolTip">
-                    <string>path to skd position catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd position catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to position.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browsePosition">
-                   <property name="toolTip">
-                    <string>browse for skd position catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd position catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_54">
-                 <property name="text">
-                  <string>mask</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_52">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathMask">
-                   <property name="toolTip">
-                    <string>path to skd mask catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd mask catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to mask.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseMask">
-                   <property name="toolTip">
-                    <string>browse for skd mask catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd mask catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <iconset>
+                     <normaloff>icons/view-refresh-7.png</normaloff>icons/view-refresh-7.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -1056,90 +1132,154 @@ p, li { white-space: pre-wrap; }
               <property name="title">
                <string>Source</string>
               </property>
-              <layout class="QFormLayout" name="formLayout_8">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_52">
-                 <property name="text">
-                  <string>source</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_54">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathSource">
-                   <property name="toolTip">
-                    <string>path to skd source catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd source catalog</string>
-                   </property>
+              <layout class="QVBoxLayout" name="verticalLayout_68">
+               <item>
+                <layout class="QFormLayout" name="formLayout_8">
+                 <item row="0" column="0">
+                  <widget class="QRadioButton" name="radioButton_browseSource">
                    <property name="text">
-                    <string/>
+                    <string>source</string>
                    </property>
-                   <property name="placeholderText">
-                    <string>path to source.cat file</string>
+                   <property name="checked">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseSource">
-                   <property name="toolTip">
-                    <string>browse for skd source catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd source catalog</string>
-                   </property>
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_54">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathSource">
+                     <property name="toolTip">
+                      <string>path to skd source catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd source catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to source.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseSource">
+                     <property name="toolTip">
+                      <string>browse for skd source catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd source catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QRadioButton" name="radioButton_browseSource2">
                    <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <string>source</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_75">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_browseSource2">
+                     <property name="placeholderText">
+                      <string>path to source.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseSource2">
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_55">
+                   <property name="text">
+                    <string>flux</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_53">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathFlux">
+                     <property name="toolTip">
+                      <string>path to skd flux catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd flux catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to flux.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseFlux">
+                     <property name="toolTip">
+                      <string>browse for skd flux catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd flux catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_55">
-                 <property name="text">
-                  <string>flux</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_53">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_98">
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_pathFlux">
-                   <property name="toolTip">
-                    <string>path to skd flux catalog</string>
+                  <spacer name="horizontalSpacer_47">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
                    </property>
-                   <property name="statusTip">
-                    <string>path to skd flux catalog</string>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
                    </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to flux.cat file</string>
-                   </property>
-                  </widget>
+                  </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pushButton_browseFlux">
-                   <property name="toolTip">
-                    <string>browse for skd flux catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd flux catalog</string>
-                   </property>
+                  <widget class="QPushButton" name="pushButton_reloadsources">
                    <property name="text">
-                    <string>browse</string>
+                    <string> reload</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <iconset>
+                     <normaloff>icons/view-refresh-7.png</normaloff>icons/view-refresh-7.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -1163,310 +1303,342 @@ If you only want to run simulations you can deselect this to avoid error message
               <property name="checkable">
                <bool>true</bool>
               </property>
-              <layout class="QFormLayout" name="formLayout_9">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_56">
-                 <property name="text">
-                  <string>modes</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_55">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathModes">
-                   <property name="toolTip">
-                    <string>path to skd modes catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd modes catalog</string>
-                   </property>
+              <layout class="QVBoxLayout" name="verticalLayout_69">
+               <item>
+                <layout class="QFormLayout" name="formLayout_9">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_56">
                    <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to modes.cat file</string>
+                    <string>modes</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browsModes">
-                   <property name="toolTip">
-                    <string>browse for skd modes catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd modes catalog</string>
-                   </property>
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_55">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathModes">
+                     <property name="toolTip">
+                      <string>path to skd modes catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd modes catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to modes.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browsModes">
+                     <property name="toolTip">
+                      <string>browse for skd modes catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd modes catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_58">
                    <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <string>freq</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_56">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathFreq">
+                     <property name="toolTip">
+                      <string>path to skd freq catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd freq catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to freq.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseFreq">
+                     <property name="toolTip">
+                      <string>browse for skd freq catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd freq catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_62">
+                   <property name="text">
+                    <string>tracks</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_59">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathTracks">
+                     <property name="toolTip">
+                      <string>path to skd tracks catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd tracks catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to tracks.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseTracks">
+                     <property name="toolTip">
+                      <string>browse for skd tracks catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd tracks catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_59">
+                   <property name="text">
+                    <string>loif</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_58">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathLoif">
+                     <property name="toolTip">
+                      <string>path to skd loif catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd loif catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to loif.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseLoif">
+                     <property name="toolTip">
+                      <string>browse for skd loif catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd loif catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="label_60">
+                   <property name="text">
+                    <string>rec</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_57">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathRec">
+                     <property name="toolTip">
+                      <string>path to skd rec catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd rec catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to rec.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseRec">
+                     <property name="toolTip">
+                      <string>browse for skd rec catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd rec catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="label_61">
+                   <property name="text">
+                    <string>rx</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_60">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathRx">
+                     <property name="toolTip">
+                      <string>path to skd rx catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd rx catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to rx.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseRx">
+                     <property name="toolTip">
+                      <string>browse for skd rx catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd rx catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="label_57">
+                   <property name="text">
+                    <string>hdpos</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_61">
+                   <item>
+                    <widget class="QLineEdit" name="lineEdit_pathHdpos">
+                     <property name="toolTip">
+                      <string>path to skd hdpos catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>path to skd hdpos catalog</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="placeholderText">
+                      <string>path to hdpos.cat file</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="pushButton_browseHdpos">
+                     <property name="toolTip">
+                      <string>browse for skd hdpos catalog</string>
+                     </property>
+                     <property name="statusTip">
+                      <string>browse for skd hdpos catalog</string>
+                     </property>
+                     <property name="text">
+                      <string>browse</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="myresources.qrc">
+                       <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_58">
-                 <property name="text">
-                  <string>freq</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_56">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_99">
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_pathFreq">
-                   <property name="toolTip">
-                    <string>path to skd freq catalog</string>
+                  <spacer name="horizontalSpacer_48">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
                    </property>
-                   <property name="statusTip">
-                    <string>path to skd freq catalog</string>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
                    </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to freq.cat file</string>
-                   </property>
-                  </widget>
+                  </spacer>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="pushButton_browseFreq">
-                   <property name="toolTip">
-                    <string>browse for skd freq catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd freq catalog</string>
-                   </property>
+                  <widget class="QPushButton" name="pushButton_reloadcatalogs">
                    <property name="text">
-                    <string>browse</string>
+                    <string> reload</string>
                    </property>
                    <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="label_62">
-                 <property name="text">
-                  <string>tracks</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_59">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathTracks">
-                   <property name="toolTip">
-                    <string>path to skd tracks catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd tracks catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to tracks.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseTracks">
-                   <property name="toolTip">
-                    <string>browse for skd tracks catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd tracks catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="label_59">
-                 <property name="text">
-                  <string>loif</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_58">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathLoif">
-                   <property name="toolTip">
-                    <string>path to skd loif catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd loif catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to loif.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseLoif">
-                   <property name="toolTip">
-                    <string>browse for skd loif catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd loif catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="4" column="0">
-                <widget class="QLabel" name="label_60">
-                 <property name="text">
-                  <string>rec</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_57">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathRec">
-                   <property name="toolTip">
-                    <string>path to skd rec catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd rec catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to rec.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseRec">
-                   <property name="toolTip">
-                    <string>browse for skd rec catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd rec catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="5" column="0">
-                <widget class="QLabel" name="label_61">
-                 <property name="text">
-                  <string>rx</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_60">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathRx">
-                   <property name="toolTip">
-                    <string>path to skd rx catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd rx catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to rx.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseRx">
-                   <property name="toolTip">
-                    <string>browse for skd rx catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd rx catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item row="6" column="0">
-                <widget class="QLabel" name="label_57">
-                 <property name="text">
-                  <string>hdpos</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1">
-                <layout class="QHBoxLayout" name="horizontalLayout_61">
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_pathHdpos">
-                   <property name="toolTip">
-                    <string>path to skd hdpos catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>path to skd hdpos catalog</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="placeholderText">
-                    <string>path to hdpos.cat file</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="pushButton_browseHdpos">
-                   <property name="toolTip">
-                    <string>browse for skd hdpos catalog</string>
-                   </property>
-                   <property name="statusTip">
-                    <string>browse for skd hdpos catalog</string>
-                   </property>
-                   <property name="text">
-                    <string>browse</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="myresources.qrc">
-                     <normaloff>:/icons/icons/folder-saved-search.png</normaloff>:/icons/icons/folder-saved-search.png</iconset>
+                    <iconset>
+                     <normaloff>icons/view-refresh-7.png</normaloff>icons/view-refresh-7.png</iconset>
                    </property>
                   </widget>
                  </item>
@@ -1474,40 +1646,6 @@ If you only want to run simulations you can deselect this to avoid error message
                </item>
               </layout>
              </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_87">
-              <item>
-               <spacer name="horizontalSpacer_10">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_saveCatalogPathes">
-                <property name="toolTip">
-                 <string>save all pathes</string>
-                </property>
-                <property name="statusTip">
-                 <string>save all pathes</string>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset resource="myresources.qrc">
-                  <normaloff>:/icons/icons/document-export.png</normaloff>:/icons/icons/document-export.png</iconset>
-                </property>
-               </widget>
-              </item>
-             </layout>
             </item>
             <item>
              <spacer name="verticalSpacer_3">
@@ -6410,8 +6548,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -10650,12 +10788,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>76</y>
+     <x>39</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>76</y>
+     <x>326</x>
+     <y>106</y>
     </hint>
    </hints>
   </connection>
@@ -10666,12 +10804,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>77</y>
+     <x>39</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>77</y>
+     <x>326</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -10682,12 +10820,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>78</y>
+     <x>39</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>78</y>
+     <x>326</x>
+     <y>170</y>
     </hint>
    </hints>
   </connection>
@@ -10698,12 +10836,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>81</y>
+     <x>39</x>
+     <y>231</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>81</y>
+     <x>326</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -10714,12 +10852,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>80</y>
+     <x>39</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>80</y>
+     <x>326</x>
+     <y>202</y>
     </hint>
    </hints>
   </connection>
@@ -10730,12 +10868,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>39</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>85</y>
+     <x>326</x>
+     <y>307</y>
     </hint>
    </hints>
   </connection>
@@ -10746,12 +10884,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>39</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>86</y>
+     <x>39</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -10762,12 +10900,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>85</y>
+     <x>39</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>86</y>
+     <x>326</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>
@@ -10778,12 +10916,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>89</y>
+     <x>326</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>
@@ -10794,12 +10932,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>90</y>
+     <x>39</x>
+     <y>412</y>
     </hint>
    </hints>
   </connection>
@@ -10810,12 +10948,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>91</y>
+     <x>39</x>
+     <y>444</y>
     </hint>
    </hints>
   </connection>
@@ -10826,12 +10964,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>90</y>
+     <x>326</x>
+     <y>412</y>
     </hint>
    </hints>
   </connection>
@@ -10842,12 +10980,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>89</y>
+     <x>39</x>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>91</y>
+     <x>326</x>
+     <y>444</y>
     </hint>
    </hints>
   </connection>
@@ -10858,12 +10996,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>94</y>
+     <x>39</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>94</y>
+     <x>326</x>
+     <y>485</y>
     </hint>
    </hints>
   </connection>
@@ -10874,12 +11012,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>94</y>
+     <x>39</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>95</y>
+     <x>39</x>
+     <y>517</y>
     </hint>
    </hints>
   </connection>
@@ -10890,12 +11028,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>94</y>
+     <x>39</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>19</x>
-     <y>97</y>
+     <x>39</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -10906,12 +11044,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>94</y>
+     <x>39</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>95</y>
+     <x>326</x>
+     <y>517</y>
     </hint>
    </hints>
   </connection>
@@ -10922,12 +11060,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>94</y>
+     <x>39</x>
+     <y>482</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>97</y>
+     <x>326</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -10938,12 +11076,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>153</y>
+     <x>85</x>
+     <y>491</y>
     </hint>
     <hint type="destinationlabel">
-     <x>42</x>
-     <y>147</y>
+     <x>85</x>
+     <y>520</y>
     </hint>
    </hints>
   </connection>
@@ -10954,12 +11092,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>19</x>
-     <y>82</y>
+     <x>39</x>
+     <y>263</y>
     </hint>
     <hint type="destinationlabel">
-     <x>55</x>
-     <y>82</y>
+     <x>326</x>
+     <y>266</y>
     </hint>
    </hints>
   </connection>
@@ -10986,12 +11124,12 @@ p, li { white-space: pre-wrap; }
    <slot>setSelectedDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>50</x>
-     <y>117</y>
+     <x>167</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>87</x>
-     <y>115</y>
+     <x>582</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -11002,12 +11140,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDate(QDate)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>115</y>
+     <x>582</x>
+     <y>330</y>
     </hint>
     <hint type="destinationlabel">
-     <x>50</x>
-     <y>117</y>
+     <x>167</x>
+     <y>242</y>
     </hint>
    </hints>
   </connection>
@@ -11024,6 +11162,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>447</x>
      <y>340</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_browseSource</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_pathSource</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>94</x>
+     <y>314</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>162</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_browseSource</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pushButton_browseSource</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>305</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>905</x>
+     <y>310</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_browseSource2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_browseSource2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>198</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_browseSource2</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pushButton_browseSource2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>91</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>894</x>
+     <y>343</y>
     </hint>
    </hints>
   </connection>

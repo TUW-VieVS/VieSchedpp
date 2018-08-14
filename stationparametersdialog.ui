@@ -44,6 +44,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_load">
+       <property name="toolTip">
+        <string>load predefined parameters</string>
+       </property>
+       <property name="statusTip">
+        <string>load predefined parameters</string>
+       </property>
        <property name="text">
         <string> load</string>
        </property>
@@ -55,6 +61,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_save">
+       <property name="toolTip">
+        <string>save this parameter for further use</string>
+       </property>
+       <property name="statusTip">
+        <string>save this parameter for further use</string>
+       </property>
        <property name="text">
         <string> save</string>
        </property>
@@ -79,6 +91,12 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QGroupBox" name="groupBox_available">
+         <property name="toolTip">
+          <string>availability of this station for scans</string>
+         </property>
+         <property name="statusTip">
+          <string>availability of this station for scans</string>
+         </property>
          <property name="title">
           <string>available</string>
          </property>
@@ -91,6 +109,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
            <widget class="QRadioButton" name="radioButton_available_yes">
+            <property name="toolTip">
+             <string>station can be scheduled</string>
+            </property>
+            <property name="statusTip">
+             <string>station can be scheduled</string>
+            </property>
             <property name="text">
              <string>yes</string>
             </property>
@@ -101,6 +125,12 @@
           </item>
           <item>
            <widget class="QRadioButton" name="radioButton_available_no">
+            <property name="toolTip">
+             <string>station cannot be scheduled</string>
+            </property>
+            <property name="statusTip">
+             <string>station cannot be scheduled</string>
+            </property>
             <property name="text">
              <string>no</string>
             </property>
@@ -111,6 +141,12 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_availableForFillinmode">
+         <property name="toolTip">
+          <string>availability of this station for fillinmode scans</string>
+         </property>
+         <property name="statusTip">
+          <string>availability of this station for fillinmode scans</string>
+         </property>
          <property name="title">
           <string>available for fillin mode</string>
          </property>
@@ -123,6 +159,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <widget class="QRadioButton" name="radioButton_availableFillin_yes">
+            <property name="toolTip">
+             <string>station can be scheduled for fillin mode scans</string>
+            </property>
+            <property name="statusTip">
+             <string>station can be scheduled for fillin mode scans</string>
+            </property>
             <property name="text">
              <string>yes</string>
             </property>
@@ -133,6 +175,9 @@
           </item>
           <item>
            <widget class="QRadioButton" name="radioButton_availableFillin_no">
+            <property name="toolTip">
+             <string>station cannot be scheduled for fillin mode scans</string>
+            </property>
             <property name="text">
              <string>no</string>
             </property>
@@ -155,6 +200,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QRadioButton" name="radioButton_tagalong_yes">
+            <property name="toolTip">
+             <string>use tagalong mode for this station</string>
+            </property>
+            <property name="statusTip">
+             <string>use tagalong mode for this station</string>
+            </property>
             <property name="text">
              <string>yes</string>
             </property>
@@ -162,6 +213,12 @@
           </item>
           <item>
            <widget class="QRadioButton" name="radioButton_tagalong_no">
+            <property name="toolTip">
+             <string>do not use tagalong mode for this station</string>
+            </property>
+            <property name="statusTip">
+             <string>do not use tagalong mode for this station</string>
+            </property>
             <property name="text">
              <string>no</string>
             </property>
@@ -191,6 +248,12 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>weight of this station for selection of best scan</string>
+            </property>
+            <property name="statusTip">
+             <string>weight of this station for selection of best scan</string>
+            </property>
             <property name="singleStep">
              <double>0.100000000000000</double>
             </property>
@@ -210,6 +273,12 @@
            <widget class="QSpinBox" name="spinBox_maxSlewTime">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>maximum allowed slew time to next source in seconds</string>
+            </property>
+            <property name="statusTip">
+             <string>maximum allowed slew time to next source in seconds</string>
             </property>
             <property name="suffix">
              <string> [s]</string>
@@ -237,6 +306,12 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>maximum allowed wait time for slower stations in seconds</string>
+            </property>
+            <property name="statusTip">
+             <string>maximum allowed wait time for slower stations in seconds</string>
+            </property>
             <property name="suffix">
              <string> [s]</string>
             </property>
@@ -262,6 +337,12 @@
            <widget class="QDoubleSpinBox" name="doubleSpinBox_minElevation">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>minimum elevation for observations in degrees</string>
+            </property>
+            <property name="statusTip">
+             <string>minimum elevation for observations in degrees</string>
             </property>
             <property name="suffix">
              <string> [deg]</string>
@@ -290,6 +371,12 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="toolTip">
+             <string>minimum required slew distance to next source in degrees</string>
+            </property>
+            <property name="statusTip">
+             <string>minimum required slew distance to next source in degrees</string>
+            </property>
             <property name="suffix">
              <string> [deg]</string>
             </property>
@@ -305,6 +392,12 @@
            <widget class="QDoubleSpinBox" name="doubleSpinBox_maxSlewDistance">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>maximum allowed slew distance to next source in degrees</string>
+            </property>
+            <property name="statusTip">
+             <string>maximum allowed slew distance to next source in degrees</string>
             </property>
             <property name="suffix">
              <string> [deg]</string>
@@ -331,6 +424,12 @@
            <widget class="QSpinBox" name="spinBox_maxNumberOfScans">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>maximum number of scans for this station</string>
+            </property>
+            <property name="statusTip">
+             <string>maximum number of scans for this station</string>
             </property>
             <property name="maximum">
              <number>9999</number>
@@ -383,6 +482,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QSpinBox" name="spinBox_maxScanTime">
+              <property name="toolTip">
+               <string>maximum allowed scan duration for this station in seconds</string>
+              </property>
+              <property name="statusTip">
+               <string>maximum allowed scan duration for this station in seconds</string>
+              </property>
               <property name="suffix">
                <string> [s]</string>
               </property>
@@ -406,6 +511,12 @@
             </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="spinBox_minScanTime">
+              <property name="toolTip">
+               <string>minimum required scan time for this station in seconds</string>
+              </property>
+              <property name="statusTip">
+               <string>minimum required scan time for this station in seconds</string>
+              </property>
               <property name="suffix">
                <string> [s]</string>
               </property>
@@ -429,6 +540,12 @@
               <width>0</width>
               <height>120</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>minimum required signal to noise ratio</string>
+            </property>
+            <property name="statusTip">
+             <string>minimum required signal to noise ratio</string>
             </property>
             <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
@@ -455,6 +572,12 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_ignoreSources">
+         <property name="toolTip">
+          <string>ignore sources for this station</string>
+         </property>
+         <property name="statusTip">
+          <string>ignore sources for this station</string>
+         </property>
          <property name="title">
           <string>ignore sources</string>
          </property>
@@ -481,6 +604,12 @@
               </item>
               <item>
                <widget class="QListView" name="listView_ignoreSources">
+                <property name="toolTip">
+                 <string>list of available sources</string>
+                </property>
+                <property name="statusTip">
+                 <string>list of available sources</string>
+                </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
                 </property>
@@ -497,6 +626,12 @@
                 </item>
                 <item>
                  <widget class="QLineEdit" name="lineEdit_filter">
+                  <property name="toolTip">
+                   <string>filter list of available sources</string>
+                  </property>
+                  <property name="statusTip">
+                   <string>filter list of available sources</string>
+                  </property>
                   <property name="inputMask">
                    <string/>
                   </property>
@@ -523,6 +658,12 @@
               </item>
               <item>
                <widget class="QListWidget" name="listWidget_selectedIgnoreSources">
+                <property name="toolTip">
+                 <string>list of sources which will not be observed with this station</string>
+                </property>
+                <property name="statusTip">
+                 <string>list of sources which will not be observed with this station</string>
+                </property>
                 <property name="editTriggers">
                  <set>QAbstractItemView::NoEditTriggers</set>
                 </property>
@@ -556,7 +697,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="toolTip">
+        <string>parameter name</string>
+       </property>
+       <property name="statusTip">
+        <string>parameter name</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

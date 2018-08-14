@@ -34,6 +34,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Load">
+       <property name="toolTip">
+        <string>load a predefined group</string>
+       </property>
+       <property name="statusTip">
+        <string>load a predefined group</string>
+       </property>
        <property name="text">
         <string> load</string>
        </property>
@@ -45,6 +51,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Save">
+       <property name="toolTip">
+        <string>save this group for further use</string>
+       </property>
+       <property name="statusTip">
+        <string>save this group for further use</string>
+       </property>
        <property name="text">
         <string> save</string>
        </property>
@@ -84,12 +96,25 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lineEdit_allStationsFilter"/>
+          <widget class="QLineEdit" name="lineEdit_allStationsFilter">
+           <property name="toolTip">
+            <string>filter by name</string>
+           </property>
+           <property name="statusTip">
+            <string>filter by name</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>
        <item>
         <widget class="QListView" name="listView_all">
+         <property name="toolTip">
+          <string>list of available items</string>
+         </property>
+         <property name="statusTip">
+          <string>list of available items</string>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -108,6 +133,12 @@
        </item>
        <item>
         <widget class="QListWidget" name="listWidget_selected">
+         <property name="toolTip">
+          <string>list of selected items</string>
+         </property>
+         <property name="statusTip">
+          <string>list of selected items</string>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -134,7 +165,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_groupName"/>
+      <widget class="QLineEdit" name="lineEdit_groupName">
+       <property name="toolTip">
+        <string>group name</string>
+       </property>
+       <property name="statusTip">
+        <string>group name</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

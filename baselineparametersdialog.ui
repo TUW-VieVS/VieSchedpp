@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>449</width>
     <height>512</height>
    </rect>
   </property>
@@ -44,6 +44,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_load">
+       <property name="toolTip">
+        <string>load predefined parameter</string>
+       </property>
+       <property name="statusTip">
+        <string>load predefined parameter</string>
+       </property>
        <property name="text">
         <string> load</string>
        </property>
@@ -55,6 +61,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_save">
+       <property name="toolTip">
+        <string>save this parameter for further use</string>
+       </property>
+       <property name="statusTip">
+        <string>save this parameter for further use</string>
+       </property>
        <property name="text">
         <string> save</string>
        </property>
@@ -75,6 +87,12 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_ignore">
+     <property name="toolTip">
+      <string>ignore this baseline in calculation of required observing time</string>
+     </property>
+     <property name="statusTip">
+      <string>ignore this baseline in calculation of required observing time</string>
+     </property>
      <property name="title">
       <string>ignore</string>
      </property>
@@ -115,6 +133,12 @@
        <widget class="QDoubleSpinBox" name="doubleSpinBox_weight">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>weight of this baseline for selection of best scan</string>
+        </property>
+        <property name="statusTip">
+         <string>weight of this baseline for selection of best scan</string>
         </property>
         <property name="singleStep">
          <double>0.100000000000000</double>
@@ -157,6 +181,12 @@
         </item>
         <item row="0" column="1">
          <widget class="QSpinBox" name="spinBox_maxScan">
+          <property name="toolTip">
+           <string>maximum allowed scan time in seconds</string>
+          </property>
+          <property name="statusTip">
+           <string>maximum allowed scan time in seconds</string>
+          </property>
           <property name="suffix">
            <string> [s]</string>
           </property>
@@ -180,6 +210,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="spinBox_minScan">
+          <property name="toolTip">
+           <string>minimum allowed scan time in seconds</string>
+          </property>
+          <property name="statusTip">
+           <string>minimum allowed scan time in seconds</string>
+          </property>
           <property name="suffix">
            <string> [s]</string>
           </property>
@@ -203,6 +239,12 @@
           <width>0</width>
           <height>120</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>minimum signal to noise ratio for each band</string>
+        </property>
+        <property name="statusTip">
+         <string>minimum signal to noise ratio for each band</string>
         </property>
         <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
@@ -244,7 +286,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_paraName"/>
+      <widget class="QLineEdit" name="lineEdit_paraName">
+       <property name="toolTip">
+        <string>name of this parameter</string>
+       </property>
+       <property name="statusTip">
+        <string>name of this parameter</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

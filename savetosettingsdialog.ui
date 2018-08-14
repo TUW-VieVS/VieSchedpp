@@ -52,7 +52,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="toolTip">
+        <string>name of this item in settings.xml</string>
+       </property>
+       <property name="statusTip">
+        <string>name of this item in settings.xml</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

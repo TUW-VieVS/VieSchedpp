@@ -31,6 +31,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Load">
+       <property name="toolTip">
+        <string>load setup</string>
+       </property>
+       <property name="statusTip">
+        <string>load setup</string>
+       </property>
        <property name="text">
         <string> load</string>
        </property>
@@ -42,6 +48,12 @@
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_Save">
+       <property name="toolTip">
+        <string>save setup</string>
+       </property>
+       <property name="statusTip">
+        <string>save setup</string>
+       </property>
        <property name="text">
         <string> save</string>
        </property>
@@ -91,6 +103,12 @@
      </item>
      <item row="0" column="1">
       <widget class="QDoubleSpinBox" name="doubleSpinBox_freq">
+       <property name="toolTip">
+        <string>observed frequenzy in GHz</string>
+       </property>
+       <property name="statusTip">
+        <string>observed frequenzy in GHz</string>
+       </property>
        <property name="suffix">
         <string> [GHz]</string>
        </property>
@@ -110,6 +128,12 @@
      </item>
      <item row="1" column="1">
       <widget class="QSpinBox" name="spinBox_channels">
+       <property name="toolTip">
+        <string>number of channels for this frequency</string>
+       </property>
+       <property name="statusTip">
+        <string>number of channels for this frequency</string>
+       </property>
        <property name="minimum">
         <number>1</number>
        </property>
@@ -147,7 +171,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_bandName"/>
+      <widget class="QLineEdit" name="lineEdit_bandName">
+       <property name="toolTip">
+        <string>name of this band</string>
+       </property>
+       <property name="statusTip">
+        <string>name of this band</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

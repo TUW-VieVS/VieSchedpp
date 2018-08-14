@@ -49,6 +49,12 @@
             </item>
             <item row="0" column="1">
              <widget class="QSpinBox" name="spinBox_start">
+              <property name="toolTip">
+               <string>start value for automatic value generation</string>
+              </property>
+              <property name="statusTip">
+               <string>start value for automatic value generation</string>
+              </property>
               <property name="maximum">
                <number>10000</number>
               </property>
@@ -62,6 +68,12 @@
             </item>
             <item row="1" column="1">
              <widget class="QSpinBox" name="spinBox_stop">
+              <property name="toolTip">
+               <string>stop value for automatic value generation</string>
+              </property>
+              <property name="statusTip">
+               <string>stop value for automatic value generation</string>
+              </property>
               <property name="maximum">
                <number>10000</number>
               </property>
@@ -75,6 +87,12 @@
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="spinBox_step">
+              <property name="toolTip">
+               <string>step value for automatic value generation</string>
+              </property>
+              <property name="statusTip">
+               <string>step value for automatic value generation</string>
+              </property>
               <property name="minimum">
                <number>1</number>
               </property>
@@ -108,6 +126,12 @@
             </item>
             <item>
              <widget class="QPushButton" name="pushButton_generate">
+              <property name="toolTip">
+               <string>generate values</string>
+              </property>
+              <property name="statusTip">
+               <string>generate values</string>
+              </property>
               <property name="text">
                <string>generate</string>
               </property>
@@ -142,7 +166,14 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QListView" name="listView_member"/>
+           <widget class="QListView" name="listView_member">
+            <property name="toolTip">
+             <string>list of available members</string>
+            </property>
+            <property name="statusTip">
+             <string>list of available members</string>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -154,7 +185,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="lineEdit_filter"/>
+             <widget class="QLineEdit" name="lineEdit_filter">
+              <property name="toolTip">
+               <string>filter the list of available values by name</string>
+              </property>
+              <property name="statusTip">
+               <string>filter the list of available values by name</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -182,6 +220,12 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>add new value</string>
+           </property>
+           <property name="statusTip">
+            <string>add new value</string>
+           </property>
            <property name="text">
             <string>add</string>
            </property>
@@ -206,6 +250,12 @@
          </item>
          <item>
           <widget class="QPushButton" name="pushButton_delete">
+           <property name="toolTip">
+            <string>delete selected value</string>
+           </property>
+           <property name="statusTip">
+            <string>delete selected value</string>
+           </property>
            <property name="text">
             <string>delete selected</string>
            </property>
@@ -219,6 +269,12 @@
        </item>
        <item>
         <widget class="QTableWidget" name="tableWidget_values">
+         <property name="toolTip">
+          <string>list of all values</string>
+         </property>
+         <property name="statusTip">
+          <string>list of all values</string>
+         </property>
          <property name="columnCount">
           <number>1</number>
          </property>

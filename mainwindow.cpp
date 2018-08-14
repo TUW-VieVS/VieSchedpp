@@ -2549,8 +2549,6 @@ void MainWindow::addModesPolicyTable(QString name){
     ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,4,psrc);
     ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,5,bsrc);
     ui->tableWidget_ModesPolicy->setCellWidget(ui->tableWidget_ModesPolicy->rowCount()-1,6,vsrc);
-
-
 }
 
 void MainWindow::createModesCustonBandTable()
@@ -2601,6 +2599,7 @@ void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
     nChannelSB->setValue(nChannel);
 
     QPushButton *d = new QPushButton("delete",this);
+    d->setIcon(QIcon(":/icons/icons/edit-delete-6.png"));
     connect(d,SIGNAL(clicked(bool)),deleteModeMapper,SLOT(map()));
     deleteModeMapper->setMapping(d,name);
 
@@ -2785,7 +2784,7 @@ void MainWindow::readSkedCatalogs()
 
 void MainWindow::on_pushButton_browseAntenna_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathAntenna->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathAntenna->setText(path);
     }
@@ -2793,7 +2792,7 @@ void MainWindow::on_pushButton_browseAntenna_clicked()
 
 void MainWindow::on_pushButton_browseEquip_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathEquip->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathEquip->setText(path);
     }
@@ -2801,7 +2800,7 @@ void MainWindow::on_pushButton_browseEquip_clicked()
 
 void MainWindow::on_pushButton_browsePosition_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathPosition->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathPosition->setText(path);
     }
@@ -2809,7 +2808,7 @@ void MainWindow::on_pushButton_browsePosition_clicked()
 
 void MainWindow::on_pushButton_browseMask_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathMask->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathMask->setText(path);
     }
@@ -2817,15 +2816,26 @@ void MainWindow::on_pushButton_browseMask_clicked()
 
 void MainWindow::on_pushButton_browseSource_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathSource->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathSource->setText(path);
     }
 }
 
+
+void MainWindow::on_pushButton_browseSource2_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_browseSource2->text());
+    if( !path.isEmpty() ){
+        ui->lineEdit_browseSource2->setText(path);
+    }
+
+}
+
+
 void MainWindow::on_pushButton_browseFlux_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathFlux->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathFlux->setText(path);
     }
@@ -2833,7 +2843,7 @@ void MainWindow::on_pushButton_browseFlux_clicked()
 
 void MainWindow::on_pushButton_browsModes_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathModes->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathModes->setText(path);
     }
@@ -2841,7 +2851,7 @@ void MainWindow::on_pushButton_browsModes_clicked()
 
 void MainWindow::on_pushButton_browseFreq_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathModes->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathFreq->setText(path);
     }
@@ -2849,7 +2859,7 @@ void MainWindow::on_pushButton_browseFreq_clicked()
 
 void MainWindow::on_pushButton_browseTracks_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathTracks->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathTracks->setText(path);
     }
@@ -2857,7 +2867,7 @@ void MainWindow::on_pushButton_browseTracks_clicked()
 
 void MainWindow::on_pushButton_browseLoif_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathLoif->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathLoif->setText(path);
     }
@@ -2865,7 +2875,7 @@ void MainWindow::on_pushButton_browseLoif_clicked()
 
 void MainWindow::on_pushButton_browseRec_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathRec->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathRec->setText(path);
     }
@@ -2873,7 +2883,7 @@ void MainWindow::on_pushButton_browseRec_clicked()
 
 void MainWindow::on_pushButton_browseRx_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathRx->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathRx->setText(path);
     }
@@ -2881,10 +2891,25 @@ void MainWindow::on_pushButton_browseRx_clicked()
 
 void MainWindow::on_pushButton_browseHdpos_clicked()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", mainPath);
+    QString path = QFileDialog::getOpenFileName(this, "Browse to catalog", ui->lineEdit_pathHdpos->text());
     if( !path.isEmpty() ){
         ui->lineEdit_pathHdpos->setText(path);
     }
+}
+
+void MainWindow::on_pushButton_stations_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_reloadsources_clicked()
+{
+
+}
+
+void MainWindow::on_pushButton_reloadcatalogs_clicked()
+{
+
 }
 
 // ########################################### GENERAL ###########################################
@@ -7576,6 +7601,9 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
+
+
 
 
 
