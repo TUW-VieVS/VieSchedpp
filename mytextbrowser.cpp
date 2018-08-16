@@ -9,41 +9,44 @@ void myTextBrowser::readyReadStandardOutput()
 {
     QProcess *p = qobject_cast<QProcess*>(sender());
     QString txt (p->readAllStandardOutput());
-    txt = txt.replace(QRegularExpression("[\\s\\n]+"), " ");
-    QStringList l = txt.split(";");
+    QStringList l = txt.split("\n");
     QString currentText = toPlainText();
-    if(currentText.size()>2){
-        currentText = currentText.left(currentText.size()-1);
-    }
+//    if(currentText.size()>2){
+//        currentText = currentText.left(currentText.size()-1);
+//    }
     for(int i=0; i<l.size(); ++i){
         QString newTxt = l.at(i);
         newTxt = newTxt.trimmed();
-        currentText.append(newTxt).append("\n");
+        if(!newTxt.isEmpty()){
+            if(newTxt.left(1) == "[" || newTxt.left(1) == "("){
+                currentText.append(newTxt).append("\n");
+            }else{
+                currentText.remove(currentText.count()-1,1);
+                currentText.append(newTxt).append("\n");
+            }
+        }
     }
     setText(currentText);
 
-    highlightWord("Processing file:",QColor(Qt::darkGreen));
-    highlightWord("WARNING:",QColor(Qt::darkYellow));
-    highlightWord("ERROR:",QColor(Qt::red));
-    highlightWord("writing",QColor(Qt::darkCyan));
-    highlightWord("version",QColor(Qt::darkMagenta));
-    highlightWord("thread",QColor(Qt::red));
-    highlightWord("threads",QColor(Qt::red));
-//    highlightWord("log file",QColor(Qt::darkCyan));
-    highlightWord("everything finally finished!!!",QColor(Qt::darkGreen));
-    highlightWord("finished",QColor(Qt::darkGreen));
+    highlightWord("[fatal]",QColor(Qt::red));
+    highlightWord("[error]",QColor(Qt::red));
+    highlightWord("[warning]",QColor(Qt::darkYellow));
+    highlightWord("[info]",QColor(Qt::darkGreen));
+    highlightWord("[debug]",QColor(Qt::darkCyan));
+    highlightWord("[trace]",QColor(Qt::darkCyan));
+
+    this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum());
 }
 
 void myTextBrowser::readyReadStandardError()
 {
     QProcess *p = qobject_cast<QProcess*>(sender());
-    QString txt (p->readAllStandardError());
-    txt = txt.replace(QRegularExpression("[\\s\\n]+"), " ");
-    QStringList l = txt.split(";");
+    QString txt (p->readAllStandardOutput());
+    QStringList l = txt.split("\n");
     QString currentText = toPlainText();
-    if(currentText.size()>2){
-        currentText = currentText.left(currentText.size()-1);
-    }
+//    if(currentText.size()>2){
+//        currentText = currentText.left(currentText.size()-1);
+//    }
     for(int i=0; i<l.size(); ++i){
         QString newTxt = l.at(i);
         newTxt = newTxt.trimmed();
@@ -51,16 +54,14 @@ void myTextBrowser::readyReadStandardError()
     }
     setText(currentText);
 
-    highlightWord("Processing file:",QColor(Qt::darkGreen));
-    highlightWord("WARNING:",QColor(Qt::darkYellow));
-    highlightWord("ERROR:",QColor(Qt::red));
-    highlightWord("writing",QColor(Qt::darkCyan));
-    highlightWord("version",QColor(Qt::darkMagenta));
-    highlightWord("thread",QColor(Qt::red));
-    highlightWord("threads",QColor(Qt::red));
-    highlightWord("log file",QColor(Qt::darkCyan));
-    highlightWord("everything finally finished!!!",QColor(Qt::darkGreen));
-    highlightWord("finished",QColor(Qt::darkGreen));
+    highlightWord("[fatal]",QColor(Qt::red));
+    highlightWord("[error]",QColor(Qt::red));
+    highlightWord("[warning]",QColor(Qt::darkYellow));
+    highlightWord("[info]",QColor(Qt::darkGreen));
+    highlightWord("[debug]",QColor(Qt::darkCyan));
+    highlightWord("[trace]",QColor(Qt::darkCyan));
+
+//    this->verticalScrollBar()->setValue(this->verticalScrollBar()->maximum());
 }
 
 void myTextBrowser::highlightWord(QString word, QColor color){

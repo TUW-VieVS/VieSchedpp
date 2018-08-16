@@ -341,6 +341,8 @@ private slots:
 
     void on_actionRun_triggered();
 
+    void processFinished();
+
     void networkSizeChanged();
 
     void sourceListChanged();
@@ -594,6 +596,8 @@ private:
     double interpolate( QVector<double> &xData, QVector<double> &yData, double x, bool extrapolate=false );
 
     QBarSet* statisticsBarSet(int idx, QString name="");
+
+
 
 };
 

@@ -12,6 +12,7 @@
 
 namespace qtUtil {
 
+
     struct ObsData{
         int srcid;
         double az;

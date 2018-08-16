@@ -5,6 +5,7 @@
 #include <QTextBrowser>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QScrollBar>
 
 class myTextBrowser : public QTextBrowser
 {
