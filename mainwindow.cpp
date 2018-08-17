@@ -2564,6 +2564,366 @@ QString MainWindow::writeXML()
     return path;
 }
 
+void MainWindow::loadXML(QString path)
+{
+    std::ifstream fid(path.toStdString());
+    boost::property_tree::ptree xml;
+    boost::property_tree::read_xml(fid,xml,boost::property_tree::xml_parser::trim_whitespace);
+    QString warning;
+
+    // read catalogs
+    {
+        std::string antenna = xml.get("master.catalogs.antenna","");
+        if(!antenna.empty()){
+            ui->lineEdit_pathAntenna->setText(QString::fromStdString(antenna));
+        }
+        std::string equip = xml.get("master.catalogs.equip","");
+        if(!equip.empty()){
+            ui->lineEdit_pathEquip->setText(QString::fromStdString(equip));
+        }
+        std::string position = xml.get("master.catalogs.position","");
+        if(!position.empty()){
+            ui->lineEdit_pathPosition->setText(QString::fromStdString(position));
+        }
+        std::string mask = xml.get("master.catalogs.mask","");
+        if(!mask.empty()){
+            ui->lineEdit_pathMask->setText(QString::fromStdString(mask));
+        }
+        on_pushButton_stations_clicked();
+
+        std::string source = xml.get("master.catalogs.source","");
+        if(!source.empty()){
+            ui->lineEdit_pathSource->setText(QString::fromStdString(source));
+        }
+        ui->radioButton_browseSource->setChecked(true);
+        std::string flux = xml.get("master.catalogs.flux","");
+        if(!flux.empty()){
+            ui->lineEdit_pathFlux->setText(QString::fromStdString(flux));
+        }
+        on_pushButton_reloadsources_clicked();
+
+        std::string freq = xml.get("master.catalogs.freq","");
+        if(!freq.empty()){
+            ui->lineEdit_pathFreq->setText(QString::fromStdString(freq));
+        }
+        std::string hdpos = xml.get("master.catalogs.hdpos","");
+        if(!hdpos.empty()){
+            ui->lineEdit_pathHdpos->setText(QString::fromStdString(hdpos));
+        }
+        std::string loif = xml.get("master.catalogs.loif","");
+        if(!loif.empty()){
+            ui->lineEdit_pathLoif->setText(QString::fromStdString(loif));
+        }
+        std::string modes = xml.get("master.catalogs.modes","");
+        if(!modes.empty()){
+            ui->lineEdit_pathModes->setText(QString::fromStdString(modes));
+        }
+        std::string rec = xml.get("master.catalogs.rec","");
+        if(!rec.empty()){
+            ui->lineEdit_pathRec->setText(QString::fromStdString(rec));
+        }
+        std::string rx = xml.get("master.catalogs.rx","");
+        if(!rx.empty()){
+            ui->lineEdit_pathRx->setText(QString::fromStdString(rx));
+        }
+        std::string tracks = xml.get("master.catalogs.tracks","");
+        if(!tracks.empty()){
+            ui->lineEdit_pathTracks->setText(QString::fromStdString(tracks));
+        }
+        on_pushButton_reloadcatalogs_clicked();
+    }
+
+
+    // general
+    {
+        std::string startTimeStr = xml.get("master.general.startTime","02.01.2018 00:00:00");
+        QDateTime startTime;
+        startTime.fromString(QString::fromStdString(startTimeStr),"yy.MM.dd hh:mm:ss");
+        ui->dateTimeEdit_sessionStart->setDateTime(startTime);
+
+        std::string endTimeStr = xml.get("master.general.endTime","02.01.2018 00:00:00");
+        QDateTime endTime;
+        endTime.fromString(QString::fromStdString(endTimeStr),"yy.MM.dd hh:mm:ss");
+        double dur = startTime.secsTo(endTime)/3600.0;
+
+        bool subnetting = xml.get("master.general.subnetting",false);
+        ui->groupBox_subnetting->setChecked(subnetting);
+        double subnettingMinAngle = xml.get("master.general.subnettingMinAngle",120.0);
+        ui->doubleSpinBox_subnettingDistance->setValue(subnettingMinAngle);
+        double subnettingMinNSta = xml.get("master.general.subnettingMinNSta",60);
+        ui->doubleSpinBox_subnettingMinStations->setValue(subnettingMinNSta);
+
+        bool fillinmodeAPosteriori = xml.get("master.general.fillinmodeAPosteriori",false);
+        ui->checkBox_fillinmode_aposteriori->setChecked(fillinmodeAPosteriori);
+        bool fillinmodeDuringScan = xml.get("master.general.fillinmodeDuringScan",false);
+        ui->checkBox_fillinmode_duringscan->setChecked(fillinmodeDuringScan);
+        bool fillinmodeInfluenceOnSchedule = xml.get("master.general.fillinmodeInfluenceOnSchedule",false);
+        ui->checkBox_fillinmode_duringscan->setChecked(fillinmodeInfluenceOnSchedule);
+
+        bool idleToObservingTime = xml.get("master.general.idleToObservingTime",false);
+        ui->checkBox_idleToObservingTime->setChecked(true);
+
+        std::vector<std::string> sel_stations;
+        boost::property_tree::ptree stations = xml.get_child("master.general.stations");
+        auto it = stations.begin();
+        while (it != stations.end()) {
+            auto item = it->second.data();
+            sel_stations.push_back(item);
+            ++it;
+        }
+
+        std::vector<std::string> sel_sources;
+        const auto &ptree_useSources = xml.get_child_optional("master.general.onlyUseListedSources");
+        if(ptree_useSources.is_initialized()){
+            auto it = ptree_useSources->begin();
+            while (it != ptree_useSources->end()) {
+                auto item = it->second.data();
+                sel_sources.push_back(item);
+                ++it;
+            }
+        }
+
+        std::vector<std::string> ignore_sources;
+        const auto &ptree_ignoreSources = xml.get_child_optional("master.general.ignoreListedSources");
+        if(ptree_ignoreSources.is_initialized()){
+            auto it = ptree_ignoreSources->begin();
+            while (it != ptree_ignoreSources->end()) {
+                auto item = it->second.data();
+                ignore_sources.push_back(item);
+                ++it;
+            }
+        }
+
+        std::string scanAlignment = xml.get("master.general.scanAlignment","start");
+        if(scanAlignment == "start"){
+            ui->radioButton_alignStart->setChecked(true);
+        }else if(scanAlignment == "end"){
+            ui->radioButton_alignEnd->setChecked(true);
+        }else if(scanAlignment == "individual"){
+            ui->radioButton_alignIndividual->setChecked(true);
+        }
+
+        std::string logSeverityConsole = xml.get("master.general.logSeverityConsole","info");
+        if(logSeverityConsole == "trace"){
+            ui->comboBox_log_console->setCurrentIndex(0);
+        }else if(logSeverityConsole == "debug"){
+            ui->comboBox_log_console->setCurrentIndex(1);
+        }else if(logSeverityConsole == "info"){
+            ui->comboBox_log_console->setCurrentIndex(2);
+        }else if(logSeverityConsole == "warning"){
+            ui->comboBox_log_console->setCurrentIndex(3);
+        }else if(logSeverityConsole == "error"){
+            ui->comboBox_log_console->setCurrentIndex(4);
+        }else if(logSeverityConsole == "fatal"){
+            ui->comboBox_log_console->setCurrentIndex(5);
+        }
+
+        std::string logSeverityFile = xml.get("master.general.logSeverityFile","info");
+        if(logSeverityFile == "trace"){
+            ui->comboBox_log_file->setCurrentIndex(0);
+        }else if(logSeverityFile == "debug"){
+            ui->comboBox_log_file->setCurrentIndex(1);
+        }else if(logSeverityFile == "info"){
+            ui->comboBox_log_file->setCurrentIndex(2);
+        }else if(logSeverityFile == "warning"){
+            ui->comboBox_log_file->setCurrentIndex(3);
+        }else if(logSeverityFile == "error"){
+            ui->comboBox_log_file->setCurrentIndex(4);
+        }else if(logSeverityFile == "fatal"){
+            ui->comboBox_log_file->setCurrentIndex(5);
+        }
+    }
+
+    {
+        groupSta.clear();
+        auto groupTree = xml.get_child_optional("master.station.groups");
+        if(groupTree.is_initialized()){
+            for (auto &it: *groupTree) {
+                std::string name = it.first;
+                if (name == "group") {
+                    std::string groupName = it.second.get_child("<xmlattr>.name").data();
+                    std::vector<std::string> members;
+                    for (auto &it2: it.second) {
+                        if (it2.first == "member") {
+                            members.push_back(it2.second.data());
+                        }
+                    }
+                    groupSta[groupName] = members;
+                }
+            }
+        }
+    }
+    {
+        groupSrc.clear();
+        auto groupTree = xml.get_child_optional("master.station.groups");
+        if(groupTree.is_initialized()){
+            for (auto &it: *groupTree) {
+                std::string name = it.first;
+                if (name == "group") {
+                    std::string groupName = it.second.get_child("<xmlattr>.name").data();
+                    std::vector<std::string> members;
+                    for (auto &it2: it.second) {
+                        if (it2.first == "member") {
+                            members.push_back(it2.second.data());
+                        }
+                    }
+                    groupSrc[groupName] = members;
+                }
+            }
+        }
+    }
+    {
+        groupBl.clear();
+        auto groupTree = xml.get_child_optional("master.station.groups");
+        if(groupTree.is_initialized()){
+            for (auto &it: *groupTree) {
+                std::string name = it.first;
+                if (name == "group") {
+                    std::string groupName = it.second.get_child("<xmlattr>.name").data();
+                    std::vector<std::string> members;
+                    for (auto &it2: it.second) {
+                        if (it2.first == "member") {
+                            members.push_back(it2.second.data());
+                        }
+                    }
+                    groupBl[groupName] = members;
+                }
+            }
+        }
+    }
+    //parameters
+
+    //setup
+
+    //wait times
+
+    // cable wrap buffer
+
+    // sky coverage
+    {
+        double influenceDistance = xml.get("master.skyCoverage.influenceDistance",30.0);
+        ui->influenceDistanceDoubleSpinBox->setValue(influenceDistance);
+        int influenceInterval = xml.get("master.skyCoverage.influenceDistance",3600);
+        ui->influenceTimeSpinBox->setValue(influenceInterval);
+        double maxTwinTelecopeDistance = xml.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+        ui->maxDistanceForCombiningAntennasDoubleSpinBox->setValue(maxTwinTelecopeDistance);
+        std::string interpolationDistance = xml.get("master.skyCoverage.interpolationDistance","cosine");
+        if(interpolationDistance == "cosine"){
+            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(0);
+        }else if(interpolationDistance == "linear"){
+            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(1);
+        }else if(interpolationDistance == "constant"){
+            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(2);
+        }
+        std::string interpolationTime = xml.get("master.skyCoverage.interpolationTime","cosine");
+        if(interpolationTime == "cosine"){
+            ui->comboBox_skyCoverageTimeType->setCurrentIndex(0);
+        }else if(interpolationTime == "linear"){
+            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(1);
+        }else if(interpolationTime == "constant"){
+            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(2);
+        }
+
+        //weight factors
+        double weightFactor_skyCoverage = xml.get("master.weightFactor.skyCoverage",0.0);
+        if(weightFactor_skyCoverage == 0){
+            ui->checkBox_weightCoverage->setChecked(true);
+        }else{
+            ui->checkBox_weightCoverage->setChecked(false);
+            ui->doubleSpinBox_weightSkyCoverage->setValue(weightFactor_skyCoverage);
+        }
+        double weightFactor_numberOfObservations = xml.get("master.weightFactor.numberOfObservations",0.0);
+        if(weightFactor_numberOfObservations == 0){
+            ui->checkBox_weightNobs->setChecked(true);
+        }else{
+            ui->checkBox_weightNobs->setChecked(false);
+            ui->doubleSpinBox_weightNumberOfObservations->setValue(weightFactor_numberOfObservations);
+        }
+        double weightFactor_duration = xml.get("master.weightFactor.duration",0.0);
+        if(weightFactor_duration == 0){
+            ui->checkBox_weightDuration->setChecked(true);
+        }else{
+            ui->checkBox_weightDuration->setChecked(false);
+            ui->doubleSpinBox_weightDuration->setValue(weightFactor_duration);
+        }
+        double weightFactor_averageSources = xml.get("master.weightFactor.averageSources",0.0);
+        if(weightFactor_averageSources == 0){
+            ui->checkBox_weightAverageSources->setChecked(true);
+        }else{
+            ui->checkBox_weightAverageSources->setChecked(false);
+            ui->doubleSpinBox_weightAverageSources->setValue(weightFactor_averageSources);
+        }
+        double weightFactor_averageStations = xml.get("master.weightFactor.averageStations",0.0);
+        if(weightFactor_averageStations == 0){
+            ui->checkBox_weightAverageStations->setChecked(true);
+        }else{
+            ui->checkBox_weightAverageStations->setChecked(false);
+            ui->doubleSpinBox_weightAverageStations->setValue(weightFactor_averageStations);
+        }
+        double weightFactor_averageBaselines = xml.get("master.weightFactor.averageBaselines",0.0);
+        if(weightFactor_averageBaselines == 0){
+            ui->checkBox_weightAverageBaselines->setChecked(true);
+        }else{
+            ui->checkBox_weightAverageBaselines->setChecked(false);
+            ui->doubleSpinBox_weightAverageBaselines->setValue(weightFactor_averageBaselines);
+        }
+        double weightFactor_idleTime = xml.get("master.weightFactor.idleTime",0.0);
+        int weightFactor_idleTimeInterval = xml.get("master.weightFactor.idleTimeInterval",600);
+        if(weightFactor_idleTime == 0){
+            ui->checkBox_weightIdleTime->setChecked(true);
+        }else{
+            ui->checkBox_weightIdleTime->setChecked(false);
+            ui->doubleSpinBox_weightIdleTime->setValue(weightFactor_idleTime);
+            ui->spinBox_idleTimeInterval->setValue(weightFactor_idleTimeInterval);
+        }
+        double weightFactor_weightDeclination = xml.get("master.weightFactor.weightDeclination",0.0);
+        double weightFactor_declinationStartWeight = xml.get("master.weightFactor.declinationStartWeight",0.0);
+        double weightFactor_declinationFullWeight = xml.get("master.weightFactor.declinationFullWeight",0.0);
+        if(weightFactor_weightDeclination == 0){
+            ui->checkBox_weightLowDeclination->setChecked(true);
+        }else{
+            ui->checkBox_weightLowDeclination->setChecked(false);
+            ui->doubleSpinBox_weightLowDec->setValue(weightFactor_weightDeclination);
+            ui->doubleSpinBox_weightLowDecStart->setValue(weightFactor_declinationStartWeight);
+            ui->doubleSpinBox_weightLowDecEnd->setValue(weightFactor_declinationFullWeight);
+        }
+        double weightFactor_weightLowElevation = xml.get("master.weightFactor.weightLowElevation",0.0);
+        double weightFactor_lowElevationStartWeight = xml.get("master.weightFactor.lowElevationStartWeight",0.0);
+        double weightFactor_lowElevationFullWeight = xml.get("master.weightFactor.lowElevationFullWeight",0.0);
+        if(weightFactor_weightLowElevation == 0){
+            ui->checkBox_weightLowElevation->setChecked(true);
+        }else{
+            ui->checkBox_weightLowElevation->setChecked(false);
+            ui->doubleSpinBox_weightLowEl->setValue(weightFactor_weightLowElevation);
+            ui->doubleSpinBox_weightLowElStart->setValue(weightFactor_lowElevationStartWeight);
+            ui->doubleSpinBox_weightLowElEnd->setValue(weightFactor_lowElevationFullWeight);
+        }
+    }
+    //conditions
+
+    //mode
+
+    //mode
+
+    //mode_band
+
+    //mode_bandPolicy
+
+    //multisched
+
+    //multiCore
+
+    //output
+
+    //ruleScanSequence
+
+    //ruleCalibratorBlockTime
+
+    //ruleCalibratorBlockNScanSelections
+
+    //highImpactAzEl
+}
+
 void MainWindow::createDefaultParameterSettings()
 {
     VieVS::ParameterSettings::ParametersStations sta;

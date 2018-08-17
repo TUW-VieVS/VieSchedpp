@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>12</number>
+       <number>10</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -902,7 +902,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>264</width>
+             <width>929</width>
              <height>717</height>
             </rect>
            </property>
@@ -6206,7 +6206,7 @@ If you only want to run simulations you can deselect this to avoid error message
            <string>operation notes</string>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tabWidget_9Page1">
            <attribute name="title">

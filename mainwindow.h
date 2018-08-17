@@ -67,6 +67,8 @@ private slots:
 
     QString writeXML();
 
+    void loadXML(QString path);
+
     void readSettings();
 
     void on_actionMode_triggered();
