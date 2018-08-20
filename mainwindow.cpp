@@ -2734,6 +2734,7 @@ void MainWindow::loadXML(QString path)
         }
     }
 
+    // groups
     {
         groupSta.clear();
         auto groupTree = xml.get_child_optional("master.station.groups");
@@ -2748,13 +2749,34 @@ void MainWindow::loadXML(QString path)
                             members.push_back(it2.second.data());
                         }
                     }
+
+                    int r = 0;
+                    for(int i = 0; i<allStationPlusGroupModel->rowCount(); ++i){
+                        QString txt = allStationPlusGroupModel->item(i)->text();
+                        if(txt == "__all__"){
+                            ++r;
+                            continue;
+                        }
+                        if(groupSta.find(txt.toStdString()) == groupSta.end()){
+                            break;
+                        }
+                        if(txt>QString::fromStdString(groupName)){
+                            break;
+                        }else{
+                            ++r;
+                        }
+                    }
+
                     groupSta[groupName] = members;
+                    allStationPlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/station_group_2.png"),
+                                                                            QString::fromStdString(groupName) ));
                 }
             }
         }
     }
     {
         groupSrc.clear();
+        ui->treeWidget_srcGroupForStatistics->clear();
         auto groupTree = xml.get_child_optional("master.station.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
@@ -2767,7 +2789,32 @@ void MainWindow::loadXML(QString path)
                             members.push_back(it2.second.data());
                         }
                     }
+
+                    int r = 0;
+                    for(int i = 0; i<allSourcePlusGroupModel->rowCount(); ++i){
+                        QString txt = allSourcePlusGroupModel->item(i)->text();
+                        if(txt == "__all__"){
+                            ++r;
+                            continue;
+                        }
+                        if(groupSrc.find(txt.toStdString()) == groupSta.end()){
+                            break;
+                        }
+                        if(txt>QString::fromStdString(groupName)){
+                            break;
+                        }else{
+                            ++r;
+                        }
+                    }
+
                     groupSrc[groupName] = members;
+                    allSourcePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/source_group.png"),
+                                                                            QString::fromStdString(groupName) ));
+                    QTreeWidgetItem *itm = new QTreeWidgetItem();
+                    itm->setText(0,QString::fromStdString(groupName));
+                    itm->setCheckState(0,Qt::Unchecked);
+                    ui->treeWidget_srcGroupForStatistics->addTopLevelItem(itm);
+
                 }
             }
         }
@@ -2786,18 +2833,141 @@ void MainWindow::loadXML(QString path)
                             members.push_back(it2.second.data());
                         }
                     }
+
+                    int r = 0;
+                    for(int i = 0; i<allBaselinePlusGroupModel->rowCount(); ++i){
+                        QString txt = allBaselinePlusGroupModel->item(i)->text();
+                        if(txt == "__all__"){
+                            ++r;
+                            continue;
+                        }
+                        if(groupBl.find(txt.toStdString()) == groupSta.end()){
+                            break;
+                        }
+                        if(txt>QString::fromStdString(groupName)){
+                            break;
+                        }else{
+                            ++r;
+                        }
+                    }
+
                     groupBl[groupName] = members;
+                    allBaselinePlusGroupModel->insertRow(r,new QStandardItem(QIcon(":/icons/icons/baseline_group.png"),
+                                                                            QString::fromStdString(groupName) ));
                 }
             }
         }
     }
+    
     //parameters
+    {
+        paraSta.clear();
+        const auto &para_tree = xml.get_child("master.station.parameters");
+        for (auto &it: para_tree) {
+            std::string name = it.first;
+            if (name == "parameter") {
 
+                VieVS::ParameterSettings::ParametersStations PARA;
+                auto PARA_ = VieVS::ParameterSettings::ptree2parameterStation(it.second);
+                PARA = PARA_.second;
+                paraSta[PARA_.first] = PARA;
+                ui->ComboBox_parameterStation->addItem(QString::fromStdString(PARA_.first));
+
+            }
+        }
+    }
+    {   
+        paraSrc.clear();
+        const auto &para_tree = xml.get_child("master.station.parameters");
+        for (auto &it: para_tree) {
+            std::string name = it.first;
+            if (name == "parameter") {
+
+                VieVS::ParameterSettings::ParametersSources PARA;
+                auto PARA_ = VieVS::ParameterSettings::ptree2parameterSource(it.second);
+                PARA = PARA_.second;
+                paraSrc[PARA_.first] = PARA;
+                ui->ComboBox_parameterSource->addItem(QString::fromStdString(PARA_.first));
+
+            }
+        }
+    }
+    {   
+        paraBl.clear();
+        const auto &para_tree = xml.get_child("master.station.parameters");
+        for (auto &it: para_tree) {
+            std::string name = it.first;
+            if (name == "parameter") {
+
+                VieVS::ParameterSettings::ParametersBaselines PARA;
+                auto PARA_ = VieVS::ParameterSettings::ptree2parameterBaseline(it.second);
+                PARA = PARA_.second;
+                paraBl[PARA_.first] = PARA;
+                ui->ComboBox_parameterBaseline->addItem(QString::fromStdString(PARA_.first));
+
+            }
+        }
+    }
+    
     //setup
+    {
+
+    }
+    {
+
+    }
+    {
+
+    }
 
     //wait times
+    {
+        auto waitTime_tree = xml.get_child("master.station.waitTimes");
+        ui->treeWidget_setupStationWait->clear();
+        for (auto &it: waitTime_tree) {
+            std::string name = it.first;
+            if (name == "waitTime") {
+                std::string memberName = it.second.get_child("<xmlattr>.member").data();
 
+                int fieldSystem = it.second.get<int>("fieldSystem");
+                int preob = it.second.get<int>("preob");
+                int midob = it.second.get<int>("midob");
+                int postob = it.second.get<int>("postob");
+                
+                ui->comboBox_stationSettingMember_wait->setCurrentText(QString::fromStdString(memberName));
+                ui->SpinBox_fieldSystem->setValue(fieldSystem);
+                ui->SpinBox_preob->setValue(preob);
+                ui->SpinBox_midob->setValue(midob);
+                ui->SpinBox_postob->setValue(postob);
+                
+                ui->pushButton_setupWaitAdd->click();
+            }
+        }
+    }
     // cable wrap buffer
+    {
+        auto waitTime_tree = xml.get_child("master.station.cableWrapBuffers");
+        ui->treeWidget_setupStationAxis->clear();
+        for (auto &it: waitTime_tree) {
+            std::string name = it.first;
+            if (name == "waitTime") {
+                std::string memberName = it.second.get_child("<xmlattr>.member").data();
+
+                auto axis1Low = it.second.get<double>("axis1LowOffset");
+                auto axis1Up = it.second.get<double>("axis1UpOffset");
+                auto axis2Low = it.second.get<double>("axis2LowOffset");
+                auto axis2Up = it.second.get<double>("axis2UpOffset");
+                
+                ui->comboBox_stationSettingMember_axis->setCurrentText(QString::fromStdString(memberName));
+                ui->DoubleSpinBox_axis1low->setValue(axis1Low);
+                ui->DoubleSpinBox_axis1up->setValue(axis1Up);
+                ui->DoubleSpinBox_axis2low->setValue(axis2Low);
+                ui->DoubleSpinBox_axis2up->setValue(axis2Up);
+                
+                ui->pushButton_setupAxisAdd->click();
+            }
+        }
+    }
 
     // sky coverage
     {
@@ -2823,8 +2993,10 @@ void MainWindow::loadXML(QString path)
         }else if(interpolationTime == "constant"){
             ui->comboBox_skyCoverageDistanceType->setCurrentIndex(2);
         }
+    }
 
-        //weight factors
+    //weight factors
+    {
         double weightFactor_skyCoverage = xml.get("master.weightFactor.skyCoverage",0.0);
         if(weightFactor_skyCoverage == 0){
             ui->checkBox_weightCoverage->setChecked(true);
@@ -2899,29 +3071,258 @@ void MainWindow::loadXML(QString path)
             ui->doubleSpinBox_weightLowElEnd->setValue(weightFactor_lowElevationFullWeight);
         }
     }
+    
     //conditions
+    boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.optimization");
+    if (ctree.is_initialized()) {
 
+        boost::property_tree::ptree PARA_source = xml.get_child("master.source");
+        ui->checkBox_gentleSourceReduction->setChecked(false);
+
+        for(const auto &any: *ctree){
+            if(any.first == "combination"){
+                if(any.second.get_value<std::string>() == "and"){
+                    ui->comboBox_conditions_combinations->setCurrentText("and");
+                }else{
+                    ui->comboBox_conditions_combinations->setCurrentText("or");
+                }
+            }else if(any.first == "maxNumberOfIterations"){
+                ui->spinBox_maxNumberOfIterations->setValue(any.second.get_value<int>());
+            }else if(any.first == "numberOfGentleSourceReductions"){
+                ui->spinBox_gentleSourceReduction->setValue(any.second.get_value<unsigned int>());
+                ui->checkBox_gentleSourceReduction->setChecked(true);
+            }else if(any.first == "minNumberOfSourcesToReduce"){
+                ui->spinBox_minNumberOfReducedSources->setValue(any.second.get_value<unsigned int>());
+            }else if(any.first == "condition"){
+                std::string member = any.second.get<std::string>("members");
+                auto scans = any.second.get<unsigned int>("minScans");
+                auto bls = any.second.get<unsigned int>("minBaselines");
+
+                ui->comboBox_conditions_members->setCurrentText(QString::fromStdString(member));
+                ui->spinBox_condtionsMinNumScans->setValue(scans);
+                ui->spinBox_conditionsMinNumBaselines->setValue(bls);
+                
+                ui->pushButton_addCondition->click();
+            }
+        }
+    }
+    
     //mode
+    {
+        ui->groupBox_modeSked->setChecked(false);
+        ui->groupBox_modeCustom->setChecked(false);
+        ui->tableWidget_modeCustonBand->clear();
+        ui->tableWidget_ModesPolicy->clear();
+        if(xml.get_optional<std::string>("master.mode.skdMode").is_initialized()){
+            QString mode = QString::fromStdString(xml.get<std::string>("master.mode.skdMode"));
+            ui->groupBox_modeSked->setChecked(true);
+            ui->comboBox_skedObsModes->setCurrentText(mode);
+            addModesCustomTable("X",8.590,10);
+            addModesCustomTable("S",2.260,6);
+        }
+        if(xml.get_optional<double>("master.mode.sampleRate").is_initialized()){
+            ui->sampleRateDoubleSpinBox->setValue(xml.get<double>("master.mode.sampleRate"));
+            ui->sampleBitsSpinBox->setValue(xml.get<double>("master.mode.bits"));
+            ui->groupBox_modeCustom->setChecked(true);
+            boost::property_tree::ptree & bands = xml.get_child("master.mode.bands");
+            for(const auto &band:bands){
+                if(band.first == "band"){
+                    double wavelength = band.second.get<double>("wavelength");
+                    int channels = band.second.get<int>("chanels");
+                    QString name = QString::fromStdString(band.second.get<std::string>("<xmlattr>.name"));
 
-    //mode
+                    double freq = 1/(wavelength*1e9/299792458.);
 
-    //mode_band
+                    addModesCustomTable(name,freq,channels);
+                }
+            }
+        }
+    }
 
     //mode_bandPolicy
+    {
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.mode.bandPolicies");
+        if(ctree.is_initialized()){
+            for(const auto & any:*ctree){
+                if(any.first == "bandPolicy"){
+                    std::string name = any.second.get<std::string>("<xmlattr>.name");
+                    std::string staReq = any.second.get("station.tag","required");
+                    std::string srcReq = any.second.get("source.tag","required");
+                    double minSNR = any.second.get<double>("minSNR");
+                    std::string staBackup;
+                    std::string srcBackup;
+                    double stationBackupValue;
+                    double sourceBackupValue;
+                    if(xml.get_optional<double>("station.backup_maxValueTimes").is_initialized()){
+                        staBackup = "max value Times";
+                        stationBackupValue = xml.get<double>("station.backup_maxValueTimes");
+                    } else if(xml.get_optional<double>("station.backup_minValueTimes").is_initialized()){
+                        staBackup = "min value Times";
+                        stationBackupValue = xml.get<double>("station.backup_minValueTimes");
+                    } else if(xml.get_optional<double>("station.backup_value").is_initialized()){
+                        staBackup = "value";
+                        stationBackupValue = xml.get<double>("station.backup_value");
+                    } else {
+                        staBackup = "none";
+                        stationBackupValue = 0;
+                    }
+                    if(xml.get_optional<double>("source.backup_maxValueTimes").is_initialized()){
+                        srcBackup = "max value Times";
+                        sourceBackupValue = xml.get<double>("station.backup_maxValueTimes");
+                    } else if(xml.get_optional<double>("source.backup_minValueTimes").is_initialized()){
+                        srcBackup = "min value Times";
+                        sourceBackupValue = xml.get<double>("station.backup_minValueTimes");
+                    } else if(xml.get_optional<double>("source.backup_value").is_initialized()){
+                        srcBackup = "value";
+                        sourceBackupValue = xml.get<double>("station.backup_value");
+                    } else {
+                        srcBackup = "none";
+                        sourceBackupValue = 0;
+                    }
+
+
+                    auto t = ui->tableWidget_ModesPolicy;
+                    for(int i=0; i<t->rowCount(); ++i){
+
+                        std::string tname = t->verticalHeaderItem(i)->text().toStdString();
+                        if(tname != name){
+                            continue;
+                        }
+
+                        qobject_cast<QDoubleSpinBox*>(t->cellWidget(i,0))->setValue(minSNR);
+                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,1))->setCurrentText(QString::fromStdString(staReq));
+                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,4))->setCurrentText(QString::fromStdString(srcReq));
+                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,2))->setCurrentText(QString::fromStdString(staBackup));
+                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,5))->setCurrentText(QString::fromStdString(srcBackup));
+                        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,3))->setValue(stationBackupValue);
+                        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,6))->setValue(sourceBackupValue);
+                        break;
+                    }
+
+                }
+            }
+        }
+
+    }
 
     //multisched
+    {
 
-    //multiCore
+    }
 
     //output
+    {
+        ui->experimentNameLineEdit->setText(QString::fromStdString(xml.get("master.output.experimentName","dummy")));
+        ui->lineEdit_experimentDescription->setText(QString::fromStdString(xml.get("master.output.experimentDescription","dummy")));
+
+        ui->schedulerLineEdit->setText(QString::fromStdString(xml.get("master.output.scheduler","unknown")));
+        ui->correlatorLineEdit->setText(QString::fromStdString(xml.get("master.output.correlator","unknown")));
+
+        ui->lineEdit_PIName->setText(QString::fromStdString(xml.get("master.output.piName","")));
+        ui->lineEdit_PIEmail->setText(QString::fromStdString(xml.get("master.output.piEmail","")));
+        ui->lineEdit_contactName->setText(QString::fromStdString(xml.get("master.output.contactName","")));
+        ui->lineEdit_contactEmail->setText(QString::fromStdString(xml.get("master.output.contactEmail","")));
+        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(xml.get("master.output.notes","")));
+        ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(xml.get("master.output.operationNotes","")));
+
+        if(xml.get("master.output.createSummary",false)){
+            ui->checkBox_outputStatisticsFile->setChecked(true);
+        }else{
+            ui->checkBox_outputStatisticsFile->setChecked(false);
+        }
+        if(xml.get("master.output.createNGS",false)){
+            ui->checkBox_outputNGSFile->setChecked(true);
+        }else{
+            ui->checkBox_outputNGSFile->setChecked(false);
+        }
+        if(xml.get("master.output.createSKD",false)){
+            ui->checkBox_outputSkdFile->setChecked(true);
+        }else{
+            ui->checkBox_outputSkdFile->setChecked(false);
+        }
+        if(xml.get("master.output.createVEX",false)){
+            ui->checkBox_outputVex->setChecked(true);
+        }else{
+            ui->checkBox_outputVex->setChecked(false);
+        }
+        if(xml.get("master.output.createOperationsNotes",false)){
+            ui->checkBox_outputOperationsNotes->setChecked(true);
+        }else{
+            ui->checkBox_outputOperationsNotes->setChecked(false);
+        }
+        if(xml.get("master.output.createSourceGroupStatistics",false)){
+            ui->checkBox_outputSourceGroupStatFile->setChecked(true);
+            // TODO check statistics
+        }else{
+            ui->checkBox_outputSourceGroupStatFile->setChecked(false);
+        }
+    }
 
     //ruleScanSequence
+    {
+        ui->groupBox_scanSequence->setChecked(false);
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.rules.sourceSequence");
+        if (ctree.is_initialized()) {
+            ui->groupBox_scanSequence->setChecked(true);
+            ui->spinBox_scanSequenceCadence->setValue(xml.get<int>("master.rules.sourceSequence.cadence"));
+            for(const auto &any: *ctree){
+                if(any.first == "sequence"){
+                    int modulo = any.second.get<int>("modulo");
+                    QString member = QString::fromStdString(any.second.get<std::string>("member"));
+                    QComboBox* cb = qobject_cast<QComboBox*>(ui->tableWidget_scanSequence->cellWidget(modulo,0));
+                    cb->setCurrentText(member);
+                }
+            }
+        }
+    }
 
-    //ruleCalibratorBlockTime
+    //ruleCalibratorBlock
+    {
+        ui->groupBox_CalibratorBlock->setChecked(false);
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.rules.calibratorBlock");
+        if (ctree.is_initialized()) {
+            ui->groupBox_CalibratorBlock->setChecked(true);
+            if(xml.get("master.rules.calibratorBlock.cadence_nScanSelections", -1) != -1){
+                ui->radioButton_calibratorScanSequence->setChecked(true);
+                ui->spinBox_calibratorScanSequence->setValue(xml.get("master.rules.calibratorBlock.cadence_nScanSelections",5));
+            }
+            if(xml.get("master.rules.calibratorBlock.cadence_seconds", -1) != -1){
+                ui->radioButton_calibratorTime->setChecked(true);
+                ui->spinBox_calibratorTime->setValue(xml.get("master.rules.calibratorBlock.cadence_seconds",3600));
+            }
+            std::string members = xml.get("master.rules.calibratorBlock.member","__all__");
+            ui->comboBox_calibratorBlock_calibratorSources->setCurrentText(QString::fromStdString(members));
+            ui->spinBox_calibrator_maxScanSequence->setValue(xml.get("master.rules.calibratorBlock.nMaxScans",4));
+            ui->spinBox_calibratorFixedScanLength->setValue(xml.get("master.rules.calibratorBlock.fixedScanTime",120));
 
-    //ruleCalibratorBlockNScanSelections
+            ui->doubleSpinBox_calibratorHighElEnd->setValue(xml.get("master.rules.calibratorBlock.highElevation.fullWeight",70));
+            ui->doubleSpinBox_calibratorHighElStart->setValue(xml.get("master.rules.calibratorBlock.highElevation.startWeight",50));
+            ui->doubleSpinBox_calibratorLowElEnd->setValue(xml.get("master.rules.calibratorBlock.lowElevation.fullWeight",20));
+            ui->doubleSpinBox_calibratorLowElStart->setValue(xml.get("master.rules.calibratorBlock.lowElevation.startWeight",40));
+        }
+    }
 
     //highImpactAzEl
+    {
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.highImpact");
+        if (ctree.is_initialized()) {
+
+            ui->spinBox_highImpactInterval->setValue(xml.get("master.highImpact.interval",60));
+            ui->spinBox_highImpactMinRepeat->setValue(xml.get("master.highImpact.repeat",300));
+
+            for(const auto &any: *ctree){
+                if(any.first == "targetAzEl"){
+                    std::string member = any.second.get<std::string>("members");
+                    ui->comboBox_highImpactStation->setCurrentText(QString::fromStdString(member));
+                    ui->doubleSpinBox_highImpactAzimuth->setValue(any.second.get<double>("az"));
+                    ui->doubleSpinBox_highImpactElevation->setValue(any.second.get<double>("el"));
+                    ui->doubleSpinBox_highImpactMargin->setValue(any.second.get<double>("margin"));
+
+                    ui->pushButton_addHighImpactAzEl->click();
+                }
+            }
+        }
+    }
 }
 
 void MainWindow::createDefaultParameterSettings()
