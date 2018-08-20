@@ -418,3 +418,48 @@ Scheduler SkdParser::createScheduler() {
 
     return Scheduler(filename_, network_, sources_, scans_, xml);
 }
+
+void SkdParser::setLogFiles() {
+
+#ifdef VIESCHEDPP_LOG
+    
+    boost::log::add_common_attributes();
+
+    boost::log::core::get()->set_filter(
+            boost::log::trivial::severity >= boost::log::trivial::info
+    );
+
+    auto fmtTimeStamp = boost::log::expressions::
+    format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S.%f");
+    auto fmtSeverity = boost::log::expressions::
+    attr<boost::log::trivial::severity_level>("Severity");
+
+    boost::log::formatter logFmt= boost::log::expressions::format("[%1%] [%2%] %3%") % fmtTimeStamp  % fmtSeverity
+                                                                                     % boost::log::expressions::smessage;
+
+    auto consoleSink = boost::log::add_console_log(std::cout);
+    consoleSink->set_formatter(logFmt);
+
+    consoleSink->set_filter(
+            boost::log::trivial::severity >= boost::log::trivial::info
+    );
+
+    std::size_t found = filename_.find_last_of("/\\");
+    std::string path_;
+    if(found == std::string::npos){
+        path_ = "";
+    }else{
+        path_ = filename_.substr(0,found+1);
+    }
+
+    auto fsSink = boost::log::add_file_log(
+            boost::log::keywords::file_name = path_+"VieSchedpp_sked_parser_%Y-%m-%d_%H-%M-%S.%3N.log",
+//            boost::log::keywords::file_name = path_+"VieSchedpp_%3N.log",
+            boost::log::keywords::rotation_size = 10 * 1024 * 1024,
+            boost::log::keywords::min_free_space = 30 * 1024 * 1024,
+            boost::log::keywords::open_mode = std::ios_base::app);
+    fsSink->set_formatter(logFmt);
+    fsSink->locked_backend()->auto_flush(true);
+
+#endif
+}

@@ -131,7 +131,7 @@ namespace VieVS{
         virtual bool unwrapAzInSection(PointingVector &pv, char section) const noexcept = 0;
 
         CableWrapFlag cableWrapFlag(const PointingVector &pointingVector) const noexcept{
-            cableWrapFlag(pointingVector.getAz());
+            return cableWrapFlag(pointingVector.getAz());
         }
 
         virtual CableWrapFlag cableWrapFlag(double unaz) const noexcept = 0;
