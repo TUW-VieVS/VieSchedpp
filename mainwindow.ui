@@ -1817,7 +1817,7 @@ If you only want to run simulations you can deselect this to avoid error message
                     <string>select number of bits</string>
                    </property>
                    <property name="minimum">
-                    <number>2</number>
+                    <number>1</number>
                    </property>
                    <property name="maximum">
                     <number>2</number>
@@ -1843,6 +1843,16 @@ If you only want to run simulations you can deselect this to avoid error message
                 </spacer>
                </item>
               </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_gbps">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
              </item>
              <item>
               <spacer name="verticalSpacer_2">
@@ -6570,8 +6580,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -6859,7 +6869,7 @@ If you only want to run simulations you can deselect this to avoid error message
                        <string>fixed scan length</string>
                       </property>
                       <property name="checked">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -7117,7 +7127,7 @@ If you only want to run simulations you can deselect this to avoid error message
                        <string>from setup</string>
                       </property>
                       <property name="checked">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -11173,12 +11183,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>20</x>
-     <y>315</y>
+     <x>19</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>335</x>
-     <y>315</y>
+     <x>54</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -11190,11 +11200,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>336</y>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>262</x>
-     <y>339</y>
+     <x>371</x>
+     <y>390</y>
     </hint>
    </hints>
   </connection>
@@ -11206,11 +11216,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>336</y>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
      <x>924</x>
-     <y>339</y>
+     <y>390</y>
     </hint>
    </hints>
   </connection>
@@ -11221,12 +11231,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>369</y>
+     <x>111</x>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>372</y>
+     <x>407</x>
+     <y>423</y>
     </hint>
    </hints>
   </connection>
@@ -11238,11 +11248,75 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>369</y>
+     <y>420</y>
     </hint>
     <hint type="destinationlabel">
      <x>924</x>
-     <y>372</y>
+     <y>423</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_calibratorScanSequence</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_calibratorScanSequence</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>676</x>
+     <y>197</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_calibratorTime</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_calibratorTime</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>663</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox_calibratorFixedScanLength</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>590</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>714</x>
+     <y>377</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_3</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>tableWidget_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>572</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>755</x>
+     <y>414</y>
     </hint>
    </hints>
   </connection>

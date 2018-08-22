@@ -320,6 +320,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->plainTextEdit_notes->setFont(fixedFont);
 
     connect(ui->lineEdit_outputPath,SIGNAL(textChanged(QString)),ui->lineEdit_sessionPath,SLOT(setText(QString)));
+
+    connect(ui->sampleBitsSpinBox,SIGNAL(valueChanged(int)),this,SLOT(gbps()));
+    connect(ui->sampleRateDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(gbps()));
+    gbps();
 }
 
 MainWindow::~MainWindow()
@@ -1019,6 +1023,16 @@ QString MainWindow::on_actionSave_triggered()
     }
     return result;
 }
+
+void MainWindow::on_actionOpen_triggered()
+{
+    QString startPath = ui->lineEdit_sessionPath->text();
+    QString path = QFileDialog::getOpenFileName(this, "Browse to xml file", startPath, tr("xml files (*.xml)"));
+    if( !path.isEmpty() ){
+        loadXML(path);
+    }
+}
+
 
 void MainWindow::on_actionRun_triggered()
 {
@@ -2114,10 +2128,10 @@ QString MainWindow::writeXML()
     for(int i=0; i<ui->treeWidget_setupStationAxis->topLevelItemCount(); ++i){
         auto itm = ui->treeWidget_setupStationAxis->topLevelItem(i);
         std::string name = itm->text(0).toStdString();
-        double ax1low = QString(itm->text(1)).toDouble();
-        double ax1up = QString(itm->text(2)).toDouble();
-        double ax2low = QString(itm->text(3)).toDouble();
-        double ax2up = QString(itm->text(4)).toDouble();
+        double ax1low = QString(itm->text(1).left(itm->text(1).count()-6)).toDouble();
+        double ax1up = QString(itm->text(2).left(itm->text(1).count()-6)).toDouble();
+        double ax2low = QString(itm->text(3).left(itm->text(1).count()-6)).toDouble();
+        double ax2up = QString(itm->text(4).left(itm->text(1).count()-6)).toDouble();
         para.stationCableWrapBuffer(name,ax1low,ax1up,ax2low,ax2up);
     }
 
@@ -2570,6 +2584,7 @@ void MainWindow::loadXML(QString path)
     boost::property_tree::ptree xml;
     boost::property_tree::read_xml(fid,xml,boost::property_tree::xml_parser::trim_whitespace);
     QString warning;
+    clearSetup(true,true,true);
 
     // read catalogs
     {
@@ -2636,15 +2651,14 @@ void MainWindow::loadXML(QString path)
 
     // general
     {
-        std::string startTimeStr = xml.get("master.general.startTime","02.01.2018 00:00:00");
-        QDateTime startTime;
-        startTime.fromString(QString::fromStdString(startTimeStr),"yy.MM.dd hh:mm:ss");
+        std::string startTimeStr = xml.get("master.general.startTime","2018.01.01 00:00:00");
+        QDateTime startTime = QDateTime::fromString(QString::fromStdString(startTimeStr),"yyyy.MM.dd HH:mm:ss");
         ui->dateTimeEdit_sessionStart->setDateTime(startTime);
 
-        std::string endTimeStr = xml.get("master.general.endTime","02.01.2018 00:00:00");
-        QDateTime endTime;
-        endTime.fromString(QString::fromStdString(endTimeStr),"yy.MM.dd hh:mm:ss");
+        std::string endTimeStr = xml.get("master.general.endTime","2018.01.02 00:00:00");
+        QDateTime endTime   = QDateTime::fromString(QString::fromStdString(endTimeStr),"yyyy.MM.dd HH:mm:ss");
         double dur = startTime.secsTo(endTime)/3600.0;
+        ui->doubleSpinBox_sessionDuration->setValue(dur);
 
         bool subnetting = xml.get("master.general.subnetting",false);
         ui->groupBox_subnetting->setChecked(subnetting);
@@ -2661,16 +2675,32 @@ void MainWindow::loadXML(QString path)
         ui->checkBox_fillinmode_duringscan->setChecked(fillinmodeInfluenceOnSchedule);
 
         bool idleToObservingTime = xml.get("master.general.idleToObservingTime",false);
-        ui->checkBox_idleToObservingTime->setChecked(true);
+        ui->checkBox_idleToObservingTime->setChecked(idleToObservingTime);
 
         std::vector<std::string> sel_stations;
-        boost::property_tree::ptree stations = xml.get_child("master.general.stations");
-        auto it = stations.begin();
-        while (it != stations.end()) {
-            auto item = it->second.data();
-            sel_stations.push_back(item);
-            ++it;
+        const auto &stations = xml.get_child_optional("master.general.stations");
+        if(stations.is_initialized()){
+            auto it = stations->begin();
+            while (it != stations->end()) {
+                auto item = it->second.data();
+                sel_stations.push_back(item);
+                ++it;
+            }
+            for(const auto &station : sel_stations){
+                bool found = false;
+                for(int i=0; i<allStationProxyModel->rowCount(); ++i){
+                    if(allStationProxyModel->index(i,0).data().toString() == QString::fromStdString(station)){
+                        on_treeView_allAvailabeStations_clicked(allStationProxyModel->index(i,0));
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    warning.append("Station "+QString::fromStdString(station)+" not found!");
+                }
+            }
         }
+
 
         std::vector<std::string> sel_sources;
         const auto &ptree_useSources = xml.get_child_optional("master.general.onlyUseListedSources");
@@ -2680,6 +2710,19 @@ void MainWindow::loadXML(QString path)
                 auto item = it->second.data();
                 sel_sources.push_back(item);
                 ++it;
+            }
+        }
+        for(const auto &source : sel_sources){
+            bool found = false;
+            for(int i=0; i<allSourceProxyModel->rowCount(); ++i){
+                if(allSourceProxyModel->index(i,0).data().toString() == QString::fromStdString(source)){
+                    on_treeView_allAvailabeSources_clicked(allSourceProxyModel->index(i,0));
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                warning.append("Source "+QString::fromStdString(source)+" not found!");
             }
         }
 
@@ -2777,7 +2820,7 @@ void MainWindow::loadXML(QString path)
     {
         groupSrc.clear();
         ui->treeWidget_srcGroupForStatistics->clear();
-        auto groupTree = xml.get_child_optional("master.station.groups");
+        auto groupTree = xml.get_child_optional("master.source.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
                 std::string name = it.first;
@@ -2797,7 +2840,7 @@ void MainWindow::loadXML(QString path)
                             ++r;
                             continue;
                         }
-                        if(groupSrc.find(txt.toStdString()) == groupSta.end()){
+                        if(groupSrc.find(txt.toStdString()) == groupSrc.end()){
                             break;
                         }
                         if(txt>QString::fromStdString(groupName)){
@@ -2821,7 +2864,7 @@ void MainWindow::loadXML(QString path)
     }
     {
         groupBl.clear();
-        auto groupTree = xml.get_child_optional("master.station.groups");
+        auto groupTree = xml.get_child_optional("master.baseline.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
                 std::string name = it.first;
@@ -2841,7 +2884,7 @@ void MainWindow::loadXML(QString path)
                             ++r;
                             continue;
                         }
-                        if(groupBl.find(txt.toStdString()) == groupSta.end()){
+                        if(groupBl.find(txt.toStdString()) == groupBl.end()){
                             break;
                         }
                         if(txt>QString::fromStdString(groupName)){
@@ -2862,6 +2905,7 @@ void MainWindow::loadXML(QString path)
     //parameters
     {
         paraSta.clear();
+        ui->ComboBox_parameterStation->clear();
         const auto &para_tree = xml.get_child("master.station.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
@@ -2878,7 +2922,8 @@ void MainWindow::loadXML(QString path)
     }
     {   
         paraSrc.clear();
-        const auto &para_tree = xml.get_child("master.station.parameters");
+        ui->ComboBox_parameterSource->clear();
+        const auto &para_tree = xml.get_child("master.source.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
             if (name == "parameter") {
@@ -2894,7 +2939,8 @@ void MainWindow::loadXML(QString path)
     }
     {   
         paraBl.clear();
-        const auto &para_tree = xml.get_child("master.station.parameters");
+        ui->ComboBox_parameterBaseline->clear();
+        const auto &para_tree = xml.get_child("master.baseline.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
             if (name == "parameter") {
@@ -2911,13 +2957,40 @@ void MainWindow::loadXML(QString path)
     
     //setup
     {
-
+        auto ctree = xml.get_child("master.station.setup");
+        for(const auto &any: ctree){
+            if(any.first == "setup"){
+                ui->treeWidget_setupStation->topLevelItem(0)->child(0)->setSelected(true);
+                addSetup(ui->treeWidget_setupStation, any.second, ui->comboBox_stationSettingMember,
+                         ui->ComboBox_parameterStation, ui->DateTimeEdit_startParameterStation,
+                         ui->DateTimeEdit_endParameterStation, ui->comboBox_parameterStationTransition,
+                         ui->pushButton_3);
+            }
+        }
     }
     {
-
+        auto ctree = xml.get_child("master.source.setup");
+        for(const auto &any: ctree){
+            if(any.first == "setup"){
+                ui->treeWidget_setupSource->topLevelItem(0)->child(0)->setSelected(true);
+                addSetup(ui->treeWidget_setupSource, any.second, ui->comboBox_sourceSettingMember,
+                         ui->ComboBox_parameterSource, ui->DateTimeEdit_startParameterSource,
+                         ui->DateTimeEdit_endParameterSource, ui->comboBox_parameterSourceTransition,
+                         ui->pushButton_addSetupSource);
+            }
+        }
     }
     {
-
+        auto ctree = xml.get_child("master.baseline.setup");
+        for(const auto &any: ctree){
+            if(any.first == "setup"){
+                ui->treeWidget_setupBaseline->topLevelItem(0)->child(0)->setSelected(true);
+                addSetup(ui->treeWidget_setupBaseline, any.second, ui->comboBox_baselineSettingMember,
+                         ui->ComboBox_parameterBaseline, ui->DateTimeEdit_startParameterBaseline,
+                         ui->DateTimeEdit_endParameterBaseline, ui->comboBox_parameterBaselineTransition,
+                         ui->pushButton_addSetupBaseline);
+            }
+        }
     }
 
     //wait times
@@ -2950,7 +3023,7 @@ void MainWindow::loadXML(QString path)
         ui->treeWidget_setupStationAxis->clear();
         for (auto &it: waitTime_tree) {
             std::string name = it.first;
-            if (name == "waitTime") {
+            if (name == "cableWrapBuffer") {
                 std::string memberName = it.second.get_child("<xmlattr>.member").data();
 
                 auto axis1Low = it.second.get<double>("axis1LowOffset");
@@ -2973,7 +3046,7 @@ void MainWindow::loadXML(QString path)
     {
         double influenceDistance = xml.get("master.skyCoverage.influenceDistance",30.0);
         ui->influenceDistanceDoubleSpinBox->setValue(influenceDistance);
-        int influenceInterval = xml.get("master.skyCoverage.influenceDistance",3600);
+        int influenceInterval = xml.get("master.skyCoverage.influenceInterval",3600);
         ui->influenceTimeSpinBox->setValue(influenceInterval);
         double maxTwinTelecopeDistance = xml.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
         ui->maxDistanceForCombiningAntennasDoubleSpinBox->setValue(maxTwinTelecopeDistance);
@@ -2989,9 +3062,9 @@ void MainWindow::loadXML(QString path)
         if(interpolationTime == "cosine"){
             ui->comboBox_skyCoverageTimeType->setCurrentIndex(0);
         }else if(interpolationTime == "linear"){
-            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(1);
+            ui->comboBox_skyCoverageTimeType->setCurrentIndex(1);
         }else if(interpolationTime == "constant"){
-            ui->comboBox_skyCoverageDistanceType->setCurrentIndex(2);
+            ui->comboBox_skyCoverageTimeType->setCurrentIndex(2);
         }
     }
 
@@ -2999,52 +3072,52 @@ void MainWindow::loadXML(QString path)
     {
         double weightFactor_skyCoverage = xml.get("master.weightFactor.skyCoverage",0.0);
         if(weightFactor_skyCoverage == 0){
-            ui->checkBox_weightCoverage->setChecked(true);
-        }else{
             ui->checkBox_weightCoverage->setChecked(false);
+        }else{
+            ui->checkBox_weightCoverage->setChecked(true);
             ui->doubleSpinBox_weightSkyCoverage->setValue(weightFactor_skyCoverage);
         }
         double weightFactor_numberOfObservations = xml.get("master.weightFactor.numberOfObservations",0.0);
         if(weightFactor_numberOfObservations == 0){
-            ui->checkBox_weightNobs->setChecked(true);
-        }else{
             ui->checkBox_weightNobs->setChecked(false);
+        }else{
+            ui->checkBox_weightNobs->setChecked(true);
             ui->doubleSpinBox_weightNumberOfObservations->setValue(weightFactor_numberOfObservations);
         }
         double weightFactor_duration = xml.get("master.weightFactor.duration",0.0);
         if(weightFactor_duration == 0){
-            ui->checkBox_weightDuration->setChecked(true);
-        }else{
             ui->checkBox_weightDuration->setChecked(false);
+        }else{
+            ui->checkBox_weightDuration->setChecked(true);
             ui->doubleSpinBox_weightDuration->setValue(weightFactor_duration);
         }
         double weightFactor_averageSources = xml.get("master.weightFactor.averageSources",0.0);
         if(weightFactor_averageSources == 0){
-            ui->checkBox_weightAverageSources->setChecked(true);
-        }else{
             ui->checkBox_weightAverageSources->setChecked(false);
+        }else{
+            ui->checkBox_weightAverageSources->setChecked(true);
             ui->doubleSpinBox_weightAverageSources->setValue(weightFactor_averageSources);
         }
         double weightFactor_averageStations = xml.get("master.weightFactor.averageStations",0.0);
         if(weightFactor_averageStations == 0){
-            ui->checkBox_weightAverageStations->setChecked(true);
-        }else{
             ui->checkBox_weightAverageStations->setChecked(false);
+        }else{
+            ui->checkBox_weightAverageStations->setChecked(true);
             ui->doubleSpinBox_weightAverageStations->setValue(weightFactor_averageStations);
         }
         double weightFactor_averageBaselines = xml.get("master.weightFactor.averageBaselines",0.0);
         if(weightFactor_averageBaselines == 0){
-            ui->checkBox_weightAverageBaselines->setChecked(true);
-        }else{
             ui->checkBox_weightAverageBaselines->setChecked(false);
+        }else{
+            ui->checkBox_weightAverageBaselines->setChecked(true);
             ui->doubleSpinBox_weightAverageBaselines->setValue(weightFactor_averageBaselines);
         }
         double weightFactor_idleTime = xml.get("master.weightFactor.idleTime",0.0);
         int weightFactor_idleTimeInterval = xml.get("master.weightFactor.idleTimeInterval",600);
         if(weightFactor_idleTime == 0){
-            ui->checkBox_weightIdleTime->setChecked(true);
-        }else{
             ui->checkBox_weightIdleTime->setChecked(false);
+        }else{
+            ui->checkBox_weightIdleTime->setChecked(true);
             ui->doubleSpinBox_weightIdleTime->setValue(weightFactor_idleTime);
             ui->spinBox_idleTimeInterval->setValue(weightFactor_idleTimeInterval);
         }
@@ -3052,9 +3125,9 @@ void MainWindow::loadXML(QString path)
         double weightFactor_declinationStartWeight = xml.get("master.weightFactor.declinationStartWeight",0.0);
         double weightFactor_declinationFullWeight = xml.get("master.weightFactor.declinationFullWeight",0.0);
         if(weightFactor_weightDeclination == 0){
-            ui->checkBox_weightLowDeclination->setChecked(true);
-        }else{
             ui->checkBox_weightLowDeclination->setChecked(false);
+        }else{
+            ui->checkBox_weightLowDeclination->setChecked(true);
             ui->doubleSpinBox_weightLowDec->setValue(weightFactor_weightDeclination);
             ui->doubleSpinBox_weightLowDecStart->setValue(weightFactor_declinationStartWeight);
             ui->doubleSpinBox_weightLowDecEnd->setValue(weightFactor_declinationFullWeight);
@@ -3063,9 +3136,9 @@ void MainWindow::loadXML(QString path)
         double weightFactor_lowElevationStartWeight = xml.get("master.weightFactor.lowElevationStartWeight",0.0);
         double weightFactor_lowElevationFullWeight = xml.get("master.weightFactor.lowElevationFullWeight",0.0);
         if(weightFactor_weightLowElevation == 0){
-            ui->checkBox_weightLowElevation->setChecked(true);
-        }else{
             ui->checkBox_weightLowElevation->setChecked(false);
+        }else{
+            ui->checkBox_weightLowElevation->setChecked(true);
             ui->doubleSpinBox_weightLowEl->setValue(weightFactor_weightLowElevation);
             ui->doubleSpinBox_weightLowElStart->setValue(weightFactor_lowElevationStartWeight);
             ui->doubleSpinBox_weightLowElEnd->setValue(weightFactor_lowElevationFullWeight);
@@ -3111,8 +3184,16 @@ void MainWindow::loadXML(QString path)
     {
         ui->groupBox_modeSked->setChecked(false);
         ui->groupBox_modeCustom->setChecked(false);
-        ui->tableWidget_modeCustonBand->clear();
-        ui->tableWidget_ModesPolicy->clear();
+        while(ui->tableWidget_modeCustonBand->rowCount() >0){
+            ui->tableWidget_modeCustonBand->removeRow(0);
+        }
+        ui->tableWidget_modeCustonBand->setRowCount(0);
+
+        while(ui->tableWidget_ModesPolicy->rowCount() >0){
+            ui->tableWidget_ModesPolicy->removeRow(0);
+        }
+        ui->tableWidget_ModesPolicy->setRowCount(0);
+
         if(xml.get_optional<std::string>("master.mode.skdMode").is_initialized()){
             QString mode = QString::fromStdString(xml.get<std::string>("master.mode.skdMode"));
             ui->groupBox_modeSked->setChecked(true);
@@ -3153,28 +3234,28 @@ void MainWindow::loadXML(QString path)
                     std::string srcBackup;
                     double stationBackupValue;
                     double sourceBackupValue;
-                    if(xml.get_optional<double>("station.backup_maxValueTimes").is_initialized()){
+                    if(any.second.get_optional<double>("station.backup_maxValueTimes").is_initialized()){
                         staBackup = "max value Times";
-                        stationBackupValue = xml.get<double>("station.backup_maxValueTimes");
-                    } else if(xml.get_optional<double>("station.backup_minValueTimes").is_initialized()){
+                        stationBackupValue = any.second.get<double>("station.backup_maxValueTimes");
+                    } else if(any.second.get_optional<double>("station.backup_minValueTimes").is_initialized()){
                         staBackup = "min value Times";
-                        stationBackupValue = xml.get<double>("station.backup_minValueTimes");
-                    } else if(xml.get_optional<double>("station.backup_value").is_initialized()){
+                        stationBackupValue = any.second.get<double>("station.backup_minValueTimes");
+                    } else if(any.second.get_optional<double>("station.backup_value").is_initialized()){
                         staBackup = "value";
-                        stationBackupValue = xml.get<double>("station.backup_value");
+                        stationBackupValue = any.second.get<double>("station.backup_value");
                     } else {
                         staBackup = "none";
                         stationBackupValue = 0;
                     }
-                    if(xml.get_optional<double>("source.backup_maxValueTimes").is_initialized()){
+                    if(any.second.get_optional<double>("source.backup_maxValueTimes").is_initialized()){
                         srcBackup = "max value Times";
-                        sourceBackupValue = xml.get<double>("station.backup_maxValueTimes");
-                    } else if(xml.get_optional<double>("source.backup_minValueTimes").is_initialized()){
+                        sourceBackupValue = any.second.get<double>("source.backup_maxValueTimes");
+                    } else if(any.second.get_optional<double>("source.backup_minValueTimes").is_initialized()){
                         srcBackup = "min value Times";
-                        sourceBackupValue = xml.get<double>("station.backup_minValueTimes");
-                    } else if(xml.get_optional<double>("source.backup_value").is_initialized()){
+                        sourceBackupValue = any.second.get<double>("source.backup_minValueTimes");
+                    } else if(any.second.get_optional<double>("source.backup_value").is_initialized()){
                         srcBackup = "value";
-                        sourceBackupValue = xml.get<double>("station.backup_value");
+                        sourceBackupValue = any.second.get<double>("source.backup_value");
                     } else {
                         srcBackup = "none";
                         sourceBackupValue = 0;
@@ -3190,12 +3271,12 @@ void MainWindow::loadXML(QString path)
                         }
 
                         qobject_cast<QDoubleSpinBox*>(t->cellWidget(i,0))->setValue(minSNR);
-                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,1))->setCurrentText(QString::fromStdString(staReq));
-                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,4))->setCurrentText(QString::fromStdString(srcReq));
-                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,2))->setCurrentText(QString::fromStdString(staBackup));
-                        qobject_cast<QComboBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,5))->setCurrentText(QString::fromStdString(srcBackup));
-                        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,3))->setValue(stationBackupValue);
-                        qobject_cast<QDoubleSpinBox*>(ui->tableWidget_ModesPolicy->cellWidget(i,6))->setValue(sourceBackupValue);
+                        qobject_cast<QComboBox*>(t->cellWidget(i,1))->setCurrentText(QString::fromStdString(staReq));
+                        qobject_cast<QComboBox*>(t->cellWidget(i,4))->setCurrentText(QString::fromStdString(srcReq));
+                        qobject_cast<QComboBox*>(t->cellWidget(i,2))->setCurrentText(QString::fromStdString(staBackup));
+                        qobject_cast<QComboBox*>(t->cellWidget(i,5))->setCurrentText(QString::fromStdString(srcBackup));
+                        qobject_cast<QDoubleSpinBox*>(t->cellWidget(i,3))->setValue(stationBackupValue);
+                        qobject_cast<QDoubleSpinBox*>(t->cellWidget(i,6))->setValue(sourceBackupValue);
                         break;
                     }
 
@@ -3207,7 +3288,176 @@ void MainWindow::loadXML(QString path)
 
     //multisched
     {
+        auto twmss = ui->treeWidget_multiSchedSelected;
+        auto twms = ui->treeWidget_multiSched;
+        ui->groupBox_multiScheduling->setChecked(false);
+        twmss->clear();
+        for(int i=0; i<3; ++i){
+            for(int j=0; j<twms->topLevelItem(i)->childCount(); ++j){
+                twms->topLevelItem(i)->child(j)->setDisabled(false);
+            }
+        }
 
+
+        boost::optional<boost::property_tree::ptree &> ctree_o = xml.get_child_optional("master.multisched");
+        if(ctree_o.is_initialized()){
+            const boost::property_tree::ptree &ctree = ctree_o.get();
+            ui->groupBox_multiScheduling->setChecked(true);
+            ui->comboBox_multiSched_maxNumber->setCurrentText("all");
+            ui->comboBox_multiSched_seed->setCurrentText("random");
+
+            if(ctree.get_optional<int>("maxNumber").is_initialized()){
+                ui->comboBox_multiSched_maxNumber->setCurrentText("select");
+                ui->spinBox_multiSched_maxNumber->setValue(ctree.get<int>("maxNumber"));
+            }
+            if(ctree.get_optional<int>("seed").is_initialized()){
+                ui->comboBox_multiSched_seed->setCurrentText("select");
+                ui->spinBox_multiSched_seed->setValue(ctree.get<int>("seed"));
+            }
+
+
+            for(const auto &any: ctree){
+                QString name = QString::fromStdString(any.first);
+                if(name == "maxNumber" || name == "seed"){
+                    continue;
+                }
+                QString parameterName;
+                bool hasMember = false;
+                QString member = "global";
+
+                if(name.left(8) == "station_"){
+                    name = name.mid(8);
+                    hasMember = true;
+                    parameterName = "Station";
+                }else if(name.left(7) == "source_"){
+                    name = name.mid(7);
+                    hasMember = true;
+                    parameterName = "Source";
+                }else if(name.left(9) == "baseline_"){
+                    name = name.mid(9);
+                    hasMember = true;
+                    parameterName = "Baseline";
+                }else if(name.left(14) == "weight_factor_"){
+                    name = name.mid(14);
+                    hasMember = false;
+                    parameterName = "Weight factor";
+                }else if(name.left(8) == "general_"){
+                    name = name.mid(8);
+                    hasMember = false;
+                    parameterName = "General";
+                }else if(name.left(13) == "Sky_Coverage_"){
+                    name = name.mid(13);
+                    hasMember = false;
+                    parameterName = "Sky Coverage";
+                }
+                name.replace("_"," ");
+                for(int i=0; i<3; ++i){
+                    for(int j=0; j<twms->topLevelItem(i)->childCount(); ++j){
+                        if(twms->topLevelItem(i)->child(j)->text(0) == name){
+                            parameterName = twms->topLevelItem(i)->text(0);
+                            break;
+                        }
+                    }
+                }
+
+
+
+                if(hasMember){
+                    member = QString::fromStdString(any.second.get<std::string>("<xmlattr>.member"));
+                }
+                QVector<double> values;
+                if(name != "general subnetting" && name != "general fillinmode during scan selection" &&
+                        name != "general fillinmode influence on scan selection" && name != "general fillinmode a posteriori" ){
+                    for(const auto &any2 : any.second){
+                        if(any2.first == "value"){
+                            values.push_back(any2.second.get_value<double>());
+                        }
+                    }
+                }
+
+                if(parameterName == "General"){
+                    for(int i=0; i<twms->topLevelItem(0)->childCount(); ++i){
+                        if(name == twms->topLevelItem(0)->child(i)->text(0)){
+                            twms->topLevelItem(0)->child(i)->setDisabled(true);
+                            break;
+                        }
+                    }
+                }else if(parameterName == "Weight factor"){
+                    for(int i=0; i<twms->topLevelItem(1)->childCount(); ++i){
+                        if(name == twms->topLevelItem(1)->child(i)->text(0)){
+                            twms->topLevelItem(1)->child(i)->setDisabled(true);
+                            break;
+                        }
+                    }
+                }else if(parameterName == "Sky Coverage"){
+                    for(int i=0; i<twms->topLevelItem(2)->childCount(); ++i){
+                        if(name == twms->topLevelItem(2)->child(i)->text(0)){
+                            twms->topLevelItem(2)->child(i)->setDisabled(true);
+                            break;
+                        }
+                    }
+                }
+
+                QIcon ic1;
+                QIcon ic2;
+                if(parameterName == "General"){
+                    ic1 = QIcon(":/icons/icons/applications-internet-2.png");
+                    ic2 = QIcon(":/icons/icons/applications-internet-2.png");
+                }else if(parameterName == "Weight factor"){
+                    ic1 = QIcon(":/icons/icons/weight.png");
+                    ic2 = QIcon(":/icons/icons/applications-internet-2.png");
+                }else if(parameterName == "Sky Coverage"){
+                    ic1 = QIcon(":/icons/icons/sky_coverage.png");
+                    ic2 = QIcon(":/icons/icons/sky_coverage.png");
+                }else if(parameterName == "Station"){
+                    ic1 = QIcon(":/icons/icons/station.png");
+                    if(member == "__all__" || groupSta.find(member.toStdString()) != groupSta.end()){
+                        ic2 = QIcon(":/icons/icons/station_group_2.png");
+                    }else{
+                        ic2 = QIcon(":/icons/icons/station.png");
+                    }
+                }else if(parameterName == "Source"){
+                    ic1 = QIcon(":/icons/icons/source.png");
+                    if(member == "__all__" || groupSrc.find(member.toStdString()) == groupSrc.end()){
+                        ic2 = QIcon(":/icons/icons/source_group.png");
+                    }else{
+                        ic2 = QIcon(":/icons/icons/source.png");
+                    }
+
+                }else if(parameterName == "Baseline"){
+                    ic1 = QIcon(":/icons/icons/baseline.png");
+                    if(member == "__all__" || groupBl.find(member.toStdString()) == groupBl.end()){
+                        ic2 = QIcon(":/icons/icons/baseline.png");
+                    }else{
+                        ic2 = QIcon(":/icons/icons/baseline_group.png");
+                    }
+
+                }
+
+                QTreeWidgetItem *itm = new QTreeWidgetItem();
+                itm->setText(0,name);
+                itm->setText(1,member);
+                itm->setIcon(0,ic1);
+                itm->setIcon(1,ic2);
+                QComboBox *cb = new QComboBox(this);
+                if(!values.empty()){
+                    itm->setText(2,QString::number(values.count()));
+                    for(const auto& any:values){
+                        cb->addItem(QString::number(any));
+                    }
+                }else{
+                    itm->setText(2,QString::number(2));
+                    cb->addItem("True");
+                    cb->addItem("False");
+                }
+
+                twmss->addTopLevelItem(itm);
+                twmss->setItemWidget(itm,3,cb);
+
+            }
+
+
+        }
     }
 
     //output
@@ -3294,6 +3544,7 @@ void MainWindow::loadXML(QString path)
             ui->comboBox_calibratorBlock_calibratorSources->setCurrentText(QString::fromStdString(members));
             ui->spinBox_calibrator_maxScanSequence->setValue(xml.get("master.rules.calibratorBlock.nMaxScans",4));
             ui->spinBox_calibratorFixedScanLength->setValue(xml.get("master.rules.calibratorBlock.fixedScanTime",120));
+            ui->radioButton->setChecked(true);
 
             ui->doubleSpinBox_calibratorHighElEnd->setValue(xml.get("master.rules.calibratorBlock.highElevation.fullWeight",70));
             ui->doubleSpinBox_calibratorHighElStart->setValue(xml.get("master.rules.calibratorBlock.highElevation.startWeight",50));
@@ -3304,15 +3555,17 @@ void MainWindow::loadXML(QString path)
 
     //highImpactAzEl
     {
+        ui->groupBox_highImpactAzEl->setChecked(false);
         boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.highImpact");
         if (ctree.is_initialized()) {
+            ui->groupBox_highImpactAzEl->setChecked(true);
 
             ui->spinBox_highImpactInterval->setValue(xml.get("master.highImpact.interval",60));
             ui->spinBox_highImpactMinRepeat->setValue(xml.get("master.highImpact.repeat",300));
 
             for(const auto &any: *ctree){
                 if(any.first == "targetAzEl"){
-                    std::string member = any.second.get<std::string>("members");
+                    std::string member = any.second.get<std::string>("member");
                     ui->comboBox_highImpactStation->setCurrentText(QString::fromStdString(member));
                     ui->doubleSpinBox_highImpactAzimuth->setValue(any.second.get<double>("az"));
                     ui->doubleSpinBox_highImpactElevation->setValue(any.second.get<double>("el"));
@@ -3323,6 +3576,57 @@ void MainWindow::loadXML(QString path)
             }
         }
     }
+}
+
+void MainWindow::addSetup(QTreeWidget *tree, const boost::property_tree::ptree &ptree,
+                          QComboBox *cmember, QComboBox *cpara, QDateTimeEdit *dte_start,
+                          QDateTimeEdit *dte_end, QComboBox *trans, QPushButton *add){
+
+    QDateTime start_time = ui->dateTimeEdit_sessionStart->dateTime();
+    double dur = ui->doubleSpinBox_sessionDuration->value();
+    int sec = dur*3600;
+    QDateTime end_time = start_time.addSecs(sec);
+    QString parameter;
+    QString member;
+    QString transition = "soft";
+    QTreeWidgetItem *selected = tree->selectedItems().at(0);
+
+
+    for(const auto & any: ptree){
+        if(any.first == "group" || any.first == "member"){
+            member = QString::fromStdString(any.second.get_value<std::string>());
+        }else if(any.first == "parameter"){
+            parameter = QString::fromStdString(any.second.get_value<std::string>());
+        }else if(any.first == "start"){
+            QString starTimeStr = QString::fromStdString(any.second.get_value<std::string>());
+            start_time = QDateTime::fromString(starTimeStr,"yyyy.MM.dd HH:mm:ss");
+        }else if(any.first == "end"){
+            QString endTimeStr = QString::fromStdString(any.second.get_value<std::string>());
+            end_time   = QDateTime::fromString(endTimeStr,"yyyy.MM.dd HH:mm:ss");
+        }else if(any.first == "transition"){
+            transition = QString::fromStdString(any.second.get_value<std::string>());
+        }
+    }
+
+    cmember->setCurrentText(member);
+    cpara->setCurrentText(parameter);
+    dte_start->setDateTime(start_time);
+    dte_end->setDateTime(end_time);
+    trans->setCurrentText(transition);
+    int ns = selected->childCount();
+
+    add->click();
+    selected->setSelected(false);
+
+    for(const auto & any: ptree){
+        if(any.first == "setup"){
+            selected->child(selected->childCount()-1)->setSelected(true);
+            int n = selected->childCount();
+            addSetup(tree, any.second, cmember, cpara, dte_start, dte_end, trans, add);
+        }
+    }
+
+
 }
 
 void MainWindow::createDefaultParameterSettings()
@@ -3442,6 +3746,19 @@ void MainWindow::createModesCustonBandTable()
 
 }
 
+void MainWindow::gbps()
+{
+    int bits = ui->sampleBitsSpinBox->value();
+    double mhz = ui->sampleRateDoubleSpinBox->value();
+    int channels = 0;
+    for(int i=0; i<ui->tableWidget_modeCustonBand->rowCount(); ++i){
+        channels += qobject_cast<QSpinBox *>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
+    }
+    double mb = bits * mhz * channels;
+    ui->label_gbps->setText(QString("%1 [Mbps]").arg(mb));
+}
+
+
 void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
     name = name.trimmed();
 
@@ -3475,6 +3792,7 @@ void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
     nChannelSB->setMinimum(1);
     nChannelSB->setMaximum(100);
     nChannelSB->setValue(nChannel);
+    connect(nChannelSB,SIGNAL(valueChanged(int)),this,SLOT(gbps()));
 
     QPushButton *d = new QPushButton("delete",this);
     d->setIcon(QIcon(":/icons/icons/edit-delete-6.png"));
@@ -3485,6 +3803,8 @@ void MainWindow::addModesCustomTable(QString name, double freq, int nChannel){
     ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,1,nChannelSB);
     ui->tableWidget_modeCustonBand->setCellWidget(ui->tableWidget_modeCustonBand->rowCount()-1,2,d);
     addModesPolicyTable(name);
+
+    gbps();
 }
 
 void MainWindow::deleteModesCustomLine(QString name)
@@ -3500,7 +3820,24 @@ void MainWindow::deleteModesCustomLine(QString name)
 
     ui->tableWidget_modeCustonBand->removeRow(row);
     ui->tableWidget_ModesPolicy->removeRow(row);
+    gbps();
 }
+
+void MainWindow::on_pushButton_modeCustomAddBAnd_clicked()
+{
+    addBandDialog *dial = new addBandDialog(settings,this);
+    int result = dial->exec();
+
+    if(result == QDialog::Accepted){
+        QString name = dial->getBandName();
+        double freq = dial->getFrequency();
+        int channels = dial->getChannels();
+        addModesCustomTable(name,freq,channels);
+    }
+
+    delete(dial);
+}
+
 
 void MainWindow::on_pushButton_modeCustomAddBand_clicked()
 {
@@ -6921,19 +7258,19 @@ void MainWindow::on_pushButton_25_clicked()
     auto list = ui->treeWidget_multiSchedSelected->selectedItems();{
         for(const auto& any:list){
             if(any->text(0) == "session start"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
+//                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
             }else if(any->text(0) == "subnetting"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(0)->setDisabled(false);
             }else if(any->text(0) == "subnetting min source angle"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(1)->setDisabled(false);
             }else if(any->text(0) == "subnetting min participating stations"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(3)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(2)->setDisabled(false);
             }else if(any->text(0) == "fillin mode during scan selection"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(4)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(3)->setDisabled(false);
             }else if(any->text(0) == "fillin mode influence on scan selection"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(5)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(4)->setDisabled(false);
             }else if(any->text(0) == "fillin mode a posteriori"){
-                ui->treeWidget_multiSched->topLevelItem(0)->child(6)->setDisabled(false);
+                ui->treeWidget_multiSched->topLevelItem(0)->child(5)->setDisabled(false);
 
             }else if(any->text(0) == "sky coverage"){
                 ui->treeWidget_multiSched->topLevelItem(1)->child(0)->setDisabled(false);
@@ -8635,6 +8972,8 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
+
 
 
 

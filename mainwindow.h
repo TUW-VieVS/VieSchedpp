@@ -491,6 +491,15 @@ private slots:
 
     void on_pushButton_reloadcatalogs_clicked();
 
+    void on_actionOpen_triggered();
+
+    void addSetup(QTreeWidget *tree, const boost::property_tree::ptree &ptree, QComboBox *cmember,
+                  QComboBox *cpara, QDateTimeEdit *dte_start, QDateTimeEdit *dte_end, QComboBox *trans,
+                  QPushButton *add);
+    void gbps();
+
+    void on_pushButton_modeCustomAddBAnd_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;
