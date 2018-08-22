@@ -335,6 +335,9 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.minFlux.is_initialized()) {
         parameters.add("parameters.minFlux", PARA.minFlux);
     }
+    if (PARA.maxNumberOfScans.is_initialized()) {
+        parameters.add("parameters.maxNumberOfScans", PARA.maxNumberOfScans);
+    }
 
     if (PARA.tryToObserveXTimesEvenlyDistributed.is_initialized()){
         parameters.add("parameters.tryToObserveXTimesEvenlyDistributed", *PARA.tryToObserveXTimesEvenlyDistributed);
@@ -613,7 +616,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
                 #endif
                 return;
             }
-            string memberName = any.second.get_child("<xmlattr>.member").data();
+            string memberName = any.second.get<std::string>("waitTime.<xmlattr>.member");
             if (groupStations_.find(memberName) != groupStations_.end()) {
                 membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
                                           groupStations_[memberName].end());
@@ -671,7 +674,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
                 #endif
                 return;
             }
-            string memberName = any.second.get_child("<xmlattr>.member").data();
+            string memberName = any.second.get<std::string>("waitTime.<xmlattr>.member");
             if (groupStations_.find(memberName) != groupStations_.end()) {
                 membersAlreadyUsed.insert(membersAlreadyUsed.end(), groupStations_[memberName].begin(),
                                           groupStations_[memberName].end());
