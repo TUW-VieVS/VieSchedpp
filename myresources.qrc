@@ -66,8 +66,9 @@
         <file>icons/utilities-terminal-3.png</file>
         <file>icons/warning.png</file>
         <file>icons/view-refresh-7.png</file>
+        <file>icons/about.png</file>
     </qresource>
     <qresource prefix="/images">
-        <file>images/logo.png</file>
+        <file>images/vievs_sched_pp_transparent.png</file>
     </qresource>
 </RCC>

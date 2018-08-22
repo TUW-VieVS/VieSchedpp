@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -28,20 +28,29 @@
         <string>welcome page</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>30</number>
+        </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:28pt; font-weight:600;&quot;&gt;VieSched++&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <spacer name="horizontalSpacer_49">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-           </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item>
            <widget class="QLabel" name="label_2">
             <property name="maximumSize">
              <size>
-              <width>400</width>
+              <width>500</width>
               <height>100</height>
              </size>
             </property>
@@ -49,12 +58,25 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="myresources.qrc">:/images/images/logo.png</pixmap>
+             <pixmap resource="myresources.qrc">:/images/images/vievs_sched_pp_transparent.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_50">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -72,11 +94,11 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Please read the following &lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;quick guideline&lt;/span&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reference:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use our software and you write a paper, it would be nice if you would cite us. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use our software and write a paper, it would be nice if you would cite us. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more informations look at our &lt;span style=&quot; font-weight:600;&quot;&gt;reference page &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-sign-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;.&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flowchart:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and save them &lt;img src=&quot;:/icons/icons/document-export.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;&lt;img src=&quot;:/icons/icons/view-pim-calendar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_list.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
@@ -84,6 +106,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;6. Try out some of the advanced tools like applying some special &lt;span style=&quot; font-weight:600;&quot;&gt;rules&lt;/span&gt; &lt;img src=&quot;:/icons/icons/system-run-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, the very useful &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, optimize your &lt;span style=&quot; font-weight:600;&quot;&gt;sky coverage&lt;/span&gt; representation &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, add some &lt;span style=&quot; font-weight:600;&quot;&gt;optimization conditions&lt;/span&gt; &lt;img src=&quot;:/icons/icons/conditions.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or try to fix some &lt;span style=&quot; font-weight:600;&quot;&gt;high impact&lt;/span&gt; scans &lt;img src=&quot;:/icons/icons/emblem-important-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Optimize your schedule:&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Have a look at the schedule using our &lt;span style=&quot; font-weight:600;&quot;&gt;session analyser&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simly create only a single schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then comare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Start by varying some of the &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. This usually brings the best improvment. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a station is still underrepresented &lt;span style=&quot; font-weight:600;&quot;&gt;increase the weight&lt;/span&gt; of this station &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or adjust the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;average stations&lt;/span&gt;&amp;quot; weight factor &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. The same is true for sources and baselines. &lt;/p&gt;
@@ -91,24 +114,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Simulate the created empty NGS files using a third party software like VieVS.&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Look at your schedule:&lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can compare schedules using the statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the session analyser &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to get a better impression of a single schedule &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can compare schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;statistics tools&lt;/span&gt; &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;session analyser&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to get a better impression of a single schedule &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally all Items should have a tool tip and a status tip that should appear if you hover a item. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need more &lt;span style=&quot; font-weight:600;&quot;&gt;help&lt;/span&gt;  press &lt;span style=&quot; font-weight:600;&quot;&gt;F1&lt;/span&gt; or click the help icon &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to enter the &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode and than select the item that you do not understand. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you need general help for a window click the icon at the tool bar during &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; mode.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a item has no &lt;span style=&quot; font-style:italic;&quot;&gt;&amp;quot;What is this?&amp;quot;&lt;/span&gt; description or the description is unclear and the tooltip and statustip does not provide all necessary information eighter please tell us and we will add some more details. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For some frequently asked questions we provide a &lt;span style=&quot; font-weight:600;&quot;&gt;FAQ&lt;/span&gt; page &lt;img src=&quot;:/icons/icons/documentation.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This software is still in &lt;span style=&quot; font-weight:600;&quot;&gt;beta version&lt;/span&gt;! &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Although a checking routine runs at the end of each created schedule, it might be advisable to double check your schedule via a different software package like &lt;span style=&quot; font-weight:600;&quot;&gt;SKED&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;SKED check &lt;/span&gt;command or &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS&lt;/span&gt; with the &lt;span style=&quot; font-weight:600;&quot;&gt;VieVS checking routines&lt;/span&gt;. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please contact us!&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you find any bugs or if you have great ideas what could be improved/added please contact me under: &lt;span style=&quot; font-style:italic;&quot;&gt;matthias.schartner@geo.tuwien.ac.at&lt;/span&gt;!&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Missing GUI features:&lt;/span&gt;&lt;/p&gt;
-&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;load function&lt;/span&gt;&lt;/li&gt;
-&lt;li style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;calibration block min SNR&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Missing features:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-weight:600;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;calibration block min SNR&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
@@ -902,7 +923,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>264</width>
+             <width>929</width>
              <height>717</height>
             </rect>
            </property>
@@ -6580,8 +6601,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -10438,6 +10459,10 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="myresources.qrc">
+     <normaloff>:/icons/icons/about.png</normaloff>:/icons/icons/about.png</iconset>
+   </property>
    <property name="text">
     <string>About</string>
    </property>
