@@ -26,7 +26,12 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
 
     if(init.parameters_.subnetting){
         Subnetting subnetting;
-        subnetting.subnettingMinNSta = static_cast<unsigned int>(network_.getNSta() * init.parameters_.subnettingMinNSta);
+        if(init.parameters_.subnettingMinNStaPercent_otherwiseAllBut){
+            subnetting.subnettingMinNSta = static_cast<unsigned int>(network_.getNSta() * init.parameters_.subnettingMinNStaPercent);
+        }else{
+            int n = static_cast<int>(network_.getNSta() - init.parameters_.subnettingMinNStaAllBut);
+            subnetting.subnettingMinNSta = max({0,n});
+        }
         subnetting.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
         parameters_.subnetting = move(subnetting);
     }
@@ -78,15 +83,15 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
     while (true) {
         // look if station is possible with respect to opt_endposition
-        if(opt_endposition.is_initialized()){
-            if (!opt_endposition->checkStationPossibility(network_.getStations())){
+        if (opt_endposition.is_initialized()) {
+            if (!opt_endposition->checkStationPossibility(network_.getStations())) {
                 break;
             }
         }
 
         // create a subcon with all possible next scans
         Subcon subcon;
-        if(opt_subcon.is_initialized()){
+        if (opt_subcon.is_initialized()) {
             // if you already have a subcon, check the endposition of each scan and generate subnetting scans and new score.
             subcon = std::move(*opt_subcon);
             opt_subcon = boost::none;
@@ -96,7 +101,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             if (parameters_.subnetting) {
                 subcon.createSubnettingScans(*parameters_.subnetting, sources_);
             }
-        }else{
+        } else {
             // otherwise calculate new subcon
             subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
         }
@@ -114,7 +119,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         unsigned long nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // select the best possible next scan(s) and save them under 'bestScans'
-        vector <Scan> bestScans;
+        vector<Scan> bestScans;
         if (type != Scan::ScanType::calibrator) {
             // standard case
             bestScans = subcon.selectBest(network_, sources_, opt_endposition);
@@ -127,11 +132,11 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
         // check if you have possible next scan
         if (bestScans.empty()) {
-            if(depth == 0){
+            if (depth == 0) {
                 if (type == Scan::ScanType::calibrator) {
 #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning)
-                            << "no valid scan found in calibrator block -> finished calibration block";
+                        << "no valid scan found in calibrator block -> finished calibration block";
 #else
                     cout << "[warning] no valid scan found in calibrator block -> finished calibration block\n";
 #endif
@@ -140,29 +145,29 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
                 // if there is no more possible scan at the outer most iteration, check 1minute later
                 unsigned int maxScanEnd = 0;
-                for(auto &any:network_.refStations()){
+                for (auto &any:network_.refStations()) {
                     PointingVector pv = any.getCurrentPointingVector();
-                    pv.setTime(pv.getTime()+60);
+                    pv.setTime(pv.getTime() + 60);
                     any.setCurrentPointingVector(pv);
-                    if(pv.getTime()>maxScanEnd){
+                    if (pv.getTime() > maxScanEnd) {
                         maxScanEnd = pv.getTime();
                     }
                 }
-                #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "no valid scan found, checking one minute later";
-                #else
+#else
                 cout << "[warning] no valid scan found, checking one minute later\n";
-                #endif
+#endif
 
                 of << (boost::format("[warning] no valid scan found, checking one minute later: %s\n")
-                                          % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
-                checkForNewEvents(maxScanEnd,true,of);
-                if( maxScanEnd > endTime){
+                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
+                checkForNewEvents(maxScanEnd, true, of);
+                if (maxScanEnd > endTime) {
                     break;
                 }
 
                 continue;
-            }else{
+            } else {
                 // if there is no more possible scan in an deep recursion, break this recursion
                 break;
             }
@@ -183,7 +188,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         }
 
         // if end time of best possible next scans is greate than end time of scan selection stop
-        if( maxScanEnd > endTime){
+        if (maxScanEnd > endTime) {
             break;
         }
 
@@ -191,16 +196,16 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
             boost::optional<StationEndposition> newEndposition(network_.getNSta());
-            if(opt_endposition.is_initialized()){
-                for(unsigned long i=0; i<network_.getNSta();++i){
-                    if(opt_endposition->hasEndposition(i)){
+            if (opt_endposition.is_initialized()) {
+                for (unsigned long i = 0; i < network_.getNSta(); ++i) {
+                    if (opt_endposition->hasEndposition(i)) {
                         newEndposition->addPointingVectorAsEndposition(opt_endposition->getFinalPosition(i).get());
                     }
                 }
             }
 
-            for(const auto&any:bestScans){
-                for(int i=0; i<any.getNSta(); ++i){
+            for (const auto &any:bestScans) {
+                for (int i = 0; i < any.getNSta(); ++i) {
                     newEndposition->addPointingVectorAsEndposition(any.getPointingVector(i));
                 }
             }
@@ -211,40 +216,44 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             boost::optional<Subcon> new_opt_subcon(std::move(subcon));
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection(newEndposition->getEarliestScanStart(), of, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth+1);
+            startScanSelection(newEndposition->getEarliestScanStart(), of, Scan::ScanType::fillin, newEndposition,
+                               new_opt_subcon, depth + 1);
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
-            if(scansAfter != scansBefore){
+            if (scansAfter != scansBefore) {
 
                 // loop over all stations
-                for(const Station &thisSta : network_.getStations()){
+                for (const Station &thisSta : network_.getStations()) {
                     unsigned long staid = thisSta.getId();
 
                     // search for station in all best scans
-                    for(auto &thisScan : bestScans){
+                    for (auto &thisScan : bestScans) {
                         boost::optional<unsigned long> oidx = thisScan.findIdxOfStationId(staid);
-                        if(oidx.is_initialized()){
+                        if (oidx.is_initialized()) {
                             bool valid = true;
                             auto idx = static_cast<int>(oidx.get());
                             const PointingVector &slewEnd = thisScan.getPointingVector(idx, Timestamp::start);
                             boost::optional<unsigned int> oSlewTime = thisSta.slewTime(slewEnd);
-                            if(oSlewTime.is_initialized()){
+                            if (oSlewTime.is_initialized()) {
                                 unsigned int slewTime = oSlewTime.get();
                                 valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
-                                        thisSta.getWaittimes().fieldSystem, slewTime);
-                            }else{
+                                                                                       thisSta.getWaittimes().fieldSystem,
+                                                                                       slewTime);
+                            } else {
                                 valid = false;
                             }
 
-                            if(!valid){
-                                #ifdef VIESCHEDPP_LOG
-                                BOOST_LOG_TRIVIAL(warning) << "check fillin mode scan for station "<< thisSta.getName() << " prior to this scan";
-                                #else
+                            if (!valid) {
+#ifdef VIESCHEDPP_LOG
+                                BOOST_LOG_TRIVIAL(warning) << "check fillin mode scan for station " << thisSta.getName()
+                                                           << " prior to this scan";
+#else
                                 cout << "[warning] check fillin mode scan for station "<< thisSta.getName() << " prior to this scan\n";
-                                #endif
+#endif
 
-                                of << "[warning] check fillin mode scan for station "<< thisSta.getName() << " prior to this scan!\n";
+                                of << "[warning] check fillin mode scan for station " << thisSta.getName()
+                                   << " prior to this scan!\n";
                             }
 
                             break;
@@ -270,8 +279,10 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         }
 
         // stop if calibration block is finished of number of maximum scans reached
-        if (stopScanSelection || countCalibratorScans >= CalibratorBlock::nmaxScans) {
-            break;
+        if (type == Scan::ScanType::calibrator){
+            if (stopScanSelection || countCalibratorScans >= CalibratorBlock::nmaxScans) {
+                break;
+            }
         }
 
         // update number of scan selections if it is a standard scan

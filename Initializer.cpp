@@ -869,7 +869,16 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
         parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
         parameters_.subnettingMinAngle = xml_.get<double>("master.general.subnettingMinAngle",120.)*deg2rad;
-        parameters_.subnettingMinNSta = xml_.get<double>("master.general.subnettingMinNSta",60.)/100;
+        boost::optional<double> subnettingMinNStaPercent = xml_.get_optional<double>("master.general.subnettingMinNStaPercent");
+        boost::optional<double> subnettingMinNStaAllBut = xml_.get_optional<double>("master.general.subnettingMinNStaAllBut");
+        if(subnettingMinNStaPercent.is_initialized()){
+            parameters_.subnettingMinNStaPercent = subnettingMinNStaPercent.get()/100.;
+            parameters_.subnettingMinNStaPercent_otherwiseAllBut = true;
+        }
+        if(subnettingMinNStaAllBut.is_initialized()){
+            parameters_.subnettingMinNStaAllBut = subnettingMinNStaAllBut.get();
+            parameters_.subnettingMinNStaPercent_otherwiseAllBut = false;
+        }
 
         parameters_.fillinmodeDuringScanSelection = xml_.get<bool>("master.general.fillinmodeDuringScanSelection",false);
         parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule",false);
@@ -2251,7 +2260,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         parameters_.subnettingMinAngle = *parameters.subnetting_minSourceAngle;
     }
     if (parameters.subnetting_minParticipatingStations.is_initialized()) {
-        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
+//        parameters_.subnettingMinNSta = *parameters.subnetting_minParticipatingStations;
     }
     if (parameters.fillinmode_duringScanSelection.is_initialized()) {
         parameters_.fillinmodeDuringScanSelection = *parameters.fillinmode_duringScanSelection;

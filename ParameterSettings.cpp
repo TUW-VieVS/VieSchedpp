@@ -20,7 +20,7 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
 }
 
 void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
-                                bool subnetting, double subnettingMinAngle, double subnettingMinNSta,
+                                bool subnetting, double subnettingMinAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
                                 bool idleToObservingTime,
                                 const std::vector<std::string> &stations,bool useSourcesFromParameter_otherwiseIgnore,
@@ -43,7 +43,11 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     general.add("general.subnetting", subnetting);
     if(subnetting){
         general.add("general.subnettingMinAngle", subnettingMinAngle);
-        general.add("general.subnettingMinNSta", subnettingMinNSta);
+        if(useSubnettingPercent_otherwiseAllBut){
+            general.add("general.subnettingMinNStaPercent", subnettingNumber);
+        }else{
+            general.add("general.subnettingMinNStaAllBut", subnettingNumber);
+        }
     }
 
 

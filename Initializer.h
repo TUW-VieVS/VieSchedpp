@@ -83,8 +83,10 @@ namespace VieVS {
          */
         struct Parameters {
             bool subnetting = true; ///< if set to true subnetting is enabled
-            double subnettingMinAngle = 120*deg2rad;
-            double subnettingMinNSta = 0.60;
+            double subnettingMinAngle = 150*deg2rad;
+            double subnettingMinNStaPercent = 0.80;
+            double subnettingMinNStaAllBut = 1;
+            double subnettingMinNStaPercent_otherwiseAllBut = false;
 
             bool fillinmodeDuringScanSelection = true; ///< it set to true fillin scans are calculated
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
