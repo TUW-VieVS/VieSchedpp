@@ -180,8 +180,6 @@ namespace VieVS{
         void listSourceOverview(std::ofstream &of) noexcept;
 
 
-        void startCalibrationBlock(std::ofstream &of);
-
         void startTagelongMode(Station &station, std::ofstream &of);
 
         bool checkOptimizationConditions(std::ofstream &of);
@@ -200,6 +198,16 @@ namespace VieVS{
         void sortSchedule(Timestamp ts = Timestamp::start);
 
         void sortSchedule(unsigned long staid, Timestamp ts = Timestamp::start);
+
+
+        bool calibratorUpdate(const std::vector<Scan> &bestScans,
+                              std::vector<double> &prevHighElevationScores, std::vector<double> &prevLowElevationScores,
+                              std::vector<double> &highestElevations, std::vector<double> &lowestElevations);
+
+        void writeCalibratorStatistics(std::ofstream &of, std::vector<double> &highestElevations,
+                                       std::vector<double> &lowestElevations);
+
+        void writeCalibratorHeader(std::ofstream &of);
 
 
     };

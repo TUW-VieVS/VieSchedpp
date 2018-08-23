@@ -689,13 +689,18 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
 //
 //    return bestScans;
 //}
-
-
 vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
-    #ifdef VIESCHEDPP_LOG
+    return selectBest(network, sources, vector<double>(), vector<double>(), endposition);
+}
+
+vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
+                                const std::vector<double> &prevLowElevationScores,
+                                const std::vector<double> &prevHighElevationScores,
+                                const boost::optional<StationEndposition> &endposition) noexcept {
+#ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " select best scan ";
-    #endif
+#endif
 
     vector<Scan> bestScans;
 
@@ -732,24 +737,31 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
 
             // get scan with highest score
             Scan &thisScan = singleScans_[thisIdx];
-            #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " highest score for scan " << thisScan.printId();
-            #endif
+#endif
 
             const Source &thisSource = sources[thisScan.getSourceId()];
             // make rigorous update
             bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()], endposition);
             if (!flag) {
                 scansToRemove.push_back(idx);
-                #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
                 if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
-                #endif
+#endif
                 continue;
             }
 
             // calculate score again
-            thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                               network, thisSource);
+            if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
+                // standard case
+                thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
+                                   network, thisSource);
+            } else {
+                // special case for calibrator block
+                thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                   minRequiredTime_, maxRequiredTime_, thisSource);
+            }
 
             // push score in queue
             q.push(make_pair(thisScan.getScore(), idx));
@@ -764,45 +776,54 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
             Scan &thisScan2 = thisScans.second;
             const Source &thisSource2 = sources[thisScan2.getSourceId()];
 
-            #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " highest score for scan " << thisScan1.printId() << " and " << thisScan2.printId();
-            #endif
+#endif
 
             // make rigorous update
             bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()], endposition);
             if (!flag1) {
                 scansToRemove.push_back(idx);
-                #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
                 if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan1.printId() << " no longer valid -> removed";
-                #endif
+#endif
 
                 continue;
             }
             bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()], endposition);
             if (!flag2) {
                 scansToRemove.push_back(idx);
-                #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
                 if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan2.printId() << " no longer valid -> removed";
-                #endif
+#endif
                 continue;
             }
 
             // check time differences between subnetting scans
             unsigned int maxTime1 = thisScan1.getTimes().getScanTime(Timestamp::end);
             unsigned int maxTime2 = thisScan2.getTimes().getScanTime(Timestamp::end);
-            unsigned int deltaTime = util::absDiff(maxTime1,maxTime2);
+            unsigned int deltaTime = util::absDiff(maxTime1, maxTime2);
             if (deltaTime > 600) {
-                #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
                 if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " too much time between subnetting scans -> removed";
-                #endif
+#endif
                 continue;
             }
 
             // calculate score again
-            thisScan1.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                network, thisSource1);
-            thisScan2.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                network, thisSource2);
+            if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
+                // standard case
+                thisScan1.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
+                                    network, thisSource1);
+                thisScan2.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
+                                    network, thisSource2);
+            } else {
+                // special case for calibrator block
+                thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                    minRequiredTime_, maxRequiredTime_, thisSource1);
+                thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                    minRequiredTime_, maxRequiredTime_, thisSource2);
+            }
 
             // push score in queue
             q.push(make_pair(thisScan1.getScore() + thisScan2.getScore(), idx));
@@ -817,18 +838,18 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
 
     if (idx < nSingleScans_) {
         Scan bestScan = takeSingleSourceScan(idx);
-        #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << bestScan.printId() << " is valid best scan";
-        #endif
+#endif
         bestScans.push_back(std::move(bestScan));
     } else {
         unsigned long thisIdx = idx - nSingleScans_;
         pair<Scan, Scan> bestScan_pair = takeSubnettingScans(thisIdx);
         Scan bestScan1 = bestScan_pair.first;
         Scan bestScan2 = bestScan_pair.second;
-        #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << bestScan1.printId() << " and " << bestScan2.printId() << " are valid best scans";
-        #endif
+#endif
 
         bestScans.push_back(std::move(bestScan1));
         bestScans.push_back(std::move(bestScan2));
@@ -839,9 +860,9 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
     });
 
     // remove all scans which are invalid
-    #ifdef VIESCHEDPP_LOG
+#ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " remove invalid scan(s) ";
-    #endif
+#endif
     for(auto invalidIdx:scansToRemove){
         // if invalid index is larger as idx decrement it (source(s) with idx are already removed!)
         if(invalidIdx>idx){

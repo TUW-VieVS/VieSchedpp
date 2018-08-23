@@ -1133,6 +1133,8 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
     double improvementLowElevation = 0;
     double improvementHighElevation = 0;
 
+    unsigned long nMaxSta = network.getNSta();
+
     int i=0;
     while( i<nsta_ ){
         const PointingVector &pv = pointingVectorsStart_[i];
@@ -1166,24 +1168,22 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
             improvementHighElevation += deltaHighElScore;
         }
 
-        if(deltaLowElScore+deltaHighElScore == 0){
-            bool scanValid = removeStation(i, source);
-            if(!scanValid){
-                return false;
-            }
-        }
         ++i;
     }
 
-    double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime)*.1;
+    double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime);
 
-    double scoreBaselines = static_cast<double>(observations_.size())/ static_cast<double>(network.getNBls())*.5;
+    double scoreBaselines = calcScore_numberOfObservations(network.getNBls());
 
-    double this_score = improvementLowElevation/nsta_ + improvementHighElevation/nsta_ + scoreDuration + scoreBaselines;
+    double this_score = 0;
+    if (improvementHighElevation + improvementLowElevation > 0) {
+        this_score =
+                improvementLowElevation / nMaxSta + improvementHighElevation / nMaxSta + scoreDuration + scoreBaselines;
+    }
 
-    this_score *= source.getPARA().weight * weight_stations(network.getStations()) * weight_baselines(network.getBaselines());
 
-    score_ = this_score;
+    score_ = calcScore_secondPart(this_score, network, source);
+
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
     #endif

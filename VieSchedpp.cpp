@@ -220,20 +220,28 @@ void VieSchedpp::readSkdCatalogs() {
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     #endif
     vector<string> staNames;
-    boost::property_tree::ptree ptree_stations = xml_.get_child("master.general.stations");
-    auto it = ptree_stations.begin();
-    while (it != ptree_stations.end()) {
-        auto item = it->second.data();
-        staNames.push_back(item);
-        ++it;
-    }
-    skdCatalogs_.setStationNames(staNames);
-    skdCatalogs_.setCatalogFilePathes(xml_.get_child("master.catalogs"));
-    skdCatalogs_.initializeStationCatalogs();
-    skdCatalogs_.initializeSourceCatalogs();
-    auto modeName = xml_.get_optional<std::string>("master.mode.skdMode");
-    if(modeName.is_initialized()){
-        skdCatalogs_.initializeModesCatalogs(*modeName);
+    auto ptree_stations = xml_.get_child_optional("master.general.stations");
+    if (ptree_stations.is_initialized()) {
+        auto it = ptree_stations->begin();
+        while (it != ptree_stations->end()) {
+            auto item = it->second.data();
+            staNames.push_back(item);
+            ++it;
+        }
+        skdCatalogs_.setStationNames(staNames);
+        skdCatalogs_.setCatalogFilePathes(xml_.get_child("master.catalogs"));
+        skdCatalogs_.initializeStationCatalogs();
+        skdCatalogs_.initializeSourceCatalogs();
+        auto modeName = xml_.get_optional<std::string>("master.mode.skdMode");
+        if (modeName.is_initialized()) {
+            skdCatalogs_.initializeModesCatalogs(*modeName);
+        }
+    } else {
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL(fatal) << "no stations selected";
+#else
+        cout << "[fatal] no stations selected";
+#endif
     }
 }
 

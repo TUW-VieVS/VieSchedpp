@@ -189,6 +189,10 @@ namespace VieVS{
         std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
+        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources,
+                                     const std::vector<double> &prevLowElevationScores,
+                                     const std::vector<double> &prevHighElevationScores,
+                                     const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
 
         /**

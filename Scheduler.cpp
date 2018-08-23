@@ -60,6 +60,17 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start scan selection (depth " << depth << ")";
     #endif
 
+    // necessary vectors for calibrator blocks
+    vector<double> prevLowElevationScores(network_.getNSta(), 0);
+    vector<double> prevHighElevationScores(network_.getNSta(), 0);
+    vector<double> highestElevations(network_.getNSta(), numeric_limits<double>::min());
+    vector<double> lowestElevations(network_.getNSta(), numeric_limits<double>::max());
+    int countCalibratorScans = 0;
+
+    if (type == Scan::ScanType::calibrator) {
+        writeCalibratorHeader(of);
+    }
+
     // Check if there is a required opt_endposition. If yes change station availability with respect to opt_endposition
     if(opt_endposition.is_initialized()){
         changeStationAvailability(opt_endposition,StationEndposition::change::start);
@@ -85,21 +96,48 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             if (parameters_.subnetting) {
                 subcon.createSubnettingScans(*parameters_.subnetting, sources_);
             }
-            subcon.generateScore(network_,sources_);
         }else{
             // otherwise calculate new subcon
             subcon = createSubcon(parameters_.subnetting, type, opt_endposition);
-            subcon.generateScore(network_,sources_);
         }
+
+        if (type != Scan::ScanType::calibrator) {
+            // standard case
+            subcon.generateScore(network_, sources_);
+        } else {
+            // special case for calibrator scans
+            subcon.generateScore(prevLowElevationScores, prevHighElevationScores, network_, sources_);
+        }
+
+
         unsigned long nSingleScans = subcon.getNumberSingleScans();
-        unsigned long  nSubnettingScans = subcon.getNumberSubnettingScans();
+        unsigned long nSubnettingScans = subcon.getNumberSubnettingScans();
 
         // select the best possible next scan(s) and save them under 'bestScans'
-        vector<Scan> bestScans = subcon.selectBest(network_, sources_, opt_endposition);
+        vector <Scan> bestScans;
+        if (type != Scan::ScanType::calibrator) {
+            // standard case
+            bestScans = subcon.selectBest(network_, sources_, opt_endposition);
+        } else {
+            // special calibrator case
+            bestScans = subcon.selectBest(network_, sources_, prevLowElevationScores, prevHighElevationScores,
+                                          opt_endposition);
+        }
+
 
         // check if you have possible next scan
         if (bestScans.empty()) {
             if(depth == 0){
+                if (type == Scan::ScanType::calibrator) {
+#ifdef VIESCHEDPP_LOG
+                    BOOST_LOG_TRIVIAL(warning)
+                            << "no valid scan found in calibrator block -> finished calibration block";
+#else
+                    cout << "[warning] no valid scan found in calibrator block -> finished calibration block\n";
+#endif
+                    break;
+                }
+
                 // if there is no more possible scan at the outer most iteration, check 1minute later
                 unsigned int maxScanEnd = 0;
                 for(auto &any:network_.refStations()){
@@ -217,10 +255,23 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             }
         }
 
+        //update highestElevation and lowestElevation in case of calibrator block
+        bool stopScanSelection = false;
+        if (type == Scan::ScanType::calibrator) {
+            ++countCalibratorScans;
+            stopScanSelection = calibratorUpdate(bestScans, prevHighElevationScores, prevLowElevationScores,
+                                                 highestElevations, lowestElevations);
+        }
+
         // update best possible scans
         consideredUpdate(nSingleScans, nSubnettingScans, depth, of);
         for (auto &bestScan : bestScans) {
             update(bestScan, of);
+        }
+
+        // stop if calibration block is finished of number of maximum scans reached
+        if (stopScanSelection || countCalibratorScans >= CalibratorBlock::nmaxScans) {
+            break;
         }
 
         // update number of scan selections if it is a standard scan
@@ -231,25 +282,35 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             }
         }
 
+
         // check if you need to schedule a calibration block
-        if(CalibratorBlock::scheduleCalibrationBlocks){
+        if (type == Scan::ScanType::standard && CalibratorBlock::scheduleCalibrationBlocks) {
             switch(CalibratorBlock::cadenceUnit){
                 case CalibratorBlock::CadenceUnit::scans:{
                     if(Scan::nScanSelections == CalibratorBlock::nextBlock){
-                        startCalibrationBlock(of);
+                        boost::optional<Subcon> empty_subcon = boost::none;
+                        startScanSelection(endTime, of, Scan::ScanType::calibrator, opt_endposition, empty_subcon,
+                                           depth + 1);
                         CalibratorBlock::nextBlock += CalibratorBlock::cadence;
                     }
                     break;
                 }
                 case CalibratorBlock::CadenceUnit::seconds:{
                     if(maxScanEnd >= CalibratorBlock::nextBlock){
-                        startCalibrationBlock(of);
+                        boost::optional<Subcon> empty_subcon = boost::none;
+                        startScanSelection(endTime, of, Scan::ScanType::calibrator, opt_endposition, empty_subcon,
+                                           depth + 1);
                         CalibratorBlock::nextBlock += CalibratorBlock::cadence;
                     }
                     break;
                 }
             }
         }
+    }
+
+    // write clibrator statistics
+    if (type == Scan::ScanType::calibrator) {
+        writeCalibratorStatistics(of, highestElevations, lowestElevations);
     }
 
     // scan selection block is over. Change station availability back to start value
@@ -564,8 +625,10 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                             << " " << nextStart.printId() << "\n";
                     of << "*\n";
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(error) << "start time of next scan is before end time of previouse scan! scans: "
-                                             << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                    BOOST_LOG_TRIVIAL(error)
+                            << "start time of next scan is before end time of previouse scan! station: "
+                            << thisStation.getName() << " scans: "
+                            << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
                     #endif
                     everythingOk = false;
                 }else{
@@ -603,8 +666,9 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                         of << "*\n";
                         everythingOk = false;
                         #ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! scans: "
-                                << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                        BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! station: "
+                                                 << thisStation.getName() << "scans: "
+                                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
                         #endif
 
                     }else{
@@ -621,8 +685,9 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                                     << " " << nextStart.printId() << "\n";
                             of << "*\n";
                             #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(warning) << "long idle time! ("<< idleTime <<" [s]) scans: "
-                                                     << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                            BOOST_LOG_TRIVIAL(warning) << "long idle time! (" << idleTime << " [s]) station: "
+                                                       << thisStation.getName() << "scans: "
+                                                       << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
                             #endif
                         }
                     }
@@ -790,177 +855,6 @@ void Scheduler::listSourceOverview(ofstream &of) noexcept {
     util::outputObjectList("not available because of optimization",notAvailable_optimization,of);
     util::outputObjectList("not available because too weak",notAvailable_tooWeak,of);
     util::outputObjectList("not available because of sun distance",notAvailable_tooCloseToSun,of);
-
-}
-
-void Scheduler::startCalibrationBlock(std::ofstream &of) {
-    unsigned long nsta = network_.getNSta();
-    vector<double> prevLowElevationScores(nsta,0);
-    vector<double> prevHighElevationScores(nsta,0);
-
-    vector<double> highestElevations(nsta,numeric_limits<double>::min());
-    vector<double> lowestElevations(nsta,numeric_limits<double>::max());
-
-
-
-    for (int i = 0; i < CalibratorBlock::nmaxScans; ++i) {
-
-        Subcon subcon = createSubcon(parameters_.subnetting, Scan::ScanType::calibrator);
-        subcon.generateScore(prevLowElevationScores, prevHighElevationScores, network_, sources_);
-
-        boost::optional<unsigned long> bestIdx_opt = subcon.rigorousScore(network_, sources_, prevLowElevationScores, prevHighElevationScores );
-        if (!bestIdx_opt) {
-            of << "ERROR! no valid scan found! End of calibrator block!\n";
-            break;
-        }
-        unsigned long bestIdx = *bestIdx_opt;
-        vector<Scan> bestScans;
-        if (bestIdx < subcon.getNumberSingleScans()) {
-            Scan bestScan = subcon.takeSingleSourceScan(bestIdx);
-            bestScans.push_back(std::move(bestScan));
-        } else {
-            unsigned long thisIdx = bestIdx - subcon.getNumberSingleScans();
-            pair<Scan, Scan> bestScan_pair = subcon.takeSubnettingScans(thisIdx);
-            Scan &bestScan1 = bestScan_pair.first;
-            Scan &bestScan2 = bestScan_pair.second;
-
-            bestScans.push_back(std::move(bestScan1));
-            bestScans.push_back(std::move(bestScan2));
-        }
-
-        // update prev low elevation scores
-        for(const auto &scan:bestScans){
-            double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
-            double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
-
-            double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
-            double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
-
-            for(int j = 0; j<scan.getNSta(); ++j){
-                const PointingVector &pv = scan.getPointingVector(j);
-                unsigned long staid = pv.getStaid();
-
-                double el = pv.getEl();
-                double lowElScore;
-                if(el>lowElevationSlopeStart) {
-                    lowElScore = 0;
-                }else if(el<lowElevationSlopeEnd) {
-                    lowElScore = 1;
-                } else {
-                    lowElScore = (lowElevationSlopeStart-el)/(lowElevationSlopeStart-lowElevationSlopeEnd);
-                }
-                if(lowElScore>prevLowElevationScores[staid]){
-                    prevLowElevationScores[staid] = lowElScore;
-                }
-                if(el<lowestElevations[staid]){
-                    lowestElevations[staid] = el;
-                }
-
-                double highElScore;
-                if(el<highElevationSlopeStart) {
-                    highElScore = 0;
-                }else if(el>highElevationSlopeEnd) {
-                    highElScore = 1;
-                } else {
-                    highElScore = (el-highElevationSlopeStart)/(highElevationSlopeEnd-lowElevationSlopeStart);
-                }
-                if(highElScore>prevHighElevationScores[staid]){
-                    prevHighElevationScores[staid] = highElScore;
-                }
-                if(el>highestElevations[staid]){
-                    highestElevations[staid] = el;
-                }
-
-            }
-
-        }
-
-        unsigned int all_maxTime = 0;
-        for (const auto &any:bestScans) {
-            if (any.getTimes().getObservingTime(Timestamp::end) > all_maxTime) {
-                all_maxTime = any.getTimes().getObservingTime(Timestamp::end);
-            }
-        }
-
-
-        bool hardBreak = checkForNewEvents(all_maxTime, true, of);
-        if (hardBreak) {
-            i -=1;
-            continue;
-        }
-
-        if( all_maxTime > TimeSystem::duration){
-            break;
-        }
-
-
-        if (parameters_.fillinmodeDuringScanSelection && !scans_.empty()) {
-//            start_fillinMode(bestScans, of);
-        } else {
-            for (auto &bestScan : bestScans) {
-                consideredUpdate(subcon.getNumberSingleScans(), subcon.getNumberSubnettingScans(), 0, of);
-                update(bestScan, of);
-            }
-        }
-
-
-        bool moreScansNecessary = false;
-        for(const auto &any:prevLowElevationScores){
-            if(any<.5){
-                moreScansNecessary = true;
-                break;
-            }
-        }
-        if(!moreScansNecessary){
-            for(const auto &any:prevHighElevationScores){
-                if(any<.5){
-                    moreScansNecessary = true;
-                    break;
-                }
-            }
-        }
-
-        if(!moreScansNecessary){
-            break;
-        }
-    }
-
-    of << "|=============";
-    for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        of << "===========";
-    }
-    of << "==========| \n";
-    of << "| CALIBRATOR BLOCK SUMMARY:\n";
-    of << "|=============";
-    for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        of << "===========";
-    }
-    of << "==========| \n";
-
-    of << "| low el     |";
-    for (const auto &any:lowestElevations) {
-        if(any != numeric_limits<double>::max()){
-            of << boost::format(" %8.2f |")% (any*rad2deg);
-        }else {
-            of << boost::format(" %8s |")% "";
-        }
-    }
-    of << "\n";
-    of << "| high el    |";
-    for (const auto &any:highestElevations) {
-        if(any != numeric_limits<double>::min()){
-            of << boost::format(" %8.2f |")% (any*rad2deg);
-        }else {
-            of << boost::format(" %8s |")% "";
-        }
-    }
-    of << "\n";
-
-    of << "|=============";
-    for (int i = 0; i < network_.getNSta() - 1; ++i) {
-        of << "===========";
-    }
-    of << "==========| \n";
 
 }
 
@@ -1999,4 +1893,133 @@ void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
     });
 }
 
+void Scheduler::writeCalibratorHeader(std::ofstream &of) {
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|                                            start calibration block                                             |\n";
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|----------------------------------------------------------------------------------------------------------------|\n";
+}
 
+void Scheduler::writeCalibratorStatistics(std::ofstream &of, std::vector<double> &highestElevations,
+                                          std::vector<double> &lowestElevations) {
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|                                           calibration block summary                                            |\n";
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of
+            << "|     station  | highest elevation | lowest elevation  |                                                         |\n";
+    of
+            << "|              |       [deg]       |       [deg]       |                                                         |\n";
+    of
+            << "|--------------|-------------------|-------------------|                                                         |\n";
+    for (unsigned long i = 0; i < network_.getNSta(); ++i) {
+        const Station &sta = network_.getStation(i);
+        double high = highestElevations[i] * rad2deg;
+        string highstr;
+        if (high <= .1) {
+            highstr = "-----";
+        } else {
+            highstr = (boost::format("%5.2f") % high).str();
+        }
+        double low = lowestElevations[i] * rad2deg;
+        string lowstr;
+        if (low > 90) {
+            lowstr = "-----";
+        } else {
+            lowstr = (boost::format("%5.2f") % low).str();
+        }
+        of << boost::format(
+                "|     %-8s |       %5s       |       %5s       |                                                         |\n") %
+              sta.getName() % highstr % lowstr;
+    }
+    of
+            << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|                                           finished calibration block                                           |\n";
+    of
+            << "|                                                                                                                |\n";
+    of
+            << "|----------------------------------------------------------------------------------------------------------------|\n";
+}
+
+bool Scheduler::calibratorUpdate(const std::vector<Scan> &bestScans,
+                                 std::vector<double> &prevHighElevationScores,
+                                 std::vector<double> &prevLowElevationScores,
+                                 std::vector<double> &highestElevations, std::vector<double> &lowestElevations) {
+
+
+    double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
+    double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
+
+    double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
+    double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
+
+    // update prev low/high elevation scores
+    for (const auto &scan:bestScans) {
+        for (int j = 0; j < scan.getNSta(); ++j) {
+            const PointingVector &pv = scan.getPointingVector(j);
+            unsigned long staid = pv.getStaid();
+
+            double el = pv.getEl();
+            double lowElScore;
+            if (el > lowElevationSlopeStart) {
+                lowElScore = 0;
+            } else if (el < lowElevationSlopeEnd) {
+                lowElScore = 1;
+            } else {
+                lowElScore = (lowElevationSlopeStart - el) / (lowElevationSlopeStart - lowElevationSlopeEnd);
+            }
+            if (lowElScore > prevLowElevationScores[staid]) {
+                prevLowElevationScores[staid] = lowElScore;
+
+            }
+            if (el < lowestElevations[staid]) {
+                lowestElevations[staid] = el;
+            }
+
+            double highElScore;
+            if (el < highElevationSlopeStart) {
+                highElScore = 0;
+            } else if (el > highElevationSlopeEnd) {
+                highElScore = 1;
+            } else {
+                highElScore = (el - highElevationSlopeStart) / (highElevationSlopeEnd - lowElevationSlopeStart);
+            }
+            if (highElScore > prevHighElevationScores[staid]) {
+                prevHighElevationScores[staid] = highElScore;
+            }
+            if (el > highestElevations[staid]) {
+                highestElevations[staid] = el;
+            }
+        }
+    }
+
+
+    bool stopScanSelection = true;
+    for (double any : prevLowElevationScores) {
+        if (any < .5) {
+            stopScanSelection = false;
+            break;
+        }
+    }
+    if (stopScanSelection) {
+        for (double any : prevHighElevationScores) {
+            if (any < .5) {
+                stopScanSelection = false;
+                break;
+            }
+        }
+    }
+
+    return stopScanSelection;
+}
