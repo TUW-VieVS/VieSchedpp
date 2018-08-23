@@ -5,10 +5,10 @@
 #ifndef VLBI_SCHEDULER_FLUX_B_H
 #define VLBI_SCHEDULER_FLUX_B_H
 
-#include "Flux.h"
+#include "AbstractFlux.h"
 
 namespace VieVS{
-    class Flux_B: public Flux {
+    class Flux_B : public AbstractFlux {
     public:
         Flux_B(double wavelength, const std::vector<double> &knots, const std::vector<double> &values);
 

@@ -5,10 +5,10 @@
 #ifndef HORIZONMASK_LINE_H
 #define HORIZONMASK_LINE_H
 
-#include "HorizonMask.h"
+#include "AbstractHorizonMask.h"
 
 namespace VieVS{
-    class HorizonMask_line: public HorizonMask {
+    class HorizonMask_line : public AbstractHorizonMask {
     public:
         HorizonMask_line(const std::vector<double> &azimuths, const std::vector<double> &elevations);
 

@@ -319,9 +319,15 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
 
             switch (thisStation.getCableWrap().cableWrapFlag(pv)){
 
-                case CableWrap::CableWrapFlag::ccw: cwvex = "&ccw"; break;
-                case CableWrap::CableWrapFlag::n:   cwvex = "&n"; break;
-                case CableWrap::CableWrapFlag::cw:  cwvex = "&cw"; break;
+                case AbstractCableWrap::CableWrapFlag::ccw:
+                    cwvex = "&ccw";
+                    break;
+                case AbstractCableWrap::CableWrapFlag::n:
+                    cwvex = "&n";
+                    break;
+                case AbstractCableWrap::CableWrapFlag::cw:
+                    cwvex = "&cw";
+                    break;
             }
 
             int dataGood = times.getObservingTime(j, Timestamp::start);

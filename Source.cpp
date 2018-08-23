@@ -52,11 +52,12 @@ void Source::Parameters::setParameters(const Source::Parameters &other) {
 }
 
 Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-               unordered_map<string, unique_ptr<Flux> > &src_flux): VieVS_NamedObject(src_name,src_name2,nextId++),
-                                                                    ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
-                                                                    parameters_{Parameters("empty")}{
+               unordered_map<string, unique_ptr<AbstractFlux> > &src_flux) : VieVS_NamedObject(src_name, src_name2,
+                                                                                               nextId++),
+                                                                             ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
+                                                                             parameters_{Parameters("empty")}{
 
-    flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<Flux>>>(std::move(src_flux));
+    flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>(std::move(src_flux));
 
     PreCalculated preCalculated = PreCalculated();
     preCalculated.sourceInCrs.resize(3);

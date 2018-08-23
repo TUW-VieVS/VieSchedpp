@@ -5,18 +5,18 @@
  * Created on June 27, 2017, 11:15 AM
  */
 
-#include "Antenna.h"
+#include "AbstractAntenna.h"
 using namespace std;
 using namespace VieVS;
-unsigned long Antenna::nextId = 0;
+unsigned long AbstractAntenna::nextId = 0;
 
-Antenna::Antenna(double offset_m, double diam_m, double rate1_deg_per_min,
+AbstractAntenna::AbstractAntenna(double offset_m, double diam_m, double rate1_deg_per_min,
                  unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s):
         VieVS_Object(nextId++), offset_{offset_m}, diam_{diam_m}, rate1_{rate1_deg_per_min*deg2rad/60},
         con1_{constantOverhead1_s}, rate2_{rate2_deg_per_min*deg2rad/60}, con2_{constantOverhead2_s}{
 }
 
-unsigned int Antenna::slewTimePerAxis(double delta, Axis axis) const noexcept {
+unsigned int AbstractAntenna::slewTimePerAxis(double delta, Axis axis) const noexcept {
     double rate, acc;
     unsigned int constantOverhead;
     switch(axis){

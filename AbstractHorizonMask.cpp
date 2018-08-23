@@ -11,10 +11,10 @@
  * Created on June 27, 2017, 12:58 PM
  */
 
-#include "HorizonMask.h"
+#include "AbstractHorizonMask.h"
 using namespace std;
 using namespace VieVS;
-unsigned long HorizonMask::nextId = 0;
+unsigned long AbstractHorizonMask::nextId = 0;
 
-HorizonMask::HorizonMask():VieVS_Object(nextId++){
+AbstractHorizonMask::AbstractHorizonMask() : VieVS_Object(nextId++) {
 }

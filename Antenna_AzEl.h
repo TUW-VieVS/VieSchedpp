@@ -5,10 +5,10 @@
 #ifndef ANTENNA_AZEL_H
 #define ANTENNA_AZEL_H
 
-#include "Antenna.h"
+#include "AbstractAntenna.h"
 
 namespace VieVS{
-    class Antenna_AzEl: public Antenna {
+    class Antenna_AzEl : public AbstractAntenna {
     public:
         Antenna_AzEl(double offset_m, double diam_m, double rateAz_deg_per_min,
                      unsigned int constantOverheadAz_s, double rateEl_deg_per_min, unsigned int constantOverheadEl_s);

@@ -24,9 +24,9 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class HorizonMask: public VieVS_Object {
+    class AbstractHorizonMask : public VieVS_Object {
     public:
-        HorizonMask();
+        AbstractHorizonMask();
 
         /**
          * checks if a pointing vector is visible

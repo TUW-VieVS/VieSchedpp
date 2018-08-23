@@ -4,16 +4,16 @@ project(VLBI_scheduler)
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES
-        Antenna.cpp Antenna.h
+        AbstractAntenna.cpp AbstractAntenna.h
         Baseline.cpp Baseline.h
         AstronomicalParameters.cpp AstronomicalParameters.h
-        CableWrap.cpp CableWrap.h
+        AbstractCableWrap.cpp AbstractCableWrap.h
         CalibratorBlock.cpp CalibratorBlock.h
         Constants.h
         Equipment.cpp Equipment.h
         StationEndposition.cpp StationEndposition.h
-        Flux.cpp Flux.h
-        HorizonMask.cpp HorizonMask.h
+        AbstractFlux.cpp AbstractFlux.h
+        AbstractHorizonMask.cpp AbstractHorizonMask.h
         Initializer.cpp Initializer.h
         LookupTable.cpp LookupTable.h
         main.cpp

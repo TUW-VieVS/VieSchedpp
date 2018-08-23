@@ -7,7 +7,7 @@ using namespace VieVS;
 using namespace std;
 
 CableWrap_XYew::CableWrap_XYew(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg)
-        : CableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
+        : AbstractCableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
 
 }
 
@@ -30,8 +30,8 @@ void CableWrap_XYew::unwrapAzNearAz(PointingVector &new_pointingVector, double a
 }
 
 
-CableWrap::CableWrapFlag CableWrap_XYew::cableWrapFlag(double unaz) const noexcept {
-    return CableWrap::CableWrapFlag::n;
+AbstractCableWrap::CableWrapFlag CableWrap_XYew::cableWrapFlag(double unaz) const noexcept {
+    return AbstractCableWrap::CableWrapFlag::n;
 }
 
 bool CableWrap_XYew::unwrapAzInSection(PointingVector &pv, char section) const noexcept {

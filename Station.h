@@ -19,10 +19,10 @@
 #include <memory>
 
 #include "Position.h"
-#include "Antenna.h"
-#include "CableWrap.h"
+#include "AbstractAntenna.h"
+#include "AbstractCableWrap.h"
 #include "Equipment.h"
-#include "HorizonMask.h"
+#include "AbstractHorizonMask.h"
 #include "Source.h"
 #include "PointingVector.h"
 #include "Constants.h"
@@ -172,9 +172,9 @@ namespace VieVS{
          * @param sta_mask station horizon mask
          * @param sta_axis station axis type
          */
-        Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna> sta_antenna,
-                std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
-                std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask);
+        Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
+                std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
+                std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask);
 
 
         /**
@@ -209,7 +209,7 @@ namespace VieVS{
          * @brief getter for cable wrap
          * @return cable wrap of this station
          */
-        const CableWrap &getCableWrap() const noexcept {
+        const AbstractCableWrap &getCableWrap() const noexcept {
             return *cableWrap_;
         }
 
@@ -217,7 +217,7 @@ namespace VieVS{
          * @brief reference to cable wrap
          * @return cable wrap of this station
          */
-        CableWrap &referenceCableWrap() noexcept {
+        AbstractCableWrap &referenceCableWrap() noexcept {
             return *cableWrap_;
         }
 
@@ -246,7 +246,7 @@ namespace VieVS{
          *
          * @return horizon mask object
          */
-        const HorizonMask &getMask() const {
+        const AbstractHorizonMask &getMask() const {
             return *mask_;
         }
 
@@ -254,7 +254,7 @@ namespace VieVS{
          * @brief getter for antenna
          * @return antenna object
          */
-        const Antenna &getAntenna() const noexcept {
+        const AbstractAntenna &getAntenna() const noexcept {
             return *antenna_;
         }
 
@@ -399,11 +399,11 @@ namespace VieVS{
     private:
         static unsigned long nextId;
 
-        std::shared_ptr<Antenna> antenna_; ///< station antenna
-        std::shared_ptr<CableWrap> cableWrap_; ///< station cable wrap
+        std::shared_ptr<AbstractAntenna> antenna_; ///< station antenna
+        std::shared_ptr<AbstractCableWrap> cableWrap_; ///< station cable wrap
         std::shared_ptr<Position> position_; ///< station position
         std::shared_ptr<Equipment> equip_; ///< station equipment
-        std::shared_ptr<HorizonMask> mask_; ///< station horizon mask
+        std::shared_ptr<AbstractHorizonMask> mask_; ///< station horizon mask
         std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 

@@ -11,13 +11,13 @@
  * Created on June 28, 2017, 11:22 AM
  */
 
-#include "Flux.h"
+#include "AbstractFlux.h"
 using namespace std;
 using namespace VieVS;
 
-unsigned long Flux::nextId = 0;
+unsigned long AbstractFlux::nextId = 0;
 
-Flux::Flux(double wavelength): VieVS_Object{nextId++} {
+AbstractFlux::AbstractFlux(double wavelength) : VieVS_Object{nextId++} {
     wavelength_ = wavelength;
 }
 

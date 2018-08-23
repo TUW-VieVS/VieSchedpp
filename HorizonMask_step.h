@@ -5,10 +5,10 @@
 #ifndef HORIZONMASK_STEP_H
 #define HORIZONMASK_STEP_H
 
-#include "HorizonMask.h"
+#include "AbstractHorizonMask.h"
 
 namespace VieVS{
-    class HorizonMask_step: public HorizonMask {
+    class HorizonMask_step : public AbstractHorizonMask {
     public:
         HorizonMask_step(const std::vector<double> &azimuths, const std::vector<double> &elevations);
 

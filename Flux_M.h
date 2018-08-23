@@ -5,9 +5,9 @@
 #ifndef VLBI_SCHEDULER_FLUX_M_H
 #define VLBI_SCHEDULER_FLUX_M_H
 
-#include "Flux.h"
+#include "AbstractFlux.h"
 namespace VieVS {
-    class Flux_M : public Flux {
+    class Flux_M : public AbstractFlux {
     public:
         Flux_M(double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
                const std::vector<double> &axialRatio, const std::vector<double> &positionAngle);

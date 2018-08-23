@@ -5,10 +5,10 @@
 #ifndef CABLEWRAP_XYEW_H
 #define CABLEWRAP_XYEW_H
 
-#include "CableWrap.h"
+#include "AbstractCableWrap.h"
 
 namespace VieVS {
-    class CableWrap_XYew: public CableWrap  {
+    class CableWrap_XYew : public AbstractCableWrap {
     public:
         CableWrap_XYew(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
 
@@ -18,7 +18,7 @@ namespace VieVS {
 
         bool unwrapAzInSection(PointingVector &pv, char section) const noexcept override;
 
-        CableWrap::CableWrapFlag cableWrapFlag(double unaz) const noexcept override;
+        AbstractCableWrap::CableWrapFlag cableWrapFlag(double unaz) const noexcept override;
 
         std::pair<std::string, std::string> getMotions() const noexcept override;
 

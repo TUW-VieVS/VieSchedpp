@@ -24,7 +24,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class Antenna: public VieVS_Object {
+    class AbstractAntenna : public VieVS_Object {
     public:
 
         /**
@@ -38,8 +38,8 @@ namespace VieVS{
          * @param rate2_deg_per_min slew rate of second axis in degrees/secondds
          * @param constantOverhead2_s constant overhead for second axis slew in seconds
          */
-        Antenna(double offset_m, double diam_m, double rate1_deg_per_min,
-                unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s);
+        AbstractAntenna(double offset_m, double diam_m, double rate1_deg_per_min,
+                        unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s);
 
         double getDiam() const {
             return diam_;

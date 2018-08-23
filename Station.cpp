@@ -52,9 +52,9 @@ void Station::Parameters::setParameters(const Station::Parameters &other) {
     ignoreSources = other.ignoreSources;
 }
 
-Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Antenna> sta_antenna,
-                 std::shared_ptr<CableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
-                 std::shared_ptr<Equipment> sta_equip, std::shared_ptr<HorizonMask> sta_mask):
+Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
+                 std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
+                 std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask) :
         VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++),
         antenna_{move(sta_antenna)},
         cableWrap_{move(sta_cableWrap)},

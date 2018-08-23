@@ -23,7 +23,7 @@
 #include <boost/log/trivial.hpp>
 #endif
 
-#include "Flux.h"
+#include "AbstractFlux.h"
 #include "Constants.h"
 #include "TimeSystem.h"
 #include "VieVS_NamedObject.h"
@@ -220,7 +220,7 @@ namespace VieVS{
          * @param src_flux flux information per band
          */
         Source(const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
-               std::unordered_map<std::string, std::unique_ptr<Flux>> &src_flux);
+               std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux);
 
 
         /**
@@ -397,7 +397,7 @@ namespace VieVS{
 
 
     private:
-        std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<Flux>>> flux_; ///< source flux information per band
+        std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>> flux_; ///< source flux information per band
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
         std::shared_ptr<PreCalculated> preCalculated_; ///< pre calculated values
         std::shared_ptr<Optimization> condition_;

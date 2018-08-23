@@ -7,7 +7,7 @@ using namespace VieVS;
 using namespace std;
 
 CableWrap_HaDc::CableWrap_HaDc(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg)
-        : CableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
+        : AbstractCableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
 }
 
 bool CableWrap_HaDc::anglesInside(const PointingVector &p) const noexcept {
@@ -21,8 +21,8 @@ void CableWrap_HaDc::unwrapAzNearAz(PointingVector &new_pointingVector, double a
 }
 
 
-CableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(double unaz) const noexcept {
-    return CableWrap::CableWrapFlag::n;
+AbstractCableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(double unaz) const noexcept {
+    return AbstractCableWrap::CableWrapFlag::n;
 }
 
 bool CableWrap_HaDc::unwrapAzInSection(PointingVector &pv, char section) const noexcept {

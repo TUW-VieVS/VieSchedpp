@@ -5,7 +5,7 @@
 #include "Flux_B.h"
 
 VieVS::Flux_B::Flux_B(double wavelength, const std::vector<double> &knots, const std::vector<double> &values):
-        Flux{wavelength}, knots_{knots}, values_{values} {
+        AbstractFlux{wavelength}, knots_{knots}, values_{values} {
 }
 
 double VieVS::Flux_B::getMaximumFlux() const noexcept {

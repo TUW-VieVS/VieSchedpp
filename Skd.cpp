@@ -526,9 +526,15 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
             const string &staName = thisSta.getName();
             of << olc.at(staName);
             switch (thisSta.getCableWrap().cableWrapFlag(pv)){
-                case CableWrap::CableWrapFlag::ccw: of << "W"; break;
-                case CableWrap::CableWrapFlag::n:   of << "-"; break;
-                case CableWrap::CableWrapFlag::cw:  of << "C"; break;
+                case AbstractCableWrap::CableWrapFlag::ccw:
+                    of << "W";
+                    break;
+                case AbstractCableWrap::CableWrapFlag::n:
+                    of << "-";
+                    break;
+                case AbstractCableWrap::CableWrapFlag::cw:
+                    of << "C";
+                    break;
             }
         }
         of << " ";

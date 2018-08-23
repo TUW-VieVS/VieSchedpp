@@ -5,10 +5,10 @@
 #ifndef ANTENNA_XYEW_H
 #define ANTENNA_XYEW_H
 
-#include "Antenna.h"
+#include "AbstractAntenna.h"
 
 namespace VieVS{
-    class Antenna_XYew: public Antenna {
+    class Antenna_XYew : public AbstractAntenna {
     public:
         Antenna_XYew(double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
                      double rateY_deg_per_min, unsigned int constantOverheadY_s);

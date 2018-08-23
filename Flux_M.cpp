@@ -12,7 +12,8 @@ double Flux_M::flcon1_{(pi * pi) / (4.0 * 0.6931471)}; ///< constant precalculat
 
 VieVS::Flux_M::Flux_M(double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
                       const std::vector<double> &axialRatio, const std::vector<double> &positionAngle):
-        Flux{wavelength}, flux_{flux}, majorAxis_{majorAxis}, axialRatio_{axialRatio}, positionAngle_{positionAngle} {
+        AbstractFlux{wavelength}, flux_{flux}, majorAxis_{majorAxis}, axialRatio_{axialRatio},
+        positionAngle_{positionAngle} {
 }
 
 double Flux_M::getMaximumFlux() const noexcept {
@@ -32,8 +33,8 @@ double Flux_M::observedFlux(double u, double v) const noexcept {
     double observedFlux = 0;
 
 
-    double u_w = u / Flux::getWavelength();
-    double v_w = v / Flux::getWavelength();
+    double u_w = u / AbstractFlux::getWavelength();
+    double v_w = v / AbstractFlux::getWavelength();
 
     for (int i = 0; i < flux_.size(); ++i) {
 

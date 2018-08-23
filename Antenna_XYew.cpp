@@ -8,7 +8,8 @@ using namespace std;
 
 Antenna_XYew::Antenna_XYew(double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
                            double rateY_deg_per_min, unsigned int constantOverheadY_s) :
-        Antenna(offset_m, diam_m, rateX_deg_per_min, constantOverheadX_s, rateY_deg_per_min, constantOverheadY_s) {
+        AbstractAntenna(offset_m, diam_m, rateX_deg_per_min, constantOverheadX_s, rateY_deg_per_min,
+                        constantOverheadY_s) {
 }
 
 unsigned int

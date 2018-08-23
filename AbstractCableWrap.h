@@ -29,7 +29,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.06.2017
      */
-    class CableWrap: public VieVS_Object {
+    class AbstractCableWrap : public VieVS_Object {
     public:
 
 
@@ -41,7 +41,7 @@ namespace VieVS{
          * @param axis2_low_deg lower limit for second axis in degrees
          * @param axis2_up_deg upper limit for second axis in degrees
          */
-        CableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
+        AbstractCableWrap(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg);
 
         enum class CableWrapFlag{
             ccw,

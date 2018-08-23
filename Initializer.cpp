@@ -389,8 +389,8 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         }
 
 
-        shared_ptr<Antenna> antenna;
-        shared_ptr<CableWrap> cableWrap;
+        shared_ptr<AbstractAntenna> antenna;
+        shared_ptr<AbstractCableWrap> cableWrap;
         if(type == "AZEL"){
             antenna = make_shared<Antenna_AzEl>(offset, diam, rate1, con1, rate2, con2);
             cableWrap = make_shared<CableWrap_AzEl>(axis1_low,axis1_up,axis2_low,axis2_up);
@@ -411,7 +411,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
         auto position = make_shared<Position>(x,y,z);
 
-        shared_ptr<HorizonMask> horizonMask;
+        shared_ptr<AbstractHorizonMask> horizonMask;
         if(!hmask_az.empty() && hmask_az.size() == hmask_el.size()){
             horizonMask = make_shared<HorizonMask_line>(hmask_az,hmask_el);
         } else if(!hmask_az.empty()) {
@@ -571,7 +571,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             flux_cat = fluxCatalog.at(commonname);
         }
 
-        unordered_map<string, unique_ptr<Flux> > flux;
+        unordered_map<string, unique_ptr<AbstractFlux> > flux;
 
         vector<vector<string> > flux_split;
         for (auto &i : flux_cat) {
@@ -639,7 +639,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
             }
 
-            unique_ptr<Flux> srcFlux;
+            unique_ptr<AbstractFlux> srcFlux;
             bool errorWhileReadingFlux = false;
 
             if(thisType == "M"){

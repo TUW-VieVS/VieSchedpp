@@ -7,7 +7,7 @@ using namespace VieVS;
 using namespace std;
 
 CableWrap_AzEl::CableWrap_AzEl(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg)
-        : CableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
+        : AbstractCableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
 }
 
 bool CableWrap_AzEl::anglesInside(const PointingVector &p) const noexcept {
@@ -45,19 +45,19 @@ void CableWrap_AzEl::unwrapAzNearAz(PointingVector &new_pointingVector, double a
     new_pointingVector.setAz(this_unaz);
 }
 
-CableWrap::CableWrapFlag CableWrap_AzEl::cableWrapFlag(double unaz) const noexcept {
+AbstractCableWrap::CableWrapFlag CableWrap_AzEl::cableWrapFlag(double unaz) const noexcept {
 
     if (unaz <= getNUp() && unaz >= getNLow()) {
-        return CableWrap::CableWrapFlag::n;
+        return AbstractCableWrap::CableWrapFlag::n;
     }
     if (unaz <= getCUp() && unaz >= getCLow()) {
-        return CableWrap::CableWrapFlag::cw;
+        return AbstractCableWrap::CableWrapFlag::cw;
     }
     if (unaz <= getWUp() && unaz >= getWLow()) {
-        return CableWrap::CableWrapFlag::ccw;
+        return AbstractCableWrap::CableWrapFlag::ccw;
     }
 
-    return CableWrap::CableWrapFlag::n;
+    return AbstractCableWrap::CableWrapFlag::n;
 }
 
 bool CableWrap_AzEl::unwrapAzInSection(PointingVector &pv, char section) const noexcept {

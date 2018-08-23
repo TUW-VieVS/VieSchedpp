@@ -24,10 +24,10 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 28.06.2017
      */
-    class Flux: public VieVS_Object {
+    class AbstractFlux : public VieVS_Object {
     public:
 
-        explicit Flux(double wavelength);
+        explicit AbstractFlux(double wavelength);
 
         /**
          * @brief gets the maximum possible flux density
