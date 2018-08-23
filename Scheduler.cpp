@@ -619,9 +619,9 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                     boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                     boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
 
-                    of << "           end time of previouse scan: " << thisEndTime_.time_of_day()
+                    of << "        end time of previouse scan: " << thisEndTime_.time_of_day()
                             << " " << thisEnd.printId() << "\n";
-                    of << "           start time of next scan:    " << nextStartTime_.time_of_day()
+                    of << "        start time of next scan:    " << nextStartTime_.time_of_day()
                             << " " << nextStart.printId() << "\n";
                     of << "*\n";
                     #ifdef VIESCHEDPP_LOG
@@ -654,15 +654,15 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId() << "\n";
                         boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                         boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
-                        of << "               end time of previouse scan: " << thisEndTime_.time_of_day()
+                        of << "        end time of previouse scan: " << thisEndTime_.time_of_day()
                                 << " " << thisEnd.printId() << "\n";
-                        of << "               start time of next scan:    " << nextStartTime_.time_of_day()
+                        of << "        start time of next scan:    " << nextStartTime_.time_of_day()
                                 << " " << nextStart.printId() << "\n";
-                        of << "           available time: " << availableTime << "\n";
-                        of << "               needed slew time:           " << slewtime << "\n";
-                        of << "               needed constant times:      " << constTimes << "\n";
-                        of << "           needed time:    " << min_neededTime << "\n";
-                        of << "           difference:     " << (long) availableTime - (long) min_neededTime << "\n";
+                        of << "        available time: " << availableTime << "\n";
+                        of << "            needed slew time:           " << slewtime << "\n";
+                        of << "            needed constant times:      " << constTimes << "\n";
+                        of << "        needed time:    " << min_neededTime << "\n";
+                        of << "        difference:     " << (long) availableTime - (long) min_neededTime << "\n";
                         of << "*\n";
                         everythingOk = false;
                         #ifdef VIESCHEDPP_LOG
@@ -679,9 +679,9 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                             of << "        idle time: " << idleTime << "[s]\n";
                             boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime(thisEndTime);
                             boost::posix_time::ptime nextStartTime_ = TimeSystem::internalTime2PosixTime(nextStartTime);
-                            of << "               end time of previouse scan: " << thisEndTime_.time_of_day()
+                            of << "            end time of previouse scan: " << thisEndTime_.time_of_day()
                                     << " " << thisEnd.printId() << "\n";
-                            of << "               start time of next scan:    " << nextStartTime_.time_of_day()
+                            of << "            start time of next scan:    " << nextStartTime_.time_of_day()
                                     << " " << nextStart.printId() << "\n";
                             of << "*\n";
                             #ifdef VIESCHEDPP_LOG
@@ -1795,6 +1795,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
     int sum = 0;
     int counter = 0;
+    vector<int> sumPerSta(network_.getNSta(),0);
     // output
     for (const auto &scan : scans_) {
 
@@ -1849,8 +1850,52 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
         }
     }
 
-    string tmp = (boost::format("%d seconds") %sum).str();
-    of << boost::format("| sum of additional observing time: %-25s                                                    |\n") %tmp;
+    string tmp;
+    if(sum<60){
+        tmp = (boost::format("%2d [s]") %sum).str();
+    }else if(sum < 3600){
+        tmp = (boost::format("%2d [min] %02d [s]") %(sum/60) %(sum%60)).str();
+    }else{
+        tmp = (boost::format("%2d [h] %02d [min] %02d [s]") %(sum/3600) %(sum%3600/60) %(sum%60)).str();
+    }
+    of << boost::format("| sum of additional observing time: %-40s                                     |\n") %tmp;
+    unsigned long sumAvg = sum / network_.getNSta();
+    if(sumAvg<60){
+        tmp = (boost::format("%2d [s]") %sumAvg).str();
+    }else if(sumAvg < 3600){
+        tmp = (boost::format("%2d [min] %02d [s]") %(sumAvg/60) %(sumAvg%60)).str();
+    }else{
+        tmp = (boost::format("%2d [h] %02d [min] %02d [s]") %(sumAvg/3600) %(sumAvg%3600/60) %(sumAvg%60)).str();
+    }
+    of << boost::format("|           on average per station: %-40s                                     |\n") %tmp;
+    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+
+    bool h = false;
+    bool m = false;
+    for(int t:sumPerSta){
+        if(t>=3600){
+            h=true;
+        }
+        if(t>=60){
+            m=true;
+        }
+    }
+
+    for(int i=0; i<network_.getNSta(); ++i){
+        int thisSum = sumPerSta[i];
+        const Station &thisSta = network_.getStation(i);
+
+        if(h){
+            tmp = (boost::format("%2d [h] %02d [min] %02d [s]") %(thisSum/3600) %(thisSum%3600/60) %(thisSum%60)).str();
+        }else if(m){
+            tmp = (boost::format("%2d [min] %02d [s]") %(thisSum/60) %(thisSum%60)).str();
+        }else {
+            tmp = (boost::format("%2d [s]") % thisSum).str();
+        }
+
+        of << boost::format("|                         %-8s: %-40s                                     |\n") %thisSta.getName() %tmp;
+
+    }
     of << "|----------------------------------------------------------------------------------------------------------------|\n";
 }
 
