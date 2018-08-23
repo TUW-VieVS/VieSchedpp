@@ -547,7 +547,7 @@ void VieSchedpp_Analyser::updateSkyCoverage(int idx, QString name)
         if(az<0){
             az+=360;
         }
-        VieVS::CableWrap::CableWrapFlag flag = thisSta.getCableWrap().cableWrapFlag(unaz);
+        VieVS::AbstractCableWrap::CableWrapFlag flag = thisSta.getCableWrap().cableWrapFlag(unaz);
         data->append(az, 90-any.el*rad2deg, any.startTime, any.endTime, flag, any.srcid, any.nsta);
     }
     data->setBrush(Qt::gray);
@@ -655,15 +655,15 @@ void VieSchedpp_Analyser::updateSkyCoverageTimes(int idx)
 
         if(flag){
             switch(data->getCableWrapFlag(i)){
-                case VieVS::CableWrap::CableWrapFlag::n:{
+                case VieVS::AbstractCableWrap::CableWrapFlag::n:{
                     n->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }
-                case VieVS::CableWrap::CableWrapFlag::ccw:{
+                case VieVS::AbstractCableWrap::CableWrapFlag::ccw:{
                     ccw->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }
-                case VieVS::CableWrap::CableWrapFlag::cw:{
+                case VieVS::AbstractCableWrap::CableWrapFlag::cw:{
                     cw->append(data->at(i).x(), data->at(i).y(), data->getStartTime(i), data->getEndTime(i), data->getCableWrapFlag(i), data->getSrcid(i), data->getNSta(i));
                     break;
                 }

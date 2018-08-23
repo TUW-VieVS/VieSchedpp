@@ -203,7 +203,7 @@ public:
     }
 
     void append(double x, double y, int startTime, int endTime,
-                VieVS::CableWrap::CableWrapFlag cableWrapFlag, int srcid, int nsta){
+                VieVS::AbstractCableWrap::CableWrapFlag cableWrapFlag, int srcid, int nsta){
         QScatterSeries::append(x,y);
         startTime_.append(startTime);
         endTime_.append(endTime);
@@ -226,7 +226,7 @@ public:
         return nsta_.at(idx);
     }
 
-    VieVS::CableWrap::CableWrapFlag getCableWrapFlag(int idx){
+    VieVS::AbstractCableWrap::CableWrapFlag getCableWrapFlag(int idx){
         return cableWrap_.at(idx);
     }
 
@@ -235,7 +235,7 @@ private:
     QVector<int> endTime_;
     QVector<int> nsta_;
     QVector<int> srcid_;
-    QVector<VieVS::CableWrap::CableWrapFlag> cableWrap_;
+    QVector<VieVS::AbstractCableWrap::CableWrapFlag> cableWrap_;
 };
 
 

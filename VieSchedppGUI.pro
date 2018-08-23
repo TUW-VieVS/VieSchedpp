@@ -49,24 +49,24 @@ SOURCES += \
         addbanddialog.cpp \
         savetosettingsdialog.cpp \
         mytextbrowser.cpp \
-        ../VieSchedpp/Antenna.cpp \
+        ../VieSchedpp/AbstractAntenna.cpp \
         ../VieSchedpp/Antenna_AzEl.cpp \
         ../VieSchedpp/Antenna_HaDc.cpp \
         ../VieSchedpp/Antenna_XYew.cpp \
         ../VieSchedpp/AstronomicalParameters.cpp \
         ../VieSchedpp/Baseline.cpp \
-        ../VieSchedpp/CableWrap.cpp \
+        ../VieSchedpp/AbstractCableWrap.cpp \
         ../VieSchedpp/CableWrap_AzEl.cpp \
         ../VieSchedpp/CableWrap_HaDc.cpp \
         ../VieSchedpp/CableWrap_XYew.cpp \
         ../VieSchedpp/CalibratorBlock.cpp \
         ../VieSchedpp/Equipment.cpp \
         ../VieSchedpp/Equipment_elDependent.cpp \
-        ../VieSchedpp/Flux.cpp \
+        ../VieSchedpp/AbstractFlux.cpp \
         ../VieSchedpp/Flux_B.cpp \
         ../VieSchedpp/Flux_M.cpp \
         ../VieSchedpp/HighImpactScanDescriptor.cpp \
-        ../VieSchedpp/HorizonMask.cpp \
+        ../VieSchedpp/AbstractHorizonMask.cpp \
         ../VieSchedpp/HorizonMask_line.cpp \
         ../VieSchedpp/HorizonMask_step.cpp \
         ../VieSchedpp/Initializer.cpp \
@@ -120,13 +120,13 @@ HEADERS += \
         addbanddialog.h \
         savetosettingsdialog.h \
         mytextbrowser.h \
-        ../VieSchedpp/Antenna.h \
+        ../VieSchedpp/AbstractAntenna.h \
         ../VieSchedpp/Antenna_AzEl.h \
         ../VieSchedpp/Antenna_HaDc.h \
         ../VieSchedpp/Antenna_XYew.h \
         ../VieSchedpp/AstronomicalParameters.h \
         ../VieSchedpp/Baseline.h \
-        ../VieSchedpp/CableWrap.h \
+        ../VieSchedpp/AbstractCableWrap.h \
         ../VieSchedpp/CableWrap_AzEl.h \
         ../VieSchedpp/CableWrap_HaDc.h \
         ../VieSchedpp/CableWrap_XYew.h \
@@ -134,11 +134,11 @@ HEADERS += \
         ../VieSchedpp/Constants.h \
         ../VieSchedpp/Equipment.h \
         ../VieSchedpp/Equipment_elDependent.h \
-        ../VieSchedpp/Flux.h \
+        ../VieSchedpp/AbstractFlux.h \
         ../VieSchedpp/Flux_B.h \
         ../VieSchedpp/Flux_M.h \
         ../VieSchedpp/HighImpactScanDescriptor.h \
-        ../VieSchedpp/HorizonMask.h \
+        ../VieSchedpp/AbstractHorizonMask.h \
         ../VieSchedpp/HorizonMask_line.h \
         ../VieSchedpp/HorizonMask_step.h \
         ../VieSchedpp/Initializer.h \

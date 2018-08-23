@@ -1755,17 +1755,29 @@ void MainWindow::defaultParameters()
         ui->checkBox_fillinmode_aposteriori->setChecked(*fillinmodeAPosteriori);
     }
 
-    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
-    if(subnetting.is_initialized()){
-        ui->groupBox_subnetting->setChecked(*subnetting);
-    }
     boost::optional<double> subnettingMinAngle = settings.get_optional<double>("settings.general.subnettingMinAngle");
     if(subnettingMinAngle.is_initialized()){
         ui->doubleSpinBox_subnettingDistance->setValue(*subnettingMinAngle);
     }
-    boost::optional<double> subnettingMinNSta = settings.get_optional<double>("settings.general.subnettingMinNSta");
+    boost::optional<double> subnettingMinNSta = settings.get_optional<double>("settings.general.subnettingMinNStaPercent");
     if(subnettingMinNSta.is_initialized()){
         ui->doubleSpinBox_subnettingMinStations->setValue(*subnettingMinNSta);
+    }
+    boost::optional<double> subnettingMinNStaAllBut = settings.get_optional<double>("settings.general.subnettingMinNStaAllBut");
+    if(subnettingMinNStaAllBut.is_initialized()){
+        ui->spinBox_subnetting_min_sta->setValue(*subnettingMinNStaAllBut);
+    }
+    boost::optional<bool> subnettingFlag = settings.get_optional<bool>("settings.general.subnettingMinNstaPercent_otherwiseAllBut");
+    if(subnettingFlag.is_initialized()){
+        if(*subnettingFlag){
+            ui->radioButton_subnetting_percent->setChecked(true);
+        }else{
+            ui->radioButton_subnetting_allBut->setChecked(true);
+        }
+    }
+    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
+    if(subnetting.is_initialized()){
+        ui->groupBox_subnetting->setChecked(*subnetting);
     }
 
     boost::optional<std::string> alignObservingTime = settings.get_optional<std::string>("settings.general.alignObservingTime");
@@ -2023,7 +2035,17 @@ QString MainWindow::writeXML()
     bool idleToObservingTime = ui->checkBox_idleToObservingTime->isChecked();
     bool subnetting = ui->groupBox_subnetting->isChecked();
     double subnettingAngle = ui->doubleSpinBox_subnettingDistance->value();
-    double subnettingMinimum = ui->doubleSpinBox_subnettingMinStations->value();
+
+    double subnettingMinimumPercent = ui->doubleSpinBox_subnettingMinStations->value();
+    double subnettingAllBut = ui->spinBox_subnetting_min_sta->value();
+
+    bool useSubnettingPercent_otherwiseAllBut = false;
+    double subnettingNumber = subnettingAllBut;
+
+    if(ui->radioButton_subnetting_percent->isChecked()){
+        useSubnettingPercent_otherwiseAllBut = true;
+        subnettingNumber = subnettingMinimumPercent;
+    }
     std::string logConsole = ui->comboBox_log_console->currentText().toStdString();
     std::string logFile = ui->comboBox_log_file->currentText().toStdString();
     std::string scanAlignment = "start";
@@ -2034,9 +2056,15 @@ QString MainWindow::writeXML()
     }
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,srcNames, scanAlignment, logConsole, logFile);
+        para.general(start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
+                     fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori,
+                     idleToObservingTime, station_names, useSourcesFromParameter_otherwiseIgnore,
+                     srcNames, scanAlignment, logConsole, logFile);
     }else{
-        para.general(start, end, subnetting, subnettingAngle, subnettingMinimum, fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori, idleToObservingTime, station_names,useSourcesFromParameter_otherwiseIgnore,ignoreSrcNames, scanAlignment, logConsole, logFile);
+        para.general(start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
+                     fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori,
+                     idleToObservingTime, station_names, useSourcesFromParameter_otherwiseIgnore,
+                     ignoreSrcNames, scanAlignment, logConsole, logFile);
     }
 
 
@@ -2660,12 +2688,23 @@ void MainWindow::loadXML(QString path)
         double dur = startTime.secsTo(endTime)/3600.0;
         ui->doubleSpinBox_sessionDuration->setValue(dur);
 
+        double subnettingMinAngle = xml.get("master.general.subnettingMinAngle",150.0);
+        ui->doubleSpinBox_subnettingDistance->setValue(subnettingMinAngle);
+        bool subnettingFlag = false;
+        if(xml.get_optional<double>("master.general.subnettingMinNStaPercent").is_initialized()){
+            subnettingFlag = true;
+        }
+        double subnettingMinNStaPercent = xml.get("master.general.subnettingMinNStaPercent",80);
+        ui->doubleSpinBox_subnettingMinStations->setValue(subnettingMinNStaPercent);
+        double subnettingMinNStaAllBut = xml.get("master.general.subnettingMinNStaAllBut",1);
+        ui->spinBox_subnetting_min_sta->setValue(subnettingMinNStaAllBut);
+        if(subnettingFlag){
+            ui->radioButton_subnetting_percent->setChecked(true);
+        }else{
+            ui->radioButton_subnetting_allBut->setChecked(true);
+        }
         bool subnetting = xml.get("master.general.subnetting",false);
         ui->groupBox_subnetting->setChecked(subnetting);
-        double subnettingMinAngle = xml.get("master.general.subnettingMinAngle",120.0);
-        ui->doubleSpinBox_subnettingDistance->setValue(subnettingMinAngle);
-        double subnettingMinNSta = xml.get("master.general.subnettingMinNSta",60);
-        ui->doubleSpinBox_subnettingMinStations->setValue(subnettingMinNSta);
 
         bool fillinmodeAPosteriori = xml.get("master.general.fillinmodeAPosteriori",false);
         ui->checkBox_fillinmode_aposteriori->setChecked(fillinmodeAPosteriori);
@@ -7692,6 +7731,16 @@ void MainWindow::on_pushButton_8_clicked()
 
     path << "settings.general.subnettingMinNSta";
     value << QString::number(ui->doubleSpinBox_subnettingMinStations->value());
+    path << "settings.general.subnettingMinNStaPercent";
+    value << QString::number(ui->doubleSpinBox_subnettingMinStations->value());
+    path << "settings.general.subnettingMinNStaAllBut";
+    value << QString::number(ui->spinBox_subnetting_min_sta->value());
+    path << "settings.general.subnettingMinNstaPercent_otherwiseAllBut";
+    if(ui->radioButton_subnetting_percent->isChecked()){
+        value << "true";
+    }else{
+        value << "false";
+    }
 
     path << "settings.general.fillinmodeInfluenceOnSchedule";
     if(ui->checkBox_fillinModeInfluence->isChecked()){
