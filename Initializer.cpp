@@ -418,7 +418,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
             horizonMask = make_shared<HorizonMask_step>(hmask_az,hmask_el);
         }
 
-        network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask));
+        network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask, sources_.size()));
 
         created++;
         of << boost::format("  %-8s added\n") % name;
@@ -1110,6 +1110,20 @@ void Initializer::initializeStations() noexcept {
                 cableInitialized.insert(cableInitialized.end(), cableNow.begin(), cableNow.end());
             }
         }
+
+
+        for(auto &sta : network_.refStations()){
+            for(const auto &source : sources_){
+                PointingVector pv(getId(),source.getId());
+                int step = 1800;
+                PointingVector npv(sta.getId(),source.getId());
+                for(unsigned int t=0; t<TimeSystem::duration+step; t+=step){
+                    npv.setTime(t);
+                    sta.calcAzEl_rigorous(source, npv);
+                }
+            }
+        }
+
     }else{
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in parameters.xml file";
@@ -2758,7 +2772,7 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
             PointingVector p(staid,source.getId());
             p.setTime(t);
 
-            thisSta.calcAzEl(source, p, Station::AzelModel::simple);
+            thisSta.calcAzEl_simple(source, p);
 
             // check if source is up from station
             bool flag = thisSta.isVisible(p, source.getPARA().minElevation);
@@ -2990,3 +3004,4 @@ std::vector<unsigned long> Initializer::getMembers(const std::string &name, cons
 
     return ids;
 }
+

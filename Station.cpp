@@ -54,7 +54,8 @@ void Station::Parameters::setParameters(const Station::Parameters &other) {
 
 Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
                  std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
-                 std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask) :
+                 std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
+                 unsigned long nSources) :
         VieVS_NamedObject(std::move(sta_name), std::move(tlc), nextId++),
         antenna_{move(sta_antenna)},
         cableWrap_{move(sta_cableWrap)},
@@ -62,7 +63,9 @@ Station::Station(std::string sta_name, std::string tlc, std::shared_ptr<Abstract
         equip_{move(sta_equip)},
         mask_{move(sta_mask)},
         currentPositionVector_{PointingVector(nextId-1,numeric_limits<unsigned long>::max())},
-        parameters_{Parameters("empty")}{
+        parameters_{Parameters("empty")},
+        azelPrecalc_{vector<vector<PointingVector>>(nSources)}
+{
     parameters_.firstScan = true;
 }
 
@@ -88,15 +91,106 @@ bool Station::isVisible(const PointingVector &p, double minElevationSource) cons
 
 }
 
-void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model) const noexcept {
+void Station::calcAzEl_simple(const Source &source, PointingVector &p) const noexcept {
 
-    #ifdef VIESCHEDPP_LOG
+    auto & precalc = azelPrecalc_[source.getId()];
+
+    unsigned int time = p.getTime();
+
+    auto it_n = precalc.begin();
+    // iterate over each precalculated value
+    for(it_n; it_n<precalc.end(); ++it_n){
+        if(it_n->getTime() >= time){
+            break;
+        }
+    }
+    // check if a precalculated value matches time exactly
+    if(it_n->getTime() == time){
+        p.setAz(it_n->getAz());
+        p.setEl(it_n->getEl());
+        p.setHa(it_n->getHa());
+        p.setDc(it_n->getDc());
+        return;
+    }
+
+    auto it_p = std::prev(it_n);
+
+    int dt = it_n->getTime() - it_p->getTime();
+    double factor = static_cast<double>(time-it_p->getTime())/ static_cast<double>(dt);
+
+    double az1 = it_p->getAz();
+    double az2 = it_n->getAz();
+    double az;
+    if(abs(az1-az2) > halfpi){
+        if(az1<az2){
+            az1 += twopi;
+        }else{
+            az2 += twopi;
+        }
+        az = it_p->getAz() + factor * (it_n->getAz() - it_p->getAz());
+        while(az>twopi){
+            az-=twopi;
+        }
+    }else{
+        az = it_p->getAz() + factor * (it_n->getAz() - it_p->getAz());
+    }
+
+    double el = it_p->getEl() + factor * (it_n->getEl() - it_p->getEl());
+
+    double ha1 = it_p->getHa();
+    double ha2 = it_n->getHa();
+    double ha;
+    if(abs(ha1-ha2) > halfpi){
+        if(ha1<ha2){
+            ha1 += twopi;
+        }else{
+            ha2 += twopi;
+        }
+        ha = it_p->getHa() + factor * (it_n->getHa() - it_p->getHa());
+        while(ha>twopi){
+            ha-=twopi;
+        }
+    }else{
+        ha = it_p->getHa() + factor * (it_n->getHa() - it_p->getHa());
+    }
+
+    p.setAz(az);
+    p.setEl(el);
+    p.setHa(ha);
+    p.setDc(it_n->getDc());
+
+}
+
+void Station::calcAzEl_rigorous(const Source &source, PointingVector &p) noexcept {
+
+    unsigned int time = p.getTime();
+
+    auto & precalc = azelPrecalc_[source.getId()];
+
+    auto it = precalc.begin();
+    // iterate over each precalculated value
+    for(it; it<precalc.end(); ++it){
+        if(it->getTime() >= time){
+            break;
+        }
+    }
+
+    // check if a precalculated value matches time exactly
+    if(it != precalc.end() && it->getTime() == time){
+        p.setAz(it->getAz());
+        p.setEl(it->getEl());
+        p.setHa(it->getHa());
+        p.setDc(it->getDc());
+        return;
+    }
+
+
+#ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "station " << this->getName() << " calculate azimuth and elevation to source " << p.getSrcid();
-    #endif
+#endif
 
     double omega = 7.2921151467069805e-05; //1.00273781191135448*D2PI/86400;
 
-    unsigned int time = p.getTime();
     //  TIME
     double date1 = 2400000.5;
     double mjd = TimeSystem::mjdStart + static_cast<double>(time) / 86400.0;
@@ -109,28 +203,28 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
                       {0, 1, 0},
                       {0, 0, 1}};
 
-    if (model == AzelModel::rigorous) {
-        unsigned int nut_precalc_idx = 0;
-        while (AstronomicalParameters::earth_nutTime[nut_precalc_idx + 1] < time) {
-            ++nut_precalc_idx;
-        }
-        int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
 
-        unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[nut_precalc_idx];
-
-        double x = AstronomicalParameters::earth_nutX[nut_precalc_idx] +
-                   (AstronomicalParameters::earth_nutX[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutX[nut_precalc_idx]) / delta *
-                   deltaTime;
-        double y = AstronomicalParameters::earth_nutY[nut_precalc_idx] +
-                   (AstronomicalParameters::earth_nutY[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutY[nut_precalc_idx]) / delta *
-                   deltaTime;
-        double s = AstronomicalParameters::earth_nutS[nut_precalc_idx] +
-                   (AstronomicalParameters::earth_nutS[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutS[nut_precalc_idx]) / delta *
-                   deltaTime;
-
-
-        iauC2ixys(x, y, s, C);
+    unsigned int nut_precalc_idx = 0;
+    while (AstronomicalParameters::earth_nutTime[nut_precalc_idx + 1] < time) {
+        ++nut_precalc_idx;
     }
+    int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
+
+    unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[nut_precalc_idx];
+
+    double x = AstronomicalParameters::earth_nutX[nut_precalc_idx] +
+               (AstronomicalParameters::earth_nutX[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutX[nut_precalc_idx]) / delta *
+               deltaTime;
+    double y = AstronomicalParameters::earth_nutY[nut_precalc_idx] +
+               (AstronomicalParameters::earth_nutY[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutY[nut_precalc_idx]) / delta *
+               deltaTime;
+    double s = AstronomicalParameters::earth_nutS[nut_precalc_idx] +
+               (AstronomicalParameters::earth_nutS[nut_precalc_idx + 1] - AstronomicalParameters::earth_nutS[nut_precalc_idx]) / delta *
+               deltaTime;
+
+
+
+    iauC2ixys(x, y, s, C);
 
     //  Polar Motion
     double W[3][3] = {{1,0,0},
@@ -145,8 +239,8 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
     //  Transformation
     double v1[3] = {-omega*position_->getX(),
-                     omega*position_->getY(),
-                     0};
+                    omega*position_->getY(),
+                    0};
 
     double v1R[3] = {};
     iauRxp(t2c, v1, v1R);
@@ -155,15 +249,10 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
 
     double k1a[3] = {};
     double k1a_t1[3];
-    if (model == AzelModel::rigorous) {
-        k1a_t1[0] = (AstronomicalParameters::earth_velocity[0] + v1[0]) / CMPS;
-        k1a_t1[1] = (AstronomicalParameters::earth_velocity[1] + v1[1]) / CMPS;
-        k1a_t1[2] = (AstronomicalParameters::earth_velocity[2] + v1[2]) / CMPS;
-    }else{
-        k1a_t1[0] = 0;
-        k1a_t1[1] = 0;
-        k1a_t1[2] = 0;
-    }
+
+    k1a_t1[0] = (AstronomicalParameters::earth_velocity[0] + v1[0]) / CMPS;
+    k1a_t1[1] = (AstronomicalParameters::earth_velocity[1] + v1[1]) / CMPS;
+    k1a_t1[2] = (AstronomicalParameters::earth_velocity[2] + v1[2]) / CMPS;
 
     // Source vector in CRF
     const vector<double> & scrs_ = source.getSourceInCrs();
@@ -223,7 +312,10 @@ void Station::calcAzEl(const Source &source, PointingVector &p, AzelModel model)
     // end of hadc part
 
     p.setTime(time);
+
+    precalc.push_back(p);
 }
+
 
 double Station::distance(const Station &other) const noexcept {
     return position_->getDistance(*other.position_);
@@ -354,6 +446,7 @@ std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() co
         return std::pair<std::vector<double>, std::vector<double>>();
     }
 }
+
 
 
 

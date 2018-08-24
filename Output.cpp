@@ -1015,7 +1015,7 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
             PointingVector p(staid,source.getId());
             p.setTime(t);
 
-            thisSta.calcAzEl(source, p, Station::AzelModel::simple);
+            thisSta.calcAzEl_simple(source, p);
 
             // check if source is up from station
             bool flag = thisSta.isVisible(p, source.getPARA().minElevation);

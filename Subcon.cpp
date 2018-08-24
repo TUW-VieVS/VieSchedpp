@@ -173,7 +173,7 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
             PointingVector &thisPointingVector = thisScan.referencePointingVector(staidx);
             const Station &thisStation = network.getStation(staid);
             thisPointingVector.setTime(thisScan.getTimes().getObservingTime(staidx, Timestamp::start));
-            thisStation.calcAzEl(thisSource, thisPointingVector);
+            thisStation.calcAzEl_simple(thisSource, thisPointingVector);
             bool visible = thisStation.isVisible(thisPointingVector, sources[thisScan.getSourceId()].getPARA().minElevation);
 
             boost::optional<unsigned int> slewtime;
@@ -689,12 +689,12 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
 //
 //    return bestScans;
 //}
-vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
     return selectBest(network, sources, vector<double>(), vector<double>(), endposition);
 }
 
-vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
                                 const std::vector<double> &prevLowElevationScores,
                                 const std::vector<double> &prevHighElevationScores,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
@@ -876,104 +876,6 @@ vector<Scan> Subcon::selectBest(const Network &network, const vector<Source> &so
     return bestScans;
 
 
-}
-
-boost::optional<unsigned long> Subcon::rigorousScore(const Network &network, const vector<Source> &sources,
-                                                     const vector<double> &prevLowElevationScores,
-                                                     const vector<double> &prevHighElevationScores) {
-    #ifdef VIESCHEDPP_LOG
-    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calculate rigorous score ";
-    #endif
-
-    vector<double> scores;
-    for(const auto&any: singleScans_){
-        scores.push_back(any.getScore());
-    }
-    for(const auto&any: subnettingScans_){
-        scores.push_back(any.first.getScore() + any.second.getScore());
-    }
-
-    std::priority_queue<std::pair<double, unsigned long> > q;
-    for (unsigned long i = 0; i < scores.size(); ++i) {
-        q.push(std::pair<double, unsigned long>(scores[i], i));
-    }
-
-    while (true) {
-        if (q.empty()) {
-            return boost::none;
-        }
-        unsigned long idx = q.top().second;
-        q.pop();
-
-        if (idx < nSingleScans_) {
-            unsigned long thisIdx = idx;
-            Scan &thisScan = singleScans_[thisIdx];
-            const Source &thisSource = sources[thisScan.getSourceId()];
-            bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()]);
-            if (!flag) {
-                continue;
-            }
-            flag = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                      minRequiredTime_, maxRequiredTime_, sources[thisScan.getSourceId()]);
-            if (!flag) {
-                continue;
-            }
-            double newScore = thisScan.getScore();
-
-            q.push(make_pair(newScore, idx));
-
-        } else {
-            unsigned long thisIdx = idx - nSingleScans_;
-            auto &thisScans = subnettingScans_[thisIdx];
-
-            Scan &thisScan1 = thisScans.first;
-            const Source &thisSource1 = sources[thisScan1.getSourceId()];
-            bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()]);
-            if (!flag1) {
-                continue;
-            }
-            flag1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                        minRequiredTime_, maxRequiredTime_, sources[thisScan1.getSourceId()]);
-            if (!flag1) {
-                continue;
-            }
-            double newScore1 = thisScan1.getScore();
-
-            Scan &thisScan2 = thisScans.second;
-            const Source &thisSource2 = sources[thisScan2.getSourceId()];
-            bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()]);
-            if (!flag2) {
-                continue;
-            }
-
-            unsigned int maxTime1 = thisScan1.getTimes().getScanTime(Timestamp::end);
-            unsigned int maxTime2 = thisScan2.getTimes().getScanTime(Timestamp::end);
-            unsigned int deltaTime;
-            if (maxTime1 > maxTime2) {
-                deltaTime = maxTime1 - maxTime2;
-            } else {
-                deltaTime = maxTime2 - maxTime1;
-            }
-            if (deltaTime > 600) {
-                continue;
-            }
-
-            flag2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                        minRequiredTime_, maxRequiredTime_, sources[thisScan2.getSourceId()]);
-            if (!flag2) {
-                continue;
-            }
-
-            double newScore2 = thisScan2.getScore();
-            double newScore = newScore1 + newScore2;
-
-            q.push(make_pair(newScore, idx));
-        }
-        unsigned long newIdx = q.top().second;
-        if (newIdx == idx) {
-            return idx;
-        }
-    }
 }
 
 
@@ -1179,12 +1081,17 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
 
         PointingVector p(staid,srcid);
 
-        const Station::WaitTimes &wtimes = thisSta.getWaittimes();
-        unsigned int time = thisSta.getCurrentTime() + wtimes.fieldSystem + wtimes.preob;
+        unsigned int time;
+        if(thisSta.getPARA().firstScan){
+            time = thisSta.getCurrentTime();
+        }else{
+            const Station::WaitTimes &wtimes = thisSta.getWaittimes();
+            time = thisSta.getCurrentTime() + wtimes.fieldSystem + wtimes.preob;
+        }
 
         p.setTime(time);
 
-        thisSta.calcAzEl(thisSource, p);
+        thisSta.calcAzEl_simple(thisSource, p);
 
         bool flag = thisSta.isVisible(p, thisSource.getPARA().minElevation);
         if (flag){

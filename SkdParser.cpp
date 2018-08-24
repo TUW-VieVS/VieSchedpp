@@ -259,7 +259,7 @@ void SkdParser::createScans(std::ofstream &of) {
                 p.setTime(time);
                 const auto &thisSource = sources_[srcid];
                 Station &thisSta = network_.refStation(staid);
-                thisSta.calcAzEl(thisSource,p);
+                thisSta.calcAzEl_rigorous(thisSource,p);
                 bool error = thisSta.getCableWrap().unwrapAzInSection(p,cwflag);
                 if(error){
                     pair<double,double>limits = thisSta.getCableWrap().getLimits(cwflag);
@@ -270,7 +270,7 @@ void SkdParser::createScans(std::ofstream &of) {
 
                 PointingVector p_end(staid,srcid);
                 p_end.setTime(time+durations[i]);
-                thisSta.calcAzEl(thisSource,p_end);
+                thisSta.calcAzEl_rigorous(thisSource,p_end);
                 thisSta.getCableWrap().unwrapAzNearAz(p_end,p.getAz());
                 pv_end.push_back(p_end);
 

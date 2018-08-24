@@ -356,7 +356,7 @@ void Scheduler::start() noexcept {
         of << "multi scheduling parameters:\n";
         multiSchedulingParameters_->output(of);
     }
-
+    checkForNewEvents(0, false, of);
     listSourceOverview(of);
 
     boost::optional<StationEndposition> endposition = boost::none;
@@ -678,7 +678,7 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                         everythingOk = false;
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! station: "
-                                                 << thisStation.getName() << "scans: "
+                                                 << thisStation.getName() << " scans: "
                                                  << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
                         #endif
 
@@ -697,7 +697,7 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                             of << "*\n";
                             #ifdef VIESCHEDPP_LOG
                             BOOST_LOG_TRIVIAL(warning) << "long idle time! (" << idleTime << " [s]) station: "
-                                                       << thisStation.getName() << "scans: "
+                                                       << thisStation.getName() << " scans: "
                                                        << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
                             #endif
                         }
@@ -902,7 +902,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
             pv_new_start.setTime(scanStartTime);
 
-            station.calcAzEl(source, pv_new_start);
+            station.calcAzEl_rigorous(source, pv_new_start);
 
             // check if source is up from station
             bool flag = station.isVisible(pv_new_start, source.getPARA().minElevation);
@@ -1070,7 +1070,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
             pv_new_end.setTime(scanStartTime+maxBl);
 
-            station.calcAzEl(source, pv_new_end);
+            station.calcAzEl_rigorous(source, pv_new_end);
 
             // check if source is up from station
             flag = station.isVisible(pv_new_end, source.getPARA().minElevation);
@@ -1470,7 +1470,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     }
 
 
-    for(const auto &thisSta : network_.getStations()){
+    for(auto &thisSta : network_.refStations()){
 
         // reset all events
         resetAllEvents(of);
@@ -1504,7 +1504,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                     PointingVector variable(pv1);
                     variable.setId(pv1.getId());
                     variable.setTime(0);
-                    thisSta.calcAzEl(thisSource,variable);
+                    thisSta.calcAzEl_rigorous(thisSource,variable);
                     thisSta.getCableWrap().calcUnwrappedAz(pv1, variable);
                     bool valid = true;
                     // check if cable wrap changes
@@ -1583,7 +1583,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             variable.setTime(variableStartTime);
 
             // calc new azimuth and elevation
-            thisSta.calcAzEl(thisSource, variable);
+            thisSta.calcAzEl_rigorous(thisSource, variable);
 
             // unwrap cable wrap near reference pointing vector
             thisSta.getCableWrap().calcUnwrappedAz(ref, variable);
@@ -1629,7 +1629,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                     }
                 }
 
-                thisSta.calcAzEl(thisSource,variable);
+                thisSta.calcAzEl_rigorous(thisSource,variable);
                 thisSta.getCableWrap().calcUnwrappedAz(ref, variable);
 
                 // check if cable wrap changes
@@ -1698,7 +1698,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                         PointingVector variable(pv1);
                         variable.setId(pv1.getId());
                         variable.setTime(TimeSystem::duration);
-                        thisSta.calcAzEl(thisSource,variable);
+                        thisSta.calcAzEl_rigorous(thisSource,variable);
                         thisSta.getCableWrap().calcUnwrappedAz(pv1, variable);
                         bool valid = true;
                         // check if cable wrap changes
@@ -1774,7 +1774,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 PointingVector variable(pv1);
                 variable.setId(pv1.getId());
                 variable.setTime(maximum);
-                thisSta.calcAzEl(thisSource,variable);
+                thisSta.calcAzEl_rigorous(thisSource,variable);
                 thisSta.getCableWrap().calcUnwrappedAz(pv1, variable);
                 bool valid = true;
                 // check if cable wrap changes

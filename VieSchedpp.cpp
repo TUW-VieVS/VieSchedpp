@@ -66,16 +66,16 @@ void VieSchedpp::run() {
     init.initializeAstronomicalParameteres();
     init.initializeObservingMode(skdCatalogs_, of);
 
-    init.createStations(skdCatalogs_, of);
-    init.initializeStations();
-    init.initializeBaselines();
-
     init.createSources(skdCatalogs_, of);
     init.precalcSubnettingSrcIds();
     init.initializeSources();
     init.initializeSourceSequence();
     init.initializeCalibrationBlocks( of );
     init.initializeOptimization(of);
+
+    init.createStations(skdCatalogs_, of);
+    init.initializeStations();
+    init.initializeBaselines();
 
     init.initializeHighImpactScanDescriptor(of);
     init.initializeWeightFactors();

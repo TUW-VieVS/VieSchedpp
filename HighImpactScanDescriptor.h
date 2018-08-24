@@ -39,7 +39,7 @@ namespace VieVS{
         void updateHighImpactScans(const Network &network, const std::vector<Source> &sources,
                                    const boost::optional<Subnetting> &subnetting);
 
-        std::vector<Scan> highestImpactScans(const Network &network, const std::vector<Source> &sources);
+        std::vector<Scan> highestImpactScans(Network &network, const std::vector<Source> &sources);
 
         bool isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source);
 

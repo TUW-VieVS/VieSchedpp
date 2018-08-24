@@ -49,6 +49,12 @@ namespace VieVS{
 
         ~PointingVector() = default;
 
+        bool operator<( const PointingVector& other ) const
+        {
+            return time_ < other.time_;
+        }
+
+
         void copyValuesFromOtherPv(const PointingVector& other);
 
         /**

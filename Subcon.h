@@ -186,10 +186,10 @@ namespace VieVS{
          * @param prevHighElevationScores optinal argument if you have a calibrator block scan - previouse high elevation scores
          * @return index of best scan
          */
-        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
-        std::vector<Scan> selectBest(const Network &network, const std::vector<Source> &sources,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources,
                                      const std::vector<double> &prevLowElevationScores,
                                      const std::vector<double> &prevHighElevationScores,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
@@ -201,11 +201,6 @@ namespace VieVS{
          * Usually unused
          */
         void clearSubnettingScans();
-
-
-        boost::optional<unsigned long> rigorousScore(const Network &network, const std::vector<Source> &sources,
-                                                     const std::vector<double> &prevLowElevationScores,
-                                                     const std::vector<double> &prevHighElevationScores);
 
         void calcCalibratorScanDuration(const std::vector<Station> &stations, const std::vector<Source> &sources);
 

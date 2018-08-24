@@ -413,7 +413,7 @@ namespace VieVS{
          * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(const Network &network, const Source &source,
+        bool rigorousUpdate(Network &network, const Source &source,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -473,7 +473,7 @@ namespace VieVS{
 
         void setPointingVector(int idx, PointingVector pv, Timestamp ts);
 
-        void removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts);
+        void removeUnnecessaryObservingTime(Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts);
 
         void removeAdditionalObservingTime(unsigned int time, const Station &thisSta, const Source &thisSource,
                                            std::ofstream &of, Timestamp ts);
@@ -494,11 +494,11 @@ namespace VieVS{
         ScanType type_; ///< type of the scan
         ScanConstellation constellation_; ///
 
-        bool rigorousSlewtime(const Network &network, const Source &source) noexcept;
+        bool rigorousSlewtime(Network &network, const Source &source) noexcept;
 
-        bool rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept;
+        bool rigorousScanStartTimeAlignment(Network &network, const Source &source) noexcept;
 
-        bool rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept;
+        bool rigorousScanVisibility(Network &network, const Source &source, bool &stationRemoved) noexcept;
 
         bool rigorousScanCanReachEndposition(const Network &network, const Source &thisSource,
                                                      const boost::optional<StationEndposition> &endposition,

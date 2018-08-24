@@ -174,7 +174,8 @@ namespace VieVS{
          */
         Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
                 std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
-                std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask);
+                std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
+                unsigned long nSources);
 
 
         /**
@@ -317,18 +318,9 @@ namespace VieVS{
          */
         boost::optional<unsigned int> slewTime(const PointingVector &pointingVector) const noexcept;
 
-        /**
-         * @brief calculate azimuth and elevation of source at a given time
-         *
-         * !!! This function changes p !!!
-         *
-         * @param source observed source
-         * @param p pointing vector where azimuth and elevation is saved
-         * @param model model used for calculation (default is simple model)
-         */
-        void
-        calcAzEl(const Source &source, PointingVector &p,
-                 AzelModel model = AzelModel::rigorous) const noexcept;
+        void calcAzEl_rigorous(const Source &source, PointingVector &p) noexcept;
+
+        void calcAzEl_simple(const Source &source, PointingVector &p) const noexcept;
 
         /**
          * @brief change current pointing vector
@@ -396,6 +388,10 @@ namespace VieVS{
 
         std::pair<std::vector<double>, std::vector<double>>  getHorizonMask() const noexcept;
 
+        void prepareAzElVectors(unsigned long nsrc){
+            azelPrecalc_ = std::vector<std::vector<PointingVector>>(nsrc,std::vector<PointingVector>());
+        }
+
     private:
         static unsigned long nextId;
 
@@ -408,6 +404,8 @@ namespace VieVS{
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
         Statistics statistics_;
+        std::vector< std::vector<PointingVector>> azelPrecalc_;
+
 
         Parameters parameters_; ///< station parameters
         PointingVector currentPositionVector_; ///< current pointing vector
@@ -415,6 +413,8 @@ namespace VieVS{
         int nScans_{0}; ///< number of participated scans
         int nTotalScans_{0}; ///< number of total scans
         int nObs_{0}; ///< number of observed baselines
+
+
     };
 }
 #endif /* STATION_H */

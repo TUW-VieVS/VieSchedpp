@@ -65,12 +65,12 @@ void HighImpactScanDescriptor::possibleHighImpactScans(unsigned int idxTime,
         for(unsigned long staid: any.getStaids()){
             PointingVector pv(staid,numeric_limits<unsigned long>::max());
             pv.setTime(time);
-            const auto &thisSta = network.getStation(staid);
+            auto &thisSta = network.getStation(staid);
 
             // loop over all sources
             for (const auto &source:sources){
 
-                thisSta.calcAzEl(source,pv);
+                thisSta.calcAzEl_simple(source,pv);
                 if(thisSta.isVisible(pv,source.getPARA().minElevation)){
                     double score = any.highImpactScore(pv);
 
@@ -137,7 +137,7 @@ void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
 }
 
 
-vector<Scan> HighImpactScanDescriptor::highestImpactScans(const Network &network, const std::vector<Source> &sources) {
+vector<Scan> HighImpactScanDescriptor::highestImpactScans(Network &network, const std::vector<Source> &sources) {
     return highImpactScans_.selectBest(network, sources);
 }
 

@@ -608,7 +608,7 @@ double Scan::calcScore_lowElevation() {
 }
 
 
-bool Scan::rigorousUpdate(const Network &network, const Source &source,
+bool Scan::rigorousUpdate(Network &network, const Source &source,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
@@ -664,7 +664,7 @@ bool Scan::rigorousUpdate(const Network &network, const Source &source,
     return true;
 }
 
-bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexcept {
+bool Scan::rigorousSlewtime(Network &network, const Source &source) noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update slewtime";
     #endif
@@ -676,7 +676,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
     while (ista < nsta_) {
         PointingVector &pv = pointingVectorsStart_[ista];
         unsigned int slewStart = times_.getSlewTime(ista, Timestamp::start);
-        const Station &thisStation = network.getStation(pv.getStaid());
+        Station &thisStation = network.refStation(pv.getStaid());
 
         // old slew end time and new slew end time, required for iteration
         unsigned int oldSlewEnd = 0;
@@ -697,7 +697,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
 
             // calculate az, el for pointing vector for previouse time
             pv.setTime(oldSlewEnd);
-            thisStation.calcAzEl(source,pv);
+            thisStation.calcAzEl_rigorous(source,pv);
             if(!thisStation.isVisible(pv,source.getPARA().minElevation)){
                 scanValid = removeStation(ista, source);
                 if (!scanValid) {
@@ -764,7 +764,7 @@ bool Scan::rigorousSlewtime(const Network &network, const Source &source) noexce
     return scanValid;
 }
 
-bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &source) noexcept{
+bool Scan::rigorousScanStartTimeAlignment(Network &network, const Source &source) noexcept{
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update scan start time";
@@ -805,7 +805,7 @@ bool Scan::rigorousScanStartTimeAlignment(const Network &network, const Source &
     return scanValid;
 }
 
-bool Scan::rigorousScanVisibility(const Network &network, const Source &source, bool &stationRemoved) noexcept{
+bool Scan::rigorousScanVisibility(Network &network, const Source &source, bool &stationRemoved) noexcept{
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update visibility";
     #endif
@@ -820,7 +820,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
         unsigned int scanStart = times_.getObservingTime(ista, Timestamp::start);
         unsigned int scanEnd = times_.getObservingTime(ista, Timestamp::end);
         PointingVector &pv = pointingVectorsStart_[ista];
-        const Station &thisStation = network.getStation(pv.getStaid());
+        Station &thisStation = network.refStation(pv.getStaid());
 
         // create moving pointing vector which is used to check visibility during scan
         PointingVector moving_pv(pv.getStaid(), pv.getSrcid());
@@ -834,7 +834,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
             // check if there is no change in slew direction (no change in azimuth ambigurity)
             double oldAz = moving_pv.getAz();
             moving_pv.setTime(scanStart);
-            thisStation.calcAzEl(source, moving_pv);
+            thisStation.calcAzEl_rigorous(source, moving_pv);
             thisStation.getCableWrap().unwrapAzNearAz(moving_pv, oldAz);
             double newAz = moving_pv.getAz();
 
@@ -859,7 +859,7 @@ bool Scan::rigorousScanVisibility(const Network &network, const Source &source, 
         // check if source is visible at scan end time
         double oldAz = moving_pv.getAz();
         moving_pv.setTime(scanEnd);
-        thisStation.calcAzEl(source, moving_pv);
+        thisStation.calcAzEl_rigorous(source, moving_pv);
         thisStation.getCableWrap().unwrapAzNearAz(moving_pv, oldAz);
         double newAz = moving_pv.getAz();
 
@@ -1382,7 +1382,7 @@ void Scan::setPointingVector(int idx, PointingVector pv, Timestamp ts) {
     }
 }
 
-void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts) {
+void Scan::removeUnnecessaryObservingTime(Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts) {
 
     int idx = times_.removeUnnecessaryObservingTime(ts);
     unsigned int t = times_.getObservingTime(idx, ts);
@@ -1390,8 +1390,8 @@ void Scan::removeUnnecessaryObservingTime(const Network &network, const Source &
     double az = pv.getAz();
     pv.setTime(t);
     unsigned long staid = pv.getStaid();
-    const Station &thisSta = network.getStation(staid);
-    thisSta.calcAzEl(thisSource, pv);
+    Station &thisSta = network.refStation(staid);
+    thisSta.calcAzEl_rigorous(thisSource, pv);
     thisSta.getCableWrap().unwrapAzNearAz(pv, az);
     bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
     if(!visible){
@@ -1426,7 +1426,7 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisS
             PointingVector &pv = referencePointingVector(idx, ts);
             double az = pv.getAz();
             pv.setTime(t);
-            thisSta.calcAzEl(thisSource, pv);
+            thisSta.calcAzEl_simple(thisSource, pv);
             thisSta.getCableWrap().unwrapAzNearAz(pv, az);
 
             bool visible = thisSta.isVisible(pv,thisSource.getPARA().minElevation);
