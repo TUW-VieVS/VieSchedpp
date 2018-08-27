@@ -61,9 +61,11 @@ Source::Source(const string &src_name, const string &src_name2, double src_ra_de
 
     PreCalculated preCalculated = PreCalculated();
     preCalculated.sourceInCrs.resize(3);
-    preCalculated.sourceInCrs[0] = cos(de_)*cos(ra_);
-    preCalculated.sourceInCrs[1] = cos(de_)*sin(ra_);
-    preCalculated.sourceInCrs[2] = sin(de_);
+    sinDe_ = sin(de_);
+    cosDe_ = cos(de_);
+    preCalculated.sourceInCrs[0] = cosDe_*cos(ra_);
+    preCalculated.sourceInCrs[1] = cosDe_*sin(ra_);
+    preCalculated.sourceInCrs[2] = sinDe_;
 
     preCalculated_ = make_shared<PreCalculated>(move(preCalculated));
     condition_ = make_shared<Optimization>(Optimization());
@@ -85,7 +87,7 @@ double Source::getSunDistance() const noexcept{
     double sunRa = AstronomicalParameters::sun_radc[0];
     double sunDe = AstronomicalParameters::sun_radc[1];
 
-    double tmp = sin(sunDe) * sin(de_) + cos(sunDe) * cos(de_) * cos(sunRa - ra_);
+    double tmp = sin(sunDe) * sinDe_ + cos(sunDe) * cosDe_ * cos(sunRa - ra_);
     return acos(tmp);
 }
 
@@ -96,8 +98,11 @@ double Source::observedFlux(const string &band, double gmst, const std::vector<d
 
     double ha = gmst - ra_;
 
-    double u = dxyz[0] * sin(ha) + dxyz[1] * cos(ha);
-    double v = dxyz[2]*cos(de_) + sin(de_) * (-dxyz[0] * cos(ha) + dxyz[1] * sin(ha));
+    double sinHa = sin(ha);
+    double cosHa = cos(ha);
+
+    double u = dxyz[0] * sinHa + dxyz[1] * cosHa;
+    double v = dxyz[2] * cosDe_ + sinDe_ * (-dxyz[0] * cosHa + dxyz[1] * sinHa);
 
     double flux = flux_->at(band)->observedFlux(u, v);
     return flux;

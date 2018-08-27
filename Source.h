@@ -405,6 +405,8 @@ namespace VieVS{
 
         double ra_; ///< source right ascension
         double de_; ///< source declination
+        double sinDe_;
+        double cosDe_;
 
         Parameters parameters_; ///< parameters
 
