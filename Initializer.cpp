@@ -364,7 +364,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
             }
         } else {
             if (id_MS != "--"){
-                of << "*** ERROR: creating station "<< name <<": mask CATALOG not found ***\n";
+                of << "*** WARNING: creating station "<< name <<": mask CATALOG not found ***\n";
                 #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "station " << name << " mask.cat: not found";
                 #else
@@ -2603,9 +2603,19 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
         std::vector<MultiScheduling::Parameters> ans = ms.createMultiScheduleParameters(maxNumber,seed);
 
         if(ans.size() != maxNumber){
-            out << "multi scheduling found ... creating " << ans.size() << " schedules!;\n";
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(info) << "multi scheduling found ... creating " << ans.size() << " schedules!";
+            #else
+            cout << "[info] multi scheduling found ... creating " << ans.size() << " schedules!\n";
+            #endif
+            out << "multi scheduling found ... creating " << ans.size() << " schedules!\n";
         }else{
-            out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!;\n";
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(info) << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!";
+            #else
+            cout << "[info] multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!\n";
+            #endif
+            out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!\n";
         }
         return ans;
     }

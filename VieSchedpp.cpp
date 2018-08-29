@@ -90,11 +90,6 @@ void VieSchedpp::run() {
     if (!multiSchedParameters_.empty()) {
         flag_multiSched = true;
         nsched = multiSchedParameters_.size();
-        #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(info) << "multi scheduling found ... creating " << nsched << " schedules!";
-        #else
-        cout << "[info] multi scheduling found ... creating " << nsched << " schedules!";
-        #endif
     }
     of.close();
 
@@ -109,7 +104,6 @@ void VieSchedpp::run() {
         #else
         cout << "[info] using OpenMP to parallize multi scheduling!";
         #endif
-        int nThreads = omp_get_num_threads();
 
         omp_sched_t omp_sched;
         int chunkSize;
@@ -124,9 +118,9 @@ void VieSchedpp::run() {
         }
 
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(info) << boost::format("OpenMP: starting %d threads job scheduling %s chunk size %d") %nThreads %jobScheduling %chunkSize;
+        BOOST_LOG_TRIVIAL(info) << boost::format("OpenMP: job scheduling %s chunk size %d") %jobScheduling %chunkSize;
         #else
-        cout << boost::format("[info] OpenMP: starting %d threads job scheduling %s chunk size %d") %nThreads %jobScheduling %chunkSize;
+        cout << boost::format("[info] OpenMP: job scheduling %s chunk size %d") %jobScheduling %chunkSize;
         #endif
     }
 

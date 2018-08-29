@@ -342,7 +342,7 @@ namespace VieVS{
          */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                        const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                       const Network &network, const Source &source) noexcept;
+                       const Network &network, const Source &source, bool subnetting) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -390,7 +390,7 @@ namespace VieVS{
                                   const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
 
         void calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
-                       double hiscore);
+                       double hiscore, bool subnetting);
 
         /**
          * @brief calculates the score for a calibrator block scan
@@ -403,7 +403,7 @@ namespace VieVS{
         bool calcScore(const std::vector<double> &prevLowElevationScores,
                        const std::vector<double> &prevHighElevationScores,
                        const Network &network, unsigned int minRequiredTime, unsigned int maxRequiredTime,
-                       const Source &source);
+                       const Source &source, bool subnetting);
 
 
         /**
@@ -561,12 +561,12 @@ namespace VieVS{
          * @brief calculate score for low elevation scans
          * @return score for low elevation scans
          */
-        double calcScore_lowElevation();
+        double calcScore_lowElevation(unsigned long nmaxsta);
 
 
         double calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                    const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                   const Network &network, const Source &source);
+                                   const Network &network, const Source &source, bool subnetting);
 
         double calcScore_secondPart(double this_score, const Network &network, const Source &source);
 

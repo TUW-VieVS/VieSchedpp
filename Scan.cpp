@@ -589,7 +589,7 @@ double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) cons
     return score;
 }
 
-double Scan::calcScore_lowElevation() {
+double Scan::calcScore_lowElevation(unsigned long nmaxsta) {
     double score = 0;
     for (const auto &pv:pointingVectorsStart_) {
         double el = pv.getEl();
@@ -604,7 +604,7 @@ double Scan::calcScore_lowElevation() {
         }
         score += f ;
     }
-    return score / nsta_;
+    return score / nmaxsta;
 }
 
 
@@ -959,7 +959,7 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
 
 double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                  const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                 const Network &network, const Source &source) {
+                                 const Network &network, const Source &source, bool subnetting) {
     unsigned long nmaxsta = network.getNSta();
     unsigned long nmaxbl = network.getNBls();
     double this_score = 0;
@@ -981,6 +981,9 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
         this_score += calcScore_averageBaselines(abls) * weight_averageBaselines;
     }
     double weight_duration = WeightFactors::weightDuration;
+    if(subnetting){
+        weight_duration /= 2;
+    }
     if (weight_duration != 0) {
         this_score += calcScore_duration(minTime, maxTime) * weight_duration;
     }
@@ -990,6 +993,9 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
+    if(subnetting){
+        weightDeclination /= 2;
+    }
     if (weightDeclination != 0) {
         double dec = source.getDe();
         double f = 0;
@@ -1006,7 +1012,7 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
 
     double weightLowElevation = WeightFactors::weightLowElevation;
     if (weightLowElevation != 0) {
-        this_score += calcScore_lowElevation() * weightLowElevation;
+        this_score += calcScore_lowElevation(nmaxsta) * weightLowElevation;
     }
 
     return this_score;
@@ -1052,9 +1058,9 @@ double Scan::calcScore_secondPart(double this_score, const Network &network, con
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                      const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                     const Network &network, const Source &source) noexcept {
+                     const Network &network, const Source &source, bool subnetting) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, subnetting);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -1073,7 +1079,7 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
                      const Network &network, const Source &source,
                      unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, false);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -1093,7 +1099,7 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
                                 const Network &network, const Source &source,
                                 const unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, true);
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
@@ -1108,9 +1114,9 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
 }
 
 void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
-                     double hiscore) {
+                     double hiscore, bool subnetting) {
 
-    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), vector<double>(), minTime, maxTime, network, source);
+    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), vector<double>(), minTime, maxTime, network, source, subnetting);
 
 
     score_ = calcScore_secondPart(this_score, network, source)*hiscore;
@@ -1123,7 +1129,7 @@ void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &
 
 bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const std::vector<double> &prevHighElevationScores,
                      const Network &network, unsigned int minRequiredTime, unsigned int maxRequiredTime,
-                     const Source &source) {
+                     const Source &source, bool subnetting) {
     double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
     double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
 
@@ -1172,22 +1178,33 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
     }
 
     double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime);
+    if(subnetting){
+        scoreDuration = scoreDuration / 2;
+    }
 
     double scoreBaselines = calcScore_numberOfObservations(network.getNBls());
 
     double this_score = 0;
     if (improvementHighElevation + improvementLowElevation > 0) {
-        this_score =
-                improvementLowElevation / nMaxSta + improvementHighElevation / nMaxSta + scoreDuration + scoreBaselines;
+        this_score = improvementLowElevation / nMaxSta + improvementHighElevation / nMaxSta + scoreDuration +
+                scoreBaselines;
+
+        score_ = calcScore_secondPart(this_score, network, source);
+
+#ifdef VIESCHEDPP_LOG
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
+#endif
+        return true;
+
+    }else{
+
+#ifdef VIESCHEDPP_LOG
+        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " removed because no improvement to calibration";
+#endif
+        return false;
     }
 
 
-    score_ = calcScore_secondPart(this_score, network, source);
-
-    #ifdef VIESCHEDPP_LOG
-    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " score " << score_;
-    #endif
-    return true;
 }
 
 

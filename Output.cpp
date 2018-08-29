@@ -1243,9 +1243,9 @@ void Output::writeStatistics(std::ofstream &of) {
     for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nobs_sta[i])).append(",");
     }
-    oString.append(std::to_string(n_src)).append(",\n");
+    oString.append(std::to_string(n_src)).append(",");
 
-    of << oString;
+    of << oString << endl;
 
 }
 

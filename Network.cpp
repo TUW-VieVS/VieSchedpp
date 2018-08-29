@@ -220,7 +220,7 @@ double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs) const {
         score += thisSkyCov.calcScore(pv);
     }
 
-    return score / pvs.size();
+    return score / nsta_;
 
 }
 
@@ -239,7 +239,7 @@ double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs,
         score += thisScore;
     }
 
-    return score / pvs.size();
+    return score / nsta_;
 }
 
 double Network::calcScore_skyCoverage_subnetting(const vector<PointingVector> &pvs,
@@ -253,7 +253,7 @@ double Network::calcScore_skyCoverage_subnetting(const vector<PointingVector> &p
         score += staids2skyCoverageScore.at(staid);
     }
 
-    return score / pvs.size();
+    return score / nsta_;
 
 }
 

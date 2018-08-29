@@ -459,7 +459,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
         unsigned int iTime = thisScan.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap = hiscores[iTime];
         double hiscore = thisMap.at(thisSource.getId());
-        thisScan.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource, hiscore);
+        thisScan.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource, hiscore, false);
     }
 
 
@@ -470,7 +470,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
         unsigned int iTime1 = thisScan1.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap1 = hiscores[iTime1];
         double hiscore1 = thisMap1.at(thisSource1.getId());
-        thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource1, hiscore1);
+        thisScan1.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource1, hiscore1, true);
 //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
@@ -479,7 +479,7 @@ void Subcon::generateScore(const Network &network, const std::vector<Source> &so
         unsigned int iTime2 = thisScan2.getTimes().getObservingTime(Timestamp::start)/interval;
         const map<unsigned long, double> &thisMap2 = hiscores[iTime2];
         double hiscore2 = thisMap2.at(thisSource2.getId());
-        thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource2, hiscore2);
+        thisScan2.calcScore(minRequiredTime_, maxRequiredTime_, network, thisSource2, hiscore2, true);
 //        double score2 = thisScan2.getScore();
     }
 
@@ -501,7 +501,7 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
         Scan& thisScan = singleScans_[i];
 
         bool valid = thisScan.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                        maxRequiredTime_, sources[thisScan.getSourceId()]);
+                                        maxRequiredTime_, sources[thisScan.getSourceId()], false);
         if (valid){
             ++i;
         } else {
@@ -515,13 +515,13 @@ void Subcon::generateScore(const std::vector<double> &lowElevatrionScore, const 
         Scan &thisScan1 = subnettingScans_[i].first;
 
         bool valid1 = thisScan1.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                          maxRequiredTime_, sources[thisScan1.getSourceId()]);
+                                          maxRequiredTime_, sources[thisScan1.getSourceId()], true);
 //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = subnettingScans_[i].first;
 
         bool valid2 = thisScan2.calcScore(lowElevatrionScore, highElevationScore, network, minRequiredTime_,
-                                          maxRequiredTime_, sources[thisScan2.getSourceId()]);
+                                          maxRequiredTime_, sources[thisScan2.getSourceId()], true);
 //        double score2 = thisScan2.getScore();
 
         if (valid1 && valid2){
@@ -636,59 +636,6 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
     }
 }
 
-
-//std::vector<Scan> Subcon::selectBest(const Network &network, const std::vector<Source> &sources) {
-//    vector<Scan> bestScans;
-//
-//    if(nSingleScans_ == 0){
-//        return bestScans;
-//    }
-//    auto it_single = max_element(singleScans_.begin(),singleScans_.end(),[](const Scan &a, const Scan &b){
-//        return a.getScore() < b.getScore();
-//    });
-//
-//    long idxSingle = distance(singleScans_.begin(), it_single);
-//
-//    long idxSubnetting = -1;
-//    if(!subnettingScans_.empty()){
-//
-//        auto it_subnetting = max_element(subnettingScans_.begin(),subnettingScans_.end(),[]
-//                (const std::pair<Scan,Scan> &a, const std::pair<Scan,Scan> &b){
-//            return (a.first.getScore() + a.second.getScore()) < (b.first.getScore() + b.second.getScore());
-//        });
-//
-//        idxSubnetting = distance(subnettingScans_.begin(), it_subnetting);
-//    }
-//
-//
-//    if (idxSubnetting == -1 || singleScans_[idxSingle].getScore() >
-//                               subnettingScans_[idxSubnetting].first.getScore() +
-//                               subnettingScans_[idxSubnetting].second.getScore()) {
-//
-//        Scan bestScan = takeSingleSourceScan(static_cast<unsigned long>(idxSingle));
-//        bool valid = bestScan.rigorousUpdate(network,sources[bestScan.getSourceId()]);
-//        if(valid){
-//            bestScans.push_back(std::move(bestScan));
-//        }
-//
-//    } else {
-//
-//        pair<Scan, Scan> bestScan_pair = takeSubnettingScans(static_cast<unsigned long>(idxSubnetting));
-//
-//        Scan bestScan1 = bestScan_pair.first;
-//        bool valid1 = bestScan1.rigorousUpdate(network,sources[bestScan1.getSourceId()]);
-//        Scan bestScan2 = bestScan_pair.second;
-//        bool valid2 = bestScan2.rigorousUpdate(network,sources[bestScan2.getSourceId()]);
-//
-//        if(valid1 && valid2) {
-//            bestScans.push_back(std::move(bestScan1));
-//            bestScans.push_back(std::move(bestScan2));
-//        }
-//
-//    }
-//
-//    return bestScans;
-//}
 vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
     return selectBest(network, sources, vector<double>(), vector<double>(), endposition);
@@ -756,11 +703,20 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
             if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
                 // standard case
                 thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                   network, thisSource);
+                                   network, thisSource, false);
             } else {
                 // special case for calibrator block
-                thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                   minRequiredTime_, maxRequiredTime_, thisSource);
+                bool valid = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                   minRequiredTime_, maxRequiredTime_, thisSource, false);
+
+                if(!valid){
+                    scansToRemove.push_back(idx);
+#ifdef VIESCHEDPP_LOG
+                    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+#endif
+                    continue;
+                }
+
             }
 
             // push score in queue
@@ -814,15 +770,25 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
             if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
                 // standard case
                 thisScan1.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                    network, thisSource1);
+                                    network, thisSource1, true);
                 thisScan2.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                    network, thisSource2);
+                                    network, thisSource2, true);
             } else {
                 // special case for calibrator block
-                thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                    minRequiredTime_, maxRequiredTime_, thisSource1);
-                thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, network,
-                                    minRequiredTime_, maxRequiredTime_, thisSource2);
+                bool valid1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                    minRequiredTime_, maxRequiredTime_, thisSource1, true);
+
+                bool valid2 = thisScan2.calcScore(prevLowElevationScores, prevHighElevationScores, network,
+                                    minRequiredTime_, maxRequiredTime_, thisSource2, true);
+
+                if(!valid1 || !valid2){
+                    scansToRemove.push_back(idx);
+#ifdef VIESCHEDPP_LOG
+                    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " scan " << thisScan1.printId() << " and " << thisScan2.printId() << " no longer valid -> removed";
+#endif
+                    continue;
+                }
+
             }
 
             // push score in queue
