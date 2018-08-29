@@ -92,8 +92,8 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
         of << "        scheduler_email = " << schedulerEmail << eol;
     }
     if(!notes.empty()){
-        of << "        notes = \n";
-        of << boost::replace_all_copy(notes,"\\n","\n") << eol;
+        of << "*       notes = \n";
+        of << "*               " << boost::replace_all_copy(notes,"\\n","\n*               ") << eol;
     }
 
     of << "        target_correlator = " << targetCorrelator << eol;
@@ -124,9 +124,13 @@ void Vex::station_block(const std::vector<Station> &stations, const SkdCatalogRe
         of << "        ref $SITE = " << name << eol;
         of << "        ref $ANTENNA = " << name << eol;
         of << "        ref $DAS = " << recorder << "_recorder" << eol;
-        of << "        ref $DAS = " << rack << "_DDC_rack" << eol;
+        if(rack == "DBBC"){
+            of << "        ref $DAS = " << rack << "_DDC_rack" << eol;
+        }else{
+            of << "        ref $DAS = " << rack << "_rack" << eol;
+        }
         of << "        ref $DAS = " << id_name << eol;
-        of << "        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
+        of << "*        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
         of << "    enddef;\n";
     }
 }
@@ -195,8 +199,11 @@ void Vex::das_block(const std::vector<Station> &stations, const SkdCatalogReader
         string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + any.getName();
 
         const vector<string> &eq = cat.at(id_EQ);
-        const string & recorder = eq.at(eq.size()-2);
-        const string & rack = eq.at(eq.size()-1);
+        const string & recorder = eq.at(eq.size()-1);
+        string rack = eq.at(eq.size()-2);
+        if(rack == "DBBC"){
+            rack.append("_DDC");
+        }
         const string & id = tmp.at(14);
         const string & id_name = any.getAlternativeName() + "_" + tmp.at(14);
 
@@ -219,7 +226,7 @@ void Vex::das_block(const std::vector<Station> &stations, const SkdCatalogReader
     }
 
     for (const auto &recorder : recorders) {
-        of << "    def " << recorder << "_DDC_recorder" << eol;
+        of << "    def " << recorder << "_recorder" << eol;
         of << "        record_transport_type = " << recorder <<  eol;
         of << "    enddef;\n";
     }
@@ -413,8 +420,8 @@ void Vex::mode_block(const std::vector<Station>& stations, const SkdCatalogReade
         vector<string> tmp = acat.at(name);
         string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + name;
         const vector<string> &eq = cat.at(id_EQ);
-        string recorder = eq.at(eq.size() - 2);
-        if(recorder == "Mark5b" || recorder == "K5"){
+        string recorder = eq.at(eq.size() - 1);
+        if(recorder == "MARK5B" || recorder == "K5"){
             recorder = "Mark5b";
         }else{
             recorder = "Mark4";
@@ -427,8 +434,8 @@ void Vex::mode_block(const std::vector<Station>& stations, const SkdCatalogReade
         for(const auto &any2:any.second){
              of << " : " << any2;
         }
+        of << eol;
     }
-    of << eol;
 
 
     of << "    enddef;\n";
@@ -619,9 +626,9 @@ void Vex::tracks_block(const std::vector<Station> &stations, const SkdCatalogRea
             string id_EQ = boost::algorithm::to_upper_copy(tmp.at(14)) + "|" + name;
 
             const vector<string> &eq = cat.at(id_EQ);
-            string recorder = eq.at(eq.size() - 2);
-            if(recorder == "Mark5b" || recorder == "K5"){
-                recorder = "Mark5b";
+            string recorder = eq.at(eq.size() - 1);
+            if(recorder == "MARK5B" || recorder == "K5"){
+                recorder = "Mark5B";
             }else{
                 recorder = "Mark4";
             }
@@ -662,5 +669,3 @@ void Vex::roll_block() {
     of << "        roll = off;\n";
     of << "    enddef;\n";
 }
-
-

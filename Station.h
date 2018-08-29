@@ -388,10 +388,6 @@ namespace VieVS{
 
         std::pair<std::vector<double>, std::vector<double>>  getHorizonMask() const noexcept;
 
-        void prepareAzElVectors(unsigned long nsrc){
-            azelPrecalc_ = std::vector<std::vector<PointingVector>>(nsrc,std::vector<PointingVector>());
-        }
-
     private:
         static unsigned long nextId;
 

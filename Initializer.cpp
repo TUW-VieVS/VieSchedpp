@@ -1115,9 +1115,9 @@ void Initializer::initializeStations() noexcept {
         for(auto &sta : network_.refStations()){
             for(const auto &source : sources_){
                 PointingVector pv(getId(),source.getId());
-                int step = 1800;
+                int step = 600;
                 PointingVector npv(sta.getId(),source.getId());
-                for(unsigned int t=0; t<TimeSystem::duration+step; t+=step){
+                for(unsigned int t=0; t<TimeSystem::duration+step; t+=1800){
                     npv.setTime(t);
                     sta.calcAzEl_rigorous(source, npv);
                 }
