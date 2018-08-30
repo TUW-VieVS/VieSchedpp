@@ -2083,7 +2083,7 @@ void VieSchedpp_Analyser::updateStatisticsSource()
 
     const VieVS::Source &src = schedule_.getSources().at(idx);
     chart->setTitle(QString::fromStdString(src.getName()));
-    const std::vector<VieVS::Station> stations = schedule_.getNetwork().getStations();
+    std::vector<VieVS::Station> stations = schedule_.getNetwork().getStations();
 
     int istart = ui->horizontalSlider_start->value();
     int iend   = ui->horizontalSlider_end->value();
@@ -2092,7 +2092,7 @@ void VieSchedpp_Analyser::updateStatisticsSource()
 
     auto series = chart->series();
 
-    for(const VieVS::Station &sta : stations){
+    for(VieVS::Station &sta : stations){
 
         QLineSeries *serie;
         for(const auto &any:series){
@@ -2109,7 +2109,7 @@ void VieSchedpp_Analyser::updateStatisticsSource()
             VieVS::PointingVector pv(sta.getId(),src.getId());
             pv.setTime(i);
 
-            sta.calcAzEl(src,pv);
+            sta.calcAzEl_rigorous(src,pv);
             double el = pv.getEl()*rad2deg;
             serie->append(t.toMSecsSinceEpoch(),el);
         }
