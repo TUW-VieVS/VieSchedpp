@@ -75,6 +75,7 @@ void VieSchedpp::run() {
 
     init.createStations(skdCatalogs_, of);
     init.initializeStations();
+    init.precalcAzElStations();
     init.initializeBaselines();
 
     init.initializeHighImpactScanDescriptor(of);
