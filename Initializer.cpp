@@ -1127,7 +1127,7 @@ void Initializer::precalcAzElStations() noexcept {
             PointingVector pv(getId(),source.getId());
             int step = 600;
             PointingVector npv(sta.getId(),source.getId());
-            for(unsigned int t=0; t<TimeSystem::duration+step; t+=1800){
+            for(unsigned int t=0; t<TimeSystem::duration+1800; t+=step){
                 npv.setTime(t);
                 sta.calcAzEl_rigorous(source, npv);
             }
