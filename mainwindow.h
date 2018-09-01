@@ -500,6 +500,8 @@ private slots:
 
     void on_pushButton_modeCustomAddBAnd_clicked();
 
+    void on_pushButton_browseExecutable_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

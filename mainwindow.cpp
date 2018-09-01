@@ -1552,6 +1552,16 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
     }
 }
 
+void MainWindow::on_pushButton_browseExecutable_clicked()
+{
+    QString path = QFileDialog::getOpenFileName(this, "Browse to VieSchedpp executable", "");
+    if( !path.isEmpty() ){
+        ui->pathToSchedulerLineEdit->setText(path);
+    }
+
+}
+
+
 // ########################################### READ AND WRITE XML DOCUMENT ###########################################
 
 void MainWindow::defaultParameters()
@@ -1993,7 +2003,15 @@ QString MainWindow::writeXML()
     para.software(QApplication::applicationName().toStdString(), QApplication::applicationVersion().toStdString());
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-    para.created(now, ui->nameLineEdit->text().toStdString(), ui->emailLineEdit->text().toStdString());
+    std::string name = ui->nameLineEdit->text().toStdString();
+    if(name.empty()){
+        name = "unknown";
+    }
+    std::string email = ui->emailLineEdit->text().toStdString();
+    if(email.empty()){
+        email = "unknown";
+    }
+    para.created(now, name, email);
 
     int startYear = ui->dateTimeEdit_sessionStart->date().year();
     int startMonth = ui->dateTimeEdit_sessionStart->date().month();
@@ -3710,6 +3728,8 @@ void MainWindow::createDefaultParameterSettings()
     settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
     settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
 
+    settings.add("settings.output.directory", "out/");
+
     std::ofstream os;
     os.open("settings.xml");
     boost::property_tree::xml_parser::write_xml(os, settings,
@@ -4434,7 +4454,7 @@ void MainWindow::on_pushButton_clicked()
 
         QString tmp = t.at(5);
         tmp = tmp.trimmed();
-        QStringList stas = tmp.split("  ");
+        QStringList stas = tmp.split(" ");
         if(stas.size() >= 2){
             int n = selectedStationModel->rowCount();
             for(int i=0; i<n; ++i){
@@ -9021,11 +9041,5 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
-
-
-
-
-
-
 
 
