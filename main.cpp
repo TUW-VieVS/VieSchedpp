@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << t.str();
     #else
-    cout << "[info] " << t;
+    std::cout << "[info] " << t.str();
     #endif
     std::cout << std::endl;
 

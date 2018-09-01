@@ -109,11 +109,11 @@ bool AbstractCableWrap::axisInsideCableWrap(double ax1, double ax2) const noexce
 std::string
 AbstractCableWrap::pointingSector(const std::string &motion1, const std::string &motion2, char section) const noexcept {
     if (section == '-'){
-        return (boost::format("        pointing_sector = &n     : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % nLow_ % nUp_ % motion2 % axis2Low_ % axis2Up_).str();
+        return (boost::format("        pointing_sector = &n     : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % (nLow_*rad2deg) % (nUp_*rad2deg) % motion2 % (axis2Low_*rad2deg) % (axis2Up_*rad2deg)).str();
     }else if(section == 'C'){
-        return (boost::format("        pointing_sector = &cw    : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % cLow_ % cUp_ % motion2 % axis2Low_ % axis2Up_).str();
+        return (boost::format("        pointing_sector = &cw    : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % (cLow_*rad2deg) % (cUp_*rad2deg) % motion2 % (axis2Low_*rad2deg) % (axis2Up_*rad2deg)).str();
     }else if(section == 'W'){
-        return (boost::format("        pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % wLow_ % wUp_ % motion2 % axis2Low_ % axis2Up_).str();
+        return (boost::format("        pointing_sector = &ccw   : %3s : %4.0f deg : %4.0f deg : %3s : %4.0f deg : %4.0f deg ;\n") % motion1 % (wLow_*rad2deg) % (wUp_*rad2deg) % motion2 % (axis2Low_*rad2deg) % (axis2Up_*rad2deg)).str();
     }
 }
 

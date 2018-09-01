@@ -152,13 +152,14 @@ void SkdParser::read() {
     ObservationMode::bands.emplace_back("X");
     ObservationMode::bands.emplace_back("S");
 
-    init.createStations(skd_, of);
     init.createSources(skd_, of);
+    init.createStations(skd_, of);
+    init.initializeAstronomicalParameteres();
+    init.precalcAzElStations();
 
     network_ = init.network_;
     sources_ = move(init.sources_);
 
-    init.initializeAstronomicalParameteres();
 
     createScans(of);
     copyScanMembersToObjects(of);

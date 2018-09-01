@@ -141,6 +141,8 @@ namespace VieVS {
          */
         void initializeStations() noexcept;
 
+        void precalcAzElStations() noexcept;
+
         void initializeBaselines() noexcept;
 
         /**

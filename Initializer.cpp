@@ -1112,18 +1112,6 @@ void Initializer::initializeStations() noexcept {
         }
 
 
-        for(auto &sta : network_.refStations()){
-            for(const auto &source : sources_){
-                PointingVector pv(getId(),source.getId());
-                int step = 600;
-                PointingVector npv(sta.getId(),source.getId());
-                for(unsigned int t=0; t<TimeSystem::duration+step; t+=1800){
-                    npv.setTime(t);
-                    sta.calcAzEl_rigorous(source, npv);
-                }
-            }
-        }
-
     }else{
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in parameters.xml file";
@@ -1132,6 +1120,21 @@ void Initializer::initializeStations() noexcept {
         #endif
     }
 }
+
+void Initializer::precalcAzElStations() noexcept {
+    for(auto &sta : network_.refStations()){
+        for(const auto &source : sources_){
+            PointingVector pv(getId(),source.getId());
+            int step = 600;
+            PointingVector npv(sta.getId(),source.getId());
+            for(unsigned int t=0; t<TimeSystem::duration+1800; t+=step){
+                npv.setTime(t);
+                sta.calcAzEl_rigorous(source, npv);
+            }
+        }
+    }
+}
+
 
 void Initializer::stationSetup(vector<vector<Station::Event> > &events,
                                const boost::property_tree::ptree &tree,
