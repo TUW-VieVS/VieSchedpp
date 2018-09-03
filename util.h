@@ -21,7 +21,8 @@ namespace VieVS{
 }
 
 
-namespace VieVS::util{
+namespace VieVS{
+namespace util{
 
 
 
@@ -70,6 +71,7 @@ namespace VieVS::util{
     void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of);
 
 
+}
 }
 
 

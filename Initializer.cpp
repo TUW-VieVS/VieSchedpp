@@ -1884,14 +1884,14 @@ void Initializer::initializeAstronomicalParameteres() noexcept{
     // MEAN SOLAR LONGITUDE
     double slon = 280.460 + 0.9856474 * days;
     slon = fmod(slon, 360);
-    if (slon < 1.0d-3){
+    if (slon < 1.0e-3){
         slon = slon + 360.0;
     }
     // MEAN ANOMALY OF THE SUN
     double sanom = 357.528 + 0.9856003 * days;
     sanom = sanom * pi / 180.0;
     sanom = fmod(sanom, 2*pi);
-    if (sanom < 1.0d-3){
+    if (sanom < 1.0e-3){
         sanom = sanom + 2 * pi;
     }
     // ECLIPTIC LONGITUDE AND OBLIQUITY OF THE ECLIPTIC
