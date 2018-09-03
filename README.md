@@ -1,4 +1,4 @@
-# VieSched++ Graphical user interface
+# VieSched++ Graphical User Interface (GUI)
 
 written by Matthias Schartner
 contact: matthias.schartner@geo.tuwien.ac.at
@@ -6,7 +6,7 @@ contact: matthias.schartner@geo.tuwien.ac.at
 
 ## Installation 
 
-This section descripes how to install __VieSched++__ on LINUX. 
+This section descripes how to install __VieSched++ GUI__ on LINUX. 
 
 While an installation is possible on Windows (tested with Windows 10) it is no 
 further discussed due to the many possibilieties of different compilers and options. 
