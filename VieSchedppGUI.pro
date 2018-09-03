@@ -4,6 +4,7 @@
 #
 #-------------------------------------------------
 CONFIG += c++14
+CONFIG += static
 
 QMAKE_CXXFLAGS+= -fopenmp
 LIBS += -fopenmp
@@ -29,7 +30,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 #INCLUDEPATH += /home/mschartn/boost_1_64_0/
 #LIBS += "-LC:/home/mschartn/boost_1_64_0//stage/lib/"
-INCLUDEPATH += C:/boost/
+INCLUDEPATH += C:/MinGW/include
 LIBS += ../VieSchedpp/libsofa_c.a
 
 
@@ -95,7 +96,6 @@ SOURCES += \
         ../VieSchedpp/Subcon.cpp \
         ../VieSchedpp/TimeSystem.cpp \
         ../VieSchedpp/Vex.cpp \
-        ../VieSchedpp/VieSchedpp.cpp \
         ../VieSchedpp/VieVS_NamedObject.cpp \
         ../VieSchedpp/VieVS_Object.cpp \
         ../VieSchedpp/WeightFactors.cpp \
@@ -168,7 +168,6 @@ HEADERS += \
         ../VieSchedpp/Subnetting.h \
         ../VieSchedpp/TimeSystem.h \
         ../VieSchedpp/Vex.h \
-        ../VieSchedpp/VieSchedpp.h \
         ../VieSchedpp/VieVS_NamedObject.h \
         ../VieSchedpp/VieVS_Object.h \
         ../VieSchedpp/WeightFactors.h \

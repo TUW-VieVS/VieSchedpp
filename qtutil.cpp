@@ -6,7 +6,7 @@ QList<std::tuple<int, double, double, int>> qtUtil::pointingVectors2Lists(const 
     QList<std::tuple<int, double, double, int>> l;
 
     for(const VieVS::PointingVector &p : pvs){
-        l.append({p.getTime(), p.getAz(), p.getEl(), p.getSrcid()});
+        l.append(std::tuple<int, double, double, int>{p.getTime(), p.getAz(), p.getEl(), p.getSrcid()});
     }
 
     return l;
