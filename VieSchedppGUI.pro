@@ -4,7 +4,6 @@
 #
 #-------------------------------------------------
 CONFIG += c++14
-CONFIG += static
 
 QMAKE_CXXFLAGS+= -fopenmp
 LIBS += -fopenmp
