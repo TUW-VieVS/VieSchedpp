@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(VLBI_scheduler)
+project(VieSchedpp)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -114,18 +114,6 @@ endif ()
 #############################################################################################
 ########################################### SOFA ############################################
 #############################################################################################
-
-############ uncommend the following lines to manually link SOFA to your project ############
-#                                                                                           #
-#FIND_LIBRARY(SOFA libsofa_c.lib C:/Users/matth/CLionProjects/sofa_test_v2 REQUIRED)        #
-#if (SOFA)                                                                                  #
-#    message("SOFA found here: ${SOFA}")                                                    #
-#    TARGET_LINK_LIBRARIES(VLBI_scheduler ${SOFA})                                          #
-#endif()                                                                                    #
-#                                                                                           #
-######################################## end of block #######################################
-
-# OR:
 
 ######### uncommend the following lines to automatically look for SOFA and link it ##########
 #                                                                                           #
