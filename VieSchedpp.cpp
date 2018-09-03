@@ -137,6 +137,13 @@ void VieSchedpp::run() {
     #endif
     // create all required schedules
     for (int i = 0; i < nsched; ++i) {
+        if(i==0){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(info) << boost::format("number of threads %d") % omp_get_num_threads();
+            #else
+            cout << boost::format("number of threads %d") % omp_get_num_threads();
+            #endif
+        }
 
         // create initializer and set static parameters for each thread
         Initializer newInit(init);
@@ -256,7 +263,8 @@ void VieSchedpp::multiCoreSetup() {
     } else if (threads == "single"){
         nThreads = 1;
     } else if (threads == "auto"){
-        nThreads = 4;
+        nThreads = std::thread::hardware_concurrency();
+//        nThreads = 4;
     }
 
     omp_set_num_threads(nThreads);
