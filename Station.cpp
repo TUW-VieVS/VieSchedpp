@@ -425,7 +425,7 @@ void Station::applyNextEvent(std::ofstream &of) noexcept{
 
 void Station::clearObservations() {
     nextEvent_ = 0;
-    bool hardBreak;
+    bool hardBreak = false;
     checkForNewEvent(0,hardBreak);
 
     currentPositionVector_ = PointingVector(getId(),-1);
