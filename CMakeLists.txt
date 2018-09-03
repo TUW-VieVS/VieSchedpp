@@ -129,16 +129,14 @@ endif ()
 
 ######### uncommend the following lines to automatically look for SOFA and link it ##########
 #                                                                                           #
-FIND_LIBRARY(SOFA_LNX libsofa_c.a ./)                                                      #
-FIND_LIBRARY(SOFA_WIN libsofa_c.lib ./)                                                    #
-if (SOFA_LNX)                                                                              #
-    message("SOFA library found: ${SOFA_LNX}")                                             #
-    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_LNX})                                          #
-elseif(SOFA_WIN)                                                                           #
-    message("SOFA library found: ${SOFA_WIN}")                                             #
-    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA_WIN})                                          #
+FIND_LIBRARY(SOFA                                                                          #
+        NAMES libsofa_c.a libsofa_c.lib                                                    #
+        HINTS "../IAU_SOFA/Release/")                                                      #
+if (SOFA)                                                                                  #
+    message("SOFA library found: ${SOFA}")                                                 #
+    TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA})                                              #
 else()                                                                                     #
     message("ERROR: SOFA library not found!")                                              #
-endif ()                                                                                   #
+endif()                                                                                    #
 #                                                                                           #
 ######################################## end of block #######################################
