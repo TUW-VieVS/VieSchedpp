@@ -212,6 +212,15 @@ public:
         nsta_.append(nsta);
     }
 
+    void clear(){
+        QScatterSeries::clear();
+        startTime_.clear();
+        endTime_.clear();
+        cableWrap_.clear();
+        srcid_.clear();
+        nsta_.clear();
+    }
+
     int getStartTime(int idx){
         return startTime_.at(idx);
     }

@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>2</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -2481,6 +2481,9 @@ If you only want to run simulations you can deselect this to avoid error message
              </item>
              <item row="0" column="1">
               <widget class="QGroupBox" name="groupBox_subnetting">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>enable subnetting</string>
                </property>
@@ -2624,6 +2627,9 @@ If you only want to run simulations you can deselect this to avoid error message
                   <property name="text">
                    <string>during scan selection</string>
                   </property>
+                  <property name="checked">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item>
@@ -2654,7 +2660,7 @@ If you only want to run simulations you can deselect this to avoid error message
                    <string>a posteriori</string>
                   </property>
                   <property name="checked">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>

@@ -1077,8 +1077,7 @@ void MainWindow::on_actionRun_triggered()
         #ifdef Q_OS_WIN
             QString program = ui->pathToSchedulerLineEdit->text();
             start->start("cmd.exe",
-                         QStringList() << "/c" << program << "\""+fullPath+"\"",
-                         QIODevice::ReadWrite | QIODevice::Text);
+                         QStringList() << "/c" << program << fullPath);
         #else
             QString program = ui->pathToSchedulerLineEdit->text();
             QStringList arguments;
