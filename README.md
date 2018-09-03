@@ -1,4 +1,4 @@
-# VieSchedpp
+# VieSched++
 
 VLBI scheduling software
 
@@ -7,14 +7,14 @@ contact: matthias.schartner@geo.tuwien.ac.at
 
 # Installation 
 
-This section descripes how to install __VieSchedpp__ on LINUX. 
+This section descripes how to install __VieSched++__ on LINUX. 
 
 While an installation is possible on Windows (tested with Windows 10) it is no 
 further discussed due to the many possibilieties of different compilers and options. 
 
 ## Dependencies
 
-Before you install __VieSchedpp__ check if you have the following dependencies installed:
+Before you install __VieSched++__ check if you have the following dependencies installed:
 
 * gcc/g++ (tested with version 7.2.0, 7.3.0 and 8.1.0)
   * possible installation on Ubuntu: `sudo apt-get install build-essentials`
@@ -150,9 +150,9 @@ If you have troubles getting `boost` to work simply try to build it without `c++
 If you still have troubles installing the software contact me under: _matthias.schartner@geo.tuwien.ac.at_. 
 
 
-## Develop VieSchedpp
+## Develop VieSched++
 
-In case you want to develop VieSchedpp have a look at the `doxygen` documentation and use an appropriate IDE. 
+In case you want to develop __VieSched++__ have a look at the `doxygen` documentation and use an appropriate IDE. 
 
 * VieSchedpp was developed using the CLion. https://www.jetbrains.com/clion/
 * VieSchedppGUI was developed using QtCreator http://doc.qt.io/qtcreator/
