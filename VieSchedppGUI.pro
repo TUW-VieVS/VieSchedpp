@@ -30,7 +30,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #INCLUDEPATH += /home/mschartn/boost_1_64_0/
 #LIBS += "-LC:/home/mschartn/boost_1_64_0//stage/lib/"
 INCLUDEPATH += C:/boost/
-LIBS += ../VieSchedpp/libsofa_c.a
+LIBS += ../IAU_SOFA/Release/libsofa_c.a
 
 
 SOURCES += \

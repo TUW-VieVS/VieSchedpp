@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>15</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -107,7 +107,7 @@ p, li { white-space: pre-wrap; }
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Optimize your schedule:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Have a look at the schedule using our &lt;span style=&quot; font-weight:600;&quot;&gt;session analyser&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simly create only a single schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then comare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simply create only a single schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then comare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Start by varying some of the &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. This usually brings the best improvment. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a station is still underrepresented &lt;span style=&quot; font-weight:600;&quot;&gt;increase the weight&lt;/span&gt; of this station &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or adjust the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;average stations&lt;/span&gt;&amp;quot; weight factor &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. The same is true for sources and baselines. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;optimization conditions&lt;/span&gt; &lt;img src=&quot;:/icons/icons/conditions.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to reduce the amount of scheduled sources and increase the number of scans per source. &lt;/p&gt;
@@ -751,6 +751,12 @@ p, li { white-space: pre-wrap; }
                 <property name="statusTip">
                  <string>path to VieVS Scheduler executable</string>
                 </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="placeholderText">
+                 <string>e.g.: ../VieSchedpp/VieSchedpp</string>
+                </property>
                </widget>
               </item>
               <item>
@@ -923,7 +929,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>264</width>
+             <width>929</width>
              <height>717</height>
             </rect>
            </property>
@@ -957,7 +963,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd antenna catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/antenna.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to antenna.cat file</string>
@@ -1001,7 +1007,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd equip catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/equip.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to equip.cat file</string>
@@ -1045,7 +1051,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd position catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/position.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to position.cat file</string>
@@ -1089,7 +1095,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd mask catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/mask.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to mask.cat file</string>
@@ -1134,6 +1140,12 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_stations">
+                   <property name="toolTip">
+                    <string>read station catalogs</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>read station catalogs</string>
+                   </property>
                    <property name="text">
                     <string> reload</string>
                    </property>
@@ -1177,7 +1189,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd source catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/source.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to source.cat file</string>
@@ -1216,6 +1228,9 @@ p, li { white-space: pre-wrap; }
                     <widget class="QLineEdit" name="lineEdit_browseSource2">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>../CATALOGS/source.cat.geodetic.good</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to source.cat file</string>
@@ -1256,7 +1271,7 @@ p, li { white-space: pre-wrap; }
                       <string>path to skd flux catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/flux.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to flux.cat file</string>
@@ -1301,6 +1316,12 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_reloadsources">
+                   <property name="toolTip">
+                    <string>read source catalogs</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>read source catalogs</string>
+                   </property>
                    <property name="text">
                     <string> reload</string>
                    </property>
@@ -1351,7 +1372,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd modes catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/modes.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to modes.cat file</string>
@@ -1395,7 +1416,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd freq catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/freq.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to freq.cat file</string>
@@ -1439,7 +1460,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd tracks catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/tracks.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to tracks.cat file</string>
@@ -1483,7 +1504,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd loif catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/loif.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to loif.cat file</string>
@@ -1527,7 +1548,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd rec catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/rec.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to rec.cat file</string>
@@ -1571,7 +1592,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd rx catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/rx.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to rx.cat file</string>
@@ -1615,7 +1636,7 @@ If you only want to run simulations you can deselect this to avoid error message
                       <string>path to skd hdpos catalog</string>
                      </property>
                      <property name="text">
-                      <string/>
+                      <string>../CATALOGS/hdpos.cat</string>
                      </property>
                      <property name="placeholderText">
                       <string>path to hdpos.cat file</string>
@@ -1660,6 +1681,12 @@ If you only want to run simulations you can deselect this to avoid error message
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_reloadcatalogs">
+                   <property name="toolTip">
+                    <string>read observing mode catalogs</string>
+                   </property>
+                   <property name="statusTip">
+                    <string>read observing mode catalogs</string>
+                   </property>
                    <property name="text">
                     <string> reload</string>
                    </property>
