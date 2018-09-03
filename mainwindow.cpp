@@ -1933,33 +1933,33 @@ void MainWindow::readSettings()
     std::string pathToScheduler = settings.get<std::string>("settings.general.pathToScheduler","");
     ui->pathToSchedulerLineEdit->setText(QString::fromStdString(pathToScheduler));
 
-    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","../CATALOGS/antenna.cat");
+    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","");
     ui->lineEdit_pathAntenna->setText(QString::fromStdString(cAntenna));
-    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","../CATALOGS/equip.cat");
+    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","");
     ui->lineEdit_pathEquip->setText(QString::fromStdString(cEquip));
-    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","../CATALOGS/position.cat");
+    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","");
     ui->lineEdit_pathPosition->setText(QString::fromStdString(cPosition));
-    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","../CATALOGS/mask.cat");
+    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","");
     ui->lineEdit_pathMask->setText(QString::fromStdString(cMask));
-    std::string cSource = settings.get<std::string>("settings.catalog_path.source","../CATALOGS/source.cat");
+    std::string cSource = settings.get<std::string>("settings.catalog_path.source","");
     ui->lineEdit_pathSource->setText(QString::fromStdString(cSource));
-    std::string cSource2 = settings.get<std::string>("settings.catalog_path.source2","../CATALOGS/source.cat.geodetic.good");
+    std::string cSource2 = settings.get<std::string>("settings.catalog_path.source2","");
     ui->lineEdit_browseSource2->setText(QString::fromStdString(cSource2));
-    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","../CATALOGS/flux.cat");
+    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","");
     ui->lineEdit_pathFlux->setText(QString::fromStdString(cFlux));
-    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","../CATALOGS/modes.cat");
+    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","");
     ui->lineEdit_pathModes->setText(QString::fromStdString(cModes));
-    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","../CATALOGS/freq.cat");
+    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","");
     ui->lineEdit_pathFreq->setText(QString::fromStdString(cFreq));
-    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","../CATALOGS/tracks.cat");
+    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","");
     ui->lineEdit_pathTracks->setText(QString::fromStdString(cTracks));
-    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","../CATALOGS/loif.cat");
+    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","");
     ui->lineEdit_pathLoif->setText(QString::fromStdString(cLoif));
-    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","../CATALOGS/rec.cat");
+    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","");
     ui->lineEdit_pathRec->setText(QString::fromStdString(cRec));
-    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","../CATALOGS/rx.cat");
+    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","");
     ui->lineEdit_pathRx->setText(QString::fromStdString(cRx));
-    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","../CATALOGS/hdpos.cat");
+    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","");
     ui->lineEdit_pathHdpos->setText(QString::fromStdString(cHdpos));
 
     std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
@@ -4454,7 +4454,7 @@ void MainWindow::on_pushButton_clicked()
 
         QString tmp = t.at(5);
         tmp = tmp.trimmed();
-        QStringList stas = tmp.split(" ");
+        QStringList stas = tmp.split(" ", QString::SkipEmptyParts);
         if(stas.size() >= 2){
             int n = selectedStationModel->rowCount();
             for(int i=0; i<n; ++i){
