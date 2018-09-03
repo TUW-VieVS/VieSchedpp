@@ -702,9 +702,9 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
 
                 if(!errorWhileReadingFlux){
-                    srcFlux = make_unique<Flux_B>(ObservationMode::wavelength[thisBand],knots,values);
+                    double wavelength = ObservationMode::wavelength[thisBand];
+                    srcFlux = make_unique<Flux_B>(wavelength,std::move(knots),std::move(values));
                 }
-
             }
 
             if(!errorWhileReadingFlux){
