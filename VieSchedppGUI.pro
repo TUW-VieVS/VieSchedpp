@@ -102,7 +102,7 @@ SOURCES += \
         textfileviewer.cpp \
         vieschedpp_analyser.cpp \
         qtutil.cpp \
-    skedcataloginfo.cpp
+        skedcataloginfo.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -177,7 +177,7 @@ HEADERS += \
         textfileviewer.h \
         vieschedpp_analyser.h \
         qtutil.h \
-    skedcataloginfo.h
+        skedcataloginfo.h
 
 FORMS += \
         mainwindow.ui \
@@ -193,7 +193,7 @@ FORMS += \
         savetosettingsdialog.ui \
         textfileviewer.ui \
         vieschedpp_analyser.ui \
-    skedcataloginfo.ui
+        skedcataloginfo.ui
 
 RESOURCES += \
         myresources.qrc
