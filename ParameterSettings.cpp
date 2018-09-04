@@ -98,7 +98,7 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     master_.add_child("master.general", general.get_child("general"));
 }
 
-void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email)
+void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email, string version)
 {
     boost::property_tree::ptree created;
     int smonth = time.date().month();
@@ -108,6 +108,7 @@ void ParameterSettings::created(const boost::posix_time::ptime &time, string nam
     created.add("created.time", timeString);
     created.add("created.name", name);
     created.add("created.email", email);
+    created.add("created.GUI_version", version);
     master_.add_child("master.created", created.get_child("created"));
 }
 

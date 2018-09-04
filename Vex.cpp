@@ -27,7 +27,9 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
                 boost::trim_copy(xml.get("master.created.name","")),
                 boost::trim_copy(xml.get("master.created.email","")),
                 boost::trim_copy(xml.get("master.output.notes","")),
-                boost::trim_copy(xml.get("master.output.correlator","unknown")));
+                boost::trim_copy(xml.get("master.output.correlator","unknown")),
+                boost::trim_copy(xml.get("master.created.GUI_version","unknown"))
+                );
 
     station_block(network.getStations(), skdCatalogReader);
     mode_block(network.getStations(), skdCatalogReader);
@@ -59,7 +61,7 @@ void Vex::global_block(const std::string &expName) {
 void Vex::exper_block(const std::string &expName, const std::string &expDescription, const std::string &piName,
                       const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
                       const std::string &schedulerName, const std::string &schedulerEmail, const std::string &notes,
-                      const std::string &targetCorrelator) {
+                      const std::string &targetCorrelator, const std::string &gui_version) {
     of << "*=========================================================================================================\n";
     of << "$EXPER;\n";
     of << "*=========================================================================================================\n";
@@ -100,6 +102,7 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
     of << "*       software = VieSched++" << eol;
     string versionNr = util::version();
     of << "*       software_version = " << versionNr << eol;
+    of << "*       software_gui_version = " << gui_version << eol;
     of << "    enddef;\n";
 }
 

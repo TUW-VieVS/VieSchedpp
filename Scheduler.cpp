@@ -1845,6 +1845,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 }
                 int diff = static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime);
                 sum += diff;
+                sumPerSta[staid] +=diff;
                 of << boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                      | %8s - %8s |  %5d  | %s\n")
                                      % network_.getStation(staid).getName()
                                      % diff

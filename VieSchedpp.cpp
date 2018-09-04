@@ -43,10 +43,13 @@ void VieSchedpp::run() {
     #endif
 
     string versionNr = util::version();
+    string GUI_versionNr = xml_.get("master.created.GUI_version","unknown");
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "VieSched++ version: " << versionNr;
+    BOOST_LOG_TRIVIAL(info) << "VieSched++ GUI version: " << GUI_versionNr;
     #else
     cout << "[info] VieSched++ version: " << versionNr;
+    cout << "[info] VieSched++ GUI version: " << GUI_versionNr;
     #endif
 
 
@@ -143,9 +146,10 @@ void VieSchedpp::run() {
         #endif
     }
     #endif
+
     // create all required schedules
     for (int i = 0; i < nsched; ++i) {
-        if(i==0){
+        if(i==0 && nsched > 1){
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(info) << boost::format("number of threads %d") % omp_get_num_threads();
             #else
