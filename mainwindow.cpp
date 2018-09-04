@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QCoreApplication::setApplicationName("VieSched++");
-    QCoreApplication::setApplicationVersion("v0.8");
+    QCoreApplication::setApplicationVersion(GIT_COMMIT_HASH);
     ui->label_version->setText("Version: " + QCoreApplication::applicationVersion());
     ui->label_version->setFont(QFont(QApplication::font().family(),8));
     QCoreApplication::setOrganizationName("TU Wien");
@@ -1541,6 +1541,28 @@ void MainWindow::on_treeWidget_2_itemChanged(QTreeWidgetItem *item, int column)
         auto actions = ui->analysisToolBar->actions();
         for(const auto &any:actions){
             if(any->text() == "Statistics"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Log Parser"){
+        auto actions = ui->analysisToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Log Parser"){
+                if(item->checkState(0) == Qt::Checked){
+                    any->setVisible(true);
+                }else{
+                    any->setVisible(false);
+                }
+            }
+        }
+    } else if(item->text(0) == "Sched Analyser"){
+        auto actions = ui->analysisToolBar->actions();
+        for(const auto &any:actions){
+            if(any->text() == "Skd Parser"){
                 if(item->checkState(0) == Qt::Checked){
                     any->setVisible(true);
                 }else{

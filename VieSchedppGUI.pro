@@ -201,3 +201,12 @@ RESOURCES += \
 DISTFILES += \
         VLBI_Scheduler/libsofa_c.a \
         VLBI_Scheduler/CMakeLists.txt
+
+exists( $$PWD/.git) {
+    GIT_COMMIT_HASH = $$system(git log -1 --format=%H)
+}else{
+    GIT_COMMIT_HASH = "unknown"
+}
+message(VieSched++ GUI version $$GIT_COMMIT_HASH)
+
+DEFINES += GIT_COMMIT_HASH=\\\"$$GIT_COMMIT_HASH\\\"

@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -601,6 +601,30 @@ p, li { white-space: pre-wrap; }
                 <normaloff>:/icons/icons/office-chart-bar.png</normaloff>:/icons/icons/office-chart-bar.png</iconset>
               </property>
              </item>
+             <item>
+              <property name="text">
+               <string>Log Parser</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/edit-undo-7.png</normaloff>:/icons/icons/edit-undo-7.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Sched Analyser</string>
+              </property>
+              <property name="checkState">
+               <enum>Checked</enum>
+              </property>
+              <property name="icon">
+               <iconset resource="myresources.qrc">
+                <normaloff>:/icons/icons/sky_coverage_analyser.png</normaloff>:/icons/icons/sky_coverage_analyser.png</iconset>
+              </property>
+             </item>
             </item>
            </widget>
           </item>
@@ -940,7 +964,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>929</width>
+             <width>264</width>
              <height>717</height>
             </rect>
            </property>
@@ -6674,8 +6698,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>943</width>
-             <height>697</height>
+             <width>633</width>
+             <height>576</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">

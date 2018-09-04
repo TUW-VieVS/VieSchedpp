@@ -26,6 +26,9 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QTextEdit" name="textEdit_2">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
