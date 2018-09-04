@@ -79,7 +79,7 @@ Do the same as descriped in the previouse section but before running
 
 ## Troubleshooting
 
-#### CMake error
+### Installation
 
 After calling `cmake` your output should look like the following:
 
@@ -122,6 +122,7 @@ After calling `cmake` your output should look like the following:
     Boost Boost_LIBRARY_DIRS: /usr/local/lib
     Boost LIBRARIES: /usr/local/lib/libboost_log.a;/usr/local/lib/libboost_log_setup.a;/usr/local/lib/libboost_system.a;/usr/local/lib/libboost_date_time.a;/usr/local/lib/libboost_filesystem.a;/usr/local/lib/libboost_thread.a;/usr/local/lib/libboost_regex.a;/usr/local/lib/libboost_chrono.a;/usr/local/lib/libboost_atomic.a
     SOFA library found: /home/mschartn/programming/test/IAU_SOFA/Release/libsofa_c.a
+    VieSched++ version: f20be1498274232acb46cf44121f9e60278c6528
     -- Configuring done
     -- Generating done
     -- Build files have been written to: /home/mschartn/programming/test/VieSchedpp/Release
@@ -149,6 +150,20 @@ If you have troubles getting `boost` to work simply try to build it without `c++
 
 If you still have troubles installing the software contact me under: _matthias.schartner@geo.tuwien.ac.at_. 
 
+### Software errors
+
+__VieSched++__ is still in developing, there might be bugs or crashes. 
+
+Please always have a look at the log file and have a look if you get some [warning], [error] or [fatal] messages. 
+
+In case __VieSched++__ crashes or it reports an error in the log files please contact me under: _matthias.schartner@geo.tuwien.ac.at_. 
+
+Please attach: 
+* your current software version number (you can find it in the beginning of your log file, or in the .skd or .vex files - it is a hash code like f20be1498274232acb46cf44121f9e60278c6528)
+* your parameters.xml file 
+* your used catalog files
+* your log file `VieSchedpp_yyyy-mm-dd_hh-mm-ss.sss.log`
+* any other helpful information 
 
 ## Develop VieSched++
 
