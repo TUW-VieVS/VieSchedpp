@@ -2,6 +2,10 @@
 // Created by matth on 06.05.2018.
 //
 
+#ifndef GIT_COMMIT_HASH
+#define GIT_COMMIT_HASH "unknown"
+#endif
+
 #ifndef UTILITY_H
 #define UTILITY_H
 
