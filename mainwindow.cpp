@@ -4334,6 +4334,14 @@ void MainWindow::on_pushButton_reloadcatalogs_clicked()
     QMessageBox::information(this, "reload modes", "modes successfully reloaded\ncheck current selection");
 }
 
+
+void MainWindow::on_pushButton_howAreSkedCatalogsLinked_clicked()
+{
+    SkedCatalogInfo dial(this);
+    dial.setFonts();
+    dial.exec();
+}
+
 // ########################################### GENERAL ###########################################
 
 void MainWindow::on_dateTimeEdit_sessionStart_dateTimeChanged(const QDateTime &dateTime)
@@ -9040,5 +9048,6 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
 
 

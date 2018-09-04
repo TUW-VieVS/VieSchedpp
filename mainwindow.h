@@ -47,6 +47,7 @@
 #include "vieschedpp_analyser.h"
 #include "../VieSchedpp/SkdParser.h"
 #include "qtutil.h"
+#include "skedcataloginfo.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -501,6 +502,8 @@ private slots:
     void on_pushButton_modeCustomAddBAnd_clicked();
 
     void on_pushButton_browseExecutable_clicked();
+
+    void on_pushButton_howAreSkedCatalogsLinked_clicked();
 
 private:
     Ui::MainWindow *ui;

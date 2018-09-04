@@ -101,7 +101,8 @@ SOURCES += \
         ../VieSchedpp/Flags.cpp \
         textfileviewer.cpp \
         vieschedpp_analyser.cpp \
-        qtutil.cpp
+        qtutil.cpp \
+    skedcataloginfo.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -175,7 +176,8 @@ HEADERS += \
         ../VieSchedpp/Flags.h \
         textfileviewer.h \
         vieschedpp_analyser.h \
-        qtutil.h
+        qtutil.h \
+    skedcataloginfo.h
 
 FORMS += \
         mainwindow.ui \
@@ -190,7 +192,8 @@ FORMS += \
         addbanddialog.ui \
         savetosettingsdialog.ui \
         textfileviewer.ui \
-        vieschedpp_analyser.ui
+        vieschedpp_analyser.ui \
+    skedcataloginfo.ui
 
 RESOURCES += \
         myresources.qrc

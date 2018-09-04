@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>4</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -755,7 +755,7 @@ p, li { white-space: pre-wrap; }
                  <string/>
                 </property>
                 <property name="placeholderText">
-                 <string>e.g.: ../VieSchedpp/VieSchedpp</string>
+                 <string>absolute path needed</string>
                 </property>
                </widget>
               </item>
@@ -899,6 +899,17 @@ p, li { white-space: pre-wrap; }
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_howAreSkedCatalogsLinked">
+            <property name="text">
+             <string> How are sked catalogs linked?</string>
+            </property>
+            <property name="icon">
+             <iconset resource="myresources.qrc">
+              <normaloff>:/icons/icons/help.png</normaloff>:/icons/icons/help.png</iconset>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_saveCatalogPathes">
@@ -6663,8 +6674,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">

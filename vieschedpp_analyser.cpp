@@ -448,7 +448,7 @@ void VieSchedpp_Analyser::on_pushButton_skyCoverageLayout_clicked()
 {
     QDialog dialog(this);
     QFormLayout form(&dialog);
-    form.addRow(new QLabel("The question ?"));
+    form.addRow(new QLabel("set layout"));
     // Add the lineEdits with their respective labels
 
     QSpinBox *rowBox = new QSpinBox(&dialog);
