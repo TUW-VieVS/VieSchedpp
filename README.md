@@ -3,7 +3,8 @@
 VLBI scheduling software
 
 written by Matthias Schartner
-contact: matthias.schartner@geo.tuwien.ac.at
+
+contact: _matthias.schartner@geo.tuwien.ac.at_
 
 # Installation 
 
@@ -11,6 +12,8 @@ This section descripes how to install __VieSched++__ on LINUX.
 
 While an installation is possible on Windows (tested with Windows 10) it is no 
 further discussed due to the many possibilieties of different compilers and options. 
+If you run into any problems compiling __VieSched++__ on Windows 10, contact me 
+under _matthias.schartner@geo.tuwien.ac.at_ and I can send you some prebuild binaries. 
 
 ## Dependencies
 
