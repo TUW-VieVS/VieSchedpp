@@ -34,6 +34,8 @@ namespace util{
 
     int duration(const boost::posix_time::ptime &start, const boost::posix_time::ptime &end);
 
+    std::string version();
+
     template<typename T>
     T absDiff(const T&a, const T&b) {
         return (a > b) ? (a - b) : (b - a);

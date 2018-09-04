@@ -128,3 +128,25 @@ else()                                                                          
 endif()                                                                                    #
 #                                                                                           #
 ######################################## end of block #######################################
+
+
+#############################################################################################
+###################################### VERSION NUMBER #######################################
+#############################################################################################
+#                                                                                           #
+if(EXISTS "${CMAKE_SOURCE_DIR}/.git")                                                      #
+    execute_process(                                                                       #
+        COMMAND git log -1 --format=%H                                                     #
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}                                              #
+        OUTPUT_VARIABLE GIT_COMMIT_HASH                                                    #
+        OUTPUT_STRIP_TRAILING_WHITESPACE                                                   #
+    )                                                                                      #
+else()                                                                                     #
+    set(GIT_COMMIT_HASH "unknown")                                                         #
+endif()                                                                                    #
+                                                                                           #
+message("VieSched++ version: ${GIT_COMMIT_HASH}")                                          #
+                                                                                           #
+add_definitions("-DGIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")                                #
+#                                                                                           #                                                                                            #
+#############################################################################################

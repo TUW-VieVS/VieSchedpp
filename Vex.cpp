@@ -97,6 +97,9 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
     }
 
     of << "        target_correlator = " << targetCorrelator << eol;
+    of << "*       software = VieSched++" << eol;
+    string versionNr = util::version();
+    of << "*       software_version = " << versionNr << eol;
     of << "    enddef;\n";
 }
 

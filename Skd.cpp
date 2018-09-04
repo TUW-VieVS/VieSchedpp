@@ -67,7 +67,9 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
     of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription","no description") << endl;
     of << "SCHEDULING_SOFTWARE VieSched++\n";
-    of << "SOFTWARE_VERSION 0.8\n";
+
+    string versionNr = util::version();
+    of << "SOFTWARE_VERSION " << versionNr << "\n";
     auto ctstr = xml.get<string>("master.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);

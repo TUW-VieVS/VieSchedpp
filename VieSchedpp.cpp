@@ -42,6 +42,14 @@ void VieSchedpp::run() {
     init_log();
     #endif
 
+    string versionNr = util::version();
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "VieSched++ version: " << versionNr;
+    #else
+    cout << "[info] VieSched++ version: " << versionNr;
+    #endif
+
+
     // get path of input file
     VieVS::Initializer init(xml_);
 

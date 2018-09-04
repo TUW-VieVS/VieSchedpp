@@ -78,3 +78,11 @@ void util::outputObjectList(const std::string &title, const std::vector<std::str
     }
 
 }
+
+
+string util::version() {
+    string v;
+    v = string(GIT_COMMIT_HASH);
+
+    return v;
+}
