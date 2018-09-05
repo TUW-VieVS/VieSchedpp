@@ -170,7 +170,7 @@ namespace VieVS{
          * @param of outstream file object
          * @return true if a hard break was found
          */
-        bool checkForNewEvents(unsigned int time, bool output, std::ofstream &of) noexcept;
+        bool checkForNewEvents(unsigned int time, bool output, std::ofstream &of, bool tagalong) noexcept;
 
         /**
          * @brief calculates number of available sources

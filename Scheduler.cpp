@@ -161,7 +161,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
                 of << (boost::format("[warning] no valid scan found, checking one minute later: %s\n")
                        % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
-                checkForNewEvents(maxScanEnd, true, of);
+                checkForNewEvents(maxScanEnd, true, of, true);
                 if (maxScanEnd > endTime) {
                     break;
                 }
@@ -182,7 +182,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         }
 
         // check if end time triggers a new event
-        bool hardBreak = checkForNewEvents(maxScanEnd, true, of);
+        bool hardBreak = checkForNewEvents(maxScanEnd, true, of, true);
         if (hardBreak) {
             continue;
         }
@@ -356,7 +356,7 @@ void Scheduler::start() noexcept {
         of << "multi scheduling parameters:\n";
         multiSchedulingParameters_->output(of);
     }
-    checkForNewEvents(0, false, of);
+    checkForNewEvents(0, false, of, false);
     listSourceOverview(of);
 
     boost::optional<StationEndposition> endposition = boost::none;
@@ -746,7 +746,7 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
     return everythingOk;
 }
 
-bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) noexcept {
+bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of, bool scheduleTagalong) noexcept {
     bool hard_break = false;
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "check for parameter changes";
@@ -755,7 +755,7 @@ bool Scheduler::checkForNewEvents(unsigned int time, bool output, ofstream &of) 
     // check if it is required to tagalong a station
     for (auto &any:network_.refStations()){
         bool tagalong = any.checkForTagalongMode(time);
-        if(tagalong){
+        if(tagalong && scheduleTagalong){
             of << "TAGALONG for station " << any.getName() << " required!\n";
             #ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "tagalong for station " << any.getName() << " required";
@@ -939,6 +939,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
                 const Station &sta1 = network_.getStation(staid);
                 const Station &sta2 = network_.getStation(otherPv.getStaid());
+                if(sta1.getId() == sta2.getId()){
+                    continue;
+                }
                 const Baseline &bl = network_.getBaseline(sta1.getId(),sta2.getId());
 
                 if(bl.getParameters().ignore){
@@ -1145,15 +1148,17 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         if(exclude){
-            if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions){
-                if(lastExcluded){
-                    lastExcluded = false;
-                    #ifdef VIESCHEDPP_LOG
-                    if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
-                    #endif
-                    continue;
-                }else {
-                    lastExcluded = true;
+            if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions) {
+                if(thisSource.getNTotalScans() >= 0) {
+                    if (lastExcluded) {
+                        lastExcluded = false;
+                        #ifdef VIESCHEDPP_LOG
+                        if (Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
+                        #endif
+                        continue;
+                    } else {
+                        lastExcluded = true;
+                    }
                 }
             }
             #ifdef VIESCHEDPP_LOG
@@ -1297,7 +1302,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
         // check if there was an new upcoming event in the meantime
         unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
-        checkForNewEvents(startTime, true, of);
+        checkForNewEvents(startTime, true, of, false);
         if(ignoreTagalong ){
             ignoreTagalongParameter();
         }
@@ -1327,7 +1332,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     }
     // check if there was an new upcoming event in the meantime
     unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
-    checkForNewEvents(startTime, true, of);
+    checkForNewEvents(startTime, true, of, false);
     if(ignoreTagalong ){
         ignoreTagalongParameter();
     }
@@ -1361,7 +1366,7 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
 
         // check for new event and changes current pointing vector as well as first scan
         unsigned int time = iTime*interval;
-        checkForNewEvents(time, true, of);
+        checkForNewEvents(time, false, of, false);
         for(auto &thisStation : network_.refStations()){
             PointingVector pv(thisStation.getId(), numeric_limits<unsigned long>::max());
             pv.setTime(time);
@@ -1435,7 +1440,7 @@ void Scheduler::resetAllEvents(std::ofstream &of) {
     for(auto &any:network_.refBaselines()){
         any.setNextEvent(0);
     }
-    checkForNewEvents(0, false, of);
+    checkForNewEvents(0, false, of, false);
 }
 
 void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
@@ -1522,7 +1527,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             }
 
             // check for new events
-            checkForNewEvents(scan1.getTimes().getScanTime(Timestamp::start), true, of);
+            checkForNewEvents(scan1.getTimes().getScanTime(Timestamp::start), false, of, false);
 
             // look for index of next scan with this station
             int iscan2 = iscan1+1;
