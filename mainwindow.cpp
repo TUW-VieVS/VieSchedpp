@@ -8,9 +8,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
-    QCoreApplication::setApplicationName("VieSched++");
+    QCoreApplication::setApplicationName("VieSched++ GUI");
     QCoreApplication::setApplicationVersion(GIT_COMMIT_HASH);
-    ui->label_version->setText("GUI version: " + QCoreApplication::applicationVersion());
+
+    QString schedVersion = GIT_SCHEDULER_COMMIT_HASH;
+    if(schedVersion.length() != 40){
+        schedVersion = "unknown";
+    }
+    if( schedVersion !=  "unknown"){
+        ui->label_version->setText("VieSched++ GUI version: " + QCoreApplication::applicationVersion() + "\nVieSched++ version: " + schedVersion);
+    }else{
+        ui->label_version->setText("VieSched++ GUI version: " + QCoreApplication::applicationVersion());
+    }
+
     ui->label_version->setFont(QFont(QApplication::font().family(),8));
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setOrganizationDomain("http://hg.geo.tuwien.ac.at/");
@@ -2032,8 +2042,7 @@ QString MainWindow::writeXML()
     if(email.empty()){
         email = "unknown";
     }
-    std::string version = QCoreApplication::applicationVersion().toStdString();
-    para.created(now, name, email, version);
+    para.created(now, name, email);
 
     int startYear = ui->dateTimeEdit_sessionStart->date().year();
     int startMonth = ui->dateTimeEdit_sessionStart->date().month();

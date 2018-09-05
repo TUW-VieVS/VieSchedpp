@@ -69,6 +69,6 @@
         <file>icons/about.png</file>
     </qresource>
     <qresource prefix="/images">
-        <file>images/vievs_sched_pp_transparent.png</file>
+        <file>images/vievs_sched_subtitle_transparent.png</file>
     </qresource>
 </RCC>
