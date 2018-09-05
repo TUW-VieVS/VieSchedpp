@@ -7507,6 +7507,7 @@ void MainWindow::multi_sched_count_nsched()
                                                     {"weight_factor_duration",std::vector<double>{wdur_}},
                                                     {"weight_factor_average_sources",std::vector<double>{wasrc_}},
                                                     {"weight_factor_average_stations",std::vector<double>{wasta_}},
+                                                    {"weight_factor_average_baselines",std::vector<double>{wabls_}},
                                                     {"weight_factor_idle_time",std::vector<double>{widle_}},
                                                     {"weight_factor_low_declination",std::vector<double>{wdec_}},
                                                     {"weight_factor_low_elevation",std::vector<double>{wel_}}};
