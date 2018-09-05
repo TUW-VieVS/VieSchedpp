@@ -43,7 +43,7 @@ void VieSchedpp::run() {
     #endif
 
     string versionNr = util::version();
-    string GUI_versionNr = xml_.get("master.created.GUI_version","unknown");
+    string GUI_versionNr = xml_.get("master.software.GUI_version","unknown");
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "VieSched++ version: " << versionNr;
     BOOST_LOG_TRIVIAL(info) << "VieSched++ GUI version: " << GUI_versionNr;

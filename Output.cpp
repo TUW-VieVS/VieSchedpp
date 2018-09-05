@@ -1083,6 +1083,8 @@ void Output::writeOperationsNotes() {
 
     of << "    experiment description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
     of << "    created with          : VieSched++ \n";
+    of << "    version               : " << util::version() << "\n";
+    of << "    GUI version           : " << xml_.get("master.software.GUI_version","unknown") << "\n";
     of << "    creation time (local) : " << xml_.get("master.created.time","unknown") << "\n\n";
 
     of << "    nominal start time    : " << xml_.get("master.general.startTime","unknown") << "\n";

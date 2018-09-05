@@ -70,7 +70,7 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
 
     string versionNr = util::version();
     of << "SOFTWARE_VERSION " << versionNr << "\n";
-    string GUI_versionNr = xml.get("master.created.GUI_version","unknown");
+    string GUI_versionNr = xml.get("master.software.GUI_version","unknown");
     of << "* GUI_VERSION " << GUI_versionNr << "\n";
     auto ctstr = xml.get<string>("master.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);

@@ -13,7 +13,7 @@ VieVS::ParameterSettings::ParameterSettings() {
 void ParameterSettings::software(const std::string &name, const std::string &version) {
     boost::property_tree::ptree software;
     software.add("software.name", name);
-    software.add("software.version", version);
+    software.add("software.GUI_version", version);
 
 //    master_.insert(master_.begin(),software.get_child("software"));
     master_.add_child("master.software", software.get_child("software"));
@@ -98,7 +98,7 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
     master_.add_child("master.general", general.get_child("general"));
 }
 
-void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email, string version)
+void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email)
 {
     boost::property_tree::ptree created;
     int smonth = time.date().month();
@@ -108,7 +108,6 @@ void ParameterSettings::created(const boost::posix_time::ptime &time, string nam
     created.add("created.time", timeString);
     created.add("created.name", name);
     created.add("created.email", email);
-    created.add("created.GUI_version", version);
     master_.add_child("master.created", created.get_child("created"));
 }
 

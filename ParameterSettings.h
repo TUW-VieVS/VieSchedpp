@@ -182,7 +182,7 @@ namespace VieVS {
                      const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                      const std::string &logConsole, const std::string &logFile);
 
-        void created(const boost::posix_time::ptime &time, std::string name, std::string email, std::string version);
+        void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
         /**
          * @brief catalogs block in parameters.xml

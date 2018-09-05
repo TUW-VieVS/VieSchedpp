@@ -28,7 +28,7 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
                 boost::trim_copy(xml.get("master.created.email","")),
                 boost::trim_copy(xml.get("master.output.notes","")),
                 boost::trim_copy(xml.get("master.output.correlator","unknown")),
-                boost::trim_copy(xml.get("master.created.GUI_version","unknown"))
+                boost::trim_copy(xml.get("master.software.GUI_version","unknown"))
                 );
 
     station_block(network.getStations(), skdCatalogReader);
