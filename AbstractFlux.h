@@ -29,6 +29,8 @@ namespace VieVS{
 
         explicit AbstractFlux(double wavelength);
 
+        virtual ~AbstractFlux() = default;
+
         /**
          * @brief gets the maximum possible flux density
          *
