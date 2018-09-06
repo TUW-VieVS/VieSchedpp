@@ -1039,7 +1039,12 @@ void MainWindow::on_actionOpen_triggered()
     QString startPath = ui->lineEdit_sessionPath->text();
     QString path = QFileDialog::getOpenFileName(this, "Browse to xml file", startPath, tr("xml files (*.xml)"));
     if( !path.isEmpty() ){
-        loadXML(path);
+        try{
+            loadXML(path);
+        }catch(...){
+            QMessageBox::warning(this, "Error", "Error while loading "+path);
+        }
+
     }
 }
 
