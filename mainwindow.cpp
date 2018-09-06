@@ -334,6 +334,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->sampleBitsSpinBox,SIGNAL(valueChanged(int)),this,SLOT(gbps()));
     connect(ui->sampleRateDoubleSpinBox,SIGNAL(valueChanged(double)),this,SLOT(gbps()));
     gbps();
+
+    ui->dateTimeEdit_sessionStart->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_endParameterBaseline->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_endParameterSource->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_endParameterStation->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_startParameterBaseline->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_startParameterSource->setDisplayFormat("dd.MM.yyyy HH:mm");
+    ui->DateTimeEdit_startParameterStation->setDisplayFormat("dd.MM.yyyy HH:mm");
 }
 
 MainWindow::~MainWindow()

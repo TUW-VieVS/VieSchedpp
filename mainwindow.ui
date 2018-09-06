@@ -3796,6 +3796,19 @@ If you only want to run simulations you can deselect this to avoid error message
                       <property name="statusTip">
                        <string>select start time (dd.mm.yy hh:mm)</string>
                       </property>
+                      <property name="dateTime">
+                       <datetime>
+                        <hour>0</hour>
+                        <minute>0</minute>
+                        <second>0</second>
+                        <year>2000</year>
+                        <month>1</month>
+                        <day>1</day>
+                       </datetime>
+                      </property>
+                      <property name="displayFormat">
+                       <string>dd.MM.yy HH:mm</string>
+                      </property>
                       <property name="timeSpec">
                        <enum>Qt::LocalTime</enum>
                       </property>
