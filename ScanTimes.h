@@ -63,20 +63,20 @@ namespace VieVS {
         }
 
         bool updateAfterFillinmode(int idx, unsigned int endOfLastScan, unsigned int fieldSystem,
-                                   unsigned int slewTime) noexcept {
+                                   unsigned int slewTime, unsigned int preobTime) noexcept {
 
             endOfLastScan_[idx] = endOfLastScan;
             endOfFieldSystemTime_[idx] = endOfLastScan_[idx]+fieldSystem;
             unsigned int slewEnd = endOfFieldSystemTime_[idx]+slewTime;
+            bool valid = setPreobTime(idx, preobTime);
 
-            bool valid = true;
             if(slewEnd <= endOfIdleTime_[idx]){
                 endOfSlewTime_[idx] = slewEnd;
                 return valid;
 
             }else{
                 // 1 sec tolerance
-                valid = slewEnd - endOfIdleTime_[idx] == 1;
+                valid = valid && slewEnd - endOfIdleTime_[idx] == 1;
 
                 endOfSlewTime_[idx] = endOfIdleTime_[idx];
 
@@ -245,6 +245,8 @@ namespace VieVS {
                                     unsigned int preob);
 
         bool setPreobTime(const std::vector<unsigned int> &preob);
+
+        bool setPreobTime(int idx, unsigned int preob);
 
         int removeUnnecessaryObservingTime(Timestamp ts);
 

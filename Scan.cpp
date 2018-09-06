@@ -756,7 +756,7 @@ bool Scan::rigorousSlewtime(Network &network, const Source &source) noexcept {
         // if no station was removed update slewtimes and increase counter... otherwise restart with same staid
         if(!stationRemoved){
             // update the slewtime
-            times_.setSlewTime(ista, newSlewEnd - slewStart);
+            times_.setSlewTime(ista, max({newSlewEnd, oldSlewEnd}) - slewStart);
             ++ista;
         }
     }
@@ -819,7 +819,7 @@ bool Scan::rigorousScanVisibility(Network &network, const Source &source, bool &
         // get all required members
         unsigned int scanStart = times_.getObservingTime(ista, Timestamp::start);
         unsigned int scanEnd = times_.getObservingTime(ista, Timestamp::end);
-        PointingVector &pv = pointingVectorsStart_[ista];
+        const PointingVector &pv = pointingVectorsStart_[ista];
         Station &thisStation = network.refStation(pv.getStaid());
 
         // create moving pointing vector which is used to check visibility during scan
@@ -1465,3 +1465,4 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisS
         }
     }
 }
+

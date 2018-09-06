@@ -237,9 +237,20 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                             boost::optional<unsigned int> oSlewTime = thisSta.slewTime(slewEnd);
                             if (oSlewTime.is_initialized()) {
                                 unsigned int slewTime = oSlewTime.get();
-                                valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
-                                                                                       thisSta.getWaittimes().fieldSystem,
-                                                                                       slewTime);
+                                auto oidx = thisScan.findIdxOfStationId(staid);
+                                if(oidx.is_initialized()){
+                                    if(thisSta.getPARA().firstScan){
+                                        valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
+                                                                                               0,
+                                                                                               slewTime,
+                                                                                               0);
+                                    }else{
+                                        valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
+                                                                                               thisSta.getWaittimes().fieldSystem,
+                                                                                               slewTime,
+                                                                                               thisSta.getWaittimes().preob);
+                                    }
+                                }
                             } else {
                                 valid = false;
                             }

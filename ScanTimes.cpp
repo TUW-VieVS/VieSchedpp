@@ -196,6 +196,26 @@ bool ScanTimes::setPreobTime(const vector<unsigned int> &preob) {
     return valid;
 }
 
+bool ScanTimes::setPreobTime(int i, unsigned int preob) {
+    bool valid = true;
+    endOfIdleTime_[i] = endOfPreobTime_[i]-preob;
+
+    if(endOfIdleTime_[i] < endOfSlewTime_[i]){
+        valid = false;
+        endOfSlewTime_[i] = endOfIdleTime_[i];
+
+        if(endOfSlewTime_[i] < endOfFieldSystemTime_[i]){
+            endOfFieldSystemTime_[i] = endOfSlewTime_[i];
+
+            if(endOfFieldSystemTime_[i] < endOfLastScan_[i]){
+                endOfLastScan_[i] = endOfFieldSystemTime_[i];
+            }
+        }
+    }
+    return valid;
+}
+
+
 void ScanTimes::setObservingTime(int idx, unsigned int time, Timestamp ts) {
     switch (ts){
         case Timestamp::start: {
@@ -267,6 +287,7 @@ bool ScanTimes::reduceObservingTime(int idx, unsigned int time, Timestamp ts) {
 
     }
 }
+
 
 
 

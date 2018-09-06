@@ -217,12 +217,12 @@ void VieSchedpp::run() {
     statisticsOf.close();
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "VieSchedpp is closing";
+    BOOST_LOG_TRIVIAL(info) << "VieSched++ is closing";
     BOOST_LOG_TRIVIAL(info) << "created scans: " << Scan::numberOfCreatedObjects();
     BOOST_LOG_TRIVIAL(info) << "created observations: " << Observation::numberOfCreatedObjects();
     BOOST_LOG_TRIVIAL(info) << "created antenna pointings: " << PointingVector::numberOfCreatedObjects();
     #else
-    cout << "[info] VieSchedpp is closing";
+    cout << "[info] VieSched++ is closing";
     cout << "[info] created scans: " << Scan::numberOfCreatedObjects();
     cout << "[info] created observations: " << Observation::numberOfCreatedObjects();
     cout << "[info] created antenna pointings: " << PointingVector::numberOfCreatedObjects();
