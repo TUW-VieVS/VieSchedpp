@@ -4453,9 +4453,7 @@ void MainWindow::on_pushButton_clicked()
     }
     if(t.size()>=2){
         QString time = t.at(2);
-        if(time.size()>5){
-            time = time.right(5);
-        }
+        time = time.split(" ",QString::SkipEmptyParts).at(1);
 
         QStringList ts = time.split(":");
         int hour, min;
