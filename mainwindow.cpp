@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
         schedVersion = "unknown";
     }
     if( schedVersion !=  "unknown"){
-        ui->label_version->setText("VieSched++ GUI version: " + QCoreApplication::applicationVersion() + "\nVieSched++ version: " + schedVersion);
+        ui->label_version->setText("VieSched++ GUI version: " + QCoreApplication::applicationVersion() + "\n../VieSched++ version: " + schedVersion);
     }else{
         ui->label_version->setText("VieSched++ GUI version: " + QCoreApplication::applicationVersion());
     }
