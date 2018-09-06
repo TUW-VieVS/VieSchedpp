@@ -43,5 +43,9 @@ unsigned int AbstractAntenna::slewTimePerAxis(double delta, Axis axis) const noe
         t = 2 * t_acc + (delta - s_acc) / rate;
     }
 
+    if(fmod(t,1.0)>0.85){
+        ++t;
+    }
+
     return static_cast<unsigned int>(ceil(t)) + constantOverhead;
 }

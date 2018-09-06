@@ -690,7 +690,8 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                         #ifdef VIESCHEDPP_LOG
                         BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! station: "
                                                  << thisStation.getName() << " scans: "
-                                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId()
+                                                 << " (" << ((long) availableTime - (long) min_neededTime) << " [sec])";
                         #endif
 
                     }else{
