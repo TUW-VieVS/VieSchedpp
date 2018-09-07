@@ -2817,7 +2817,7 @@ void Initializer::statisticsLogHeader(ofstream &of) {
         of << "n_scans_" << any.getName() << ",";
     }
     for(const auto&any : network_.getStations()){
-        of << "n_baselines_" << any.getName() << ",";
+        of << "n_obs_" << any.getName() << ",";
     }
     of << "n_sources,\n";
 }
