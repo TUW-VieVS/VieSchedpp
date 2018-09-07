@@ -6735,8 +6735,8 @@ If you only want to run simulations you can deselect this to avoid error message
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>633</width>
-             <height>576</height>
+             <width>943</width>
+             <height>697</height>
             </rect>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_89">
@@ -9485,7 +9485,7 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
             <item>
              <property name="text">
-              <string># baselines</string>
+              <string># obs</string>
              </property>
              <property name="checkState">
               <enum>Checked</enum>
@@ -9598,7 +9598,7 @@ If you only want to run simulations you can deselect this to avoid error message
             </item>
             <item>
              <property name="text">
-              <string># baselines</string>
+              <string># obs</string>
              </property>
              <property name="checkState">
               <enum>Unchecked</enum>

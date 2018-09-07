@@ -8214,12 +8214,12 @@ void MainWindow::on_pushButton_addStatistic_clicked()
                 }
             }
 
-            startIdxNew = names.indexOf(QRegularExpression("n_baselines.*"),startIdxNew);
-            startIdxOld = statisticsName.indexOf(QRegularExpression("n_baselines.*"),startIdxOld);
+            startIdxNew = names.indexOf(QRegularExpression("n_obs.*"),startIdxNew);
+            startIdxOld = statisticsName.indexOf(QRegularExpression("n_obs.*"),startIdxOld);
 
             for(int inew=startIdxNew; inew<names.count(); ++inew){
                 QString thisItem = names.at(inew);
-                if(thisItem.left(7) != "n_basel"){
+                if(thisItem.left(5) != "n_obs"){
                     break;
                 }
 
@@ -8231,7 +8231,7 @@ void MainWindow::on_pushButton_addStatistic_clicked()
                            addEmptyStatistic(iold);
                            break;
                         }
-                        if(thisItemOld.left(7) != "n_basel"){
+                        if(thisItemOld.left(5) != "n_obs"){
                             statisticsName.insert(iold,thisItem);
                             addEmptyStatistic(iold);
                             break;
@@ -8254,7 +8254,7 @@ void MainWindow::on_pushButton_addStatistic_clicked()
         ui->treeWidget_statisticStation->blockSignals(true);
         ui->treeWidget_statisticStation->clear();
         ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "# scans"));
-        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "# baselines"));
+        ui->treeWidget_statisticStation->addTopLevelItem(new QTreeWidgetItem(QStringList() << "# obs"));
         ui->treeWidget_statisticStation->topLevelItem(0)->setCheckState(0,Qt::Unchecked);
         ui->treeWidget_statisticStation->topLevelItem(1)->setCheckState(0,Qt::Unchecked);
         for(int i=0; i<staNames.count(); ++i){
@@ -8340,7 +8340,7 @@ void MainWindow::plotStatistics(bool animation)
 
     QMap<QString,int> translateGeneral;
     translateGeneral["# scans"] = 1;
-    translateGeneral["# baselines"] = 6;
+    translateGeneral["# obs"] = 6;
     translateGeneral["# stations"] = 7;
     translateGeneral["# sources"] = 8+2*nsta;
     translateGeneral["# single source scans"] = 2;
@@ -8542,7 +8542,7 @@ void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
         }
         QMap<QString,int> translateGeneral;
         translateGeneral["# scans"] = 1;
-        translateGeneral["# baselines"] = 6;
+        translateGeneral["# obs"] = 6;
         translateGeneral["# stations"] = 7;
         translateGeneral["# sources"] = 8+2*nsta;
         translateGeneral["# single source scans"] = 2;
@@ -8567,7 +8567,7 @@ void MainWindow::statisticsHovered(bool status, int index, QBarSet *barset)
                 int idx = statisticsName.indexOf("n_scans_"+staName);
                 value = statistics[name][version][idx];
             }else{
-                int idx = statisticsName.indexOf("n_baselines_"+staName);
+                int idx = statisticsName.indexOf("n_obs_"+staName);
                 value = statistics[name][version][idx];
             }
         }
