@@ -210,12 +210,13 @@ exists( .git) {
 }
 
 exists( ../VieSchedpp/.git){
-    GIT_SCHEDULER_COMMIT_HASH = $$system(cd ../VieSchedpp ;git log -1 --format=%H)
+    GIT_SCHEDULER_COMMIT_HASH = $$system(cd ../VieSchedpp; git log -1 --format=%H)
 }else{
     GIT_SCHEDULER_COMMIT_HASH = "unknown"
 }
 
 message(VieSched++ GUI version $$GIT_COMMIT_HASH)
+message(VieSched++ version $$GIT_SCHEDULER_COMMIT_HASH)
 
 DEFINES += GIT_COMMIT_HASH=\\\"$$GIT_COMMIT_HASH\\\"
 DEFINES += GIT_SCHEDULER_COMMIT_HASH=\\\"$$GIT_SCHEDULER_COMMIT_HASH\\\"

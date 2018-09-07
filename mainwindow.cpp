@@ -7642,7 +7642,7 @@ void MainWindow::multi_sched_count_nsched()
             const std::vector<double> &v2 = weightFactorValues[i2];
             int equal = 0;
             for (int i3 = 0; i3 < v1.size(); ++i3) {
-                if (abs(v1[i3] - v2[i3]) < 1e-10) {
+                if (fabs(v1[i3] - v2[i3]) < 1e-10) {
                     ++equal;
                 }
             }
