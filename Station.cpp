@@ -431,6 +431,7 @@ void Station::clearObservations() {
     currentPositionVector_ = PointingVector(getId(),-1);
     currentPositionVector_.setTime(0);
     currentPositionVector_.setAz((cableWrap_->getNLow() + cableWrap_->getNUp())/2);
+    currentPositionVector_.setEl(0);
 
     nScans_ = 0;
     nTotalScans_ = 0;

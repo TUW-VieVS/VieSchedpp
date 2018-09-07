@@ -648,9 +648,9 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                     of << "*\n";
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(error)
-                            << "start time of next scan is before end time of previouse scan! station: "
-                            << thisStation.getName() << " scans: "
-                            << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                                    << boost::format("%s iteration %d:") % getName() %(parameters_.currentIteration)
+                                    << " start time of next scan is before end time of previouse scan! station: "
+                                    << thisStation.getName();
                     #endif
                     everythingOk = false;
                 }else{
@@ -688,10 +688,11 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                         of << "*\n";
                         everythingOk = false;
                         #ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL(error) << "not enough available time for slewing! station: "
-                                                 << thisStation.getName() << " scans: "
-                                                 << scan_thisEnd.printId() << " and " << scan_nextStart.printId()
-                                                 << " (" << ((long) availableTime - (long) min_neededTime) << " [sec])";
+                        BOOST_LOG_TRIVIAL(error)
+                                    << boost::format("%s iteration %d:") % getName() %(parameters_.currentIteration)
+                                    << "not enough available time for slewing! station: "
+                                    << thisStation.getName()
+                                    << " (" << ((long) availableTime - (long) min_neededTime) << " [sec])";
                         #endif
 
                     }else{
@@ -708,9 +709,11 @@ bool Scheduler::checkAndStatistics(ofstream &of) noexcept {
                                     << " " << nextStart.printId() << "\n";
                             of << "*\n";
                             #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL(warning) << "long idle time! (" << idleTime << " [s]) station: "
-                                                       << thisStation.getName() << " scans: "
-                                                       << scan_thisEnd.printId() << " and " << scan_nextStart.printId();
+                            BOOST_LOG_TRIVIAL(warning)
+                                    << boost::format("%s iteration %d:") % getName() %(parameters_.currentIteration)
+                                    << "long idle time! ("
+                                    << idleTime << " [s]) station: "
+                                    << thisStation.getName();
                             #endif
                         }
                     }
@@ -1226,6 +1229,9 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
         for(auto &any:network_.refSkyCoverages()){
             any.clearObservations();
+        }
+        for(auto &any:network_.refBaselines()){
+            any.setNextEvent(0);
         }
 
     }else{
