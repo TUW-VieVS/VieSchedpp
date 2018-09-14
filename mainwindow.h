@@ -509,6 +509,8 @@ private slots:
 
     void on_pushButton_howAreSkedCatalogsLinked_clicked();
 
+    void on_actionCurrent_Release_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

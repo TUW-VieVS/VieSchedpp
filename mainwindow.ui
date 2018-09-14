@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="main_stacked">
       <property name="currentIndex">
-       <number>0</number>
+       <number>13</number>
       </property>
       <widget class="QWidget" name="welcome">
        <property name="toolTip">
@@ -97,13 +97,15 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you use our software and write a paper, it would be nice if you would cite us. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more informations look at our &lt;span style=&quot; font-weight:600;&quot;&gt;reference page &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-sign-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;.&lt;/p&gt;
 &lt;hr /&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flowchart:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;One minute tutorial: &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. Set up the pathes to your &lt;span style=&quot; font-weight:600;&quot;&gt;catalog files &lt;/span&gt;&lt;img src=&quot;:/icons/icons/document-import-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. Select your &lt;span style=&quot; font-weight:600;&quot;&gt;observation mode &lt;/span&gt;&lt;img src=&quot;:/icons/icons/drive-harddisk-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. Choose your session &lt;span style=&quot; font-weight:600;&quot;&gt;time&lt;/span&gt;&lt;img src=&quot;:/icons/icons/view-pim-calendar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;station network&lt;/span&gt;&lt;img src=&quot;:/icons/icons/applications-internet-2.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;span style=&quot; font-weight:600;&quot;&gt;source list &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_list.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;parameter&lt;/span&gt; setup &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and &lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, output files &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;5. Define your &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors &lt;/span&gt;&lt;img src=&quot;:/icons/icons/weight.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, &lt;span style=&quot; font-weight:600;&quot;&gt;output files&lt;/span&gt; &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; and select other desired features.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;6. Try out some of the advanced tools like applying some special &lt;span style=&quot; font-weight:600;&quot;&gt;rules&lt;/span&gt; &lt;img src=&quot;:/icons/icons/system-run-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, the very useful &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, optimize your &lt;span style=&quot; font-weight:600;&quot;&gt;sky coverage&lt;/span&gt; representation &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;, add some &lt;span style=&quot; font-weight:600;&quot;&gt;optimization conditions&lt;/span&gt; &lt;img src=&quot;:/icons/icons/conditions.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or try to fix some &lt;span style=&quot; font-weight:600;&quot;&gt;high impact&lt;/span&gt; scans &lt;img src=&quot;:/icons/icons/emblem-important-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;7. click &lt;span style=&quot; font-weight:600;&quot;&gt;run&lt;/span&gt; &lt;img src=&quot;:/icons/icons/arrow-right-3.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The GUI will now create a &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;parameters.xml&lt;/span&gt; file in the directory specified in &lt;span style=&quot; font-weight:600;&quot;&gt;output files&lt;/span&gt; &lt;img src=&quot;:/icons/icons/document-export-4.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. All output files will be stored in this directory. &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Optimize your schedule:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Have a look at the schedule using our &lt;span style=&quot; font-weight:600;&quot;&gt;session analyser&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
@@ -7994,13 +7996,6 @@ If you only want to run simulations you can deselect this to avoid error message
                   </spacer>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_9">
-                   <property name="text">
-                    <string>total number of schedules: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QLabel" name="label_multiSchedulingNsched">
                    <property name="text">
                     <string>1</string>
@@ -10258,6 +10253,44 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt;Same reasons as for the minimum SNR values. Change the parameter for the stations and sources &lt;/span&gt;&lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/source_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2';&quot;&gt; &lt;/span&gt;&lt;img src=&quot;:/icons/icons/baseline_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="reference">
+       <layout class="QVBoxLayout" name="verticalLayout_73">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <property name="bottomMargin">
+         <number>9</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;References related to VieSched++:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="textEdit_2">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="html">
+           <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Current reference:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:16pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Schartner and Böhm, 2018&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;M. Schartner, J. Böhm&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;VieSched++: A new Scheduling Tool in VieVS&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;IVS 2018 General Meeting Proceedings&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:6px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>

@@ -1021,6 +1021,11 @@ void MainWindow::on_actionFAQ_triggered()
     ui->main_stacked->setCurrentIndex(20);
 }
 
+void MainWindow::on_actionCurrent_Release_triggered()
+{
+    ui->main_stacked->setCurrentIndex(21);
+}
+
 void MainWindow::on_actionAbout_Qt_triggered()
 {
     QApplication::aboutQt();
@@ -4440,112 +4445,119 @@ void MainWindow::on_spinBox_doy_valueChanged(int arg1)
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString txt = ui->lineEdit_ivsMaster->text();
-    QString errorText = "";
-    QStringList t = txt.split("\t");
-    if(t.size()>=0){
-        QString sessionName = t.at(0);
-        ui->lineEdit_experimentDescription->setText(sessionName);
-    }
-    if(t.size()>=1){
-        QString sessionName = t.at(1);
-        ui->experimentNameLineEdit->setText(sessionName);
-    }
-    if(t.size()>=2){
-        QString time = t.at(2);
-        time = time.split(" ",QString::SkipEmptyParts).at(1);
+    try{
+        QString txt = ui->lineEdit_ivsMaster->text();
+        QString errorText = "";
+        QStringList t = txt.split("\t");
+        if(t.size()>=0){
+            QString sessionName = t.at(0);
+            ui->lineEdit_experimentDescription->setText(sessionName);
+        }
+        if(t.size()>=1){
+            QString sessionName = t.at(1);
+            ui->experimentNameLineEdit->setText(sessionName);
+        }
+        if(t.size()>=2){
+            QString time = t.at(2);
+            time = time.split(" ",QString::SkipEmptyParts).at(1);
 
-        QStringList ts = time.split(":");
-        int hour, min;
+            QStringList ts = time.split(":");
+            int hour, min;
 
-        if(ts.size()==2){
-            bool okh, okm;
-            hour = ts.at(0).toInt(&okh);
-            min = ts.at(1).toInt(&okm);
-            if(okh && okm){
-                ui->dateTimeEdit_sessionStart->setTime(QTime(hour,min,0,0));
+            if(ts.size()==2){
+                bool okh, okm;
+                hour = ts.at(0).toInt(&okh);
+                min = ts.at(1).toInt(&okm);
+                if(okh && okm){
+                    ui->dateTimeEdit_sessionStart->setTime(QTime(hour,min,0,0));
+                }else{
+                    errorText.append("cannot convert TIME\n");
+                }
             }else{
                 errorText.append("cannot convert TIME\n");
             }
-        }else{
-            errorText.append("cannot convert TIME\n");
         }
-    }
-    if(t.size()>=3){
-        QString doys = t.at(3);
-        bool ok;
-        int doy = doys.toInt(&ok);
-        if(ok){
-            ui->spinBox_doy->setValue(doy);
-        }else{
-            errorText.append("cannot convert DOY\n");
+        if(t.size()>=3){
+            QString doys = t.at(3);
+            bool ok;
+            int doy = doys.toInt(&ok);
+            if(ok){
+                ui->spinBox_doy->setValue(doy);
+            }else{
+                errorText.append("cannot convert DOY\n");
+            }
         }
-    }
-    if(t.size()>=4){
-        QString durs = t.at(4);
-        QStringList ts = durs.split(":");
-        int hour, min;
+        if(t.size()>=4){
+            QString durs = t.at(4);
+            QStringList ts = durs.split(":");
+            int hour, min;
 
-        if(ts.size()==2){
-            bool okh, okm;
-            hour = ts.at(0).toInt(&okh);
-            min = ts.at(1).toInt(&okm);
-            if(okh && okm){
-                ui->doubleSpinBox_sessionDuration->setValue(hour+min/60);
+            if(ts.size()==2){
+                bool okh, okm;
+                hour = ts.at(0).toInt(&okh);
+                min = ts.at(1).toInt(&okm);
+                if(okh && okm){
+                    ui->doubleSpinBox_sessionDuration->setValue(hour+min/60);
+                }else{
+                    errorText.append("cannot convert Duration\n");
+                }
             }else{
                 errorText.append("cannot convert Duration\n");
             }
-        }else{
-            errorText.append("cannot convert Duration\n");
         }
-    }
-    if(t.size()>=5){
-        createBaselines = false;
+        if(t.size()>=5){
+            createBaselines = false;
 
-        QString tmp = t.at(5);
-        tmp = tmp.trimmed();
-        QStringList stas = tmp.split(" ", QString::SkipEmptyParts);
-        if(stas.size() >= 2){
-            int n = selectedStationModel->rowCount();
-            for(int i=0; i<n; ++i){
-                QModelIndex index = selectedStationModel->index(0,0);
-                on_treeView_allSelectedStations_clicked(index);
-            }
+            QString tmp = t.at(5);
+            tmp = tmp.trimmed();
+            QStringList stas = tmp.split(" ", QString::SkipEmptyParts);
+            if(stas.size() >= 2){
+                int n = selectedStationModel->rowCount();
+                for(int i=0; i<n; ++i){
+                    QModelIndex index = selectedStationModel->index(0,0);
+                    on_treeView_allSelectedStations_clicked(index);
+                }
 
-            allStationProxyModel->setFilterRegExp("");
-            for(int i=0; i<stas.size(); ++i){
-                QString sta = stas.at(i).toUpper();
-                bool found = false;
-                for(int j=0; j<allStationProxyModel->rowCount(); ++j){
-                    QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
-                    if(itsta == sta){
-                        QModelIndex index = allStationProxyModel->index(j,0);
-                        on_treeView_allAvailabeStations_clicked(index);
-                        found = true;
-                        break;
+                allStationProxyModel->setFilterRegExp("");
+                for(int i=0; i<stas.size(); ++i){
+                    QString sta = stas.at(i).toUpper();
+                    bool found = false;
+                    for(int j=0; j<allStationProxyModel->rowCount(); ++j){
+                        QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
+                        if(itsta == sta){
+                            QModelIndex index = allStationProxyModel->index(j,0);
+                            on_treeView_allAvailabeStations_clicked(index);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if(!found){
+                        errorText.append(QString("unknown station %1\n").arg(sta));
                     }
                 }
-                if(!found){
-                    errorText.append(QString("unknown station %1\n").arg(sta));
-                }
+            }else{
+                errorText.append("error while reading stations\n");
             }
-        }else{
-            errorText.append("error while reading stations\n");
+            createBaselines = true;
+            createBaselineModel();
         }
-        createBaselines = true;
-        createBaselineModel();
-    }
-    if(t.size()>=7){
-        QString sked = t.at(7);
-        ui->schedulerLineEdit->setText(sked);
-    }
-    if(t.size()>=8){
-        QString corr = t.at(8);
-        ui->correlatorLineEdit->setText(corr);
-    }
+        if(t.size()>=7){
+            QString sked = t.at(7);
+            ui->schedulerLineEdit->setText(sked);
+        }
+        if(t.size()>=8){
+            QString corr = t.at(8);
+            ui->correlatorLineEdit->setText(corr);
+        }
 
-    if(errorText.size() != 0){
-        QMessageBox::warning(this,"errors while reading session master line",errorText);
+        if(errorText.size() != 0){
+            QMessageBox::warning(this,"errors while reading session master line",errorText);
+        }
+    }catch(...){
+        QMessageBox::warning(this,"errors while reading session master line",
+                             "Input could not be parsed. Please copy the full line from the session master.\n"
+                             "This feature was tested with Google Chrome and Firefox. It might not work with other browsers.\n"
+                             "In case this does not work you have to insert the settings manually.");
     }
 }
 
@@ -7675,7 +7687,20 @@ void MainWindow::multi_sched_count_nsched()
         }
         nsched *= t->topLevelItem(i)->text(2).toInt();
     }
-    ui->label_multiSchedulingNsched->setText(QString::number(nsched));
+    if(nsched > 300){
+        ui->label_multiSchedulingNsched->setText(QString("total number of schedules: %1 (this might take some time - consider setting a maximum number of schedules)").arg(nsched));
+        ui->label_multiSchedulingNsched->setStyleSheet("color : red; font-weight : bold");
+    }else if(nsched > 100){
+        ui->label_multiSchedulingNsched->setText(QString("total number of schedules: %1 (this might take some time - consider setting a maximum number of schedules)").arg(nsched));
+        ui->label_multiSchedulingNsched->setStyleSheet("color : orange; font-weight : bold");
+    }else if(nsched > 50){
+        ui->label_multiSchedulingNsched->setText(QString("total number of schedules: %1").arg(nsched));
+        ui->label_multiSchedulingNsched->setStyleSheet("font-weight : bold");
+    }else{
+        ui->label_multiSchedulingNsched->setText(QString("total number of schedules: %1").arg(nsched));
+        ui->label_multiSchedulingNsched->setStyleSheet("");
+    }
+
     if(nsched>999){
         ui->spinBox_multiSched_maxNumber->setValue(999);
         ui->comboBox_multiSched_maxNumber->setCurrentIndex(1);
@@ -9092,6 +9117,7 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
 
 
 
