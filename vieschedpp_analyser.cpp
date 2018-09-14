@@ -411,8 +411,8 @@ void VieSchedpp_Analyser::setSkyCoverageLayout(int rows, int columns)
 
             QValueAxis *radialAxis = new QValueAxis();
             radialAxis->setTickCount(10);
-            radialAxis->setLabelFormat("");
             radialAxis->setRange(0,90);
+            radialAxis->setLabelFormat("");
             chart->addAxis(radialAxis, QPolarChart::PolarOrientationRadial);
 
             chartView->setRenderHint(QPainter::Antialiasing);
