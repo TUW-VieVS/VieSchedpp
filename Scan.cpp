@@ -542,7 +542,7 @@ double Scan::calcScore_idleTime() const noexcept {
         score += static_cast<double>(thisIdleTime) / interval;
     }
 
-    return score / nsta_;
+    return score;
 }
 
 
