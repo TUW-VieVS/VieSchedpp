@@ -1,0 +1,67 @@
+//
+// Created by mschartn on 10.09.18.
+//
+
+#ifndef VIESCHEDPP_TRACKS_H
+#define VIESCHEDPP_TRACKS_H
+
+#include <utility>
+#include <vector>
+#include "VieVS_NamedObject.h"
+
+namespace VieVS{
+    class Track: public VieVS_NamedObject {
+    public:
+        enum class Bitstream{
+            sign,
+            mag,
+        };
+
+        explicit Track(std::string name);
+
+        void addFanout(std::string name, Bitstream bitstream, double total_lo, int headstack_number,
+                       int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
+                       int fourth_multiplex_track = -999);
+
+    private:
+        static unsigned long nextId;
+
+
+        class Fanout_definition: public VieVS_NamedObject{
+        public:
+            Fanout_definition(std::string name,
+                              Bitstream bitstream,
+                              double total_lo,
+                              int headstack_number,
+                              int first_multiplex_track,
+                              int second_multiplex_track = -999,
+                              int third_multiplex_track = -999,
+                              int fourth_multiplex_track = -999):
+                          VieVS_NamedObject{std::move(name), nextId++},
+                          bitstream_{bitstream},
+                          total_lo_{total_lo},
+                          headstack_number_{headstack_number},
+                          first_multiplex_track_{first_multiplex_track},
+                          second_multiplex_track_{second_multiplex_track},
+                          third_multiplex_track_{third_multiplex_track},
+                          fourth_multiplex_track_{fourth_multiplex_track}{};
+
+        private:
+            static unsigned long nextId;
+
+            Bitstream bitstream_;
+            double total_lo_;
+            int headstack_number_;
+            int first_multiplex_track_;
+            int second_multiplex_track_;
+            int third_multiplex_track_;
+            int fourth_multiplex_track_;
+        };
+
+        std::vector<Fanout_definition> fanout_definitions_;
+
+    };
+}
+
+
+#endif //VIESCHEDPP_TRACKS_H
