@@ -8,8 +8,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 
+    QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setApplicationName("VieSched++ GUI");
     QCoreApplication::setApplicationVersion(GIT_COMMIT_HASH);
+    QSettings settings("TU Wien","VieSched++ GUI");
+    restoreGeometry(settings.value("myWidget/geometry").toByteArray());
+    restoreState(settings.value("myWidget/windowState").toByteArray());
 
     QString schedVersion = GIT_SCHEDULER_COMMIT_HASH;
     if(schedVersion.length() != 40){
@@ -50,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     std::ifstream iSettings("settings.xml");
-    boost::property_tree::read_xml(iSettings,settings,boost::property_tree::xml_parser::trim_whitespace);
+    boost::property_tree::read_xml(iSettings,settings_,boost::property_tree::xml_parser::trim_whitespace);
     readSettings();
 
     plotSkyCoverageTemplate = false;
@@ -1179,7 +1183,13 @@ void MainWindow::processFinished(){
 
 void MainWindow::on_actionExit_triggered()
 {
-    closeEvent(new QCloseEvent);
+    if (QMessageBox::Yes == QMessageBox::question(this, "Exit?", "Do you really want to exit?", QMessageBox::Yes | QMessageBox::No))
+    {
+        QSettings settings("TU Wien","VieSched++ GUI");
+        settings.setValue("geometry", saveGeometry());
+        settings.setValue("windowState", saveState());
+        QApplication::quit();
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
@@ -1187,7 +1197,7 @@ void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants 
     event->ignore();
     if (QMessageBox::Yes == QMessageBox::question(this, "Exit?", "Do you really want to exit?", QMessageBox::Yes | QMessageBox::No))
     {
-        QSettings settings("TU Wien","VieVS Scheduler");
+        QSettings settings("TU Wien","VieSched++ GUI");
         settings.setValue("geometry", saveGeometry());
         event->accept();
     }
@@ -1628,7 +1638,7 @@ void MainWindow::defaultParameters()
     sta.weight = 1;
     sta.minElevation = 5;
 
-    auto stationTree = settings.get_child_optional("settings.station.parameters");
+    auto stationTree = settings_.get_child_optional("settings.station.parameters");
     if(stationTree.is_initialized()){
         for(const auto& it: *stationTree){
             std::string parameterName = it.second.get_child("<xmlattr>.name").data();
@@ -1680,7 +1690,7 @@ void MainWindow::defaultParameters()
     src.minElevation = 0;
     src.minSunDistance = 4;
 
-    auto sourceTree = settings.get_child_optional("settings.source.parameters");
+    auto sourceTree = settings_.get_child_optional("settings.source.parameters");
     if(sourceTree.is_initialized()){
         for(const auto& it: *sourceTree){
             std::string parameterName = it.second.get_child("<xmlattr>.name").data();
@@ -1723,7 +1733,7 @@ void MainWindow::defaultParameters()
     bl.maxScan = 600;
     bl.minScan = 20;
     bl.weight = 1;
-    auto baselineTree = settings.get_child_optional("settings.baseline.parameters");
+    auto baselineTree = settings_.get_child_optional("settings.baseline.parameters");
     if(baselineTree.is_initialized()){
         for(const auto& it: *baselineTree){
             std::string parameterName = it.second.get_child("<xmlattr>.name").data();
@@ -1761,72 +1771,72 @@ void MainWindow::defaultParameters()
 
     clearSetup(true,true,true);
 
-    boost::optional<int> setup = settings.get_optional<int>("settings.station.waitTimes.fieldSystem");
+    boost::optional<int> setup = settings_.get_optional<int>("settings.station.waitTimes.fieldSystem");
     if(setup.is_initialized()){
         ui->SpinBox_fieldSystem->setValue(*setup);
     }
-    boost::optional<int> source = settings.get_optional<int>("settings.station.waitTimes.preob");
+    boost::optional<int> source = settings_.get_optional<int>("settings.station.waitTimes.preob");
     if(source.is_initialized()){
         ui->SpinBox_preob->setValue(*source);
     }
-    boost::optional<int> tape = settings.get_optional<int>("settings.station.waitTimes.midob");
+    boost::optional<int> tape = settings_.get_optional<int>("settings.station.waitTimes.midob");
     if(tape.is_initialized()){
         ui->SpinBox_midob->setValue(*tape);
     }
-    boost::optional<int> calibration = settings.get_optional<int>("settings.station.waitTimes.postob");
+    boost::optional<int> calibration = settings_.get_optional<int>("settings.station.waitTimes.postob");
     if(calibration.is_initialized()){
         ui->SpinBox_postob->setValue(*calibration);
     }
 
 
-    boost::optional<double> ax1low = settings.get_optional<double>("settings.station.cableWrapBuffers.axis1LowOffset");
+    boost::optional<double> ax1low = settings_.get_optional<double>("settings.station.cableWrapBuffers.axis1LowOffset");
     if(ax1low.is_initialized()){
         ui->DoubleSpinBox_axis1low->setValue(*ax1low);
     }
-    boost::optional<double> ax1up = settings.get_optional<double>("settings.station.cableWrapBuffers.axis1UpOffset");
+    boost::optional<double> ax1up = settings_.get_optional<double>("settings.station.cableWrapBuffers.axis1UpOffset");
     if(ax1up.is_initialized()){
         ui->DoubleSpinBox_axis1up->setValue(*ax1up);
     }
-    boost::optional<double> ax2low = settings.get_optional<double>("settings.station.cableWrapBuffers.axis2LowOffset");
+    boost::optional<double> ax2low = settings_.get_optional<double>("settings.station.cableWrapBuffers.axis2LowOffset");
     if(ax2low.is_initialized()){
         ui->DoubleSpinBox_axis2low->setValue(*ax2low);
     }
-    boost::optional<double> ax2up = settings.get_optional<double>("settings.station.cableWrapBuffers.axis2UpOffset");
+    boost::optional<double> ax2up = settings_.get_optional<double>("settings.station.cableWrapBuffers.axis2UpOffset");
     if(ax2up.is_initialized()){
         ui->DoubleSpinBox_axis2up->setValue(*ax2up);
     }
 
-    boost::optional<std::string> skdMode = settings.get_optional<std::string>("settings.mode.skdMode");
+    boost::optional<std::string> skdMode = settings_.get_optional<std::string>("settings.mode.skdMode");
     if(skdMode.is_initialized()){
         ui->comboBox_skedObsModes->setCurrentText(QString::fromStdString(*skdMode));
     }
 
-    boost::optional<bool> fillinmodeDuringScanSelection = settings.get_optional<bool>("settings.general.fillinmodeDuringScanSelection");
+    boost::optional<bool> fillinmodeDuringScanSelection = settings_.get_optional<bool>("settings.general.fillinmodeDuringScanSelection");
     if(fillinmodeDuringScanSelection.is_initialized()){
         ui->checkBox_fillinmode_duringscan->setChecked(*fillinmodeDuringScanSelection);
     }
-    boost::optional<bool> fillinmodeInfluenceOnSchedule = settings.get_optional<bool>("settings.general.fillinmodeInfluenceOnSchedule");
+    boost::optional<bool> fillinmodeInfluenceOnSchedule = settings_.get_optional<bool>("settings.general.fillinmodeInfluenceOnSchedule");
     if(fillinmodeInfluenceOnSchedule.is_initialized()){
         ui->checkBox_fillinModeInfluence->setChecked(*fillinmodeInfluenceOnSchedule);
     }
-    boost::optional<bool> fillinmodeAPosteriori = settings.get_optional<bool>("settings.general.fillinmodeAPosteriori");
+    boost::optional<bool> fillinmodeAPosteriori = settings_.get_optional<bool>("settings.general.fillinmodeAPosteriori");
     if(fillinmodeAPosteriori.is_initialized()){
         ui->checkBox_fillinmode_aposteriori->setChecked(*fillinmodeAPosteriori);
     }
 
-    boost::optional<double> subnettingMinAngle = settings.get_optional<double>("settings.general.subnettingMinAngle");
+    boost::optional<double> subnettingMinAngle = settings_.get_optional<double>("settings.general.subnettingMinAngle");
     if(subnettingMinAngle.is_initialized()){
         ui->doubleSpinBox_subnettingDistance->setValue(*subnettingMinAngle);
     }
-    boost::optional<double> subnettingMinNSta = settings.get_optional<double>("settings.general.subnettingMinNStaPercent");
+    boost::optional<double> subnettingMinNSta = settings_.get_optional<double>("settings.general.subnettingMinNStaPercent");
     if(subnettingMinNSta.is_initialized()){
         ui->doubleSpinBox_subnettingMinStations->setValue(*subnettingMinNSta);
     }
-    boost::optional<double> subnettingMinNStaAllBut = settings.get_optional<double>("settings.general.subnettingMinNStaAllBut");
+    boost::optional<double> subnettingMinNStaAllBut = settings_.get_optional<double>("settings.general.subnettingMinNStaAllBut");
     if(subnettingMinNStaAllBut.is_initialized()){
         ui->spinBox_subnetting_min_sta->setValue(*subnettingMinNStaAllBut);
     }
-    boost::optional<bool> subnettingFlag = settings.get_optional<bool>("settings.general.subnettingMinNstaPercent_otherwiseAllBut");
+    boost::optional<bool> subnettingFlag = settings_.get_optional<bool>("settings.general.subnettingMinNstaPercent_otherwiseAllBut");
     if(subnettingFlag.is_initialized()){
         if(*subnettingFlag){
             ui->radioButton_subnetting_percent->setChecked(true);
@@ -1834,12 +1844,12 @@ void MainWindow::defaultParameters()
             ui->radioButton_subnetting_allBut->setChecked(true);
         }
     }
-    boost::optional<bool> subnetting = settings.get_optional<bool>("settings.general.subnetting");
+    boost::optional<bool> subnetting = settings_.get_optional<bool>("settings.general.subnetting");
     if(subnetting.is_initialized()){
         ui->groupBox_subnetting->setChecked(*subnetting);
     }
 
-    boost::optional<std::string> alignObservingTime = settings.get_optional<std::string>("settings.general.alignObservingTime");
+    boost::optional<std::string> alignObservingTime = settings_.get_optional<std::string>("settings.general.alignObservingTime");
     if(alignObservingTime.is_initialized()){
         if(*alignObservingTime == "start"){
             ui->radioButton_alignStart->setChecked(true);
@@ -1850,57 +1860,57 @@ void MainWindow::defaultParameters()
         }
     }
 
-    boost::optional<double> influenceDistance = settings.get_optional<double>("settings.skyCoverage.influenceDistance");
+    boost::optional<double> influenceDistance = settings_.get_optional<double>("settings.skyCoverage.influenceDistance");
     if(influenceDistance.is_initialized()){
         ui->influenceDistanceDoubleSpinBox->setValue(*influenceDistance);
     }
-    boost::optional<int> influenceInterval = settings.get_optional<int>("settings.skyCoverage.influenceInterval");
+    boost::optional<int> influenceInterval = settings_.get_optional<int>("settings.skyCoverage.influenceInterval");
     if(influenceInterval.is_initialized()){
         ui->influenceTimeSpinBox->setValue(*influenceInterval);
     }
-    boost::optional<double> maxTwinTelecopeDistance = settings.get_optional<double>("settings.skyCoverage.maxTwinTelecopeDistance");
+    boost::optional<double> maxTwinTelecopeDistance = settings_.get_optional<double>("settings.skyCoverage.maxTwinTelecopeDistance");
     if(maxTwinTelecopeDistance.is_initialized()){
         ui->maxDistanceForCombiningAntennasDoubleSpinBox->setValue(*maxTwinTelecopeDistance);
     }
-    boost::optional<std::string> distanceType = settings.get_optional<std::string>("settings.skyCoverage.distanceType");
+    boost::optional<std::string> distanceType = settings_.get_optional<std::string>("settings.skyCoverage.distanceType");
     if(distanceType.is_initialized()){
         ui->comboBox_skyCoverageDistanceType->setCurrentText(QString::fromStdString(*distanceType));
     }
-    boost::optional<std::string> timeType = settings.get_optional<std::string>("settings.skyCoverage.timeType");
+    boost::optional<std::string> timeType = settings_.get_optional<std::string>("settings.skyCoverage.timeType");
     if(timeType.is_initialized()){
         ui->comboBox_skyCoverageTimeType->setCurrentText(QString::fromStdString(*timeType));
     }
 
-    boost::optional<bool> skyCoverageChecked = settings.get_optional<bool>("settings.weightFactor.skyCoverageChecked");
+    boost::optional<bool> skyCoverageChecked = settings_.get_optional<bool>("settings.weightFactor.skyCoverageChecked");
     if(skyCoverageChecked.is_initialized()){
         ui->checkBox_weightCoverage->setChecked(*skyCoverageChecked);
 //        ui->doubleSpinBox_weightSkyCoverage->setEnabled(*skyCoverageChecked);
     }
-    boost::optional<bool> numberOfObservationsChecked = settings.get_optional<bool>("settings.weightFactor.numberOfObservationsChecked");
+    boost::optional<bool> numberOfObservationsChecked = settings_.get_optional<bool>("settings.weightFactor.numberOfObservationsChecked");
     if(numberOfObservationsChecked.is_initialized()){
         ui->checkBox_weightNobs->setChecked(*numberOfObservationsChecked);
 //        ui->doubleSpinBox_weightNumberOfObservations->setEnabled(*numberOfObservationsChecked);
     }
-    boost::optional<bool> durationChecked = settings.get_optional<bool>("settings.weightFactor.durationChecked");
+    boost::optional<bool> durationChecked = settings_.get_optional<bool>("settings.weightFactor.durationChecked");
     if(durationChecked.is_initialized()){
         ui->checkBox_weightDuration->setChecked(*durationChecked);
 //        ui->doubleSpinBox_weightDuration->setEnabled(*durationChecked);
     }
-    boost::optional<bool> averageSourcesChecked = settings.get_optional<bool>("settings.weightFactor.averageSourcesChecked");
+    boost::optional<bool> averageSourcesChecked = settings_.get_optional<bool>("settings.weightFactor.averageSourcesChecked");
     if(averageSourcesChecked.is_initialized()){
         ui->checkBox_weightAverageSources->setChecked(*averageSourcesChecked);
 //        ui->doubleSpinBox_weightAverageSources->setEnabled(*averageSourcesChecked);
     }
-    boost::optional<bool> averageStationsChecked = settings.get_optional<bool>("settings.weightFactor.averageStationsChecked");
+    boost::optional<bool> averageStationsChecked = settings_.get_optional<bool>("settings.weightFactor.averageStationsChecked");
     if(averageStationsChecked.is_initialized()){
         ui->checkBox_weightAverageStations->setChecked(*averageStationsChecked);
 //        ui->doubleSpinBox_weightAverageStations->setEnabled(*averageStationsChecked);
     }
-    boost::optional<bool> idleTimeChecked = settings.get_optional<bool>("settings.weightFactor.idleTimeChecked");
+    boost::optional<bool> idleTimeChecked = settings_.get_optional<bool>("settings.weightFactor.idleTimeChecked");
     if(idleTimeChecked.is_initialized()){
         ui->checkBox_weightIdleTime->setChecked(*idleTimeChecked);
     }
-    boost::optional<bool> weightDeclinationChecked = settings.get_optional<bool>("settings.weightFactor.weightDeclinationChecked");
+    boost::optional<bool> weightDeclinationChecked = settings_.get_optional<bool>("settings.weightFactor.weightDeclinationChecked");
     if(weightDeclinationChecked.is_initialized()){
         ui->checkBox_weightLowDeclination->setChecked(*weightDeclinationChecked);
 //        ui->doubleSpinBox_weightLowDec->setEnabled(*weightDeclinationChecked);
@@ -1909,7 +1919,7 @@ void MainWindow::defaultParameters()
 //        ui->label_weightLowDecEnd->setEnabled(*weightDeclinationChecked);
 //        ui->label_weightLowDecStart->setEnabled(*weightDeclinationChecked);
     }
-    boost::optional<bool> weightLowElevationChecked = settings.get_optional<bool>("settings.weightFactor.weightLowElevationChecked");
+    boost::optional<bool> weightLowElevationChecked = settings_.get_optional<bool>("settings.weightFactor.weightLowElevationChecked");
     if(weightLowElevationChecked.is_initialized()){
         ui->checkBox_weightLowElevation->setChecked(*weightLowElevationChecked);
 //        ui->doubleSpinBox_weightLowEl->setEnabled(*weightLowElevationChecked);
@@ -1919,55 +1929,55 @@ void MainWindow::defaultParameters()
 //        ui->label_weightLowElEnd->setEnabled(*weightLowElevationChecked);
     }
 
-    boost::optional<double> skyCoverage = settings.get_optional<double>("settings.weightFactor.skyCoverage");
+    boost::optional<double> skyCoverage = settings_.get_optional<double>("settings.weightFactor.skyCoverage");
     if(skyCoverage.is_initialized()){
         ui->doubleSpinBox_weightSkyCoverage->setValue(*skyCoverage);
     }
-    boost::optional<double> numberOfObservations = settings.get_optional<double>("settings.weightFactor.numberOfObservations");
+    boost::optional<double> numberOfObservations = settings_.get_optional<double>("settings.weightFactor.numberOfObservations");
     if(numberOfObservations.is_initialized()){
         ui->doubleSpinBox_weightNumberOfObservations->setValue(*numberOfObservations);
     }
-    boost::optional<double> duration = settings.get_optional<double>("settings.weightFactor.duration");
+    boost::optional<double> duration = settings_.get_optional<double>("settings.weightFactor.duration");
     if(duration.is_initialized()){
         ui->doubleSpinBox_weightDuration->setValue(*duration);
     }
-    boost::optional<double> averageSources = settings.get_optional<double>("settings.weightFactor.averageSources");
+    boost::optional<double> averageSources = settings_.get_optional<double>("settings.weightFactor.averageSources");
     if(averageSources.is_initialized()){
         ui->doubleSpinBox_weightAverageSources->setValue(*averageSources);
     }
-    boost::optional<double> averageStations = settings.get_optional<double>("settings.weightFactor.averageStations");
+    boost::optional<double> averageStations = settings_.get_optional<double>("settings.weightFactor.averageStations");
     if(averageStations.is_initialized()){
         ui->doubleSpinBox_weightAverageStations->setValue(*averageStations);
     }
-    boost::optional<double> weightIdleTime = settings.get_optional<double>("settings.weightFactor.weightIdleTime");
+    boost::optional<double> weightIdleTime = settings_.get_optional<double>("settings.weightFactor.weightIdleTime");
     if(weightIdleTime.is_initialized()){
         ui->doubleSpinBox_weightIdleTime->setValue(*weightIdleTime);
     }
-    boost::optional<double> idleTimeInterval = settings.get_optional<double>("settings.weightFactor.idleTimeInterval");
+    boost::optional<double> idleTimeInterval = settings_.get_optional<double>("settings.weightFactor.idleTimeInterval");
     if(idleTimeInterval.is_initialized()){
         ui->spinBox_idleTimeInterval->setValue(*idleTimeInterval);
     }
-    boost::optional<double> weightDeclination = settings.get_optional<double>("settings.weightFactor.weightDeclination");
+    boost::optional<double> weightDeclination = settings_.get_optional<double>("settings.weightFactor.weightDeclination");
     if(weightDeclination.is_initialized()){
         ui->doubleSpinBox_weightLowDec->setValue(*weightDeclination);
     }
-    boost::optional<double> declinationStartWeight = settings.get_optional<double>("settings.weightFactor.declinationStartWeight");
+    boost::optional<double> declinationStartWeight = settings_.get_optional<double>("settings.weightFactor.declinationStartWeight");
     if(declinationStartWeight.is_initialized()){
         ui->doubleSpinBox_weightLowDecStart->setValue(*declinationStartWeight);
     }
-    boost::optional<double> declinationFullWeight = settings.get_optional<double>("settings.weightFactor.declinationFullWeight");
+    boost::optional<double> declinationFullWeight = settings_.get_optional<double>("settings.weightFactor.declinationFullWeight");
     if(declinationFullWeight.is_initialized()){
         ui->doubleSpinBox_weightLowDecEnd->setValue(*declinationFullWeight);
     }
-    boost::optional<double> weightLowElevation = settings.get_optional<double>("settings.weightFactor.weightLowElevation");
+    boost::optional<double> weightLowElevation = settings_.get_optional<double>("settings.weightFactor.weightLowElevation");
     if(weightLowElevation.is_initialized()){
         ui->doubleSpinBox_weightLowEl->setValue(*weightLowElevation);
     }
-    boost::optional<double> lowElevationStartWeight = settings.get_optional<double>("settings.weightFactor.lowElevationStartWeight");
+    boost::optional<double> lowElevationStartWeight = settings_.get_optional<double>("settings.weightFactor.lowElevationStartWeight");
     if(lowElevationStartWeight.is_initialized()){
         ui->doubleSpinBox_weightLowElStart->setValue(*lowElevationStartWeight);
     }
-    boost::optional<double> lowElevationFullWeight = settings.get_optional<double>("settings.weightFactor.lowElevationFullWeight");
+    boost::optional<double> lowElevationFullWeight = settings_.get_optional<double>("settings.weightFactor.lowElevationFullWeight");
     if(lowElevationFullWeight.is_initialized()){
         ui->doubleSpinBox_weightLowElEnd->setValue(*lowElevationFullWeight);
     }
@@ -1975,73 +1985,73 @@ void MainWindow::defaultParameters()
 
 void MainWindow::readSettings()
 {
-    std::string name = settings.get<std::string>("settings.general.name","");
+    std::string name = settings_.get<std::string>("settings.general.name","");
     ui->nameLineEdit->setText(QString::fromStdString(name));
-    std::string email = settings.get<std::string>("settings.general.email","");
+    std::string email = settings_.get<std::string>("settings.general.email","");
     ui->emailLineEdit->setText(QString::fromStdString(email));
-    std::string pathToScheduler = settings.get<std::string>("settings.general.pathToScheduler","");
+    std::string pathToScheduler = settings_.get<std::string>("settings.general.pathToScheduler","");
     ui->pathToSchedulerLineEdit->setText(QString::fromStdString(pathToScheduler));
 
-    std::string cAntenna = settings.get<std::string>("settings.catalog_path.antenna","");
+    std::string cAntenna = settings_.get<std::string>("settings.catalog_path.antenna","");
     ui->lineEdit_pathAntenna->setText(QString::fromStdString(cAntenna));
-    std::string cEquip = settings.get<std::string>("settings.catalog_path.equip","");
+    std::string cEquip = settings_.get<std::string>("settings.catalog_path.equip","");
     ui->lineEdit_pathEquip->setText(QString::fromStdString(cEquip));
-    std::string cPosition = settings.get<std::string>("settings.catalog_path.position","");
+    std::string cPosition = settings_.get<std::string>("settings.catalog_path.position","");
     ui->lineEdit_pathPosition->setText(QString::fromStdString(cPosition));
-    std::string cMask = settings.get<std::string>("settings.catalog_path.mask","");
+    std::string cMask = settings_.get<std::string>("settings.catalog_path.mask","");
     ui->lineEdit_pathMask->setText(QString::fromStdString(cMask));
-    std::string cSource = settings.get<std::string>("settings.catalog_path.source","");
+    std::string cSource = settings_.get<std::string>("settings.catalog_path.source","");
     ui->lineEdit_pathSource->setText(QString::fromStdString(cSource));
-    std::string cSource2 = settings.get<std::string>("settings.catalog_path.source2","");
+    std::string cSource2 = settings_.get<std::string>("settings.catalog_path.source2","");
     ui->lineEdit_browseSource2->setText(QString::fromStdString(cSource2));
-    std::string cFlux = settings.get<std::string>("settings.catalog_path.flux","");
+    std::string cFlux = settings_.get<std::string>("settings.catalog_path.flux","");
     ui->lineEdit_pathFlux->setText(QString::fromStdString(cFlux));
-    std::string cModes = settings.get<std::string>("settings.catalog_path.modes","");
+    std::string cModes = settings_.get<std::string>("settings.catalog_path.modes","");
     ui->lineEdit_pathModes->setText(QString::fromStdString(cModes));
-    std::string cFreq = settings.get<std::string>("settings.catalog_path.freq","");
+    std::string cFreq = settings_.get<std::string>("settings.catalog_path.freq","");
     ui->lineEdit_pathFreq->setText(QString::fromStdString(cFreq));
-    std::string cTracks = settings.get<std::string>("settings.catalog_path.tracks","");
+    std::string cTracks = settings_.get<std::string>("settings.catalog_path.tracks","");
     ui->lineEdit_pathTracks->setText(QString::fromStdString(cTracks));
-    std::string cLoif = settings.get<std::string>("settings.catalog_path.loif","");
+    std::string cLoif = settings_.get<std::string>("settings.catalog_path.loif","");
     ui->lineEdit_pathLoif->setText(QString::fromStdString(cLoif));
-    std::string cRec = settings.get<std::string>("settings.catalog_path.rec","");
+    std::string cRec = settings_.get<std::string>("settings.catalog_path.rec","");
     ui->lineEdit_pathRec->setText(QString::fromStdString(cRec));
-    std::string cRx = settings.get<std::string>("settings.catalog_path.rx","");
+    std::string cRx = settings_.get<std::string>("settings.catalog_path.rx","");
     ui->lineEdit_pathRx->setText(QString::fromStdString(cRx));
-    std::string cHdpos = settings.get<std::string>("settings.catalog_path.hdpos","");
+    std::string cHdpos = settings_.get<std::string>("settings.catalog_path.hdpos","");
     ui->lineEdit_pathHdpos->setText(QString::fromStdString(cHdpos));
 
-    std::string outputDirectory = settings.get<std::string>("settings.output.directory","");
+    std::string outputDirectory = settings_.get<std::string>("settings.output.directory","");
     ui->lineEdit_outputPath->setText(QString::fromStdString(outputDirectory));
-    std::string outputScheduler = settings.get<std::string>("settings.output.scheduler","");
+    std::string outputScheduler = settings_.get<std::string>("settings.output.scheduler","");
     ui->schedulerLineEdit->setText(QString::fromStdString(outputScheduler));
-    std::string outputCorrelator = settings.get<std::string>("settings.output.correlator","");
+    std::string outputCorrelator = settings_.get<std::string>("settings.output.correlator","");
     ui->correlatorLineEdit->setText(QString::fromStdString(outputCorrelator));
 
-    std::string piName = settings.get<std::string>("settings.output.piName","");
+    std::string piName = settings_.get<std::string>("settings.output.piName","");
     ui->lineEdit_PIName->setText(QString::fromStdString(piName));
-    std::string piEmail = settings.get<std::string>("settings.output.piEmail","");
+    std::string piEmail = settings_.get<std::string>("settings.output.piEmail","");
     ui->lineEdit_PIEmail->setText(QString::fromStdString(piEmail));
-    std::string contactName = settings.get<std::string>("settings.output.contactName","");
+    std::string contactName = settings_.get<std::string>("settings.output.contactName","");
     ui->lineEdit_contactName->setText(QString::fromStdString(contactName));
-    std::string contactEmail = settings.get<std::string>("settings.output.contactEmail","");
+    std::string contactEmail = settings_.get<std::string>("settings.output.contactEmail","");
     ui->lineEdit_contactEmail->setText(QString::fromStdString(contactEmail));
 
-    std::string notes = settings.get<std::string>("settings.output.notes","");
+    std::string notes = settings_.get<std::string>("settings.output.notes","");
     if(!notes.empty()){
         ui->plainTextEdit_notes->setPlainText(QString::fromStdString(notes).replace("\\n","\n"));
     }
-    std::string operationNotes = settings.get<std::string>("settings.output.operationNotes","");
+    std::string operationNotes = settings_.get<std::string>("settings.output.operationNotes","");
     ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(operationNotes).replace("\\n","\n"));
 
 
-    std::string threads = settings.get<std::string>("settings.multiCore.threads","auto");
+    std::string threads = settings_.get<std::string>("settings.multiCore.threads","auto");
     ui->comboBox_nThreads->setCurrentText(QString::fromStdString(threads));
-    int nThreadsManual = settings.get<int>("settings.multiCore.nThreads",1);
+    int nThreadsManual = settings_.get<int>("settings.multiCore.nThreads",1);
     ui->spinBox_nCores->setValue(nThreadsManual);
-    std::string jobScheduler = settings.get<std::string>("settings.multiCore.jobScheduling","auto");
+    std::string jobScheduler = settings_.get<std::string>("settings.multiCore.jobScheduling","auto");
     ui->comboBox_jobSchedule->setCurrentText(QString::fromStdString(jobScheduler));
-    int chunkSize = settings.get<int>("settings.multiCore.chunkSize",0);
+    int chunkSize = settings_.get<int>("settings.multiCore.chunkSize",0);
     ui->spinBox_chunkSize->setValue(chunkSize);
 
 }
@@ -3747,7 +3757,7 @@ void MainWindow::createDefaultParameterSettings()
     sta.maxNumberOfScans = 9999;
     sta.weight = 1;
     sta.minElevation = 5;
-    settings.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
+    settings_.add_child("settings.station.parameters.parameter",VieVS::ParameterSettings::parameterStation2ptree("default",sta).get_child("parameters"));
 
     VieVS::ParameterSettings::ParametersSources src;
     src.minRepeat = 1800;
@@ -3759,29 +3769,29 @@ void MainWindow::createDefaultParameterSettings()
     src.minNumberOfStations = 2;
     src.minElevation = 0;
     src.minSunDistance = 4;
-    settings.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
+    settings_.add_child("settings.source.parameters.parameter",VieVS::ParameterSettings::parameterSource2ptree("default",src).get_child("parameters"));
 
     VieVS::ParameterSettings::ParametersBaselines bl;
     bl.maxScan = 600;
     bl.minScan = 30;
     bl.weight = 1;
-    settings.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));
-    settings.add("settings.station.waitTimes.setup",0);
-    settings.add("settings.station.waitTimes.source",5);
-    settings.add("settings.station.waitTimes.tape",1);
-    settings.add("settings.station.waitTimes.calibration",10);
-    settings.add("settings.station.waitTimes.corsynch",3);
+    settings_.add_child("settings.baseline.parameters.parameter",VieVS::ParameterSettings::parameterBaseline2ptree("default",bl).get_child("parameters"));
+    settings_.add("settings.station.waitTimes.setup",0);
+    settings_.add("settings.station.waitTimes.source",5);
+    settings_.add("settings.station.waitTimes.tape",1);
+    settings_.add("settings.station.waitTimes.calibration",10);
+    settings_.add("settings.station.waitTimes.corsynch",3);
 
-    settings.add("settings.station.cableWrapBuffers.axis1LowOffset", 5);
-    settings.add("settings.station.cableWrapBuffers.axis1UpOffset", 5);
-    settings.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
-    settings.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
+    settings_.add("settings.station.cableWrapBuffers.axis1LowOffset", 5);
+    settings_.add("settings.station.cableWrapBuffers.axis1UpOffset", 5);
+    settings_.add("settings.station.cableWrapBuffers.axis2LowOffset", 0);
+    settings_.add("settings.station.cableWrapBuffers.axis2UpOffset", 0);
 
-    settings.add("settings.output.directory", "out/");
+    settings_.add("settings.output.directory", "out/");
 
     std::ofstream os;
     os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
+    boost::property_tree::xml_parser::write_xml(os, settings_,
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
     os.close();
 
@@ -3933,7 +3943,7 @@ void MainWindow::deleteModesCustomLine(QString name)
 
 void MainWindow::on_pushButton_modeCustomAddBAnd_clicked()
 {
-    addBandDialog *dial = new addBandDialog(settings,this);
+    addBandDialog *dial = new addBandDialog(settings_,this);
     int result = dial->exec();
 
     if(result == QDialog::Accepted){
@@ -3949,7 +3959,7 @@ void MainWindow::on_pushButton_modeCustomAddBAnd_clicked()
 
 void MainWindow::on_pushButton_modeCustomAddBand_clicked()
 {
-    addBandDialog *dial = new addBandDialog(settings,this);
+    addBandDialog *dial = new addBandDialog(settings_,this);
     int result = dial->exec();
 
     if(result == QDialog::Accepted){
@@ -4013,7 +4023,7 @@ void MainWindow::on_pushButton_saveMode_clicked()
         int chan = qobject_cast<QSpinBox*>(ui->tableWidget_modeCustonBand->cellWidget(i,1))->value();
         chans.push_back(chan);
     }
-    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings_,this);
     dial->setType(saveToSettingsDialog::Type::modes);
     dial->setMode(bits,srate,bands,freqs,chans);
 
@@ -4023,7 +4033,7 @@ void MainWindow::on_pushButton_saveMode_clicked()
 
 void MainWindow::on_pushButton_loadMode_clicked()
 {
-    auto modes= settings.get_child_optional("settings.modes");
+    auto modes= settings_.get_child_optional("settings.modes");
     if(!modes.is_initialized()){
         QMessageBox::warning(this,"No modes list found!","There were no modes saved in settings.xml file\nCheck settings.modes");
         return;
@@ -4445,6 +4455,82 @@ void MainWindow::on_spinBox_doy_valueChanged(int arg1)
 
 void MainWindow::on_pushButton_clicked()
 {
+    QString errorText = "";
+
+    QRegularExpression reg("([\\w\\&-]+)\\s(\\w+)\\s(\\d{4}-\\d{2}-\\d{2}\\s\\d{1,2}:\\d{2})\\s\\w+\\s(\\d{1,2}:\\d{2})\\s(.*?)(XA|XE|XH|XN|XU|XK|VG)\\s(\\w*)\\s(\\w*)");
+
+    QString txt = ui->lineEdit_ivsMaster->text().simplified();
+
+    QRegularExpressionMatch match = reg.match(txt);
+    if(match.hasMatch()){
+        QString description = match.captured(1);
+        QString sessionName = match.captured(2);
+        QString date = match.captured(3);
+        QDateTime start = QDateTime::fromString(date,"yyyy-MM-dd hh:mm");
+        QString dur = match.captured(4);
+        int h = dur.split(":").at(0).toInt();
+        int min = dur.split(":").at(1).toInt();
+        QString stations = match.captured(5);
+        QStringList stas = stations.split(" ",QString::SkipEmptyParts);
+        QString sked = match.captured(7);
+        QString corr = match.captured(8);
+
+
+        ui->lineEdit_experimentDescription->setText(description);
+        ui->experimentNameLineEdit->setText(sessionName);
+        ui->dateTimeEdit_sessionStart->setDateTime(start);
+        ui->doubleSpinBox_sessionDuration->setValue(h+min/60);
+
+        createBaselines = false;
+
+        if(stas.size() >= 2){
+            int n = selectedStationModel->rowCount();
+            for(int i=0; i<n; ++i){
+                QModelIndex index = selectedStationModel->index(0,0);
+                on_treeView_allSelectedStations_clicked(index);
+            }
+
+            allStationProxyModel->setFilterRegExp("");
+            for(int i=0; i<stas.size(); ++i){
+                QString sta = stas.at(i).toUpper();
+                bool found = false;
+                for(int j=0; j<allStationProxyModel->rowCount(); ++j){
+                    QString itsta = allStationProxyModel->index(j,1).data().toString().toUpper();
+                    if(itsta == sta){
+                        QModelIndex index = allStationProxyModel->index(j,0);
+                        on_treeView_allAvailabeStations_clicked(index);
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    errorText.append(QString("unknown station %1\n").arg(sta));
+                }
+            }
+        }else{
+            errorText.append("error while reading stations\n");
+        }
+        createBaselines = true;
+        createBaselineModel();
+
+
+        ui->schedulerLineEdit->setText(sked);
+        ui->correlatorLineEdit->setText(corr);
+
+        if(errorText.size() != 0){
+            QMessageBox::warning(this,"errors while reading session master line",errorText);
+        }
+
+    }else{
+        QMessageBox::warning(this,"errors while reading session master line","Not possible to parse input!\nMake sure you copied full line!\n\nExamples:\n"
+                                                                             "    IVS-R1823	R1823 2018-01-02 17:00 2 24:00 Ft Ht Is Ke Kk Ny Wn Yg XA NASA WASH Released NASA\n"
+                                                                             "    IN118-002 I18002 2018-01-02 18:30 2 1:00 Kk Wz XU USNO WASH NASA\n"
+                                                                             "    VGOS-T8039 VT8039 2018-02-08 18:00 39 24:00 Gs K2 Oe Wf Ws VG HAYS HAYS NASA");
+
+    }
+
+
+    /*
     try{
         QString txt = ui->lineEdit_ivsMaster->text();
         QString errorText = "";
@@ -4559,6 +4645,7 @@ void MainWindow::on_pushButton_clicked()
                              "This feature was tested with Google Chrome and Firefox. It might not work with other browsers.\n"
                              "In case this does not work you have to insert the settings manually.");
     }
+    */
 }
 
 void MainWindow::on_experimentNameLineEdit_textChanged(const QString &arg1)
@@ -5573,7 +5660,7 @@ void MainWindow::worldmap_hovered(QPointF point, bool state)
 
 void MainWindow::addGroupStation()
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::station,this);
+    AddGroupDialog *dial = new AddGroupDialog(settings_,AddGroupDialog::Type::station,this);
     dial->addModel(selectedStationModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -5609,7 +5696,7 @@ void MainWindow::addGroupStation()
 
 void MainWindow::addGroupBaseline()
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::baseline,this);
+    AddGroupDialog *dial = new AddGroupDialog(settings_,AddGroupDialog::Type::baseline,this);
     dial->addModel(selectedBaselineModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -5646,7 +5733,7 @@ void MainWindow::addGroupBaseline()
 
 void MainWindow::on_pushButton_stationParameter_clicked()
 {
-    stationParametersDialog *dial = new stationParametersDialog(settings,this);
+    stationParametersDialog *dial = new stationParametersDialog(settings_,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -5672,7 +5759,7 @@ void MainWindow::on_pushButton_stationParameter_clicked()
 
 void MainWindow::on_pushButton_parameterStation_edit_clicked()
 {
-    stationParametersDialog *dial = new stationParametersDialog(settings,this);
+    stationParametersDialog *dial = new stationParametersDialog(settings_,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -5696,7 +5783,7 @@ void MainWindow::on_pushButton_parameterStation_edit_clicked()
 
 void MainWindow::on_pushButton__baselineParameter_clicked()
 {
-    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
+    baselineParametersDialog *dial = new baselineParametersDialog(settings_, this);
     dial->addDefaultParameters(paraBl["default"]);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
@@ -5721,7 +5808,7 @@ void MainWindow::on_pushButton__baselineParameter_clicked()
 
 void MainWindow::on_pushButton_parameterBaseline_edit_clicked()
 {
-    baselineParametersDialog *dial = new baselineParametersDialog(settings, this);
+    baselineParametersDialog *dial = new baselineParametersDialog(settings_, this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -6249,7 +6336,7 @@ void MainWindow::on_pushButton_saveNetwork_clicked()
     for(int i = 0; i<selectedStationModel->rowCount(); ++i){
         selSta.append(selectedStationModel->item(i)->text());
     }
-    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings_,this);
     dial->setType(saveToSettingsDialog::Type::stationNetwork);
     dial->setNetwork(selSta);
 
@@ -6258,7 +6345,7 @@ void MainWindow::on_pushButton_saveNetwork_clicked()
 
 void MainWindow::on_pushButton_loadNetwork_clicked()
 {
-    auto network= settings.get_child_optional("settings.networks");
+    auto network= settings_.get_child_optional("settings.networks");
     if(!network.is_initialized()){
         QMessageBox::warning(this,"No network found!","There was no network saved in settings.xml file\nCheck settings.networks");
         return;
@@ -6718,7 +6805,7 @@ void MainWindow::skymap_hovered(QPointF point, bool state){
 
 void MainWindow::addGroupSource()
 {
-    AddGroupDialog *dial = new AddGroupDialog(settings,AddGroupDialog::Type::source,this);
+    AddGroupDialog *dial = new AddGroupDialog(settings_,AddGroupDialog::Type::source,this);
     dial->addModel(selectedSourceModel);
     int result = dial->exec();
     if(result == QDialog::Accepted){
@@ -6762,7 +6849,7 @@ void MainWindow::addGroupSource()
 
 void MainWindow::on_pushButton_sourceParameter_clicked()
 {
-    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
+    sourceParametersDialog *dial = new sourceParametersDialog(settings_,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -6790,7 +6877,7 @@ void MainWindow::on_pushButton_sourceParameter_clicked()
 
 void MainWindow::on_pushButton_parameterSource_edit_clicked()
 {
-    sourceParametersDialog *dial = new sourceParametersDialog(settings,this);
+    sourceParametersDialog *dial = new sourceParametersDialog(settings_,this);
     QStringList bands;
     for(int i = 0; i<ui->tableWidget_ModesPolicy->rowCount(); ++i){
         bands << ui->tableWidget_ModesPolicy->verticalHeaderItem(i)->text();
@@ -6944,7 +7031,7 @@ void MainWindow::on_pushButton_saveSourceList_clicked()
     for(int i = 0; i<selectedSourceModel->rowCount(); ++i){
         selSrc.append(selectedSourceModel->item(i)->text());
     }
-    saveToSettingsDialog *dial = new saveToSettingsDialog(settings,this);
+    saveToSettingsDialog *dial = new saveToSettingsDialog(settings_,this);
     dial->setType(saveToSettingsDialog::Type::sourceNetwork);
     dial->setNetwork(selSrc);
 
@@ -6953,7 +7040,7 @@ void MainWindow::on_pushButton_saveSourceList_clicked()
 
 void MainWindow::on_pushButton_loadSourceList_clicked()
 {
-    auto network= settings.get_child_optional("settings.source_lists");
+    auto network= settings_.get_child_optional("settings.source_lists");
     if(!network.is_initialized()){
         QMessageBox::warning(this,"No source list found!","There was no source list saved in settings.xml file\nCheck settings.source_list");
         return;
@@ -7720,11 +7807,11 @@ void MainWindow::multi_sched_count_nsched()
 void MainWindow::changeDefaultSettings(QStringList path, QStringList value, QString name)
 {
     for(int i=0; i<path.count(); ++i){
-        settings.put(path.at(i).toStdString(),value.at(i).toStdString());
+        settings_.put(path.at(i).toStdString(),value.at(i).toStdString());
     }
     std::ofstream os;
     os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
+    boost::property_tree::xml_parser::write_xml(os, settings_,
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
     os.close();
     QMessageBox::information(this,"Default settings changed",name);
@@ -7756,23 +7843,23 @@ void MainWindow::on_pushButton_17_clicked()
 
 void MainWindow::on_pushButton_saveCatalogPathes_clicked()
 {
-    settings.put("settings.catalog_path.antenna",ui->lineEdit_pathAntenna->text().toStdString());
-    settings.put("settings.catalog_path.equip",ui->lineEdit_pathEquip->text().toStdString());
-    settings.put("settings.catalog_path.position",ui->lineEdit_pathPosition->text().toStdString());
-    settings.put("settings.catalog_path.mask",ui->lineEdit_pathMask->text().toStdString());
-    settings.put("settings.catalog_path.source",ui->lineEdit_pathSource->text().toStdString());
-    settings.put("settings.catalog_path.source2",ui->lineEdit_browseSource2->text().toStdString());
-    settings.put("settings.catalog_path.flux",ui->lineEdit_pathFlux->text().toStdString());
-    settings.put("settings.catalog_path.modes",ui->lineEdit_pathModes->text().toStdString());
-    settings.put("settings.catalog_path.freq",ui->lineEdit_pathFreq->text().toStdString());
-    settings.put("settings.catalog_path.tracks",ui->lineEdit_pathTracks->text().toStdString());
-    settings.put("settings.catalog_path.loif",ui->lineEdit_pathLoif->text().toStdString());
-    settings.put("settings.catalog_path.rec",ui->lineEdit_pathRec->text().toStdString());
-    settings.put("settings.catalog_path.rx",ui->lineEdit_pathRx->text().toStdString());
-    settings.put("settings.catalog_path.hdpos",ui->lineEdit_pathHdpos->text().toStdString());
+    settings_.put("settings.catalog_path.antenna",ui->lineEdit_pathAntenna->text().toStdString());
+    settings_.put("settings.catalog_path.equip",ui->lineEdit_pathEquip->text().toStdString());
+    settings_.put("settings.catalog_path.position",ui->lineEdit_pathPosition->text().toStdString());
+    settings_.put("settings.catalog_path.mask",ui->lineEdit_pathMask->text().toStdString());
+    settings_.put("settings.catalog_path.source",ui->lineEdit_pathSource->text().toStdString());
+    settings_.put("settings.catalog_path.source2",ui->lineEdit_browseSource2->text().toStdString());
+    settings_.put("settings.catalog_path.flux",ui->lineEdit_pathFlux->text().toStdString());
+    settings_.put("settings.catalog_path.modes",ui->lineEdit_pathModes->text().toStdString());
+    settings_.put("settings.catalog_path.freq",ui->lineEdit_pathFreq->text().toStdString());
+    settings_.put("settings.catalog_path.tracks",ui->lineEdit_pathTracks->text().toStdString());
+    settings_.put("settings.catalog_path.loif",ui->lineEdit_pathLoif->text().toStdString());
+    settings_.put("settings.catalog_path.rec",ui->lineEdit_pathRec->text().toStdString());
+    settings_.put("settings.catalog_path.rx",ui->lineEdit_pathRx->text().toStdString());
+    settings_.put("settings.catalog_path.hdpos",ui->lineEdit_pathHdpos->text().toStdString());
     std::ofstream os;
     os.open("settings.xml");
-    boost::property_tree::xml_parser::write_xml(os, settings,
+    boost::property_tree::xml_parser::write_xml(os, settings_,
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
     os.close();
     QString txt = "Your default catalog pathes have been changed!";

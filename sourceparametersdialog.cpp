@@ -106,6 +106,8 @@ void sourceParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Par
         ui->groupBox_increaseWeightIfObservedOnce->setCheckable(false);
         ui->groupBox_increaseWeightIfObservedOnce->setEnabled(false);
 
+        ui->pushButton->setEnabled(false);
+        ui->pushButton_2->setEnabled(false);
 
     }
     ui->lineEdit_paraName->setEnabled(false);

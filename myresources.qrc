@@ -70,5 +70,8 @@
     </qresource>
     <qresource prefix="/images">
         <file>images/vievs_sched_subtitle_transparent.png</file>
+        <file>images/setup_example.PNG</file>
+        <file>images/weight_function.png</file>
+        <file>images/setup_manual.png</file>
     </qresource>
 </RCC>

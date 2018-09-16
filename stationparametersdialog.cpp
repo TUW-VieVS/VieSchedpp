@@ -77,6 +77,8 @@ void stationParametersDialog::addSelectedParameters(VieVS::ParameterSettings::Pa
         ui->checkBox_maxNumberOfScans->setEnabled(false);
 
         ui->groupBox_scanTime->setCheckable(false);
+        ui->pushButton_load->setEnabled(false);
+        ui->pushButton_save->setEnabled(false);
 
     }
     ui->lineEdit->setEnabled(false);

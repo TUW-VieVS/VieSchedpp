@@ -23,6 +23,7 @@
 #include <QDockWidget>
 //#include <QTextBrowser>
 #include <mytextbrowser.h>
+#include <QRegularExpression>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
@@ -514,7 +515,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QString mainPath;
-    boost::property_tree::ptree settings;
+    boost::property_tree::ptree settings_;
 
     VieVS::ParameterSettings para;
 

@@ -36,6 +36,9 @@ void baselineParametersDialog::addSelectedParameters(VieVS::ParameterSettings::P
         ui->checkBox->setChecked(true);
         ui->checkBox->setEnabled(false);
         ui->groupBox_scanTime->setCheckable(false);
+
+        ui->pushButton_load->setEnabled(false);
+        ui->pushButton_save->setEnabled(false);
     }
     ui->lineEdit_paraName->setEnabled(false);
 }
