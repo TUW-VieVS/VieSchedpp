@@ -96,6 +96,12 @@ double Source::observedFlux(const string &band, double gmst, const std::vector<d
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "source " << this->getName() << " get observed flux density";
     #endif
 
+    std::pair<double, double> uv = calcUV(gmst, dxyz);
+    double flux = flux_->at(band)->observedFlux(uv.first, uv.second);
+    return flux;
+}
+
+std::pair<double, double> Source::calcUV(double gmst, const std::vector<double> &dxyz) const noexcept {
     double ha = gmst - ra_;
 
     double sinHa = sin(ha);
@@ -103,10 +109,9 @@ double Source::observedFlux(const string &band, double gmst, const std::vector<d
 
     double u = dxyz[0] * sinHa + dxyz[1] * cosHa;
     double v = dxyz[2] * cosDe_ + sinDe_ * (-dxyz[0] * cosHa + dxyz[1] * sinHa);
+    return {u,v};
+};
 
-    double flux = flux_->at(band)->observedFlux(u, v);
-    return flux;
-}
 
 void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept {
     if(addToStatistics){

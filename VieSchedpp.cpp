@@ -80,15 +80,16 @@ void VieSchedpp::run() {
     init.createSources(skdCatalogs_, of);
     init.createStations(skdCatalogs_, of);
 
+    init.initializeStations();
+    init.precalcAzElStations();
+    init.initializeBaselines();
+
     init.precalcSubnettingSrcIds();
     init.initializeSources();
     init.initializeSourceSequence();
     init.initializeCalibrationBlocks( of );
     init.initializeOptimization(of);
 
-    init.initializeStations();
-    init.precalcAzElStations();
-    init.initializeBaselines();
 
     init.initializeHighImpactScanDescriptor(of);
     init.initializeWeightFactors();

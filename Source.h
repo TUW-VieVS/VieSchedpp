@@ -362,6 +362,8 @@ namespace VieVS{
          */
         double observedFlux(const std::string &band, double gmst, const std::vector<double> &dxyz) const noexcept;
 
+        std::pair<double, double> calcUV(double gmst, const std::vector<double> &dxyz) const noexcept;
+
         /**
          * @brief this function checks if it is time to change the parameters
          *
