@@ -350,9 +350,6 @@ boost::property_tree::ptree ParameterSettings::parameterSource2ptree(const strin
     if (PARA.fixedScanDuration.is_initialized()) {
         parameters.add("parameters.fixedScanDuration", *PARA.fixedScanDuration);
     }
-    if (PARA.minNumberOfStations.is_initialized()) {
-        parameters.add("parameters.minNumberOfStations", *PARA.minNumberOfStations);
-    }
     if (PARA.tryToFocusIfObservedOnce.is_initialized()) {
         parameters.add("parameters.tryToFocusIfObservedOnce", *PARA.tryToFocusIfObservedOnce);
         parameters.add("parameters.tryToFocusFactor", *PARA.tryToFocusFactor);
