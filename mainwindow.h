@@ -512,6 +512,8 @@ private slots:
 
     void on_actionCurrent_Release_triggered();
 
+    void on_actionAbout_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString mainPath;

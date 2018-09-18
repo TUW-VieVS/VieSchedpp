@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->main_stacked->setCurrentIndex(0);
+
 
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setApplicationName("VieSched++ GUI");
@@ -1035,6 +1037,12 @@ void MainWindow::on_actionAbout_Qt_triggered()
     QApplication::aboutQt();
 }
 
+void MainWindow::on_actionAbout_triggered()
+{
+    ui->main_stacked->setCurrentIndex(22);
+}
+
+
 void MainWindow::on_actionWhat_is_this_triggered()
 {
     QWhatsThis::enterWhatsThisMode();
@@ -1222,6 +1230,8 @@ void MainWindow::on_actionNew_triggered()
         QApplication::exit(1000);
     }
 }
+
+
 
 void MainWindow::on_spinBox_fontSize_valueChanged(int arg1)
 {
@@ -9185,12 +9195,13 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
                 VieVS::SkdParser mySkdParser(path.toStdString());
                 mySkdParser.read();
                 VieVS::Scheduler sched = mySkdParser.createScheduler();
+                auto freqs = mySkdParser.getFrequencies();
                 std::string start = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::startTime);
                 std::string end = VieVS::TimeSystem::ptime2string(VieVS::TimeSystem::endTime);
                 QDateTime qstart = QDateTime::fromString(QString::fromStdString(start),"yyyy.MM.dd HH:mm:ss");
                 QDateTime qend   = QDateTime::fromString(QString::fromStdString(end),"yyyy.MM.dd HH:mm:ss");
 
-                VieSchedpp_Analyser *analyser = new VieSchedpp_Analyser(sched,qstart,qend, this);
+                VieSchedpp_Analyser *analyser = new VieSchedpp_Analyser(sched,freqs,qstart,qend, this);
                 analyser->show();
 
             }catch(...){
@@ -9204,6 +9215,7 @@ void MainWindow::on_pushButton_sessionAnalyser_clicked()
         }
     }
 }
+
 
 
 

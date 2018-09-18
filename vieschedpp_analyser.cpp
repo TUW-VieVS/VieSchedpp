@@ -1,11 +1,26 @@
 #include "vieschedpp_analyser.h"
 #include "ui_vieschedpp_analyser.h"
 
-VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime start, QDateTime end, QWidget *parent) :
+VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, std::map<std::string, std::vector<double>> freqs, QDateTime start, QDateTime end, QWidget *parent) :
     QMainWindow(parent), schedule_{schedule}, sessionStart_{start}, sessionEnd_{end},
     ui(new Ui::VieSchedpp_Analyser)
 {
     ui->setupUi(this);
+
+    sessionStartMjd_ = sessionStart_.date().toJulianDay() - 2400000.5 +
+                                    (sessionStart_.time().second() +
+                                     sessionStart_.time().minute()*60 +
+                                     sessionStart_.time().hour()*3600)/86400.0;
+
+    for(const auto &any: freqs){
+        QString band = QString::fromStdString(any.first);
+        QVector<double> f;
+        for(const auto &any2: any.second){
+            f.push_back(any2*1e6);
+        }
+        freqs_[band] = f;
+    }
+
     srcModel = new QStandardItemModel(0,6,this);
     staModel = new QStandardItemModel(0,6,this);
     blModel = new QStandardItemModel(0,4,this);
@@ -70,7 +85,7 @@ void VieSchedpp_Analyser::on_actionworld_map_triggered()
 void VieSchedpp_Analyser::on_actionuv_coverage_triggered()
 {
     ui->stackedWidget->setCurrentIndex(2);
-
+    updateUVTimes();
 }
 
 void VieSchedpp_Analyser::on_actionsky_map_triggered()
@@ -255,6 +270,28 @@ void VieSchedpp_Analyser::setup()
     }else if(stas >= 8){
         setSkyCoverageLayout(2,4);
     }
+
+    int srcs = srcModel->rowCount();
+    setUVCoverageLayout(1,1);
+//    if(srcs == 2){
+//        setUVCoverageLayout(1,2);
+//    }else if(srcs == 3){
+//        setUVCoverageLayout(1,3);
+//    }else if(srcs == 4){
+//        setUVCoverageLayout(2,2);
+//    }else if(srcs == 5){
+//        setUVCoverageLayout(2,3);
+//    }else if(srcs == 6){
+//        setUVCoverageLayout(2,3);
+//    }else if(srcs == 7){
+//        setUVCoverageLayout(2,4);
+//    }else if(srcs == 8){
+//        setUVCoverageLayout(2,4);
+//    }else if(srcs == 9){
+//        setUVCoverageLayout(2,5);
+//    }else if(srcs >= 10){
+//        setUVCoverageLayout(2,5);
+//    }
 
 //    ui->splitter_skyCoverage->setSizes(QList<int>({std::numeric_limits<int>::max(), std::numeric_limits<int>::max()/4}));
 //    ui->splitter_worldmap->setSizes(QList<int>({std::numeric_limits<int>::max(), std::numeric_limits<int>::max()/4}));
@@ -1429,7 +1466,7 @@ void VieSchedpp_Analyser::updatePlotsAndModels()
     switch(idx){
         case 0:{ updateSkyCoverageTimes(); break; }
         case 1:{ updateWorldmapTimes(); break; }
-        case 2:{ break; }
+        case 2:{ updateUVTimes(); break; }
         case 3:{ updateSkymapTimes(); break; }
         case 4:{ updateGeneralStatistics(); break; }
         case 5:{ updateStatisticsStations(); break; }
@@ -2670,4 +2707,400 @@ void VieSchedpp_Analyser::on_checkBox_statistics_baseline_showStations_toggled(b
             break;
         }
     }
+}
+
+void VieSchedpp_Analyser::on_pushButton_uvCoverageLayout_clicked()
+{
+    QDialog dialog(this);
+    QFormLayout form(&dialog);
+    form.addRow(new QLabel("set layout"));
+    // Add the lineEdits with their respective labels
+
+    QSpinBox *rowBox = new QSpinBox(&dialog);
+    rowBox->setMinimum(1);
+    rowBox->setValue(ui->gridLayout_uv_coverage->rowCount());
+    form.addRow("rows: ", rowBox);
+    QSpinBox *colBox = new QSpinBox(&dialog);
+    colBox->setMinimum(1);
+    colBox->setValue(ui->gridLayout_uv_coverage->columnCount());
+    form.addRow("columns: ", colBox);
+
+
+    // Add some standard buttons (Cancel/Ok) at the bottom of the dialog
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, &dialog);
+
+    form.addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+    // Show the dialog as modal
+    if (dialog.exec() == QDialog::Accepted) {
+        // If the user didn't dismiss the dialog, do something with the fields
+
+        setUVCoverageLayout(rowBox->value(), colBox->value());
+    }
+}
+
+void VieSchedpp_Analyser::setUVCoverageLayout(int rows, int columns)
+{
+    while( ui->gridLayout_uv_coverage->count() >0){
+        auto itm = ui->gridLayout_uv_coverage->takeAt(0);
+        if(itm->widget()){
+            delete itm->widget();
+        }
+        if(itm->layout()){
+            delete itm->layout();
+        }
+    }
+
+    int counter = 0;
+    for(int i=0; i<rows; ++i){
+        for(int j=0; j<columns; ++j){
+            QVBoxLayout *layout = new QVBoxLayout();
+            QHBoxLayout *l2 = new QHBoxLayout();
+            QComboBox *c1 = new QComboBox();
+            c1->setModel(srcModel);
+            QComboBox *c2 = new QComboBox();
+            for(const auto &any: freqs_.keys()){
+                c2->addItem(any);
+            }
+            c2->addItem("-");
+            l2->addWidget(c1,2);
+            l2->addWidget(c2,1);
+
+            layout->addLayout(l2);
+
+            QGroupBox *groupBox = new QGroupBox(this);
+            QChart *chart = new QChart();
+            chart->setAnimationOptions(QPolarChart::NoAnimation);
+            QChartView *chartView = new QChartView(chart,groupBox);
+
+            chart->layout()->setContentsMargins(0, 0, 0, 0);
+            chart->setBackgroundRoundness(0);
+            chart->legend()->hide();
+            chart->acceptHoverEvents();
+            chartView->setMouseTracking(true);
+            Callout *callout = new Callout(chart);
+            callout->hide();
+
+            chart->addAxis(new QValueAxis(), Qt::AlignLeft);
+            chart->addAxis(new QValueAxis(), Qt::AlignBottom);
+
+            chartView->setRenderHint(QPainter::Antialiasing);
+
+            layout->addWidget(chartView);
+
+            c1->setCurrentIndex(counter);
+            connect(c1,SIGNAL(currentIndexChanged(QString)), this, SLOT(updateUVCoverage(QString)));
+            connect(c2,SIGNAL(currentIndexChanged(QString)), this, SLOT(updateUVCoverage_band(QString)));
+
+            groupBox->setLayout(layout);
+
+            ui->gridLayout_uv_coverage->addWidget(groupBox,i,j);
+            updateUVCoverage(counter, c1->currentText(), c2->currentText());
+            ++counter;
+        }
+    }
+    for(int i=0; i<rows; ++i){
+        ui->gridLayout_uv_coverage->setRowStretch(i,1);
+    }
+    for(int i=rows; i< ui->gridLayout_uv_coverage->rowCount(); ++i){
+        ui->gridLayout_uv_coverage->setRowStretch(i,0);
+    }
+    for(int j=0; j<columns; ++j){
+        ui->gridLayout_uv_coverage->setColumnStretch(j,1);
+    }
+    for(int i=columns; i< ui->gridLayout_uv_coverage->columnCount(); ++i){
+        ui->gridLayout_uv_coverage->setColumnStretch(i,0);
+    }
+
+}
+
+void VieSchedpp_Analyser::updateUVCoverage(QString name)
+{
+    QObject *obj = sender();
+    QObject *parent = obj->parent();
+
+    int idx = -1;
+    QString band;
+    for(int i=0; i<ui->gridLayout_uv_coverage->count(); ++i){
+        auto itm = ui->gridLayout_uv_coverage->itemAt(i)->widget();
+        if(parent == itm){
+            idx = i;
+            for(const auto &any: itm->children()){
+                if(any != obj && qobject_cast<QComboBox *>(any)){
+                    band = qobject_cast<QComboBox *>(any)->currentText();
+                }
+            }
+            break;
+        }
+    }
+    updateUVCoverage(idx, name, band);
+
+}
+
+void VieSchedpp_Analyser::updateUVCoverage_band(QString name)
+{
+    QObject *obj = sender();
+    QObject *parent = obj->parent();
+
+    int idx = -1;
+    QString src;
+    for(int i=0; i<ui->gridLayout_uv_coverage->count(); ++i){
+        auto itm = ui->gridLayout_uv_coverage->itemAt(i)->widget();
+        if(parent == itm){
+            idx = i;
+            for(const auto &any: itm->children()){
+                if(any != obj && qobject_cast<QComboBox *>(any)){
+                    src = qobject_cast<QComboBox *>(any)->currentText();
+                }
+            }
+            break;
+        }
+    }
+    updateUVCoverage(idx, src, name);
+}
+
+void VieSchedpp_Analyser::updateUVCoverage(int idx, QString source, QString band)
+{
+
+    QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_uv_coverage->itemAt(idx)->widget());
+    QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+    QChart *chart = chartView->chart();
+    chart->removeAllSeries();
+
+    QScatterSeriesUV *s = new QScatterSeriesUV();
+    s->setName("outside timespan");
+    s->setMarkerSize(4);
+    s->setBrush(Qt::gray);
+    s->setBorderColor(Qt::gray);
+
+    QScatterSeriesUV *ss = new QScatterSeriesUV();
+    ss->setName("uv");
+    ss->setMarkerSize(4);
+    ss->setBrush(Qt::black);
+    ss->setBorderColor(Qt::black);
+
+
+    int srcid = srcModel->findItems(source).at(0)->row();
+    const VieVS::Network &network = schedule_.getNetwork();
+    const std::vector<VieVS::Source> &sources = schedule_.getSources();
+
+    double max = 0;
+
+    for(const VieVS::Scan &scan: schedule_.getScans()){
+        if(scan.getSourceId() == srcid){
+            for(const VieVS::Observation &obs: scan.getObservations()){
+                unsigned long staid1 = obs.getStaid1();
+                unsigned long staid2 = obs.getStaid2();
+                int idx1 = *scan.findIdxOfStationId(staid1);
+                int idx2 = *scan.findIdxOfStationId(staid2);
+                const std::vector<double> &dxyz = network.getDxyz(staid1,staid2);
+                double x = dxyz[0];
+                double y = dxyz[1];
+                double z = dxyz[2];
+
+                double mjd = sessionStartMjd_ + obs.getStartTime()/86400.0;
+                double gmst  = iauGmst82(2400000.5,mjd);
+                std::pair<double, double> uv = sources.at(srcid).calcUV(gmst, dxyz);
+
+                QString bl = QString::fromStdString(network.getStation(staid1).getAlternativeName()+"-"+network.getStation(staid2).getAlternativeName());
+                int start = std::max({scan.getTimes().getObservingTime(idx1,VieVS::Timestamp::start), scan.getTimes().getObservingTime(idx2,VieVS::Timestamp::start)});
+                int end   = std::min({scan.getTimes().getObservingTime(idx1,VieVS::Timestamp::end),   scan.getTimes().getObservingTime(idx2,VieVS::Timestamp::end)});
+
+                if(band == "-"){
+
+                    double u  = uv.first  * 1e-6;
+                    double v  = uv.second * 1e-6;
+
+                    if( fabs(u) > max){
+                        max = fabs(u);
+                    }
+                    if( fabs(v) > max){
+                        max = fabs(v);
+                    }
+                    s->append( u,  v, start, end, bl, -1);
+                    s->append(-u, -v, start, end, bl, -1);
+
+                }else{
+                    const QVector<double> &freq = freqs_[band];
+
+                    for( double f : freq){
+
+                        double u  = uv.first  * 1e-6 * f / CMPS;
+                        double v  = uv.second * 1e-6 * f / CMPS;
+
+                        if(fabs(u) > max){
+                            max = fabs(u);
+                        }
+                        if(fabs(v) > max){
+                            max = fabs(v);
+                        }
+                        s->append( u,  v, start, end, bl, f);
+                        s->append(-u, -v, start, end, bl, f);
+
+                    }
+                }
+            }
+        }
+    }
+
+    double maxval;
+    if(band == "-"){
+        maxval = ceil(max);
+    }else{
+        maxval = ceil(max/10)*10.0;
+    }
+
+
+    chart->addSeries(s);
+    chart->addSeries(ss);
+    QValueAxis *axisX = qobject_cast<QValueAxis *>(chart->axisX());
+    QValueAxis *axisY = qobject_cast<QValueAxis *>(chart->axisY());
+
+    s->attachAxis(axisX);
+    s->attachAxis(axisY);
+
+    ss->attachAxis(axisX);
+    ss->attachAxis(axisY);
+
+    axisX->setRange(-maxval,maxval);
+    axisY->setRange(-maxval,maxval);
+
+    if(band == "-"){
+        axisX->setTitleText("u [1000 km]");
+        axisY->setTitleText("v [1000 km]");
+    }
+    else{
+        axisX->setTitleText("u [10^6 wavelength]");
+        axisY->setTitleText("v [10^6 wavelength]");
+    }
+
+    connect(s,SIGNAL(hovered(QPointF,bool)),this,SLOT(uvHovered(QPointF,bool)));
+    connect(ss,SIGNAL(hovered(QPointF,bool)),this,SLOT(uvHovered(QPointF,bool)));
+
+    updateUVTimes(idx);
+
+}
+
+void VieSchedpp_Analyser::uvHovered(QPointF point, bool flag)
+{
+    QObject *obj = sender();
+    QScatterSeriesUV *series = static_cast<QScatterSeriesUV *>(obj);
+
+    QChart *chart = qobject_cast<QChart *>(obj->parent()->parent());
+
+    for(QGraphicsItem *childItem: chart->childItems()){
+        if(Callout *c = dynamic_cast<Callout *>(childItem)){
+            if(flag){
+                c->setAnchor(point);
+
+                int idx = 0;
+                while(idx<series->count()){
+                    const QPointF &p = series->at(idx);
+
+                    if(point == p){
+                        break;
+                    }
+                    ++idx;
+                }
+
+                int startTime = series->getStartTime(idx);
+                int endTime = series->getEndTime(idx);
+
+                QString bl = series->getBl(idx);
+
+                QDateTime qStartTime = sessionStart_.addSecs(startTime);
+                QDateTime qEndTime   = sessionStart_.addSecs(endTime);
+                QString startTimeStr = qStartTime.toString("hh:mm:ss");
+                QString endTimeStr   = qEndTime.toString("hh:mm:ss");
+                QString timeStr = startTimeStr.append("-").append(endTimeStr).append("\n");
+
+                QString freq = QString().sprintf("freq: %.2f [MHz]\n", series->getFreq(idx)/1e6);
+
+
+                QString txt = bl;
+                txt.append("\n").append(timeStr).append(freq);
+
+                c->setText(txt);
+                c->setZValue(11);
+                c->updateGeometry();
+                c->show();
+            }else{
+                c->hide();
+            }
+            break;
+        }
+    }
+}
+
+void VieSchedpp_Analyser::updateUVTimes()
+{
+    for(int i=0; i<ui->gridLayout_uv_coverage->count(); ++i){
+        updateUVTimes(i);
+    }
+
+}
+
+void VieSchedpp_Analyser::updateUVTimes(int idx)
+{
+    QGroupBox *box = qobject_cast<QGroupBox*>(ui->gridLayout_uv_coverage->itemAt(idx)->widget());
+    QChartView *chartView = qobject_cast<QChartView*>(box->layout()->itemAt(1)->widget());
+    QChart *chart = chartView->chart();
+
+    QList<QAbstractSeries *> series = chart->series();
+    QScatterSeriesUV * data;
+    QScatterSeriesUV * uv;
+
+    for(const auto &any:series){
+        if(any->name() == "outside timespan"){
+            data = static_cast<QScatterSeriesUV *>(any);
+        }
+        if(any->name() == "uv"){
+            uv = static_cast<QScatterSeriesUV *>(any);
+        }
+    }
+
+    uv->clear();
+
+    int start = ui->horizontalSlider_start->value();
+    int end = ui->horizontalSlider_end->value();
+
+    for(int i=0; i<data->count(); ++i){
+        bool flag1 = data->getStartTime(i) >= start && data->getStartTime(i) <= end;
+        bool flag2 = data->getEndTime(i) >= start && data->getEndTime(i) <= end;
+        bool flag3 = data->getStartTime(i) <= start && data->getEndTime(i) >= end;
+        bool flag = flag1 || flag2 || flag3;
+
+        if(flag){
+            uv->append(data->at(i).x(),
+                       data->at(i).y(),
+                       data->getStartTime(i),
+                       data->getEndTime(i),
+                       data->getBl(i),
+                       data->getFreq(i));
+        }
+    }
+
+}
+
+
+void VieSchedpp_Analyser::on_pushButton_30min_clicked()
+{
+    ui->doubleSpinBox_hours->setValue(0.25);
+    ui->checkBox_fixDuration->setChecked(true);
+}
+
+void VieSchedpp_Analyser::on_pushButton_60min_clicked()
+{
+    ui->doubleSpinBox_hours->setValue(1);
+    ui->checkBox_fixDuration->setChecked(true);
+}
+
+void VieSchedpp_Analyser::on_pushButton_full_clicked()
+{
+    ui->checkBox_fixDuration->setChecked(false);
+    ui->horizontalSlider_start->setValue(0);
+    ui->horizontalSlider_end->setValue(ui->horizontalSlider_end->maximum());
 }

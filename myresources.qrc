@@ -67,6 +67,7 @@
         <file>icons/warning.png</file>
         <file>icons/view-refresh-7.png</file>
         <file>icons/about.png</file>
+        <file>icons/uv.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/vievs_sched_subtitle_transparent.png</file>

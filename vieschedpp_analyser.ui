@@ -224,7 +224,37 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="uv"/>
+      <widget class="QWidget" name="uv">
+       <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,1">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_uvCoverageLayout">
+            <property name="text">
+             <string>layout</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_uv_coverage"/>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="sources">
        <layout class="QHBoxLayout" name="horizontalLayout_9">
         <item>
@@ -1184,6 +1214,39 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_30min">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>15min</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_60min">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>60 min</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_full">
+           <property name="text">
+            <string>full timespan</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
@@ -1264,7 +1327,7 @@
   <action name="actionuv_coverage">
    <property name="icon">
     <iconset resource="myresources.qrc">
-     <normaloff>:/icons/icons/warning.png</normaloff>:/icons/icons/warning.png</iconset>
+     <normaloff>:/icons/icons/uv.png</normaloff>:/icons/icons/uv.png</iconset>
    </property>
    <property name="text">
     <string>uv coverage</string>

@@ -51,7 +51,7 @@ class VieSchedpp_Analyser : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit VieSchedpp_Analyser(VieVS::Scheduler schedule, QDateTime start, QDateTime end, QWidget *parent = 0);
+    explicit VieSchedpp_Analyser(VieVS::Scheduler schedule, std::map<std::string, std::vector<double>> freqs, QDateTime start, QDateTime end, QWidget *parent = 0);
     ~VieSchedpp_Analyser();
 
     void setup();
@@ -178,11 +178,36 @@ private slots:
 
     void on_checkBox_statistics_baseline_showStations_toggled(bool checked);
 
+    void on_pushButton_uvCoverageLayout_clicked();
+
+    void setUVCoverageLayout(int rows, int columns);
+
+    void updateUVCoverage(QString name);
+
+    void updateUVCoverage_band(QString name);
+
+    void updateUVCoverage(int idx, QString name, QString band);
+
+    void uvHovered(QPointF point, bool flag);
+
+    void updateUVTimes();
+
+    void updateUVTimes(int idx);
+
+
+    void on_pushButton_30min_clicked();
+
+    void on_pushButton_60min_clicked();
+
+    void on_pushButton_full_clicked();
+
 private:
     Ui::VieSchedpp_Analyser *ui;
 
     VieVS::Scheduler schedule_;
+    QMap<QString, QVector<double>> freqs_;
     QDateTime sessionStart_;
+    double sessionStartMjd_;
     QDateTime sessionEnd_;
 
     QStandardItemModel *srcModel;
@@ -248,6 +273,7 @@ private:
 };
 
 
+
 class QLineSeriesExtended: public QLineSeries{
 public:
 
@@ -287,5 +313,53 @@ private:
     int nsta_;
     int nobs_;
 };
+
+class QScatterSeriesUV: public QScatterSeries{
+public:
+
+    QScatterSeriesUV(QWidget *parent = 0) :
+        QScatterSeries(parent){
+    }
+
+    void append(double x, double y, int startTime, int endTime,
+                QString bl, double freq){
+        QScatterSeries::append(x,y);
+        startTime_.append(startTime);
+        endTime_.append(endTime);
+        bls_.append(bl);
+        freqs_.append(freq);
+    }
+
+    void clear(){
+        QScatterSeries::clear();
+        startTime_.clear();
+        endTime_.clear();
+        bls_.clear();
+        freqs_.clear();
+    }
+
+    int getStartTime(int idx){
+        return startTime_.at(idx);
+    }
+
+    int getEndTime(int idx){
+        return endTime_.at(idx);
+    }
+
+    QString getBl(int idx){
+        return bls_.at(idx);
+    }
+
+    double getFreq(int idx){
+        return freqs_.at(idx);
+    }
+
+private:
+    QVector<int> startTime_;
+    QVector<int> endTime_;
+    QVector<QString> bls_;
+    QVector<double> freqs_;
+};
+
 
 #endif // VIESCHEDPP_ANALYSER_H
