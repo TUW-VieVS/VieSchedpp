@@ -32,6 +32,8 @@ void SkdParser::read() {
         bool tapeFound = false;
         bool corSynchFound = false;
         bool calibrationFound = false;
+        bool bandsFound = false;
+
         // loop through file
         int counter = 0;
         while (getline(fid, line)) {
@@ -100,7 +102,7 @@ void SkdParser::read() {
                 calibrationFound = true;
             }
 
-            if(trimmed == "$STATIONS") {
+            if(!found && trimmed == "$STATIONS") {
                 while (getline(fid, line)){
                     if (line.empty() || line.at(0) == '*') {
                         continue;
@@ -117,10 +119,54 @@ void SkdParser::read() {
                     splitVector.clear();
                 }
             }
-            ++counter;
-            if(found){
-                break;
+            if(!bandsFound && trimmed == "$CODES"){
+                bandsFound = true;
+                while (getline(fid, line)){
+                    if (line.empty() || line.at(0) == '*') {
+                        continue;
+                    }
+                    string trimmed2 = boost::trim_copy(line);
+
+                    boost::split(splitVector, trimmed2, boost::is_space(), boost::token_compress_on);
+                    if (splitVector[0] == "C") {
+                        if(splitVector.size() >= 4){
+                            string band = splitVector[2];
+                            try{
+                                auto freq = boost::lexical_cast<double>(splitVector.at(3));
+                                if(freqs_.find(band) != freqs_.end()){
+                                    std::vector<double> &f = freqs_.at(band);
+                                    if(find(f.begin(), f.end(), freq) == f.end()){
+                                        f.push_back(freq);
+                                    }
+                                }else{
+                                    std::vector<double> f{freq};
+                                    freqs_[band] = f;
+                                }
+                            }
+                            catch(const std::exception& e){
+                                #ifdef VIESCHEDPP_LOG
+                                BOOST_LOG_TRIVIAL(warning) << "band " << band << " cannot read frequency";
+                                #else
+                                cout << "[error] band " << band << " cannot read frequency\n";
+                                #endif
+                            }
+
+                        }else{
+                            #ifdef VIESCHEDPP_LOG
+                            BOOST_LOG_TRIVIAL(warning) << "cannot read frequency setup";
+                            #else
+                            cout << "cannot read frequency setup\n";
+                            #endif
+                        }
+                    }
+
+                    if (splitVector[0] == "L") {
+                        break;
+                    }
+
+                }
             }
+            ++counter;
         }
     }
     fid.close();

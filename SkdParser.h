@@ -36,6 +36,10 @@ namespace VieVS{
 
         Scheduler createScheduler();
 
+        std::map<std::string, std::vector<double>> getFrequencies(){
+            return freqs_;
+        };
+
         std::vector<std::vector<unsigned int>> getScheduledTimes(const std::string &station);
 
     private:
@@ -52,6 +56,8 @@ namespace VieVS{
         Network network_;
         std::vector<Source> sources_; ///< all sources
         std::vector<Scan> scans_; ///< all scans in schedule
+
+        std::map<std::string, std::vector<double>> freqs_;
 
         void createScans(std::ofstream &of);
 
