@@ -62,7 +62,12 @@ set(SOURCE_FILES
         util.h util.cpp
         Network.cpp Network.h
         Observation.cpp Observation.h
-        Flags.h Flags.cpp)
+        Flags.h Flags.cpp
+        Mode.cpp Mode.h
+        Bbc.cpp Bbc.h
+        If.cpp If.h
+        Track.cpp Track.h
+        Freq.cpp Freq.h)
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 
