@@ -80,7 +80,10 @@ namespace VieVS{
         std::vector<std::pair<Track, std::vector<unsigned long>>> tracks_;
         std::vector<std::pair<std::string, std::vector<unsigned long>>> track_frame_formats_;
 
-        std::unordered_map< std::pair<unsigned long, unsigned long>, std::unordered_map<std::string,double>, boost::hash_value<std::pair<unsigned long, unsigned long>>> staids2recordingRatemMap_;
+        std::unordered_map< std::pair<unsigned long, unsigned long>,
+                                      std::unordered_map<std::string,double>,
+                                      boost::hash<std::pair<unsigned long, unsigned long>>>
+                staids2recordingRatemMap_;
 
     };
 
