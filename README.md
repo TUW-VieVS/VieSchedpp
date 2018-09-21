@@ -100,6 +100,17 @@ Do the same as descriped in the previouse section but before running
 
 # Documentation
 
+## via batch file
+
+Run the `createDocumentation_linux.sh` bash script or `createDocumentation_windows.bat` batch file. 
+(Make sure you have the appropriate file permissions to run the script. If not run `chmod 711 createDocumentation_linux.sh` or equivalent windows commands before) 
+
+You should now get a `index.html` link and a `refman.pdf` file in your `VieSchedpp/documentation/` directory. 
+
+The `index.html` file is the startpoint of your manual in `html` format. 
+
+## directly via doxygen
+
 To create a documentation run `doxygen` in the `VieSchedpp/documentation/`
 subfolder. 
 
