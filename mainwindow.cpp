@@ -2161,21 +2161,21 @@ QString MainWindow::writeXML()
     }else if(ui->radioButton_alignIndividual->isChecked()){
         scanAlignment = "individual";
     }
+    std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
 
     if(useSourcesFromParameter_otherwiseIgnore){
-        para.general(start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
+        para.general(experimentName, start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
                      fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori,
                      idleToObservingTime, station_names, useSourcesFromParameter_otherwiseIgnore,
                      srcNames, scanAlignment, logConsole, logFile);
     }else{
-        para.general(start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
+        para.general(experimentName, start, end, subnetting, subnettingAngle, useSubnettingPercent_otherwiseAllBut, subnettingNumber,
                      fillinModeInfluence, fillinModeDuringScan, fillinModeAPosteriori,
                      idleToObservingTime, station_names, useSourcesFromParameter_otherwiseIgnore,
                      ignoreSrcNames, scanAlignment, logConsole, logFile);
     }
 
 
-    std::string experimentName = ui->experimentNameLineEdit->text().toStdString();
     std::string experimentDescription = ui->lineEdit_experimentDescription->text().toStdString();
     std::string scheduler = ui->schedulerLineEdit->text().toStdString();
     std::string correlator = ui->correlatorLineEdit->text().toStdString();
@@ -2201,7 +2201,7 @@ QString MainWindow::writeXML()
     if(operNotes){
         operationNotes = ui->plainTextEdit_operationNotes->toPlainText().replace("\n","\\n").toStdString();
     }
-    para.output(experimentName, experimentDescription, scheduler, correlator, piName, piEmail, contactName,
+    para.output(experimentDescription, scheduler, correlator, piName, piEmail, contactName,
                 contactEmail, notes, statistics, ngs, skd, vex, operNotes, operationNotes, srcGrp, srcGroupsForStatistic, skyCov);
 
     std::string antenna = ui->lineEdit_pathAntenna->text().toStdString();
@@ -2703,7 +2703,7 @@ QString MainWindow::writeXML()
     if(! mydir.exists() ){
         QDir().mkpath(path);
     }
-    path.append("parameters.xml");
+    path.append("VieSchedpp.xml");
     para.write(path.toStdString());
     QMessageBox mb;
     QMessageBox::StandardButton reply = mb.information(this,"parameter file created",QString("A new parameter file was created and saved at: \n").append(path),QMessageBox::Open,QMessageBox::Ok);
