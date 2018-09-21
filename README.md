@@ -98,6 +98,15 @@ Do the same as descriped in the previouse section but before running
 `VieSchedppSource/VieSchedpp/` and change the boost blocks. 
 (commend first block and uncommend second block)
 
+# Documentation
+
+To create a documentation run `doxygen` in the `VieSchedpp/documentation/`
+subfolder. 
+
+This should create a `html` and `latex` documentation. 
+
+For more infos visit http://www.doxygen.nl/.
+
 # Troubleshooting
 
 ## Installation
