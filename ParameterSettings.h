@@ -202,6 +202,7 @@ namespace VieVS {
          * @brief general block in parameter.xml
          * @author Matthias Schartner
          *
+         * @param experimentName experiment name
          * @param startTime session start time
          * @param endTime session end time
          * @param subnetting flag if subnetting is allowed
@@ -219,7 +220,8 @@ namespace VieVS {
          * @param logConsole log level for console
          * @param logFile log level for file
          */
-        void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
+        void general(const std::string &experimentName,
+                     const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                      bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
                      bool idleToObservingTime,
@@ -537,7 +539,6 @@ namespace VieVS {
          * @brief output block in parameter.xml
          * @author Matthias Schartner
          *
-         * @param experimentName experiment name
          * @param experimentDescription experiment description
          * @param scheduler scheduler
          * @param correlator correlator
@@ -556,7 +557,7 @@ namespace VieVS {
          * @param srcGroupsForStatistic groups for source group statistics file
          * @param createSkyCoverage create sky coverage file
          */
-        void output(const std::string &experimentName, const std::string &experimentDescription,
+        void output(const std::string &experimentDescription,
                     const std::string &scheduler, const std::string &correlator, const std::string &piName,
                     const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
                     const std::string &notes, bool createSummary, bool createNGS, bool createSKD, bool vex,

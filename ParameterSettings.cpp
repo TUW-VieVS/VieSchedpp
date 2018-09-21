@@ -33,7 +33,8 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
     master_.add_child("master.software", software.get_child("software"));
 }
 
-void ParameterSettings::general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
+void ParameterSettings::general(const std::string &experimentName,
+                                const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                                 bool subnetting, double subnettingMinAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
                                 bool idleToObservingTime,
@@ -41,6 +42,12 @@ void ParameterSettings::general(const boost::posix_time::ptime &startTime, const
                                 const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                                 const std::string &logConsole, const std::string &logFile) {
     boost::property_tree::ptree general;
+
+    if(experimentName.empty()){
+        general.add("general.experimentName", "dummy");
+    }else{
+        general.add("general.experimentName", experimentName);
+    }
 
     int smonth = startTime.date().month();
     string startTimeStr = (boost::format("%04d.%02d.%02d %02d:%02d:%02d")
@@ -991,16 +998,11 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 }
 
 void
-ParameterSettings::output(const string &experimentName, const string &experimentDescription, const string &scheduler,
+ParameterSettings::output(const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
                           const string &contactEmail, const string &notes, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
                           bool operNotes, const string &operationNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
-    if(experimentName.empty()){
-        output.add("output.experimentName", "dummy");
-    }else{
-        output.add("output.experimentName", experimentName);
-    }
     if(experimentDescription.empty()){
         output.add("output.experimentDescription", "no further description");
     }else{
