@@ -41,7 +41,7 @@ Initializer::Initializer(const std::string &path): VieVS_Object(nextId++) {
     #endif
 
     boost::property_tree::read_xml(is, xml_,boost::property_tree::xml_parser::trim_whitespace);
-    double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+    double maxDistCorrestpondingTelescopes = xml_.get("VieSchedpp.skyCoverage.maxTwinTelecopeDistance",0.0);
     network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
@@ -51,7 +51,7 @@ Initializer::Initializer(const boost::property_tree::ptree &xml): VieVS_Object(n
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "constructing initializer " << this->getId();
     #endif
 
-    double maxDistCorrestpondingTelescopes = xml_.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+    double maxDistCorrestpondingTelescopes = xml_.get("VieSchedpp.skyCoverage.maxTwinTelecopeDistance",0.0);
     network_.setMaxDistBetweenCorrespondingTelescopes(maxDistCorrestpondingTelescopes);
 }
 
@@ -478,7 +478,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 
 
     vector<string> sel_sources;
-    const auto &ptree_useSources = xml_.get_child_optional("master.general.onlyUseListedSources");
+    const auto &ptree_useSources = xml_.get_child_optional("VieSchedpp.general.onlyUseListedSources");
     if(ptree_useSources.is_initialized()){
         auto it = ptree_useSources->begin();
         while (it != ptree_useSources->end()) {
@@ -489,7 +489,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
     }
 
     vector<string> ignore_sources;
-    const auto &ptree_ignoreSources = xml_.get_child_optional("master.general.ignoreListedSources");
+    const auto &ptree_ignoreSources = xml_.get_child_optional("VieSchedpp.general.ignoreListedSources");
     if(ptree_ignoreSources.is_initialized()){
         auto it = ptree_ignoreSources->begin();
         while (it != ptree_ignoreSources->end()) {
@@ -838,7 +838,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
     #endif
     try {
 
-        string startString = xml_.get<string>("master.general.startTime");
+        string startString = xml_.get<string>("VieSchedpp.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
         of << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
         #ifdef VIESCHEDPP_LOG
@@ -848,7 +848,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
 
 
-        string endString = xml_.get<string>("master.general.endTime");
+        string endString = xml_.get<string>("VieSchedpp.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
         of << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
         #ifdef VIESCHEDPP_LOG
@@ -876,7 +876,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         TimeSystem::duration = duration;
 
         vector<string> sel_stations;
-        boost::property_tree::ptree stations = xml_.get_child("master.general.stations");
+        boost::property_tree::ptree stations = xml_.get_child("VieSchedpp.general.stations");
         auto it = stations.begin();
         while (it != stations.end()) {
             auto item = it->second.data();
@@ -885,10 +885,10 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         }
         parameters_.selectedStations = sel_stations;
 
-        parameters_.subnetting = xml_.get<bool>("master.general.subnetting");
-        parameters_.subnettingMinAngle = xml_.get<double>("master.general.subnettingMinAngle",120.)*deg2rad;
-        boost::optional<double> subnettingMinNStaPercent = xml_.get_optional<double>("master.general.subnettingMinNStaPercent");
-        boost::optional<double> subnettingMinNStaAllBut = xml_.get_optional<double>("master.general.subnettingMinNStaAllBut");
+        parameters_.subnetting = xml_.get<bool>("VieSchedpp.general.subnetting");
+        parameters_.subnettingMinAngle = xml_.get<double>("VieSchedpp.general.subnettingMinAngle",120.)*deg2rad;
+        boost::optional<double> subnettingMinNStaPercent = xml_.get_optional<double>("VieSchedpp.general.subnettingMinNStaPercent");
+        boost::optional<double> subnettingMinNStaAllBut = xml_.get_optional<double>("VieSchedpp.general.subnettingMinNStaAllBut");
         if(subnettingMinNStaPercent.is_initialized()){
             parameters_.subnettingMinNStaPercent = subnettingMinNStaPercent.get()/100.;
             parameters_.subnettingMinNStaPercent_otherwiseAllBut = true;
@@ -898,12 +898,12 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
             parameters_.subnettingMinNStaPercent_otherwiseAllBut = false;
         }
 
-        parameters_.fillinmodeDuringScanSelection = xml_.get<bool>("master.general.fillinmodeDuringScanSelection",false);
-        parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("master.general.fillinmodeInfluenceOnSchedule",false);
-        parameters_.fillinmodeAPosteriori = xml_.get<bool>("master.general.fillinmodeAPosteriori",false);
-        parameters_.idleToObservingTime = xml_.get<bool>("master.general.idleToObservingTime",false);
+        parameters_.fillinmodeDuringScanSelection = xml_.get<bool>("VieSchedpp.general.fillinmodeDuringScanSelection",false);
+        parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("VieSchedpp.general.fillinmodeInfluenceOnSchedule",false);
+        parameters_.fillinmodeAPosteriori = xml_.get<bool>("VieSchedpp.general.fillinmodeAPosteriori",false);
+        parameters_.idleToObservingTime = xml_.get<bool>("VieSchedpp.general.idleToObservingTime",false);
 
-        std::string anchor = xml_.get<std::string>("master.general.scanAlignment","start");
+        std::string anchor = xml_.get<std::string>("VieSchedpp.general.scanAlignment","start");
         if(anchor == "start"){
             ScanTimes::setAlignmentAnchor(ScanTimes::AlignmentAnchor::start);
         }else if(anchor == "end"){
@@ -928,7 +928,7 @@ void Initializer::initializeStations() noexcept {
     #endif
 
     // get station tree
-    const auto & PARA_station_o = xml_.get_child_optional("master.station");
+    const auto & PARA_station_o = xml_.get_child_optional("VieSchedpp.station");
     if(PARA_station_o.is_initialized()) {
         const auto &PARA_station = PARA_station_o.get();
 
@@ -1319,7 +1319,7 @@ void Initializer::initializeSources() noexcept {
     #endif
 
     // get source tree
-    const auto & PARA_source_o = xml_.get_child_optional("master.source");
+    const auto & PARA_source_o = xml_.get_child_optional("VieSchedpp.source");
     if(PARA_source_o.is_initialized()) {
         const auto &PARA_source = PARA_source_o.get();
 
@@ -1643,7 +1643,7 @@ void Initializer::initializeBaselines() noexcept {
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize baselines";
     #endif
     // get baseline tree
-    const auto & PARA_baseline_o = xml_.get_child_optional("master.baseline");
+    const auto & PARA_baseline_o = xml_.get_child_optional("VieSchedpp.baseline");
     if(PARA_baseline_o.is_initialized()){
         const auto & PARA_baseline = PARA_baseline_o.get();
 
@@ -1938,24 +1938,24 @@ void Initializer::initializeWeightFactors() noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize weight factors";
     #endif
-    WeightFactors::weightSkyCoverage = xml_.get<double>("master.weightFactor.skyCoverage", 0);
-    WeightFactors::weightNumberOfObservations = xml_.get<double>("master.weightFactor.numberOfObservations", 0);
-    WeightFactors::weightDuration = xml_.get<double>("master.weightFactor.duration", 0);
+    WeightFactors::weightSkyCoverage = xml_.get<double>("VieSchedpp.weightFactor.skyCoverage", 0);
+    WeightFactors::weightNumberOfObservations = xml_.get<double>("VieSchedpp.weightFactor.numberOfObservations", 0);
+    WeightFactors::weightDuration = xml_.get<double>("VieSchedpp.weightFactor.duration", 0);
 
-    WeightFactors::weightAverageSources = xml_.get<double>("master.weightFactor.averageSources", 0);
-    WeightFactors::weightAverageStations = xml_.get<double>("master.weightFactor.averageStations", 0);
-    WeightFactors::weightAverageBaselines = xml_.get<double>("master.weightFactor.averageBaselines", 0);
+    WeightFactors::weightAverageSources = xml_.get<double>("VieSchedpp.weightFactor.averageSources", 0);
+    WeightFactors::weightAverageStations = xml_.get<double>("VieSchedpp.weightFactor.averageStations", 0);
+    WeightFactors::weightAverageBaselines = xml_.get<double>("VieSchedpp.weightFactor.averageBaselines", 0);
 
-    WeightFactors::weightIdleTime = xml_.get<double>("master.weightFactor.idleTime", 0);
-    WeightFactors::idleTimeInterval = xml_.get<unsigned int>("master.weightFactor.idleTimeInterval", 0);
+    WeightFactors::weightIdleTime = xml_.get<double>("VieSchedpp.weightFactor.idleTime", 0);
+    WeightFactors::idleTimeInterval = xml_.get<unsigned int>("VieSchedpp.weightFactor.idleTimeInterval", 0);
 
-    WeightFactors::weightDeclination = xml_.get<double>("master.weightFactor.weightDeclination", 0);
-    WeightFactors::declinationStartWeight = xml_.get<double>("master.weightFactor.declinationStartWeight", 0) * deg2rad;
-    WeightFactors::declinationFullWeight = xml_.get<double>("master.weightFactor.declinationFullWeight", 0) * deg2rad;
+    WeightFactors::weightDeclination = xml_.get<double>("VieSchedpp.weightFactor.weightDeclination", 0);
+    WeightFactors::declinationStartWeight = xml_.get<double>("VieSchedpp.weightFactor.declinationStartWeight", 0) * deg2rad;
+    WeightFactors::declinationFullWeight = xml_.get<double>("VieSchedpp.weightFactor.declinationFullWeight", 0) * deg2rad;
 
-    WeightFactors::weightLowElevation = xml_.get<double>("master.weightFactor.weightLowElevation", 0);
-    WeightFactors::lowElevationStartWeight = xml_.get<double>("master.weightFactor.lowElevationStartWeight", 0) * deg2rad;
-    WeightFactors::lowElevationFullWeight = xml_.get<double>("master.weightFactor.lowElevationFullWeight", 0) * deg2rad;
+    WeightFactors::weightLowElevation = xml_.get<double>("VieSchedpp.weightFactor.weightLowElevation", 0);
+    WeightFactors::lowElevationStartWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationStartWeight", 0) * deg2rad;
+    WeightFactors::lowElevationFullWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationFullWeight", 0) * deg2rad;
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
@@ -1963,10 +1963,10 @@ void Initializer::initializeSkyCoverages() noexcept {
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize sky coverage";
     #endif
 
-    SkyCoverage::maxInfluenceDistance = xml_.get<double>("master.skyCoverage.skyCoverageDistance", 30) * deg2rad;
-    SkyCoverage::maxInfluenceTime = xml_.get<double>("master.skyCoverage.skyCoverageInterval", 3600);
+    SkyCoverage::maxInfluenceDistance = xml_.get<double>("VieSchedpp.skyCoverage.skyCoverageDistance", 30) * deg2rad;
+    SkyCoverage::maxInfluenceTime = xml_.get<double>("VieSchedpp.skyCoverage.skyCoverageInterval", 3600);
 
-    string interpolationDistance = xml_.get<string>("master.skyCoverage.interpolationDistance", "linear");
+    string interpolationDistance = xml_.get<string>("VieSchedpp.skyCoverage.interpolationDistance", "linear");
     if (interpolationDistance == "constant") {
         SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::constant;
     } else if (interpolationDistance == "linear") {
@@ -1975,7 +1975,7 @@ void Initializer::initializeSkyCoverages() noexcept {
         SkyCoverage::interpolationDistance = SkyCoverage::Interpolation::cosine;
     }
 
-    string interpolationTime = xml_.get<string>("master.skyCoverage.interpolationTime", "linear");
+    string interpolationTime = xml_.get<string>("VieSchedpp.skyCoverage.interpolationTime", "linear");
     if (interpolationTime == "constant") {
         SkyCoverage::interpolationTime = SkyCoverage::Interpolation::constant;
     } else if (interpolationTime == "linear") {
@@ -1990,7 +1990,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize observing mode";
     #endif
-    auto PARA_mode = xml_.get_child("master.mode");
+    auto PARA_mode = xml_.get_child("VieSchedpp.mode");
     for (const auto &it: PARA_mode) {
         if (it.first == "skdMode"){
             #ifdef VIESCHEDPP_LOG
@@ -2560,20 +2560,20 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms(staGroups_, srcGroups_, blGroups_);
-    boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("master.multisched");
+    boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional("VieSchedpp.multisched");
     if(mstree_o.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read multi scheduling parameters";
         #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
-        boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
+        boost::property_tree::ptree PARA_station = xml_.get_child("VieSchedpp.station");
         unordered_map<std::string, std::vector<std::string> > group_station = readGroups(PARA_station,
                                                                                          GroupType::station);
-        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        boost::property_tree::ptree PARA_source = xml_.get_child("VieSchedpp.source");
         unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
 
-        boost::property_tree::ptree PARA_baseline = xml_.get_child("master.baseline");
+        boost::property_tree::ptree PARA_baseline = xml_.get_child("VieSchedpp.baseline");
         unordered_map<std::string, std::vector<std::string> > group_baseline = readGroups(PARA_baseline,
                                                                                           GroupType::baseline);
 
@@ -2644,13 +2644,13 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
 }
 
 void Initializer::initializeSourceSequence() noexcept{
-    boost::optional< boost::property_tree::ptree& > sq = xml_.get_child_optional( "master.rules.sourceSequence" );
+    boost::optional< boost::property_tree::ptree& > sq = xml_.get_child_optional( "VieSchedpp.rules.sourceSequence" );
     if( sq.is_initialized() )
     {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize source sequence";
         #endif
-        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        boost::property_tree::ptree PARA_source = xml_.get_child("VieSchedpp.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
         Scan::scanSequence.customScanSequence = true;
@@ -2701,12 +2701,12 @@ void Initializer::initializeSourceSequence() noexcept{
 }
 
 void Initializer::initializeCalibrationBlocks(std::ofstream &of) {
-    boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("master.rules.calibratorBlock");
+    boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional("VieSchedpp.rules.calibratorBlock");
     if (cb.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize calibration block";
         #endif
-        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        boost::property_tree::ptree PARA_source = xml_.get_child("VieSchedpp.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
         CalibratorBlock::scheduleCalibrationBlocks = true;
@@ -2841,13 +2841,13 @@ void Initializer::statisticsLogHeader(ofstream &of) {
 }
 
 void Initializer::initializeOptimization(std::ofstream &of) {
-    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.optimization");
+    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("VieSchedpp.optimization");
     if (ctree.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize optimization";
         #endif
 
-        boost::property_tree::ptree PARA_source = xml_.get_child("master.source");
+        boost::property_tree::ptree PARA_source = xml_.get_child("VieSchedpp.source");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_source, GroupType::source);
 
         for(const auto &any: *ctree){
@@ -2887,7 +2887,7 @@ void Initializer::initializeOptimization(std::ofstream &of) {
 }
 
 void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
-    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("master.highImpact");
+    boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional("VieSchedpp.highImpact");
     if (ctree.is_initialized()) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "initialize high impact scan descriptor";
@@ -2899,7 +2899,7 @@ void Initializer::initializeHighImpactScanDescriptor(std::ofstream &of) {
         of << "    high impact check interval: " << interval << "\n";
         of << "    high impact repeat        : " << repeat << "\n";
 
-        boost::property_tree::ptree PARA_station = xml_.get_child("master.station");
+        boost::property_tree::ptree PARA_station = xml_.get_child("VieSchedpp.station");
         unordered_map<std::string, std::vector<std::string> > groups = readGroups(PARA_station, GroupType::station);
 
         HighImpactScanDescriptor himp = HighImpactScanDescriptor(interval, repeat);

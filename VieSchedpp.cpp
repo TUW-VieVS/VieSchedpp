@@ -38,7 +38,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     boost::property_tree::read_xml(is, xml_, boost::property_tree::xml_parser::trim_whitespace);
 
     try {
-        fileName_ = boost::to_lower_copy(xml_.get<std::string>("master.general.experimentName"));
+        fileName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName"));
     } catch(const boost::property_tree::ptree_error &e){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
@@ -56,7 +56,7 @@ void VieSchedpp::run() {
     init_log();
 
     string versionNr = util::version();
-    string GUI_versionNr = xml_.get("master.software.GUI_version","unknown");
+    string GUI_versionNr = xml_.get("VieSchedpp.software.GUI_version","unknown");
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "VieSched++ version: " << versionNr;
     BOOST_LOG_TRIVIAL(info) << "VieSched++ GUI version: " << GUI_versionNr;
@@ -249,7 +249,7 @@ void VieSchedpp::readSkdCatalogs() {
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     #endif
     vector<string> staNames;
-    auto ptree_stations = xml_.get_child_optional("master.general.stations");
+    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
     if (ptree_stations.is_initialized()) {
         auto it = ptree_stations->begin();
         while (it != ptree_stations->end()) {
@@ -258,10 +258,10 @@ void VieSchedpp::readSkdCatalogs() {
             ++it;
         }
         skdCatalogs_.setStationNames(staNames);
-        skdCatalogs_.setCatalogFilePathes(xml_.get_child("master.catalogs"));
+        skdCatalogs_.setCatalogFilePathes(xml_.get_child("VieSchedpp.catalogs"));
         skdCatalogs_.initializeStationCatalogs();
         skdCatalogs_.initializeSourceCatalogs();
-        auto modeName = xml_.get_optional<std::string>("master.mode.skdMode");
+        auto modeName = xml_.get_optional<std::string>("VieSchedpp.mode.skdMode");
         if (modeName.is_initialized()) {
             skdCatalogs_.initializeModesCatalogs(*modeName);
         }
@@ -280,13 +280,13 @@ void VieSchedpp::multiCoreSetup() {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read parallel processing setup";
     #endif
-    std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
+    std::string threads = xml_.get<std::string>("VieSchedpp.multiCore.threads","auto");
 
-    int chunkSize = xml_.get<int>("master.multiCore.chunkSize",-1);
+    int chunkSize = xml_.get<int>("VieSchedpp.multiCore.chunkSize",-1);
 
     int nThreads = 1;
     if(threads == "manual"){
-        nThreads = xml_.get<int>("master.multiCore.nThreads",1);
+        nThreads = xml_.get<int>("VieSchedpp.multiCore.nThreads",1);
     } else if (threads == "single"){
         nThreads = 1;
     } else if (threads == "auto"){
@@ -296,7 +296,7 @@ void VieSchedpp::multiCoreSetup() {
 
     omp_set_num_threads(nThreads);
 
-    string jobSchedulingString = xml_.get<std::string>("master.multiCore.jobScheduling","auto");
+    string jobSchedulingString = xml_.get<std::string>("VieSchedpp.multiCore.jobScheduling","auto");
     if(jobSchedulingString == "auto"){
         omp_set_schedule(omp_sched_auto,    chunkSize);
     }else if(jobSchedulingString == "static"){
@@ -314,8 +314,8 @@ void VieSchedpp::init_log() {
 
     boost::log::add_common_attributes();
 
-    string logSeverityFile = xml_.get<string>("master.general.logSeverityFile", "info");
-    string logSeverityConsole = xml_.get<string>("master.general.logSeverityConsole", "info");
+    string logSeverityFile = xml_.get<string>("VieSchedpp.general.logSeverityFile", "info");
+    string logSeverityConsole = xml_.get<string>("VieSchedpp.general.logSeverityConsole", "info");
     if (logSeverityFile == "trace") {
         boost::log::core::get()->set_filter(
                 boost::log::trivial::severity >= boost::log::trivial::trace
@@ -350,11 +350,11 @@ void VieSchedpp::init_log() {
     auto fmtSeverity = boost::log::expressions::
     attr<boost::log::trivial::severity_level>("Severity");
 
-    auto tmp = xml_.get_child_optional("master.multisched");
+    auto tmp = xml_.get_child_optional("VieSchedpp.multisched");
     bool withThreadId;
     if (tmp.is_initialized()){
-        std::string threads = xml_.get<std::string>("master.multiCore.threads","auto");
-        int nThreads = xml_.get<int>("master.multiCore.nThreads",1);
+        std::string threads = xml_.get<std::string>("VieSchedpp.multiCore.threads","auto");
+        int nThreads = xml_.get<int>("VieSchedpp.multiCore.nThreads",1);
         if(threads == "single" || (threads == "manual" && nThreads == 1)){
             withThreadId = false;
         }else{

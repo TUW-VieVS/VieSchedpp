@@ -30,7 +30,7 @@ void ParameterSettings::software(const std::string &name, const std::string &ver
     software.add("software.GUI_version", version);
 
 //    master_.insert(master_.begin(),software.get_child("software"));
-    master_.add_child("master.software", software.get_child("software"));
+    master_.add_child("VieSchedpp.software", software.get_child("software"));
 }
 
 void ParameterSettings::general(const std::string &experimentName,
@@ -116,7 +116,7 @@ void ParameterSettings::general(const std::string &experimentName,
     general.add("general.logSeverityConsole",logConsole);
     general.add("general.logSeverityFile",logFile);
 
-    master_.add_child("master.general", general.get_child("general"));
+    master_.add_child("VieSchedpp.general", general.get_child("general"));
 }
 
 void ParameterSettings::created(const boost::posix_time::ptime &time, string name, string email)
@@ -129,7 +129,7 @@ void ParameterSettings::created(const boost::posix_time::ptime &time, string nam
     created.add("created.time", timeString);
     created.add("created.name", name);
     created.add("created.email", email);
-    master_.add_child("master.created", created.get_child("created"));
+    master_.add_child("VieSchedpp.created", created.get_child("created"));
 }
 
 void ParameterSettings::catalogs(const std::string &antenna, const std::string &equip, const std::string &flux,
@@ -152,7 +152,7 @@ void ParameterSettings::catalogs(const std::string &antenna, const std::string &
     catalogs.add("catalogs.source", source);
     catalogs.add("catalogs.tracks", tracks);
 
-    master_.add_child("master.catalogs", catalogs.get_child("catalogs"));
+    master_.add_child("VieSchedpp.catalogs", catalogs.get_child("catalogs"));
 }
 
 void ParameterSettings::group(ParameterSettings::Type type, ParameterGroup group) {
@@ -166,13 +166,13 @@ void ParameterSettings::group(ParameterSettings::Type type, ParameterGroup group
     }
 
     if (type == ParameterSettings::Type::station) {
-        master_.add_child("master.station.groups.group", pt_group.get_child("group"));
+        master_.add_child("VieSchedpp.station.groups.group", pt_group.get_child("group"));
         groupStations_[group.name] = group.members;
     } else if (type == ParameterSettings::Type::source) {
-        master_.add_child("master.source.groups.group", pt_group.get_child("group"));
+        master_.add_child("VieSchedpp.source.groups.group", pt_group.get_child("group"));
         groupSources_[group.name] = group.members;
     } else if (type == ParameterSettings::Type::baseline) {
-        master_.add_child("master.baseline.groups.group", pt_group.get_child("group"));
+        master_.add_child("VieSchedpp.baseline.groups.group", pt_group.get_child("group"));
         groupBaselines_[group.name] = group.members;
     }
 }
@@ -193,7 +193,7 @@ ParameterSettings::getGroupMembers(ParameterSettings::Type type, std::string gro
 void ParameterSettings::parameters(const std::string &name,const ParametersStations &PARA) {
     paraStations_[name] = PARA;
     const boost::property_tree::ptree& parameters = parameterStation2ptree(name,PARA);
-    master_.add_child("master.station.parameters.parameter", parameters.get_child("parameters"));
+    master_.add_child("VieSchedpp.station.parameters.parameter", parameters.get_child("parameters"));
 }
 
 boost::property_tree::ptree ParameterSettings::parameterStation2ptree(const string &name, const ParametersStations &PARA)
@@ -320,7 +320,7 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
 void ParameterSettings::parameters(const std::string &name, const ParametersSources &PARA) {
     paraSources_[name] = PARA;
     const boost::property_tree::ptree& parameters = parameterSource2ptree(name,PARA);
-    master_.add_child("master.source.parameters.parameter", parameters.get_child("parameters"));
+    master_.add_child("VieSchedpp.source.parameters.parameter", parameters.get_child("parameters"));
 
 }
 
@@ -516,7 +516,7 @@ std::pair<string, ParameterSettings::ParametersSources> ParameterSettings::ptree
 void ParameterSettings::parameters(const std::string &name, const ParametersBaselines &PARA) {
     paraBaselines_[name] = PARA;
     const boost::property_tree::ptree& parameters = parameterBaseline2ptree(name,PARA);
-    master_.add_child("master.baseline.parameters.parameter", parameters.get_child("parameters"));
+    master_.add_child("VieSchedpp.baseline.parameters.parameter", parameters.get_child("parameters"));
 }
 
 boost::property_tree::ptree ParameterSettings::parameterBaseline2ptree(const string &name, const ParametersBaselines &PARA)
@@ -606,11 +606,11 @@ void ParameterSettings::setup(ParameterSettings::Type type, const ParameterSetup
 //    }
 
     if (type == ParameterSettings::Type::station) {
-        master_.add_child("master.station", root);
+        master_.add_child("VieSchedpp.station", root);
     } else if (type == ParameterSettings::Type::source) {
-        master_.add_child("master.source", root);
+        master_.add_child("VieSchedpp.source", root);
     } else if (type == ParameterSettings::Type::baseline) {
-        master_.add_child("master.baseline", root);
+        master_.add_child("VieSchedpp.baseline", root);
     }
 }
 
@@ -627,7 +627,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
     }
 
     vector<string> membersAlreadyUsed;
-    boost::property_tree::ptree PARA_station = master_.get_child("master.station");
+    boost::property_tree::ptree PARA_station = master_.get_child("VieSchedpp.station");
     for (const auto &any:PARA_station) {
         if (any.first == "waitTimes") {
             if (name == "__all__") {
@@ -672,7 +672,7 @@ ParameterSettings::stationWaitTimes(const std::string &name, unsigned int fieldS
     wtimes.add("waitTime.postob", postob);
     wtimes.add("waitTime.<xmlattr>.member", name);
 
-    master_.add_child("master.station.waitTimes.waitTime", wtimes.get_child("waitTime"));
+    master_.add_child("VieSchedpp.station.waitTimes.waitTime", wtimes.get_child("waitTime"));
 }
 
 void ParameterSettings::stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,
@@ -685,7 +685,7 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
     }
 
     vector<string> membersAlreadyUsed;
-    boost::property_tree::ptree PARA_station = master_.get_child("master.station");
+    boost::property_tree::ptree PARA_station = master_.get_child("VieSchedpp.station");
     for (const auto &any:PARA_station) {
         if (any.first == "cableWrapBuffer") {
             if (name == "__all__") {
@@ -731,14 +731,14 @@ void ParameterSettings::stationCableWrapBuffer(const std::string &name, double a
     cable.add("cableWrapBuffer.axis2UpOffset", axis2UpOffset);
     cable.add("cableWrapBuffer.<xmlattr>.member", name);
 
-    master_.add_child("master.station.cableWrapBuffers.cableWrapBuffer", cable.get_child("cableWrapBuffer"));
+    master_.add_child("VieSchedpp.station.cableWrapBuffers.cableWrapBuffer", cable.get_child("cableWrapBuffer"));
 }
 
 
 boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup &setup) {
     boost::property_tree::ptree root;
 
-    string startstr = master_.get<string>("master.general.startTime");
+    string startstr = master_.get<string>("VieSchedpp.general.startTime");
     auto syear = boost::lexical_cast<unsigned short>(startstr.substr(0,4));
     auto smonth = boost::lexical_cast<unsigned short>(startstr.substr(5,2));
     auto sday = boost::lexical_cast<unsigned short>(startstr.substr(8,2));
@@ -748,7 +748,7 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
     boost::posix_time::ptime start = boost::posix_time::ptime(boost::gregorian::date(syear,smonth,sday),boost::posix_time::time_duration(shour,sminute,ssecond));
 
 
-    string endstr = master_.get<string>("master.general.endTime");
+    string endstr = master_.get<string>("VieSchedpp.general.endTime");
     auto eyear = boost::lexical_cast<unsigned short>(endstr.substr(0,4));
     auto emonth = boost::lexical_cast<unsigned short>(endstr.substr(5,2));
     auto eday = boost::lexical_cast<unsigned short>(endstr.substr(8,2));
@@ -823,7 +823,7 @@ void ParameterSettings::skyCoverage(double influenceDistance, unsigned int influ
     skyCoverage.add("skyCoverage.interpolationTime", interpolationTime);
 
 
-    master_.add_child("master.skyCoverage", skyCoverage.get_child("skyCoverage"));
+    master_.add_child("VieSchedpp.skyCoverage", skyCoverage.get_child("skyCoverage"));
 }
 
 void
@@ -865,7 +865,7 @@ ParameterSettings::weightFactor(double weight_skyCoverage, double weight_numberO
         weightFactor.add("weightFactor.lowElevationStartWeight", lowElevationSlopeStart);
         weightFactor.add("weightFactor.lowElevationFullWeight", lowElevationSlopeEnd);
     }
-    master_.add_child("master.weightFactor", weightFactor.get_child("weightFactor"));
+    master_.add_child("VieSchedpp.weightFactor", weightFactor.get_child("weightFactor"));
 }
 
 void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans, std::vector<int> minBaselines,
@@ -888,14 +888,14 @@ void ParameterSettings::conditions(std::vector<string> members, std::vector<int>
         condition.add("condition.minBaselines",minBaselines.at(i));
         conditions.add_child("optimization.condition",condition.get_child("condition"));
     }
-    master_.add_child("master.optimization",conditions.get_child("optimization"));
+    master_.add_child("VieSchedpp.optimization",conditions.get_child("optimization"));
 }
 
 void ParameterSettings::mode(const std::string &skdMode) {
     boost::property_tree::ptree mode;
     mode.add("mode.skdMode", skdMode);
 
-    master_.add_child("master.mode", mode.get_child("mode"));
+    master_.add_child("VieSchedpp.mode", mode.get_child("mode"));
 }
 
 
@@ -904,7 +904,7 @@ void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     mode.add("mode.sampleRate", sampleRate);
     mode.add("mode.bits", bits);
 
-    master_.add_child("master.mode", mode.get_child("mode"));
+    master_.add_child("VieSchedpp.mode", mode.get_child("mode"));
 }
 
 void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int chanels) {
@@ -914,7 +914,7 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, un
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("master.mode.bands.band", band.get_child("band"));
+    master_.add_child("VieSchedpp.mode.bands.band", band.get_child("band"));
 }
 
 void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
@@ -955,7 +955,7 @@ void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, 
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("master.mode.bandPolicies.bandPolicy", band.get_child("band"));
+    master_.add_child("VieSchedpp.mode.bandPolicies.bandPolicy", band.get_child("band"));
 }
 
 
@@ -971,12 +971,12 @@ void ParameterSettings::multisched(const boost::property_tree::ptree &ms_tree,
                                    const std::string &number, int maxn,
                                    const std::string &useSeed, int seed) {
 
-    master_.add_child("master.multisched", ms_tree.get_child("multisched"));
+    master_.add_child("VieSchedpp.multisched", ms_tree.get_child("multisched"));
     if(number != "all"){
-        master_.add("master.multisched.maxNumber",maxn);
+        master_.add("VieSchedpp.multisched.maxNumber",maxn);
     }
     if(useSeed != "random"){
-        master_.add("master.multisched.seed",seed);
+        master_.add("VieSchedpp.multisched.seed",seed);
     }
 
 }
@@ -994,7 +994,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
         mc.add("multiCore.chunkSize",chunkSize);
     }
 
-    master_.add_child("master.multiCore", mc.get_child("multiCore"));
+    master_.add_child("VieSchedpp.multiCore", mc.get_child("multiCore"));
 }
 
 void
@@ -1056,7 +1056,7 @@ ParameterSettings::output(const string &experimentDescription, const string &sch
     }
     output.add("output.createSkyCoverage", createSkyCoverage);
 
-    master_.add_child("master.output", output.get_child("output"));
+    master_.add_child("VieSchedpp.output", output.get_child("output"));
 
 }
 
@@ -1075,7 +1075,7 @@ void ParameterSettings::ruleScanSequence(unsigned int cadence, const vector<unsi
         rules.add_child("rules.sourceSequence.sequence", sourceSelection.get_child("sequence"));
     }
 
-    master_.add_child("master.rules.sourceSequence", rules.get_child("rules.sourceSequence"));
+    master_.add_child("VieSchedpp.rules.sourceSequence", rules.get_child("rules.sourceSequence"));
 }
 
 void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std::string &member,
@@ -1106,7 +1106,7 @@ void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std:
 //        rules.add_child("calibratorBlock.targetElevations",be.get_child("targetElevations"));
 //    }
 
-    master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+    master_.add_child("VieSchedpp.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 }
 
 void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
@@ -1140,7 +1140,7 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
 //    }
 
 
-    master_.add_child("master.rules.calibratorBlock", rules.get_child("calibratorBlock"));
+    master_.add_child("VieSchedpp.rules.calibratorBlock", rules.get_child("calibratorBlock"));
 
 }
 
@@ -1163,7 +1163,7 @@ void ParameterSettings::highImpactAzEl(const std::vector<string> &members, const
         hi.add_child("highImpact.targetAzEl", azEl.get_child("targetAzEl"));
     }
 
-    master_.add_child("master.highImpact", hi.get_child("highImpact"));
+    master_.add_child("VieSchedpp.highImpact", hi.get_child("highImpact"));
 
 }
 

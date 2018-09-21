@@ -659,13 +659,13 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
 
 void Output::writeStatisticsPerSourceGroup() {
 
-    const auto & tmp0 = xml_.get_child_optional("master.source");
+    const auto & tmp0 = xml_.get_child_optional("VieSchedpp.source");
 
     if(tmp0.is_initialized()){
         boost::property_tree::ptree PARA_source = *tmp0;
         unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
 
-        string expName = xml_.get("master.general.experimentName","schedule");
+        string expName = xml_.get("VieSchedpp.general.experimentName","schedule");
         string fileName = getName();
         fileName.append("_sourceStatistics.txt");
         #ifdef VIESCHEDPP_LOG
@@ -675,7 +675,7 @@ void Output::writeStatisticsPerSourceGroup() {
         #endif
 
         vector<string> interestedSrcGroups;
-        const auto & tmp = xml_.get_child_optional("master.output.sourceGroupsForStatistic");
+        const auto & tmp = xml_.get_child_optional("VieSchedpp.output.sourceGroupsForStatistic");
         if(tmp.is_initialized()){
             for(const auto &any :*tmp){
                 if(any.first == "name"){
@@ -1061,28 +1061,28 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
 
     writeStatistics(of);
 
-    if(xml_.get<bool>("master.output.createSummary",false)){
+    if(xml_.get<bool>("VieSchedpp.output.createSummary",false)){
         writeSkdsum();
     }
-    if(xml_.get<bool>("master.output.createNGS",false)) {
+    if(xml_.get<bool>("VieSchedpp.output.createNGS",false)) {
         writeNGS();
     }
-    if(xml_.get<bool>("master.output.createSKD",false)) {
+    if(xml_.get<bool>("VieSchedpp.output.createSKD",false)) {
         writeSkd(skdCatalogReader);
     }
-    if(xml_.get<bool>("master.output.createVEX",false)) {
+    if(xml_.get<bool>("VieSchedpp.output.createVEX",false)) {
         writeVex(skdCatalogReader);
     }
-    if(xml_.get<bool>("master.output.createOperationsNotes",false)) {
+    if(xml_.get<bool>("VieSchedpp.output.createOperationsNotes",false)) {
         writeOperationsNotes();
     }
-    if(xml_.get<bool>("master.output.createSourceGroupStatistics",false)) {
+    if(xml_.get<bool>("VieSchedpp.output.createSourceGroupStatistics",false)) {
         writeStatisticsPerSourceGroup();
     }
 }
 
 void Output::writeOperationsNotes() {
-    string expName = xml_.get("master.general.experimentName","schedule");
+    string expName = xml_.get("VieSchedpp.general.experimentName","schedule");
 
     string fileName = getName();
     fileName.append("_operationsNotes.txt");
@@ -1095,46 +1095,46 @@ void Output::writeOperationsNotes() {
 
     of << "Session Notes for: " << expName << "\n";
 
-    of << "    experiment description: " << xml_.get("master.output.experimentDescription","no description") << "\n";
+    of << "    experiment description: " << xml_.get("VieSchedpp.output.experimentDescription","no description") << "\n";
     of << "    created with          : VieSched++ \n";
     of << "    version               : " << util::version() << "\n";
-    of << "    GUI version           : " << xml_.get("master.software.GUI_version","unknown") << "\n";
-    of << "    creation time (local) : " << xml_.get("master.created.time","unknown") << "\n\n";
+    of << "    GUI version           : " << xml_.get("VieSchedpp.software.GUI_version","unknown") << "\n";
+    of << "    creation time (local) : " << xml_.get("VieSchedpp.created.time","unknown") << "\n\n";
 
-    of << "    nominal start time    : " << xml_.get("master.general.startTime","unknown") << "\n";
-    of << "    nominal end time      : " << xml_.get("master.general.endTime","unknown") << "\n\n";
+    of << "    nominal start time    : " << xml_.get("VieSchedpp.general.startTime","unknown") << "\n";
+    of << "    nominal end time      : " << xml_.get("VieSchedpp.general.endTime","unknown") << "\n\n";
 
-    std::string piName = xml_.get("master.output.piName","");
+    std::string piName = xml_.get("VieSchedpp.output.piName","");
     if(!piName.empty()) {
-        of << "    PI  name              : " << xml_.get("master.output.piName", "") << "\n";
+        of << "    PI  name              : " << xml_.get("VieSchedpp.output.piName", "") << "\n";
     }
-    std::string piEmail = xml_.get("master.output.piEmail", "");
+    std::string piEmail = xml_.get("VieSchedpp.output.piEmail", "");
     if(!piEmail.empty()) {
-        of << "    PI email              : " << xml_.get("master.output.piEmail", "") << "\n\n";
+        of << "    PI email              : " << xml_.get("VieSchedpp.output.piEmail", "") << "\n\n";
     }
-    std::string contactName = xml_.get("master.output.contactName","");
+    std::string contactName = xml_.get("VieSchedpp.output.contactName","");
     if(!contactName.empty()) {
-        of << "    contact name          : " << xml_.get("master.output.contactName", "") << "\n";
+        of << "    contact name          : " << xml_.get("VieSchedpp.output.contactName", "") << "\n";
     }
-    std::string contactEmail = xml_.get("master.output.contactEmail","");
+    std::string contactEmail = xml_.get("VieSchedpp.output.contactEmail","");
     if(!contactEmail.empty()) {
-        of << "    contact email         : " << xml_.get("master.output.contactEmail", "") << "\n\n";
+        of << "    contact email         : " << xml_.get("VieSchedpp.output.contactEmail", "") << "\n\n";
     }
 
-    of << "    scheduler             : " << xml_.get("master.output.scheduler","unknown") << "\n";
-    of << "    scheduler name        : " << xml_.get("master.created.name","unknown") << "\n";
-    of << "    scheduler email       : " << xml_.get("master.created.email","unknown") << "\n\n";
+    of << "    scheduler             : " << xml_.get("VieSchedpp.output.scheduler","unknown") << "\n";
+    of << "    scheduler name        : " << xml_.get("VieSchedpp.created.name","unknown") << "\n";
+    of << "    scheduler email       : " << xml_.get("VieSchedpp.created.email","unknown") << "\n\n";
 
-    of << "    target correlator     : " << xml_.get("master.output.correlator","unknown") << "\n\n";
+    of << "    target correlator     : " << xml_.get("VieSchedpp.output.correlator","unknown") << "\n\n";
 
-    std::string notes = xml_.get("master.output.notes","");
+    std::string notes = xml_.get("VieSchedpp.output.notes","");
     if(!notes.empty()){
         of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
     }
 
     of << "Operation notes: \n";
     of << "---------------------------------------------------------------------------------------------------------\n";
-    string newStr = boost::replace_all_copy(xml_.get("master.output.operationNotes","no additional notes"),"\\n","\n");
+    string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes","no additional notes"),"\\n","\n");
     of << newStr << "\n";
     if(version_>0){
         of << "    Version: " << version_ << " from multi scheduling setup:\nUsed multi scheduling parameters:\n";

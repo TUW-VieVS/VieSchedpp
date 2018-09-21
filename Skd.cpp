@@ -32,22 +32,22 @@ void Skd::writeSkd(const Network &network,
                    const SkdCatalogReader &skdCatalogReader, 
                    const boost::property_tree::ptree &xml) {
 
-    of << "$EXPER " << xml.get<string>("master.general.experimentName") << endl;
-    if(xml.get_optional<std::string>("master.output.piName").is_initialized()){
-        of << "* PI name:       " << *xml.get_optional<std::string>("master.output.piName") << "\n";
+    of << "$EXPER " << xml.get<string>("VieSchedpp.general.experimentName") << endl;
+    if(xml.get_optional<std::string>("VieSchedpp.output.piName").is_initialized()){
+        of << "* PI name:       " << *xml.get_optional<std::string>("VieSchedpp.output.piName") << "\n";
     }
-    if(xml.get_optional<std::string>("master.output.piEmail").is_initialized()){
-        of << "* PI email:      " << *xml.get_optional<std::string>("master.output.piEmail") << "\n";
+    if(xml.get_optional<std::string>("VieSchedpp.output.piEmail").is_initialized()){
+        of << "* PI email:      " << *xml.get_optional<std::string>("VieSchedpp.output.piEmail") << "\n";
     }
-    if(xml.get_optional<std::string>("master.output.contactName").is_initialized()){
-        of << "* contact name:  " << *xml.get_optional<std::string>("master.output.contactName") << "\n";
+    if(xml.get_optional<std::string>("VieSchedpp.output.contactName").is_initialized()){
+        of << "* contact name:  " << *xml.get_optional<std::string>("VieSchedpp.output.contactName") << "\n";
     }
-    if(xml.get_optional<std::string>("master.output.contactEmail").is_initialized()){
-        of << "* contact email: " << *xml.get_optional<std::string>("master.output.contactEmail") << "\n";
+    if(xml.get_optional<std::string>("VieSchedpp.output.contactEmail").is_initialized()){
+        of << "* contact email: " << *xml.get_optional<std::string>("VieSchedpp.output.contactEmail") << "\n";
     }
-    if(xml.get_optional<std::string>("master.output.notes").is_initialized()){
+    if(xml.get_optional<std::string>("VieSchedpp.output.notes").is_initialized()){
         string notes = "*";
-        notes.append(*xml.get_optional<std::string>("master.output.notes")).append("\n");
+        notes.append(*xml.get_optional<std::string>("VieSchedpp.output.notes")).append("\n");
         notes = boost::replace_all_copy(notes,"\\n","\n*");
         of << "* notes: \n";
         of << notes << "*\n*";
@@ -79,18 +79,18 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
     of << "*=========================================================================================================\n";
     of << "* WARNING: some of the following parameters are not compatible with VieSched++!\n";
     of << "*\n";
-    of << "DESCRIPTION " << xml.get<string>("master.output.experimentDescription","no description") << endl;
+    of << "DESCRIPTION " << xml.get<string>("VieSchedpp.output.experimentDescription","no description") << endl;
     of << "SCHEDULING_SOFTWARE VieSched++\n";
 
     string versionNr = util::version();
     of << "SOFTWARE_VERSION " << versionNr << "\n";
-    string GUI_versionNr = xml.get("master.software.GUI_version","unknown");
+    string GUI_versionNr = xml.get("VieSchedpp.software.GUI_version","unknown");
     of << "* GUI_VERSION " << GUI_versionNr << "\n";
-    auto ctstr = xml.get<string>("master.created.time","unknown");
+    auto ctstr = xml.get<string>("VieSchedpp.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);
-    of << "SCHEDULER " << xml.get("master.output.scheduler","----") << " ";
-    of << "CORRELATOR " << xml.get("master.output.correlator","----") << " ";
+    of << "SCHEDULER " << xml.get("VieSchedpp.output.scheduler","----") << " ";
+    of << "CORRELATOR " << xml.get("VieSchedpp.output.correlator","----") << " ";
     auto st = TimeSystem::startTime;
     of << boost::format("START %s ") %TimeSystem::ptime2string_doy(st);
     auto et = TimeSystem::endTime;
@@ -251,14 +251,14 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << boost::format("%-14s %6d\n") % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (SkyCoverage::maxInfluenceTime / 3600);
     of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % sources[0].getPARA().minNumberOfStations;
-    if (xml.get<bool>("master.general.subnetting",false)) {
+    if (xml.get<bool>("VieSchedpp.general.subnetting",false)) {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 1;
     } else {
         of << boost::format("%-14s %6d\n") % "NumSubNet" % 2;
     }
     of << boost::format("%-14s %6d\n") % "Best" % 100;
-    bool fillin = xml.get<bool>("master.general.fillinmodeDuringScanSelection",false) ||
-                  xml.get<bool>("master.general.fillinmodeAPosteriori",false);
+    bool fillin = xml.get<bool>("VieSchedpp.general.fillinmodeDuringScanSelection",false) ||
+                  xml.get<bool>("VieSchedpp.general.fillinmodeAPosteriori",false);
     if (fillin) {
         of << boost::format("%-14s %6s\n") % "FillIn" % "Yes";
     } else {
@@ -343,21 +343,21 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCata
     of << "$CATALOG_USED\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    string source = xml.get<string>("master.catalogs.source","UNKNOWN");
-    string flux = xml.get<string>("master.catalogs.flux","UNKNOWN");
+    string source = xml.get<string>("VieSchedpp.catalogs.source","UNKNOWN");
+    string flux = xml.get<string>("VieSchedpp.catalogs.flux","UNKNOWN");
 
-    string antenna = xml.get<string>("master.catalogs.antenna","UNKNOWN");
-    string position = xml.get<string>("master.catalogs.position","UNKNOWN");
-    string equip = xml.get<string>("master.catalogs.equip","UNKNOWN");
-    string mask = xml.get<string>("master.catalogs.mask","UNKNOWN");
+    string antenna = xml.get<string>("VieSchedpp.catalogs.antenna","UNKNOWN");
+    string position = xml.get<string>("VieSchedpp.catalogs.position","UNKNOWN");
+    string equip = xml.get<string>("VieSchedpp.catalogs.equip","UNKNOWN");
+    string mask = xml.get<string>("VieSchedpp.catalogs.mask","UNKNOWN");
 
-    string modes = xml.get<string>("master.catalogs.modes","UNKNOWN");
-    string freq = xml.get<string>("master.catalogs.freq","UNKNOWN");
-    string rec = xml.get<string>("master.catalogs.rec","UNKNOWN");
-    string rx = xml.get<string>("master.catalogs.rx","UNKNOWN");
-    string loif = xml.get<string>("master.catalogs.loif","UNKNOWN");
-    string tracks = xml.get<string>("master.catalogs.tracks","UNKNOWN");
-    string hdpos = xml.get<string>("master.catalogs.hdpos","UNKNOWN");
+    string modes = xml.get<string>("VieSchedpp.catalogs.modes","UNKNOWN");
+    string freq = xml.get<string>("VieSchedpp.catalogs.freq","UNKNOWN");
+    string rec = xml.get<string>("VieSchedpp.catalogs.rec","UNKNOWN");
+    string rx = xml.get<string>("VieSchedpp.catalogs.rx","UNKNOWN");
+    string loif = xml.get<string>("VieSchedpp.catalogs.loif","UNKNOWN");
+    string tracks = xml.get<string>("VieSchedpp.catalogs.tracks","UNKNOWN");
+    string hdpos = xml.get<string>("VieSchedpp.catalogs.hdpos","UNKNOWN");
 
     of << boost::format("%-10s %-20s %s\n") % "SOURCE" % skdCatalogReader.getVersion("source") % source;
     of << boost::format("%-10s %-20s %s\n") % "FLUX" % skdCatalogReader.getVersion("flux") % flux;
