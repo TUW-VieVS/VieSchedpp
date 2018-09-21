@@ -38,7 +38,7 @@
 /**
  * @brief main function
  *
- * pass path to parameters.xml file as argument.
+ * pass path to VieSchedpp.xml file as argument.
  * This file will then be processed
  *
  * @param argc number of arguments
@@ -48,7 +48,7 @@
 int main(int argc, char *argv[])
 {
     if(argc != 2){
-        std::cout << "please add path to parameters.xml file as input argument!;";
+        std::cout << "please add path to VieSchedpp.xml file as input argument!;";
         return 0;
     }
 

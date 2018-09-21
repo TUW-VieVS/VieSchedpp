@@ -59,7 +59,7 @@ namespace VieVS {
          * @param sources source list
          * @param scans scheduled scans
          * @param skdCatalogReader skd catalog reader
-         * @param xml parameters.xml file
+         * @param xml VieSchedpp.xml file
          */
         void writeSkd(const Network &network,
                       const std::vector<Source>& sources,
@@ -77,7 +77,7 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param network station network
-         * @param xml parameters.xml file
+         * @param xml VieSchedpp.xml file
          * @param skdCatalogReader catalog reader
          */
         void skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,

@@ -190,7 +190,7 @@ In case __VieSched++__ crashes or it reports an error in the log files please co
 
 Please attach: 
 * your current software version number (you can find it in the beginning of your log file, or in the .skd or .vex files - it is a hash code like `f20be1498274232acb46cf44121f9e60278c6528`)
-* your parameters.xml file 
+* your VieSchedpp.xml file
 * your used catalog files
 * your log file `VieSchedpp_yyyy-mm-dd_hh-mm-ss.sss.log`
 * any other helpful information 

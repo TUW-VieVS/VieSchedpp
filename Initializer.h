@@ -136,7 +136,7 @@ namespace VieVS {
          * @brief constructor
          * @author Matthias Schartner
          *
-         * @param path path to parameters.xml file
+         * @param path path to VieSchedpp.xml file
          */
         explicit Initializer(const std::string &path);
 
@@ -144,15 +144,15 @@ namespace VieVS {
          * @brief constructor
          * @author Matthias Schartner
          *
-         * @param xml parameters.xml file
+         * @param xml VieSchedpp.xml file
          */
         explicit Initializer(const boost::property_tree::ptree &xml);
         
         /**
-         * @brief getter for parameters.xml content
+         * @brief getter for VieSchedpp.xml content
          * @author Matthias Schartner
          *
-         * @return parameters.xml content
+         * @return VieSchedpp.xml content
          */
         const boost::property_tree::ptree &getXml() const {
             return xml_;
@@ -174,7 +174,7 @@ namespace VieVS {
         void createStations(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
-         * @brief initializes all stations with settings from parameters.xml file
+         * @brief initializes all stations with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          */
         void initializeStations() noexcept;
@@ -186,7 +186,7 @@ namespace VieVS {
         void precalcAzElStations() noexcept;
 
         /**
-         * @brief initializes all baselines with settings from parameters.xml file
+         * @brief initializes all baselines with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          */
         void initializeBaselines() noexcept;
@@ -200,14 +200,14 @@ namespace VieVS {
         void createSources(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
-         * @brief initializes all sources with settings from parameters.xml file
+         * @brief initializes all sources with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          */
         void initializeSources() noexcept;
 
         /**
-         * @brief initializes general block with settings from parameters.xml file
+         * @brief initializes general block with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param of outstream to log file
@@ -235,7 +235,7 @@ namespace VieVS {
         void initializeSkyCoverages() noexcept;
 
         /**
-         * @brief reads the observing mode information from parameters.xml file
+         * @brief reads the observing mode information from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param reader sked catalogs
@@ -244,7 +244,7 @@ namespace VieVS {
         void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
 
         /**
-         * @brief initializes a custom source sequence if there is one defined in the parameters.xml file
+         * @brief initializes a custom source sequence if there is one defined in the VieSchedpp.xml file
          * @author Matthias Schartner
          */
         void initializeSourceSequence() noexcept;
@@ -269,7 +269,7 @@ namespace VieVS {
         void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters);
 
         /**
-         * @brief reads multiSched block from parameters.xml file
+         * @brief reads multiSched block from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @return vector of all possible multisched parameter combination
@@ -277,7 +277,7 @@ namespace VieVS {
         std::vector<MultiScheduling::Parameters> readMultiSched(std::ostream &out);
 
         /**
-         * @brief initializes calibration block with settings from parameters.xml file
+         * @brief initializes calibration block with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param of outstream to log file
@@ -293,7 +293,7 @@ namespace VieVS {
         void statisticsLogHeader(std::ofstream &of);
 
         /**
-         * @brief initializes optimization conditions with settings from parameters.xml file
+         * @brief initializes optimization conditions with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param of outstream to log file
@@ -301,7 +301,7 @@ namespace VieVS {
         void initializeOptimization(std::ofstream &of);
 
         /**
-         * @brief initializes high impact scan descriptors with settings from parameters.xml file
+         * @brief initializes high impact scan descriptors with settings from VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param of outstream to log file
@@ -311,7 +311,7 @@ namespace VieVS {
     private:
         static unsigned long nextId; ///< next id for this object type
 
-        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
         std::vector<Source> sources_; ///< list of all sources
         Network network_; ///< station network
 

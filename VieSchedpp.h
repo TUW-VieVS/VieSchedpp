@@ -85,7 +85,7 @@ namespace VieVS {
          * @brief constructor
          * @author Matthias Schartner
          *
-         * @param inputFile path and name of input file (usually called parameters.xml)
+         * @param inputFile path and name of input file (usually called VieSchedpp.xml)
          */
         explicit VieSchedpp(const std::string &inputFile);
 
@@ -97,10 +97,10 @@ namespace VieVS {
 
 
     private:
-        std::string inputFile_; ///< parameters.xml file
-        std::string path_; ///< path to parameters.xml file
+        std::string inputFile_; ///< VieSchedpp.xml file
+        std::string path_; ///< path to VieSchedpp.xml file
         std::string fileName_; ///< session name
-        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         SkdCatalogReader skdCatalogs_; ///< sked catalogs
         std::vector<VieVS::MultiScheduling::Parameters> multiSchedParameters_; ///< list of all multi scheduling parameters

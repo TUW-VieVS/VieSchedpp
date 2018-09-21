@@ -915,7 +915,7 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         }
 
     } catch (const boost::property_tree::ptree_error &e) {
-        of << "ERROR: reading parameters.xml file!" << endl;
+        of << "ERROR: reading VieSchedpp.xml file!" << endl;
     }
 
     of << "\n";
@@ -1132,9 +1132,9 @@ void Initializer::initializeStations() noexcept {
 
     }else{
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in parameters.xml file";
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in VieSchedpp.xml file";
         #else
-        cout << "cannot read <station> block in parameters.xml file";
+        cout << "cannot read <station> block in VieSchedpp.xml file";
         #endif
     }
 }
@@ -1416,9 +1416,9 @@ void Initializer::initializeSources() noexcept {
         }
     }else{
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(fatal) << "cannot read <source> block in parameters.xml file";
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <source> block in VieSchedpp.xml file";
         #else
-        cout << "cannot read <source> block in parameters.xml file";
+        cout << "cannot read <source> block in VieSchedpp.xml file";
         #endif
     }
 }
@@ -1714,9 +1714,9 @@ void Initializer::initializeBaselines() noexcept {
 
     }else{
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(fatal) << "cannot read <baseline> block in parameters.xml file";
+        BOOST_LOG_TRIVIAL(fatal) << "cannot read <baseline> block in VieSchedpp.xml file";
         #else
-        cout << "cannot read <baseline> block in parameters.xml file";
+        cout << "cannot read <baseline> block in VieSchedpp.xml file";
         #endif
     }
 

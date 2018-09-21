@@ -128,7 +128,7 @@ namespace VieVS{
     private:
         static unsigned long nextId; ///< next id for this object type
 
-        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         std::string path_; ///< path to output directory
         int version_; ///< number of this schedule
@@ -204,10 +204,10 @@ namespace VieVS{
         void displayTimeStatistics(std::ofstream &of);
 
         /**
-         * @brief read all groups from parameters.xml file
+         * @brief read all groups from VieSchedpp.xml file
          * @author Matthias Schartner
          *
-         * @param root parameters.xml file
+         * @param root VieSchedpp.xml file
          * @param type group type
          * @return list of all groups
          */

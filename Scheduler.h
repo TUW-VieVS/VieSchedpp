@@ -88,7 +88,7 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param init initializer
-         * @param path path to parameters.xml file
+         * @param path path to VieSchedpp.xml file
          * @param session name
          */
         Scheduler(Initializer &init, std::string path, std::string fname);
@@ -101,7 +101,7 @@ namespace VieVS{
          * @param network_ station network
          * @param sources source list
          * @param scans list of scans
-         * @param xml parameters.xml file
+         * @param xml VieSchedpp.xml file
          */
         Scheduler(std::string name, Network network_, std::vector<Source> sources,
                   std::vector<Scan> scans, boost::property_tree::ptree xml);
@@ -212,9 +212,9 @@ namespace VieVS{
 
     private:
         static unsigned long nextId; ///< next id for this object type
-        std::string path_; ///< path to parameters.xml directory
+        std::string path_; ///< path to VieSchedpp.xml directory
 
-        boost::property_tree::ptree xml_; ///< content of parameters.xml file
+        boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         std::vector<Source> sources_; ///< all sources
         Network network_;

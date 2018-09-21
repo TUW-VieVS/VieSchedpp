@@ -46,7 +46,7 @@
 namespace VieVS {
     /**
      * @class ParameterSettings
-     * @brief This class stores all setup information and writes a parameters.xml file
+     * @brief This class stores all setup information and writes a VieSchedpp.xml file
      *
      * @author Matthias Schartner
      * @date 22.08.2017
@@ -228,7 +228,7 @@ namespace VieVS {
                      const std::string &logConsole, const std::string &logFile);
 
         /**
-         * @brief created block in parameters.xml
+         * @brief created block in VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param time created time stamp
@@ -238,7 +238,7 @@ namespace VieVS {
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
         /**
-         * @brief catalogs block in parameters.xml
+         * @brief catalogs block in VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param antenna antenna catalog name
@@ -262,7 +262,7 @@ namespace VieVS {
                  const std::string &tracks);
 
         /**
-         * @brief group defined in parameters.xml
+         * @brief group defined in VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param type group type
@@ -281,7 +281,7 @@ namespace VieVS {
         const std::vector<std::string> &getGroupMembers(Type type, std::string groupName);
 
         /**
-         * @brief write defined station parameters to parameters.xml
+         * @brief write defined station parameters to VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param name parameter name
@@ -309,7 +309,7 @@ namespace VieVS {
         static std::pair<std::string,ParametersStations> ptree2parameterStation(boost::property_tree::ptree ptree);
 
         /**
-         * @brief write defined source parameters to parameters.xml
+         * @brief write defined source parameters to VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param name parameter name
@@ -337,7 +337,7 @@ namespace VieVS {
         static std::pair<std::string,ParametersSources> ptree2parameterSource(boost::property_tree::ptree ptree);
 
         /**
-         * @brief write defined baseline parameters to parameters.xml
+         * @brief write defined baseline parameters to VieSchedpp.xml
          * @author Matthias Schartner
          *
          * @param name parameter name
@@ -611,7 +611,7 @@ namespace VieVS {
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
         /**
-         * @brief high impact block in parameters.xml file
+         * @brief high impact block in VieSchedpp.xml file
          * @author Matthias Schartner
          *
          * @param members high impact stations
