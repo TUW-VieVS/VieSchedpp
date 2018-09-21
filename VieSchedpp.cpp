@@ -38,7 +38,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     boost::property_tree::read_xml(is, xml_, boost::property_tree::xml_parser::trim_whitespace);
 
     try {
-        fileName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName"));
+        fileName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName","dummy"));
     } catch(const boost::property_tree::ptree_error &e){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
