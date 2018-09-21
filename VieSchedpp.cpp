@@ -53,9 +53,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
 
 void VieSchedpp::run() {
 
-    #ifdef VIESCHEDPP_LOG
     init_log();
-    #endif
 
     string versionNr = util::version();
     string GUI_versionNr = xml_.get("master.software.GUI_version","unknown");
@@ -276,8 +274,8 @@ void VieSchedpp::readSkdCatalogs() {
     }
 }
 
-#ifdef  _OPENMP
 void VieSchedpp::multiCoreSetup() {
+#ifdef  _OPENMP
 
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read parallel processing setup";
@@ -308,11 +306,11 @@ void VieSchedpp::multiCoreSetup() {
     }else if(jobSchedulingString == "guided"){
         omp_set_schedule(omp_sched_guided,  chunkSize);
     }
-}
 #endif
+}
 
-#ifdef VIESCHEDPP_LOG
 void VieSchedpp::init_log() {
+#ifdef VIESCHEDPP_LOG
 
     boost::log::add_common_attributes();
 
@@ -428,5 +426,5 @@ void VieSchedpp::init_log() {
             boost::log::keywords::open_mode = std::ios_base::app);
     fsSink->set_formatter(logFmt);
     fsSink->locked_backend()->auto_flush(true);
-}
 #endif
+}

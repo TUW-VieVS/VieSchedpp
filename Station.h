@@ -20,7 +20,6 @@
  * @file Station.h
  * @brief class Station
  *
- *
  * @author Matthias Schartner
  * @date 21.06.2017
  */
@@ -61,12 +60,13 @@ namespace VieVS{
      *
      * @author Matthias Schartner
      * @date 21.06.2017
-    */
+     */
     class Station: public VieVS_NamedObject {
     public:
 
         /**
          * @brief azimuth elevation calculation model
+         * @author Matthias Schartner
          */
         enum class AzelModel {
             simple, ///< simple model without nutation
@@ -75,37 +75,52 @@ namespace VieVS{
 
         /**
          * @brief station parameters
+         * @author Matthias Schartner
          */
         class Parameters: public VieVS_NamedObject{
         private:
-            static unsigned long nextId;
+            static unsigned long nextId;  ///< next id for this object type
         public:
+
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param name parameter name
+             */
             explicit Parameters(const std::string &name):VieVS_NamedObject(name,nextId++){}
 
+            /**
+             * @brief set parameters from other
+             * @author Matthias Schartner
+             *
+             * @param other source parameters
+             */
             void setParameters(const Parameters &other);
 
             bool firstScan = false; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             bool available = true;  ///< if set to true: this station is available for a scan
             bool tagalong = false;  ///< if set to true: station is in tagalong mode
-            bool availableForFillinmode = true;
+            bool availableForFillinmode = true; ///< if set to true: station is available for fillin modes
 
             double weight = 1; ///< multiplicative factor of score for scans with this station
-            double minElevation = 5*deg2rad; /// minimum elevation
+            double minElevation = 5*deg2rad; /// minimum elevation in radians
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            unsigned int maxSlewtime = 600; ///< maximum allowed slewtime
-            double maxSlewDistance = 175 * deg2rad;
-            double minSlewDistance = 0;
-            unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas
-            unsigned int maxScan = 600; ///< maximum allowed scan time
-            unsigned int minScan = 20; ///< minimum required scan time
-            unsigned int maxNumberOfScans = 9999;
+            unsigned int maxSlewtime = 600; ///< maximum allowed slewtime in seconds
+            double maxSlewDistance = 175 * deg2rad; ///< maximum allowed slew distance in radians
+            double minSlewDistance = 0; ///< minimum allowed slew distance in radians
+            unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas in seconds
+            unsigned int maxScan = 600; ///< maximum allowed scan time in seconds
+            unsigned int minScan = 20; ///< minimum required scan time in seconds
+            unsigned int maxNumberOfScans = 9999; ///< maximum allowed number of scans
 
             std::vector<unsigned long> ignoreSources; ///< list of all source ids which should be ignored
 
             /**
              * @brief output of the curren parameters to out stream
+             * @author Matthias Schartner
              *
              * @param of out stream object
              */
@@ -139,16 +154,19 @@ namespace VieVS{
 
         /**
          * @brief wait times for field system and correlator synchronization
+         * @author Matthias Schartner
          */
         struct WaitTimes {
-            unsigned int fieldSystem = 6; ///< time required for setup
-            unsigned int preob = 10; ///< time required for source
-            unsigned int midob = 3; ///< time required for tape
-            unsigned int postob = 0; ///< calibration time
+            unsigned int fieldSystem = 6; ///< time required for field system commands
+            unsigned int preob = 10; ///< time required for calibration
+            unsigned int midob = 3; ///< extra observing time for correlator synchronization
+            unsigned int postob = 0; ///< postob time
         };
 
         /**
          * @brief setter for wait times
+         * @author Matthias Schartner
+         *
          * @param waittimes new wait times
          */
         void setWaitTimes(WaitTimes &waittimes) {
@@ -157,8 +175,17 @@ namespace VieVS{
 
         /**
          * @brief changes in parameters
+         * @author Matthias Schartner
          */
         struct Event {
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param time event time
+             * @param softTransition transition type
+             * @param PARA parameter
+             */
             Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
                                                                             softTransition{softTransition},
                                                                             PARA{std::move(PARA)}{}
@@ -169,26 +196,31 @@ namespace VieVS{
         };
 
 
+        /**
+         * @brief statistics
+         * @author Matthias Schartner
+         */
         struct Statistics{
-            std::vector<unsigned int> scanStartTimes{};
-            int totalObservingTime{0};
-            int totalSlewTime{0};
-            int totalIdleTime{0};
-            int totalFieldSystemTime{0};
-            int totalPreobTime{0};
+            std::vector<unsigned int> scanStartTimes{}; ///< list of scan start times
+            int totalObservingTime{0}; ///< integrated observing time
+            int totalSlewTime{0}; ///< integrated slew time
+            int totalIdleTime{0}; ///< integrated idle time
+            int totalFieldSystemTime{0}; ///< integrated field system time
+            int totalPreobTime{0}; ///< integrated calibration time
         };
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param sta_name station name
-         * @param id station id
+         * @param tlc two letter code
          * @param sta_antenna station antenna
          * @param sta_cableWrap station cable wrap
          * @param sta_position station position
          * @param sta_equip station equipment
          * @param sta_mask station horizon mask
-         * @param sta_axis station axis type
+         * @param nSource number of sources
          */
         Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
                 std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
@@ -198,6 +230,7 @@ namespace VieVS{
 
         /**
          * @brief getter for parameters
+         * @author Matthias Schartner
          *
          * @return currently used parameters
          */
@@ -207,6 +240,7 @@ namespace VieVS{
 
         /**
          * @brief reference to current parameters
+         * @author Matthias Schartner
          *
          * @return reference of current parameters
          */
@@ -216,6 +250,7 @@ namespace VieVS{
 
         /**
          * @brief getter for wait times
+         * @author Matthias Schartner
          *
          * @return station wait times
          */
@@ -226,6 +261,8 @@ namespace VieVS{
 
         /**
          * @brief getter for cable wrap
+         * @author Matthias Schartner
+         *
          * @return cable wrap of this station
          */
         const AbstractCableWrap &getCableWrap() const noexcept {
@@ -234,6 +271,8 @@ namespace VieVS{
 
         /**
          * @brief reference to cable wrap
+         * @author Matthias Schartner
+         *
          * @return cable wrap of this station
          */
         AbstractCableWrap &referenceCableWrap() noexcept {
@@ -242,6 +281,8 @@ namespace VieVS{
 
         /**
          * @brief getter for last time this antenna was mentioned in scheduling
+         * @author Matthias Schartner
+         *
          * @return last station usage time in seconds since session start
          */
         unsigned int getCurrentTime() const noexcept {
@@ -250,18 +291,27 @@ namespace VieVS{
 
         /**
          * @brief getter for equipment information
+         * @author Matthias Schartner
+         *
          * @return equipment objecct
          */
         const Equipment &getEquip() const noexcept {
             return *equip_;
         }
 
+        /**
+         * @brief check if station has horizon mask
+         * @author Matthias Schartner
+         *
+         * @return flag if horizon mask is defined
+         */
         bool hasHorizonMask() const{
             return mask_ !=  nullptr;
         }
 
         /**
          * @brief getter for horizon mask
+         * @author Matthias Schartner
          *
          * @return horizon mask object
          */
@@ -271,6 +321,8 @@ namespace VieVS{
 
         /**
          * @brief getter for antenna
+         * @author Matthias Schartner
+         *
          * @return antenna object
          */
         const AbstractAntenna &getAntenna() const noexcept {
@@ -279,6 +331,8 @@ namespace VieVS{
 
         /**
          * @brief getter for position
+         * @author Matthias Schartner
+         *
          * @return position object
          */
         const Position &getPosition() const noexcept {
@@ -287,6 +341,7 @@ namespace VieVS{
 
         /**
          * @brief getter for number of baselines which were already observed with this station
+         * @author Matthias Schartner
          *
          * @return number of already observed baselines
          */
@@ -294,16 +349,30 @@ namespace VieVS{
             return nObs_;
         }
 
+        /**
+         * @brief get number of scans
+         * @author Matthias Schartner
+         *
+         * @return number of scans
+         */
         int getNScans() const noexcept  {
             return nScans_;
         }
 
+        /**
+         * @brief get number of total scans
+         * @author Matthias Schartner
+         *
+         * @return number of total scans
+         */
         int getNTotalScans() const noexcept{
             return nTotalScans_;
         }
 
         /**
          * @brief getter for current pointing vector
+         * @author Matthias Schartner
+         *
          * @return current pointing vector
          */
         const PointingVector &getCurrentPointingVector() const noexcept {
@@ -312,6 +381,7 @@ namespace VieVS{
 
         /**
          * @brief distance between two stations
+         * @author Matthias Schartner
          *
          * @param other other station
          * @return distance between this two stations
@@ -320,14 +390,17 @@ namespace VieVS{
 
         /**
          * @brief checks if a source is visible for this station
+         * @author Matthias Schartner
          *
          * @param p pointing vector which holds time information and will be filled with azimuth and elevation information
+         * @param minElevationSource minimum elevation for this source
          * @return true if station is visible
          */
         bool isVisible(const PointingVector &p, double minElevationSource = 0) const noexcept;
 
         /**
          * @brief calculate slew time between current pointing vector and this pointing vector
+         * @author Matthias Schartner
          *
          * If this is the first scan of this station the slew time is zero.
          *
@@ -336,12 +409,27 @@ namespace VieVS{
          */
         boost::optional<unsigned int> slewTime(const PointingVector &pointingVector) const noexcept;
 
+        /**
+         * @brief calculation of azimuth, elevation, hour angle and declination with rigorouse model
+         * @author Matthias Schartner
+         *
+         * @param source observed source
+         * @param p pointing vector
+         */
         void calcAzEl_rigorous(const Source &source, PointingVector &p) noexcept;
 
+        /**
+         * @brief calculation of azimuth, elevation, hour angle and declination with lookup tables
+         * @author Matthias Schartner
+         *
+         * @param source observed source
+         * @param p pointing vector
+         */
         void calcAzEl_simple(const Source &source, PointingVector &p) const noexcept;
 
         /**
          * @brief change current pointing vector
+         * @author Matthias Schartner
          *
          * @param pointingVector new current pointing vector
          */
@@ -349,6 +437,8 @@ namespace VieVS{
         
         /**
          * @brief sets all upcoming events
+         * @author Matthias Schartner
+         *
          * @param EVENTS all upcoming events
          */
         void setEVENTS(std::vector<Event> &EVENTS) noexcept {
@@ -356,58 +446,96 @@ namespace VieVS{
             Station::nextEvent_ = 0;
         }
 
-
+        /**
+         * @brief check for tagalong mode
+         * @author Matthias Schartner
+         *
+         * @param time time
+         * @return true if tagalong mode required
+         */
         bool checkForTagalongMode(unsigned int time) const noexcept;
 
         /**
          * @brief this function checks if it is time to change the parameters
          *
-         * !!! This function changes hardBreak and tagalong !!!
-         *
          * @param time current time in seconds since start
          * @param hardBreak flag if a hard break was found
-         * @param bodyLog output stream object
-         * @param tagalong flag if station should be scheduled in tagalong mode
          */
         bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
 
+        /**
+         * @brief maxium allowed observing time
+         * @author Matthias Schartner
+         *
+         * @param ts time stamp
+         * @return maxium allowed observing time
+         */
         unsigned int maximumAllowedObservingTime(Timestamp ts) const noexcept;
 
         /**
          * @brief changes parameters to next setup
+         * @author Matthias Schartner
          *
          * @param of output stream object
          */
         void applyNextEvent(std::ofstream & of) noexcept;
 
+        /**
+         * @brief set next event index
+         * @author Matthias Schartner
+         *
+         * @param idx next event index
+         */
         void setNextEvent(unsigned int idx) noexcept{
             nextEvent_ = idx;
         }
 
         /**
          * @brief update station if used for a scan
+         * @author Matthias Schartner
          *
          * @param nbl number of observed baselines
-         * @param start pointing vector at start time
          * @param end pointing vector at end time
          * @param addToStatistics flag if scan should have an influence on the further scheduling process
          */
         void update(unsigned long nbl, const PointingVector &end, bool addToStatistics) noexcept;
 
+        /**
+         * @brief clear all observations
+         * @author Matthias Schartner
+         */
         void clearObservations();
 
+        /**
+         * @brief set station statistics
+         * @author Matthias Schartner
+         *
+         * @param stat station statistics
+         */
         void setStatistics(const Statistics &stat){
             statistics_ = stat;
         }
 
+        /**
+         * @brief get station statistics
+         * @author Matthias Schartner
+         *
+         * @return station statistics
+         */
         const Statistics &getStatistics() const {
             return statistics_;
         }
 
+        /**
+         * @brief get horizon mask
+         * @author Matthias Schartner
+         *
+         * @return horizon mask
+         */
         std::pair<std::vector<double>, std::vector<double>>  getHorizonMask() const noexcept;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         std::shared_ptr<AbstractAntenna> antenna_; ///< station antenna
         std::shared_ptr<AbstractCableWrap> cableWrap_; ///< station cable wrap
@@ -417,8 +545,8 @@ namespace VieVS{
         std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
-        Statistics statistics_;
-        std::vector< std::vector<PointingVector>> azelPrecalc_;
+        Statistics statistics_; ///< station statistics
+        std::vector< std::vector<PointingVector>> azelPrecalc_; ///< pre calculated azimuth elevation lookup table
 
 
         Parameters parameters_; ///< station parameters

@@ -16,12 +16,27 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Subnetting.h
+* @brief class Subnetting
+*
+* @author Matthias Schartner
+* @date 07.05.2018
+*/
+
 #ifndef SUBNETTING_H
 #define SUBNETTING_H
 
 #include <vector>
 
 namespace VieVS{
+    /**
+    * @class Subnetting
+    * @brief class Subnetting
+    *
+    * @author Matthias Schartner
+    * @date 07.05.2018
+    */
     struct Subnetting{
         std::vector<std::vector<unsigned long>> subnettingSrcIds;
         unsigned int subnettingMinNSta = 2;

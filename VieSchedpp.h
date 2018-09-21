@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file VieSchedpp.h
+* @brief class VieSchedpp
+*
+* @author Matthias Schartner
+* @date 02.07.2018
+*/
+
 #ifndef VIEVS_SCHEDULER_H
 #define VIEVS_SCHEDULER_H
 
@@ -54,33 +62,66 @@
 
 namespace VieVS {
 
+    /**
+     * @class VieSchedpp
+     * @brief this is the VieSched++ core class
+     *
+     * this class starts the scheduling process.
+     * It monitores the creation of all schedules and all threads.
+     *
+     * @author Matthias Schartner
+     * @date 02.07.2018
+     */
+
     class VieSchedpp {
     public:
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         */
         VieSchedpp() = default;
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param inputFile path and name of input file (usually called parameters.xml)
+         */
         explicit VieSchedpp(const std::string &inputFile);
 
+        /**
+         * @brief start VieSched++
+         * @author Matthias Schartner
+         */
         void run();
 
 
     private:
-        std::string inputFile_;
-        std::string path_;
-        std::string fileName_;
+        std::string inputFile_; ///< parameters.xml file
+        std::string path_; ///< path to parameters.xml file
+        std::string fileName_; ///< session name
         boost::property_tree::ptree xml_; ///< content of parameters.xml file
 
-        SkdCatalogReader skdCatalogs_;
-        std::vector<VieVS::MultiScheduling::Parameters> multiSchedParameters_;
+        SkdCatalogReader skdCatalogs_; ///< sked catalogs
+        std::vector<VieVS::MultiScheduling::Parameters> multiSchedParameters_; ///< list of all multi scheduling parameters
 
+        /**
+         * @brief read sked catalogs
+         * @author Matthias Schartner
+         */
         void readSkdCatalogs();
 
-        #ifdef _OPENMP
+        /**
+         * @brief initialize parallel processing
+         * @author Matthias Schartner
+         */
         void multiCoreSetup();
-        #endif
 
-        #ifdef VIESCHEDPP_LOG
+        /**
+         * @brief initialize log files
+         * @author Matthias Schartner
+         */
         void init_log();
-        #endif
 
     };
 }

@@ -1,8 +1,6 @@
 #VieSchedpp specific
 cmake-build-debug/
 cmake-build-release/
-html/
-doxygen/
 .idea/
 
 # Prerequisites

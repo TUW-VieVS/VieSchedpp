@@ -17,9 +17,8 @@
  */
  
  /**
- * @file HorizonMask.h
- * @brief class HorizonMask
- *
+ * @file AbstractHorizonMask.h
+ * @brief class AbstractHorizonMask
  *
  * @author Matthias Schartner
  * @date 27.06.2017
@@ -36,30 +35,51 @@
 
 namespace VieVS{
     /**
-     * @class HorizonMask
+     * @class AbstractHorizonMask
      * @brief representation of VLBI horizon mask
      *
      * @author Matthias Schartner
      * @date 27.06.2017
+     *
+     * This class serves as the base class for all horizon mask implementations.
+     *
      */
     class AbstractHorizonMask : public VieVS_Object {
     public:
+
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         */
         AbstractHorizonMask();
 
         /**
-         * checks if a pointing vector is visible
+         * @brief checks if a pointing vector is visible
+         * @author Matthias Schartner
          *
-         * @param pv pointing vector whose azimuth and elevation is to check
-         * @return true if visible, false if not visible
+         * @param pv pointing vector whose azimuth and elevation should be checked
+         * @return true if target is visible, otherwise false
          */
         virtual bool visible(const PointingVector &pv) const noexcept = 0;
 
+        /**
+         * @brief horizon mask string in .vex format
+         * @author Matthias Schartner
+         *
+         * @return horizon mask string in .vex format
+         */
         virtual std::string vexOutput() const noexcept = 0;
 
+        /**
+         * @brief getter for horizon mask
+         * @author Matthias Schartner
+         *
+         * @return first vector is azimuth in radinas, second vector is elevation in radians
+         */
         virtual std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept  = 0;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId;  ///< next id for this object type
     };
 }
 #endif /* HORIOZONMASK_H */

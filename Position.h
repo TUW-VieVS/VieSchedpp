@@ -20,7 +20,6 @@
  * @file Position.h
  * @brief class Position
  *
- *
  * @author Matthias Schartner
  * @date 23.06.2017
  */
@@ -47,6 +46,7 @@ namespace VieVS{
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param x_m x coordinate in meters
          * @param y_m y coordinate in meters
@@ -57,6 +57,7 @@ namespace VieVS{
 
         /**
          * @brief getter for x coordinate
+         * @author Matthias Schartner
          *
          * @return x coordinate in meters
          */
@@ -66,6 +67,7 @@ namespace VieVS{
 
         /**
          * @brief getter for y coordinate
+         * @author Matthias Schartner
          *
          * @return y coordinate in meters
          */
@@ -75,6 +77,7 @@ namespace VieVS{
 
         /**
          * @brief getter for z coordinate
+         * @author Matthias Schartner
          *
          * @return z coordinate in meters
          */
@@ -84,6 +87,7 @@ namespace VieVS{
 
         /**
          * @brief getter for latitude
+         * @author Matthias Schartner
          *
          * @return latitude in radians
          */
@@ -93,6 +97,7 @@ namespace VieVS{
 
         /**
          * @brief getter for longitude
+         * @author Matthias Schartner
          *
          * @return longitude in radians
          */
@@ -102,23 +107,35 @@ namespace VieVS{
 
         /**
          * @brief calculates distance between two stations
+         * @author Matthias Schartner
          *
          * @param other second station
          * @return distance between stations
          */
         double getDistance(const Position &other) const noexcept;
 
-
+        /**
+         * @brief get geodetic to local transformation matrix
+         * @author Matthias Schartner
+         *
+         * @param g2l geodetic to local transformation matrix target
+         */
         void geodetic2Local(double g2l[3][3]){
             g2l = g2l_;
         }
 
+        /**
+         * @brief get geodetic to local transformation matrix
+         * @author Matthias Schartner
+         *
+         * @return geodetic to local transformation matrix
+         */
         const std::vector<std::vector<double>> getGeodetic2Local() const{
             return g2l_2;
         }
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         double x_; ///< x coordinate in meters
         double y_; ///< y coordinate in meters

@@ -46,6 +46,7 @@ namespace VieVS {
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param name group name
          * @param members vector of group members

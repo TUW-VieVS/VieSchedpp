@@ -4,7 +4,7 @@ VLBI scheduling software
 
 written by Matthias Schartner
 
-contact: _matthias.schartner@geo.tuwien.ac.at_
+contact: matthias.schartner@geo.tuwien.ac.at
 
 # License
 > VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
@@ -31,7 +31,7 @@ This section descripes how to install __VieSched++__ on LINUX.
 While an installation is possible on Windows (tested with Windows 10) it is no 
 further discussed due to the many possibilieties of different compilers and options. 
 If you run into any problems compiling __VieSched++__ on Windows 10, contact me 
-under _matthias.schartner@geo.tuwien.ac.at_ and I can send you some prebuild binaries. 
+under matthias.schartner@geo.tuwien.ac.at and I can send you some prebuild binaries. 
 
 ## Dependencies
 
@@ -169,7 +169,7 @@ If you have troubles getting `boost` to work simply try to build it without `c++
 
 ----
 
-If you still have troubles installing the software contact me under: _matthias.schartner@geo.tuwien.ac.at_. 
+If you still have troubles installing the software contact me under: matthias.schartner@geo.tuwien.ac.at. 
 
 ## Software errors
 
@@ -177,7 +177,7 @@ __VieSched++__ is still in developing, there might be bugs or crashes.
 
 Please always have a look at the log file and have a look if you get some [warning], [error] or [fatal] messages. 
 
-In case __VieSched++__ crashes or it reports an error in the log files please contact me under: _matthias.schartner@geo.tuwien.ac.at_. 
+In case __VieSched++__ crashes or it reports an error in the log files please contact me under: matthias.schartner@geo.tuwien.ac.at. 
 
 Please attach: 
 * your current software version number (you can find it in the beginning of your log file, or in the .skd or .vex files - it is a hash code like `f20be1498274232acb46cf44121f9e60278c6528`)

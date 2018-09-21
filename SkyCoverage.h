@@ -20,7 +20,6 @@
  * @file SkyCoverage.h
  * @brief class SkyCoverage
  *
- *
  * @author Matthias Schartner
  * @date 29.06.2017
  */
@@ -47,31 +46,39 @@ namespace VieVS{
     class SkyCoverage:public VieVS_Object {
     public:
 
+        /**
+         * @brief sky coverage functions
+         * @author Matthias Schartner
+         */
         enum class Interpolation {
-            constant,
-            linear,
-            cosine,
+            constant, ///< constant function
+            linear, ///< linear function
+            cosine, ///< cosine function
         };
 
         static thread_local double maxInfluenceTime; ///< maximum angular distance of influence on the sky coverage
         static thread_local double maxInfluenceDistance; ///< maximum time influence on the sky coverage
-        static thread_local Interpolation interpolationDistance;
-        static thread_local Interpolation interpolationTime;
+        static thread_local Interpolation interpolationDistance; ///< function for distance
+        static thread_local Interpolation interpolationTime; ///< function for time
 
         /**
          * @brief constructor
-         *
-         * @param staids station ids which belong to this sky coverage
-         * @param skyCoverageDistance maximum angular distance of influence of an scan in radians
-         * @param skyCoverageInterval maximum influence time of a scan in seconds
-         * @param id sky coverage id
+         * @author Matthias Schartner
          */
         SkyCoverage();
 
+        /**
+         * @brief calc score per station
+         * @author Matthias Schartner
+         *
+         * @param pv pointing vector
+         * @return score
+         */
         double calcScore(const PointingVector &pv) const;
 
         /**
          * @brief calculates the influence of the score between two pointing vectors
+         * @author Matthias Schartner
          *
          * @param pv_new new observation pointing vector
          * @param pv_old already observed pointing vector
@@ -80,22 +87,32 @@ namespace VieVS{
         double
         scorePerPointingVector(const PointingVector &pv_new, const PointingVector &pv_old) const noexcept;
 
+        /**
+         * @brief clear all observations
+         * @author Matthias Schartner
+         */
         void clearObservations();
 
         /**
          * @brief updates the pointing vectors
+         * @author Matthias Schartner
          *
-         * @param start pointing vector at start of scan
-         * @param end pointing vector at end of scan
+         * @param pv pointing vector at start of scan
          */
         void update(const PointingVector &pv) noexcept;
 
+        /**
+         * @brief get all pointing vectors
+         * @author Matthias Schartner
+         *
+         * @return all pointing vectors
+         */
         const std::vector<PointingVector> & getPointingVectors() const noexcept {
             return pointingVectors_;
         }
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         std::vector<PointingVector> pointingVectors_; ///< all pointing vectors
     };

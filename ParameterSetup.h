@@ -46,6 +46,7 @@ namespace VieVS {
     public:
         /**
          * @brief list of all possible transition types
+         * @author Matthias Schartner
          */
         enum class Transition {
             soft, ///< soft transition
@@ -55,11 +56,13 @@ namespace VieVS {
 
         /**
          * @brief empty default constructor
+         * @author Matthias Schartner
          */
         ParameterSetup();
 
         /**
          * @brief constructor for root object
+         * @author Matthias Schartner
          *
          * @param start start ot this setup in seconds since start
          * @param end end of this setup in seconds since start
@@ -68,6 +71,7 @@ namespace VieVS {
 
         /**
          * @brief constructor for setup with single member
+         * @author Matthias Schartner
          *
          * @param parameterName name of the parameter object
          * @param memberName name of the member
@@ -81,6 +85,7 @@ namespace VieVS {
 
         /**
          * @brief constructor for setup with group member
+         * @author Matthias Schartner
          *
          * @param parameterName name of the parameter object
          * @param groupName name of the group
@@ -95,6 +100,7 @@ namespace VieVS {
 
         /**
          * @brief getter for parameter name
+         * @author Matthias Schartner
          *
          * @return parameter name
          */
@@ -104,6 +110,7 @@ namespace VieVS {
 
         /**
          * @brief getter for member name
+         * @author Matthias Schartner
          *
          * @return name of group member
          */
@@ -113,6 +120,7 @@ namespace VieVS {
 
         /**
          * @brief getter for start time
+         * @author Matthias Schartner
          *
          * @return start time in seconds since start
          */
@@ -122,6 +130,7 @@ namespace VieVS {
 
         /**
          * @brief getter for end time
+         * @author Matthias Schartner
          *
          * @return end time in seconds since start
          */
@@ -131,6 +140,7 @@ namespace VieVS {
 
         /**
          * @brief getter for member
+         * @author Matthias Schartner
          *
          * @return list of all members
          */
@@ -140,6 +150,7 @@ namespace VieVS {
 
         /**
          * @brief getter for setup childrens
+         * @author Matthias Schartner
          *
          * @return all setup childrens of this setup
          */
@@ -149,6 +160,7 @@ namespace VieVS {
 
         /**
          * @brief getter for transition type
+         * @author Matthias Schartner
          *
          * @return transition type
          */
@@ -158,6 +170,7 @@ namespace VieVS {
 
         /**
          * @brief checks if this setup is a valid child of other setup
+         * @author Matthias Schartner
          *
          * @param other other setup
          * @return error code or 0 if everything is ok
@@ -166,6 +179,7 @@ namespace VieVS {
 
         /**
          * @brief checks if this setup is a valid siblig of other setup
+         * @author Matthias Schartner
          *
          * @param other other setup
          * @return error code or 0 if everything is ok
@@ -174,16 +188,45 @@ namespace VieVS {
 
         /**
          * @brief add a child setup to current setup
+         * @author Matthias Schartner
          *
          * @param child child setup object
          * @return error code or 0 if everything is ok
          */
         int addChild(const ParameterSetup &child);
 
+        /**
+         * @brief search parameter child
+         * @author Matthias Schartner
+         *
+         * @param thisLevel current parameter level
+         * @param level target level
+         * @param parameterName target parameter name
+         * @param memberName target member name
+         * @param members target members
+         * @param transition target transition type
+         * @param start target start time
+         * @param end target end time
+         * @return parameter setup if found
+         */
         boost::optional<ParameterSetup &> search(int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
                                const std::vector<std::string> &members, Transition transition,
                                unsigned int start, unsigned int end);
 
+        /**
+         * @brief delete parameter setup
+         * @author Matthias Schartner
+         *
+         * @param thisLevel current parameter level
+         * @param level target level
+         * @param parameterName target parameter name
+         * @param memberName target member name
+         * @param members target members
+         * @param transition target transition type
+         * @param start target start time
+         * @param end target end time
+         * @return if deleted, otherwise false
+         */
         bool deleteChild(int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
                          const std::vector<std::string> &members, Transition transition,
                          unsigned int start, unsigned int end);
@@ -201,6 +244,18 @@ namespace VieVS {
 
         std::vector<ParameterSetup> childrens_; ///< list of all setup children
 
+        /**
+         * @brief check if parameters are equal
+         * @author Matthias Schartner
+         *
+         * @param parameterName target parameter name
+         * @param memberName target member name
+         * @param members target members
+         * @param transition target transition type
+         * @param start target start time
+         * @param end target end time
+         * @return true if equal, otherwise false
+         */
         bool isEqual(std::string parameterName, std::string memberName, std::vector<std::string> members,
                      ParameterSetup::Transition transition, unsigned int start, unsigned int end);
     };

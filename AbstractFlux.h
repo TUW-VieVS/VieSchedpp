@@ -17,9 +17,8 @@
  */
  
  /**
- * @file Flux.h
- * @brief class Flux
- *
+ * @file AbstractFlux.h
+ * @brief class AbstractFlux
  *
  * @author Matthias Schartner
  * @date 28.06.2017
@@ -36,50 +35,62 @@
 
 namespace VieVS{
     /**
-     * @class Flux
+     * @class AbstractFlux
      * @brief representation of source flux
      *
      * @author Matthias Schartner
      * @date 28.06.2017
+     *
+     * This class serves as the base class for all flux implementations.
+     *
      */
     class AbstractFlux : public VieVS_Object {
     public:
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param wavelength wavelength of flux information in meters
+         */
         explicit AbstractFlux(double wavelength);
 
+        /**
+         * @brief virtual destructor
+         * @author Matthias Schartner
+         */
         virtual ~AbstractFlux() = default;
 
         /**
-         * @brief gets the maximum possible flux density
-         *
-         * This function is used at the beginning to junk out sources which do not fit the minimum requested flux
-         * density.
+         * @brief maximum possible flux density
+         * @author Matthias Schartner
          *
          * @return maximum possible flux density
          */
         virtual double getMaximumFlux() const noexcept = 0;
 
         /**
-         * @brief calculates the flux density for a constellation
+         * @brief flux density based on uv
+         * @author Matthias Schartner
          *
          * @param u projected baseline length
          * @param v projected baseline length
-         * @return flux density fot this constellation
+         * @return flux density for this constellation
          */
         virtual double observedFlux(double u, double v) const noexcept = 0;
 
-
+        /**
+         * @brief getter for wavelength
+         * @author Matthias Schartner
+         *
+         * @return wavelength in meters
+         */
         double getWavelength() const {
             return wavelength_;
         }
 
-//        std::unique_ptr<Flux> clone() const;
-
-
     private:
-//        virtual Flux* do_clone() const = 0;
-
-        static unsigned long nextId;
+        static unsigned long nextId;  ///< next id for this object type
 
         double wavelength_; ///< wavelength of the band whose flux information is stored
     };

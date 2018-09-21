@@ -21,7 +21,6 @@
  * @file Equipment.h
  * @brief class Equipment
  *
- *
  * @author Matthias Schartner
  * @date 27.06.2017
  */
@@ -50,6 +49,7 @@ namespace VieVS{
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param SEFDs SEFD per band - key is band name, value is SEFD
          */
@@ -57,9 +57,8 @@ namespace VieVS{
 
 
         /**
-         * @brief getter function for antenna elevation dependent SEFD information
-         *
-         * if the elevation dependent SEFD is smaller than the zenith SEFD, the zenith SEFD is returned.
+         * @brief getter function for antenna SEFD information
+         * @author Matthias Schartner
          *
          * @param band name of band
          * @param el elevation
@@ -71,13 +70,14 @@ namespace VieVS{
 
         /**
          * @brief returns maximum SEFD of this antenna
+         * @author Matthias Schartner
          *
          * @return maximum SEFD of this antenna
          */
         double getMaxSEFD() const noexcept;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         std::unordered_map<std::string,double> SEFD_; ///< SEFD information per band
     };

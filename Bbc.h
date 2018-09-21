@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Bbc.h
+* @brief class Bbc
+*
+* @author Matthias Schartner
+* @date 17.09.2018
+*/
+
 #ifndef VIESCHEDPP_BBC_H
 #define VIESCHEDPP_BBC_H
 
@@ -25,6 +33,16 @@
 
 
 namespace VieVS{
+
+    /**
+     * @class Bbc
+     * @brief bbc section of observing mode
+     *
+     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     *
+     * @author Matthias Schartner
+     * @date 17.09.2018
+     */
     class Bbc: public VieVS_NamedObject {
     public:
         explicit Bbc(std::string name);

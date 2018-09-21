@@ -17,9 +17,8 @@
  */
 
 /**
- * @file VLBI_pointingVector.h
- * @brief class VLBI_pointingVector
- *
+ * @file PointingVector.h
+ * @brief class PointingVector
  *
  * @author Matthias Schartner
  * @date 06.07.2017
@@ -36,7 +35,7 @@
 
 namespace VieVS{
     /**
-     * @class VLBI_pointingVector
+     * @class PointingVector
      * @brief representation of VLBI pointing vector
      *
      * @author Matthias Schartner
@@ -44,39 +43,79 @@ namespace VieVS{
      */
     class PointingVector: public VieVS_Object {
     public:
-        /**
-         * @brief empty default constructor
-         */
-//        PointingVector();
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param staid id of station
          * @param srcid id of observed source
          */
         PointingVector(unsigned long staid, unsigned long srcid);
 
+        /**
+         * @brief copy constructor
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         */
         PointingVector(const PointingVector &other);
 
+        /**
+         * @brief copy assignment operator
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         * @return copy of other
+         */
         PointingVector& operator=(const PointingVector& other) = default;
 
+        /**
+         * @brief move constructor
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         */
         PointingVector(PointingVector&& other) = default;
 
+        /**
+         * @brief move assignment operator
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         * @return move of other
+         */
         PointingVector& operator=(PointingVector&& other) = default;
 
+        /**
+         * @brief destructor
+         * @author Matthias Schartner
+         */
         ~PointingVector() = default;
 
+        /**
+         * @brief less then operator
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         * @return true if time is less then other's time, otherwise false
+         */
         bool operator<( const PointingVector& other ) const
         {
             return time_ < other.time_;
         }
 
-
+        /**
+         * @brief copy values from other pointing vector
+         * @author Matthias Schartner
+         *
+         * @param other other pointing vector
+         */
         void copyValuesFromOtherPv(const PointingVector& other);
 
         /**
          * @brief getter for station id
+         * @author Matthias Schartner
          *
          * @return id of station
          */
@@ -86,6 +125,7 @@ namespace VieVS{
 
         /**
          * @brief getter for source id
+         * @author Matthias Schartner
          *
          * @return id of source
          */
@@ -95,6 +135,7 @@ namespace VieVS{
 
         /**
          * @brief getter for azimuth
+         * @author Matthias Schartner
          *
          * @return azimth in radians
          */
@@ -104,6 +145,7 @@ namespace VieVS{
 
         /**
          * @brief getter for elevation
+         * @author Matthias Schartner
          *
          * @return elevation in radians
          */
@@ -113,6 +155,7 @@ namespace VieVS{
 
         /**
          * @brief getter for local hour angle
+         * @author Matthias Schartner
          *
          * @return local hour angle
          */
@@ -122,6 +165,7 @@ namespace VieVS{
 
         /**
          * @brief getter for declination
+         * @author Matthias Schartner
          *
          * @return declination
          */
@@ -131,6 +175,7 @@ namespace VieVS{
 
         /**
          * @brief getter for time for which azimuth and elevation is calculated
+         * @author Matthias Schartner
          *
          * @return time in seconds since session start
          */
@@ -140,6 +185,7 @@ namespace VieVS{
 
         /**
          * @brief sets azimuth
+         * @author Matthias Schartner
          *
          * @param new_az new azimuth
          */
@@ -149,6 +195,7 @@ namespace VieVS{
 
         /**
          * @brief sets elevation
+         * @author Matthias Schartner
          *
          * @param new_el new elevation
          */
@@ -158,6 +205,7 @@ namespace VieVS{
 
         /**
          * @brief sets local hour angle
+         * @author Matthias Schartner
          *
          * @param ha new local hour angle
          */
@@ -167,6 +215,7 @@ namespace VieVS{
 
         /**
          * @brief sets declination
+         * @author Matthias Schartner
          *
          * @param dc new declination
          */
@@ -176,6 +225,7 @@ namespace VieVS{
 
         /**
          * @brief sets time for which azimth and elevation is calculated
+         * @author Matthias Schartner
          *
          * @param new_time new time
          */
@@ -183,20 +233,26 @@ namespace VieVS{
             time_ = new_time;
         };
 
+        /**
+         * @brief total number of created pointing vectors
+         * @author Matthias Schartner
+         *
+         * @return total nubmer of created pointing vectors
+         */
         static unsigned long numberOfCreatedObjects(){
             return nextId-1;
         }
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         unsigned long staid_; ///< station id
         unsigned long srcid_; ///< source id
-        double az_; ///< azimth
-        double el_; ///< elevation
-        double ha_{0}; ///< declination
-        double dc_{0}; ///< local hour angle
-        unsigned int time_; ///< time in seconds since session start for which azimth and elevation is calculated
+        double az_; ///< azimth in radians
+        double el_; ///< elevation in radians
+        double ha_{0}; ///< declination in radians
+        double dc_{0}; ///< local hour angle in radians
+        unsigned int time_; ///< time in seconds since session start for which azimuth and elevation is calculated
     };
 }
 #endif /* VLBI_POINTINGVECTOR_H */

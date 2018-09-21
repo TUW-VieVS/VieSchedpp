@@ -16,6 +16,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file SkdCatalogReader.h
+* @brief class SkdCatalogReader
+*
+* @author Matthias Schartner
+* @date 22.10.2017
+*/
+
+
 #ifndef SKDCATALOGREADER_H
 #define SKDCATALOGREADER_H
 
@@ -38,11 +47,20 @@
 #include "util.h"
 
 namespace VieVS {
+
+    /**
+     * @class SkdCatalogReader
+     * @brief sked catalog reader class
+     *
+     * @author Matthias Schartner
+     * @date 07.12.2017
+     */
     class SkdCatalogReader: public VieVS_Object {
     public:
 
         /**
          * @brief All available and read sked catalog files which can be read with the same return type.
+         * @author Matthias Schartner
          */
         enum class CATALOG {
             source, ///< source.cat file
@@ -56,37 +74,65 @@ namespace VieVS {
 
         /**
          * @brief default constructor
+         * @author Matthias Schartner
          */
         SkdCatalogReader();
 
         /**
          * @brief setter for catalog pathes
+         * @author Matthias Schartner
          *
          * @param ptreeWithPathes property tree with catalog pathes from .xml file
          */
         void setCatalogFilePathes(const boost::property_tree::ptree &ptreeWithPathes);
 
+        /**
+         * @brief set catalog file pathes
+         * @author Matthias Schartner
+         *
+         * @param antenna antenna catalog name
+         * @param equip equip catalog name
+         * @param flux flux catalog name
+         * @param freq freq catalog name
+         * @param hdpos hdpos catalog name
+         * @param loif loif catalog name
+         * @param mask mask catalog name
+         * @param modes modes catalog name
+         * @param position position catalog name
+         * @param rec rec catalog name
+         * @param rx rx catalog name
+         * @param source source catalog name
+         * @param tracks tracks catalog name
+         */
         void setCatalogFilePathes(const std::string &antenna, const std::string &equip, const std::string &flux,
                                   const std::string &freq, const std::string &hdpos, const std::string &loif,
                                   const std::string &mask, const std::string &modes, const std::string &position,
                                   const std::string &rec, const std::string &rx, const std::string &source,
                                   const std::string &tracks);
 
+        /**
+         * @brief
+         * @author Matthias Schartner
+         *
+         * @param skdFile skd file name
+         */
         void setCatalogFilePathes(const std::string &skdFile);
 
         /**
          * @brief reads all source specific catalogs
+         * @author Matthias Schartner
          */
         void initializeSourceCatalogs();
 
-
         /**
          * @brief reads all station specific catalogs
+         * @author Matthias Schartner
          */
         void initializeStationCatalogs();
 
         /**
          * @brief reads all modes specific catalogs
+         * @author Matthias Schartner
          *
          * @param obsModeName name of the observation mode
          */
@@ -94,6 +140,7 @@ namespace VieVS {
 
         /**
          * @brief set station names
+         * @author Matthias Schartner
          *
          * @param staNames all participating stations
          */
@@ -103,6 +150,7 @@ namespace VieVS {
 
         /**
          * @brief getter for all station names
+         * @author Matthias Schartner
          *
          * @return all station names
          */
@@ -112,6 +160,7 @@ namespace VieVS {
 
         /**
          * @brief getter for station one letter code
+         * @author Matthias Schartner
          *
          * @return map with station name as key and one letter code as value
          */
@@ -121,6 +170,7 @@ namespace VieVS {
 
         /**
          * @brief getter for station two letter code
+         * @author Matthias Schartner
          *
          * @return map with station name as key and two letter code as value
          */
@@ -130,6 +180,7 @@ namespace VieVS {
 
         /**
          * @brief getter for source catalog
+         * @author Matthias Schartner
          *
          * @return map with source name id as key and the corresponding catalog line as value
          */
@@ -139,6 +190,7 @@ namespace VieVS {
 
         /**
          * @brief getter for flux catalog
+         * @author Matthias Schartner
          *
          * @return map with source name as key and all flux infos as value
          */
@@ -148,6 +200,7 @@ namespace VieVS {
 
         /**
          * @brief getter for antenna catalog
+         * @author Matthias Schartner
          *
          * @return map with antenna name as key and the corresponding catalog line as value
          */
@@ -157,6 +210,7 @@ namespace VieVS {
 
         /**
          * @brief getter for position catalog
+         * @author Matthias Schartner
          *
          * @return map with position id as key and the corresponding catalog line as value
          */
@@ -166,6 +220,7 @@ namespace VieVS {
 
         /**
          * @brief getter for equipment catalog
+         * @author Matthias Schartner
          *
          * @return map with equipment id + "|" + station name as key and corresponding catalog line as value
          */
@@ -175,6 +230,7 @@ namespace VieVS {
 
         /**
          * @brief getter for mask catalog
+         * @author Matthias Schartner
          *
          * @return map with mask id as key and corresponding catalog line as value
          */
@@ -184,6 +240,7 @@ namespace VieVS {
 
         /**
          * @brief getter for frequency sequence name
+         * @author Matthias Schartner
          *
          * @return frequency sequence name
          */
@@ -193,6 +250,7 @@ namespace VieVS {
 
         /**
          * @brief getter for bandwith
+         * @author Matthias Schartner
          *
          * @return bandwidth
          */
@@ -202,6 +260,7 @@ namespace VieVS {
 
         /**
          * @brief getter for sample rate
+         * @author Matthias Schartner
          *
          * @return sample rate
          */
@@ -211,6 +270,7 @@ namespace VieVS {
 
         /**
          * @brief getter for station hdpos
+         * @author Matthias Schartner
          *
          * @return map with station name as key and hdpos name as value
          */
@@ -220,6 +280,7 @@ namespace VieVS {
 
         /**
          * @brief getter for station tracks
+         * @author Matthias Schartner
          *
          * @return map wich station names as key and tracks name as value
          */
@@ -229,6 +290,7 @@ namespace VieVS {
 
         /**
          * @brief getter for all track ids
+         * @author Matthias Schartner
          *
          * @return vector of track ids
          */
@@ -238,6 +300,7 @@ namespace VieVS {
 
         /**
          * @brief getter for tracks fanout
+         * @author Matthias Schartner
          *
          * @return map with tracks name as key and fanout as value
          */
@@ -247,6 +310,7 @@ namespace VieVS {
 
         /**
          * @brief getter for channel tracks info
+         * @author Matthias Schartner
          *
          * @return map with tracks name as key and map with channel number as key and tracks infor as value as value
          */
@@ -256,6 +320,7 @@ namespace VieVS {
 
         /**
          * @brief getter for frequency two letter code
+         * @author Matthias Schartner
          *
          * @return frequency two letter code
          */
@@ -265,6 +330,7 @@ namespace VieVS {
 
         /**
          * @brief getter for cannel band
+         * @author Matthias Schartner
          *
          * @return map with channel number as key and band name as value
          */
@@ -274,6 +340,7 @@ namespace VieVS {
 
         /**
          * @brief getter for channel sky frequency
+         * @author Matthias Schartner
          *
          * @return map with channel number as key and sky frequency as value
          */
@@ -283,6 +350,7 @@ namespace VieVS {
 
         /**
          * @brief getter for channel phase cal frequency
+         * @author Matthias Schartner
          *
          * @return map with channel number as key and phace cal frequency as value
          */
@@ -292,6 +360,7 @@ namespace VieVS {
 
         /**
          * @brief getter for station local oscillator frequency setup name
+         * @author Matthias Schartner
          *
          * @return map with station name as key and locas oscillator frequency setup name as value
          */
@@ -301,6 +370,7 @@ namespace VieVS {
 
         /**
          * @brief getter for local oscillator frequency setup
+         * @author Matthias Schartner
          *
          * @return map with loif name as key and loif info as value
          */
@@ -310,6 +380,7 @@ namespace VieVS {
 
         /**
          * @brief getter for channel bbc number
+         * @author Matthias Schartner
          *
          * @return map with channel number as key and bbc number as value
          */
@@ -319,6 +390,7 @@ namespace VieVS {
 
         /**
          * @brief getter for recoreded bits
+         * @author Matthias Schartner
          *
          * @return number of recorded bits
          */
@@ -326,20 +398,50 @@ namespace VieVS {
             return bits_;
         }
 
+        /**
+         * @brief get position key
+         * @author Matthias Schartner
+         *
+         * @param staName station name
+         * @return position key
+         */
         const std::string &positionKey(const std::string &staName) const{
             return antennaKey2positionKey_.at(staName);
         }
+
+        /**
+         * @brief get equip key
+         * @author Matthias Schartner
+         *
+         * @param staName station name
+         * @return equip key
+         */
         const std::string &equipKey(const std::string &staName) const{
             return antennaKey2equipKey_.at(staName);
         }
+
+        /**
+         * @brief get mask key
+         * @author Matthias Schartner
+         *
+         * @param staName station name
+         * @return mask key
+         */
         const std::string &maskKey(const std::string &staName) const{
             return antennaKey2maskKey_.at(staName);
         }
 
+        /**
+         * @brief get sked catalog version number
+         * @author Matthias Schartner
+         *
+         * @param name sked catalog
+         * @return version number
+         */
         std::string getVersion(const std::string& name) const;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         std::vector<std::string> staNames_; ///< list of all station
 
@@ -367,18 +469,18 @@ namespace VieVS {
         std::map<std::string, std::vector<std::string>> fluxCatalog_; ///< map with source name as key and flux catalog entry as value
 
         std::map<std::string, std::vector<std::string>> antennaCatalog_; ///< map with station name as key and catalog entry as value
-        std::map<std::string, std::string> antennaKey2positionKey_;
+        std::map<std::string, std::string> antennaKey2positionKey_; ///< antenna key to position key
         std::map<std::string, std::vector<std::string>> positionCatalog_; ///< map with position id as key and catalog entry as value
-        std::map<std::string, std::string> antennaKey2equipKey_;
+        std::map<std::string, std::string> antennaKey2equipKey_; ///< antenna key to equip key
         std::map<std::string, std::vector<std::string>> equipCatalog_; ///< map with equipment id + "|" + station name as key and catalog entry as value
-        std::map<std::string, std::string> antennaKey2maskKey_;
+        std::map<std::string, std::string> antennaKey2maskKey_; ///< antenna key 2 mask key
         std::map<std::string, std::vector<std::string>> maskCatalog_; ///< map with mask id as key and catalog entry as value
 
         std::string freqName_; ///< frequency sequence name
         std::string recName_; ///< rec name
         double bandWidth_; ///< bandwith
         double sampleRate_; ///< sample rate
-        unsigned int bits_;
+        unsigned int bits_; ///< sample bits
 
         std::map<std::string, std::string> staName2hdposMap_; ///< map with station name as key and hdpos name as value
         std::map<std::string, std::string> staName2tracksMap_; ///< map with station name as key and tracks name as value
@@ -403,10 +505,11 @@ namespace VieVS {
 
         std::map<std::string, std::vector<std::string> > loifId2loifInfo_; ///< map with loif name as key and loif infos as value
 
-        std::map<std::string, std::string> catalogsVersion_;
+        std::map<std::string, std::string> catalogsVersion_; ///< skd catalog versions
 
         /**
          * @brief This function reads a specific sked catalog file and stores the data in a map.
+         * @author Matthias Schartner
          *
          * @param root path to catalog file
          * @param fname catalog name
@@ -418,6 +521,7 @@ namespace VieVS {
 
         /**
          * @brief reads modes.cat
+         * @author Matthias Schartner
          *
          * @param obsModeName mode name
          */
@@ -425,36 +529,43 @@ namespace VieVS {
 
         /**
          * @brief read rec.cat
+         * @author Matthias Schartner
          */
         void readRecCatalog();
 
         /**
          * @brief read tracks.cat
+         * @author Matthias Schartner
          */
         void readTracksCatalog();
 
         /**
          * @brief read freq.cat
+         * @author Matthias Schartner
          */
         void readFreqCatalog();
 
         /**
          * @brief read rx.cat
+         * @author Matthias Schartner
          */
         void readRxCatalog();
 
         /**
          * @brief read loif.cat
+         * @author Matthias Schartner
          */
         void readLoifCatalog();
 
         /**
          * @brief save one letter codes
+         * @author Matthias Schartner
          */
         void saveOneLetterCode();
 
         /**
          * @brief save two letter codes
+         * @author Matthias Schartner
          */
         void saveTwoLetterCode();
 

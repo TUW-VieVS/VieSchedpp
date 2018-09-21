@@ -59,6 +59,7 @@ namespace VieVS {
 
         /**
          * @brief possible multi scheduling parameters
+         * @author Matthias Schartner
          */
         struct Parameters {
             boost::optional<boost::posix_time::ptime> start; ///< start times
@@ -115,6 +116,7 @@ namespace VieVS {
 
             /**
              * @brief output function to stream object
+             * @author Matthias Schartner
              *
              * @param of outfile stream object
              */
@@ -266,6 +268,11 @@ namespace VieVS {
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param sta_group station groups
+         * @param src_group source groups
+         * @param bls_group baseline groups
          */
         MultiScheduling(std::unordered_map<std::string, std::vector<std::string> > sta_group,
                         std::unordered_map<std::string, std::vector<std::string> > src_group,
@@ -273,27 +280,56 @@ namespace VieVS {
 
         /**
          * @brief set session start times
+         * @author Matthias Schartner
+         *
          * @param start session start times
          */
         void setStart(const std::vector<boost::posix_time::ptime> &start) {
             MultiScheduling::start_ = start;
         }
 
+        /**
+         * @brief add new boolean parameter
+         * @author Matthias Schartner
+         *
+         * @param name parameter name
+         */
         void addParameters(const std::string &name);
 
+        /**
+         * @brief add new value based parameter
+         * @author Matthias Schartner
+         *
+         * @param name parameter name
+         * @param values parameter values
+         */
         void addParameters(const std::string &name, const std::vector<double> &values);
 
+        /**
+         * @brief add new value and member based parameter
+         * @author Matthias Schartner
+         *
+         * @param name parameter name
+         * @param member parameter member
+         * @param values parameter values
+         */
         void addParameters(const std::string &name, const std::string &member, const std::vector<double> &values);
 
 
         /**
          * @brief create vector of all possible multi scheduling parameter combinations
+         * @author Matthias Schartner
+         *
+         * @param maxNr maximum number of parameters
+         * @param seed seed for random number generator
          * @return all possible multi scheduling parameter combinations
          */
         std::vector<Parameters> createMultiScheduleParameters(unsigned int maxNr, unsigned int seed);
 
         /**
          * @brief create property tree used for parameter.xml file
+         * @author Matthias Schartner
+         *
          * @return property tree for multiSched block
          */
         boost::property_tree::ptree createPropertyTree() const;
@@ -308,15 +344,42 @@ namespace VieVS {
 
         std::vector<boost::posix_time::ptime> start_; ///< start times
 
-        std::vector<std::string> singleArgumentLogical;
-        std::vector<std::pair<std::string, std::vector<double>>> singleArgumentNumeric;
-        std::vector<std::pair<std::string, std::pair<std::string, std::vector<double>>>> doubleArgumentNumeric;
+        std::vector<std::string> singleArgumentLogical; ///< boolean parameters
+        std::vector<std::pair<std::string, std::vector<double>>> singleArgumentNumeric; ///< value based parameters
+        std::vector<std::pair<std::string, std::pair<std::string, std::vector<double>>>> doubleArgumentNumeric; ///< value and member based parameters
 
+        /**
+         * @brief add boolean parameters
+         * @author Matthias Schartner
+         *
+         * @param allPara list of all parameters
+         * @param n_before number of blocks
+         * @param name parameter name
+         */
         void addParameter(std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name);
 
+        /**
+         * @brief add value based parameters
+         * @author Matthias Schartner
+         *
+         * @param allPara list of all parameters
+         * @param n_before number of blocks
+         * @param name parameter name
+         * @param value number of values
+         */
         void addParameter(std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                           const std::vector<double> &value);
 
+        /**
+         * @brief add value and member based parameters
+         * @author Matthias Schartner
+         *
+         * @param allPara list of all parameters
+         * @param n_before number of blocks
+         * @param name parameter name
+         * @param member member name
+         * @param value number of values
+         */
         void addParameter(std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                           const std::string& member, const std::vector<double> &value);
 

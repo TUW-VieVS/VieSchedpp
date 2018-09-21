@@ -1163,7 +1163,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         bool baselinesValid = true;
-        if(thisSource.getNObs()<thisSource.getOptimization().minNumBaselines) {
+        if(thisSource.getNObs()<thisSource.getOptimization().minNumObs) {
             baselinesValid = false;
         }
 

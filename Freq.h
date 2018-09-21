@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Freq.h
+* @brief class Freq
+*
+* @author Matthias Schartner
+* @date 17.09.2018
+*/
+
 #ifndef VIESCHEDPP_FREQ_H
 #define VIESCHEDPP_FREQ_H
 
@@ -24,6 +32,16 @@
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
+
+    /**
+     * @class Freq
+     * @brief freq section of observing mode
+     *
+     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     *
+     * @author Matthias Schartner
+     * @date 17.09.2018
+     */
     class Freq: public VieVS_NamedObject {
     public:
 

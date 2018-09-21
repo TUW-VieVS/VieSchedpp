@@ -32,14 +32,18 @@
 /**
  * @namespace VieVS
  * @brief namespace VieVS is used for all defined classes.
+ * @author Matthias Schartner
  */
 
 /**
- * Main function.
+ * @brief main function
  *
- * @param argc currently unused
- * @param argv  currently unused
- * @return 0 if no error occurred
+ * pass path to parameters.xml file as argument.
+ * This file will then be processed
+ *
+ * @param argc number of arguments
+ * @param argv  argument list
+ * @return return type
  */
 int main(int argc, char *argv[])
 {
@@ -49,7 +53,6 @@ int main(int argc, char *argv[])
     }
 
     std::string file = argv[1];
-
 
     auto start = std::chrono::high_resolution_clock::now();
 

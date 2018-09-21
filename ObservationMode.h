@@ -20,7 +20,6 @@
  * @file ObservationMode.h
  * @brief class ObservationMode
  *
- *
  * @author Matthias Schartner
  * @date 21.08.2017
  */
@@ -43,15 +42,17 @@ namespace VieVS{
     public:
         /**
          * @brief all possible flux information type
+         * @author Matthias Schartner
          */
         enum class Property {
             required,    ///< this band information is required. If this information is missing this object is not used.
-            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is interpolated
+            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is calculated based on backup model
         };
 
         /**
-        * @brief all possible backup models
-        */
+         * @brief all possible backup models
+         * @author Matthias Schartner
+         */
         enum class Backup {
             minValueTimes, ///< use minimum value found in other bands times a factor
             maxValueTimes, ///< use maximum value found in other bands times a factor
@@ -61,10 +62,10 @@ namespace VieVS{
 
         static double sampleRate; ///< sample rate of one channel
         static unsigned int bits; ///< number of recorded bits
-        static bool manual;
+        static bool manual; ///< flag if manual observation mode was selected
 
         static std::vector<std::string> bands; ///< list of all bands
-        static std::unordered_map<std::string, double> minSNR;
+        static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
 
         static std::unordered_map<std::string, unsigned int> nChannels; ///< number of channels per band
         static std::unordered_map<std::string, double> wavelength; ///< wavelength per band

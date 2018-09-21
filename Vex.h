@@ -17,9 +17,8 @@
  */
 
 /**
- * @file Output.h
- * @brief class Output
- *
+ * @file Vex.h
+ * @brief class Vex
  *
  * @author Matthias Schartner
  * @date 07.12.2017
@@ -41,24 +40,63 @@ namespace VieVS {
      * @author Matthias Schartner
      * @date 07.12.2017
      */
+
     class Vex: public VieVS_Object {
     public:
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param file file name
+         */
         explicit Vex(const std::string &file);
 
+        /**
+         * @brief writ vex file
+         * @author Matthias Schartner
+         *
+         * @param network station network
+         * @param sources list of all sources
+         * @param scans list of all scans
+         * @param skdCatalogReader sked catalogs
+         * @param xml paramters.xml file
+         */
         void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
                       const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml);
 
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
-        std::ofstream of;
-        std::string eol = ";\n";
-        std::map<int,int> channelNr2Bbc_;
+        std::ofstream of; ///< output stream object *filename*.vex
+        std::string eol = ";\n"; ///< end of line string
+        std::map<int,int> channelNr2Bbc_; ///< channel number to bbc number
 
+        /**
+         * @brief write vex $GLOBAL block
+         * @author Matthias Schartner
+         *
+         * @param expName experiment name
+         */
         void global_block(const std::string &expName);
 
+        /**
+         * @brief write vex $EXPER block
+         * @author Matthias Schartner
+         *
+         * @param expName experiment name
+         * @param expDescription experiment description
+         * @param piName pi name
+         * @param piEmail pi email
+         * @param contactName contact name
+         * @param contactEmail contact email
+         * @param schedulerName scheduler name
+         * @param schedulerEmail scheduler email
+         * @param notes additional notes
+         * @param targetCorrelator target correlator
+         * @param gui_version gui scheduler version
+         */
         void exper_block(const std::string &expName, const std::string &expDescription,
                          const std::string &piName, const std::string &piEmail,
                          const std::string &contactName, const std::string &contactEmail,
@@ -66,43 +104,124 @@ namespace VieVS {
                          const std::string &notes, const std::string &targetCorrelator,
                          const std::string &gui_version);
 
-
-
+        /**
+         * @brief write vex $STATION block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         * @param skdCatalogReader sked catalogs
+         */
         void station_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $STATION block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         * @param skdCatalogReader sked catalogs
+         */
         void sites_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $ANTENNA block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         */
         void antenna_block(const std::vector<Station>& stations);
 
+        /**
+         * @brief write vex $DAS block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         * @param skdCatalogReader sked catalogs
+         */
         void das_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
-
-
+        /**
+         * @brief write vex $SOURCE block
+         * @author Matthias Schartner
+         *
+         * @param sources list of all sources
+         */
         void source_block(const std::vector<Source>& sources);
 
-
-
+        /**
+         * @brief write vex $MODE block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         * @param skdCatalogReader sked catalogs
+         */
         void mode_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $FREQ block
+         * @author Matthias Schartner
+         *
+         * @param skdCatalogReader sked catalogs
+         */
         void freq_block(const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $BBC block
+         * @author Matthias Schartner
+         *
+         * @param skdCatalogReader sked catalogs
+         */
         void bbc_block(const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $IF block
+         * @author Matthias Schartner
+         *
+         * @param skdCatalogReader sked catalogs
+         */
         void if_block(const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex $TRACKS block
+         * @author Matthias Schartner
+         *
+         * @param stations list of all stations
+         * @param skdCatalogReader sked catalogs
+         */
         void tracks_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
 
+        /**
+         * @brief write vex head block (deprecated)
+         * @author Matthias Schartner
+         */
         void head_pos_block();
 
+        /**
+         * @brief write $PASS_ORDER block
+         * @author Matthias Schartner
+         */
         void pass_order_block();
 
+        /**
+         * @brief write $ROLL block
+         * @author Matthias Schartner
+         */
         void roll_block();
 
+        /**
+         * @brief write $PHASE_CAL_DETECT block
+         * @author Matthias Schartner
+         */
         void phase_cal_detect_block();
 
-
-
-
+        /**
+         * @brief write $SCHED block
+         * @author Matthias Schartner
+         *
+         * @param scans list of all scans
+         * @param stations list of all stations
+         * @param sources list of all sources
+         * @param skdCatalogReader sked catalogs
+         */
         void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
                          const std::vector<Source>& sources, const SkdCatalogReader &skdCatalogReader);
 

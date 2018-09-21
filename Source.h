@@ -20,7 +20,6 @@
  * @file Source.h
  * @brief class Source
  *
- *
  * @author Matthias Schartner
  * @date 28.06.2017
  */
@@ -62,32 +61,51 @@ namespace VieVS{
     class Source: public VieVS_NamedObject {
     public:
 
-        static unsigned long nextId;
-
         /**
          * @brief source parameters
+         * @author Matthias Schartner
          */
         enum class TryToFocusOccurrency {
             once,
             perScan
         };
 
+        /**
+         * @brief try to focus type
+         * @author Matthias Schartner
+         */
         enum class TryToFocusType {
-            additive,
-            multiplicative
+            additive, ///< additive type
+            multiplicative ///< multiplicative type
         };
 
+        /**
+         * @brief source parameters
+         * @author Matthias Schartner
+         */
         class Parameters: public VieVS_NamedObject {
         private:
-            static unsigned long nextId;
+            static unsigned long nextId; ///< next id for this object type
         public:
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param name parameter name
+             */
             explicit Parameters(const std::string &name): VieVS_NamedObject(name,nextId++){}
 
+            /**
+             * @brief copy parameters from other
+             * @author Matthias Schartner
+             *
+             * @param other source parameters
+             */
             void setParameters(const Parameters &other);
 
             bool available = true; ///< flag is source is available
-            bool globalAvailable = true;
-            bool availableForFillinmode = true;
+            bool globalAvailable = true; ///< flag if source is available
+            bool availableForFillinmode = true; ///< flag if source is available for fillin mode
 
             double weight = 1; ///< multiplicative factor of score for scans to this source
 
@@ -99,16 +117,16 @@ namespace VieVS{
             unsigned int maxScan = 20; ///< maximum allowed scan time in seconds
             unsigned int minScan = 600; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
-            double minElevation = 0;
-            double minSunDistance = 4*deg2rad;
+            double minElevation = 0; ///< minimum elevation in radians
+            double minSunDistance = 4*deg2rad; ///< minimum sun distance in radians
 
             bool tryToFocusIfObservedOnce = false; ///< flag if this source should be focused after observed once
-            boost::optional<double> tryToFocusFactor;
-            boost::optional<TryToFocusOccurrency> tryToFocusOccurrency;
-            boost::optional<TryToFocusType> tryToFocusType;
+            boost::optional<double> tryToFocusFactor; ///< increase weight if scheduled once factor
+            boost::optional<TryToFocusOccurrency> tryToFocusOccurrency; ///< weight factor change occurrency
+            boost::optional<TryToFocusType> tryToFocusType; ///< weight factor change type
 
             boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
-            boost::optional<unsigned int> tryToObserveXTimesMinRepeat;
+            boost::optional<unsigned int> tryToObserveXTimesMinRepeat; ///< backup minimum repeat time
 
             boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
 
@@ -118,6 +136,7 @@ namespace VieVS{
 
             /**
              * @brief setter for available
+             * @author Matthias Schartner
              *
              * @param flag true if source is available
              */
@@ -125,6 +144,12 @@ namespace VieVS{
                 Parameters::available = flag;
             }
 
+            /**
+             * @brief set global availability
+             * @author Matthias Schartner
+             *
+             * @param flag flag
+             */
             void setGlobalAvailable(bool flag) {
                 Parameters::globalAvailable = flag;
                 if(!flag){
@@ -134,6 +159,7 @@ namespace VieVS{
 
             /**
              * @brief output of the curren parameters to out stream
+             * @author Matthias Schartner
              *
              * @param of out stream object
              */
@@ -197,13 +223,18 @@ namespace VieVS{
             }
         };
 
+        /**
+         * @brief optimization conditions
+         * @author Matthias Schartner
+         */
         struct Optimization{
-            unsigned int minNumScans = 0;
-            unsigned int minNumBaselines = 0;
+            unsigned int minNumScans = 0; ///< minimum required number of scans
+            unsigned int minNumObs = 0; ///< minimum required number of observations
         };
 
         /**
          * @brief pre calculated parameters
+         * @author Matthias Schartner
          */
         struct PreCalculated{
             std::vector<double> sourceInCrs; ///< source vector in celestrial reference frame
@@ -212,8 +243,17 @@ namespace VieVS{
 
         /**
          * @brief changes in parameters
+         * @author Matthias Schartner
          */
         struct Event {
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param time event time
+             * @param softTransition transition type
+             * @param PARA parameter
+             */
             Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
                                                                             softTransition{softTransition},
                                                                             PARA{std::move(PARA)}{}
@@ -223,13 +263,18 @@ namespace VieVS{
             Parameters PARA; ///< new parameters
         };
 
+        /**
+         * @brief statistics
+         * @author Matthias Schartner
+         */
         struct Statistics{
-            std::vector<unsigned int> scanStartTimes;
-            int totalObservingTime{0};
+            std::vector<unsigned int> scanStartTimes; ///< scan start times
+            int totalObservingTime{0}; ///< integrated observing time
         };
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param src_name name of the source
          * @param src_name2 alternative name of source
@@ -243,6 +288,8 @@ namespace VieVS{
 
         /**
          * @brief getter of parameter object
+         * @author Matthias Schartner
+         *
          * @return parameter object
          */
         const Parameters &getPARA() const {
@@ -251,19 +298,27 @@ namespace VieVS{
 
         /**
          * @brief reference of parameter object
+         * @author Matthias Schartner
+         *
          * @return reference to parameter object
          */
         Parameters &referencePARA() {
             return parameters_;
         }
 
+        /**
+         * @brief reference for optimization conditions
+         * @author Matthias Schartner
+         *
+         * @return optimization conditons
+         */
         Optimization &referenceCondition() {
             return *condition_;
         }
 
-
         /**
          * @brief get source position in CRS
+         * @author Matthias Schartner
          *
          * @return source position vector
          */
@@ -273,6 +328,7 @@ namespace VieVS{
 
         /**
          * @brief getter for right ascension
+         * @author Matthias Schartner
          *
          * @return right ascension of the source in radians
          */
@@ -282,6 +338,7 @@ namespace VieVS{
 
         /**
          * @brief getter for right ascension string
+         * @author Matthias Schartner
          *
          * @return right ascension string of the source
          */
@@ -289,6 +346,7 @@ namespace VieVS{
 
         /**
          * @brief getter for declination string
+         * @author Matthias Schartner
          *
          * @return declination string of the source
          */
@@ -296,6 +354,7 @@ namespace VieVS{
 
         /**
          * @brief getter for declination
+         * @author Matthias Schartner
          *
          * @return declination of the source in radians
          */
@@ -305,6 +364,7 @@ namespace VieVS{
 
         /**
          * @brief getter for number of observed baselines
+         * @author Matthias Schartner
          *
          * @return number of baselines already observed for this source
          */
@@ -314,6 +374,7 @@ namespace VieVS{
 
         /**
          * @brief geter for number of already scheduled scans to this source
+         * @author Matthias Schartner
          *
          * @return number of already scheduled scans that influence schedule
          */
@@ -323,6 +384,7 @@ namespace VieVS{
 
         /**
          * @brief geter for number of already scheduled scans to this source
+         * @author Matthias Schartner
          *
          * @return number of already scheduled scans in total
          */
@@ -330,12 +392,19 @@ namespace VieVS{
             return nTotalScans_;
         }
 
+        /**
+         * @brief get optimization conditons
+         * @author Matthias Schartner
+         *
+         * @return optimization condition
+         */
         const Optimization &getOptimization() const {
             return *condition_;
         }
 
         /**
          * @brief looks for last scan time
+         * @author Matthias Schartner
          *
          * @return last observation time in seconds since session start
          */
@@ -345,6 +414,7 @@ namespace VieVS{
 
         /**
          * @brief sets all events to this source
+         * @author Matthias Schartner
          *
          * @param EVENTS list of all events
          */
@@ -353,24 +423,35 @@ namespace VieVS{
             nextEvent_ = 0;
         }
 
+        /**
+         * @brief set next event index
+         * @author Matthias Schartner
+         *
+         * @param nextEvent index
+         */
         void setNextEvent(unsigned int nextEvent) {
             Source::nextEvent_ = nextEvent;
         }
 
         /**
-         * checks if source is strong enough
+         * @brief get maxium possible flux density
+         * @author Matthias Schartner
          *
-         * !!! this function changes maxFlux !!!
-         *
-         * @param maxFlux maximum flux density of this source (will be calculated)
-         * @return true if source is strong enough, otherwise false
+         * @return maxium possible flux density
          */
         double getMaxFlux() const noexcept;
 
+        /**
+         * @brief get sun distance
+         * @author Matthias Schartner
+         *
+         * @return sun distance
+         */
         double getSunDistance() const noexcept;
 
         /**
          * @brief observed flux density per band
+         * @author Matthias Schartner
          *
          * @param gmst greenwhich meridian sedirial time
          * @param dx baseline delta x
@@ -380,17 +461,22 @@ namespace VieVS{
          */
         double observedFlux(const std::string &band, double gmst, const std::vector<double> &dxyz) const noexcept;
 
+        /**
+         * @brief calc projection of baseline in uv plane
+         * @author Matthias Schartner
+         *
+         * @param gmst greenwich mean sidereal time
+         * @param dxyz baseline vector
+         * @return projection of baseline vector in uv plane
+         */
         std::pair<double, double> calcUV(double gmst, const std::vector<double> &dxyz) const noexcept;
 
         /**
          * @brief this function checks if it is time to change the parameters
-         *
-         * !!! This function changes hardBreak !!!
+         * @author Matthias Schartner
          *
          * @param time current time
          * @param hardBreak flags this to true if a hard break was found
-         * @param output displays output (default is false)
-         * @param bodyLog out stream object
          * @return true if a new event was found
          */
         bool checkForNewEvent(unsigned int time, bool &hardBreak) noexcept;
@@ -398,6 +484,7 @@ namespace VieVS{
 
         /**
          * @brief updates scan to this source
+         * @author Matthias Schartner
          *
          * @param nbl number of baselines observed in scan to this source
          * @param time scan end time in seconds since start
@@ -405,28 +492,46 @@ namespace VieVS{
          */
         void update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept;
 
+        /**
+         * @brief clear all observations
+         * @author Matthias Schartner
+         */
         void clearObservations();
 
+        /**
+         * @brief set source statistics
+         * @author Matthias Schartner
+         *
+         * @param stat source statistics
+         */
         void setStatistics(const Statistics &stat){
             statistics_ = stat;
         }
 
+        /**
+         * @brief get source statistics
+         * @author Matthias Schartner
+         *
+         * @return source statistics
+         */
         const Statistics &getStatistics() const {
             return statistics_;
         }
 
 
     private:
+        static unsigned long nextId; ///< next id for this object type
+
         std::shared_ptr<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>> flux_; ///< source flux information per band
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
         std::shared_ptr<PreCalculated> preCalculated_; ///< pre calculated values
-        std::shared_ptr<Optimization> condition_;
-        Statistics statistics_;
+        std::shared_ptr<Optimization> condition_; ///< optimization conditions
+        Statistics statistics_; ///< statistics
 
         double ra_; ///< source right ascension
         double de_; ///< source declination
-        double sinDe_;
-        double cosDe_;
+        double sinDe_; ///< sine of declination
+        double cosDe_; ///< cosine of declination
 
         Parameters parameters_; ///< parameters
 

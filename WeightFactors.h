@@ -49,8 +49,8 @@ namespace VieVS{
         static thread_local double weightAverageStations; ///< weight factor for average out stations
         static thread_local double weightAverageBaselines; ///< weight factor for average out baselines
 
-        static thread_local double weightIdleTime;
-        static thread_local unsigned int idleTimeInterval;
+        static thread_local double weightIdleTime; ///< weight factor for extra weight after long idle time
+        static thread_local unsigned int idleTimeInterval; ///< long itel time interval
 
         static thread_local double weightDeclination; ///< weight factor for declination
         static thread_local double declinationStartWeight; ///< start declination of additional weight (everything above has factor 0)
@@ -61,6 +61,7 @@ namespace VieVS{
         static thread_local double lowElevationFullWeight; ///< end elevation of additional declination weight slope (everything below has factor 1)
         /**
          * @brief summary of all weight factors
+         * @author Matthias Schartner
          *
          * @param of out stream object
          */

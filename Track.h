@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Track.h
+* @brief class Track
+*
+* @author Matthias Schartner
+* @date 17.09.2018
+*/
+
 #ifndef VIESCHEDPP_TRACKS_H
 #define VIESCHEDPP_TRACKS_H
 
@@ -24,6 +32,16 @@
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
+
+    /**
+     * @class Track
+     * @brief track section of observing mode
+     *
+     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     *
+     * @author Matthias Schartner
+     * @date 17.09.2018
+     */
     class Track: public VieVS_NamedObject {
     public:
         enum class Bitstream{

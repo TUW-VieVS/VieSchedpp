@@ -20,7 +20,6 @@
  * @file ScanTimes.h
  * @brief class ScanTimes
  *
- *
  * @author Matthias Schartner
  * @date 14.07.2017
  */
@@ -48,16 +47,33 @@ namespace VieVS {
      */
     class ScanTimes: public VieVS_Object {
     public:
+
+        /**
+         * @brief observation time alignment anchor
+         * @author Matthias Schartner
+         */
         enum class AlignmentAnchor{
-            start,
-            end,
-            individual
+            start, ///< align start time
+            end, ///< align end time
+            individual ///< do not align observations
         };
 
+        /**
+         * @brief set observation time alignment anchor
+         * @author Matthias Schartner
+         *
+         * @param newAnchor alignment anchor
+         */
         static void setAlignmentAnchor(AlignmentAnchor newAnchor){
             anchor = newAnchor;
         }
 
+        /**
+         * @brief get alignment anchor
+         * @author Matthias Schartner
+         *
+         * @return alignemnt anchor
+         */
         static AlignmentAnchor getAlignmentAnchor(){
             return anchor;
         }
@@ -65,14 +81,17 @@ namespace VieVS {
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
+         *
          * @param nsta number of stations
          */
         explicit ScanTimes(unsigned int nsta);
 
         /**
          * @brief sets the endtime of the last scan
+         * @author Matthias Schartner
          *
-         * this is simulaneouly the start time of this new scan
+         * this is simultaneously the start time of this new scan
          *
          * @param endOfLastScan end time of last scan in seconds since session start
          */
@@ -80,6 +99,17 @@ namespace VieVS {
             ScanTimes::endOfLastScan_ = endOfLastScan;
         }
 
+        /**
+         * @brief update times after fillin mode scan
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param endOfLastScan end of last scan
+         * @param fieldSystem field system time in seconds
+         * @param slewTime slew time in seconds
+         * @param preobTime preob time in seconds
+         * @return true if times are valid, otherwise false
+         */
         bool updateAfterFillinmode(int idx, unsigned int endOfLastScan, unsigned int fieldSystem,
                                    unsigned int slewTime, unsigned int preobTime) noexcept {
 
@@ -105,20 +135,29 @@ namespace VieVS {
 
         /**
          * @brief adds the times for an element
+         * @author Matthias Schartner
          *
          * @param idx index of which element should be updated
-         * @param setup setup time in seconds
-         * @param source source time in seconds
+         * @param fieldSystem field system time in seconds
          * @param slew slew time in seconds
-         * @param tape tape time in seconds
-         * @param calib calibration time in seconds
+         * @param preob calibration time in seconds
          */
         void addTimes(int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob) noexcept;
 
+        /**
+         * @brief set new id
+         * @author Matthias Schartner
+         */
         void giveNewId(){
             setId(nextId++);
         }
 
+        /**
+         * @brief get end of slew times
+         * @author Matthias Schartner
+         *
+         * @return end of slew times for each station
+         */
         const std::vector<unsigned int> getEndOfSlewTimes() const noexcept{
             return endOfSlewTime_;
         }
@@ -130,29 +169,89 @@ namespace VieVS {
          */
         void removeElement(int idx) noexcept;
 
+        /**
+         * @brief get field system duration
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @return field system duration
+         */
         const unsigned int getFieldSystemDuration(int idx) const noexcept{
             return endOfFieldSystemTime_[idx]-endOfLastScan_[idx];
         }
+
+        /**
+         * @brief get slew duration
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @return slew duration
+         */
         const unsigned int getSlewDuration(int idx) const noexcept{
             return endOfSlewTime_[idx]-endOfFieldSystemTime_[idx];
         }
+
+        /**
+         * @brief get idle duration
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @return idle duration
+         */
         const unsigned int getIdleDuration(int idx) const noexcept{
             return endOfIdleTime_[idx]-endOfSlewTime_[idx];
         }
+
+        /**
+         * @brief get preob duration
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @return preob duration
+         */
         const unsigned int getPreobDuration(int idx) const noexcept{
             return endOfPreobTime_[idx]-endOfIdleTime_[idx];
         }
+
+        /**
+         * @brief get observing duration
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @return observing duration
+         */
         const unsigned int getObservingDuration(int idx) const noexcept{
             return endOfObservingTime_[idx]-endOfPreobTime_[idx];
         }
 
+        /**
+         * @brief get total observing duration
+         * @author Matthias Schartner
+         *
+         * @return total observing duration
+         */
         const unsigned int getObservingDuration() const noexcept{
             return getObservingTime(Timestamp::end)- getObservingTime(Timestamp::start);
         }
+
+        /**
+         * @brief get total scan duration
+         * @author Matthias Schartner
+         *
+         * @return total scan duration
+         */
         const unsigned int getScanDuration() const noexcept{
             return getScanTime(Timestamp::end) - getScanTime(Timestamp::start);
         }
 
+        /**
+         * @brief get field system time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param ts time stamp
+         * @return field system time
+         */
         const unsigned int getFieldSystemTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
                 case Timestamp::start:{
@@ -164,6 +263,14 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get slew time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param ts time stamp
+         * @return slew time
+         */
         const unsigned int getSlewTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
                 case Timestamp::start:{
@@ -175,6 +282,14 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get idle time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param ts time stamp
+         * @return idle time
+         */
         const unsigned int getIdleTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
                 case Timestamp::start:{
@@ -186,6 +301,14 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get preob time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param ts time stamp
+         * @return preob time
+         */
         const unsigned int getPreobTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
                 case Timestamp::start:{
@@ -197,6 +320,14 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get observing time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param ts time stamp
+         * @return observing time
+         */
         const unsigned int getObservingTime(int idx, Timestamp ts) const noexcept {
             switch (ts){
                 case Timestamp::start:{
@@ -208,6 +339,13 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get total observing time
+         * @author Matthias Schartner
+         *
+         * @param ts time stamp
+         * @return total observing time
+         */
         const unsigned int getObservingTime(Timestamp ts) const noexcept{
             switch (ts){
                 case Timestamp::start:{
@@ -219,6 +357,13 @@ namespace VieVS {
             }
         }
 
+        /**
+         * @brief get total scan time
+         * @author Matthias Schartner
+         *
+         * @param ts time stamp
+         * @return total scan time
+         */
         const unsigned int getScanTime(Timestamp ts) const noexcept{
             switch (ts){
                 case Timestamp::start:{
@@ -230,13 +375,23 @@ namespace VieVS {
             }
         }
 
-        
+        /**
+         * @brief align start times
+         * @author Matthias Schartner
+         */
         void alignStartTimes() noexcept;
 
+        /**
+         * @brief set observing start time
+         * @author Matthias Schartner
+         *
+         * @param scanStart start time
+         */
         void setObservingStarts(unsigned int scanStart) noexcept ;
 
         /**
          * @brief updates the slewtime of one element
+         * @author Matthias Schartner
          *
          * @param idx index of the element whichs slewtime is chanded
          * @param new_slewtime new slew time in seconds
@@ -245,6 +400,7 @@ namespace VieVS {
 
         /**
          * @brief adds scan times to each element
+         * @author Matthias Schartner
          *
          * Order of the scan times must be the same as the order of the element
          *
@@ -252,25 +408,81 @@ namespace VieVS {
          */
         void setObservingTimes(const std::vector<unsigned int> &scanTimes) noexcept;
 
+        /**
+         * @brief set observing times
+         * @author Matthias Schartner
+         *
+         * @param scanTimes new observing times
+         */
         void setObservingTimes(unsigned int scanTimes) noexcept;
 
+        /**
+         * @brief set observing time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param time new observing time
+         * @param ts time stamp
+         */
         void setObservingTime(int idx, unsigned int time, Timestamp ts);
 
+        /**
+         * @brief reduce observing time
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param maxObsTime maximum observing time
+         * @param ts time stamp
+         * @return true if time was reduced, otherwise false
+         */
         bool reduceObservingTime(int idx, unsigned int maxObsTime, Timestamp ts);
 
+        /**
+         * @brief add tagalong station times
+         * @author Matthias Schartner
+         *
+         * @param pv_start start pointing vector
+         * @param pv_end end pointing vector
+         * @param slewtime slew time in seconds
+         * @param currentTime current time of antenna
+         * @param fieldSystem field system time in seconds
+         * @param preob calibration time in seconds
+         */
         void addTagalongStationTime(const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
                                     unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
                                     unsigned int preob);
 
+        /**
+         * @brief set preob time for all stations
+         * @author Matthias Schartner
+         *
+         * @param preob preob time
+         * @return true if value was valid, otherwise false
+         */
         bool setPreobTime(const std::vector<unsigned int> &preob);
 
+        /**
+         * @brief set preob time for one station
+         * @author Matthias Schartner
+         *
+         * @param idx index
+         * @param preob preob time
+         * @return true if value was valid, otherwise false
+         */
         bool setPreobTime(int idx, unsigned int preob);
 
+        /**
+         * @brief remove unnecessary observing time
+         * @author Matthias Schartner
+         *
+         * @param ts time stamp
+         * @return index where observing time was removed
+         */
         int removeUnnecessaryObservingTime(Timestamp ts);
 
     private:
-        static unsigned long nextId;
-        static AlignmentAnchor anchor;
+        static unsigned long nextId; ///< next id for this object type
+        static AlignmentAnchor anchor; ///< scan alignment anchor
 
         std::vector<unsigned int> endOfLastScan_; ///< end of last scan
         std::vector<unsigned int> endOfFieldSystemTime_; ///< end of setup time
@@ -282,6 +494,10 @@ namespace VieVS {
         //TODO: implement endOfPostobTime_
         std::vector<unsigned int> endOfPostobTime_; ///< end of postob time
 
+        /**
+         * @brief remove idle times
+         * @author Matthias Schartner
+         */
         void removeIdleTime();
     };
 }

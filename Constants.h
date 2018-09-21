@@ -18,7 +18,7 @@
 
  
 /**
- * @file VieVS_constants.h
+ * @file Constants.h
  * @brief constants used in this program
  *
  *
@@ -36,9 +36,9 @@ constexpr double halfpi = pi / 2; ///< value of half pi
 constexpr double rad2deg = 180 / pi; ///< transforms radians to degrees
 constexpr double deg2rad = pi / 180; ///< transforms degrees to radians
 
-constexpr double omega = 1.00273781191135448 * twopi / 86400; ///< earth rotation velocity [rad/s]
+constexpr double omega = 1.00273781191135448 * twopi / 86400; ///< earth rotation velocity in radians per second
 
-constexpr double speedOfLight = 299792458.0;
+constexpr double speedOfLight = 299792458.0; ///< speed of light in meters per second
 
 #endif /* CONSTANTS_H */
 

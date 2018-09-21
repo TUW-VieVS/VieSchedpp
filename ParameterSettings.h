@@ -56,33 +56,35 @@ namespace VieVS {
 
         /**
          * @brief possible setup and optimization flags
+         * @author Matthias Schartner
          */
         enum class Type {
-            station, ///< stations wise group/setup
-            source, ///< source wise group/setup
-            baseline, ///< baseline wise group/setup
+            station, ///< stations wise
+            source, ///< source wise
+            baseline, ///< baseline wise
         };
 
 
         /**
          * @brief station parameters
+         * @author Matthias Schartner
          */
         struct ParametersStations{
             boost::optional<bool> firstScan; ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
             boost::optional<bool> available;  ///< if set to true: this station is available for a scan
             boost::optional<bool> tagalong;  ///< if set to true: station is in tagalong mode
-            boost::optional<bool> availableForFillinmode;
+            boost::optional<bool> availableForFillinmode; ///< if set to true: station is available for fillin mode scans
 
             std::unordered_map<std::string, double> minSNR; ///< minimum required signal to noise ration for each band
 
-            boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime
-            boost::optional<double> maxSlewDistance;
-            boost::optional<double> minSlewDistance;
-            boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas
-            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time
-            boost::optional<unsigned int> minScan; ///< minimum required scan time
-            boost::optional<double> minElevation; ///< minimum elevation of parameter
-            boost::optional<unsigned int> maxNumberOfScans;
+            boost::optional<unsigned int> maxSlewtime; ///< maximum allowed slewtime in seconds
+            boost::optional<double> maxSlewDistance; ///< maximum slew distance in degrees
+            boost::optional<double> minSlewDistance; ///< minimum slew distance in degrees
+            boost::optional<unsigned int> maxWait; ///< maximum allowed wait time for slow antennas in seconds
+            boost::optional<unsigned int> maxScan; ///< maximum allowed scan time in seconds
+            boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
+            boost::optional<double> minElevation; ///< minimum elevation of parameter in degrees
+            boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans with this station
 
@@ -91,22 +93,31 @@ namespace VieVS {
         };
 
 
+        /**
+         * @brief try to focus weight increase occurrency
+         * @author Matthias Schartner
+         */
         enum class TryToFocusOccurrency {
-            once,
-            perScan
+            once, ///< increase weight only once
+            perScan ///< increadse weight after each scan
         };
 
+        /**
+         * @brief try to focus weight increase type
+         * @author Matthias Schartner
+         */
         enum class TryToFocusType {
-            additive,
-            multiplicative
+            additive, ///< add weight increase value
+            multiplicative ///< multiply with weight increase value
         };
 
         /**
          * @brief source parameters
+         * @author Matthias Schartner
          */
         struct ParametersSources {
-            boost::optional<bool> available; ///< flag is source is available
-            boost::optional<bool> availableForFillinmode;
+            boost::optional<bool> available; ///< flag if source is available
+            boost::optional<bool> availableForFillinmode; ///< flas if source is available for fillin mode scans
 
             boost::optional<double> weight; ///< multiplicative factor of score for scans to this source
 
@@ -119,14 +130,14 @@ namespace VieVS {
             boost::optional<unsigned int> minScan; ///< minimum required scan time in seconds
             boost::optional<unsigned int> maxNumberOfScans; ///< maximum number of scans
             boost::optional<bool> tryToFocusIfObservedOnce; ///< flag if this source should be focused after observed once
-            boost::optional<double> tryToFocusFactor;
-            boost::optional<TryToFocusOccurrency> tryToFocusOccurrency;
-            boost::optional<TryToFocusType> tryToFocusType;
-            boost::optional<double> minElevation;
-            boost::optional<double> minSunDistance;
-            boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the timespan in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
-            boost::optional<unsigned int> tryToObserveXTimesMinRepeat;
-            boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration
+            boost::optional<double> tryToFocusFactor; ///< weight increase value
+            boost::optional<TryToFocusOccurrency> tryToFocusOccurrency; ///< try to focus weight increase occurrency
+            boost::optional<TryToFocusType> tryToFocusType; ///< try to focus weight increase type
+            boost::optional<double> minElevation; ///< minimum elevation in degrees
+            boost::optional<double> minSunDistance; ///< minimum sun distance in degrees
+            boost::optional<unsigned int> tryToObserveXTimesEvenlyDistributed; ///< tries to observe a source X times over the time span in which the source is scanable. Overwrites maxScan and tryToFocusIfObservedOnce.
+            boost::optional<unsigned int> tryToObserveXTimesMinRepeat; ///< tries to observe a source X times: backup minimum time span between two observations to this source in seconds
+            boost::optional<unsigned int> fixedScanDuration; ///< optional fixed scan duration in seconds
 
             std::vector<std::string> ignoreStationsString; ///< list of all station names which should be ignored
             std::vector<unsigned long> ignoreStations; ///< list of all station names which should be ignored
@@ -138,6 +149,7 @@ namespace VieVS {
 
         /**
          * @brief baseline parameters
+         * @author Matthias Schartner
          */
         struct ParametersBaselines {
             std::unordered_map<std::string, double> minSNR; ///< minimum SNR per band for each baseline
@@ -151,6 +163,7 @@ namespace VieVS {
 
         /**
          * @brief all possible observation mode flux information type
+         * @author Matthias Schartner
          */
         enum class ObservationModeProperty {
             required,    ///< this band information is required. If this information is missing this object is not used.
@@ -158,8 +171,9 @@ namespace VieVS {
         };
 
         /**
-        * @brief all possible observation mode backup models
-        */
+         * @brief all possible observation mode backup models
+         * @author Matthias Schartner
+         */
         enum class ObservationModeBackup {
             minValueTimes, ///< use minimum value found in other bands times a factor
             maxValueTimes, ///< use maximum value found in other bands times a factor
@@ -171,11 +185,13 @@ namespace VieVS {
 
         /**
          * @brief empty default constructor
+         * @author Matthias Schartner
          */
         ParameterSettings();
 
         /**
          * @brief software block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param name software name
          * @param version software version
@@ -184,13 +200,24 @@ namespace VieVS {
 
         /**
          * @brief general block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param startTime session start time
          * @param endTime session end time
          * @param subnetting flag if subnetting is allowed
-         * @param fillinmode flag if fillin modes are allowed
-         * @param fillinmodeInfluence flag if fillin mode scans should have an influence on the schedule
+         * @param subnettingAngle minimum angular distance between subnetting sources in degrees
+         * @param useSubnettingPercent_otherwiseAllBut flag to choose minimum number of stations per subnetting scan model
+         * @param subnettingNumber value for minimum number of stations per subnetting scan model
+         * @param fillinmodeInfluenceOnSchedule flag if fillin mode scans should have an influence on the schedule
+         * @param fillinmodeDuringScan flag if fillin mode scans are allowed
+         * @param fillinmodeAPosteriori flag if fillin mode a posterior scans are allowed
+         * @param idleToObservingTime flag if idle time should be converted to observing time
          * @param stations list of all stations
+         * @param useSourcesFromParameter_otherwiseIgnore flag which model is used for srcNames
+         * @param srcNames source names for model from useSourcesFromParameter_otherwiseIgnore
+         * @param scanAlignment scan alignment flag
+         * @param logConsole log level for console
+         * @param logFile log level for file
          */
         void general(const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
@@ -200,10 +227,19 @@ namespace VieVS {
                      const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                      const std::string &logConsole, const std::string &logFile);
 
+        /**
+         * @brief created block in parameters.xml
+         * @author Matthias Schartner
+         *
+         * @param time created time stamp
+         * @param name created name
+         * @param email created email
+         */
         void created(const boost::posix_time::ptime &time, std::string name, std::string email);
 
         /**
          * @brief catalogs block in parameters.xml
+         * @author Matthias Schartner
          *
          * @param antenna antenna catalog name
          * @param equip equip catalog name
@@ -217,6 +253,7 @@ namespace VieVS {
          * @param rec rec catalog name
          * @param rx rx catlog name
          * @param source source catalog name
+         * @param tracks tracks catalog name
          */
         void
         catalogs(const std::string &antenna, const std::string &equip, const std::string &flux, const std::string &freq,
@@ -226,6 +263,7 @@ namespace VieVS {
 
         /**
          * @brief group defined in parameters.xml
+         * @author Matthias Schartner
          *
          * @param type group type
          * @param group group object
@@ -234,6 +272,7 @@ namespace VieVS {
 
         /**
          * @brief returns all members of a defined group
+         * @author Matthias Schartner
          *
          * @param type group type
          * @param groupName group name
@@ -243,6 +282,7 @@ namespace VieVS {
 
         /**
          * @brief write defined station parameters to parameters.xml
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -251,6 +291,7 @@ namespace VieVS {
 
         /**
          * @brief defined station parameters
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -260,6 +301,7 @@ namespace VieVS {
 
         /**
          * @brief transforms parameterStations to property_tree
+         * @author Matthias Schartner
          *
          * @param ptree property tree
          * @return first entry is parameter name, second are station parameters
@@ -268,6 +310,7 @@ namespace VieVS {
 
         /**
          * @brief write defined source parameters to parameters.xml
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -276,6 +319,7 @@ namespace VieVS {
 
         /**
          * @brief defined source parameters
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -285,6 +329,7 @@ namespace VieVS {
 
         /**
          * @brief transforms parameterSource to property_tree
+         * @author Matthias Schartner
          *
          * @param ptree property tree
          * @return first entry is parameter name, second are source parameters
@@ -293,6 +338,7 @@ namespace VieVS {
 
         /**
          * @brief write defined baseline parameters to parameters.xml
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -301,6 +347,7 @@ namespace VieVS {
 
         /**
          * @brief defined baseline parameters
+         * @author Matthias Schartner
          *
          * @param name parameter name
          * @param PARA parameters
@@ -310,6 +357,7 @@ namespace VieVS {
 
         /**
          * @brief transforms ParametersBaselines to property_tree
+         * @author Matthias Schartner
          *
          * @param ptree property tree
          * @return first entry is parameter name, second are baseline parameters
@@ -319,6 +367,7 @@ namespace VieVS {
 
         /**
          * @brief setup block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param type flag where this setup belongs
          * @param setup setup object
@@ -327,39 +376,56 @@ namespace VieVS {
 
         /**
          * @brief station wait times block
+         * @author Matthias Schartner
          *
          * @param name group, station name or "__all__"
-         * @param setup time for setup in seconds
-         * @param source time for source command in seconds
-         * @param tape time for tape command in seconds
-         * @param calibration time for preobservation in seconds
-         * @param corsynch time for correlator synchronization
+         * @param fieldSystem time for field system commands in seconds
+         * @param preob time for preob in seconds
+         * @param midob extra midob time for correlator synchronization
+         * @param postob time for postob
          */
         void stationWaitTimes(const std::string &name, unsigned int fieldSystem, unsigned int preob, unsigned int midob,
                               unsigned int postob);
 
 
+        /**
+         * @brief station cable wrap buffer block
+         * @author Matthias Schartner
+         *
+         * @param name group, station name or "__all__"
+         * @param axis1LowOffset axis 1 lower offset in degrees
+         * @param axis1UpOffset axis 1 upper offset in degrees
+         * @param axis2LowOffset axis 2 lower offset in degrees
+         * @param axis2UpOffset axis 2 upper offset in degrees
+         */
         void stationCableWrapBuffer(const std::string &name, double axis1LowOffset, double axis1UpOffset,
                                     double axis2LowOffset, double axis2UpOffset);
 
         /**
          * @brief skyCoverage block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param influenceDistance maximum angular influence distance in degrees
          * @param influenceInterval maximum time influence distance in seconds
          * @param maxTwinTelecopeDistance maximum distance between twin telescopes
+         * @param interpolationDistance distance model function
+         * @param interpolationTime time model function
          */
         void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistancestring,
                          std::string interpolationDistance, std::string interpolationTime);
 
         /**
          * @brief weightFactor block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param weight_skyCoverage weight of sky Coverage
          * @param weight_numberOfObservations weight of number of observations
          * @param weight_duration weight of duration of the scan
          * @param weight_averageSources weight of an average source observation distribution
          * @param weight_averageStations weight of an average station usage distribution
+         * @param weight_averageBaselines weight of an average baselines usage distribution
+         * @param weight_idleTime extra weight for station after long idle time
+         * @param intervalIdleTime extra weight for stations after long idle time model in seconds
          * @param weightDeclination weight factor for declination
          * @param declinationSlopeStart start declination of additional weight (everything above has factor 0)
          * @param declinationSlopeEnd end declination of additional declination weight slope (everything below has factor 1)
@@ -373,12 +439,25 @@ namespace VieVS {
                           double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                           double lowElevationSlopeStart, double lowElevationSlopeEnd);
 
+        /**
+         * @brief conditions block in paramter.xml
+         * @author Matthias Schartner
+         *
+         * @param members group, source name or "__all__"
+         * @param minScans minimum number of scans
+         * @param minBaselines minimum number of observations
+         * @param andForCombination combination model
+         * @param maxNumberOfIterations maximum number of iterations
+         * @param numberOfGentleSourceReductions number of gentle source reductions
+         * @param minNumberOfSourcesToReduce minimum number of sources to reduce
+         */
         void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
                         bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
                         int minNumberOfSourcesToReduce);
 
         /**
          * @brief custom mode block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param sampleRate sample rate
          * @param bits bits
@@ -387,23 +466,28 @@ namespace VieVS {
 
         /**
          * @brief mode block in parameter.xml
+         * @author Matthias Schartner
+         *
          * @param skdMode name of observing mode in skd catalogs
          */
         void mode(const std::string & skdMode);
 
         /**
          * @brief band sub-block in mode block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param name band name
          * @param wavelength band wavelength
-         * @param chanels number of channels
+         * @param channels number of channels
          */
-        void mode_band(const std::string &name, double wavelength, unsigned int chanels);
+        void mode_band(const std::string &name, double wavelength, unsigned int channels);
 
         /**
          * @brief bandPolicy sub-block in mode block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param name band name
+         * @param minSNR minimum signal to noise ratio
          * @param station station policy for this band
          * @param stationBackup station backup model
          * @param stationBackupValue station backup model value
@@ -417,20 +501,25 @@ namespace VieVS {
 
         /**
          * @brief multisched block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param multiSched multisched xml tree
+         * @param number maximum number of schedules model ("all" or "select")
+         * @param maxn maximum number of schedules number
+         * @param useSeed use seed model ("random" or "select")
+         * @param seed number
          */
         void multisched(const boost::property_tree::ptree &multiSched, const std::string &number, int maxn,
                         const std::string &useSeed, int seed);
 
         /**
          * @brief multiCore multi core support for scheduling
+         * @author Matthias Schartner
          *
          * @param threads thread creation schema
          * @param nThreadsManual number of manually selected threads
          * @param jobScheduler job scheduling algorithmus
          * @param chunkSize job scheduling chunk size
-         * @param threadPlace thread affinitiy control
          */
         void multiCore(const std::string &threads, int nThreadsManual,
                        const std::string &jobScheduler, int chunkSize);
@@ -438,6 +527,7 @@ namespace VieVS {
 
         /**
          * @brief output routine that produces .xml file
+         * @author Matthias Schartner
          *
          * @param name output file name (usually "parameter")
          */
@@ -445,14 +535,25 @@ namespace VieVS {
 
         /**
          * @brief output block in parameter.xml
+         * @author Matthias Schartner
          *
          * @param experimentName experiment name
          * @param experimentDescription experiment description
          * @param scheduler scheduler
          * @param correlator correlator
+         * @param piName pi name
+         * @param piEmail pi email
+         * @param contactName contact name
+         * @param contactEmail contact email
+         * @param notes schedule notes
          * @param createSummary create summary file
          * @param createNGS create NGS file
          * @param createSKD create SKD file
+         * @param vex create VEX file
+         * @param operNotes create operation notes file
+         * @param operationNotes operation notes comments
+         * @param srcGrp create source group statistics file
+         * @param srcGroupsForStatistic groups for source group statistics file
          * @param createSkyCoverage create sky coverage file
          */
         void output(const std::string &experimentName, const std::string &experimentDescription,
@@ -465,6 +566,7 @@ namespace VieVS {
 
         /**
          * @brief specify the sequence in which sources should be observed
+         * @author Matthias Schartner
          *
          * If you say cadence = 5, modulo = 0, source = A than every 5th selected scan(or subnetting sequence) will be
          * (if possible) to a source of A. This does not effect the first scan of a schedule!
@@ -480,38 +582,105 @@ namespace VieVS {
         void ruleScanSequence(unsigned int cadence, const std::vector<unsigned int> &modulo,
                               const std::vector<std::string> &member);
 
+        /**
+         * @brief calibrator block in paramters.xml
+         * @author Matthias Schartner
+         *
+         * @param cadence cadence in seconds
+         * @param member calibrator source name
+         * @param between_elevation target elevations
+         * @param nMaxScans maximum number of scans
+         * @param scanTime fixed scan time
+         */
         void ruleCalibratorBlockTime(unsigned int cadence, const std::string &member,
                                      const std::vector<std::pair<double,double> > &between_elevation,
                                      unsigned int nMaxScans, unsigned int scanTime);
 
+        /**
+         * @brief calibrator block in paramters.xml
+         * @author Matthias Schartner
+         *
+         * @param cadence cadence in number of scans
+         * @param member calibrator source name
+         * @param between_elevation target elevations
+         * @param nMaxScans maximum number of scans
+         * @param scanTime fixed scan time
+         */
         void ruleCalibratorBlockNScanSelections(unsigned int cadence, const std::string &member,
                                                 const std::vector<std::pair<double, double> > &between_elevation,
                                                 unsigned int nMaxScans, unsigned int scanTime);
 
+        /**
+         * @brief high impact block in parameters.xml file
+         * @author Matthias Schartner
+         *
+         * @param members high impact stations
+         * @param azs target azimuths in degrees
+         * @param els target elevations in degrees
+         * @param margins target azimuth, elevation margins in degrees
+         * @param interval check interval in seconds
+         * @param repeat minimum amount of time between tow scans in seconds
+         */
         void highImpactAzEl(const std::vector<std::string> &members, const std::vector<double> &azs,
                             const std::vector<double> &els, const std::vector<double> &margins,
                             int interval, int repeat);
 
+        /**
+         * @brief get station groups
+         * @author Matthias Schartner
+         *
+         * @return all station groups
+         */
         const std::map<std::string, std::vector<std::string>> &getGroupStations() const {
             return groupStations_;
         }
 
+        /**
+         * @brief get source groups
+         * @author Matthias Schartner
+         *
+         * @return all source groups
+         */
         const std::map<std::string, std::vector<std::string>> &getGroupSources() const {
             return groupSources_;
         }
 
+        /**
+         * @brief get baseline groups
+         * @author Matthias Schartner
+         *
+         * @return all baseline groups
+         */
         const std::map<std::string, std::vector<std::string>> &getGroupBaselines() const {
             return groupBaselines_;
         }
 
+        /**
+         * @brief get all station parameters
+         * @author Matthias Schartner
+         *
+         * @return all station parameters and name
+         */
         const std::map<std::string, ParametersStations> &getParaStations() const {
             return paraStations_;
         }
 
+        /**
+         * @brief get all source parameters
+         * @author Matthias Schartner
+         *
+         * @return all source parameters and name
+         */
         const std::map<std::string, ParametersSources> &getParaSources() const {
             return paraSources_;
         }
 
+        /**
+         * @brief get baseline parameters
+         * @author Matthias Schartner
+         *
+         * @return all baseline parameters and name
+         */
         const std::map<std::string, ParametersBaselines> &getParaBaselines() const {
             return paraBaselines_;
         }
@@ -531,6 +700,7 @@ namespace VieVS {
 
         /**
          * @brief returns a child tree of root setup object
+         * @author Matthias Schartner
          *
          * @param setup root setup object
          * @return child property tree

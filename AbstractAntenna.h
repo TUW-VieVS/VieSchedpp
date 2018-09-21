@@ -17,13 +17,14 @@
  */
  
  /**
- * @file Antenna.h
- * @brief class Antenna
- *
- *
- * @author Matthias Schartner
- * @date 27.06.2017
- */
+  * @file AbstractAntenna.h
+  * @brief class AbstractAntenna
+  *
+  * @author Matthias Schartner
+  * @date 27.06.2017
+  *
+  * This class serves as the base class for all antenna implementations.
+  */
 
 #ifndef ANTENNA_H
 #define ANTENNA_H
@@ -36,8 +37,8 @@
 namespace VieVS{
 
     /**
-     * @class Antenna
-     * @brief representation of an VLBI antenna
+     * @class AbstractAntenna
+     * @brief representation of a VLBI antenna
      *
      * @author Matthias Schartner
      * @date 27.06.2017
@@ -47,70 +48,114 @@ namespace VieVS{
 
         /**
          * @brief constructor
+         * @author Matthias Schartner
          *
          * @param type axis type
          * @param offset_m offset of antenna axis intersection in meters
          * @param diam_m diameter of antenna dish in meters
          * @param rate1_deg_per_min slew rate of first axis in degrees/seconds
-         * @param constantOverhead1_s constant overhead for first axis slew in seconds
+         * @param constantOverhead1_s constant overhead for first axis slew time in seconds
          * @param rate2_deg_per_min slew rate of second axis in degrees/secondds
-         * @param constantOverhead2_s constant overhead for second axis slew in seconds
+         * @param constantOverhead2_s constant overhead for second axis slew time in seconds
          */
         AbstractAntenna(double offset_m, double diam_m, double rate1_deg_per_min,
                         unsigned int constantOverhead1_s, double rate2_deg_per_min, unsigned int constantOverhead2_s);
 
+        /**
+         * @brief getter for antenna diameter
+         * @author Matthias Schartner
+         *
+         * @return diameter of antenna dish in meters
+         */
         double getDiam() const {
             return diam_;
         }
 
+        /**
+         * @brief getter for antenna offset
+         * @author Matthias Schartner
+         *
+         * @return offset of antenna axis intersection in meters
+         */
         double getOffset() const {
             return offset_;
         }
 
+       /**
+        * @brief slew rate of first axis in rad/seconds
+        * @author Matthias Schartner
+        *
+        * @return slew rate of first antenna axis in rad/seconds
+        */
         double getRate1() const {
             return rate1_;
         }
 
+        /**
+         * @brief getter for constant overhead for first axis slew time in seconds
+         * @author Matthias Schartner
+         *
+         * @return constant overhead for first axis slew in seconds
+         */
         double getCon1() const {
             return con1_;
         }
 
+        /**
+         * @brief slew rate of second axis in rad/seconds
+         * @author Matthias Schartner
+         *
+         * @return slew rate of first antenna axis in rad/seconds
+         */
         double getRate2() const {
             return rate2_;
         }
 
+        /**
+         * @brief getter for constant overhead for second axis slew time in seconds
+         * @author Matthias Schartner
+         *
+         * @return constant overhead for first axis slew in seconds
+         */
         double getCon2() const {
             return con2_;
         }
 
         /**
          * @brief calculates the slewtime between azimuth and elevation of two pointing vectors
-         * @param old_pointingVector start azimuth and elevation
-         * @param new_pointingVector end azimuth and elevation
-         * @return slewtime in seconds
+         * @author Matthias Schartner
+         *
+         * @param old_pointingVector start pointing vector
+         * @param new_pointingVector end pointing vector
+         * @return slewtime between start pointing vector and end pointing vector in seconds
          */
         virtual unsigned int
         slewTime(const PointingVector &old_pointingVector,
                  const PointingVector &new_pointingVector) const noexcept = 0;
 
     protected:
+
+        /**
+         * @brief enum to distinguish antenna axis
+         * @author Matthias Schartner
+         */
         enum class Axis {
-            axis1,
-            axis2,
+            axis1, ///< first antenna axis
+            axis2, ///< second antenna axis
         };
 
         /**
          * @brief calculates slew time per axis
+         * @author Matthias Schartner
          *
-         * @param delta distance to slew
-         * @param rate velocity
-         * @param acc acceleration
+         * @param delta distance to slew in radians
+         * @param axis antenna axis
          * @return slew time in seconds
          */
         unsigned int slewTimePerAxis(double delta, Axis axis) const noexcept ;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
         double offset_; ///< offset of the antenna axis intersection in meters
         double diam_; ///< diameter of the antenna dish in meters

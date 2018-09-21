@@ -20,7 +20,6 @@
  * @file LookupTable.h
  * @brief class LookupTable
  *
- *
  * @author Matthias Schartner
  * @date 02.08.2017
  */
@@ -54,17 +53,59 @@ namespace VieVS {
         static std::vector<double> acosLookupTable; ///< table for fast lookup for inverse cosine function with reduced accuracy. Key is fraction of .001 pi
 
     public:
+        /**
+         * @brief initialize lookup tables
+         * @author Matthias Schartner
+         */
         static void initialize();
 
+        /**
+         * @brief sinus lookup table
+         * @author Matthias Schartner
+         *
+         * @param x argument in radians
+         * @return sinus of argument
+         */
         static double sinLookup(double x);
 
+        /**
+         * @brief cosine lookup table
+         * @author Matthias Schartner
+         *
+         * @param x argument in radians
+         * @return cosine of argument
+         */
         static double cosLookup(double x);
 
+        /**
+         * @brief arcus cosine lookup table
+         * @author Matthias Schartner
+         *
+         * @param x argument in radians
+         * @return arcus cosine of argument
+         */
         static double acosLookup(double x);
 
-
+        /**
+         * @brief angular distance between two points
+         * @author Matthias Schartner
+         *
+         * @param p1 start pointing vector
+         * @param p2 end pointing vector
+         * @return angular distance between two points in radians
+         */
         static float angularDistance(const PointingVector &p1, const PointingVector &p2) noexcept;
 
+        /**
+         * @brief angular distance between two points
+         * @author Matthias Schartner
+         *
+         * @param phi1 start phi in radians
+         * @param theta1 start theta in radians
+         * @param phi2 end phi in radians
+         * @param theta2 end thatet in radians
+         * @return angular distance between two points in radians
+         */
         static float angularDistance(double phi1, double theta1, double phi2, double theta2) noexcept;
     };
 }

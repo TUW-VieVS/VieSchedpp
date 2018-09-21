@@ -16,25 +16,62 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Flux_B.h
+* @brief class Flux_B
+*
+* @author Matthias Schartner
+* @date 12.04.2018
+*
+*/
+
 #ifndef VLBI_SCHEDULER_FLUX_B_H
 #define VLBI_SCHEDULER_FLUX_B_H
 
 #include "AbstractFlux.h"
 
 namespace VieVS{
+    /**
+     * @class Flux_B
+     * @brief baseline length based flux information
+     *
+     * @author Matthias Schartner
+     * @date 12.04.2018
+     */
     class Flux_B : public AbstractFlux {
     public:
+
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param wavelength wavelength in meters
+         * @param knots baseline length knots in meters
+         * @param values flux density values in jansky
+         */
         Flux_B(double wavelength, const std::vector<double> &knots, const std::vector<double> &values);
 
+        /**
+         * @brief maximum possible flux density
+         * @author Matthias Schartner
+         *
+         * @return maximum possible flux density in Jansky
+         */
         double getMaximumFlux()  const noexcept override;
 
+        /**
+         * @brief observed flux density
+         * @author Matthias Schartner
+         *
+         * @param u projected baseline length u
+         * @param v projected baseline length v
+         * @return observed flux density in jansky
+         */
         double observedFlux(double u, double v) const noexcept override;
 
     private:
-//        Flux_B* do_clone() const override;
-
-        std::vector<double> knots_; ///< baseline length of flux information (type B)
-        std::vector<double> values_; ///< corresponding flux information for baseline length (type B)
+        std::vector<double> knots_; ///< baseline length for flux density
+        std::vector<double> values_; ///< corresponding flux density for baseline length
     };
 }
 

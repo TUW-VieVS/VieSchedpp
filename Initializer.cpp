@@ -2870,14 +2870,14 @@ void Initializer::initializeOptimization(std::ofstream &of) {
                     for(auto &source:sources_){
                         if(find(group.begin(),group.end(),source.getName()) != group.end()){
                             source.referenceCondition().minNumScans = scans;
-                            source.referenceCondition().minNumBaselines = bls;
+                            source.referenceCondition().minNumObs = bls;
                         }
                     }
                 } else {
                     for(auto &source:sources_){
                         if(source.hasName(member)){
                             source.referenceCondition().minNumScans = scans;
-                            source.referenceCondition().minNumBaselines = bls;
+                            source.referenceCondition().minNumObs = bls;
                         }
                     }
                 }

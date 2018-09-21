@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file Mode.h
+* @brief class Mode
+*
+* @author Matthias Schartner
+* @date 17.09.2018
+*/
+
 #ifndef VIESCHEDPP_MODE_H
 #define VIESCHEDPP_MODE_H
 
@@ -31,6 +39,16 @@
 #include "If.h"
 
 namespace VieVS{
+
+    /**
+     * @class Mode
+     * @brief observing mode
+     *
+     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     *
+     * @author Matthias Schartner
+     * @date 17.09.2018
+     */
     class Mode: public VieVS_NamedObject {
     public:
         explicit Mode(std::string name);

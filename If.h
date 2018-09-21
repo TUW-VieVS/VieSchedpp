@@ -16,6 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+* @file If.h
+* @brief class If
+*
+* @author Matthias Schartner
+* @date 17.09.2018
+*/
+
 #ifndef VIESCHEDPP_IF_H
 #define VIESCHEDPP_IF_H
 
@@ -24,6 +32,16 @@
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
+
+    /**
+     * @class If
+     * @brief if section of observing mode
+     *
+     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     *
+     * @author Matthias Schartner
+     * @date 17.09.2018
+     */
     class If: public VieVS_NamedObject {
     public:
 
