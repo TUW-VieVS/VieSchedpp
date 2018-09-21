@@ -24,6 +24,10 @@ multiSchedEditDialogInt::multiSchedEditDialogInt(QWidget *parent) :
     ui(new Ui::multiSchedEditDialogInt)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
     ui->groupBox_member->hide();
     all = new QStandardItemModel(0,1,this);
     proxy = new QSortFilterProxyModel();

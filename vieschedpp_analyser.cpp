@@ -25,11 +25,13 @@ VieSchedpp_Analyser::VieSchedpp_Analyser(VieVS::Scheduler schedule, std::map<std
 {
     ui->setupUi(this);
 
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++ Analyzer");
+
     sessionStartMjd_ = sessionStart_.date().toJulianDay() - 2400000.5 +
                                     (sessionStart_.time().second() +
                                      sessionStart_.time().minute()*60 +
                                      sessionStart_.time().hour()*3600)/86400.0;
-
     for(const auto &any: freqs){
         QString band = QString::fromStdString(any.first);
         QVector<double> f;

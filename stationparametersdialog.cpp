@@ -24,6 +24,8 @@ stationParametersDialog::stationParametersDialog(boost::property_tree::ptree &se
     ui(new Ui::stationParametersDialog)
 {
     ui->setupUi(this);
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
     sources = new QStandardItemModel(this);
     sources_proxy = new QSortFilterProxyModel(this);
     sources_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);

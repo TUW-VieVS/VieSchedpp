@@ -24,6 +24,10 @@ saveToSettingsDialog::saveToSettingsDialog(boost::property_tree::ptree &settings
     ui(new Ui::saveToSettingsDialog)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
     QIcon ic = style()->standardIcon(QStyle::SP_MessageBoxQuestion);
     QPixmap pix = ic.pixmap(100,100);
     ui->label_img->setPixmap(pix);

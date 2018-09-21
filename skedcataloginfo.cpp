@@ -24,6 +24,8 @@ SkedCatalogInfo::SkedCatalogInfo(QWidget *parent) :
     ui(new Ui::SkedCatalogInfo)
 {
     ui->setupUi(this);
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
 }
 
 void SkedCatalogInfo::setFonts()

@@ -27,6 +27,8 @@ textfileViewer::textfileViewer(QWidget *parent) :
     ui(new Ui::textfileViewer)
 {
     ui->setupUi(this);
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
 
     ui->pushButton_jumpBack->setShortcut(QKeySequence(Qt::CTRL+Qt::Key_Down));
 }

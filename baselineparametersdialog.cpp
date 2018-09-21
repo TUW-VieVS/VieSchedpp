@@ -164,6 +164,10 @@ baselineParametersDialog::baselineParametersDialog(boost::property_tree::ptree &
     ui(new Ui::baselineParametersDialog)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
 }
 
 baselineParametersDialog::~baselineParametersDialog()

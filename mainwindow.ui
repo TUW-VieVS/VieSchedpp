@@ -113,7 +113,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you do not understand a GUI element enter the &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;&amp;quot;what is this?&amp;quot;&lt;/span&gt; mode by pressing the &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;F1&lt;/span&gt; key or clicking the &lt;img src=&quot;:/icons/icons/help.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; button and selecting the GUI element. &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Optimize your schedule:&lt;/span&gt; &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Have a look at the schedule using our &lt;span style=&quot; font-weight:600;&quot;&gt;session analyzer&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Have a look at the schedule using our &lt;span style=&quot; font-weight:600;&quot;&gt;VieSched++ Analyzer&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Do not simply create only a single schedule but try to create multiple schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;multi scheduling&lt;/span&gt; tool &lt;img src=&quot;:/icons/icons/multi_sched.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; you can then compare your versions using our statistics tools &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Start by varying some of the &lt;span style=&quot; font-weight:600;&quot;&gt;weight factors&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. This usually brings the best improvement. &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If a station is still underrepresented &lt;span style=&quot; font-weight:600;&quot;&gt;increase the weight&lt;/span&gt; of this station &lt;img src=&quot;:/icons/icons/station_p.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; or adjusts the &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;average stations&lt;/span&gt;&amp;quot; weight factor &lt;img src=&quot;:/icons/icons/sky_coverage.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;. The same is true for sources and baselines. &lt;/p&gt;
@@ -122,7 +122,7 @@ p, li { white-space: pre-wrap; }
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Look at your results:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can compare schedules using the &lt;span style=&quot; font-weight:600;&quot;&gt;statistics tools&lt;/span&gt; &lt;img src=&quot;:/icons/icons/office-chart-bar.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;session analyzer&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to get a better impression of a single schedule &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;VieSched++ Analyzer&lt;/span&gt; &lt;img src=&quot;:/icons/icons/sky_coverage_analyser.png&quot; width=&quot;30&quot; height=&quot;30&quot; /&gt; to get a better impression of a single schedule &lt;/p&gt;
 &lt;hr /&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Help:&lt;/span&gt; &lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Generally, all Items should have a tooltip and a status tip that should appear if you hover an item. &lt;/p&gt;
@@ -988,7 +988,7 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>929</width>
+             <width>264</width>
              <height>717</height>
             </rect>
            </property>
@@ -11210,7 +11210,7 @@ p, li { white-space: pre-wrap; }
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="myresources.qrc">
-     <normaloff>:/icons/icons/about.png</normaloff>:/icons/icons/about.png</iconset>
+     <normaloff>:/icons/icons/VieSchedppGUI_logo.png</normaloff>:/icons/icons/VieSchedppGUI_logo.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -11343,6 +11343,9 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Skd Parser</string>
+   </property>
+   <property name="toolTip">
+    <string>VieSched++ Analyzer</string>
    </property>
   </action>
  </widget>

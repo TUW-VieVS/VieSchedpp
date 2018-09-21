@@ -24,6 +24,10 @@ addBandDialog::addBandDialog(boost::property_tree::ptree &settings_, QWidget *pa
     ui(new Ui::addBandDialog)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
 }
 
 addBandDialog::~addBandDialog()

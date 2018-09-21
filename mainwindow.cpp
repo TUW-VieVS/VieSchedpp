@@ -25,12 +25,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
     ui->main_stacked->setCurrentIndex(0);
 
 
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setApplicationName("VieSched++ GUI");
     QCoreApplication::setApplicationVersion(GIT_COMMIT_HASH);
+
     QSettings settings("TU Wien","VieSched++ GUI");
     restoreGeometry(settings.value("myWidget/geometry").toByteArray());
     restoreState(settings.value("myWidget/windowState").toByteArray());
@@ -48,8 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_version->setFont(QFont(QApplication::font().family(),8));
     QCoreApplication::setOrganizationName("TU Wien");
     QCoreApplication::setOrganizationDomain("http://hg.geo.tuwien.ac.at/");
-
-    this->setWindowTitle("VieSched++");
 
     mainPath = QCoreApplication::applicationFilePath();
     QStringList mainPathSplit = mainPath.split("/");

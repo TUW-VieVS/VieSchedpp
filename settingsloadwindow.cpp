@@ -24,6 +24,10 @@ settingsLoadWindow::settingsLoadWindow(QWidget *parent) :
     ui(new Ui::settingsLoadWindow)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
     ui->splitter->setStretchFactor(1,2);
     ui->name->setMouseTracking(true);
     connect(ui->name,SIGNAL(itemEntered(QListWidgetItem*)),this,SLOT(refreshList(QListWidgetItem*)));

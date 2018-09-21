@@ -24,6 +24,10 @@ AddGroupDialog::AddGroupDialog(boost::property_tree::ptree &settings_, Type type
     ui(new Ui::AddGroupDialog)
 {
     ui->setupUi(this);
+
+    QApplication::setWindowIcon(QIcon(":/icons/icons/VieSchedppGUI_logo.png"));
+    this->setWindowTitle("VieSched++");
+
     all = new QStandardItemModel(0,1,this);
     proxy = new QSortFilterProxyModel();
     proxy->setSourceModel(all);

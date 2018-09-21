@@ -68,6 +68,7 @@
         <file>icons/view-refresh-7.png</file>
         <file>icons/about.png</file>
         <file>icons/uv.png</file>
+        <file>icons/VieSchedppGUI_logo.png</file>
     </qresource>
     <qresource prefix="/images">
         <file>images/vievs_sched_subtitle_transparent.png</file>
