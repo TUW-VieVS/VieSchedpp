@@ -30,9 +30,9 @@ Vex::Vex(const string &file): VieVS_Object(nextId++){
 void Vex::writeVex(const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
               const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml) {
 
-    global_block(xml.get("master.output.experimentName","schedule"));
+    global_block(xml.get("master.general.experimentName","schedule"));
 
-    exper_block(boost::trim_copy(xml.get("master.output.experimentName","dummy")),
+    exper_block(boost::trim_copy(xml.get("master.general.experimentName","dummy")),
                 boost::trim_copy(xml.get("master.output.experimentDescription","no further description")),
                 boost::trim_copy(xml.get("master.output.piName","")),
                 boost::trim_copy(xml.get("master.output.piEmail","")),

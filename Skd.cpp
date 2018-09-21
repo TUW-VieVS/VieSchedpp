@@ -32,7 +32,7 @@ void Skd::writeSkd(const Network &network,
                    const SkdCatalogReader &skdCatalogReader, 
                    const boost::property_tree::ptree &xml) {
 
-    of << "$EXPER " << xml.get<string>("master.output.experimentName") << endl;
+    of << "$EXPER " << xml.get<string>("master.general.experimentName") << endl;
     if(xml.get_optional<std::string>("master.output.piName").is_initialized()){
         of << "* PI name:       " << *xml.get_optional<std::string>("master.output.piName") << "\n";
     }

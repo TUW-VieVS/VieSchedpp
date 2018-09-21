@@ -665,7 +665,7 @@ void Output::writeStatisticsPerSourceGroup() {
         boost::property_tree::ptree PARA_source = *tmp0;
         unordered_map<std::string, std::vector<std::string> > group_source = readGroups(PARA_source, GroupType::source);
 
-        string expName = xml_.get("master.output.experimentName","schedule");
+        string expName = xml_.get("master.general.experimentName","schedule");
         string fileName = getName();
         fileName.append("_sourceStatistics.txt");
         #ifdef VIESCHEDPP_LOG
@@ -1082,7 +1082,7 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
 }
 
 void Output::writeOperationsNotes() {
-    string expName = xml_.get("master.output.experimentName","schedule");
+    string expName = xml_.get("master.general.experimentName","schedule");
 
     string fileName = getName();
     fileName.append("_operationsNotes.txt");
