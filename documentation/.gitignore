@@ -1,0 +1,5 @@
+*
+!.gitignore
+!createDocumentation_linux.sh
+!createDocumentation_windows.bat
+!Doxyfile

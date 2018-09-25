@@ -54,7 +54,12 @@ unsigned int AbstractAntenna::slewTimePerAxis(double delta, Axis axis) const noe
         t = 2 * t_acc + (delta - s_acc) / rate;
     }
 
+    // add an extra second for slew times close to next integer time
     if(fmod(t,1.0)>0.85){
+        ++t;
+    }
+    // add an extra second for very slow antennas
+    if(rate1_ < 0.015 || rate2_ < 0.010){
         ++t;
     }
 

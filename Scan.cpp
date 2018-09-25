@@ -757,13 +757,8 @@ bool Scan::rigorousSlewtime(Network &network, const Source &source) noexcept {
                 break;
             }
 
-            // add one more seconds of tolerance for very slow antennas (preob timestamp vs slew timestamp error)
-            unsigned int newSlewTime = *thisSlewtime;
-            if(thisStation.getAntenna().getRate1() < 0.015 || thisStation.getAntenna().getRate2() < 0.010){
-                ++newSlewTime;
-            }
-
             // calculate new slew end time and time difference
+            unsigned int newSlewTime = *thisSlewtime;
             newSlewEnd = slewStart + newSlewTime;
             if (newSlewEnd > oldSlewEnd) {
                 timeDiff = newSlewEnd - oldSlewEnd;
