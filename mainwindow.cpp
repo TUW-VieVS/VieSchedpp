@@ -70,7 +70,10 @@ MainWindow::MainWindow(QWidget *parent) :
     file.setFileName("settings.xml");
     if(!file.exists()){
         QMessageBox mb;
-        QString txt = "Before you start, please make sure to set the path to the VieVS Scheduling executeable in the settings <img src=\":/icons/icons/emblem-system-2.png\" height=\"30\" width=\"30\"/> page!";
+        QString txt = "Before you start, please make sure to set the path to the VieVS Scheduling executable VieSchedpp."
+                      "Browse to the settings page <img src=\":/icons/icons/emblem-system-2.png\" height=\"30\" width=\"30\"/>, "
+                      "add the absolute path to the VieSchedpp executable and press save "
+                      "<img src=\":/icons/icons/document-export.png\" height=\"30\" width=\"30\"/>!";
         mb.information(this,"Before you start!",txt);
         createDefaultParameterSettings();
     }
@@ -2723,60 +2726,60 @@ void MainWindow::loadXML(QString path)
 
     // read catalogs
     {
-        std::string antenna = xml.get("master.catalogs.antenna","");
+        std::string antenna = xml.get("VieSchedpp.catalogs.antenna","");
         if(!antenna.empty()){
             ui->lineEdit_pathAntenna->setText(QString::fromStdString(antenna));
         }
-        std::string equip = xml.get("master.catalogs.equip","");
+        std::string equip = xml.get("VieSchedpp.catalogs.equip","");
         if(!equip.empty()){
             ui->lineEdit_pathEquip->setText(QString::fromStdString(equip));
         }
-        std::string position = xml.get("master.catalogs.position","");
+        std::string position = xml.get("VieSchedpp.catalogs.position","");
         if(!position.empty()){
             ui->lineEdit_pathPosition->setText(QString::fromStdString(position));
         }
-        std::string mask = xml.get("master.catalogs.mask","");
+        std::string mask = xml.get("VieSchedpp.catalogs.mask","");
         if(!mask.empty()){
             ui->lineEdit_pathMask->setText(QString::fromStdString(mask));
         }
         on_pushButton_stations_clicked();
 
-        std::string source = xml.get("master.catalogs.source","");
+        std::string source = xml.get("VieSchedpp.catalogs.source","");
         if(!source.empty()){
             ui->lineEdit_pathSource->setText(QString::fromStdString(source));
         }
         ui->radioButton_browseSource->setChecked(true);
-        std::string flux = xml.get("master.catalogs.flux","");
+        std::string flux = xml.get("VieSchedpp.catalogs.flux","");
         if(!flux.empty()){
             ui->lineEdit_pathFlux->setText(QString::fromStdString(flux));
         }
         on_pushButton_reloadsources_clicked();
 
-        std::string freq = xml.get("master.catalogs.freq","");
+        std::string freq = xml.get("VieSchedpp.catalogs.freq","");
         if(!freq.empty()){
             ui->lineEdit_pathFreq->setText(QString::fromStdString(freq));
         }
-        std::string hdpos = xml.get("master.catalogs.hdpos","");
+        std::string hdpos = xml.get("VieSchedpp.catalogs.hdpos","");
         if(!hdpos.empty()){
             ui->lineEdit_pathHdpos->setText(QString::fromStdString(hdpos));
         }
-        std::string loif = xml.get("master.catalogs.loif","");
+        std::string loif = xml.get("VieSchedpp.catalogs.loif","");
         if(!loif.empty()){
             ui->lineEdit_pathLoif->setText(QString::fromStdString(loif));
         }
-        std::string modes = xml.get("master.catalogs.modes","");
+        std::string modes = xml.get("VieSchedpp.catalogs.modes","");
         if(!modes.empty()){
             ui->lineEdit_pathModes->setText(QString::fromStdString(modes));
         }
-        std::string rec = xml.get("master.catalogs.rec","");
+        std::string rec = xml.get("VieSchedpp.catalogs.rec","");
         if(!rec.empty()){
             ui->lineEdit_pathRec->setText(QString::fromStdString(rec));
         }
-        std::string rx = xml.get("master.catalogs.rx","");
+        std::string rx = xml.get("VieSchedpp.catalogs.rx","");
         if(!rx.empty()){
             ui->lineEdit_pathRx->setText(QString::fromStdString(rx));
         }
-        std::string tracks = xml.get("master.catalogs.tracks","");
+        std::string tracks = xml.get("VieSchedpp.catalogs.tracks","");
         if(!tracks.empty()){
             ui->lineEdit_pathTracks->setText(QString::fromStdString(tracks));
         }
@@ -2786,45 +2789,47 @@ void MainWindow::loadXML(QString path)
 
     // general
     {
-        std::string startTimeStr = xml.get("master.general.startTime","2018.01.01 00:00:00");
+        ui->experimentNameLineEdit->setText(QString::fromStdString(xml.get("VieSchedpp.general.experimentName","dummy")));
+
+        std::string startTimeStr = xml.get("VieSchedpp.general.startTime","2018.01.01 00:00:00");
         QDateTime startTime = QDateTime::fromString(QString::fromStdString(startTimeStr),"yyyy.MM.dd HH:mm:ss");
         ui->dateTimeEdit_sessionStart->setDateTime(startTime);
 
-        std::string endTimeStr = xml.get("master.general.endTime","2018.01.02 00:00:00");
+        std::string endTimeStr = xml.get("VieSchedpp.general.endTime","2018.01.02 00:00:00");
         QDateTime endTime   = QDateTime::fromString(QString::fromStdString(endTimeStr),"yyyy.MM.dd HH:mm:ss");
         double dur = startTime.secsTo(endTime)/3600.0;
         ui->doubleSpinBox_sessionDuration->setValue(dur);
 
-        double subnettingMinAngle = xml.get("master.general.subnettingMinAngle",150.0);
+        double subnettingMinAngle = xml.get("VieSchedpp.general.subnettingMinAngle",150.0);
         ui->doubleSpinBox_subnettingDistance->setValue(subnettingMinAngle);
         bool subnettingFlag = false;
-        if(xml.get_optional<double>("master.general.subnettingMinNStaPercent").is_initialized()){
+        if(xml.get_optional<double>("VieSchedpp.general.subnettingMinNStaPercent").is_initialized()){
             subnettingFlag = true;
         }
-        double subnettingMinNStaPercent = xml.get("master.general.subnettingMinNStaPercent",80);
+        double subnettingMinNStaPercent = xml.get("VieSchedpp.general.subnettingMinNStaPercent",80);
         ui->doubleSpinBox_subnettingMinStations->setValue(subnettingMinNStaPercent);
-        double subnettingMinNStaAllBut = xml.get("master.general.subnettingMinNStaAllBut",1);
+        double subnettingMinNStaAllBut = xml.get("VieSchedpp.general.subnettingMinNStaAllBut",1);
         ui->spinBox_subnetting_min_sta->setValue(subnettingMinNStaAllBut);
         if(subnettingFlag){
             ui->radioButton_subnetting_percent->setChecked(true);
         }else{
             ui->radioButton_subnetting_allBut->setChecked(true);
         }
-        bool subnetting = xml.get("master.general.subnetting",false);
+        bool subnetting = xml.get("VieSchedpp.general.subnetting",false);
         ui->groupBox_subnetting->setChecked(subnetting);
 
-        bool fillinmodeAPosteriori = xml.get("master.general.fillinmodeAPosteriori",false);
+        bool fillinmodeAPosteriori = xml.get("VieSchedpp.general.fillinmodeAPosteriori",false);
         ui->checkBox_fillinmode_aposteriori->setChecked(fillinmodeAPosteriori);
-        bool fillinmodeDuringScan = xml.get("master.general.fillinmodeDuringScan",false);
+        bool fillinmodeDuringScan = xml.get("VieSchedpp.general.fillinmodeDuringScan",false);
         ui->checkBox_fillinmode_duringscan->setChecked(fillinmodeDuringScan);
-        bool fillinmodeInfluenceOnSchedule = xml.get("master.general.fillinmodeInfluenceOnSchedule",false);
+        bool fillinmodeInfluenceOnSchedule = xml.get("VieSchedpp.general.fillinmodeInfluenceOnSchedule",false);
         ui->checkBox_fillinmode_duringscan->setChecked(fillinmodeInfluenceOnSchedule);
 
-        bool idleToObservingTime = xml.get("master.general.idleToObservingTime",false);
+        bool idleToObservingTime = xml.get("VieSchedpp.general.idleToObservingTime",false);
         ui->checkBox_idleToObservingTime->setChecked(idleToObservingTime);
 
         std::vector<std::string> sel_stations;
-        const auto &stations = xml.get_child_optional("master.general.stations");
+        const auto &stations = xml.get_child_optional("VieSchedpp.general.stations");
         if(stations.is_initialized()){
             auto it = stations->begin();
             while (it != stations->end()) {
@@ -2849,7 +2854,7 @@ void MainWindow::loadXML(QString path)
 
 
         std::vector<std::string> sel_sources;
-        const auto &ptree_useSources = xml.get_child_optional("master.general.onlyUseListedSources");
+        const auto &ptree_useSources = xml.get_child_optional("VieSchedpp.general.onlyUseListedSources");
         if(ptree_useSources.is_initialized()){
             auto it = ptree_useSources->begin();
             while (it != ptree_useSources->end()) {
@@ -2873,7 +2878,7 @@ void MainWindow::loadXML(QString path)
         }
 
         std::vector<std::string> ignore_sources;
-        const auto &ptree_ignoreSources = xml.get_child_optional("master.general.ignoreListedSources");
+        const auto &ptree_ignoreSources = xml.get_child_optional("VieSchedpp.general.ignoreListedSources");
         if(ptree_ignoreSources.is_initialized()){
             auto it = ptree_ignoreSources->begin();
             while (it != ptree_ignoreSources->end()) {
@@ -2883,7 +2888,7 @@ void MainWindow::loadXML(QString path)
             }
         }
 
-        std::string scanAlignment = xml.get("master.general.scanAlignment","start");
+        std::string scanAlignment = xml.get("VieSchedpp.general.scanAlignment","start");
         if(scanAlignment == "start"){
             ui->radioButton_alignStart->setChecked(true);
         }else if(scanAlignment == "end"){
@@ -2892,7 +2897,7 @@ void MainWindow::loadXML(QString path)
             ui->radioButton_alignIndividual->setChecked(true);
         }
 
-        std::string logSeverityConsole = xml.get("master.general.logSeverityConsole","info");
+        std::string logSeverityConsole = xml.get("VieSchedpp.general.logSeverityConsole","info");
         if(logSeverityConsole == "trace"){
             ui->comboBox_log_console->setCurrentIndex(0);
         }else if(logSeverityConsole == "debug"){
@@ -2907,7 +2912,7 @@ void MainWindow::loadXML(QString path)
             ui->comboBox_log_console->setCurrentIndex(5);
         }
 
-        std::string logSeverityFile = xml.get("master.general.logSeverityFile","info");
+        std::string logSeverityFile = xml.get("VieSchedpp.general.logSeverityFile","info");
         if(logSeverityFile == "trace"){
             ui->comboBox_log_file->setCurrentIndex(0);
         }else if(logSeverityFile == "debug"){
@@ -2926,7 +2931,7 @@ void MainWindow::loadXML(QString path)
     // groups
     {
         groupSta.clear();
-        auto groupTree = xml.get_child_optional("master.station.groups");
+        auto groupTree = xml.get_child_optional("VieSchedpp.station.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
                 std::string name = it.first;
@@ -2966,7 +2971,7 @@ void MainWindow::loadXML(QString path)
     {
         groupSrc.clear();
         ui->treeWidget_srcGroupForStatistics->clear();
-        auto groupTree = xml.get_child_optional("master.source.groups");
+        auto groupTree = xml.get_child_optional("VieSchedpp.source.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
                 std::string name = it.first;
@@ -3010,7 +3015,7 @@ void MainWindow::loadXML(QString path)
     }
     {
         groupBl.clear();
-        auto groupTree = xml.get_child_optional("master.baseline.groups");
+        auto groupTree = xml.get_child_optional("VieSchedpp.baseline.groups");
         if(groupTree.is_initialized()){
             for (auto &it: *groupTree) {
                 std::string name = it.first;
@@ -3052,7 +3057,7 @@ void MainWindow::loadXML(QString path)
     {
         paraSta.clear();
         ui->ComboBox_parameterStation->clear();
-        const auto &para_tree = xml.get_child("master.station.parameters");
+        const auto &para_tree = xml.get_child("VieSchedpp.station.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
             if (name == "parameter") {
@@ -3069,7 +3074,7 @@ void MainWindow::loadXML(QString path)
     {   
         paraSrc.clear();
         ui->ComboBox_parameterSource->clear();
-        const auto &para_tree = xml.get_child("master.source.parameters");
+        const auto &para_tree = xml.get_child("VieSchedpp.source.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
             if (name == "parameter") {
@@ -3086,7 +3091,7 @@ void MainWindow::loadXML(QString path)
     {   
         paraBl.clear();
         ui->ComboBox_parameterBaseline->clear();
-        const auto &para_tree = xml.get_child("master.baseline.parameters");
+        const auto &para_tree = xml.get_child("VieSchedpp.baseline.parameters");
         for (auto &it: para_tree) {
             std::string name = it.first;
             if (name == "parameter") {
@@ -3103,7 +3108,7 @@ void MainWindow::loadXML(QString path)
     
     //setup
     {
-        auto ctree = xml.get_child("master.station.setup");
+        auto ctree = xml.get_child("VieSchedpp.station.setup");
         for(const auto &any: ctree){
             if(any.first == "setup"){
                 ui->treeWidget_setupStation->topLevelItem(0)->child(0)->setSelected(true);
@@ -3115,7 +3120,7 @@ void MainWindow::loadXML(QString path)
         }
     }
     {
-        auto ctree = xml.get_child("master.source.setup");
+        auto ctree = xml.get_child("VieSchedpp.source.setup");
         for(const auto &any: ctree){
             if(any.first == "setup"){
                 ui->treeWidget_setupSource->topLevelItem(0)->child(0)->setSelected(true);
@@ -3127,7 +3132,7 @@ void MainWindow::loadXML(QString path)
         }
     }
     {
-        auto ctree = xml.get_child("master.baseline.setup");
+        auto ctree = xml.get_child("VieSchedpp.baseline.setup");
         for(const auto &any: ctree){
             if(any.first == "setup"){
                 ui->treeWidget_setupBaseline->topLevelItem(0)->child(0)->setSelected(true);
@@ -3141,7 +3146,7 @@ void MainWindow::loadXML(QString path)
 
     //wait times
     {
-        auto waitTime_tree = xml.get_child("master.station.waitTimes");
+        auto waitTime_tree = xml.get_child("VieSchedpp.station.waitTimes");
         ui->treeWidget_setupStationWait->clear();
         for (auto &it: waitTime_tree) {
             std::string name = it.first;
@@ -3165,7 +3170,7 @@ void MainWindow::loadXML(QString path)
     }
     // cable wrap buffer
     {
-        auto waitTime_tree = xml.get_child("master.station.cableWrapBuffers");
+        auto waitTime_tree = xml.get_child("VieSchedpp.station.cableWrapBuffers");
         ui->treeWidget_setupStationAxis->clear();
         for (auto &it: waitTime_tree) {
             std::string name = it.first;
@@ -3190,13 +3195,13 @@ void MainWindow::loadXML(QString path)
 
     // sky coverage
     {
-        double influenceDistance = xml.get("master.skyCoverage.influenceDistance",30.0);
+        double influenceDistance = xml.get("VieSchedpp.skyCoverage.influenceDistance",30.0);
         ui->influenceDistanceDoubleSpinBox->setValue(influenceDistance);
-        int influenceInterval = xml.get("master.skyCoverage.influenceInterval",3600);
+        int influenceInterval = xml.get("VieSchedpp.skyCoverage.influenceInterval",3600);
         ui->influenceTimeSpinBox->setValue(influenceInterval);
-        double maxTwinTelecopeDistance = xml.get("master.skyCoverage.maxTwinTelecopeDistance",0.0);
+        double maxTwinTelecopeDistance = xml.get("VieSchedpp.skyCoverage.maxTwinTelecopeDistance",0.0);
         ui->maxDistanceForCombiningAntennasDoubleSpinBox->setValue(maxTwinTelecopeDistance);
-        std::string interpolationDistance = xml.get("master.skyCoverage.interpolationDistance","cosine");
+        std::string interpolationDistance = xml.get("VieSchedpp.skyCoverage.interpolationDistance","cosine");
         if(interpolationDistance == "cosine"){
             ui->comboBox_skyCoverageDistanceType->setCurrentIndex(0);
         }else if(interpolationDistance == "linear"){
@@ -3204,7 +3209,7 @@ void MainWindow::loadXML(QString path)
         }else if(interpolationDistance == "constant"){
             ui->comboBox_skyCoverageDistanceType->setCurrentIndex(2);
         }
-        std::string interpolationTime = xml.get("master.skyCoverage.interpolationTime","cosine");
+        std::string interpolationTime = xml.get("VieSchedpp.skyCoverage.interpolationTime","cosine");
         if(interpolationTime == "cosine"){
             ui->comboBox_skyCoverageTimeType->setCurrentIndex(0);
         }else if(interpolationTime == "linear"){
@@ -3216,50 +3221,50 @@ void MainWindow::loadXML(QString path)
 
     //weight factors
     {
-        double weightFactor_skyCoverage = xml.get("master.weightFactor.skyCoverage",0.0);
+        double weightFactor_skyCoverage = xml.get("VieSchedpp.weightFactor.skyCoverage",0.0);
         if(weightFactor_skyCoverage == 0){
             ui->checkBox_weightCoverage->setChecked(false);
         }else{
             ui->checkBox_weightCoverage->setChecked(true);
             ui->doubleSpinBox_weightSkyCoverage->setValue(weightFactor_skyCoverage);
         }
-        double weightFactor_numberOfObservations = xml.get("master.weightFactor.numberOfObservations",0.0);
+        double weightFactor_numberOfObservations = xml.get("VieSchedpp.weightFactor.numberOfObservations",0.0);
         if(weightFactor_numberOfObservations == 0){
             ui->checkBox_weightNobs->setChecked(false);
         }else{
             ui->checkBox_weightNobs->setChecked(true);
             ui->doubleSpinBox_weightNumberOfObservations->setValue(weightFactor_numberOfObservations);
         }
-        double weightFactor_duration = xml.get("master.weightFactor.duration",0.0);
+        double weightFactor_duration = xml.get("VieSchedpp.weightFactor.duration",0.0);
         if(weightFactor_duration == 0){
             ui->checkBox_weightDuration->setChecked(false);
         }else{
             ui->checkBox_weightDuration->setChecked(true);
             ui->doubleSpinBox_weightDuration->setValue(weightFactor_duration);
         }
-        double weightFactor_averageSources = xml.get("master.weightFactor.averageSources",0.0);
+        double weightFactor_averageSources = xml.get("VieSchedpp.weightFactor.averageSources",0.0);
         if(weightFactor_averageSources == 0){
             ui->checkBox_weightAverageSources->setChecked(false);
         }else{
             ui->checkBox_weightAverageSources->setChecked(true);
             ui->doubleSpinBox_weightAverageSources->setValue(weightFactor_averageSources);
         }
-        double weightFactor_averageStations = xml.get("master.weightFactor.averageStations",0.0);
+        double weightFactor_averageStations = xml.get("VieSchedpp.weightFactor.averageStations",0.0);
         if(weightFactor_averageStations == 0){
             ui->checkBox_weightAverageStations->setChecked(false);
         }else{
             ui->checkBox_weightAverageStations->setChecked(true);
             ui->doubleSpinBox_weightAverageStations->setValue(weightFactor_averageStations);
         }
-        double weightFactor_averageBaselines = xml.get("master.weightFactor.averageBaselines",0.0);
+        double weightFactor_averageBaselines = xml.get("VieSchedpp.weightFactor.averageBaselines",0.0);
         if(weightFactor_averageBaselines == 0){
             ui->checkBox_weightAverageBaselines->setChecked(false);
         }else{
             ui->checkBox_weightAverageBaselines->setChecked(true);
             ui->doubleSpinBox_weightAverageBaselines->setValue(weightFactor_averageBaselines);
         }
-        double weightFactor_idleTime = xml.get("master.weightFactor.idleTime",0.0);
-        int weightFactor_idleTimeInterval = xml.get("master.weightFactor.idleTimeInterval",600);
+        double weightFactor_idleTime = xml.get("VieSchedpp.weightFactor.idleTime",0.0);
+        int weightFactor_idleTimeInterval = xml.get("VieSchedpp.weightFactor.idleTimeInterval",600);
         if(weightFactor_idleTime == 0){
             ui->checkBox_weightIdleTime->setChecked(false);
         }else{
@@ -3267,9 +3272,9 @@ void MainWindow::loadXML(QString path)
             ui->doubleSpinBox_weightIdleTime->setValue(weightFactor_idleTime);
             ui->spinBox_idleTimeInterval->setValue(weightFactor_idleTimeInterval);
         }
-        double weightFactor_weightDeclination = xml.get("master.weightFactor.weightDeclination",0.0);
-        double weightFactor_declinationStartWeight = xml.get("master.weightFactor.declinationStartWeight",0.0);
-        double weightFactor_declinationFullWeight = xml.get("master.weightFactor.declinationFullWeight",0.0);
+        double weightFactor_weightDeclination = xml.get("VieSchedpp.weightFactor.weightDeclination",0.0);
+        double weightFactor_declinationStartWeight = xml.get("VieSchedpp.weightFactor.declinationStartWeight",0.0);
+        double weightFactor_declinationFullWeight = xml.get("VieSchedpp.weightFactor.declinationFullWeight",0.0);
         if(weightFactor_weightDeclination == 0){
             ui->checkBox_weightLowDeclination->setChecked(false);
         }else{
@@ -3278,9 +3283,9 @@ void MainWindow::loadXML(QString path)
             ui->doubleSpinBox_weightLowDecStart->setValue(weightFactor_declinationStartWeight);
             ui->doubleSpinBox_weightLowDecEnd->setValue(weightFactor_declinationFullWeight);
         }
-        double weightFactor_weightLowElevation = xml.get("master.weightFactor.weightLowElevation",0.0);
-        double weightFactor_lowElevationStartWeight = xml.get("master.weightFactor.lowElevationStartWeight",0.0);
-        double weightFactor_lowElevationFullWeight = xml.get("master.weightFactor.lowElevationFullWeight",0.0);
+        double weightFactor_weightLowElevation = xml.get("VieSchedpp.weightFactor.weightLowElevation",0.0);
+        double weightFactor_lowElevationStartWeight = xml.get("VieSchedpp.weightFactor.lowElevationStartWeight",0.0);
+        double weightFactor_lowElevationFullWeight = xml.get("VieSchedpp.weightFactor.lowElevationFullWeight",0.0);
         if(weightFactor_weightLowElevation == 0){
             ui->checkBox_weightLowElevation->setChecked(false);
         }else{
@@ -3292,10 +3297,10 @@ void MainWindow::loadXML(QString path)
     }
     
     //conditions
-    boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.optimization");
+    boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("VieSchedpp.optimization");
     if (ctree.is_initialized()) {
 
-        boost::property_tree::ptree PARA_source = xml.get_child("master.source");
+        boost::property_tree::ptree PARA_source = xml.get_child("VieSchedpp.source");
         ui->checkBox_gentleSourceReduction->setChecked(false);
 
         for(const auto &any: *ctree){
@@ -3340,18 +3345,18 @@ void MainWindow::loadXML(QString path)
         }
         ui->tableWidget_ModesPolicy->setRowCount(0);
 
-        if(xml.get_optional<std::string>("master.mode.skdMode").is_initialized()){
-            QString mode = QString::fromStdString(xml.get<std::string>("master.mode.skdMode"));
+        if(xml.get_optional<std::string>("VieSchedpp.mode.skdMode").is_initialized()){
+            QString mode = QString::fromStdString(xml.get<std::string>("VieSchedpp.mode.skdMode"));
             ui->groupBox_modeSked->setChecked(true);
             ui->comboBox_skedObsModes->setCurrentText(mode);
             addModesCustomTable("X",8.590,10);
             addModesCustomTable("S",2.260,6);
         }
-        if(xml.get_optional<double>("master.mode.sampleRate").is_initialized()){
-            ui->sampleRateDoubleSpinBox->setValue(xml.get<double>("master.mode.sampleRate"));
-            ui->sampleBitsSpinBox->setValue(xml.get<double>("master.mode.bits"));
+        if(xml.get_optional<double>("VieSchedpp.mode.sampleRate").is_initialized()){
+            ui->sampleRateDoubleSpinBox->setValue(xml.get<double>("VieSchedpp.mode.sampleRate"));
+            ui->sampleBitsSpinBox->setValue(xml.get<double>("VieSchedpp.mode.bits"));
             ui->groupBox_modeCustom->setChecked(true);
-            boost::property_tree::ptree & bands = xml.get_child("master.mode.bands");
+            boost::property_tree::ptree & bands = xml.get_child("VieSchedpp.mode.bands");
             for(const auto &band:bands){
                 if(band.first == "band"){
                     double wavelength = band.second.get<double>("wavelength");
@@ -3368,7 +3373,7 @@ void MainWindow::loadXML(QString path)
 
     //mode_bandPolicy
     {
-        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.mode.bandPolicies");
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("VieSchedpp.mode.bandPolicies");
         if(ctree.is_initialized()){
             for(const auto & any:*ctree){
                 if(any.first == "bandPolicy"){
@@ -3445,7 +3450,7 @@ void MainWindow::loadXML(QString path)
         }
 
 
-        boost::optional<boost::property_tree::ptree &> ctree_o = xml.get_child_optional("master.multisched");
+        boost::optional<boost::property_tree::ptree &> ctree_o = xml.get_child_optional("VieSchedpp.multisched");
         if(ctree_o.is_initialized()){
             const boost::property_tree::ptree &ctree = ctree_o.get();
             ui->groupBox_multiScheduling->setChecked(true);
@@ -3608,45 +3613,44 @@ void MainWindow::loadXML(QString path)
 
     //output
     {
-        ui->experimentNameLineEdit->setText(QString::fromStdString(xml.get("master.output.experimentName","dummy")));
-        ui->lineEdit_experimentDescription->setText(QString::fromStdString(xml.get("master.output.experimentDescription","dummy")));
+        ui->lineEdit_experimentDescription->setText(QString::fromStdString(xml.get("VieSchedpp.output.experimentDescription","dummy")));
 
-        ui->schedulerLineEdit->setText(QString::fromStdString(xml.get("master.output.scheduler","unknown")));
-        ui->correlatorLineEdit->setText(QString::fromStdString(xml.get("master.output.correlator","unknown")));
+        ui->schedulerLineEdit->setText(QString::fromStdString(xml.get("VieSchedpp.output.scheduler","unknown")));
+        ui->correlatorLineEdit->setText(QString::fromStdString(xml.get("VieSchedpp.output.correlator","unknown")));
 
-        ui->lineEdit_PIName->setText(QString::fromStdString(xml.get("master.output.piName","")));
-        ui->lineEdit_PIEmail->setText(QString::fromStdString(xml.get("master.output.piEmail","")));
-        ui->lineEdit_contactName->setText(QString::fromStdString(xml.get("master.output.contactName","")));
-        ui->lineEdit_contactEmail->setText(QString::fromStdString(xml.get("master.output.contactEmail","")));
-        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(xml.get("master.output.notes","")));
-        ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(xml.get("master.output.operationNotes","")));
+        ui->lineEdit_PIName->setText(QString::fromStdString(xml.get("VieSchedpp.output.piName","")));
+        ui->lineEdit_PIEmail->setText(QString::fromStdString(xml.get("VieSchedpp.output.piEmail","")));
+        ui->lineEdit_contactName->setText(QString::fromStdString(xml.get("VieSchedpp.output.contactName","")));
+        ui->lineEdit_contactEmail->setText(QString::fromStdString(xml.get("VieSchedpp.output.contactEmail","")));
+        ui->plainTextEdit_notes->setPlainText(QString::fromStdString(xml.get("VieSchedpp.output.notes","")));
+        ui->plainTextEdit_operationNotes->setPlainText(QString::fromStdString(xml.get("VieSchedpp.output.operationNotes","")));
 
-        if(xml.get("master.output.createSummary",false)){
+        if(xml.get("VieSchedpp.output.createSummary",false)){
             ui->checkBox_outputStatisticsFile->setChecked(true);
         }else{
             ui->checkBox_outputStatisticsFile->setChecked(false);
         }
-        if(xml.get("master.output.createNGS",false)){
+        if(xml.get("VieSchedpp.output.createNGS",false)){
             ui->checkBox_outputNGSFile->setChecked(true);
         }else{
             ui->checkBox_outputNGSFile->setChecked(false);
         }
-        if(xml.get("master.output.createSKD",false)){
+        if(xml.get("VieSchedpp.output.createSKD",false)){
             ui->checkBox_outputSkdFile->setChecked(true);
         }else{
             ui->checkBox_outputSkdFile->setChecked(false);
         }
-        if(xml.get("master.output.createVEX",false)){
+        if(xml.get("VieSchedpp.output.createVEX",false)){
             ui->checkBox_outputVex->setChecked(true);
         }else{
             ui->checkBox_outputVex->setChecked(false);
         }
-        if(xml.get("master.output.createOperationsNotes",false)){
+        if(xml.get("VieSchedpp.output.createOperationsNotes",false)){
             ui->checkBox_outputOperationsNotes->setChecked(true);
         }else{
             ui->checkBox_outputOperationsNotes->setChecked(false);
         }
-        if(xml.get("master.output.createSourceGroupStatistics",false)){
+        if(xml.get("VieSchedpp.output.createSourceGroupStatistics",false)){
             ui->checkBox_outputSourceGroupStatFile->setChecked(true);
             // TODO check statistics
         }else{
@@ -3657,10 +3661,10 @@ void MainWindow::loadXML(QString path)
     //ruleScanSequence
     {
         ui->groupBox_scanSequence->setChecked(false);
-        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.rules.sourceSequence");
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("VieSchedpp.rules.sourceSequence");
         if (ctree.is_initialized()) {
             ui->groupBox_scanSequence->setChecked(true);
-            ui->spinBox_scanSequenceCadence->setValue(xml.get<int>("master.rules.sourceSequence.cadence"));
+            ui->spinBox_scanSequenceCadence->setValue(xml.get<int>("VieSchedpp.rules.sourceSequence.cadence"));
             for(const auto &any: *ctree){
                 if(any.first == "sequence"){
                     int modulo = any.second.get<int>("modulo");
@@ -3675,39 +3679,39 @@ void MainWindow::loadXML(QString path)
     //ruleCalibratorBlock
     {
         ui->groupBox_CalibratorBlock->setChecked(false);
-        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.rules.calibratorBlock");
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("VieSchedpp.rules.calibratorBlock");
         if (ctree.is_initialized()) {
             ui->groupBox_CalibratorBlock->setChecked(true);
-            if(xml.get("master.rules.calibratorBlock.cadence_nScanSelections", -1) != -1){
+            if(xml.get("VieSchedpp.rules.calibratorBlock.cadence_nScanSelections", -1) != -1){
                 ui->radioButton_calibratorScanSequence->setChecked(true);
-                ui->spinBox_calibratorScanSequence->setValue(xml.get("master.rules.calibratorBlock.cadence_nScanSelections",5));
+                ui->spinBox_calibratorScanSequence->setValue(xml.get("VieSchedpp.rules.calibratorBlock.cadence_nScanSelections",5));
             }
-            if(xml.get("master.rules.calibratorBlock.cadence_seconds", -1) != -1){
+            if(xml.get("VieSchedpp.rules.calibratorBlock.cadence_seconds", -1) != -1){
                 ui->radioButton_calibratorTime->setChecked(true);
-                ui->spinBox_calibratorTime->setValue(xml.get("master.rules.calibratorBlock.cadence_seconds",3600));
+                ui->spinBox_calibratorTime->setValue(xml.get("VieSchedpp.rules.calibratorBlock.cadence_seconds",3600));
             }
-            std::string members = xml.get("master.rules.calibratorBlock.member","__all__");
+            std::string members = xml.get("VieSchedpp.rules.calibratorBlock.member","__all__");
             ui->comboBox_calibratorBlock_calibratorSources->setCurrentText(QString::fromStdString(members));
-            ui->spinBox_calibrator_maxScanSequence->setValue(xml.get("master.rules.calibratorBlock.nMaxScans",4));
-            ui->spinBox_calibratorFixedScanLength->setValue(xml.get("master.rules.calibratorBlock.fixedScanTime",120));
+            ui->spinBox_calibrator_maxScanSequence->setValue(xml.get("VieSchedpp.rules.calibratorBlock.nMaxScans",4));
+            ui->spinBox_calibratorFixedScanLength->setValue(xml.get("VieSchedpp.rules.calibratorBlock.fixedScanTime",120));
             ui->radioButton->setChecked(true);
 
-            ui->doubleSpinBox_calibratorHighElEnd->setValue(xml.get("master.rules.calibratorBlock.highElevation.fullWeight",70));
-            ui->doubleSpinBox_calibratorHighElStart->setValue(xml.get("master.rules.calibratorBlock.highElevation.startWeight",50));
-            ui->doubleSpinBox_calibratorLowElEnd->setValue(xml.get("master.rules.calibratorBlock.lowElevation.fullWeight",20));
-            ui->doubleSpinBox_calibratorLowElStart->setValue(xml.get("master.rules.calibratorBlock.lowElevation.startWeight",40));
+            ui->doubleSpinBox_calibratorHighElEnd->setValue(xml.get("VieSchedpp.rules.calibratorBlock.highElevation.fullWeight",70));
+            ui->doubleSpinBox_calibratorHighElStart->setValue(xml.get("VieSchedpp.rules.calibratorBlock.highElevation.startWeight",50));
+            ui->doubleSpinBox_calibratorLowElEnd->setValue(xml.get("VieSchedpp.rules.calibratorBlock.lowElevation.fullWeight",20));
+            ui->doubleSpinBox_calibratorLowElStart->setValue(xml.get("VieSchedpp.rules.calibratorBlock.lowElevation.startWeight",40));
         }
     }
 
     //highImpactAzEl
     {
         ui->groupBox_highImpactAzEl->setChecked(false);
-        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("master.highImpact");
+        boost::optional<boost::property_tree::ptree &> ctree = xml.get_child_optional("VieSchedpp.highImpact");
         if (ctree.is_initialized()) {
             ui->groupBox_highImpactAzEl->setChecked(true);
 
-            ui->spinBox_highImpactInterval->setValue(xml.get("master.highImpact.interval",60));
-            ui->spinBox_highImpactMinRepeat->setValue(xml.get("master.highImpact.repeat",300));
+            ui->spinBox_highImpactInterval->setValue(xml.get("VieSchedpp.highImpact.interval",60));
+            ui->spinBox_highImpactMinRepeat->setValue(xml.get("VieSchedpp.highImpact.repeat",300));
 
             for(const auto &any: *ctree){
                 if(any.first == "targetAzEl"){
