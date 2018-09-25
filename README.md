@@ -24,14 +24,14 @@ contact: matthias.schartner@geo.tuwien.ac.at
 > You should have received a copy of the GNU General Public License
 > along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Installation 
+# Installation
 
-This section descripes how to install __VieSched++__ on LINUX. 
+This section descripes how to install __VieSched++__ on LINUX.
 
-While an installation is possible on Windows (tested with Windows 10) it is no 
-further discussed due to the many possibilieties of different compilers and options. 
-If you run into any problems compiling __VieSched++__ on Windows 10, contact me 
-under matthias.schartner@geo.tuwien.ac.at and I can send you some prebuild binaries. 
+While an installation is possible on Windows (tested with Windows 10) it is no
+further discussed due to the many possibilieties of different compilers and options.
+If you run into any problems compiling __VieSched++__ on Windows 10, contact me
+under matthias.schartner@geo.tuwien.ac.at and I can send you some prebuild binaries.
 
 ## Dependencies
 
@@ -62,20 +62,20 @@ graph LR;
 ```
 
 
-## Build 
+## Build
 
 clone git repository into `VieSchedppSource` or copy source code into `VieSchedppSource/VieSchedpp`
-    
+
     cd VieSchedppSource
     git clone git@git.geo.tuwien.ac.at:vievs/VieSchedpp/VieSchedpp.git
 
-make sure that the `IAU_SOFA` library is already build in `VieSchedppSource/IAU_SOFA/Release/libsofa_c.a`. 
+make sure that the `IAU_SOFA` library is already build in `VieSchedppSource/IAU_SOFA/Release/libsofa_c.a`.
 See `README.md` from `IAU_SOFA` for help.
-    
+
 browse to newly created folder `VieSchedpp`
 
     cd VieSchedpp
-    
+
 create new folder `Release` and browse there
 
     mkdir Release
@@ -83,38 +83,43 @@ create new folder `Release` and browse there
 
 run CMake with `Release` flag with `CMakeLists.txt` from parent directory:
 
-    cmake -DCMAKE_BUILD_TYPE=Release .. 
-    
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+
 run make
 
-    make 
-    
+    make
+
 You should now be able to find the program in `VieSchedppSource/VieSchedpp/Release`
 
 ## Build without c++ boost libraries
 
-Do the same as descriped in the previouse section but before running 
-`cmake -DCMAKE_BUILD_TYPE=Release .. ` open file `CMakeLists.txt` in 
-`VieSchedppSource/VieSchedpp/` and change the boost blocks. 
+Do the same as descriped in the previouse section but before running
+`cmake -DCMAKE_BUILD_TYPE=Release .. ` open file `CMakeLists.txt` in
+`VieSchedppSource/VieSchedpp/` and change the boost blocks.
 (commend first block and uncommend second block)
 
 # Documentation
 
+To create a documentation you should have installed `doxygen` and optionally
+the `dot` tool from `Graphviz`.
+If you want to create diagrams make sure that the `dot` executable is in your
+path variable.
+
 ## via batch file
 
-Run the `createDocumentation_linux.sh` bash script or `createDocumentation_windows.bat` batch file. 
-(Make sure you have the appropriate file permissions to run the script. If not run `chmod 711 createDocumentation_linux.sh` or equivalent windows commands before) 
+Run the `createDocumentation_linux.sh` bash script or `createDocumentation_windows.bat` batch file.
+(Make sure you have the appropriate file permissions to run the script. If not run `chmod 711 createDocumentation_linux.sh` or equivalent windows commands before)
 
-You should now get a `index.html` link and a `refman.pdf` file in your `VieSchedpp/documentation/` directory. 
+You should now get a `index.html` link and a `refman.pdf` file in your `VieSchedpp/documentation/` directory.
 
-The `index.html` file is the startpoint of your manual in `html` format. 
+The `index.html` file is the startpoint of your manual in `html` format.
 
 ## directly via doxygen
 
 To create a documentation run `doxygen` in the `VieSchedpp/documentation/`
-subfolder. 
+subfolder.
 
-This should create a `html` and `latex` documentation. 
+This should create a `html` and `latex` documentation.
 
 For more infos visit http://www.doxygen.nl/.
 
@@ -138,8 +143,8 @@ After calling `cmake` your output should look like the following:
     -- Detecting CXX compiler ABI info - done
     -- Detecting CXX compile features
     -- Detecting CXX compile features - done
-    -- Found OpenMP_C: -fopenmp (found version "4.5") 
-    -- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+    -- Found OpenMP_C: -fopenmp (found version "4.5")
+    -- Found OpenMP_CXX: -fopenmp (found version "4.5")
     -- Found OpenMP: TRUE (found version "4.5")  
     OpenMP found
     -- Looking for pthread.h
@@ -185,30 +190,30 @@ Check if your `c++ boost libraries` and the `SOFA` library is found. If not set 
 
 ----
 
-If you have troubles getting `boost` to work simply try to build it without `c++ boost libraries` (header only - see `CMakeLists.txt` file `BOOST` section). 
+If you have troubles getting `boost` to work simply try to build it without `c++ boost libraries` (header only - see `CMakeLists.txt` file `BOOST` section).
 
 ----
 
-If you still have troubles installing the software contact me under: matthias.schartner@geo.tuwien.ac.at. 
+If you still have troubles installing the software contact me under: matthias.schartner@geo.tuwien.ac.at.
 
 ## Software errors
 
-__VieSched++__ is still in developing, there might be bugs or crashes. 
+__VieSched++__ is still in developing, there might be bugs or crashes.
 
-Please always have a look at the log file and have a look if you get some [warning], [error] or [fatal] messages. 
+Please always have a look at the log file and have a look if you get some [warning], [error] or [fatal] messages.
 
-In case __VieSched++__ crashes or it reports an error in the log files please contact me under: matthias.schartner@geo.tuwien.ac.at. 
+In case __VieSched++__ crashes or it reports an error in the log files please contact me under: matthias.schartner@geo.tuwien.ac.at.
 
-Please attach: 
+Please attach:
 * your current software version number (you can find it in the beginning of your log file, or in the .skd or .vex files - it is a hash code like `f20be1498274232acb46cf44121f9e60278c6528`)
 * your VieSchedpp.xml file
 * your used catalog files
 * your log file `VieSchedpp_yyyy-mm-dd_hh-mm-ss.sss.log`
-* any other helpful information 
+* any other helpful information
 
 # Develop VieSched++
 
-In case you want to develop __VieSched++__ have a look at the `doxygen` documentation and use an appropriate IDE. 
+In case you want to develop __VieSched++__ have a look at the `doxygen` documentation and use an appropriate IDE.
 
 * VieSchedpp was developed using the CLion. https://www.jetbrains.com/clion/
 * VieSchedppGUI was developed using QtCreator http://doc.qt.io/qtcreator/
