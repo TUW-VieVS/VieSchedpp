@@ -21,12 +21,12 @@ contact: matthias.schartner@geo.tuwien.ac.at
 > You should have received a copy of the GNU General Public License
 > along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Installation 
+# Installation
 
 This section descripes how to install __VieSched++ GUI__ on LINUX. 
 
-While an installation is possible on Windows (tested with Windows 10) it is no 
-further discussed due to the many possibilieties of different compilers and options. 
+While an installation is possible on Windows (tested with Windows 10) it is no
+further discussed due to the many possibilieties of different compilers and options.
 
 
 ## Recommended software folder structure for VieSched++
@@ -35,13 +35,9 @@ The full __VieSched++__ software contains 4 different packages which are all ava
 
 It is recommended to copy the source code into one common directory here called `VieSchedppSource`
 
-```mermaid
-graph LR;
-  VieSchedppSource-->VieSchedpp;
-  VieSchedppSource-->VieSchedppGUI;
-  VieSchedppSource-->CATALOGS;
-  VieSchedppSource-->IAU_SOFA;
-```
+    VieSchedppSource/VieSchedpp
+    VieSchedppSource/VieSchedppGUI
+    VieSchedppSource/IAU_SOFA (only for installation)
+    VieSchedppSource/CATALOGS (only for usage)
 
 ## Dependencies
-
