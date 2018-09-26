@@ -30,8 +30,16 @@ This section descripes how to install __VieSched++__ on LINUX.
 
 While an installation is possible on Windows (tested with Windows 10) it is no
 further discussed due to the many possibilieties of different compilers and options.
-If you run into any problems compiling __VieSched++__ on Windows 10, contact me
-under matthias.schartner@geo.tuwien.ac.at and I can send you some prebuild binaries.
+
+Pre-build binaries are available for github releases.
+Visit https://github.com/TUW-VieVS/VieSchedppGUI/releases.
+
+If you run into any problems compiling __VieSched++__, contact me
+under matthias.schartner@geo.tuwien.ac.at and I can send you some pre-build binaries.
+
+The source code is hosted at two git repositories:
+* https://github.com/TUW-VieVS/VieSchedpp.git (public)
+* https://git.geo.tuwien.ac.at/vievs/VieSchedpp/VieSchedppGUI.git (inside TU Vienna GEO Domain)
 
 ## Dependencies
 
@@ -53,14 +61,10 @@ The full software contains 4 different packages which are all available in git u
 
 It is recommended to copy the source code into one common directory here called `VieSchedppSource`
 
-```mermaid
-graph LR;
-  VieSchedppSource-->VieSchedpp;
-  VieSchedppSource-->VieSchedppGUI;
-  VieSchedppSource-->CATALOGS;
-  VieSchedppSource-->IAU_SOFA;
-```
-
+    VieSchedppSource/VieSchedpp
+    VieSchedppSource/VieSchedppGUI
+    VieSchedppSource/IAU_SOFA (only for installation)
+    VieSchedppSource/CATALOGS (only for usage)
 
 ## Build
 
