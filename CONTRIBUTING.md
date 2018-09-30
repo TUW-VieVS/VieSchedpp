@@ -11,7 +11,7 @@
 - class names should start with an uppercase letter
 - if a class name contains multiple words start every word with an uppercase letter
 - use doxygen style comments in your header files
-- add units to your doxygen style comments in @param and @return block
+- add units to your doxygen style comments in `param` and `return` block
 - add comments where appropriate
 - have a look at the source code to get a feeling about the style
 - do not add `using namespace std` in a header file
