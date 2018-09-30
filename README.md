@@ -64,14 +64,14 @@ It is recommended to copy the source code into one common directory here called 
     VieSchedppSource/VieSchedpp
     VieSchedppSource/VieSchedppGUI
     VieSchedppSource/IAU_SOFA (only for installation)
-    VieSchedppSource/CATALOGS (only for usage)
+    VieSchedppSource/CATALOGS (not required for installation)
 
 ## Build
 
 clone git repository into `VieSchedppSource` or copy source code into `VieSchedppSource/VieSchedpp`
 
     cd VieSchedppSource
-    git clone git@git.geo.tuwien.ac.at:vievs/VieSchedpp/VieSchedpp.git
+    git clone https://github.com/TUW-VieVS/VieSchedpp.git
 
 make sure that the `IAU_SOFA` library is already build in `VieSchedppSource/IAU_SOFA/Release/libsofa_c.a`.
 See `README.md` from `IAU_SOFA` for help.
@@ -206,12 +206,12 @@ __VieSched++__ is still in developing, there might be bugs or crashes.
 
 Please always have a look at the log file and have a look if you get some [warning], [error] or [fatal] messages.
 
-In case __VieSched++__ crashes or it reports an error in the log files please contact me under: matthias.schartner@geo.tuwien.ac.at.
+In case __VieSched++__ crashes or it reports an error in the log files please raise an issue at https://github.com/TUW-VieVS/VieSchedpp.
 
-Please attach:
+Follow the "Bug report" issue template and attach:
 * your current software version number (you can find it in the beginning of your log file, or in the .skd or .vex files - it is a hash code like `f20be1498274232acb46cf44121f9e60278c6528`)
 * your VieSchedpp.xml file
-* your used catalog files
+* your catalog files
 * your log file `VieSchedpp_yyyy-mm-dd_hh-mm-ss.sss.log`
 * any other helpful information
 
