@@ -2,9 +2,11 @@
 
 VLBI scheduling software
 
-written by Matthias Schartner
+Written by Matthias Schartner
 
-contact: matthias.schartner@geo.tuwien.ac.at
+Contact: matthias.schartner@geo.tuwien.ac.at
+
+Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
 # License
 > VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
@@ -104,12 +106,18 @@ Do the same as descriped in the previouse section but before running
 
 # Documentation
 
+The Documentation of the __VieSched++__ source code can be found at https://tuw-vievs.github.io/VieSchedpp/index.html.
+
+**WARNING:** This documentation always refers to the actual `master` branch on `GitHub`. This might be different then your personal version. 
+
+## Create documentation by yourself
+
 To create a documentation you should have installed `doxygen` and optionally
 the `dot` tool from `Graphviz`.
 If you want to create diagrams make sure that the `dot` executable is in your
 path variable.
 
-## via batch file
+### Via batch file
 
 Run the `createDocumentation_linux.sh` bash script or `createDocumentation_windows.bat` batch file.
 (Make sure you have the appropriate file permissions to run the script. If not run `chmod 711 createDocumentation_linux.sh` or equivalent windows commands before)
@@ -118,7 +126,7 @@ You should now get a `index.html` link and a `refman.pdf` file in your `VieSched
 
 The `index.html` file is the startpoint of your manual in `html` format.
 
-## directly via doxygen
+### Directly via doxygen
 
 To create a documentation run `doxygen` in the `VieSchedpp/documentation/`
 subfolder.
