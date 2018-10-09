@@ -434,7 +434,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         unordered_map<unsigned long, double> & staids2skyCoverageScore = staids2skyCoverageScores[srcid];
         const Source &thisSource = sources[srcid];
         thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
-                           staids2skyCoverageScore);
+                           staids2skyCoverageScore, idle_);
     }
 
 
@@ -444,7 +444,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         const Source &thisSource1 = sources[srcid1];
         const unordered_map<unsigned long, double> & staids2skyCoverageScore1 = staids2skyCoverageScores[srcid1];
         thisScan1.calcScore_subnetting(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                       network, thisSource1, staids2skyCoverageScore1);
+                                       network, thisSource1, staids2skyCoverageScore1, idle_);
 //        double score1 = thisScan1.getScore();
 
         Scan &thisScan2 = thisScans.second;
@@ -452,7 +452,7 @@ void Subcon::generateScore(const Network &network, const vector<Source> &sources
         const Source &thisSource2 = sources[srcid2];
         const unordered_map<unsigned long, double> & staids2skyCoverageScore2 = staids2skyCoverageScores[srcid2];
         thisScan2.calcScore_subnetting(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                       network, thisSource2, staids2skyCoverageScore2);
+                                       network, thisSource2, staids2skyCoverageScore2, idle_);
 //        double score2 = thisScan2.getScore();
     }
 }
@@ -583,7 +583,7 @@ void Subcon::minMaxTime() noexcept {
 
 void Subcon::prepareAverageScore(const vector<Station> &objects) noexcept {
     vector<unsigned long> nobs;
-    for (auto &thisObject:objects) {
+    for (const auto &thisObject : objects) {
         nobs.push_back(thisObject.getNObs());
     }
     astas_ =  prepareAverageScore_base(nobs);
@@ -591,7 +591,7 @@ void Subcon::prepareAverageScore(const vector<Station> &objects) noexcept {
 
 void Subcon::prepareAverageScore(const vector<Baseline> &objects) noexcept{
     vector<unsigned long> nobs;
-    for (auto &thisObject:objects) {
+    for (const auto &thisObject : objects) {
         nobs.push_back(thisObject.getNObs());
     }
 
@@ -600,10 +600,27 @@ void Subcon::prepareAverageScore(const vector<Baseline> &objects) noexcept{
 
 void Subcon::prepareAverageScore(const vector<Source> &objects) noexcept {
     vector<unsigned long> nobs;
-    for (auto &thisObject:objects) {
+    for (const auto &thisObject : objects) {
         nobs.push_back(thisObject.getNObs());
     }
     asrcs_ = prepareAverageScore_base(nobs);
+}
+
+void Subcon::prepareIdleTimeScore(const std::vector<Station> &stations) noexcept {
+    unsigned int maxTime = 0;
+    for (const auto &thisStation : stations){
+        if(thisStation.getCurrentTime() > maxTime){
+            maxTime = thisStation.getCurrentTime();
+        }
+    }
+
+    double interval = WeightFactors::idleTimeInterval;
+    for (const auto &thisStation : stations){
+        unsigned int thisIdleTime = maxTime - thisStation.getCurrentTime();
+        double thisScore = static_cast<double>(thisIdleTime) / interval;
+        idle_.push_back(thisScore);
+    }
+
 }
 
 std::vector<double> Subcon::prepareAverageScore_base(const std::vector<unsigned long> &nobs) noexcept{
@@ -645,6 +662,9 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
     }
     if (WeightFactors::weightAverageSources != 0) {
         prepareAverageScore(sources);
+    }
+    if (WeightFactors::weightIdleTime != 0){
+        prepareIdleTimeScore(network.getStations());
     }
 }
 
@@ -715,7 +735,7 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
             if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
                 // standard case
                 thisScan.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                   network, thisSource, false);
+                                   network, thisSource, false, idle_);
             } else {
                 // special case for calibrator block
                 bool valid = thisScan.calcScore(prevLowElevationScores, prevHighElevationScores, network,
@@ -782,9 +802,9 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
             if (prevLowElevationScores.empty() && prevHighElevationScores.empty()) {
                 // standard case
                 thisScan1.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                    network, thisSource1, true);
+                                    network, thisSource1, true, idle_);
                 thisScan2.calcScore(astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_,
-                                    network, thisSource2, true);
+                                    network, thisSource2, true, idle_);
             } else {
                 // special case for calibrator block
                 bool valid1 = thisScan1.calcScore(prevLowElevationScores, prevHighElevationScores, network,
@@ -1090,6 +1110,7 @@ void Subcon::visibleScan(unsigned int currentTime, Scan::ScanType type, const Ne
     }
 
 }
+
 
 
 

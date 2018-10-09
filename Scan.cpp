@@ -545,13 +545,12 @@ double Scan::calcScore_numberOfObservations(unsigned long maxObs) const noexcept
     return thisScore;
 }
 
-double Scan::calcScore_idleTime() const noexcept {
-    double interval = WeightFactors::idleTimeInterval;
+double Scan::calcScore_idleTime(const std::vector<double> &idleScore) const noexcept {
 
     double score = 0;
     for(int idx=0; idx<nsta_; ++idx){
-        unsigned int thisIdleTime = times_.getIdleDuration(idx);
-        score += static_cast<double>(thisIdleTime) / interval;
+        unsigned long thisId = pointingVectorsStart_[idx].getStaid();
+        score += idleScore[thisId];
     }
 
     return score;
@@ -972,7 +971,8 @@ void Scan::addTagalongStation(const PointingVector &pv_start, const PointingVect
 
 double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                  const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                 const Network &network, const Source &source, bool subnetting) {
+                                 const Network &network, const Source &source, bool subnetting,
+                                 const std::vector<double> &idleScore) {
     unsigned long nmaxsta = network.getNSta();
     unsigned long nmaxbl = network.getNBls();
     double this_score = 0;
@@ -1002,7 +1002,7 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     }
     double weight_idle = WeightFactors::weightIdleTime;
     if(weight_idle != 0) {
-        this_score += calcScore_idleTime() * weight_idle;
+        this_score += calcScore_idleTime(idleScore) * weight_idle;
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
@@ -1071,9 +1071,10 @@ double Scan::calcScore_secondPart(double this_score, const Network &network, con
 
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                      const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                     const Network &network, const Source &source, bool subnetting) noexcept {
+                     const Network &network, const Source &source, bool subnetting,
+                     const std::vector<double> &idleScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, subnetting);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, subnetting, idleScore);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -1090,9 +1091,10 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 void Scan::calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                      const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                      const Network &network, const Source &source,
-                     unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
+                     unordered_map<unsigned long, double> &staids2skyCoverageScore,
+                     const std::vector<double> &idleScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, false);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, false, idleScore);
 
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
@@ -1110,9 +1112,10 @@ void Scan::calcScore(const std::vector<double> &astas, const std::vector<double>
 void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                 const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                                 const Network &network, const Source &source,
-                                const unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept {
+                                const unordered_map<unsigned long, double> &staids2skyCoverageScore,
+                                const std::vector<double> &idleScore) noexcept {
 
-    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, true);
+    double this_score = calcScore_firstPart(astas, asrcs, abls, minTime, maxTime, network, source, true, idleScore);
 
     double weight_skyCoverage = WeightFactors::weightSkyCoverage;
     if (weight_skyCoverage != 0) {
@@ -1129,7 +1132,7 @@ void Scan::calcScore_subnetting(const std::vector<double> &astas, const std::vec
 void Scan::calcScore(unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                      double hiscore, bool subnetting) {
 
-    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), vector<double>(), minTime, maxTime, network, source, subnetting);
+    double this_score = calcScore_firstPart(vector<double>(), vector<double>(), vector<double>(), minTime, maxTime, network, source, subnetting, vector<double>(network.getNSta(),0));
 
 
     score_ = calcScore_secondPart(this_score, network, source)*hiscore;

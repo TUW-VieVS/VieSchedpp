@@ -399,10 +399,12 @@ namespace VieVS{
          * @param network station network
          * @param source observed source
          * @param subnetting subnetting flag
+         * @param idleScore precalculated vector of extra scores due to long idle time
          */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                        const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                       const Network &network, const Source &source, bool subnetting) noexcept;
+                       const Network &network, const Source &source, bool subnetting,
+                       const std::vector<double> &idleScore) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -418,11 +420,13 @@ namespace VieVS{
          * @param network station network
          * @param source observed source
          * @param staids2skyCoverageScore stores the score of each pointing vector
+         * @param idleScore precalculated vector of extra scores due to long idle time
         */
         void calcScore(const std::vector<double> &astas, const std::vector<double> &asrcs,
                        const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                        const Network &network, const Source &source,
-                       std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
+                       std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
+                       const std::vector<double> &idleScore) noexcept;
 
         /**
          * @brief calculates the score of a scan
@@ -439,11 +443,13 @@ namespace VieVS{
          * @param network station network
          * @param source observed source
          * @param staids2skyCoverageScore stored score for each pointing vector
+         * @param idleScore precalculated vector of extra scores due to long idle time
          */
         void calcScore_subnetting(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                   const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                                   const Network &network, const Source &source,
-                                  const std::unordered_map<unsigned long, double> &staids2skyCoverageScore) noexcept;
+                                  const std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
+                                  const std::vector<double> &idleScore) noexcept;
 
         /**
          * @brief calc score for high impact scans
@@ -743,9 +749,10 @@ namespace VieVS{
          * @brief calculates score based on idle time
          * @author Matthias Schartner
          *
+         * @param idleScore precalculated vector of extra scores due to long idle time
          * @return score
          */
-        double calcScore_idleTime() const noexcept;
+        double calcScore_idleTime(const std::vector<double> &idleScore) const noexcept;
 
         /**
          * @brief mean of the weight factors for each participating station
@@ -787,11 +794,13 @@ namespace VieVS{
          * @param network station network
          * @param source observed source
          * @param subnetting subnetting flag
+         * @param idleScore precalculated vector of extra scores due to long idle time
          * @return score
          */
         double calcScore_firstPart(const std::vector<double> &astas, const std::vector<double> &asrcs,
                                    const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
-                                   const Network &network, const Source &source, bool subnetting);
+                                   const Network &network, const Source &source, bool subnetting,
+                                   const std::vector<double> &idleScore);
 
         /**
          * @brief second part of score calculations

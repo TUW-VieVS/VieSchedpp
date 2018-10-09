@@ -320,6 +320,7 @@ namespace VieVS{
         std::vector<double> astas_; ///< average station score for each station
         std::vector<double> asrcs_; ///< average source score for each source
         std::vector<double> abls_; ///< average baseline score for each baseline
+        std::vector<double> idle_; ///< extra score for long idle time
 
 
         /**
@@ -354,6 +355,14 @@ namespace VieVS{
          * @param sources list of all sources
          */
         void prepareAverageScore(const std::vector<Source> &sources) noexcept;
+
+        /**
+         * @brief pre calculate extra score after long idle times
+         * @author Matthias Scharnter
+         *
+         * @param stations list of all stations
+         */
+        void prepareIdleTimeScore(const std::vector<Station> &stations) noexcept;
 
         /**
          * @brief pre calculate baseline average number of observation score

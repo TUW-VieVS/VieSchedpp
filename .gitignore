@@ -1,6 +1,7 @@
-#VieSchedpp specific
+# VieSchedpp specific
 cmake-build-debug/
 cmake-build-release/
+cmake-build-relwithdebinfo/
 .idea/
 *.autosave
 
