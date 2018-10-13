@@ -145,7 +145,6 @@ void Output::displayBaselineStatistics(ofstream &of) {
     of << "----------|\n";
 
     for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
-        unsigned long counter = 0;
         of << boost::format("| %8s |") % network_.getStation(staid1).getName();
         for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
             if (staid2<staid1+1){
@@ -153,11 +152,10 @@ void Output::displayBaselineStatistics(ofstream &of) {
             }else{
                 unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
                 of << boost::format(" %8d ") % nBl;
-                counter += nBl;
             }
         }
         of << "|";
-        of << boost::format(" %8d ") % counter;
+        of << boost::format(" %8d ") % network_.getStation(staid1).getNObs();
         of << "|\n";
     }
 
