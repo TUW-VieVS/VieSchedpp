@@ -299,8 +299,10 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                 }
 
 
-                if(fromSkdFile){
+                if(fromSkdFile && !splitVector_total.empty()){
                     splitVector_total.insert(splitVector_total.begin()+1," ");
+                }else{
+                    return all;
                 }
                 string key = boost::algorithm::to_upper_copy(splitVector_total[indexOfKey]);
 
