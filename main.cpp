@@ -35,6 +35,8 @@
  * @author Matthias Schartner
  */
 
+void welcome();
+
 /**
  * @brief main function
  *
@@ -48,7 +50,7 @@
 int main(int argc, char *argv[])
 {
     if(argc != 2){
-        std::cout << "please add path to VieSchedpp.xml file as input argument!;";
+        welcome();
         return 0;
     }
 
@@ -112,4 +114,19 @@ int main(int argc, char *argv[])
     std::cout << std::endl;
 
     return 0;
+}
+
+void welcome(){
+
+    std::cout << " __     ___      ____       _              _             \n"
+                 " \\ \\   / (_) ___/ ___|  ___| |__   ___  __| |  _     _   \n"
+                 "  \\ \\ / /| |/ _ \\___ \\ / __| '_ \\ / _ \\/ _` |_| |_ _| |_ \n"
+                 "   \\ V / | |  __/___) | (__| | | |  __/ (_| |_   _|_   _|\n"
+                 "    \\_/  |_|\\___|____/ \\___|_| |_|\\___|\\__,_| |_|   |_|  \n"
+                 "                                                         \n"
+                 "Welcome to VieSched++\n\n"
+                 "In case this was a test to verify the connection between the GUI and VieSched++ then you were successful!\n\n"
+                 "In case you want to run VieSched++ from a terminal pass the path to the VieSchedpp.xml file as an "
+                 "argument to the executable. \n"
+                 "e.g.: ./VieSchedpp path/to/VieSchedpp.xml\n";
 }
