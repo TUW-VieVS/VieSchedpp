@@ -85,6 +85,10 @@ void VieSchedpp::run() {
     readSkdCatalogs();
     LookupTable::initialize();
 
+    Mode mode(skdCatalogs_.getModeName(), init.getNumberOfStations());
+    mode.readFromSkedCatalogs(skdCatalogs_);
+    mode.calcRecordingRates();
+
     // initialize all Parameters
     init.initializeGeneral( of );
     init.initializeAstronomicalParameteres();

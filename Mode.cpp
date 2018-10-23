@@ -23,11 +23,31 @@ using namespace std;
 
 unsigned long VieVS::Mode::nextId = 0;
 
-Mode::Mode(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
+Mode::Mode(std::string name, unsigned long nsta): VieVS_NamedObject{std::move(name), nextId++}, nsta_{nsta} {
 
 }
 
 void Mode::calcRecordingRates() {
+
+    for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
+        const auto &freq1 = getFreq(staid1);
+        // check if station 1 is part of this observing mode
+        if(!freq1.is_initialized()){
+            continue;
+        }
+        for(unsigned long staid2 = staid1+1; staid2 < nsta_; ++staid2){
+            const auto &freq2 = getFreq(staid2);
+            // check if station 2 is part of this observing mode
+            if(!freq2.is_initialized()){
+                continue;
+            }
+
+            auto overlappingFrequencies = freq1->overlappingFrequencies(freq2.get());
+
+            staids2recordingRate_[{staid1, staid2}] = overlappingFrequencies;
+        }
+    }
+
 
 }
 
@@ -98,7 +118,7 @@ boost::optional<const std::vector<unsigned long> &>Mode::getAllStationsWithTrack
 
 boost::optional<const If &> Mode::getIf(unsigned long staid) {
     for(const auto &any: ifs_){
-        if(find(any.second.begin(), any.second.end(), staid) == any.second.end()){
+        if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
         }
     }
@@ -107,7 +127,7 @@ boost::optional<const If &> Mode::getIf(unsigned long staid) {
 
 boost::optional<const Bbc &> Mode::getBbc(unsigned long staid) {
     for(const auto &any: bbcs_){
-        if(find(any.second.begin(), any.second.end(), staid) == any.second.end()){
+        if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
         }
     }
@@ -116,7 +136,7 @@ boost::optional<const Bbc &> Mode::getBbc(unsigned long staid) {
 
 boost::optional<const Freq &> Mode::getFreq(unsigned long staid) {
     for(const auto &any: freqs_){
-        if(find(any.second.begin(), any.second.end(), staid) == any.second.end()){
+        if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
         }
     }
@@ -125,7 +145,7 @@ boost::optional<const Freq &> Mode::getFreq(unsigned long staid) {
 
 boost::optional<const Track &> Mode::getTrack(unsigned long staid) {
     for(const auto &any: tracks_){
-        if(find(any.second.begin(), any.second.end(), staid) == any.second.end()){
+        if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
         }
     }
@@ -134,7 +154,7 @@ boost::optional<const Track &> Mode::getTrack(unsigned long staid) {
 
 boost::optional<const std::string &> Mode::getTrackFrameFormat(unsigned long staid) {
     for(const auto &any: track_frame_formats_){
-        if(find(any.second.begin(), any.second.end(), staid) == any.second.end()){
+        if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
         }
     }
@@ -202,7 +222,7 @@ std::map<int,int> Mode::readSkdTracks(const SkdCatalogReader &skd) {
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2tracksMap[thisStation] == tracksId){
+            if(staName2tracksMap.at(thisStation) == tracksId){
                 ids.push_back(i);
             }
         }
@@ -276,6 +296,8 @@ std::map<int,int> Mode::readSkdTracks(const SkdCatalogReader &skd) {
         // add track to mode
         addTrack(track, ids);
     }
+
+    return channelNr2Bbc;
 }
 
 void Mode::readSkdIf(const SkdCatalogReader &skd) {
@@ -293,7 +315,7 @@ void Mode::readSkdIf(const SkdCatalogReader &skd) {
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2loifId[thisStation] == loifId){
+            if(staName2loifId.at(thisStation) == loifId){
                 ids.push_back(i);
             }
         }
@@ -341,7 +363,7 @@ void Mode::readSkdBbc(const SkdCatalogReader &skd) {
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2loifId[thisStation] == bbcId){
+            if(staName2loifId.at(thisStation) == bbcId){
                 ids.push_back(i);
             }
         }

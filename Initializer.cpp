@@ -3036,3 +3036,15 @@ std::vector<unsigned long> Initializer::getMembers(const std::string &name, cons
     return ids;
 }
 
+unsigned long Initializer::getNumberOfStations() const {
+
+    unsigned long nsta = 0;
+
+    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
+    if (ptree_stations.is_initialized()) {
+        nsta = distance(ptree_stations->begin(), ptree_stations->end());
+    }
+
+    return nsta;
+}
+

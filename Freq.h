@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -29,6 +31,8 @@
 
 #include <utility>
 #include <vector>
+#include <unordered_map>
+#include <set>
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -61,13 +65,14 @@ namespace VieVS{
             sample_rate_ = sample_rate;
         }
 
+        std::unordered_map<std::string,double> overlappingFrequencies(const Freq &other) const;
 
 
     private:
         static unsigned long nextId;
 
 
-        class Chan_def: public VieVS_NamedObject{
+        class Chan_def: public VieVS_Object{
         public:
             Chan_def(std::string bandId,
                      double sky_freq,
@@ -76,7 +81,8 @@ namespace VieVS{
                      std::string chan_id,
                      std::string bbc_id,
                      std::string phase_cal_id):
-                VieVS_NamedObject{std::move(bandId), nextId++},
+                VieVS_Object{nextId++},
+                bandId_{std::move(bandId)},
                 sky_freq_{sky_freq},
                 net_sideband_{net_sideband},
                 chan_bandwidth_{chan_bandwidth},
@@ -84,19 +90,46 @@ namespace VieVS{
                 bbc_id_{std::move(bbc_id)},
                 phase_cal_id_{std::move(phase_cal_id)}{};
 
-        private:
-            static unsigned long nextId;
-
+            std::string bandId_;
             double sky_freq_;
             Net_sideband net_sideband_;
             double chan_bandwidth_;
             std::string chan_id_;
             std::string bbc_id_;
             std::string phase_cal_id_;
+
+        private:
+            static unsigned long nextId;
         };
 
         double sample_rate_;
         std::vector<Chan_def> chan_defs_;
+        std::set<std::string> bands_;
+
+
+        /**
+         * @brief calculate lower and upper frequency limit of particular channel
+         * @author Matthias Schartner
+         *
+         * @param skyFreq sky frequency in MHz
+         * @param bandwidth bandwidth in MHz
+         * @param net_sideband net sideband
+         * @return lower and upper limit
+         */
+        std::pair<double, double> lower_upper_bound(double skyFreq, double bandwidth, Net_sideband net_sideband) const;
+
+        /**
+         * @brief calculate overlapping bandwidth
+         * @author Matthias Schartner
+         *
+         * @param low1 lower limit of first channel in MHz
+         * @param up1 upper limit of first channel in MHz
+         * @param low2 lower limit of second channel in MHz
+         * @param up2 upper limit of second channel in MHz
+         * @return overlapping bandwidth in MHz
+         */
+        double overlappingBandwidth(double low1, double up1, double low2, double up2) const;
+
     };
 }
 

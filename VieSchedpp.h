@@ -54,6 +54,7 @@
 #include "Output.h"
 #include "ParameterSettings.h"
 #include "HighImpactScanDescriptor.h"
+#include "Mode.h"
 
 
 #ifdef _OPENMP

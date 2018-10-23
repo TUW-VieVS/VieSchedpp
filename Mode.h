@@ -52,7 +52,7 @@ namespace VieVS{
      */
     class Mode: public VieVS_NamedObject {
     public:
-        explicit Mode(std::string name);
+        Mode(std::string name, unsigned long nsta);
 
         void readFromSkedCatalogs(const SkdCatalogReader &skd);
 
@@ -95,6 +95,8 @@ namespace VieVS{
     private:
         static unsigned long nextId;
 
+        unsigned long nsta_;
+
         std::vector<std::pair<If, std::vector<unsigned long>>> ifs_;
         std::vector<std::pair<Bbc, std::vector<unsigned long>>> bbcs_;
         std::vector<std::pair<Freq, std::vector<unsigned long>>> freqs_;
@@ -104,7 +106,7 @@ namespace VieVS{
         std::unordered_map< std::pair<unsigned long, unsigned long>,
                                       std::unordered_map<std::string,double>,
                                       boost::hash<std::pair<unsigned long, unsigned long>>>
-                staids2recordingRatemMap_;
+                staids2recordingRate_;
 
         /**
          * @brief create FREQ block from skd catalogs

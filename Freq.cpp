@@ -32,6 +32,96 @@ Freq::Freq(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
 void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                       std::string chan_id, std::string bbc_id, std::string phase_cal_id) {
 
+    bands_.insert(bandId);
     chan_defs_.emplace_back(bandId, sky_freq, net_sideband, chan_bandwidth, chan_id, bbc_id, phase_cal_id);
 
+}
+
+std::unordered_map<std::string, double> Freq::overlappingFrequencies(const Freq &other) const {
+
+    unordered_map<string, double> band2totalBandwidth;
+    for(const auto &band : bands_){
+        band2totalBandwidth[band] = 0;
+    }
+
+    if(other.hasName(getName())){
+        for(const auto &channel : chan_defs_){
+            band2totalBandwidth[channel.bandId_] += channel.chan_bandwidth_;
+        }
+    }else{
+        for(const auto &channelA : chan_defs_){
+            for(const auto &channelB : other.chan_defs_){
+                if(channelA.bandId_ == channelB.bandId_){
+
+                    auto lower_upper_A = lower_upper_bound(channelA.sky_freq_, channelA.chan_bandwidth_, channelA.net_sideband_);
+                    auto lower_upper_B = lower_upper_bound(channelB.sky_freq_, channelB.chan_bandwidth_, channelB.net_sideband_);
+
+                    double overlapping = overlappingBandwidth(lower_upper_A.first, lower_upper_A.second, lower_upper_B.first, lower_upper_B.second);
+                    band2totalBandwidth[channelA.bandId_] += overlapping;
+                }
+            }
+        }
+    }
+
+    return band2totalBandwidth;
+}
+
+std::pair<double, double> Freq::lower_upper_bound(double skyFreq, double bandwidth, Freq::Net_sideband net_sideband) const {
+
+    double lower = 0;
+    double upper = 0;
+    switch(net_sideband){
+        case Net_sideband::U:{
+            lower = skyFreq;
+            upper = skyFreq + bandwidth;
+            break;
+        }
+        case Net_sideband::L:{
+            lower = skyFreq - bandwidth;
+            upper = skyFreq;
+            break;
+        }
+        case Net_sideband::UC:{
+            lower = skyFreq - bandwidth/2;
+            upper = skyFreq + bandwidth/2;
+            break;
+        }
+        case Net_sideband::LC:{
+            lower = skyFreq - bandwidth/2;
+            upper = skyFreq + bandwidth/2;
+            break;
+        }
+    }
+
+    return {lower, upper};
+}
+
+double Freq::overlappingBandwidth(double low1, double up1, double low2, double up2) const {
+    // no overlap
+    if(up1 <= low2 || up2 <= low1){
+        return 0;
+    }
+    // inside
+    if(low1 >= low2 && up1 <= up2){
+        return up1-low1;
+    }
+    if(low2 >= low1 && up2 <= up1){
+        return up2-low2;
+    }
+    // overlap lower side
+    if(low1 <= low2 && up1 <= up2){
+        return up1-low2;
+    }
+    if(low2 <= low1 && up2 <= up1){
+        return up2-low1;
+    }
+    // overlap upper side
+    if(low1 >= low2 && up1 >= up2){
+        return up2-low1;
+    }
+    if(low2 >= low1 && up2 >= up1){
+        return up1-low2;
+    }
+
+    return 0;
 }

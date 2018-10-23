@@ -159,6 +159,14 @@ namespace VieVS {
         }
 
         /**
+         * @brief get number of stations from xml file
+         * @author Matthias Schartner
+         *
+         * @return number of stations from xml file
+         */
+        unsigned long getNumberOfStations() const;
+
+        /**
          *  @brief pre calculates all possible second scans used for subnetting
          * @author Matthias Schartner
          */
