@@ -28,7 +28,7 @@ Bbc::Bbc(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
 
 }
 
-void Bbc::addBbc(std::string name, unsigned int physical_bbc_number, unsigned int if_name) {
+void Bbc::addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name) {
 
     bbc_assigns_.emplace_back(name, physical_bbc_number, if_name);
 

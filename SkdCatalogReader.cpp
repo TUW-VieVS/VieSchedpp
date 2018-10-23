@@ -470,6 +470,7 @@ void SkdCatalogReader::initializeStationCatalogs() {
 }
 
 void SkdCatalogReader::initializeModesCatalogs(const string &obsModeName) {
+    modeName_ = obsModeName;
     readModesCatalog(obsModeName);
     readRecCatalog();
     readTracksCatalog();

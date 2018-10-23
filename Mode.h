@@ -30,9 +30,10 @@
 #include <unordered_map>
 #include <boost/optional.hpp>
 #include <boost/functional/hash.hpp>
-
+#include <algorithm>
 
 #include "VieVS_NamedObject.h"
+#include "SkdCatalogReader.h"
 #include "Freq.h"
 #include "Track.h"
 #include "Bbc.h"
@@ -52,6 +53,8 @@ namespace VieVS{
     class Mode: public VieVS_NamedObject {
     public:
         explicit Mode(std::string name);
+
+        void readFromSkedCatalogs(const SkdCatalogReader &skd);
 
         void addIf(const If &newIf, const std::vector<unsigned long> &staids);
 
@@ -102,6 +105,48 @@ namespace VieVS{
                                       std::unordered_map<std::string,double>,
                                       boost::hash<std::pair<unsigned long, unsigned long>>>
                 staids2recordingRatemMap_;
+
+        /**
+         * @brief create FREQ block from skd catalogs
+         * @author Matthias Schartner
+         *
+         * @param skd skd catalogs
+         */
+        void readSkdFreq(const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc);
+
+        /**
+         * @brief create TRACKS block from skd catalogs
+         * @author Matthias Schartner
+         *
+         * @param skd skd catalogs
+         * @return channel number to bbc number map
+         */
+        std::map<int,int> readSkdTracks(const SkdCatalogReader &skd);
+
+        /**
+         * @brief create IF block from skd catalogs
+         * @author Matthias Schartner
+         *
+         * @param skd skd catalogs
+         */
+        void readSkdIf(const SkdCatalogReader &skd);
+
+        /**
+         * @brief create BBC block from skd catalogs
+         * @author Matthias Schartner
+         *
+         * @param skd skd catalogs
+         */
+        void readSkdBbc(const SkdCatalogReader &skd);
+
+
+        /**
+         * @brief create track frame format from skd catalogs
+         * @author Matthias Schartner
+         *
+         * @param skd skd catalogs
+         */
+        void readSkdTrackFrameFormat(const SkdCatalogReader &skd);
 
     };
 

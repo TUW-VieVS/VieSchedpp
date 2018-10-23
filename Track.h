@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -51,7 +53,7 @@ namespace VieVS{
 
         explicit Track(std::string name);
 
-        void addFanout(std::string name, Bitstream bitstream, double total_lo, int headstack_number,
+        void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                        int fourth_multiplex_track = -999);
 
@@ -59,20 +61,24 @@ namespace VieVS{
         static unsigned long nextId;
 
 
-        class Fanout_definition: public VieVS_NamedObject{
+        class Fanout_definition: public VieVS_Object{
         public:
-            Fanout_definition(std::string name,
+            Fanout_definition(std::string subpass,
+                              std::string trksId,
                               Bitstream bitstream,
-                              double total_lo,
                               int headstack_number,
                               int first_multiplex_track,
                               int second_multiplex_track = -999,
                               int third_multiplex_track = -999,
                               int fourth_multiplex_track = -999):
-                          VieVS_NamedObject{std::move(name), nextId++},
+
+                          VieVS_Object{nextId++},
+
+                          subpass_{std::move(subpass)},
+                          trksid_{std::move(trksId)},
                           bitstream_{bitstream},
-                          total_lo_{total_lo},
                           headstack_number_{headstack_number},
+
                           first_multiplex_track_{first_multiplex_track},
                           second_multiplex_track_{second_multiplex_track},
                           third_multiplex_track_{third_multiplex_track},
@@ -81,9 +87,11 @@ namespace VieVS{
         private:
             static unsigned long nextId;
 
+            std::string subpass_;
+            std::string trksid_;
             Bitstream bitstream_;
-            double total_lo_;
             int headstack_number_;
+
             int first_multiplex_track_;
             int second_multiplex_track_;
             int third_multiplex_track_;

@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -47,7 +49,7 @@ namespace VieVS{
     public:
         explicit Bbc(std::string name);
 
-        void addBbc(std::string name, unsigned int physical_bbc_number, unsigned int if_name);
+        void addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name);
 
     private:
         static unsigned long nextId;
@@ -62,16 +64,16 @@ namespace VieVS{
         public:
             Bbc_assign(std::string name,
                        unsigned int physical_bbc_number,
-                       unsigned int if_name):
+                       std::string if_name):
                     VieVS_NamedObject{std::move(name), nextId++},
                     physical_bbc_number_{physical_bbc_number},
-                    if_name_{if_name}{};
+                    if_name_{std::move(if_name)}{};
 
         private:
             static unsigned long nextId;
 
             unsigned int physical_bbc_number_;
-            unsigned int if_name_;
+            std::string if_name_;
         };
 
         std::vector<Bbc_assign> bbc_assigns_;
