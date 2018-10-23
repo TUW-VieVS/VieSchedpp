@@ -35,10 +35,17 @@
  * @author Matthias Schartner
  */
 
+/**
+ * @brief welcome message
+ * @author Matthias Schartner
+ *
+ * Displays a welcome message in case you did not pass any arguments
+ */
 void welcome();
 
 /**
  * @brief main function
+ * @author Matthias Schartner
  *
  * pass path to VieSchedpp.xml file as argument.
  * This file will then be processed
