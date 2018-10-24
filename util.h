@@ -83,6 +83,28 @@ namespace VieVS{
         std::string dc2hms(double angle);
 
         /**
+         * @brief transforms frequency to wavelength
+         * @author Matthias Schartner
+         *
+         * assuming speed of light wave velocity
+         *
+         * @param frequency frequency in Hz
+         * @return wavelength in m
+         */
+        double freqency2wavelenth( double frequency );
+
+        /**
+         * @brief transforms wavelength to frequency
+         * @author Matthias Schartner
+         *
+         * assuming speed of light wave velocity
+         *
+         * @param frequency wavelength in m
+         * @return frequency in Hz
+         */
+        double wavelength2frequency( double wavelength);
+
+        /**
          * @brief wrap angle to interval [0, pi)
          * @author Matthias Schartner
          *

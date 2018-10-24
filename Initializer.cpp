@@ -439,7 +439,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
         network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask, sources_.size()));
 
         created++;
-        of << boost::format("  %-8s added\n") % name;
+        of << boost::format("  %-8s (%s) added\n") % name % tlc;
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "station " << name << " successfully created " << network_.getStation(name).printId();
         #endif
@@ -2040,7 +2040,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &reader, ofstre
                 const string &band = any.first;
                 const auto & tmp = any.second;
                 double meanFreq = std::accumulate(tmp.begin(),tmp.end(),0.0)/tmp.size();
-                double wl = speedOfLight/(meanFreq*1e6);
+                double wl = util::freqency2wavelenth(meanFreq*1e6);
                 band2wavelength[band] = wl;
             }
             ObservationMode::wavelength = band2wavelength;
@@ -3048,3 +3048,15 @@ unsigned long Initializer::getNumberOfStations() const {
     return nsta;
 }
 
+std::vector<std::string> Initializer::getStationNames(bool alternative) const{
+    vector<string> names;
+    for(const auto &any: network_.getStations()){
+        if(alternative){
+            names.push_back(any.getAlternativeName());
+        }else{
+            names.push_back(any.getName());
+        }
+
+    }
+    return names;
+}

@@ -88,6 +88,7 @@ void VieSchedpp::run() {
     Mode mode(skdCatalogs_.getModeName(), init.getNumberOfStations());
     mode.readFromSkedCatalogs(skdCatalogs_);
     mode.calcRecordingRates();
+    mode.calcMeanWavelength();
 
     // initialize all Parameters
     init.initializeGeneral( of );
@@ -96,6 +97,7 @@ void VieSchedpp::run() {
 
     init.createSources(skdCatalogs_, of);
     init.createStations(skdCatalogs_, of);
+    mode.summary( init.getStationNames(true), of);
 
     init.initializeStations();
     init.precalcAzElStations();

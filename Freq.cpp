@@ -37,18 +37,18 @@ void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband ne
 
 }
 
-std::unordered_map<std::string, double> Freq::overlappingFrequencies(const Freq &other) const {
+std::unordered_map<std::string, double> Freq::observingRate(const Freq &other, int bits) const {
 
-    unordered_map<string, double> band2totalBandwidth;
+    unordered_map<string, double> band2observingRate;
     for(const auto &band : bands_){
-        band2totalBandwidth[band] = 0;
+        band2observingRate[band] = 0;
     }
 
     if(other.hasName(getName())){
         for(const auto &channel : chan_defs_){
-            band2totalBandwidth[channel.bandId_] += channel.chan_bandwidth_;
+            band2observingRate[channel.bandId_] +=  bits * sample_rate_ * 1e6;
         }
-    }else{
+    }else if(sample_rate_ == other.sample_rate_){
         for(const auto &channelA : chan_defs_){
             for(const auto &channelB : other.chan_defs_){
                 if(channelA.bandId_ == channelB.bandId_){
@@ -57,13 +57,13 @@ std::unordered_map<std::string, double> Freq::overlappingFrequencies(const Freq 
                     auto lower_upper_B = lower_upper_bound(channelB.sky_freq_, channelB.chan_bandwidth_, channelB.net_sideband_);
 
                     double overlapping = overlappingBandwidth(lower_upper_A.first, lower_upper_A.second, lower_upper_B.first, lower_upper_B.second);
-                    band2totalBandwidth[channelA.bandId_] += overlapping;
+                    band2observingRate[channelA.bandId_] += overlapping * bits * sample_rate_ * 1e6;
                 }
             }
         }
     }
 
-    return band2totalBandwidth;
+    return band2observingRate;
 }
 
 std::pair<double, double> Freq::lower_upper_bound(double skyFreq, double bandwidth, Freq::Net_sideband net_sideband) const {
@@ -124,4 +124,14 @@ double Freq::overlappingBandwidth(double low1, double up1, double low2, double u
     }
 
     return 0;
+}
+
+std::vector<double> Freq::getFrequencies(const string &band) const{
+    vector<double> freq;
+    for(const auto &channel : chan_defs_){
+        if(channel.bandId_ == band){
+            freq.push_back(channel.sky_freq_);
+        }
+    }
+    return freq;
 }

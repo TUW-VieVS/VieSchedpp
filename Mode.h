@@ -45,13 +45,48 @@ namespace VieVS{
      * @class Mode
      * @brief observing mode
      *
-     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     * CURRENTLY UNDER DEVELOPMENT
      *
      * @author Matthias Schartner
      * @date 17.09.2018
      */
     class Mode: public VieVS_NamedObject {
     public:
+//        /**
+//         * @brief all possible flux information type
+//         * @author Matthias Schartner
+//         */
+//        enum class Property {
+//            required,    ///< this band information is required. If this information is missing this object is not used.
+//            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is calculated based on backup model
+//        };
+//
+//        /**
+//         * @brief all possible backup models
+//         * @author Matthias Schartner
+//         */
+//        enum class Backup {
+//            minValueTimes, ///< use minimum value found in other bands times a factor
+//            maxValueTimes, ///< use maximum value found in other bands times a factor
+//            value, ///< use specific value
+//            none, ///< no backup model
+//        };
+//
+//        static bool manual; ///< flag if manual observation mode was selected
+//
+//        static std::vector<std::string> bands; ///< list of all bands
+//        static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
+//
+//        static std::unordered_map<std::string, Property> stationProperty; ///< is band required or optional for station
+//        static std::unordered_map<std::string, Backup> stationBackup; ///< backup version for station
+//        static std::unordered_map<std::string, double> stationBackupValue; ///< backup value for station
+//
+//        static std::unordered_map<std::string, Property> sourceProperty; ///< is band required or optional for source
+//        static std::unordered_map<std::string, Backup> sourceBackup; ///< backup version for source
+//        static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
+//
+//
+
         Mode(std::string name, unsigned long nsta);
 
         void readFromSkedCatalogs(const SkdCatalogReader &skd);
@@ -68,7 +103,11 @@ namespace VieVS{
 
         void calcRecordingRates();
 
+        void calcMeanWavelength();
 
+        double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
+
+        std::set<std::string> getAllBands() const;
 
         boost::optional<const If &>getIf(unsigned long staid);
 
@@ -76,7 +115,7 @@ namespace VieVS{
 
         boost::optional<const Freq &>getFreq(unsigned long staid);
 
-        boost::optional<const Track &>getTrack(unsigned long staid);
+        boost::optional<const Track &>getTracks(unsigned long staid);
 
         boost::optional<const std::string &>getTrackFrameFormat(unsigned long staid);
 
@@ -91,6 +130,8 @@ namespace VieVS{
         boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrack(std::string name);
 
         boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrackFrameFormat(std::string name);
+
+        void summary( const std::vector<std::string> &stations, std::ofstream &of) const;
 
     private:
         static unsigned long nextId;
@@ -107,6 +148,8 @@ namespace VieVS{
                                       std::unordered_map<std::string,double>,
                                       boost::hash<std::pair<unsigned long, unsigned long>>>
                 staids2recordingRate_;
+
+        std::unordered_map<std::string, double> band2meanWavelength_;
 
         /**
          * @brief create FREQ block from skd catalogs

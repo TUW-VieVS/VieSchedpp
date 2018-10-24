@@ -329,6 +329,16 @@ namespace VieVS {
         }
 
         /**
+         * @brief getter for tracks bit
+         * @author Matthias Schartner
+         *
+         * @return map with tracks name as key and number of sampled bits as value
+         */
+        const std::map<std::string, int> &getTracksId2bits() const {
+            return tracksId2bitsMap_;
+        }
+
+        /**
          * @brief getter for channel tracks info
          * @author Matthias Schartner
          *

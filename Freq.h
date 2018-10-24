@@ -34,6 +34,7 @@
 #include <unordered_map>
 #include <set>
 #include "VieVS_NamedObject.h"
+#include "util.h"
 
 namespace VieVS{
 
@@ -61,11 +62,17 @@ namespace VieVS{
         void addChannel(std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
                         std::string chan_id, std::string bbc_id, std::string phase_cal_id);
 
+        std::vector<double> getFrequencies(const std::string &band) const;
+
         void setSampleRate(double sample_rate){
             sample_rate_ = sample_rate;
         }
 
-        std::unordered_map<std::string,double> overlappingFrequencies(const Freq &other) const;
+        const std::set<std::string> &getBands() const {
+            return bands_;
+        }
+
+        std::unordered_map<std::string,double> observingRate(const Freq &other, int bits) const;
 
 
     private:
@@ -88,10 +95,14 @@ namespace VieVS{
                 chan_bandwidth_{chan_bandwidth},
                 chan_id_{std::move(chan_id)},
                 bbc_id_{std::move(bbc_id)},
-                phase_cal_id_{std::move(phase_cal_id)}{};
+                phase_cal_id_{std::move(phase_cal_id)}{
+
+                wavelength_ = util::freqency2wavelenth(sky_freq*1e6);
+            };
 
             std::string bandId_;
             double sky_freq_;
+            double wavelength_;
             Net_sideband net_sideband_;
             double chan_bandwidth_;
             std::string chan_id_;

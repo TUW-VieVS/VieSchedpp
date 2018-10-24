@@ -31,6 +31,7 @@
 
 #include <utility>
 #include <vector>
+#include <algorithm>
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -52,6 +53,14 @@ namespace VieVS{
         };
 
         explicit Track(std::string name);
+
+        void setBits(int bits){
+            bits_ = bits;
+        }
+
+        int numberOfBits(const Track &other) const{
+            return std::min({bits_, other.bits_});
+        }
 
         void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
@@ -99,6 +108,7 @@ namespace VieVS{
         };
 
         std::vector<Fanout_definition> fanout_definitions_;
+        int bits_ = 1;
 
     };
 }

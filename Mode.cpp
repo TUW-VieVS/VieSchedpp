@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -31,18 +33,22 @@ void Mode::calcRecordingRates() {
 
     for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
         const auto &freq1 = getFreq(staid1);
+        const auto &tracks1 = getTracks(staid1);
         // check if station 1 is part of this observing mode
-        if(!freq1.is_initialized()){
+        if(!freq1.is_initialized() || !tracks1.is_initialized()){
             continue;
         }
+
         for(unsigned long staid2 = staid1+1; staid2 < nsta_; ++staid2){
             const auto &freq2 = getFreq(staid2);
+            const auto &tracks2 = getTracks(staid2);
             // check if station 2 is part of this observing mode
-            if(!freq2.is_initialized()){
+            if(!freq2.is_initialized() || !tracks2.is_initialized()){
                 continue;
             }
 
-            auto overlappingFrequencies = freq1->overlappingFrequencies(freq2.get());
+            auto bits = tracks1->numberOfBits(tracks2.get());
+            auto overlappingFrequencies = freq1->observingRate(freq2.get(), bits);
 
             staids2recordingRate_[{staid1, staid2}] = overlappingFrequencies;
         }
@@ -143,7 +149,7 @@ boost::optional<const Freq &> Mode::getFreq(unsigned long staid) {
     return boost::none;
 }
 
-boost::optional<const Track &> Mode::getTrack(unsigned long staid) {
+boost::optional<const Track &> Mode::getTracks(unsigned long staid) {
     for(const auto &any: tracks_){
         if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
@@ -213,6 +219,7 @@ std::map<int,int> Mode::readSkdTracks(const SkdCatalogReader &skd) {
     const auto &tracksIds               = skd.getTracksIds();
     const auto &tracksId2fanout         = skd.getTracksId2fanoutMap();
     const auto &channelNumber2tracksMap = skd.getTracksId2channelNumber2tracksMap();
+    const auto &tracksId2bits           = skd.getTracksId2bits();
 
     for(const auto &tracksId : tracksIds){
         int chn = 1;
@@ -227,6 +234,7 @@ std::map<int,int> Mode::readSkdTracks(const SkdCatalogReader &skd) {
             }
         }
         Track track(tracksId);
+        track.setBits(tracksId2bits.at(tracksId));
 
         if(tracksId2fanout.at(tracksId) == 1){
             // 1:1 fanout
@@ -424,5 +432,90 @@ void Mode::readSkdTrackFrameFormat(const SkdCatalogReader &skd) {
         addTrackFrameFormat(thisRecorder, ids);
     }
 
+}
+
+void Mode::summary(const std::vector<std::string> &stations, std::ofstream &of) const{
+
+    of << "observing mode: " << getName() << "\n";
+    auto bands = getAllBands();
+
+    for(const auto &band : bands){
+
+        double meanFrequency = 0;
+        auto it = band2meanWavelength_.find(band);
+        if(it == band2meanWavelength_.end()){
+            continue;
+        }else{
+            meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
+        }
+
+        std::map<double, vector<string>> rate2baseline;
+        for(unsigned long staid1=0; staid1<nsta_; ++staid1){
+            for(unsigned long staid2=staid1+1; staid2<nsta_; ++staid2){
+
+                double rate = recordingRate(staid1,staid2,band);
+                if(rate == 0){
+                    continue;
+                }
+
+                string name = (boost::format("%s-%s") % stations[staid1] % stations[staid2]).str();
+
+                auto it2 = rate2baseline.find(rate);
+                if(it2 == rate2baseline.end()){
+                    rate2baseline[rate] = {name};
+                }else{
+                    rate2baseline[rate].push_back(name);
+                }
+            }
+        }
+
+        for(const auto &any : rate2baseline){
+            string title = (boost::format("band: %2s (%8.2f [MHz]) recording rate: %7.2f [MHz/s]") % band % meanFrequency % (any.first *1e-6)).str();
+            util::outputObjectList(title, any.second, of);
+        }
+    }
+}
+
+std::set<std::string> Mode::getAllBands() const{
+    set<string> bands;
+    for(const auto &any:freqs_){
+        bands.insert(any.first.getBands().begin(), any.first.getBands().end());
+    }
+    return bands;
+}
+
+double Mode::recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const{
+
+    auto it = staids2recordingRate_.find({staid1, staid2});
+    // if station id combination is not saved in map return 0
+    if(it == staids2recordingRate_.end()){
+        return 0;
+    }
+
+    // check if band exists
+    auto it2 = it->second.find(band);
+    if(it2 == it->second.end()){
+        return 0;
+    }
+
+    return it2->second;
+}
+
+void Mode::calcMeanWavelength() {
+    set<string> bands = getAllBands();
+
+    for(const auto &band : bands){
+        vector<double> frequencies;
+        for(const auto &freq : freqs_){
+            auto tmp = freq.first.getFrequencies(band);
+            frequencies.insert(frequencies.end(), tmp.begin(), tmp.end());
+        }
+
+        double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
+        cout << meanFrequency << endl;
+        double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
+        cout << meanWavelength << endl;
+        band2meanWavelength_[band] = meanWavelength;
+    }
 }
 

@@ -167,6 +167,15 @@ namespace VieVS {
         unsigned long getNumberOfStations() const;
 
         /**
+         * @brief get station names as string
+         * @author Matthias Schartner
+         * @param alternative get alternative name (two letter code) default is false
+         *
+         * @return vector of station names
+         */
+        std::vector<std::string> getStationNames(bool alternative = false) const;
+
+        /**
          *  @brief pre calculates all possible second scans used for subnetting
          * @author Matthias Schartner
          */

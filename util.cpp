@@ -62,7 +62,7 @@ double util::wrapToPi(double angle){
 
 int util::duration(const boost::posix_time::ptime &start, const boost::posix_time::ptime &end) {
     boost::posix_time::time_duration a = end - start;
-    return a.total_seconds();
+    return static_cast<int>(a.total_seconds());
 }
 
 void util::outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of) {
@@ -100,4 +100,13 @@ string util::version() {
     v = string(GIT_COMMIT_HASH);
 
     return v;
+}
+
+
+double util::freqency2wavelenth( double frequency ){
+    return speedOfLight/frequency;
+}
+
+double util::wavelength2frequency( double wavelength ){
+    return speedOfLight/wavelength;
 }
