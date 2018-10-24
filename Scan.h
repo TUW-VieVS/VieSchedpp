@@ -41,11 +41,12 @@
 #include "ScanTimes.h"
 #include "Source.h"
 #include "WeightFactors.h"
-#include "ObservationMode.h"
+//#include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "CalibratorBlock.h"
 #include "StationEndposition.h"
 #include "util.h"
+#include "Mode.h"
 
 namespace VieVS{
 
@@ -361,9 +362,10 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources observed source
+         * @param mode observing mode
          * @return true is scan is still valid, otherwise false
          */
-        bool calcObservationDuration(const Network &network, const Source &sources) noexcept;
+        bool calcObservationDuration(const Network &network, const Source &sources, const Mode &mode) noexcept;
 
         /**
          * @brief calculates the total scan duration per station
@@ -489,10 +491,11 @@ namespace VieVS{
          *
          * @param network station network
          * @param source observed source
+         * @param mode observing mode
          * @param endposition required endposition
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(Network &network, const Source &source,
+        bool rigorousUpdate(Network &network, const Source &source, const Mode &mode,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -668,9 +671,10 @@ namespace VieVS{
          *
          * @param network station network
          * @param source observed source
+         * @param mode observing mode
          * @return true if scan is still valid, otherwise false
          */
-        bool rigorousScanStartTimeAlignment(Network &network, const Source &source) noexcept;
+        bool rigorousScanStartTimeAlignment(Network &network, const Source &source, const Mode &mode) noexcept;
 
         /**
          * @brief rigorous scan visibility

@@ -508,11 +508,13 @@ void Output::displayTimeStatistics(std::ofstream &of) {
     of << "----------|\n";
 
     of << "|   Total TB:     ";
-    unsigned int nChannels = 0;
-    for(const auto &any: ObservationMode::nChannels){
-        nChannels += any.second;
-    }
-    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
+//    unsigned int nChannels = 0;
+//    for(const auto &any: ObservationMode::nChannels){
+//        nChannels += any.second;
+//    }
+//    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
+// TODO: calc TB based on mode_ variable
+    double obsFreq = 0;
 
     vector<double> total_tb;
     for (const auto &station: network_.getStations()) {

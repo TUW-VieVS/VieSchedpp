@@ -58,7 +58,7 @@
 #include "AstronomicalParameters.h"
 #include "LookupTable.h"
 #include "WeightFactors.h"
-#include "ObservationMode.h"
+//#include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "Baseline.h"
 #include "SkdCatalogReader.h"
@@ -68,6 +68,7 @@
 #include "Flux_B.h"
 #include "Flux_M.h"
 #include "HighImpactScanDescriptor.h"
+#include "Mode.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -255,10 +256,10 @@ namespace VieVS {
          * @brief reads the observing mode information from VieSchedpp.xml file
          * @author Matthias Schartner
          *
-         * @param reader sked catalogs
+         * @param skdCatalogs sked catalogs
          * @param of outstream to log file
          */
-        void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
+        void initializeObservingMode(const SkdCatalogReader &skdCatalogs, std::ofstream &of) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the VieSchedpp.xml file
@@ -331,6 +332,7 @@ namespace VieVS {
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
         std::vector<Source> sources_; ///< list of all sources
         Network network_; ///< station network
+        Mode mode_; ///< observing mode
 
         Parameters parameters_; ///< parameters
         PRECALC preCalculated_; ///< pre calculated values

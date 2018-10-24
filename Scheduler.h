@@ -217,7 +217,8 @@ namespace VieVS{
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         std::vector<Source> sources_; ///< all sources
-        Network network_;
+        Network network_; ///< station network
+        Mode mode_; ///< observing mode
         std::vector<Scan> scans_; ///< all scans in schedule
 
         Parameters parameters_; ///< general scheduling parameters

@@ -135,11 +135,12 @@ const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids
 
 void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
                                                      const std::vector<Source> &sources,
+                                                     const Mode &mode,
                                                      const boost::optional<Subnetting> &subnetting) {
     highImpactScans_.calcStartTimes(network, sources);
     highImpactScans_.updateAzEl(network, sources);
     highImpactScans_.constructAllBaselines(network, sources);
-    highImpactScans_.calcAllBaselineDurations(network, sources);
+    highImpactScans_.calcAllBaselineDurations(network, sources, mode);
     highImpactScans_.calcAllScanDurations(network, sources);
     highImpactScans_.checkIfEnoughTimeToReachEndposition(network, sources);
 
@@ -151,8 +152,8 @@ void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
 }
 
 
-vector<Scan> HighImpactScanDescriptor::highestImpactScans(Network &network, const std::vector<Source> &sources) {
-    return highImpactScans_.selectBest(network, sources);
+vector<Scan> HighImpactScanDescriptor::highestImpactScans(Network &network, const std::vector<Source> &sources, const Mode &mode) {
+    return highImpactScans_.selectBest(network, sources, mode);
 }
 
 bool HighImpactScanDescriptor::isCorrectHighImpactScan(const Scan &target, const std::vector<Scan> &scans, const Source &source) {

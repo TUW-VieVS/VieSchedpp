@@ -36,7 +36,6 @@ set(SOURCE_FILES
         LookupTable.cpp LookupTable.h
         main.cpp
         MultiScheduling.cpp MultiScheduling.h
-        ObservationMode.cpp ObservationMode.h
         Output.cpp Output.h
         ParameterGroup.cpp ParameterGroup.h
         ParameterSettings.cpp ParameterSettings.h

@@ -465,7 +465,7 @@ void Vex::freq_block(const SkdCatalogReader &skdCatalogReader) {
     of << "*=========================================================================================================\n";
     of << "$FREQ;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservationMode::manual) {
+    if(!Mode::manual) {
         of << "    def " << skdCatalogReader.getFreqName() << eol;
         const auto &channelNumber2band = skdCatalogReader.getChannelNumber2band();
         const auto &channelNumber2Bbc = skdCatalogReader.getChannelNumber2BBC();
@@ -497,7 +497,7 @@ void Vex::bbc_block(const SkdCatalogReader &skdCatalogReader) {
     of << "*=========================================================================================================\n";
     of << "$BBC;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservationMode::manual) {
+    if(!Mode::manual) {
         const auto &loifId2loifInfo = skdCatalogReader.getLoifId2loifInfo();
         for(const auto &any:loifId2loifInfo){
             string name = any.first;
@@ -526,7 +526,7 @@ void Vex::if_block(const SkdCatalogReader &skdCatalogReader) {
     of << "$IF;\n";
     of << "*=========================================================================================================\n";
     of << "* WARNING: Polarization, Phase-cal frequency interval and Phase-cal frequency is hard coded!\n";
-    if(!ObservationMode::manual) {
+    if(!Mode::manual) {
         const auto &loifId2loifInfo = skdCatalogReader.getLoifId2loifInfo();
 
         for (const auto &any:loifId2loifInfo) {
@@ -556,7 +556,7 @@ void Vex::tracks_block(const std::vector<Station> &stations, const SkdCatalogRea
     of << "*=========================================================================================================\n";
     of << "$TRACKS;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservationMode::manual) {
+    if(!Mode::manual) {
         const auto & tracksIds = skdCatalogReader.getTracksIds();
         const auto & tracksId2fanout = skdCatalogReader.getTracksId2fanoutMap();
         const auto & staName2tracks = skdCatalogReader.getStaName2tracksMap();

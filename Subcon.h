@@ -159,9 +159,10 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources list of all sources
+         * @param mode observing mode
          */
         void
-        calcAllBaselineDurations(const Network &network, const std::vector<Source> &sources) noexcept;
+        calcAllBaselineDurations(const Network &network, const std::vector<Source> &sources, const Mode &mode) noexcept;
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -243,10 +244,11 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources list of all sources
+         * @param mode observing mode
          * @param endposition required endposition
          * @return scan(s) with highest score
          */
-        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const Mode &mode,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -258,12 +260,13 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources list of all sources
+         * @param mode observing mode
          * @param prevLowElevationScores low elevation scores
          * @param prevHighElevationScores high elevation scores
          * @param endposition required endposition
          * @return scan(s) with highest score
          */
-        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const Mode &mode,
                                      const std::vector<double> &prevLowElevationScores,
                                      const std::vector<double> &prevHighElevationScores,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;

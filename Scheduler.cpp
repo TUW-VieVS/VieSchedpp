@@ -34,7 +34,8 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
                                                                     sources_{std::move(init.sources_)},
                                                                     himp_{std::move(init.himp_)},
                                                                     multiSchedulingParameters_{std::move(init.multiSchedulingParameters_)},
-                                                                    xml_{init.xml_} {
+                                                                    xml_{init.xml_},
+                                                                    mode_{init.mode_}{
 
     if(init.parameters_.subnetting){
         Subnetting subnetting;
@@ -67,7 +68,7 @@ Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sour
                                                        network_{std::move(network)},
                                                        sources_{std::move(sources)},
                                                        scans_{std::move(scans)},
-                                                       xml_{std::move(xml)}{
+                                                       xml_{std::move(xml)} {
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan::ScanType type,
@@ -134,10 +135,10 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         vector<Scan> bestScans;
         if (type != Scan::ScanType::calibrator) {
             // standard case
-            bestScans = subcon.selectBest(network_, sources_, opt_endposition);
+            bestScans = subcon.selectBest(network_, sources_, mode_, opt_endposition);
         } else {
             // special calibrator case
-            bestScans = subcon.selectBest(network_, sources_, prevLowElevationScores, prevHighElevationScores,
+            bestScans = subcon.selectBest(network_, sources_, mode_, prevLowElevationScores, prevHighElevationScores,
                                           opt_endposition);
         }
 
@@ -486,7 +487,7 @@ Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Sc
     subcon.calcStartTimes(network_, sources_, endposition);
     subcon.updateAzEl(network_, sources_);
     subcon.constructAllBaselines(network_, sources_);
-    subcon.calcAllBaselineDurations(network_, sources_);
+    subcon.calcAllBaselineDurations(network_, sources_, mode_);
     subcon.calcAllScanDurations(network_, sources_, endposition);
     subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, endposition);
 
@@ -999,7 +1000,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                     maxScanDuration = *source.getPARA().fixedScanDuration;
                 }else {
 
-                    for (auto &band:ObservationMode::bands) {
+                    for (auto &band : mode_.getAllBands()) {
 
                         double SEFD_src = source.observedFlux(band, gmst, network_.getDxyz(sta1.getId(), sta2.getId()));
 
@@ -1036,8 +1037,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
                         double anum = (1.75 * maxminSNR / SEFD_src);
                         double anu1 = SEFD_sta1 * SEFD_sta2;
-                        double anu2 = ObservationMode::sampleRate * 1.0e6 * ObservationMode::nChannels[band] *
-                                      ObservationMode::bits;
+                        double anu2 = mode_.recordingRate(sta1.getId(), sta2.getId(), band);
 
                         double new_duration = anum * anum * anu1 / anu2 + maxCorSynch;
                         new_duration = ceil(new_duration);
@@ -1409,14 +1409,14 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
     }
 
     // create the actual scans
-    himp.updateHighImpactScans(network_, sources_, parameters_.subnetting);
+    himp.updateHighImpactScans(network_, sources_, mode_, parameters_.subnetting);
 
     himp.updateLogfile(of);
 
     // select bestScans
     vector<Scan> bestScans;
     do{
-        bestScans = himp.highestImpactScans(network_, sources_);
+        bestScans = himp.highestImpactScans(network_, sources_, mode_);
         for(auto& scan:bestScans){
             const Source &source = sources_[scan.getSourceId()];
             if(himp.isCorrectHighImpactScan(scan, scans_, source)){

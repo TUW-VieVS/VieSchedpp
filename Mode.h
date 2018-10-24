@@ -52,40 +52,42 @@ namespace VieVS{
      */
     class Mode: public VieVS_NamedObject {
     public:
-//        /**
-//         * @brief all possible flux information type
-//         * @author Matthias Schartner
-//         */
-//        enum class Property {
-//            required,    ///< this band information is required. If this information is missing this object is not used.
-//            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is calculated based on backup model
-//        };
-//
-//        /**
-//         * @brief all possible backup models
-//         * @author Matthias Schartner
-//         */
-//        enum class Backup {
-//            minValueTimes, ///< use minimum value found in other bands times a factor
-//            maxValueTimes, ///< use maximum value found in other bands times a factor
-//            value, ///< use specific value
-//            none, ///< no backup model
-//        };
-//
-//        static bool manual; ///< flag if manual observation mode was selected
-//
-//        static std::vector<std::string> bands; ///< list of all bands
-//        static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
-//
-//        static std::unordered_map<std::string, Property> stationProperty; ///< is band required or optional for station
-//        static std::unordered_map<std::string, Backup> stationBackup; ///< backup version for station
-//        static std::unordered_map<std::string, double> stationBackupValue; ///< backup value for station
-//
-//        static std::unordered_map<std::string, Property> sourceProperty; ///< is band required or optional for source
-//        static std::unordered_map<std::string, Backup> sourceBackup; ///< backup version for source
-//        static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
-//
-//
+        /**
+         * @brief all possible flux information type
+         * @author Matthias Schartner
+         */
+        enum class Property {
+            required,    ///< this band information is required. If this information is missing this object is not used.
+            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is calculated based on backup model
+        };
+
+        /**
+         * @brief all possible backup models
+         * @author Matthias Schartner
+         */
+        enum class Backup {
+            minValueTimes, ///< use minimum value found in other bands times a factor
+            maxValueTimes, ///< use maximum value found in other bands times a factor
+            value, ///< use specific value
+            none, ///< no backup model
+        };
+
+        static bool manual; ///< flag if manual observation mode was selected
+
+        static std::set<std::string> bands; ///< list of all bands
+        static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
+
+        static std::unordered_map<std::string, Property> stationProperty; ///< is band required or optional for station
+        static std::unordered_map<std::string, Backup> stationBackup; ///< backup version for station
+        static std::unordered_map<std::string, double> stationBackupValue; ///< backup value for station
+
+        static std::unordered_map<std::string, Property> sourceProperty; ///< is band required or optional for source
+        static std::unordered_map<std::string, Backup> sourceBackup; ///< backup version for source
+        static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
+
+
+
+        Mode();
 
         Mode(std::string name, unsigned long nsta);
 
@@ -104,6 +106,10 @@ namespace VieVS{
         void calcRecordingRates();
 
         void calcMeanWavelength();
+
+        double getWavelength(const std::string &band) const {
+            return band2meanWavelength_.at(band);
+        }
 
         double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
 

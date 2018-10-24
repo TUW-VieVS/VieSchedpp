@@ -130,9 +130,10 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources source list
+         * @param mode observing mode
          * @param subnetting subnetting information
          */
-        void updateHighImpactScans(const Network &network, const std::vector<Source> &sources,
+        void updateHighImpactScans(const Network &network, const std::vector<Source> &sources, const Mode &mode,
                                    const boost::optional<Subnetting> &subnetting);
 
         /**
@@ -141,9 +142,10 @@ namespace VieVS{
          *
          * @param network station network
          * @param sources source list
+         * @param mode observing mode
          * @return list of scans with highest impact score
          */
-        std::vector<Scan> highestImpactScans(Network &network, const std::vector<Source> &sources);
+        std::vector<Scan> highestImpactScans(Network &network, const std::vector<Source> &sources, const Mode &mode);
 
         /**
          * @brief check if target scan is valid high impact scans

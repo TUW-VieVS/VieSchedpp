@@ -25,6 +25,22 @@ using namespace std;
 
 unsigned long VieVS::Mode::nextId = 0;
 
+bool VieVS::Mode::manual = false;
+
+std::set<std::string> VieVS::Mode::bands;                                            ///< list of bands
+std::unordered_map<std::string, double> VieVS::Mode::minSNR;                         ///< backup min SNR
+
+std::unordered_map<std::string, VieVS::Mode::Property> VieVS::Mode::stationProperty; ///< is band required or optional for station
+std::unordered_map<std::string, VieVS::Mode::Backup> VieVS::Mode::stationBackup;     ///< backup version for station
+std::unordered_map<std::string, double> VieVS::Mode::stationBackupValue;             ///< backup value for station
+
+std::unordered_map<std::string, VieVS::Mode::Property> VieVS::Mode::sourceProperty;  ///< is band required or optional for source
+std::unordered_map<std::string, VieVS::Mode::Backup> VieVS::Mode::sourceBackup;      ///< backup version for source
+std::unordered_map<std::string, double> VieVS::Mode::sourceBackupValue;              ///< backup value for source
+
+
+Mode::Mode(): VieVS_NamedObject{"empty", 0}{}
+
 Mode::Mode(std::string name, unsigned long nsta): VieVS_NamedObject{std::move(name), nextId++}, nsta_{nsta} {
 
 }
@@ -67,6 +83,8 @@ void Mode::addBbc(const Bbc &newBbc, const std::vector<unsigned long> &staids) {
 
 void Mode::addFreq(const Freq &newFreq, const std::vector<unsigned long> &staids) {
     freqs_.emplace_back(newFreq, staids);
+    const auto &tmp = newFreq.getBands();
+    Mode::bands.insert(tmp.begin(), tmp.end());
 }
 
 void Mode::addTrack(const Track &newTrack, const std::vector<unsigned long> &staids) {
@@ -512,9 +530,7 @@ void Mode::calcMeanWavelength() {
         }
 
         double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
-        cout << meanFrequency << endl;
         double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
-        cout << meanWavelength << endl;
         band2meanWavelength_[band] = meanWavelength;
     }
 }
