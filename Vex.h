@@ -27,9 +27,9 @@
 #ifndef VEX_H
 #define VEX_H
 
-#include "SkdCatalogReader.h"
 #include "Station.h"
 #include "Scan.h"
+#include "Mode.h"
 
 namespace VieVS {
 
@@ -59,11 +59,11 @@ namespace VieVS {
          * @param network station network
          * @param sources list of all sources
          * @param scans list of all scans
-         * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          * @param xml paramters.xml file
          */
         void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
-                      const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml);
+                      const Mode &mode, const boost::property_tree::ptree &xml);
 
 
     private:
@@ -109,18 +109,16 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param stations list of all stations
-         * @param skdCatalogReader sked catalogs
          */
-        void station_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
+        void station_block(const std::vector<Station>& stations);
 
         /**
          * @brief write vex $STATION block
          * @author Matthias Schartner
          *
          * @param stations list of all stations
-         * @param skdCatalogReader sked catalogs
          */
-        void sites_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
+        void sites_block(const std::vector<Station>& stations);
 
         /**
          * @brief write vex $ANTENNA block
@@ -135,9 +133,8 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param stations list of all stations
-         * @param skdCatalogReader sked catalogs
          */
-        void das_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
+        void das_block(const std::vector<Station>& stations);
 
         /**
          * @brief write vex $SOURCE block
@@ -152,42 +149,44 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param stations list of all stations
-         * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          */
-        void mode_block(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
+        void mode_block(const std::vector<Station>& stations, const Mode &mode);
 
         /**
          * @brief write vex $FREQ block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          */
-        void freq_block(const SkdCatalogReader &skdCatalogReader);
+        void freq_block(const Mode &mode);
 
         /**
          * @brief write vex $BBC block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          */
-        void bbc_block(const SkdCatalogReader &skdCatalogReader);
+        void bbc_block(const Mode &mode);
 
         /**
          * @brief write vex $IF block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          */
-        void if_block(const SkdCatalogReader &skdCatalogReader);
+        void if_block(const Mode &mode);
 
         /**
          * @brief write vex $TRACKS block
          * @author Matthias Schartner
          *
-         * @param stations list of all stations
-         * @param skdCatalogReader sked catalogs
+         * @param mode observing mode
          */
-        void tracks_block(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
+        void tracks_block(const Mode &mode);
 
         /**
          * @brief write vex head block (deprecated)
@@ -220,10 +219,9 @@ namespace VieVS {
          * @param scans list of all scans
          * @param stations list of all stations
          * @param sources list of all sources
-         * @param skdCatalogReader sked catalogs
          */
         void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
-                         const std::vector<Source>& sources, const SkdCatalogReader &skdCatalogReader);
+                         const std::vector<Source>& sources, const Mode &mode);
 
     };
 }

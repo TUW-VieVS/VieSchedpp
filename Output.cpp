@@ -29,6 +29,7 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
                                                                                network_{std::move(sched.network_)},
                                                                                sources_{std::move(sched.sources_)},
                                                                                scans_{std::move(sched.scans_)},
+                                                                               mode_{std::move(sched.mode_)},
                                                                                path_{std::move(path)},
                                                                                multiSchedulingParameters_{std::move(sched.multiSchedulingParameters_)},
                                                                                version_{version}{
@@ -632,7 +633,7 @@ void Output::writeNGS() {
 }
 
 
-void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
+void Output::writeVex() {
     string fileName = getName();
     fileName.append(".vex");
     #ifdef VIESCHEDPP_LOG
@@ -641,7 +642,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     cout << "[info] writing vex file to: " << fileName;
     #endif
     Vex vex(path_+fileName);
-    vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
+    vex.writeVex(network_, sources_, scans_, mode_, xml_);
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
@@ -1071,7 +1072,7 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
         writeSkd(skdCatalogReader);
     }
     if(xml_.get<bool>("VieSchedpp.output.createVEX",false)) {
-        writeVex(skdCatalogReader);
+        writeVex();
     }
     if(xml_.get<bool>("VieSchedpp.output.createOperationsNotes",false)) {
         writeOperationsNotes();

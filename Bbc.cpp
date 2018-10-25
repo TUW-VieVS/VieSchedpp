@@ -33,3 +33,16 @@ void Bbc::addBbc(std::string name, unsigned int physical_bbc_number, std::string
     bbc_assigns_.emplace_back(name, physical_bbc_number, if_name);
 
 }
+
+void Bbc::toVexBbcDefinition(std::ofstream &of) const {
+
+    of << "    def " << getName() << ";\n";
+    of << "*                     BBC    Physical   IF\n"
+          "*                      ID      BBC#     ID\n";
+    for(const auto &any : bbc_assigns_){
+        of << boost::format("        BBC_assign = %6s :    %02d : %6s;\n") %any.getName() %any.physical_bbc_number_ %any.if_name_;
+    }
+
+    of << "    enddef;\n";
+
+}

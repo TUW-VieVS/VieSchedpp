@@ -25,7 +25,7 @@ using namespace std;
 
 unsigned long VieVS::Mode::nextId = 0;
 
-bool VieVS::Mode::manual = false;
+bool VieVS::Mode::simple = false;
 
 std::set<std::string> VieVS::Mode::bands;                                            ///< list of bands
 std::unordered_map<std::string, double> VieVS::Mode::minSNR;                         ///< backup min SNR
@@ -347,7 +347,7 @@ void Mode::readSkdIf(const SkdCatalogReader &skd) {
         }
         If thisIf(loifId);
 
-
+        vector<string> alreadyDefined;
         for (const auto &anyIf : ifs) {
             vector<string> splitVector;
             boost::split(splitVector, anyIf, boost::is_space(), boost::token_compress_on);
@@ -355,6 +355,11 @@ void Mode::readSkdIf(const SkdCatalogReader &skd) {
                 continue;
             }
             string if_id_link = "&IF_" + splitVector.at(2);
+            if(find(alreadyDefined.begin(), alreadyDefined.end(), if_id_link) != alreadyDefined.end()){
+                continue;
+            }else{
+                alreadyDefined.push_back(if_id_link);
+            }
             const string &physicalName = splitVector.at(2);
             If::Polarization polarization = If::Polarization::R;
             auto total_IO = boost::lexical_cast<double>(splitVector.at(4));
@@ -532,6 +537,110 @@ void Mode::calcMeanWavelength() {
         double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
         double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
         band2meanWavelength_[band] = meanWavelength;
+    }
+}
+
+void Mode::toVexModeBlock(const vector<string> &names, std::ofstream &of) const{
+    string eol = ";\n";
+
+    of << "    def " << getName() << eol;
+
+    for(const auto &any : freqs_){
+        of << "        ref $FREQ = " << any.first.getName();
+        for(const auto &id : any.second){
+            of << " : " << names.at(id);
+        }
+        of << eol;
+    }
+
+    for(const auto &any : bbcs_){
+        of << "        ref $BBC = " << any.first.getName();
+        for(const auto &id : any.second){
+            of << " : " << names.at(id);
+        }
+        of << eol;
+    }
+
+    for(const auto &any : ifs_){
+        of << "        ref $IF = " << any.first.getName();
+        for(const auto &id : any.second){
+            of << " : " << names.at(id);
+        }
+        of << eol;
+    }
+
+    for(const auto &any : tracks_){
+        of << "        ref $TRACKS = " << any.first.getName();
+        for(const auto &id : any.second){
+            of << " : " << names.at(id);
+        }
+        of << eol;
+    }
+
+    for(const auto &any : track_frame_formats_){
+        of << "        ref $TRACKS = " << any.first;
+        for(const auto &id : any.second){
+            of << " : " << names.at(id);
+        }
+        of << eol;
+    }
+
+
+    of << "        ref $PASS_ORDER = passOrder";
+    for(const auto &any : names){
+        of << " : " << any;
+    }
+    of << eol;
+
+    of << "        ref $ROLL = NO_ROLL";
+    for(const auto &any : names){
+        of << " : " << any;
+    }
+    of << eol;
+
+    of << "        ref $PHASE_CAL_DETECT = Standard";
+    for(const auto &any : names){
+        of << " : " << any;
+    }
+    of << eol;
+
+    of << "    enddef;\n";
+}
+
+void Mode::toVexFreqBlock(std::ofstream &of) const {
+
+    for(const auto &any : freqs_){
+        any.first.toVexFreqDefinition(of);
+    }
+}
+
+void Mode::toVexBbcBlock(std::ofstream &of) const {
+
+    for(const auto &any : bbcs_){
+        any.first.toVexBbcDefinition(of);
+    }
+}
+
+void Mode::toVexIfBlock(std::ofstream &of) const {
+
+    for(const auto &any : ifs_){
+        any.first.toVecIfDefinition(of);
+    }
+}
+
+void Mode::toVexTracksBlock(std::ofstream &of) const {
+
+    for(const auto &any : tracks_){
+        any.first.toVexTracksDefinition(of);
+    }
+    toTrackFrameFormatDefinitions( of );
+}
+
+void Mode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
+    for(const auto &any : track_frame_formats_){
+        of << "    def " << any.first << "_format;\n";
+        of << "        track_frame_format = " << any.first << ";\n";
+        of << "    enddef;\n";
     }
 }
 

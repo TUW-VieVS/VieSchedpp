@@ -29,6 +29,8 @@
 
 #include <utility>
 #include <vector>
+#include <fstream>
+#include <boost/format.hpp>
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -60,10 +62,31 @@ namespace VieVS{
             D,
         };
 
+        std::string toString(Polarization p) const {
+            switch(p){
+                case Polarization::R: return "R";
+                case Polarization::L: return "L";
+                case Polarization::X: return "X";
+                case Polarization::Y: return "Y";
+                case Polarization::H: return "H";
+                case Polarization::V: return "V";
+            }
+        }
+
+        std::string toString(Net_sidband n) const {
+            switch(n){
+                case Net_sidband::U: return "U";
+                case Net_sidband::L: return "L";
+                case Net_sidband::D: return "D";
+            }
+        }
+
         explicit If(std::string name);
 
         void addIf(std::string name, std::string physical_name, Polarization polarization,  double total_lo,
                    Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency);
+
+        void toVecIfDefinition( std::ofstream &of) const;
 
     private:
         static unsigned long nextId;
@@ -86,15 +109,16 @@ namespace VieVS{
                phase_cal_base_frequency_{phase_cal_base_freqency},
                phase_cal_freq_spacing_{phase_cal_freq_spacing}{};
 
-        private:
-            static unsigned long nextId;
-
             std::string physical_name_;
             Polarization polarization_;
             double total_lo_;
             Net_sidband net_sidband_;
             double phase_cal_freq_spacing_;
             double phase_cal_base_frequency_;
+
+        private:
+            static unsigned long nextId;
+
         };
 
 

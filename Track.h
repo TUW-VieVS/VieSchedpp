@@ -32,6 +32,8 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <boost/format.hpp>
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -52,6 +54,13 @@ namespace VieVS{
             mag,
         };
 
+        std::string toString(Bitstream b) const{
+            switch(b){
+                case Bitstream::sign: return "sign";
+                case Bitstream::mag: return "mag";
+            }
+        }
+
         explicit Track(std::string name);
 
         void setBits(int bits){
@@ -65,6 +74,8 @@ namespace VieVS{
         void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                        int fourth_multiplex_track = -999);
+
+        void toVexTracksDefinition( std::ofstream &of ) const;
 
     private:
         static unsigned long nextId;
@@ -93,9 +104,6 @@ namespace VieVS{
                           third_multiplex_track_{third_multiplex_track},
                           fourth_multiplex_track_{fourth_multiplex_track}{};
 
-        private:
-            static unsigned long nextId;
-
             std::string subpass_;
             std::string trksid_;
             Bitstream bitstream_;
@@ -105,6 +113,9 @@ namespace VieVS{
             int second_multiplex_track_;
             int third_multiplex_track_;
             int fourth_multiplex_track_;
+
+        private:
+            static unsigned long nextId;
         };
 
         std::vector<Fanout_definition> fanout_definitions_;

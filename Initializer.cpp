@@ -2003,7 +2003,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             mode_.calcRecordingRates();
             mode_.calcMeanWavelength();
 
-            Mode::manual = false;
+            Mode::simple = false;
 
             auto bands = mode_.getAllBands();
             Mode::bands.insert(bands.begin(), bands.end());

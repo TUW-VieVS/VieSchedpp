@@ -72,7 +72,7 @@ namespace VieVS{
             none, ///< no backup model
         };
 
-        static bool manual; ///< flag if manual observation mode was selected
+        static bool simple; ///< flag if manual observation mode was selected
 
         static std::set<std::string> bands; ///< list of all bands
         static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
@@ -139,6 +139,17 @@ namespace VieVS{
 
         void summary( const std::vector<std::string> &stations, std::ofstream &of) const;
 
+        void toVexModeBlock(const std::vector<std::string> &names, std::ofstream &of) const;
+
+        void toVexFreqBlock(std::ofstream &of) const;
+
+        void toVexBbcBlock(std::ofstream &of) const;
+
+        void toVexIfBlock(std::ofstream &of) const;
+
+        void toVexTracksBlock(std::ofstream &of) const;
+
+
     private:
         static unsigned long nextId;
 
@@ -198,6 +209,8 @@ namespace VieVS{
          * @param skd skd catalogs
          */
         void readSkdTrackFrameFormat(const SkdCatalogReader &skd);
+
+        void toTrackFrameFormatDefinitions(std::ofstream &of) const;
 
     };
 

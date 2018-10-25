@@ -57,6 +57,15 @@ namespace VieVS{
             LC,
         };
 
+        std::string toString( Net_sideband n) const{
+            switch(n){
+                case Net_sideband::U: return "U";
+                case Net_sideband::L: return "L";
+                case Net_sideband::UC: return "UC";
+                case Net_sideband::LC: return "LC";
+            }
+        }
+
         explicit Freq(std::string name);
 
         void addChannel(std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
@@ -73,6 +82,8 @@ namespace VieVS{
         }
 
         std::unordered_map<std::string,double> observingRate(const Freq &other, int bits) const;
+
+        void toVexFreqDefinition(std::ofstream &of) const;
 
 
     private:
