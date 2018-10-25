@@ -83,7 +83,7 @@ namespace VieVS{
 
         std::unordered_map<std::string,double> observingRate(const Freq &other, int bits) const;
 
-        void toVexFreqDefinition(std::ofstream &of) const;
+        void toVexFreqDefinition(std::ofstream &of, const std::string &comment = "") const;
 
 
     private:

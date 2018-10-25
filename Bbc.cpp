@@ -34,9 +34,9 @@ void Bbc::addBbc(std::string name, unsigned int physical_bbc_number, std::string
 
 }
 
-void Bbc::toVexBbcDefinition(std::ofstream &of) const {
+void Bbc::toVexBbcDefinition(std::ofstream &of, const std::string &comment) const {
 
-    of << "    def " << getName() << ";\n";
+    of << "    def " << getName() << ";    " << comment <<"\n";
     of << "*                     BBC    Physical   IF\n"
           "*                      ID      BBC#     ID\n";
     for(const auto &any : bbc_assigns_){

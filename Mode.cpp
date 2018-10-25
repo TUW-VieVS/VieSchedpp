@@ -661,35 +661,61 @@ void Mode::toVexModeBlock(std::ofstream &of) const{
 void Mode::toVexFreqBlock(std::ofstream &of) const {
 
     for(const auto &any : freqs_){
-        any.first.toVexFreqDefinition(of);
+        string c = "* Stations";
+        for(const auto &i : any.second){
+            c.append(": ").append(stationNames_.at(i)).append(" ");
+        }
+
+        any.first.toVexFreqDefinition(of, c);
     }
 }
 
 void Mode::toVexBbcBlock(std::ofstream &of) const {
 
     for(const auto &any : bbcs_){
-        any.first.toVexBbcDefinition(of);
+        string c = "* Stations";
+        for(const auto &i : any.second){
+            c.append(": ").append(stationNames_.at(i)).append(" ");
+        }
+
+        any.first.toVexBbcDefinition(of, c);
     }
 }
 
 void Mode::toVexIfBlock(std::ofstream &of) const {
 
     for(const auto &any : ifs_){
-        any.first.toVecIfDefinition(of);
+        string c = "* Stations";
+        for(const auto &i : any.second){
+            c.append(": ").append(stationNames_.at(i)).append(" ");
+        }
+
+        any.first.toVecIfDefinition(of, c);
+        of << "*\n";
     }
 }
 
 void Mode::toVexTracksBlock(std::ofstream &of) const {
 
     for(const auto &any : tracks_){
-        any.first.toVexTracksDefinition(of);
+        string c = "* Stations";
+        for(const auto &i : any.second){
+            c.append(": ").append(stationNames_.at(i)).append(" ");
+        }
+
+        any.first.toVexTracksDefinition(of, c);
     }
     toTrackFrameFormatDefinitions( of );
 }
 
 void Mode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
     for(const auto &any : track_frame_formats_){
-        of << "    def " << any.first << "_format;\n";
+        string c = "* Stations";
+        for(const auto &i : any.second){
+            c.append(": ").append(stationNames_.at(i)).append(" ");
+        }
+
+        of << "    def " << any.first << "_format;    " << c << "\n";
         of << "        track_frame_format = " << any.first << ";\n";
         of << "    enddef;\n";
     }

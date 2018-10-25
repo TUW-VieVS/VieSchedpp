@@ -75,7 +75,7 @@ namespace VieVS{
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                        int fourth_multiplex_track = -999);
 
-        void toVexTracksDefinition( std::ofstream &of ) const;
+        void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
 
     private:
         static unsigned long nextId;

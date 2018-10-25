@@ -86,7 +86,7 @@ namespace VieVS{
         void addIf(std::string name, std::string physical_name, Polarization polarization,  double total_lo,
                    Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency);
 
-        void toVecIfDefinition( std::ofstream &of) const;
+        void toVecIfDefinition( std::ofstream &of, const std::string &comment = "") const;
 
     private:
         static unsigned long nextId;

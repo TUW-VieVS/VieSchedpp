@@ -36,9 +36,9 @@ void Track::addFanout(std::string subpass, std::string trksId, Bitstream bitstre
             second_multiplex_track, third_multiplex_track, fourth_multiplex_track);
 }
 
-void Track::toVexTracksDefinition(std::ofstream &of) const {
+void Track::toVexTracksDefinition(std::ofstream &of, const std::string &comment) const {
 
-    of << "    def " << getName() << ";\n";
+    of << "    def " << getName() << ";    " << comment <<"\n";
     int n = 1;
     if(fanout_definitions_[0].second_multiplex_track_ != -999){
         n=2;

@@ -54,7 +54,7 @@ namespace VieVS{
 
         void addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name);
 
-        void toVexBbcDefinition( std::ofstream &of) const;
+        void toVexBbcDefinition( std::ofstream &of, const std::string &comment = "") const;
 
     private:
         static unsigned long nextId;

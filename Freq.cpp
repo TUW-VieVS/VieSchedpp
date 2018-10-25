@@ -136,9 +136,9 @@ std::vector<double> Freq::getFrequencies(const string &band) const{
     return freq;
 }
 
-void Freq::toVexFreqDefinition(std::ofstream &of) const{
+void Freq::toVexFreqDefinition(std::ofstream &of, const std::string &comment) const{
 
-    of << "    def " << getName() << ";\n";
+    of << "    def " << getName() << ";    " << comment <<"\n";
     of << "*                 Band    Sky freq    Net    Chan       Chan     BBC   Phase-cal\n"
           "*                  Id    at 0Hz BBC    SB     BW         ID       ID       ID\n";
     for (const auto &any : chan_defs_) {

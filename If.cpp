@@ -37,9 +37,9 @@ void If::addIf(std::string name, std::string physical_name, If::Polarization pol
 
 }
 
-void If::toVecIfDefinition(std::ofstream &of) const {
+void If::toVecIfDefinition(std::ofstream &of, const std::string &comment) const {
 
-    of << "    def " << getName() << ";\n";
+    of << "    def " << getName() << ";    " << comment <<"\n";
     of << "*                  IF   Physical Pol    Total      Net     Phase-cal   P-cal base  \n"
           "*                  ID     Name            IO        SB   freq spacing     freq\n";
     for (const auto &any : if_defs_){
