@@ -438,7 +438,16 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
 
         network_.addStation(Station(name, tlc, antenna, cableWrap, position, equipment, horizonMask, sources_.size()));
 
+
+        string occupation_code = po_cat.at(5);
+        string record_transport_type = eq_cat.at(eq_cat.size()-1);
+        string electronics_rack_type = eq_cat.at(eq_cat.size()-2);
+        string recording_system_ID = any.second.at(14);
+
+        network_.refStation(created).addAdditionalParameters(occupation_code, record_transport_type, electronics_rack_type,
+                recording_system_ID);
         created++;
+
         of << boost::format("  %-8s (%s) added\n") % name % tlc;
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "station " << name << " successfully created " << network_.getStation(name).printId();
@@ -1998,7 +2007,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
             #endif
 
-            mode_ = Mode(skdCatalogs.getModeName(), getNumberOfStations());
+            mode_ = Mode(skdCatalogs.getModeName(), util::getNumberOfStations(xml_));
             mode_.readFromSkedCatalogs(skdCatalogs);
             mode_.calcRecordingRates();
             mode_.calcMeanWavelength();
@@ -2154,8 +2163,6 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
     #else
     cout << boost::format("[info] observing mode: %s") % mode_.getName();
     #endif
-
-    mode_.summary(getStationNames(true), of);
 
     of << "\n";
 }
@@ -2987,28 +2994,11 @@ std::vector<unsigned long> Initializer::getMembers(const std::string &name, cons
     return ids;
 }
 
-unsigned long Initializer::getNumberOfStations() const {
-
-    unsigned long nsta = 0;
-
-    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
-    if (ptree_stations.is_initialized()) {
-        nsta = distance(ptree_stations->begin(), ptree_stations->end());
+void Initializer::connectObservingMode(std::ofstream &of) noexcept {
+    vector<string> staNames;
+    for(const auto &any : network_.getStations()){
+        staNames.push_back(any.getAlternativeName());
     }
-
-    return nsta;
-}
-
-std::vector<std::string> Initializer::getStationNames(bool alternative) const{
-    vector<string> names;
-    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
-    if (ptree_stations.is_initialized()) {
-        auto it = ptree_stations->begin();
-        while (it != ptree_stations->end()) {
-            auto item = it->second.data();
-            names.push_back(item);
-            ++it;
-        }
-    }
-    return names;
+    mode_.setStationNames(staNames);
+    mode_.summary(of);
 }

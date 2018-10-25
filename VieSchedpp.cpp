@@ -85,7 +85,7 @@ void VieSchedpp::run() {
     readSkdCatalogs();
     LookupTable::initialize();
 
-    Mode mode(skdCatalogs_.getModeName(), init.getNumberOfStations());
+    Mode mode(skdCatalogs_.getModeName(), util::getNumberOfStations(xml_));
     mode.readFromSkedCatalogs(skdCatalogs_);
     mode.calcRecordingRates();
     mode.calcMeanWavelength();
@@ -97,7 +97,7 @@ void VieSchedpp::run() {
 
     init.createSources(skdCatalogs_, of);
     init.createStations(skdCatalogs_, of);
-    mode.summary( init.getStationNames(true), of);
+    init.connectObservingMode( of );
 
     init.initializeStations();
     init.precalcAzElStations();
@@ -254,15 +254,9 @@ void VieSchedpp::readSkdCatalogs() {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     #endif
-    vector<string> staNames;
-    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
+    const auto &ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
     if (ptree_stations.is_initialized()) {
-        auto it = ptree_stations->begin();
-        while (it != ptree_stations->end()) {
-            auto item = it->second.data();
-            staNames.push_back(item);
-            ++it;
-        }
+        vector<string> staNames = util::getStationNames(xml_);
         skdCatalogs_.setStationNames(staNames);
         skdCatalogs_.setCatalogFilePathes(xml_.get_child("VieSchedpp.catalogs"));
         skdCatalogs_.initializeStationCatalogs();

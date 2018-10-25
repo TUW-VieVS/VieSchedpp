@@ -576,7 +576,7 @@ namespace VieVS{
          * @param of record transport type
          */
         const std::string &getRecord_transport_type() const {
-            return record_transport_type;
+            return record_transport_type_;
         }
 
         /**
@@ -586,8 +586,20 @@ namespace VieVS{
          * @param of recording system id
          */
         const std::string &getRecording_system_id() const {
-            return recording_system_id;
+            return recording_system_id_;
         }
+
+        /**
+         * @brief adds additional parameters such as hardware names and occupation code
+         * @author Matthias Schartner
+         *
+         * @param occupation_code occupation code
+         * @param record_transport_type record transport type
+         * @param electronics_rack_type electronics rack type
+         * @param recording_system_ID recording system ID
+         */
+        void addAdditionalParameters( std::string occupation_code, std::string record_transport_type,
+                                      std::string electronics_rack_type, std::string recording_system_ID);
 
     private:
         static unsigned long nextId; ///< next id for this object type
@@ -602,9 +614,9 @@ namespace VieVS{
 
         std::string oneLetterCode_ = "_"; ///< one letter code for skd file
         std::string electronics_rack_type_ = "unknown"; ///< electronics rack type (e.g.: "DBBC")
-        std::string record_transport_type = "unknown";  ///< record transport_type (e.g.: "MARK5B")
-        std::string recording_system_id = "unknown";    ///< recoring system id (e.g.: "Ke")
-        std::string occupation_code = "unknown";        ///< occupation code (e.g.: "72425901")
+        std::string record_transport_type_ = "unknown";  ///< record transport_type (e.g.: "MARK5B")
+        std::string recording_system_id_ = "unknown";    ///< recoring system id (e.g.: "Ke")
+        std::string occupation_code_ = "unknown";        ///< occupation code (e.g.: "72425901")
 
         Statistics statistics_; ///< station statistics
         std::vector< std::vector<PointingVector>> azelPrecalc_; ///< pre calculated azimuth elevation lookup table

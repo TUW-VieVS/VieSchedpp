@@ -46,7 +46,7 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
                 );
 
     station_block(network.getStations());
-    mode_block(network.getStations(), mode);
+    mode_block(mode);
     sched_block(scans, network.getStations(), sources, mode);
 
     sites_block(network.getStations());
@@ -169,7 +169,7 @@ void Vex::sites_block(const std::vector<Station> &stations){
 //        of << "        site_ID = " << any.getAlternativeName() << eol;
 //        of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % any.getPosition().getX() % any.getPosition().getY() % any.getPosition().getZ();
 //        of << "        site_position_ref = sked_position.cat;\n";
-//        of << "        occupation_code = " << skdCatalogReader.getPositionCatalog().at(skdCatalogReader.positionKey(name)).at(5) << eol;
+//        of << "        occupation_code_ = " << skdCatalogReader.getPositionCatalog().at(skdCatalogReader.positionKey(name)).at(5) << eol;
 //        if(any.hasHorizonMask()){
 //            any.getMask().vexOutput();
 //        }
@@ -358,17 +358,12 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     }
 }
 
-void Vex::mode_block(const std::vector<Station>& stations, const Mode &mode) {
+void Vex::mode_block(const Mode &mode) {
     of << "*=========================================================================================================\n";
     of << "$MODE;\n";
     of << "*=========================================================================================================\n";
 
-    vector<string> tlcs;
-    for(const auto &any : stations){
-        tlcs.push_back(any.getAlternativeName());
-    }
-
-    mode.toVexModeBlock(tlcs, of);
+    mode.toVexModeBlock(of);
 }
 
 void Vex::freq_block(const Mode &mode) {

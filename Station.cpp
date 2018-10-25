@@ -455,13 +455,13 @@ void Station::toVexStationBlock(std::ofstream &of) const{
     of << "    def " << getAlternativeName() << eol;
     of << "        ref $SITE = " << getName() << eol;
     of << "        ref $ANTENNA = " << getName() << eol;
-    of << "        ref $DAS = " << record_transport_type << "_recorder" << eol;
+    of << "        ref $DAS = " << record_transport_type_ << "_recorder" << eol;
     if(electronics_rack_type_ == "DBBC"){
         of << "        ref $DAS = " << electronics_rack_type_ << "_DDC_rack" << eol;
     }else{
         of << "        ref $DAS = " << electronics_rack_type_ << "_rack" << eol;
     }
-    of << "        ref $DAS = " << recording_system_id << eol;
+    of << "        ref $DAS = " << recording_system_id_ << eol;
 //    of << "*        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
     of << "    enddef;\n";
 
@@ -477,7 +477,7 @@ void Station::toVexSiteBlock(std::ofstream &of) const {
     of << "        site_ID = " << getAlternativeName() << eol;
     of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % position_->getX() % position_->getY() % position_->getZ();
     of << "        site_position_ref = sked_position.cat;\n";
-    of << "        occupation_code = " << occupation_code << eol;
+    of << "        occupation_code = " << occupation_code_ << eol;
     if(hasHorizonMask()){
         mask_->vexOutput();
     }
@@ -506,6 +506,15 @@ void Station::toVexAntennaBlock(std::ofstream &of) const {
     of << cableWrap_->vexPointingSectors();
 
     of << "    enddef;\n";
+}
+
+void Station::addAdditionalParameters(std::string occupation_code, std::string record_transport_type,
+                                      std::string electronics_rack_type, std::string recording_system_ID) {
+
+    occupation_code_ = std::move(occupation_code);
+    record_transport_type_ = std::move(record_transport_type);
+    electronics_rack_type_ = std::move(electronics_rack_type);
+    recording_system_id_ = std::move(recording_system_ID);
 }
 
 

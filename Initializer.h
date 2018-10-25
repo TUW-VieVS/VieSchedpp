@@ -160,23 +160,6 @@ namespace VieVS {
         }
 
         /**
-         * @brief get number of stations from xml file
-         * @author Matthias Schartner
-         *
-         * @return number of stations from xml file
-         */
-        unsigned long getNumberOfStations() const;
-
-        /**
-         * @brief get station names as string
-         * @author Matthias Schartner
-         * @param alternative get alternative name (two letter code) default is false
-         *
-         * @return vector of station names
-         */
-        std::vector<std::string> getStationNames(bool alternative = false) const;
-
-        /**
          *  @brief pre calculates all possible second scans used for subnetting
          * @author Matthias Schartner
          */
@@ -260,6 +243,14 @@ namespace VieVS {
          * @param of outstream to log file
          */
         void initializeObservingMode(const SkdCatalogReader &skdCatalogs, std::ofstream &of) noexcept;
+
+        /**
+         * @brief sets station names to observing mode and displays summary
+         * @author Matthias Schartner
+         *
+         * @param of outstream to log file
+         */
+        void connectObservingMode( std::ofstream &of) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the VieSchedpp.xml file

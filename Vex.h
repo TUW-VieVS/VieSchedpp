@@ -148,10 +148,9 @@ namespace VieVS {
          * @brief write vex $MODE block
          * @author Matthias Schartner
          *
-         * @param stations list of all stations
          * @param mode observing mode
          */
-        void mode_block(const std::vector<Station>& stations, const Mode &mode);
+        void mode_block(const Mode &mode);
 
         /**
          * @brief write vex $FREQ block

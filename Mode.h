@@ -91,6 +91,10 @@ namespace VieVS{
 
         Mode(std::string name, unsigned long nsta);
 
+        void setStationNames(const std::vector<std::string> &names){
+            stationNames_ = names;
+        }
+
         void readFromSkedCatalogs(const SkdCatalogReader &skd);
 
         void addIf(const If &newIf, const std::vector<unsigned long> &staids);
@@ -137,9 +141,9 @@ namespace VieVS{
 
         boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrackFrameFormat(std::string name);
 
-        void summary( const std::vector<std::string> &stations, std::ofstream &of) const;
+        void summary( std::ofstream &of) const;
 
-        void toVexModeBlock(const std::vector<std::string> &names, std::ofstream &of) const;
+        void toVexModeBlock(std::ofstream &of) const;
 
         void toVexFreqBlock(std::ofstream &of) const;
 
@@ -154,6 +158,8 @@ namespace VieVS{
         static unsigned long nextId;
 
         unsigned long nsta_;
+
+        std::vector<std::string> stationNames_;
 
         std::vector<std::pair<If, std::vector<unsigned long>>> ifs_;
         std::vector<std::pair<Bbc, std::vector<unsigned long>>> bbcs_;

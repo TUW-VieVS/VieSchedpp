@@ -110,3 +110,28 @@ double util::freqency2wavelenth( double frequency ){
 double util::wavelength2frequency( double wavelength ){
     return speedOfLight/wavelength;
 }
+
+unsigned long util::getNumberOfStations(const boost::property_tree::ptree &xml) {
+    unsigned long nsta = 0;
+
+    auto ptree_stations = xml.get_child_optional("VieSchedpp.general.stations");
+    if (ptree_stations.is_initialized()) {
+        nsta = distance(ptree_stations->begin(), ptree_stations->end());
+    }
+
+    return nsta;
+}
+
+std::vector<std::string> util::getStationNames(const boost::property_tree::ptree &xml) {
+    vector<string> names;
+    auto ptree_stations = xml.get_child_optional("VieSchedpp.general.stations");
+    if (ptree_stations.is_initialized()) {
+        auto it = ptree_stations->begin();
+        while (it != ptree_stations->end()) {
+            auto item = it->second.data();
+            names.push_back(item);
+            ++it;
+        }
+    }
+    return names;
+}

@@ -33,6 +33,7 @@
 
 #include <boost/format.hpp>
 #include <boost/date_time.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <cmath>
 #include <vector>
 #include <numeric>
@@ -59,6 +60,24 @@ namespace VieVS{
      * @author Matthias Schartner
      */
     namespace util{
+
+        /**
+         * @brief get number of stations from xml file
+         * @author Matthias Schartner
+         *
+         * @param xml property tree
+         * @return number of stations
+         */
+        unsigned long getNumberOfStations(const boost::property_tree::ptree &xml);
+
+        /**
+         * @brief get station names from xml file
+         * @author Matthias Schartner
+         *
+         * @param xml property tree
+         * @return vector of station names
+         */
+        std::vector<std::string> getStationNames(const boost::property_tree::ptree &xml);
 
         /**
          * @brief convert right ascension to string

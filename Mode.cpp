@@ -457,7 +457,7 @@ void Mode::readSkdTrackFrameFormat(const SkdCatalogReader &skd) {
 
 }
 
-void Mode::summary(const std::vector<std::string> &stations, std::ofstream &of) const{
+void Mode::summary(std::ofstream &of) const{
 
     of << "observing mode: " << getName() << "\n";
     auto bands = getAllBands();
@@ -481,7 +481,7 @@ void Mode::summary(const std::vector<std::string> &stations, std::ofstream &of) 
                     continue;
                 }
 
-                string name = (boost::format("%s-%s") % stations[staid1] % stations[staid2]).str();
+                string name = (boost::format("%s-%s") % stationNames_[staid1] % stationNames_[staid2]).str();
 
                 auto it2 = rate2baseline.find(rate);
                 if(it2 == rate2baseline.end()){
@@ -540,69 +540,120 @@ void Mode::calcMeanWavelength() {
     }
 }
 
-void Mode::toVexModeBlock(const vector<string> &names, std::ofstream &of) const{
+void Mode::toVexModeBlock(std::ofstream &of) const{
     string eol = ";\n";
 
+    // get number of characters in longest name
+    unsigned long longestName = 9;
+    for(const auto &any : freqs_){
+        if(any.first.getName().length() > longestName){
+            longestName = any.first.getName().length();
+        }
+    }
+    for(const auto &any : bbcs_){
+        if(any.first.getName().length() > longestName){
+            longestName = any.first.getName().length();
+        }
+    }
+    for(const auto &any : ifs_){
+        if(any.first.getName().length() > longestName){
+            longestName = any.first.getName().length();
+        }
+    }
+    for(const auto &any : tracks_){
+        if(any.first.getName().length() > longestName){
+            longestName = any.first.getName().length();
+        }
+    }
+    for(const auto &any : track_frame_formats_){
+        if(any.first.length() > longestName){
+            longestName = any.first.length();
+        }
+    }
+    string fmt = (boost::format("%%-%ds") %longestName).str();
+
+
+    // output
     of << "    def " << getName() << eol;
 
     for(const auto &any : freqs_){
-        of << "        ref $FREQ = " << any.first.getName();
-        for(const auto &id : any.second){
-            of << " : " << names.at(id);
+        of << "        ref $FREQ =             " << boost::format(fmt) % any.first.getName();
+        for(int i=0; i<nsta_; ++i){
+            if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
+                of << "     ";
+            }else{
+                of << " : " << stationNames_.at(i);
+            }
         }
-        of << eol;
+        of << " " << eol;
     }
 
     for(const auto &any : bbcs_){
-        of << "        ref $BBC = " << any.first.getName();
-        for(const auto &id : any.second){
-            of << " : " << names.at(id);
+        of << "        ref $BBC =              " << boost::format(fmt) % any.first.getName();
+        for(int i=0; i<nsta_; ++i){
+            if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
+                of << "     ";
+            }else{
+                of << " : " << stationNames_.at(i);
+            }
         }
-        of << eol;
+        of << " " << eol;
     }
 
     for(const auto &any : ifs_){
-        of << "        ref $IF = " << any.first.getName();
-        for(const auto &id : any.second){
-            of << " : " << names.at(id);
+        of << "        ref $IF =               " << boost::format(fmt) % any.first.getName();
+        for(int i=0; i<nsta_; ++i){
+            if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
+                of << "     ";
+            }else{
+                of << " : " << stationNames_.at(i);
+            }
         }
-        of << eol;
+        of << " " << eol;
     }
 
     for(const auto &any : tracks_){
-        of << "        ref $TRACKS = " << any.first.getName();
-        for(const auto &id : any.second){
-            of << " : " << names.at(id);
+        of << "        ref $TRACKS =           " << boost::format(fmt) % any.first.getName();
+        for(int i=0; i<nsta_; ++i){
+            if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
+                of << "     ";
+            }else{
+                of << " : " << stationNames_.at(i);
+            }
         }
-        of << eol;
+        of << " " << eol;
     }
 
     for(const auto &any : track_frame_formats_){
-        of << "        ref $TRACKS = " << any.first;
-        for(const auto &id : any.second){
-            of << " : " << names.at(id);
+        of << "        ref $TRACKS =           " << boost::format(fmt) % any.first;
+        for(int i=0; i<nsta_; ++i){
+            if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
+                of << "     ";
+            }else{
+                of << " : " << stationNames_.at(i);
+            }
         }
-        of << eol;
+        of << " " << eol;
     }
 
 
-    of << "        ref $PASS_ORDER = passOrder";
-    for(const auto &any : names){
+    of << "        ref $PASS_ORDER =       " << boost::format(fmt) % "passOrder";
+    for(const auto &any : stationNames_){
         of << " : " << any;
     }
-    of << eol;
+    of << " " << eol;
 
-    of << "        ref $ROLL = NO_ROLL";
-    for(const auto &any : names){
+    of << "        ref $ROLL =             " << boost::format(fmt) % "NO_ROLL";;
+    for(const auto &any : stationNames_){
         of << " : " << any;
     }
-    of << eol;
+    of << " " << eol;
 
-    of << "        ref $PHASE_CAL_DETECT = Standard";
-    for(const auto &any : names){
+    of << "        ref $PHASE_CAL_DETECT = " << boost::format(fmt) % "Standard";;
+    for(const auto &any : stationNames_){
         of << " : " << any;
     }
-    of << eol;
+    of << " " << eol;
 
     of << "    enddef;\n";
 }
