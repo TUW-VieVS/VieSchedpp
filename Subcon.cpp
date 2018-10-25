@@ -226,7 +226,7 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
 }
 
 void
-Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources, const Mode &mode) noexcept {
+Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode) noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calc observing durations";
     #endif
@@ -668,12 +668,12 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
     }
 }
 
-vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const Mode &mode,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
     return selectBest(network, sources, mode, vector<double>(), vector<double>(), endposition);
 }
 
-vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const Mode &mode,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                 const std::vector<double> &prevLowElevationScores,
                                 const std::vector<double> &prevHighElevationScores,
                                 const boost::optional<StationEndposition> &endposition) noexcept {

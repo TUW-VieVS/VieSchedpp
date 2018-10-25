@@ -133,7 +133,7 @@ namespace VieVS{
          * @param mode observing mode
          * @param subnetting subnetting information
          */
-        void updateHighImpactScans(const Network &network, const std::vector<Source> &sources, const Mode &mode,
+        void updateHighImpactScans(const Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                    const boost::optional<Subnetting> &subnetting);
 
         /**
@@ -145,7 +145,7 @@ namespace VieVS{
          * @param mode observing mode
          * @return list of scans with highest impact score
          */
-        std::vector<Scan> highestImpactScans(Network &network, const std::vector<Source> &sources, const Mode &mode);
+        std::vector<Scan> highestImpactScans(Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief check if target scan is valid high impact scans

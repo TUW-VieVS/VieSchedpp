@@ -132,7 +132,7 @@ namespace VieVS{
         Network network_; ///< network
         std::vector<Source> sources_; ///< all sources
         std::vector<Scan> scans_; ///< all scans in schedule
-        Mode mode_; ///< observing mode
+        const std::shared_ptr<const Mode> &mode_; ///< observing mode
         boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_; ///< multi scheduling parameters
 
         /**

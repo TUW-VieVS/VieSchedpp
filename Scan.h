@@ -365,7 +365,7 @@ namespace VieVS{
          * @param mode observing mode
          * @return true is scan is still valid, otherwise false
          */
-        bool calcObservationDuration(const Network &network, const Source &sources, const Mode &mode) noexcept;
+        bool calcObservationDuration(const Network &network, const Source &sources, const std::shared_ptr<const Mode> &mode) noexcept;
 
         /**
          * @brief calculates the total scan duration per station
@@ -495,7 +495,7 @@ namespace VieVS{
          * @param endposition required endposition
          * @return true if scan is still valid, false if scan is no longer valid
          */
-        bool rigorousUpdate(Network &network, const Source &source, const Mode &mode,
+        bool rigorousUpdate(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -674,7 +674,7 @@ namespace VieVS{
          * @param mode observing mode
          * @return true if scan is still valid, otherwise false
          */
-        bool rigorousScanStartTimeAlignment(Network &network, const Source &source, const Mode &mode) noexcept;
+        bool rigorousScanStartTimeAlignment(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode) noexcept;
 
         /**
          * @brief rigorous scan visibility

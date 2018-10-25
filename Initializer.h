@@ -106,7 +106,7 @@ namespace VieVS {
             double subnettingMinAngle = 150*deg2rad; ///< backup value for minimum angle of subnetting sources
             double subnettingMinNStaPercent = 0.80; ///< backup value for minimum station percentage
             double subnettingMinNStaAllBut = 1; ///< backup value for minimum station all but value
-            double subnettingMinNStaPercent_otherwiseAllBut = false; ///< if set to true percentage value is used for subnetting minimum number of station calculation otherwise all but value
+            bool subnettingMinNStaPercent_otherwiseAllBut = false; ///< if set to true percentage value is used for subnetting minimum number of station calculation otherwise all but value
 
             bool fillinmodeDuringScanSelection = true; ///< schedule fillin mode scans
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule
@@ -323,7 +323,7 @@ namespace VieVS {
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
         std::vector<Source> sources_; ///< list of all sources
         Network network_; ///< station network
-        Mode mode_; ///< observing mode
+        std::shared_ptr<Mode> mode_ = nullptr; ///< observing mode
 
         Parameters parameters_; ///< parameters
         PRECALC preCalculated_; ///< pre calculated values

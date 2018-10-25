@@ -252,7 +252,7 @@ bool Scan::checkIdleTimes(std::vector<unsigned int> &maxIdle, const Source &sour
     return scan_valid;
 }
 
-bool Scan::calcObservationDuration(const Network &network, const Source &source, const Mode &mode) noexcept {
+bool Scan::calcObservationDuration(const Network &network, const Source &source, const std::shared_ptr<const Mode> &mode) noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " calc required observing time per observation";
     #endif
@@ -305,7 +305,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source,
 
         // loop over each band
         bool flag_observationRemoved = false;
-        for (auto &band : mode.getAllBands()) {
+        for (auto &band : mode->getAllBands()) {
 
             // calculate observed flux density for each band
             double SEFD_src = source.observedFlux(band, gmst, network.getDxyz(staid1,staid2));
@@ -333,7 +333,7 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source,
             // calc required baseline scan duration
             double anum = (1.75*maxminSNR / SEFD_src);
             double anu1 = SEFD_sta1*SEFD_sta2;
-            double anu2 = mode.recordingRate(staid1, staid2, band);
+            double anu2 = mode->recordingRate(staid1, staid2, band);
             double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
             new_duration = ceil(new_duration);
             auto new_duration_uint = static_cast<unsigned int>(new_duration);
@@ -619,7 +619,7 @@ double Scan::calcScore_lowElevation(unsigned long nmaxsta) {
 }
 
 
-bool Scan::rigorousUpdate(Network &network, const Source &source, const Mode &mode,
+bool Scan::rigorousUpdate(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                           const boost::optional<StationEndposition> &endposition) noexcept {
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
@@ -776,7 +776,7 @@ bool Scan::rigorousSlewtime(Network &network, const Source &source) noexcept {
     return scanValid;
 }
 
-bool Scan::rigorousScanStartTimeAlignment(Network &network, const Source &source, const Mode &mode) noexcept{
+bool Scan::rigorousScanStartTimeAlignment(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode) noexcept{
     bool scanValid;
     #ifdef VIESCHEDPP_LOG
     if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "scan " << this->printId() << " rigorous update scan start time";

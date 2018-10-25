@@ -68,6 +68,7 @@ Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sour
                                                        network_{std::move(network)},
                                                        sources_{std::move(sources)},
                                                        scans_{std::move(scans)},
+                                                       mode_{nullptr},
                                                        xml_{std::move(xml)} {
 }
 
@@ -1000,7 +1001,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                     maxScanDuration = *source.getPARA().fixedScanDuration;
                 }else {
 
-                    for (auto &band : mode_.getAllBands()) {
+                    for (auto &band : mode_->getAllBands()) {
 
                         double SEFD_src = source.observedFlux(band, gmst, network_.getDxyz(sta1.getId(), sta2.getId()));
 
@@ -1037,7 +1038,7 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
 
                         double anum = (1.75 * maxminSNR / SEFD_src);
                         double anu1 = SEFD_sta1 * SEFD_sta2;
-                        double anu2 = mode_.recordingRate(sta1.getId(), sta2.getId(), band);
+                        double anu2 = mode_->recordingRate(sta1.getId(), sta2.getId(), band);
 
                         double new_duration = anum * anum * anu1 / anu2 + maxCorSynch;
                         new_duration = ceil(new_duration);

@@ -39,8 +39,6 @@ std::unordered_map<std::string, VieVS::Mode::Backup> VieVS::Mode::sourceBackup; 
 std::unordered_map<std::string, double> VieVS::Mode::sourceBackupValue;              ///< backup value for source
 
 
-Mode::Mode(): VieVS_NamedObject{"empty", 0}{}
-
 Mode::Mode(std::string name, unsigned long nsta): VieVS_NamedObject{std::move(name), nextId++}, nsta_{nsta} {
 
 }

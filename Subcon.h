@@ -162,7 +162,7 @@ namespace VieVS{
          * @param mode observing mode
          */
         void
-        calcAllBaselineDurations(const Network &network, const std::vector<Source> &sources, const Mode &mode) noexcept;
+        calcAllBaselineDurations(const Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode) noexcept;
 
         /**
          * @brief calculates all scan duration of all single source scans in this subcon
@@ -248,7 +248,7 @@ namespace VieVS{
          * @param endposition required endposition
          * @return scan(s) with highest score
          */
-        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const Mode &mode,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**
@@ -266,7 +266,7 @@ namespace VieVS{
          * @param endposition required endposition
          * @return scan(s) with highest score
          */
-        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const Mode &mode,
+        std::vector<Scan> selectBest(Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                      const std::vector<double> &prevLowElevationScores,
                                      const std::vector<double> &prevHighElevationScores,
                                      const boost::optional<StationEndposition> &endposition = boost::none) noexcept;

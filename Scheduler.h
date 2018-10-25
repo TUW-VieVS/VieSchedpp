@@ -218,7 +218,7 @@ namespace VieVS{
 
         std::vector<Source> sources_; ///< all sources
         Network network_; ///< station network
-        Mode mode_; ///< observing mode
+        std::shared_ptr<const Mode> mode_; ///< observing mode
         std::vector<Scan> scans_; ///< all scans in schedule
 
         Parameters parameters_; ///< general scheduling parameters

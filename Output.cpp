@@ -29,7 +29,7 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
                                                                                network_{std::move(sched.network_)},
                                                                                sources_{std::move(sched.sources_)},
                                                                                scans_{std::move(sched.scans_)},
-                                                                               mode_{std::move(sched.mode_)},
+                                                                               mode_{sched.mode_},
                                                                                path_{std::move(path)},
                                                                                multiSchedulingParameters_{std::move(sched.multiSchedulingParameters_)},
                                                                                version_{version}{

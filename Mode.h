@@ -86,9 +86,6 @@ namespace VieVS{
         static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
 
 
-
-        Mode();
-
         Mode(std::string name, unsigned long nsta);
 
         void setStationNames(const std::vector<std::string> &names){

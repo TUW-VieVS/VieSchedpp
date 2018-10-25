@@ -135,7 +135,7 @@ const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids
 
 void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
                                                      const std::vector<Source> &sources,
-                                                     const Mode &mode,
+                                                     const std::shared_ptr<const Mode> &mode,
                                                      const boost::optional<Subnetting> &subnetting) {
     highImpactScans_.calcStartTimes(network, sources);
     highImpactScans_.updateAzEl(network, sources);
@@ -152,7 +152,7 @@ void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
 }
 
 
-vector<Scan> HighImpactScanDescriptor::highestImpactScans(Network &network, const std::vector<Source> &sources, const Mode &mode) {
+vector<Scan> HighImpactScanDescriptor::highestImpactScans(Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode) {
     return highImpactScans_.selectBest(network, sources, mode);
 }
 

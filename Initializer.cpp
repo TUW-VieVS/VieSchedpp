@@ -699,7 +699,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
 
                 if(!errorWhileReadingFlux){
-                    srcFlux = make_unique<Flux_M>( mode_.getWavelength(thisBand), tflux, tmajorAxis, taxialRatio, tpositionAngle);
+                    srcFlux = make_unique<Flux_M>( mode_->getWavelength(thisBand), tflux, tmajorAxis, taxialRatio, tpositionAngle);
                 }
             }else{
                 std::vector<double> knots; ///< baseline length of flux information (type B)
@@ -729,7 +729,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
 
                 if(!errorWhileReadingFlux){
-                    double wavelength = mode_.getWavelength(thisBand);
+                    double wavelength = mode_->getWavelength(thisBand);
                     srcFlux = make_unique<Flux_B>(wavelength,std::move(knots),std::move(values));
                 }
             }
@@ -749,7 +749,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
                 if(Mode::sourceBackup[bandName] == Mode::Backup::value){
 
-                    flux[bandName] = make_unique<Flux_B>(mode_.getWavelength(bandName),
+                    flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
                                                           vector<double>{0,13000},
                                                           vector<double>{Mode::stationBackupValue[bandName]});
                 }
@@ -790,13 +790,13 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 if(flux.find(bandName) == flux.end()){
                     if(Mode::stationBackup[bandName] == Mode::Backup::minValueTimes){
 
-                        flux[bandName] = make_unique<Flux_B>(mode_.getWavelength(bandName),
+                        flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
                                                               vector<double>{0,13000},
                                                               vector<double>{min * Mode::stationBackupValue[bandName]});
                     }
                     if(Mode::stationBackup[bandName] == Mode::Backup::maxValueTimes){
 
-                        flux[bandName] = make_unique<Flux_B>(mode_.getWavelength(bandName),
+                        flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
                                                               vector<double>{0,13000},
                                                               vector<double>{max * Mode::stationBackupValue[bandName]});
                     }
@@ -2007,14 +2007,14 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
             #endif
 
-            mode_ = Mode(skdCatalogs.getModeName(), util::getNumberOfStations(xml_));
-            mode_.readFromSkedCatalogs(skdCatalogs);
-            mode_.calcRecordingRates();
-            mode_.calcMeanWavelength();
+            mode_ = std::make_shared<Mode>(skdCatalogs.getModeName(), util::getNumberOfStations(xml_));
+            mode_->readFromSkedCatalogs(skdCatalogs);
+            mode_->calcRecordingRates();
+            mode_->calcMeanWavelength();
 
             Mode::simple = false;
 
-            auto bands = mode_.getAllBands();
+            auto bands = mode_->getAllBands();
             Mode::bands.insert(bands.begin(), bands.end());
 
             unordered_map<string, Mode::Property> stationProperty;
@@ -2159,7 +2159,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
     }
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: %s") % mode_.getName();
+    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: %s") % mode_->getName();
     #else
     cout << boost::format("[info] observing mode: %s") % mode_.getName();
     #endif
@@ -2999,6 +2999,6 @@ void Initializer::connectObservingMode(std::ofstream &of) noexcept {
     for(const auto &any : network_.getStations()){
         staNames.push_back(any.getAlternativeName());
     }
-    mode_.setStationNames(staNames);
-    mode_.summary(of);
+    mode_->setStationNames(staNames);
+    mode_->summary(of);
 }

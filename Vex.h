@@ -63,7 +63,7 @@ namespace VieVS {
          * @param xml paramters.xml file
          */
         void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
-                      const Mode &mode, const boost::property_tree::ptree &xml);
+                      std::shared_ptr<const Mode> mode, const boost::property_tree::ptree &xml);
 
 
     private:
@@ -150,7 +150,7 @@ namespace VieVS {
          *
          * @param mode observing mode
          */
-        void mode_block(const Mode &mode);
+        void mode_block(const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief write vex $FREQ block
@@ -159,7 +159,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param mode observing mode
          */
-        void freq_block(const Mode &mode);
+        void freq_block(const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief write vex $BBC block
@@ -168,7 +168,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param mode observing mode
          */
-        void bbc_block(const Mode &mode);
+        void bbc_block(const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief write vex $IF block
@@ -177,7 +177,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param mode observing mode
          */
-        void if_block(const Mode &mode);
+        void if_block(const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief write vex $TRACKS block
@@ -185,7 +185,7 @@ namespace VieVS {
          *
          * @param mode observing mode
          */
-        void tracks_block(const Mode &mode);
+        void tracks_block(const std::shared_ptr<const Mode> &mode);
 
         /**
          * @brief write vex head block (deprecated)
@@ -218,9 +218,10 @@ namespace VieVS {
          * @param scans list of all scans
          * @param stations list of all stations
          * @param sources list of all sources
+         * @param mode observing mode
          */
         void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
-                         const std::vector<Source>& sources, const Mode &mode);
+                         const std::vector<Source>& sources, const std::shared_ptr<const Mode> &mode);
 
     };
 }
