@@ -253,14 +253,14 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
             continue;
         }
         bool everythingOkWithBands = true;
-        for(const auto &bandName: Mode::bands){
+        for(const auto &bandName: ObsModes::bands){
             if(SEFD_found.find(bandName) != SEFD_found.end()){
                 SEFDs[bandName] = SEFD_found[bandName];
             } else {
-                if(Mode::stationProperty[bandName] == Mode::Property::required){
+                if(ObsModes::stationProperty[bandName] == ObsModes::Property::required){
                     everythingOkWithBands = false;
-                } else if(Mode::stationBackup[bandName] == Mode::Backup::value){
-                    SEFDs[bandName] = Mode::stationBackupValue[bandName];
+                } else if(ObsModes::stationBackup[bandName] == ObsModes::Backup::value){
+                    SEFDs[bandName] = ObsModes::stationBackupValue[bandName];
                 }
             }
         }
@@ -274,7 +274,7 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
             continue;
         }
 
-        if(SEFDs.size() != Mode::bands.size()){
+        if(SEFDs.size() != ObsModes::bands.size()){
             if(SEFDs.empty()){
                 of << "*** ERROR: creating station "<< name <<": no SEFD information found to calculate backup value!;\n";
                 #ifdef VIESCHEDPP_LOG
@@ -294,13 +294,13 @@ void Initializer::createStations(const SkdCatalogReader &reader, ofstream &of) n
                     max = any2.second;
                 }
             }
-            for(const auto &bandName:Mode::bands){
+            for(const auto &bandName:ObsModes::bands){
                 if(SEFDs.find(bandName) == SEFDs.end()){
-                    if(Mode::stationBackup[bandName] == Mode::Backup::minValueTimes){
-                        SEFDs[bandName] = min * Mode::stationBackupValue[bandName];
+                    if(ObsModes::stationBackup[bandName] == ObsModes::Backup::minValueTimes){
+                        SEFDs[bandName] = min * ObsModes::stationBackupValue[bandName];
                     }
-                    if(Mode::stationBackup[bandName] == Mode::Backup::maxValueTimes){
-                        SEFDs[bandName] = max * Mode::stationBackupValue[bandName];
+                    if(ObsModes::stationBackup[bandName] == ObsModes::Backup::maxValueTimes){
+                        SEFDs[bandName] = max * ObsModes::stationBackupValue[bandName];
                     }
                 }
             }
@@ -620,7 +620,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             alreadyConsidered.push_back(cflux);
 
             string thisBand = flux_split[cflux][1];
-            if(std::find(Mode::bands.begin(),Mode::bands.end(),thisBand) == Mode::bands.end()){
+            if(std::find(ObsModes::bands.begin(),ObsModes::bands.end(),thisBand) == ObsModes::bands.end()){
                 continue;
             }
 
@@ -699,7 +699,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
 
                 if(!errorWhileReadingFlux){
-                    srcFlux = make_unique<Flux_M>( mode_->getWavelength(thisBand), tflux, tmajorAxis, taxialRatio, tpositionAngle);
+                    srcFlux = make_unique<Flux_M>( obsModes_->getWavelength(thisBand), tflux, tmajorAxis, taxialRatio, tpositionAngle);
                 }
             }else{
                 std::vector<double> knots; ///< baseline length of flux information (type B)
@@ -729,7 +729,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 }
 
                 if(!errorWhileReadingFlux){
-                    double wavelength = mode_->getWavelength(thisBand);
+                    double wavelength = obsModes_->getWavelength(thisBand);
                     srcFlux = make_unique<Flux_B>(wavelength,std::move(knots),std::move(values));
                 }
             }
@@ -741,17 +741,17 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         }
 
         bool fluxBandInfoOk = true;
-        for(const auto &bandName: Mode::bands){
+        for(const auto &bandName: ObsModes::bands){
             if(flux.find(bandName) == flux.end()){
-                if(Mode::sourceProperty[bandName] == Mode::Property::required){
+                if(ObsModes::sourceProperty[bandName] == ObsModes::Property::required){
                     fluxBandInfoOk = false;
                     break;
                 }
-                if(Mode::sourceBackup[bandName] == Mode::Backup::value){
+                if(ObsModes::sourceBackup[bandName] == ObsModes::Backup::value){
 
-                    flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
+                    flux[bandName] = make_unique<Flux_B>(obsModes_->getWavelength(bandName),
                                                           vector<double>{0,13000},
-                                                          vector<double>{Mode::stationBackupValue[bandName]});
+                                                          vector<double>{ObsModes::stationBackupValue[bandName]});
                 }
             }
         }
@@ -764,7 +764,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
             #endif
         }
 
-        if(flux.size() != Mode::bands.size()){
+        if(flux.size() != ObsModes::bands.size()){
             if(flux.empty()){
                 src_failed.push_back(name);
                 of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
@@ -786,19 +786,19 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                     max = any2.second->getMaximumFlux();
                 }
             }
-            for(const auto &bandName:Mode::bands){
+            for(const auto &bandName:ObsModes::bands){
                 if(flux.find(bandName) == flux.end()){
-                    if(Mode::stationBackup[bandName] == Mode::Backup::minValueTimes){
+                    if(ObsModes::stationBackup[bandName] == ObsModes::Backup::minValueTimes){
 
-                        flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
+                        flux[bandName] = make_unique<Flux_B>(obsModes_->getWavelength(bandName),
                                                               vector<double>{0,13000},
-                                                              vector<double>{min * Mode::stationBackupValue[bandName]});
+                                                              vector<double>{min * ObsModes::stationBackupValue[bandName]});
                     }
-                    if(Mode::stationBackup[bandName] == Mode::Backup::maxValueTimes){
+                    if(ObsModes::stationBackup[bandName] == ObsModes::Backup::maxValueTimes){
 
-                        flux[bandName] = make_unique<Flux_B>(mode_->getWavelength(bandName),
+                        flux[bandName] = make_unique<Flux_B>(obsModes_->getWavelength(bandName),
                                                               vector<double>{0,13000},
-                                                              vector<double>{max * Mode::stationBackupValue[bandName]});
+                                                              vector<double>{max * ObsModes::stationBackupValue[bandName]});
                     }
                 }
             }
@@ -985,9 +985,9 @@ void Initializer::initializeStations() noexcept {
         vector<vector<Station::Event> > events(network_.getNSta());
 
         // set observation mode band names
-        for (const auto &any:Mode::bands) {
+        for (const auto &any : ObsModes::bands) {
             const string &name = any;
-            parentPARA.minSNR[name] = Mode::minSNR[name];
+            parentPARA.minSNR[name] = ObsModes::minSNR[name];
         }
 
         // create default events at start and end
@@ -1386,9 +1386,9 @@ void Initializer::initializeSources() noexcept {
         #endif
 
         // set observation mode band names
-        for (const auto &any:Mode::bands) {
+        for (const auto &any : ObsModes::bands) {
             const string &name = any;
-            parentPARA.minSNR[name] = Mode::minSNR[name];
+            parentPARA.minSNR[name] = ObsModes::minSNR[name];
         }
 
         // store events for each source
@@ -1682,9 +1682,9 @@ void Initializer::initializeBaselines() noexcept {
         if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "create backup baseline parameters";
         #endif
         // set observation mode band names
-        for (const auto &any:Mode::bands) {
+        for (const auto &any:ObsModes::bands) {
             const string &name = any;
-            parentPARA.minSNR[name] = Mode::minSNR[name];
+            parentPARA.minSNR[name] = ObsModes::minSNR[name];
         }
 
 
@@ -2007,40 +2007,36 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "skd observing mode found";
             #endif
 
-            mode_ = std::make_shared<Mode>(skdCatalogs.getModeName(), util::getNumberOfStations(xml_));
-            mode_->readFromSkedCatalogs(skdCatalogs);
-            mode_->calcRecordingRates();
-            mode_->calcMeanWavelength();
+            obsModes_ = std::make_shared<ObsModes>();
+            obsModes_->readFromSkedCatalogs(skdCatalogs);
 
-            Mode::simple = false;
+            ObsModes::simple = false;
 
-            auto bands = mode_->getAllBands();
-            Mode::bands.insert(bands.begin(), bands.end());
-
-            unordered_map<string, Mode::Property> stationProperty;
-            unordered_map<string, Mode::Backup> stationBackup;
+            unordered_map<string, ObsModes::Property> stationProperty;
+            unordered_map<string, ObsModes::Backup> stationBackup;
             unordered_map<string, double> stationBackupValue;
 
-            unordered_map<string, Mode::Property> sourceProperty;
-            unordered_map<string, Mode::Backup> sourceBackup;
+            unordered_map<string, ObsModes::Property> sourceProperty;
+            unordered_map<string, ObsModes::Backup> sourceBackup;
             unordered_map<string, double> sourceBackupValue;
 
-            for(const auto &any:bands){
-                stationProperty[any] = Mode::Property::required;
-                sourceProperty[any] = Mode::Property::required;
-                stationBackup[any] = Mode::Backup::none;
-                sourceBackup[any] = Mode::Backup::none;
+            for(const auto &any:ObsModes::bands){
+                stationProperty[any] = ObsModes::Property::required;
+                sourceProperty[any] = ObsModes::Property::required;
+                stationBackup[any] = ObsModes::Backup::none;
+                sourceBackup[any] = ObsModes::Backup::none;
                 stationBackupValue[any] = 0;
                 sourceBackupValue[any] = 0;
             }
 
-            Mode::stationProperty = stationProperty;
-            Mode::stationBackup = stationBackup;
-            Mode::stationBackupValue = stationBackupValue;
 
-            Mode::sourceProperty = sourceProperty;
-            Mode::sourceBackup = sourceBackup;
-            Mode::sourceBackupValue = sourceBackupValue;
+            ObsModes::stationProperty = stationProperty;
+            ObsModes::stationBackup = stationBackup;
+            ObsModes::stationBackupValue = stationBackupValue;
+
+            ObsModes::sourceProperty = sourceProperty;
+            ObsModes::sourceBackup = sourceBackup;
+            ObsModes::sourceBackupValue = sourceBackupValue;
 
         } else if (it.first == "sampleRate") {
 //            ObservationMode::sampleRate = it.second.get_value<double>();
@@ -2081,11 +2077,11 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
         }else if(it.first == "bandPolicies"){
 
             for (const auto &it_bandPolicies:it.second){
-                Mode::Property station_property = Mode::Property::required;
-                Mode::Backup station_backup = Mode::Backup::none;
+                ObsModes::Property station_property = ObsModes::Property::required;
+                ObsModes::Backup station_backup = ObsModes::Backup::none;
                 double station_backupValue = 0;
-                Mode::Property source_property = Mode::Property::required;
-                Mode::Backup source_backup = Mode::Backup::none;
+                ObsModes::Property source_property = ObsModes::Property::required;
+                ObsModes::Backup source_backup = ObsModes::Backup::none;
                 double source_backupValue = 0;
                 double minSNR = 0;
                 string name;
@@ -2104,20 +2100,20 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
                             string thisName = it_band_station.first;
                             if (thisName == "tag"){
                                 if(it_band_station.second.get_value<std::string>() == "required") {
-                                    station_property = Mode::Property::required;
+                                    station_property = ObsModes::Property::required;
                                 }else if(it_band_station.second.get_value<std::string>() == "optional"){
-                                    station_property = Mode::Property::optional;
+                                    station_property = ObsModes::Property::optional;
                                 }
                             } else if (thisName == "backup_maxValueTimes"){
-                                station_backup = Mode::Backup::maxValueTimes;
+                                station_backup = ObsModes::Backup::maxValueTimes;
                                 station_backupValue = it_band_station.second.get_value<double>();
 
                             } else if (thisName == "backup_minValueTimes"){
-                                station_backup = Mode::Backup::minValueTimes;
+                                station_backup = ObsModes::Backup::minValueTimes;
                                 station_backupValue = it_band_station.second.get_value<double>();
 
                             } else if (thisName == "backup_value"){
-                                station_backup = Mode::Backup::value;
+                                station_backup = ObsModes::Backup::value;
                                 station_backupValue = it_band_station.second.get_value<double>();
                             }
                         }
@@ -2126,42 +2122,42 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
                             string thisName = it_band_source.first;
                             if (thisName == "tag") {
                                 if (it_band_source.second.get_value<std::string>() == "required") {
-                                    source_property = Mode::Property::required;
+                                    source_property = ObsModes::Property::required;
                                 } else if (it_band_source.second.get_value<std::string>() == "optional") {
-                                    source_property = Mode::Property::optional;
+                                    source_property = ObsModes::Property::optional;
                                 }
                             } else if (thisName == "backup_maxValueTimes") {
-                                source_backup = Mode::Backup::maxValueTimes;
+                                source_backup = ObsModes::Backup::maxValueTimes;
                                 source_backupValue = it_band_source.second.get_value<double>();
 
                             } else if (thisName == "backup_minValueTimes") {
-                                source_backup = Mode::Backup::minValueTimes;
+                                source_backup = ObsModes::Backup::minValueTimes;
                                 source_backupValue = it_band_source.second.get_value<double>();
 
                             } else if (thisName == "backup_value") {
-                                source_backup = Mode::Backup::value;
+                                source_backup = ObsModes::Backup::value;
                                 source_backupValue = it_band_source.second.get_value<double>();
                             }
                         }
                     }
                 }
-                Mode::minSNR[name] = minSNR;
+                ObsModes::minSNR[name] = minSNR;
 
-                Mode::stationProperty[name] = station_property;
-                Mode::stationBackup[name] = station_backup;
-                Mode::stationBackupValue[name] = station_backupValue;
+                ObsModes::stationProperty[name] = station_property;
+                ObsModes::stationBackup[name] = station_backup;
+                ObsModes::stationBackupValue[name] = station_backupValue;
 
-                Mode::sourceProperty[name] = source_property;
-                Mode::sourceBackup[name] = source_backup;
-                Mode::sourceBackupValue[name] = source_backupValue;
+                ObsModes::sourceProperty[name] = source_property;
+                ObsModes::sourceBackup[name] = source_backup;
+                ObsModes::sourceBackupValue[name] = source_backupValue;
             }
         }
     }
 
     #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: %s") % mode_->getName();
+    BOOST_LOG_TRIVIAL(info) << boost::format("observing mode: %s") % obsModes_->getMode(0)->getName();
     #else
-    cout << boost::format("[info] observing mode: %s") % mode_.getName();
+    cout << boost::format("[info] observing mode: %s") % obsModes_->getMode(0)->getName();
     #endif
 
     of << "\n";
@@ -2999,6 +2995,6 @@ void Initializer::connectObservingMode(std::ofstream &of) noexcept {
     for(const auto &any : network_.getStations()){
         staNames.push_back(any.getAlternativeName());
     }
-    mode_->setStationNames(staNames);
-    mode_->summary(of);
+    obsModes_->setStationNames(staNames);
+    obsModes_->summary(of);
 }

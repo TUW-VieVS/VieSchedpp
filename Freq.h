@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
@@ -81,7 +79,7 @@ namespace VieVS{
             return bands_;
         }
 
-        std::unordered_map<std::string,double> observingRate(const Freq &other, int bits) const;
+        std::unordered_map<std::string,double> observingRate(const std::shared_ptr<const Freq> &other, int bits) const;
 
         void toVexFreqDefinition(std::ofstream &of, const std::string &comment = "") const;
 

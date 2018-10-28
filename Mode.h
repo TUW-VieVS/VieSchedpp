@@ -52,168 +52,81 @@ namespace VieVS{
      */
     class Mode: public VieVS_NamedObject {
     public:
-        /**
-         * @brief all possible flux information type
-         * @author Matthias Schartner
-         */
-        enum class Property {
-            required,    ///< this band information is required. If this information is missing this object is not used.
-            optional,    ///< this band information is only optional. If information is available it is used, otherwise it is calculated based on backup model
-        };
-
-        /**
-         * @brief all possible backup models
-         * @author Matthias Schartner
-         */
-        enum class Backup {
-            minValueTimes, ///< use minimum value found in other bands times a factor
-            maxValueTimes, ///< use maximum value found in other bands times a factor
-            value, ///< use specific value
-            none, ///< no backup model
-        };
-
-        static bool simple; ///< flag if manual observation mode was selected
-
-        static std::set<std::string> bands; ///< list of all bands
-        static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
-
-        static std::unordered_map<std::string, Property> stationProperty; ///< is band required or optional for station
-        static std::unordered_map<std::string, Backup> stationBackup; ///< backup version for station
-        static std::unordered_map<std::string, double> stationBackupValue; ///< backup value for station
-
-        static std::unordered_map<std::string, Property> sourceProperty; ///< is band required or optional for source
-        static std::unordered_map<std::string, Backup> sourceBackup; ///< backup version for source
-        static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
-
 
         Mode(std::string name, unsigned long nsta);
 
-        void setStationNames(const std::vector<std::string> &names){
-            stationNames_ = names;
+        void addIf(const std::shared_ptr<const If> &newIf, const std::vector<unsigned long> &staids){
+            ifs_.emplace_back(newIf, staids);
         }
 
-        void readFromSkedCatalogs(const SkdCatalogReader &skd);
+        void addBbc(const std::shared_ptr<const Bbc> &newBbc, const std::vector<unsigned long> &staids){
+            bbcs_.emplace_back(newBbc, staids);
+        }
 
-        void addIf(const If &newIf, const std::vector<unsigned long> &staids);
+        void addFreq(const std::shared_ptr<const Freq> &newFreq, const std::vector<unsigned long> &staids){
+            freqs_.emplace_back(newFreq, staids);
+            const auto &tmp = newFreq->getBands();
+            bands_.insert(tmp.begin(), tmp.end());
+        }
 
-        void addBbc(const Bbc &newBbc, const std::vector<unsigned long> &staids);
+        void addTrack(const std::shared_ptr<const Track> &newTrack, const std::vector<unsigned long> &staids){
+            tracks_.emplace_back(newTrack, staids);
+        }
 
-        void addFreq(const Freq &newFreq, const std::vector<unsigned long> &staids);
-
-        void addTrack(const Track &newTrack, const std::vector<unsigned long> &staids);
-
-        void addTrackFrameFormat(const std::string &newTrackFrameFormat, const std::vector<unsigned long> &staids);
+        void addTrackFrameFormat(const std::shared_ptr<const std::string> &newTrackFrameFormat, const std::vector<unsigned long> &staids){
+            track_frame_formats_.emplace_back(newTrackFrameFormat, staids);
+        }
 
         void calcRecordingRates();
 
-        void calcMeanWavelength();
-
-        double getWavelength(const std::string &band) const {
-            return band2meanWavelength_.at(band);
-        }
-
         double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
 
-        std::set<std::string> getAllBands() const;
+        void calcMeanWavelength();
 
-        boost::optional<const If &>getIf(unsigned long staid);
+        boost::optional<const std::shared_ptr<const If> &>getIf(unsigned long staid) const;
 
-        boost::optional<const Bbc &>getBbc(unsigned long staid);
+        boost::optional<const std::shared_ptr<const Bbc> &>getBbc(unsigned long staid) const;
 
-        boost::optional<const Freq &>getFreq(unsigned long staid);
+        boost::optional<const std::shared_ptr<const Freq> &>getFreq(unsigned long staid) const;
 
-        boost::optional<const Track &>getTracks(unsigned long staid);
+        boost::optional<const std::shared_ptr<const Track> &>getTracks(unsigned long staid) const;
 
-        boost::optional<const std::string &>getTrackFrameFormat(unsigned long staid);
+        boost::optional<const std::shared_ptr<const std::string> &> getTrackFrameFormat(unsigned long staid) const;
 
 
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithIf(const std::shared_ptr<const If> &this_if)const ;
 
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithIf(std::string name);
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBbc(const std::shared_ptr<const Bbc> &bbc)const ;
 
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBbc(std::string name);
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithFreq(const std::shared_ptr<const Freq> &freq)const ;
 
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithFreq(std::string name);
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrack(const std::shared_ptr<const Track> &track)const ;
 
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrack(std::string name);
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrackFrameFormat(const std::shared_ptr<const std::string> &trackFrameFormat)const ;
 
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrackFrameFormat(std::string name);
+        void summary( std::ofstream &of, const std::vector<std::string> &stations) const;
 
-        void summary( std::ofstream &of) const;
-
-        void toVexModeBlock(std::ofstream &of) const;
-
-        void toVexFreqBlock(std::ofstream &of) const;
-
-        void toVexBbcBlock(std::ofstream &of) const;
-
-        void toVexIfBlock(std::ofstream &of) const;
-
-        void toVexTracksBlock(std::ofstream &of) const;
-
+        void toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> &stations) const;
 
     private:
         static unsigned long nextId;
 
         unsigned long nsta_;
 
-        std::vector<std::string> stationNames_;
 
-        std::vector<std::pair<If, std::vector<unsigned long>>> ifs_;
-        std::vector<std::pair<Bbc, std::vector<unsigned long>>> bbcs_;
-        std::vector<std::pair<Freq, std::vector<unsigned long>>> freqs_;
-        std::vector<std::pair<Track, std::vector<unsigned long>>> tracks_;
-        std::vector<std::pair<std::string, std::vector<unsigned long>>> track_frame_formats_;
+        std::vector<std::pair<std::shared_ptr<const If>, std::vector<unsigned long>>> ifs_;
+        std::vector<std::pair<std::shared_ptr<const Bbc>, std::vector<unsigned long>>> bbcs_;
+        std::vector<std::pair<std::shared_ptr<const Freq>, std::vector<unsigned long>>> freqs_;
+        std::vector<std::pair<std::shared_ptr<const Track>, std::vector<unsigned long>>> tracks_;
+        std::vector<std::pair<std::shared_ptr<const std::string>, std::vector<unsigned long>>> track_frame_formats_;
 
         std::unordered_map< std::pair<unsigned long, unsigned long>,
                                       std::unordered_map<std::string,double>,
-                                      boost::hash<std::pair<unsigned long, unsigned long>>>
-                staids2recordingRate_;
+                                      boost::hash<std::pair<unsigned long, unsigned long>>> staids2recordingRate_;
 
+
+        std::set<std::string> bands_;
         std::unordered_map<std::string, double> band2meanWavelength_;
-
-        /**
-         * @brief create FREQ block from skd catalogs
-         * @author Matthias Schartner
-         *
-         * @param skd skd catalogs
-         */
-        void readSkdFreq(const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc);
-
-        /**
-         * @brief create TRACKS block from skd catalogs
-         * @author Matthias Schartner
-         *
-         * @param skd skd catalogs
-         * @return channel number to bbc number map
-         */
-        std::map<int,int> readSkdTracks(const SkdCatalogReader &skd);
-
-        /**
-         * @brief create IF block from skd catalogs
-         * @author Matthias Schartner
-         *
-         * @param skd skd catalogs
-         */
-        void readSkdIf(const SkdCatalogReader &skd);
-
-        /**
-         * @brief create BBC block from skd catalogs
-         * @author Matthias Schartner
-         *
-         * @param skd skd catalogs
-         */
-        void readSkdBbc(const SkdCatalogReader &skd);
-
-
-        /**
-         * @brief create track frame format from skd catalogs
-         * @author Matthias Schartner
-         *
-         * @param skd skd catalogs
-         */
-        void readSkdTrackFrameFormat(const SkdCatalogReader &skd);
-
-        void toTrackFrameFormatDefinitions(std::ofstream &of) const;
 
     };
 

@@ -29,7 +29,7 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
                                                                                network_{std::move(sched.network_)},
                                                                                sources_{std::move(sched.sources_)},
                                                                                scans_{std::move(sched.scans_)},
-                                                                               mode_{sched.mode_},
+                                                                               obsModes_{sched.obsModes_},
                                                                                path_{std::move(path)},
                                                                                multiSchedulingParameters_{std::move(sched.multiSchedulingParameters_)},
                                                                                version_{version}{
@@ -642,7 +642,7 @@ void Output::writeVex() {
     cout << "[info] writing vex file to: " << fileName;
     #endif
     Vex vex(path_+fileName);
-    vex.writeVex(network_, sources_, scans_, mode_, xml_);
+    vex.writeVex(network_, sources_, scans_, obsModes_, xml_);
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {

@@ -85,10 +85,10 @@ void VieSchedpp::run() {
     readSkdCatalogs();
     LookupTable::initialize();
 
-    Mode mode(skdCatalogs_.getModeName(), util::getNumberOfStations(xml_));
-    mode.readFromSkedCatalogs(skdCatalogs_);
-    mode.calcRecordingRates();
-    mode.calcMeanWavelength();
+//    Mode mode(skdCatalogs_.getModeName(), util::getNumberOfStations(xml_));
+//    mode.readFromSkedCatalogs(skdCatalogs_);
+//    mode.calcRecordingRates();
+//    mode.calcMeanWavelength();
 
     // initialize all Parameters
     init.initializeGeneral( of );

@@ -37,20 +37,20 @@ void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband ne
 
 }
 
-std::unordered_map<std::string, double> Freq::observingRate(const Freq &other, int bits) const {
+std::unordered_map<std::string, double> Freq::observingRate(const std::shared_ptr<const Freq> &other, int bits) const {
 
     unordered_map<string, double> band2observingRate;
     for(const auto &band : bands_){
         band2observingRate[band] = 0;
     }
 
-    if(other.hasName(getName())){
+    if(other->hasName(getName())){
         for(const auto &channel : chan_defs_){
             band2observingRate[channel.bandId_] +=  bits * sample_rate_ * 1e6;
         }
-    }else if(sample_rate_ == other.sample_rate_){
+    }else if(sample_rate_ == other->sample_rate_){
         for(const auto &channelA : chan_defs_){
-            for(const auto &channelB : other.chan_defs_){
+            for(const auto &channelB : other->chan_defs_){
                 if(channelA.bandId_ == channelB.bandId_){
 
                     auto lower_upper_A = lower_upper_bound(channelA.sky_freq_, channelA.chan_bandwidth_, channelA.net_sideband_);

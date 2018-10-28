@@ -29,7 +29,7 @@
 
 #include "Station.h"
 #include "Scan.h"
-#include "Mode.h"
+#include "ObsModes.h"
 
 namespace VieVS {
 
@@ -59,11 +59,11 @@ namespace VieVS {
          * @param network station network
          * @param sources list of all sources
          * @param scans list of all scans
-         * @param mode observing mode
+         * @param obsModes observing mode
          * @param xml paramters.xml file
          */
         void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
-                      std::shared_ptr<const Mode> mode, const boost::property_tree::ptree &xml);
+                      const std::shared_ptr<const ObsModes> &obsModes, const boost::property_tree::ptree &xml);
 
 
     private:
@@ -148,44 +148,44 @@ namespace VieVS {
          * @brief write vex $MODE block
          * @author Matthias Schartner
          *
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
-        void mode_block(const std::shared_ptr<const Mode> &mode);
+        void mode_block(const std::shared_ptr<const ObsModes> &obsModes);
 
         /**
          * @brief write vex $FREQ block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
-        void freq_block(const std::shared_ptr<const Mode> &mode);
+        void freq_block(const std::shared_ptr<const ObsModes> &obsModes);
 
         /**
          * @brief write vex $BBC block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
-        void bbc_block(const std::shared_ptr<const Mode> &mode);
+        void bbc_block(const std::shared_ptr<const ObsModes> &obsModes);
 
         /**
          * @brief write vex $IF block
          * @author Matthias Schartner
          *
          * @param skdCatalogReader sked catalogs
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
-        void if_block(const std::shared_ptr<const Mode> &mode);
+        void if_block(const std::shared_ptr<const ObsModes> &obsModes);
 
         /**
          * @brief write vex $TRACKS block
          * @author Matthias Schartner
          *
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
-        void tracks_block(const std::shared_ptr<const Mode> &mode);
+        void tracks_block(const std::shared_ptr<const ObsModes> &obsModes);
 
         /**
          * @brief write vex head block (deprecated)
@@ -218,10 +218,10 @@ namespace VieVS {
          * @param scans list of all scans
          * @param stations list of all stations
          * @param sources list of all sources
-         * @param mode observing mode
+         * @param obsModes observing mode
          */
         void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
-                         const std::vector<Source>& sources, const std::shared_ptr<const Mode> &mode);
+                         const std::vector<Source>& sources, const std::shared_ptr<const ObsModes> &obsModes);
 
     };
 }

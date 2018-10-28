@@ -67,8 +67,8 @@ namespace VieVS{
             bits_ = bits;
         }
 
-        int numberOfBits(const Track &other) const{
-            return std::min({bits_, other.bits_});
+        int numberOfBits(const std::shared_ptr<const Track> &other) const{
+            return std::min({bits_, other->bits_});
         }
 
         void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,

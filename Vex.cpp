@@ -28,7 +28,7 @@ Vex::Vex(const string &file): VieVS_Object(nextId++){
 
 
 void Vex::writeVex(const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
-                   std::shared_ptr<const Mode> mode, const boost::property_tree::ptree &xml) {
+                   const std::shared_ptr<const ObsModes> &obsModes, const boost::property_tree::ptree &xml) {
 
     global_block(xml.get("VieSchedpp.general.experimentName","schedule"));
 
@@ -46,8 +46,8 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
                 );
 
     station_block(network.getStations());
-    mode_block(mode);
-    sched_block(scans, network.getStations(), sources, mode);
+    mode_block(obsModes);
+    sched_block(scans, network.getStations(), sources, obsModes);
 
     sites_block(network.getStations());
     antenna_block(network.getStations());
@@ -55,10 +55,10 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
 
     source_block(sources);
 
-    bbc_block(mode);
-    if_block(mode);
-    tracks_block(mode);
-    freq_block(mode);
+    bbc_block(obsModes);
+    if_block(obsModes);
+    tracks_block(obsModes);
+    freq_block(obsModes);
 
     pass_order_block();
     roll_block();
@@ -286,7 +286,7 @@ void Vex::phase_cal_detect_block() {
 }
 
 void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station> &stations,
-                      const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode) {
+                      const std::vector<Source> &sources, const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
@@ -323,7 +323,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
         boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         of << "    scan " << scanId << eol;
         of << "        start = " << TimeSystem::ptime2string_doy_units(scanStart) << eol;
-        of << "        mode = " << mode->getName() << eol;
+        of << "        mode = " << obsModes->getMode(0)->getName() << eol;
         of << "        source = " << sources.at(srcid).getName() << eol;
 
         const auto &times = scan.getTimes();
@@ -358,57 +358,57 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     }
 }
 
-void Vex::mode_block(const std::shared_ptr<const Mode> &mode) {
+void Vex::mode_block(const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$MODE;\n";
     of << "*=========================================================================================================\n";
 
-    mode->toVexModeBlock(of);
+    obsModes->toVexModeBlock(of);
 }
 
-void Vex::freq_block(const std::shared_ptr<const Mode> &mode) {
+void Vex::freq_block(const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$FREQ;\n";
     of << "*=========================================================================================================\n";
-    if(!Mode::simple) {
-        mode->toVexFreqBlock( of );
+    if(!ObsModes::simple) {
+        obsModes->toVexFreqBlock( of );
     }else{
         of << "simple observation mode used!";
     }
 }
 
-void Vex::bbc_block(const std::shared_ptr<const Mode> &mode) {
+void Vex::bbc_block(const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$BBC;\n";
     of << "*=========================================================================================================\n";
-    if(!Mode::simple) {
-        mode->toVexBbcBlock( of );
+    if(!ObsModes::simple) {
+        obsModes->toVexBbcBlock( of );
     }else{
         of << "simple observation mode used!";
     }
 
 }
 
-void Vex::if_block(const std::shared_ptr<const Mode> &mode) {
+void Vex::if_block(const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$IF;\n";
     of << "*=========================================================================================================\n";
 //    of << "* WARNING: Polarization, Phase-cal frequency interval and Phase-cal frequency is hard coded!\n";
-    if(!Mode::simple) {
+    if(!ObsModes::simple) {
 
-        mode->toVexIfBlock( of );
+        obsModes->toVexIfBlock( of );
 
     }else{
         of << "simple observation mode used!";
     }
 }
 
-void Vex::tracks_block(const std::shared_ptr<const Mode> &mode) {
+void Vex::tracks_block(const std::shared_ptr<const ObsModes> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$TRACKS;\n";
     of << "*=========================================================================================================\n";
-    if(!Mode::simple) {
-        mode->toVexTracksBlock( of );
+    if(!ObsModes::simple) {
+        obsModes->toVexTracksBlock( of );
     }else{
         of << "simple observation mode used!";
     }
