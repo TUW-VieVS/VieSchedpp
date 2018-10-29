@@ -82,6 +82,9 @@ namespace VieVS{
 
         void readFromSkedCatalogs(const SkdCatalogReader &skd);
 
+        void simpleMode( unsigned long nsta, double samplerate, unsigned int bits,
+                const std::unordered_map<std::string, unsigned int> &band2channel,
+                const std::unordered_map<std::string, double> &band2wavelength );
 
         void addMode(const std::shared_ptr<const Mode> &newMode){
             modes_.push_back(newMode);
@@ -98,7 +101,7 @@ namespace VieVS{
         void addFreq(const std::shared_ptr<const Freq> &newFreq){
             freqs_.push_back(newFreq);
             const auto &tmp = newFreq->getBands();
-            ObservingMode::bands.insert(tmp.begin(), tmp.end());
+            ObservingMode::bands_.insert(tmp.begin(), tmp.end());
         }
 
         void addTrack(const std::shared_ptr<const Track> &newTrack){
@@ -128,18 +131,18 @@ namespace VieVS{
         void calcMeanFrequencies();
 
         const std::set<std::string> &getAllBands() const{
-            return bands;
+            return bands_;
         }
 
         double getWavelength(const std::string &band) const{
-            return wavelength.at(band);
+            return wavelength_.at(band);
         }
 
     private:
         static unsigned long nextId;
         std::vector<std::string> stationNames_;
-        std::set<std::string> bands;
-        std::unordered_map<std::string, double> wavelength;
+        std::set<std::string> bands_;
+        std::unordered_map<std::string, double> wavelength_;
 
 
         std::vector<std::shared_ptr<const Mode>> modes_;

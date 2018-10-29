@@ -904,17 +904,17 @@ void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     mode.add("mode.sampleRate", sampleRate);
     mode.add("mode.bits", bits);
 
-    master_.add_child("VieSchedpp.mode", mode.get_child("mode"));
+    master_.add_child("VieSchedpp.mode.simple", mode.get_child("mode"));
 }
 
-void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int chanels) {
+void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int channels) {
     boost::property_tree::ptree band;
     band.add("band.wavelength", wavelength);
-    band.add("band.chanels", chanels);
+    band.add("band.channels", channels);
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("VieSchedpp.mode.bands.band", band.get_child("band"));
+    master_.add_child("VieSchedpp.mode.simple.bands.band", band.get_child("band"));
 }
 
 void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,

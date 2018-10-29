@@ -2038,42 +2038,37 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             ObservingMode::sourceBackup = sourceBackup;
             ObservingMode::sourceBackupValue = sourceBackupValue;
 
-        } else if (it.first == "sampleRate") {
-//            ObservationMode::sampleRate = it.second.get_value<double>();
-//            #ifdef VIESCHEDPP_LOG
-//            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "sample rate set to " << it.second.get_value<double>();
-//            #endif
+        } else if (it.first == "simple") {
 
-        } else if(it.first == "bits"){
-//            ObservationMode::bits = it.second.get_value<unsigned int>();
-//            #ifdef VIESCHEDPP_LOG
-//            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "bits set to " << it.second.get_value<unsigned int>();
-//            #endif
-        } else if(it.first == "bands"){
-//            ObservationMode::manual = true;
-//            for(const auto &itt: it.second){
-//                double wavelength;
-//                unsigned int channels;
-//                string name;
-//
-//                for (const auto &it_band:itt.second){
-//
-//                    if(it_band.first == "<xmlattr>"){
-//                        name = it_band.second.get_child("name").data();
-//                    }else if(it_band.first == "wavelength"){
-//                        wavelength = it_band.second.get_value<double>();
-//                    }else if(it_band.first == "chanels"){
-//                        channels = it_band.second.get_value<unsigned int>();
-//                    }
-//                }
-//                ObservationMode::bands.push_back(name);
-//                #ifdef VIESCHEDPP_LOG
-//                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "band '" << name << "' (" << wavelength << " [m]) added with " << channels << " channels";
-//                #endif
-//
-//                ObservationMode::nChannels[name] = channels;
-//                ObservationMode::wavelength[name] = wavelength;
-//            }
+            ObservingMode::simple = true;
+
+            auto samplerate = it.second.get<double>("sampleRate");
+            auto bits = it.second.get<unsigned int>("bits");
+
+            std::unordered_map<string, unsigned int> band2channel;
+            std::unordered_map<string, double> band2wavelength;
+
+            for(const auto &band : it.second.get_child("bands")){
+                auto wavelength = band.second.get<double>("wavelength");
+                auto channels = band.second.get<unsigned int>("channels");
+
+                string name = band.second.get<string>("<xmlattr>.name");
+
+                band2channel[name] = channels;
+                band2wavelength[name] = wavelength;
+            }
+
+            obsModes_ = std::make_shared<ObservingMode>();
+            obsModes_->simpleMode(util::getNumberOfStations(xml_), samplerate, bits, band2channel, band2wavelength);
+
+            #ifdef VIESCHEDPP_LOG
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "sample rate set to " << it.second.get_value<double>();
+            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "bits set to " << it.second.get_value<unsigned int>();
+            for(const auto &any : band2channel){
+                if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "band " << any.first << " mean wavelenght " << band2wavelength[any.first] << " [MHz] channels " << any.second;
+            }
+            #endif
+
         }else if(it.first == "bandPolicies"){
 
             for (const auto &it_bandPolicies:it.second){

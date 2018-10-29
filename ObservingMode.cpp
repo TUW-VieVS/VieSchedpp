@@ -42,6 +42,22 @@ void ObservingMode::readFromSkedCatalogs(const SkdCatalogReader &skd) {
 }
 
 
+void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned int bits,
+        const std::unordered_map<std::string, unsigned int> &band2channel,
+        const std::unordered_map<std::string, double> &band2wavelength) {
+
+    auto mode = make_shared<Mode>("simple", nsta);
+
+    for(const auto &any : band2channel){
+        bands_.insert(any.first);
+        double recRate = samplerate * bits * any.second * 1e6;
+        mode->calcRecordingRates(any.first, recRate);
+    }
+
+    mode->setBands(bands_);
+    addMode(mode);
+    wavelength_ = band2wavelength;
+}
 
 void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc) {
 
@@ -51,7 +67,6 @@ void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCata
     vector<unsigned long> freqIds = vector<unsigned long>(staNames.size());
     std::iota(freqIds.begin(),freqIds.end(), 0);
     auto thisFreq = make_shared<Freq>(freqName);
-
 
     thisFreq->setSampleRate(skd.getSampleRate());
     const double bandwidth = skd.getBandWidth();
@@ -418,10 +433,10 @@ void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
 void ObservingMode::summary(std::ofstream &of) const {
 
     of << "Summary of observing mode(s):\n";
-    for(const auto &band : bands){
+    for(const auto &band : bands_){
         double meanFrequency = 0;
-        auto it = wavelength.find(band);
-        if(it == wavelength.end()){
+        auto it = wavelength_.find(band);
+        if(it == wavelength_.end()){
             continue;
         }else{
             meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
@@ -437,7 +452,7 @@ void ObservingMode::summary(std::ofstream &of) const {
 
 void ObservingMode::calcMeanFrequencies() {
 
-    for(const auto &band : bands){
+    for(const auto &band : bands_){
         vector<double> frequencies;
         for(const auto &freq : freqs_){
             auto tmp = freq->getFrequencies(band);
@@ -446,7 +461,7 @@ void ObservingMode::calcMeanFrequencies() {
 
         double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
         double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
-        wavelength[band] = meanWavelength;
+        wavelength_[band] = meanWavelength;
     }
 
 }

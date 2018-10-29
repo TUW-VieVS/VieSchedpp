@@ -56,6 +56,16 @@ void Mode::calcRecordingRates() {
     }
 }
 
+void Mode::calcRecordingRates(const std::string &band, double recRate) {
+    for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
+        for(unsigned long staid2 = staid1+1; staid2 < nsta_; ++staid2){
+            staids2recordingRate_[{staid1, staid2}][band] = recRate;
+        }
+    }
+}
+
+
+
 boost::optional<const std::shared_ptr<const If> &> Mode::getIf(unsigned long staid) const {
     for(const auto &any: ifs_){
         if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
@@ -107,7 +117,6 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
 
     for(const auto &band : bands_){
 
-
         std::map<double, vector<string>> rate2baseline;
         for(unsigned long staid1=0; staid1<nsta_; ++staid1){
             for(unsigned long staid2=staid1+1; staid2<nsta_; ++staid2){
@@ -129,7 +138,7 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
         }
 
         for(const auto &any : rate2baseline){
-            string title = (boost::format("        band: %2s recording rate: %7.2f [MHz/s]") % band % (any.first *1e-6)).str();
+            string title = (boost::format("        band: %2s recording rate: %7.2f [Mbit/s]") % band % (any.first *1e-6)).str();
             util::outputObjectList(title, any.second, of, 12);
         }
     }

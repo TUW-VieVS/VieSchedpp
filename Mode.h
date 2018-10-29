@@ -79,6 +79,12 @@ namespace VieVS{
 
         void calcRecordingRates();
 
+        void calcRecordingRates(const std::string &band, double recRate);
+
+        void setBands(const std::set<std::string> &bands){
+            bands_ = bands;
+        }
+
         double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
 
         boost::optional<const std::shared_ptr<const If> &>getIf(unsigned long staid) const;
