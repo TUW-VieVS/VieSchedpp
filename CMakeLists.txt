@@ -84,7 +84,7 @@ set(SOURCE_FILES
         Bbc.cpp Bbc.h
         If.cpp If.h
         Track.cpp Track.h
-        Freq.cpp Freq.h ObsModes.cpp ObsModes.h)
+        Freq.cpp Freq.h ObservingMode.cpp ObservingMode.h)
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 

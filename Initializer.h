@@ -67,7 +67,7 @@
 #include "Flux_B.h"
 #include "Flux_M.h"
 #include "HighImpactScanDescriptor.h"
-#include "ObsModes.h"
+#include "ObservingMode.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -322,7 +322,7 @@ namespace VieVS {
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
         std::vector<Source> sources_; ///< list of all sources
         Network network_; ///< station network
-        std::shared_ptr<ObsModes> obsModes_ = nullptr; ///< observing mode
+        std::shared_ptr<ObservingMode> obsModes_ = nullptr; ///< observing mode
 
         Parameters parameters_; ///< parameters
         PRECALC preCalculated_; ///< pre calculated values

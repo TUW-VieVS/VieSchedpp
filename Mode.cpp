@@ -56,7 +56,7 @@ void Mode::calcRecordingRates() {
     }
 }
 
-boost::optional<std::shared_ptr<const If>> Mode::getIf(unsigned long staid) const {
+boost::optional<const std::shared_ptr<const If> &> Mode::getIf(unsigned long staid) const {
     for(const auto &any: ifs_){
         if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
@@ -65,7 +65,7 @@ boost::optional<std::shared_ptr<const If>> Mode::getIf(unsigned long staid) cons
     return boost::none;
 }
 
-boost::optional<const std::shared_ptr<const If> &> Mode::getBbc(unsigned long staid) const {
+boost::optional<const std::shared_ptr<const Bbc> &> Mode::getBbc(unsigned long staid) const {
     for(const auto &any: bbcs_){
         if(find(any.second.begin(), any.second.end(), staid) != any.second.end()){
             return any.first;
@@ -103,17 +103,10 @@ boost::optional<const std::shared_ptr<const std::string> &> Mode::getTrackFrameF
 
 void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) const{
 
-    of << "observing mode: " << getName() << "\n";
+    of << "  observing mode: " << getName() << ":\n";
 
     for(const auto &band : bands_){
 
-        double meanFrequency = 0;
-        auto it = band2meanWavelength_.find(band);
-        if(it == band2meanWavelength_.end()){
-            continue;
-        }else{
-            meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
-        }
 
         std::map<double, vector<string>> rate2baseline;
         for(unsigned long staid1=0; staid1<nsta_; ++staid1){
@@ -136,7 +129,7 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
         }
 
         for(const auto &any : rate2baseline){
-            string title = (boost::format("band: %2s (%8.2f [MHz]) recording rate: %7.2f [MHz/s]") % band % meanFrequency % (any.first *1e-6)).str();
+            string title = (boost::format("  band: %2s recording rate: %7.2f [MHz/s]") % band % (any.first *1e-6)).str();
             util::outputObjectList(title, any.second, of);
         }
     }
@@ -324,17 +317,3 @@ void Mode::toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> 
 }
 
 
-void Mode::calcMeanWavelength() {
-
-    for(const auto &band : bands_){
-        vector<double> frequencies;
-        for(const auto &freq : freqs_){
-            auto tmp = freq.first->getFrequencies(band);
-            frequencies.insert(frequencies.end(), tmp.begin(), tmp.end());
-        }
-
-        double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
-        double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
-        band2meanWavelength_[band] = meanWavelength;
-    }
-}

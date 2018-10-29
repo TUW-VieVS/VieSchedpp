@@ -28,7 +28,7 @@ Vex::Vex(const string &file): VieVS_Object(nextId++){
 
 
 void Vex::writeVex(const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
-                   const std::shared_ptr<const ObsModes> &obsModes, const boost::property_tree::ptree &xml) {
+                   const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml) {
 
     global_block(xml.get("VieSchedpp.general.experimentName","schedule"));
 
@@ -286,7 +286,7 @@ void Vex::phase_cal_detect_block() {
 }
 
 void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station> &stations,
-                      const std::vector<Source> &sources, const std::shared_ptr<const ObsModes> &obsModes) {
+                      const std::vector<Source> &sources, const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
@@ -358,7 +358,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
     }
 }
 
-void Vex::mode_block(const std::shared_ptr<const ObsModes> &obsModes) {
+void Vex::mode_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$MODE;\n";
     of << "*=========================================================================================================\n";
@@ -366,22 +366,22 @@ void Vex::mode_block(const std::shared_ptr<const ObsModes> &obsModes) {
     obsModes->toVexModeBlock(of);
 }
 
-void Vex::freq_block(const std::shared_ptr<const ObsModes> &obsModes) {
+void Vex::freq_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$FREQ;\n";
     of << "*=========================================================================================================\n";
-    if(!ObsModes::simple) {
+    if(!ObservingMode::simple) {
         obsModes->toVexFreqBlock( of );
     }else{
         of << "simple observation mode used!";
     }
 }
 
-void Vex::bbc_block(const std::shared_ptr<const ObsModes> &obsModes) {
+void Vex::bbc_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$BBC;\n";
     of << "*=========================================================================================================\n";
-    if(!ObsModes::simple) {
+    if(!ObservingMode::simple) {
         obsModes->toVexBbcBlock( of );
     }else{
         of << "simple observation mode used!";
@@ -389,12 +389,12 @@ void Vex::bbc_block(const std::shared_ptr<const ObsModes> &obsModes) {
 
 }
 
-void Vex::if_block(const std::shared_ptr<const ObsModes> &obsModes) {
+void Vex::if_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$IF;\n";
     of << "*=========================================================================================================\n";
 //    of << "* WARNING: Polarization, Phase-cal frequency interval and Phase-cal frequency is hard coded!\n";
-    if(!ObsModes::simple) {
+    if(!ObservingMode::simple) {
 
         obsModes->toVexIfBlock( of );
 
@@ -403,11 +403,11 @@ void Vex::if_block(const std::shared_ptr<const ObsModes> &obsModes) {
     }
 }
 
-void Vex::tracks_block(const std::shared_ptr<const ObsModes> &obsModes) {
+void Vex::tracks_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$TRACKS;\n";
     of << "*=========================================================================================================\n";
-    if(!ObsModes::simple) {
+    if(!ObservingMode::simple) {
         obsModes->toVexTracksBlock( of );
     }else{
         of << "simple observation mode used!";

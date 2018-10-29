@@ -209,8 +209,8 @@ void SkdParser::read() {
     path.append("/skdParser.log");
     ofstream of(path);
 
-    Mode::bands.insert("X");
-    Mode::bands.insert("S");
+//    Mode::bands.insert("X");
+//    Mode::bands.insert("S");
 
     init.createSources(skd_, of);
     init.createStations(skd_, of);

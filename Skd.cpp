@@ -17,6 +17,8 @@
  */
 
 #include "Skd.h"
+#include "ObservingMode.h"
+
 using namespace std;
 using namespace VieVS;
 
@@ -574,7 +576,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
     of << "$CODES\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    if(!Mode::simple) {
+    if(!ObservingMode::simple) {
 
         unsigned long nchannels = skd.getChannelNumber2band().size();
         const std::map<std::string, char> &olc = skd.getOneLetterCode();

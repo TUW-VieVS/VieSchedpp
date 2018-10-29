@@ -22,15 +22,15 @@
 #include "Mode.h"
 
 /**
-* @file ObsModes.h
-* @brief class observing modes
+* @file ObservingMode.h
+* @brief class observing mode
 *
 * @author Matthias Schartner
 * @date 27.10.2018
 */
 namespace VieVS{
     /**
-     * @class Mode
+     * @class ObservingMode
      * @brief observing modes
      *
      * CURRENTLY UNDER DEVELOPMENT
@@ -38,7 +38,7 @@ namespace VieVS{
      * @author Matthias Schartner
      * @date 27.10.2018
      */
-    class ObsModes : public VieVS_Object {
+    class ObservingMode : public VieVS_Object {
     public:
         /**
          * @brief all possible flux information type
@@ -61,7 +61,6 @@ namespace VieVS{
         };
 
         static bool simple; ///< flag if manual observation mode was selected
-        static std::set<std::string> bands;
 
         static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
 
@@ -73,7 +72,9 @@ namespace VieVS{
         static std::unordered_map<std::string, Backup> sourceBackup; ///< backup version for source
         static std::unordered_map<std::string, double> sourceBackupValue; ///< backup value for source
 
-        ObsModes();
+
+
+        ObservingMode();
 
         void setStationNames(const std::vector<std::string> &names){
             stationNames_ = names;
@@ -97,7 +98,7 @@ namespace VieVS{
         void addFreq(const std::shared_ptr<const Freq> &newFreq){
             freqs_.push_back(newFreq);
             const auto &tmp = newFreq->getBands();
-            ObsModes::bands.insert(tmp.begin(), tmp.end());
+            ObservingMode::bands.insert(tmp.begin(), tmp.end());
         }
 
         void addTrack(const std::shared_ptr<const Track> &newTrack){
@@ -105,7 +106,7 @@ namespace VieVS{
         }
 
         void addTrackFrameFormat(const std::string &newTrackFrameFormat){
-            trackFrameFormats_.emplace_back(newTrackFrameFormat);
+            trackFrameFormats_.emplace_back(std::make_shared<const std::string>(newTrackFrameFormat));
         }
 
         const std::shared_ptr<const Mode> &getMode(unsigned long id) const{
@@ -124,9 +125,22 @@ namespace VieVS{
 
         void summary(std::ofstream &of) const;
 
+        void calcMeanFrequencies();
+
+        const std::set<std::string> &getAllBands() const{
+            return bands;
+        }
+
+        double getWavelength(const std::string &band) const{
+            return wavelength.at(band);
+        }
+
     private:
         static unsigned long nextId;
         std::vector<std::string> stationNames_;
+        std::set<std::string> bands;
+        std::unordered_map<std::string, double> wavelength;
+
 
         std::vector<std::shared_ptr<const Mode>> modes_;
         std::vector<std::shared_ptr<const If>> ifs_;

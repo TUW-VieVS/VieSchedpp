@@ -81,8 +81,6 @@ namespace VieVS{
 
         double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
 
-        void calcMeanWavelength();
-
         boost::optional<const std::shared_ptr<const If> &>getIf(unsigned long staid) const;
 
         boost::optional<const std::shared_ptr<const Bbc> &>getBbc(unsigned long staid) const;
@@ -108,6 +106,10 @@ namespace VieVS{
 
         void toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> &stations) const;
 
+        const std::set<std::string> getAllBands() const{
+            return bands_;
+        }
+
     private:
         static unsigned long nextId;
 
@@ -126,7 +128,6 @@ namespace VieVS{
 
 
         std::set<std::string> bands_;
-        std::unordered_map<std::string, double> band2meanWavelength_;
 
     };
 

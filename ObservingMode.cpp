@@ -2,34 +2,33 @@
 // Created by matth on 27.10.2018.
 //
 
-#include "ObsModes.h"
+#include "ObservingMode.h"
 
 using namespace VieVS;
 using namespace std;
 
-unsigned long VieVS::ObsModes::nextId = 0;
+unsigned long VieVS::ObservingMode::nextId = 0;
 
-bool VieVS::ObsModes::simple = false;
-std::set<std::string> VieVS::ObsModes::bands;
+bool VieVS::ObservingMode::simple = false;
 
-std::unordered_map<std::string, double> VieVS::ObsModes::minSNR;                             ///< backup min SNR
+std::unordered_map<std::string, double> VieVS::ObservingMode::minSNR;                             ///< backup min SNR
 
-std::unordered_map<std::string, VieVS::ObsModes::Property> VieVS::ObsModes::stationProperty; ///< is band required or optional for station
-std::unordered_map<std::string, VieVS::ObsModes::Backup> VieVS::ObsModes::stationBackup;     ///< backup version for station
-std::unordered_map<std::string, double> VieVS::ObsModes::stationBackupValue;                 ///< backup value for station
+std::unordered_map<std::string, VieVS::ObservingMode::Property> VieVS::ObservingMode::stationProperty; ///< is band required or optional for station
+std::unordered_map<std::string, VieVS::ObservingMode::Backup> VieVS::ObservingMode::stationBackup;     ///< backup version for station
+std::unordered_map<std::string, double> VieVS::ObservingMode::stationBackupValue;                 ///< backup value for station
 
-std::unordered_map<std::string, VieVS::ObsModes::Property> VieVS::ObsModes::sourceProperty;  ///< is band required or optional for source
-std::unordered_map<std::string, VieVS::ObsModes::Backup> VieVS::ObsModes::sourceBackup;      ///< backup version for source
-std::unordered_map<std::string, double> VieVS::ObsModes::sourceBackupValue;                  ///< backup value for source
+std::unordered_map<std::string, VieVS::ObservingMode::Property> VieVS::ObservingMode::sourceProperty;  ///< is band required or optional for source
+std::unordered_map<std::string, VieVS::ObservingMode::Backup> VieVS::ObservingMode::sourceBackup;      ///< backup version for source
+std::unordered_map<std::string, double> VieVS::ObservingMode::sourceBackupValue;                  ///< backup value for source
 
-ObsModes::ObsModes(): VieVS_Object(nextId++) {
+ObservingMode::ObservingMode(): VieVS_Object(nextId++) {
 
 }
 
 
-void ObsModes::readFromSkedCatalogs(const SkdCatalogReader &skd) {
+void ObservingMode::readFromSkedCatalogs(const SkdCatalogReader &skd) {
 
-    auto mode = make_shared<Mode>(skd.getModeName());
+    auto mode = make_shared<Mode>(skd.getModeName(), skd.getStaNames().size());
 
     const auto &channelNr2Bbc = readSkdTracks(mode, skd);
     readSkdFreq(mode, skd, channelNr2Bbc);
@@ -37,13 +36,14 @@ void ObsModes::readFromSkedCatalogs(const SkdCatalogReader &skd) {
     readSkdBbc(mode, skd);
     readSkdTrackFrameFormat(mode, skd);
     mode->calcRecordingRates();
-    mode->calcMeanWavelength();
 
     addMode(mode);
+    calcMeanFrequencies();
 }
 
 
-void ObsModes::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc) {
+
+void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc) {
 
     const auto &staNames = skd.getStaNames();
 
@@ -78,7 +78,7 @@ void ObsModes::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCatalogRe
     mode->addFreq(thisFreq, freqIds);
 }
 
-std::map<int,int> ObsModes::readSkdTracks(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
+std::map<int,int> ObservingMode::readSkdTracks(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
     const auto &staNames = skd.getStaNames();
     std::map<int,int> channelNr2Bbc;
 
@@ -177,7 +177,7 @@ std::map<int,int> ObsModes::readSkdTracks(const std::shared_ptr<Mode> &mode, con
     return channelNr2Bbc;
 }
 
-void ObsModes::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
+void ObservingMode::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
 
     const auto &staNames = skd.getStaNames();
     const auto &staName2loifId = skd.getStaName2loifId();
@@ -232,7 +232,7 @@ void ObsModes::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalogRead
     }
 }
 
-void ObsModes::readSkdBbc(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
+void ObservingMode::readSkdBbc(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
 
     const auto &staNames = skd.getStaNames();
     const auto &staName2loifId = skd.getStaName2loifId();
@@ -268,7 +268,7 @@ void ObsModes::readSkdBbc(const std::shared_ptr<Mode> &mode, const SkdCatalogRea
     }
 }
 
-void ObsModes::readSkdTrackFrameFormat(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
+void ObservingMode::readSkdTrackFrameFormat(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
 
     const auto &staNames = skd.getStaNames();
 
@@ -311,14 +311,14 @@ void ObsModes::readSkdTrackFrameFormat(const std::shared_ptr<Mode> &mode, const 
 
 }
 
-void ObsModes::toVexModeBlock(std::ofstream &of) const {
+void ObservingMode::toVexModeBlock(std::ofstream &of) const {
     for(const auto &any : modes_){
         any->toVexModeDefiniton(of, stationNames_);
     }
 }
 
 
-void ObsModes::toVexFreqBlock(std::ofstream &of) const {
+void ObservingMode::toVexFreqBlock(std::ofstream &of) const {
 
     for(const auto &any : freqs_){
         string c = "* ";
@@ -337,7 +337,7 @@ void ObsModes::toVexFreqBlock(std::ofstream &of) const {
     }
 }
 
-void ObsModes::toVexBbcBlock(std::ofstream &of) const {
+void ObservingMode::toVexBbcBlock(std::ofstream &of) const {
 
     for(const auto &any : bbcs_){
         string c = "* ";
@@ -356,7 +356,7 @@ void ObsModes::toVexBbcBlock(std::ofstream &of) const {
     }
 }
 
-void ObsModes::toVexIfBlock(std::ofstream &of) const {
+void ObservingMode::toVexIfBlock(std::ofstream &of) const {
 
     for(const auto &any : ifs_){
         string c = "* ";
@@ -376,7 +376,7 @@ void ObsModes::toVexIfBlock(std::ofstream &of) const {
     }
 }
 
-void ObsModes::toVexTracksBlock(std::ofstream &of) const {
+void ObservingMode::toVexTracksBlock(std::ofstream &of) const {
 
     for(const auto &any : tracks_){
         string c = "* ";
@@ -395,7 +395,7 @@ void ObsModes::toVexTracksBlock(std::ofstream &of) const {
     toTrackFrameFormatDefinitions( of );
 }
 
-void ObsModes::toTrackFrameFormatDefinitions(std::ofstream &of) const {
+void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
     for(const auto &any : trackFrameFormats_){
         string c = "* ";
         for (const auto &mode : modes_) {
@@ -415,9 +415,39 @@ void ObsModes::toTrackFrameFormatDefinitions(std::ofstream &of) const {
     }
 }
 
-void ObsModes::summary(std::ofstream &of) const {
+void ObservingMode::summary(std::ofstream &of) const {
+
+    of << "Summary of observing mode(s):\n";
+    for(const auto &band : bands){
+        double meanFrequency = 0;
+        auto it = wavelength.find(band);
+        if(it == wavelength.end()){
+            continue;
+        }else{
+            meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
+        }
+        of << boost::format("    band %2s mean frequency %9.3f [MHz]\n") % band %meanFrequency;
+    }
+    of << "\n";
+
     for (const auto &any : modes_) {
         any->summary(of, stationNames_);
     }
+}
+
+void ObservingMode::calcMeanFrequencies() {
+
+    for(const auto &band : bands){
+        vector<double> frequencies;
+        for(const auto &freq : freqs_){
+            auto tmp = freq->getFrequencies(band);
+            frequencies.insert(frequencies.end(), tmp.begin(), tmp.end());
+        }
+
+        double meanFrequency = std::accumulate(frequencies.begin(),frequencies.end(),0.0)/frequencies.size();
+        double meanWavelength = util::freqency2wavelenth(meanFrequency*1e6);
+        wavelength[band] = meanWavelength;
+    }
+
 }
 

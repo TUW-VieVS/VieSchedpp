@@ -29,7 +29,7 @@
 
 #include "Station.h"
 #include "Scan.h"
-#include "ObsModes.h"
+#include "ObservingMode.h"
 
 namespace VieVS {
 
@@ -63,7 +63,7 @@ namespace VieVS {
          * @param xml paramters.xml file
          */
         void writeVex(const Network &network, const std::vector<Source>& sources, const std::vector<Scan> & scans,
-                      const std::shared_ptr<const ObsModes> &obsModes, const boost::property_tree::ptree &xml);
+                      const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml);
 
 
     private:
@@ -150,7 +150,7 @@ namespace VieVS {
          *
          * @param obsModes observing mode
          */
-        void mode_block(const std::shared_ptr<const ObsModes> &obsModes);
+        void mode_block(const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief write vex $FREQ block
@@ -159,7 +159,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
-        void freq_block(const std::shared_ptr<const ObsModes> &obsModes);
+        void freq_block(const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief write vex $BBC block
@@ -168,7 +168,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
-        void bbc_block(const std::shared_ptr<const ObsModes> &obsModes);
+        void bbc_block(const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief write vex $IF block
@@ -177,7 +177,7 @@ namespace VieVS {
          * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
-        void if_block(const std::shared_ptr<const ObsModes> &obsModes);
+        void if_block(const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief write vex $TRACKS block
@@ -185,7 +185,7 @@ namespace VieVS {
          *
          * @param obsModes observing mode
          */
-        void tracks_block(const std::shared_ptr<const ObsModes> &obsModes);
+        void tracks_block(const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief write vex head block (deprecated)
@@ -221,7 +221,7 @@ namespace VieVS {
          * @param obsModes observing mode
          */
         void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
-                         const std::vector<Source>& sources, const std::shared_ptr<const ObsModes> &obsModes);
+                         const std::vector<Source>& sources, const std::shared_ptr<const ObservingMode> &obsModes);
 
     };
 }

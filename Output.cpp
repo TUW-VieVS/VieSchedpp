@@ -1156,6 +1156,7 @@ void Output::writeOperationsNotes() {
     displayBaselineStatistics(of);
     displayStationStatistics(of);
     displaySourceStatistics(of);
+    obsModes_->summary(of);
     displayNstaStatistics(of);
     displayScanDurationStatistics(of);
     displayAstronomicalParameters(of);
