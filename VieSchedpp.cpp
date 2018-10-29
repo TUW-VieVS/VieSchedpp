@@ -38,7 +38,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     boost::property_tree::read_xml(is, xml_, boost::property_tree::xml_parser::trim_whitespace);
 
     try {
-        fileName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName","dummy"));
+        sessionName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName","dummy"));
     } catch(const boost::property_tree::ptree_error &e){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
@@ -78,17 +78,16 @@ void VieSchedpp::run() {
     cout << "[info] writing initializer output to: initializer.txt";
     #endif
 
-    ofstream of(path_+"initializer.txt");
+    ofstream of;
+    if(xml_.get("VieSchedpp.output.initializer",true)){
+        of.open(path_ + sessionName_ + "_initializer.txt");
+    }
+
     ofstream statisticsOf(path_+"statistics.csv");
 
     // initialize skd catalogs and lookup table
     readSkdCatalogs();
     LookupTable::initialize();
-
-//    Mode mode(skdCatalogs_.getModeName(), util::getNumberOfStations(xml_));
-//    mode.readFromSkedCatalogs(skdCatalogs_);
-//    mode.calcRecordingRates();
-//    mode.calcMeanWavelength();
 
     // initialize all Parameters
     init.initializeGeneral( of );
@@ -190,7 +189,7 @@ void VieSchedpp::run() {
         }
 
         // get file name
-        string fname = fileName_;
+        string fname = sessionName_;
 
         // if you have multi schedule append version number to file name
         if (flag_multiSched) {

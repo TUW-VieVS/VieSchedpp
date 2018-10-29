@@ -361,7 +361,10 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 void Scheduler::start() noexcept {
 
     string fileName = getName()+"_iteration_"+to_string(parameters_.currentIteration)+".txt";
-    ofstream of(path_ + fileName);
+    ofstream of;
+    if(xml_.get("VieSchedpp.output.iteration_log",true)) {
+        of.open(path_ + fileName);
+    }
 
     if(network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0){
         string e = (boost::format("ERROR: number of stations: %d number of baselines: %d number of sources: %d;\n")

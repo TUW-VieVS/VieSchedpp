@@ -100,7 +100,7 @@ namespace VieVS {
     private:
         std::string inputFile_; ///< VieSchedpp.xml file
         std::string path_; ///< path to VieSchedpp.xml file
-        std::string fileName_; ///< session name
+        std::string sessionName_; ///< session name
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         SkdCatalogReader skdCatalogs_; ///< sked catalogs
