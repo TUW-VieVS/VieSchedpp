@@ -79,7 +79,7 @@ void VieSchedpp::run() {
     #endif
 
     ofstream of;
-    if(xml_.get("VieSchedpp.output.initializer",true)){
+    if(xml_.get("VieSchedpp.output.initializer_log",true)){
         of.open(path_ + sessionName_ + "_initializer.txt");
     }
 
