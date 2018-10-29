@@ -1146,6 +1146,8 @@ void Output::writeOperationsNotes() {
     of << ".---------------------.\n";
     of << "| scheduled stations: |\n";
     of << "|---------------------|\n";
+    of << "| Name         |  Id  |\n";
+    of << "|---------------------|\n";
     for (const auto &any:network_.getStations()){
         of << boost::format("| %-8s     |  %2s  |\n") %any.getName() %any.getAlternativeName();
     }
@@ -1157,6 +1159,7 @@ void Output::writeOperationsNotes() {
     displayStationStatistics(of);
     displaySourceStatistics(of);
     obsModes_->summary(of);
+    of << "\n";
     displayNstaStatistics(of);
     displayScanDurationStatistics(of);
     displayAstronomicalParameters(of);

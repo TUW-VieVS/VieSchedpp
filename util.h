@@ -222,8 +222,9 @@ namespace VieVS{
          * @param title output title
          * @param names object names
          * @param of outstream object
+         * @param indents number of indents
          */
-        void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of);
+        void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of, unsigned long indents = 4);
     }
 }
 

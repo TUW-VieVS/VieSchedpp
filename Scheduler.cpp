@@ -897,7 +897,6 @@ void Scheduler::listSourceOverview(ofstream &of) noexcept {
     util::outputObjectList("not available because of optimization",notAvailable_optimization,of);
     util::outputObjectList("not available because too weak",notAvailable_tooWeak,of);
     util::outputObjectList("not available because of sun distance",notAvailable_tooCloseToSun,of);
-
 }
 
 void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
@@ -1234,6 +1233,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         of << "==========================================================================================\n";
 
         util::outputObjectList("List of removed sources",excludedSources,of);
+        of << "\n";
 
         scans_.clear();
         for(auto &any:network_.refStations()){

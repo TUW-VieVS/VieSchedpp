@@ -103,7 +103,7 @@ boost::optional<const std::shared_ptr<const std::string> &> Mode::getTrackFrameF
 
 void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) const{
 
-    of << "  observing mode: " << getName() << ":\n";
+    of << "    observing mode: " << getName() << ":\n";
 
     for(const auto &band : bands_){
 
@@ -129,8 +129,8 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
         }
 
         for(const auto &any : rate2baseline){
-            string title = (boost::format("  band: %2s recording rate: %7.2f [MHz/s]") % band % (any.first *1e-6)).str();
-            util::outputObjectList(title, any.second, of);
+            string title = (boost::format("        band: %2s recording rate: %7.2f [MHz/s]") % band % (any.first *1e-6)).str();
+            util::outputObjectList(title, any.second, of, 12);
         }
     }
 }

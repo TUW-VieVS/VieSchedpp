@@ -65,7 +65,9 @@ int util::duration(const boost::posix_time::ptime &start, const boost::posix_tim
     return static_cast<int>(a.total_seconds());
 }
 
-void util::outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of) {
+void util::outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of, unsigned long indents) {
+
+    string indent = string(indents,' ');
 
     if(!names.empty()){
 
@@ -76,20 +78,20 @@ void util::outputObjectList(const std::string &title, const std::vector<std::str
             }
         }
 
-        int n=0;
+        unsigned long n=0;
         if(longest != 0){
-            n = 100/longest;
+            n = (100-indents)/longest;
         }
         string format = (boost::format("%%%ds ")%longest).str();
 
-        of << title << ": (" << names.size() << ")\n    ";
+        of << title << ": (" << names.size() << ")\n" << indent;
         for(int i=0; i<names.size(); ++i){
             if(i%n==0 && i!=0 ){
-                of << "\n    ";
+                of << "\n" << indent;
             }
             of << boost::format(format)%names[i];
         }
-        of << "\n\n";
+        of << "\n";
     }
 
 }
