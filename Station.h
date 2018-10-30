@@ -534,6 +534,73 @@ namespace VieVS{
          */
         std::pair<std::vector<double>, std::vector<double>>  getHorizonMask() const noexcept;
 
+        /**
+         * @brief writes station defining block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file
+         */
+        void toVexStationBlock(std::ofstream &of) const;
+
+        /**
+         * @brief writes site defining block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file
+         */
+        void toVexSiteBlock(std::ofstream &of) const;
+
+        /**
+         * @brief writes antenna defining block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file
+         */
+        void toVexAntennaBlock(std::ofstream &of) const;
+
+
+        /**
+         * @brief getter for electronics rack type_
+         * @author Matthias Schartner
+         *
+         * @param of electronics rack type_
+         */
+        const std::string &getElectronics_rack_type_() const {
+            return electronics_rack_type_;
+        }
+
+        /**
+         * @brief getter for record transport type
+         * @author Matthias Schartner
+         *
+         * @param of record transport type
+         */
+        const std::string &getRecord_transport_type() const {
+            return record_transport_type_;
+        }
+
+        /**
+         * @brief getter for recording system id
+         * @author Matthias Schartner
+         *
+         * @param of recording system id
+         */
+        const std::string &getRecording_system_id() const {
+            return recording_system_id_;
+        }
+
+        /**
+         * @brief adds additional parameters such as hardware names and occupation code
+         * @author Matthias Schartner
+         *
+         * @param occupation_code occupation code
+         * @param record_transport_type record transport type
+         * @param electronics_rack_type electronics rack type
+         * @param recording_system_ID recording system ID
+         */
+        void addAdditionalParameters( std::string occupation_code, std::string record_transport_type,
+                                      std::string electronics_rack_type, std::string recording_system_ID);
+
     private:
         static unsigned long nextId; ///< next id for this object type
 
@@ -545,6 +612,12 @@ namespace VieVS{
         std::shared_ptr<WaitTimes> waitTimes_; ///< station wait times
         std::shared_ptr<std::vector<Event>> events_; ///< list of all events
 
+        std::string oneLetterCode_ = "_"; ///< one letter code for skd file
+        std::string electronics_rack_type_ = "unknown"; ///< electronics rack type (e.g.: "DBBC")
+        std::string record_transport_type_ = "unknown";  ///< record transport_type (e.g.: "MARK5B")
+        std::string recording_system_id_ = "unknown";    ///< recoring system id (e.g.: "Ke")
+        std::string occupation_code_ = "unknown";        ///< occupation code (e.g.: "72425901")
+
         Statistics statistics_; ///< station statistics
         std::vector< std::vector<PointingVector>> azelPrecalc_; ///< pre calculated azimuth elevation lookup table
 
@@ -555,7 +628,6 @@ namespace VieVS{
         int nScans_{0}; ///< number of participated scans
         int nTotalScans_{0}; ///< number of total scans
         int nObs_{0}; ///< number of observed baselines
-
 
     };
 }

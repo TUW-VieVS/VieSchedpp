@@ -38,7 +38,7 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
     boost::property_tree::read_xml(is, xml_, boost::property_tree::xml_parser::trim_whitespace);
 
     try {
-        fileName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName","dummy"));
+        sessionName_ = boost::to_lower_copy(xml_.get<std::string>("VieSchedpp.general.experimentName","dummy"));
     } catch(const boost::property_tree::ptree_error &e){
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << inputFile_;
@@ -78,7 +78,11 @@ void VieSchedpp::run() {
     cout << "[info] writing initializer output to: initializer.txt";
     #endif
 
-    ofstream of(path_+"initializer.txt");
+    ofstream of;
+    if(xml_.get("VieSchedpp.output.initializer_log",true)){
+        of.open(path_ + sessionName_ + "_initializer.txt");
+    }
+
     ofstream statisticsOf(path_+"statistics.csv");
 
     // initialize skd catalogs and lookup table
@@ -92,6 +96,7 @@ void VieSchedpp::run() {
 
     init.createSources(skdCatalogs_, of);
     init.createStations(skdCatalogs_, of);
+    init.connectObservingMode( of );
 
     init.initializeStations();
     init.precalcAzElStations();
@@ -184,7 +189,7 @@ void VieSchedpp::run() {
         }
 
         // get file name
-        string fname = fileName_;
+        string fname = sessionName_;
 
         // if you have multi schedule append version number to file name
         if (flag_multiSched) {
@@ -248,15 +253,9 @@ void VieSchedpp::readSkdCatalogs() {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "read skd catalogs";
     #endif
-    vector<string> staNames;
-    auto ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
+    const auto &ptree_stations = xml_.get_child_optional("VieSchedpp.general.stations");
     if (ptree_stations.is_initialized()) {
-        auto it = ptree_stations->begin();
-        while (it != ptree_stations->end()) {
-            auto item = it->second.data();
-            staNames.push_back(item);
-            ++it;
-        }
+        vector<string> staNames = util::getStationNames(xml_);
         skdCatalogs_.setStationNames(staNames);
         skdCatalogs_.setCatalogFilePathes(xml_.get_child("VieSchedpp.catalogs"));
         skdCatalogs_.initializeStationCatalogs();

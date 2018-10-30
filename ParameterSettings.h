@@ -547,6 +547,8 @@ namespace VieVS {
          * @param contactName contact name
          * @param contactEmail contact email
          * @param notes schedule notes
+         * @param initializer create initializer
+         * @prarm iteration_log iteration log file
          * @param createSummary create summary file
          * @param createNGS create NGS file
          * @param createSKD create SKD file
@@ -560,7 +562,7 @@ namespace VieVS {
         void output(const std::string &experimentDescription,
                     const std::string &scheduler, const std::string &correlator, const std::string &piName,
                     const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
-                    const std::string &notes, bool createSummary, bool createNGS, bool createSKD, bool vex,
+                    const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, bool createSKD, bool vex,
                     bool operNotes, const std::string &operationNotes, bool srcGrp,
                     const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 

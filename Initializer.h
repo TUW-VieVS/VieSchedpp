@@ -58,7 +58,6 @@
 #include "AstronomicalParameters.h"
 #include "LookupTable.h"
 #include "WeightFactors.h"
-#include "ObservationMode.h"
 #include "TimeSystem.h"
 #include "Baseline.h"
 #include "SkdCatalogReader.h"
@@ -68,6 +67,7 @@
 #include "Flux_B.h"
 #include "Flux_M.h"
 #include "HighImpactScanDescriptor.h"
+#include "ObservingMode.h"
 
 #include "sofa.h"
 #include "MultiScheduling.h"
@@ -105,7 +105,7 @@ namespace VieVS {
             double subnettingMinAngle = 150*deg2rad; ///< backup value for minimum angle of subnetting sources
             double subnettingMinNStaPercent = 0.80; ///< backup value for minimum station percentage
             double subnettingMinNStaAllBut = 1; ///< backup value for minimum station all but value
-            double subnettingMinNStaPercent_otherwiseAllBut = false; ///< if set to true percentage value is used for subnetting minimum number of station calculation otherwise all but value
+            bool subnettingMinNStaPercent_otherwiseAllBut = false; ///< if set to true percentage value is used for subnetting minimum number of station calculation otherwise all but value
 
             bool fillinmodeDuringScanSelection = true; ///< schedule fillin mode scans
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule
@@ -238,10 +238,26 @@ namespace VieVS {
          * @brief reads the observing mode information from VieSchedpp.xml file
          * @author Matthias Schartner
          *
-         * @param reader sked catalogs
+         * @param skdCatalogs sked catalogs
          * @param of outstream to log file
          */
-        void initializeObservingMode(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
+        void initializeObservingMode(const SkdCatalogReader &skdCatalogs, std::ofstream &of) noexcept;
+
+        /**
+         * @brief creates dummy observing modes file
+         * @author Matthias Schartner
+         *
+         * @param bands band names
+         */
+        void initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept;
+
+        /**
+         * @brief sets station names to observing mode and displays summary
+         * @author Matthias Schartner
+         *
+         * @param of outstream to log file
+         */
+        void connectObservingMode( std::ofstream &of) noexcept;
 
         /**
          * @brief initializes a custom source sequence if there is one defined in the VieSchedpp.xml file
@@ -314,6 +330,7 @@ namespace VieVS {
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
         std::vector<Source> sources_; ///< list of all sources
         Network network_; ///< station network
+        std::shared_ptr<ObservingMode> obsModes_ = nullptr; ///< observing mode
 
         Parameters parameters_; ///< parameters
         PRECALC preCalculated_; ///< pre calculated values

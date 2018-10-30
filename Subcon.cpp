@@ -226,7 +226,7 @@ void Subcon::updateAzEl(const Network &network, const vector<Source> &sources) n
 }
 
 void
-Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources) noexcept {
+Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode) noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " calc observing durations";
     #endif
@@ -234,7 +234,7 @@ Subcon::calcAllBaselineDurations(const Network &network, const vector<Source> &s
     int i = 0;
     while ( i < nSingleScans_ ) {
         Scan& thisScan = singleScans_[i];
-        bool scanValid = thisScan.calcObservationDuration(network, sources[thisScan.getSourceId()]);
+        bool scanValid = thisScan.calcObservationDuration(network, sources[thisScan.getSourceId()], mode);
         if (scanValid){
             ++i;
         } else {
@@ -668,12 +668,12 @@ void Subcon::precalcScore(const Network &network, const vector<Source> &sources)
     }
 }
 
-vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
-    return selectBest(network, sources, vector<double>(), vector<double>(), endposition);
+    return selectBest(network, sources, mode, vector<double>(), vector<double>(), endposition);
 }
 
-vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
+vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
                                 const std::vector<double> &prevLowElevationScores,
                                 const std::vector<double> &prevHighElevationScores,
                                 const boost::optional<StationEndposition> &endposition) noexcept {
@@ -722,7 +722,7 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
 
             const Source &thisSource = sources[thisScan.getSourceId()];
             // make rigorous update
-            bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()], endposition);
+            bool flag = thisScan.rigorousUpdate(network, sources[thisScan.getSourceId()], mode, endposition);
             if (!flag) {
                 scansToRemove.push_back(idx);
 #ifdef VIESCHEDPP_LOG
@@ -769,7 +769,7 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
 #endif
 
             // make rigorous update
-            bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()], endposition);
+            bool flag1 = thisScan1.rigorousUpdate(network, sources[thisScan1.getSourceId()], mode, endposition);
             if (!flag1) {
                 scansToRemove.push_back(idx);
 #ifdef VIESCHEDPP_LOG
@@ -778,7 +778,7 @@ vector<Scan> Subcon::selectBest(Network &network, const vector<Source> &sources,
 
                 continue;
             }
-            bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()], endposition);
+            bool flag2 = thisScan2.rigorousUpdate(network, sources[thisScan2.getSourceId()], mode, endposition);
             if (!flag2) {
                 scansToRemove.push_back(idx);
 #ifdef VIESCHEDPP_LOG

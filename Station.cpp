@@ -449,6 +449,74 @@ std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() co
     }
 }
 
+void Station::toVexStationBlock(std::ofstream &of) const{
+    string eol = ";\n";
+
+    of << "    def " << getAlternativeName() << eol;
+    of << "        ref $SITE = " << getName() << eol;
+    of << "        ref $ANTENNA = " << getName() << eol;
+    of << "        ref $DAS = " << record_transport_type_ << "_recorder" << eol;
+    if(electronics_rack_type_ == "DBBC"){
+        of << "        ref $DAS = " << electronics_rack_type_ << "_DDC_rack" << eol;
+    }else{
+        of << "        ref $DAS = " << electronics_rack_type_ << "_rack" << eol;
+    }
+    of << "        ref $DAS = " << recording_system_id_ << eol;
+//    of << "*        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
+    of << "    enddef;\n";
+
+}
+
+void Station::toVexSiteBlock(std::ofstream &of) const {
+    string eol = ";\n";
+
+    const string &name = getName();
+    of << "    def " << name << eol;
+    of << "        site_type = fixed;\n";
+    of << "        site_name = " << name << eol;
+    of << "        site_ID = " << getAlternativeName() << eol;
+    of << boost::format("        site_position = %12.3f m : %12.3f m : %12.3f m;\n") % position_->getX() % position_->getY() % position_->getZ();
+    of << "        site_position_ref = sked_position.cat;\n";
+    of << "        occupation_code = " << occupation_code_ << eol;
+    if(hasHorizonMask()){
+        mask_->vexOutput();
+    }
+    of << "    enddef;\n";
+
+}
+
+void Station::toVexAntennaBlock(std::ofstream &of) const {
+    string eol = ";\n";
+
+    of << "    def " << getName() << eol;
+    of << "*       antenna_name = " << getName() << eol;
+    of << "        antenna_diam = " << getAntenna().getDiam() << " m" << eol;
+
+    auto motions = cableWrap_->getMotions();
+    const string &motion1 = motions.first;
+    const string &motion2 = motions.second;
+
+    of << "        axis_type = "<< motion1 << " : " << motion2 <<";\n";
+
+
+    of << "        axis_offset = " << antenna_->getOffset() << " m" << eol;
+    of << boost::format("        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion1 % (antenna_->getRate1()*rad2deg*60) % (antenna_->getCon1());
+    of << boost::format("        antenna_motion = %3s: %3.0f deg/min: %3d sec;\n") % motion2 % (antenna_->getRate2()*rad2deg*60) % (antenna_->getCon2());
+
+    of << cableWrap_->vexPointingSectors();
+
+    of << "    enddef;\n";
+}
+
+void Station::addAdditionalParameters(std::string occupation_code, std::string record_transport_type,
+                                      std::string electronics_rack_type, std::string recording_system_ID) {
+
+    occupation_code_ = std::move(occupation_code);
+    record_transport_type_ = std::move(record_transport_type);
+    electronics_rack_type_ = std::move(electronics_rack_type);
+    recording_system_id_ = std::move(recording_system_ID);
+}
+
 
 
 

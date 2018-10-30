@@ -36,3 +36,18 @@ void If::addIf(std::string name, std::string physical_name, If::Polarization pol
                           phase_cal_freq_spacing);
 
 }
+
+void If::toVecIfDefinition(std::ofstream &of, const std::string &comment) const {
+
+    of << "    def " << getName() << ";    " << comment <<"\n";
+    of << "*                  IF   Physical Pol    Total      Net     Phase-cal   P-cal base  \n"
+          "*                  ID     Name            IO        SB   freq spacing     freq\n";
+    for (const auto &any : if_defs_){
+        of << boost::format("        if_def = %6s :   %2s : %2s : %7.2f MHz : %2s : %7.2f MHz : % 7.2f Hz;\n") % any.getName()
+        % any.physical_name_ % toString(any.polarization_) % any.total_lo_ % toString(any.net_sidband_) % any.phase_cal_freq_spacing_
+        % any.phase_cal_base_frequency_;
+    }
+
+    of << "    enddef;\n";
+
+}

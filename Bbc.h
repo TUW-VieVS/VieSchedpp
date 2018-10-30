@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -29,6 +31,8 @@
 
 #include <utility>
 #include <vector>
+#include <fstream>
+#include <boost/format.hpp>
 #include "VieVS_NamedObject.h"
 
 
@@ -45,33 +49,30 @@ namespace VieVS{
      */
     class Bbc: public VieVS_NamedObject {
     public:
+
         explicit Bbc(std::string name);
 
-        void addBbc(std::string name, unsigned int physical_bbc_number, unsigned int if_name);
+        void addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name);
+
+        void toVexBbcDefinition( std::ofstream &of, const std::string &comment = "") const;
 
     private:
         static unsigned long nextId;
-
-        enum class Net_sideband{
-            U,
-            L,
-            D,
-        };
 
         class Bbc_assign: public VieVS_NamedObject{
         public:
             Bbc_assign(std::string name,
                        unsigned int physical_bbc_number,
-                       unsigned int if_name):
+                       std::string if_name):
                     VieVS_NamedObject{std::move(name), nextId++},
                     physical_bbc_number_{physical_bbc_number},
-                    if_name_{if_name}{};
+                    if_name_{std::move(if_name)}{};
 
+            unsigned int physical_bbc_number_;
+            std::string if_name_;
         private:
             static unsigned long nextId;
 
-            unsigned int physical_bbc_number_;
-            unsigned int if_name_;
         };
 
         std::vector<Bbc_assign> bbc_assigns_;

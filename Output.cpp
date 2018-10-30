@@ -29,6 +29,7 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
                                                                                network_{std::move(sched.network_)},
                                                                                sources_{std::move(sched.sources_)},
                                                                                scans_{std::move(sched.scans_)},
+                                                                               obsModes_{sched.obsModes_},
                                                                                path_{std::move(path)},
                                                                                multiSchedulingParameters_{std::move(sched.multiSchedulingParameters_)},
                                                                                version_{version}{
@@ -508,11 +509,13 @@ void Output::displayTimeStatistics(std::ofstream &of) {
     of << "----------|\n";
 
     of << "|   Total TB:     ";
-    unsigned int nChannels = 0;
-    for(const auto &any: ObservationMode::nChannels){
-        nChannels += any.second;
-    }
-    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
+//    unsigned int nChannels = 0;
+//    for(const auto &any: ObservationMode::nChannels){
+//        nChannels += any.second;
+//    }
+//    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
+// TODO: calc TB based on mode_ variable
+    double obsFreq = 0;
 
     vector<double> total_tb;
     for (const auto &station: network_.getStations()) {
@@ -630,7 +633,7 @@ void Output::writeNGS() {
 }
 
 
-void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
+void Output::writeVex() {
     string fileName = getName();
     fileName.append(".vex");
     #ifdef VIESCHEDPP_LOG
@@ -639,7 +642,7 @@ void Output::writeVex(const SkdCatalogReader &skdCatalogReader) {
     cout << "[info] writing vex file to: " << fileName;
     #endif
     Vex vex(path_+fileName);
-    vex.writeVex(network_,sources_,scans_,skdCatalogReader,xml_);
+    vex.writeVex(network_, sources_, scans_, obsModes_, xml_);
 }
 
 void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
@@ -1069,7 +1072,7 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
         writeSkd(skdCatalogReader);
     }
     if(xml_.get<bool>("VieSchedpp.output.createVEX",false)) {
-        writeVex(skdCatalogReader);
+        writeVex();
     }
     if(xml_.get<bool>("VieSchedpp.output.createOperationsNotes",false)) {
         writeOperationsNotes();
@@ -1143,6 +1146,8 @@ void Output::writeOperationsNotes() {
     of << ".---------------------.\n";
     of << "| scheduled stations: |\n";
     of << "|---------------------|\n";
+    of << "| Name         |  Id  |\n";
+    of << "|---------------------|\n";
     for (const auto &any:network_.getStations()){
         of << boost::format("| %-8s     |  %2s  |\n") %any.getName() %any.getAlternativeName();
     }
@@ -1153,6 +1158,8 @@ void Output::writeOperationsNotes() {
     displayBaselineStatistics(of);
     displayStationStatistics(of);
     displaySourceStatistics(of);
+    obsModes_->summary(of);
+    of << "\n";
     displayNstaStatistics(of);
     displayScanDurationStatistics(of);
     displayAstronomicalParameters(of);

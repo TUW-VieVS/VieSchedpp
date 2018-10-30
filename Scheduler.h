@@ -217,7 +217,9 @@ namespace VieVS{
         boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
 
         std::vector<Source> sources_; ///< all sources
-        Network network_;
+        Network network_; ///< station network
+        std::shared_ptr<const ObservingMode> obsModes_ = nullptr; ///< observing modes
+        std::shared_ptr<const Mode> currentObservingMode_ = nullptr; ///< current observing mode
         std::vector<Scan> scans_; ///< all scans in schedule
 
         Parameters parameters_; ///< general scheduling parameters

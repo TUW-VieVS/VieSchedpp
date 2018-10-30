@@ -105,10 +105,8 @@ namespace VieVS{
         /**
          * @brief creates a vex file
          * @author Matthias Schartner
-         *
-         * @param skdCatalogReader skd catalogs
          */
-        void writeVex(const SkdCatalogReader &skdCatalogReader);
+        void writeVex();
 
         /**
          * @brief write statistics per source group file
@@ -121,7 +119,6 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param of statistics.csv file
-         * @param skdCatalogReader sked catalogs
          */
         void createAllOutputFiles(std::ofstream& of, const SkdCatalogReader &skdCatalogReader);
 
@@ -135,6 +132,7 @@ namespace VieVS{
         Network network_; ///< network
         std::vector<Source> sources_; ///< all sources
         std::vector<Scan> scans_; ///< all scans in schedule
+        const std::shared_ptr<const ObservingMode> &obsModes_; ///< observing mode
         boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_; ///< multi scheduling parameters
 
         /**

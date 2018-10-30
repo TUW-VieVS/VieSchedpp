@@ -239,6 +239,16 @@ namespace VieVS {
         }
 
         /**
+         * @brief getter for observing mode name
+         * @author Matthias Schartner
+         *
+         * @return observing mode name
+         */
+        const std::string &getModeName() const {
+            return modeName_;
+        }
+
+        /**
          * @brief getter for frequency sequence name
          * @author Matthias Schartner
          *
@@ -299,6 +309,16 @@ namespace VieVS {
         }
 
         /**
+         * @brief getter for all loif ids
+         * @author Matthias Schartner
+         *
+         * @return vector of loif ids
+         */
+        const std::vector<std::string> &getLoifIds() const {
+            return loifIds_;
+        }
+
+        /**
          * @brief getter for tracks fanout
          * @author Matthias Schartner
          *
@@ -306,6 +326,16 @@ namespace VieVS {
          */
         const std::map<std::string, int> &getTracksId2fanoutMap() const {
             return tracksId2fanoutMap_;
+        }
+
+        /**
+         * @brief getter for tracks bit
+         * @author Matthias Schartner
+         *
+         * @return map with tracks name as key and number of sampled bits as value
+         */
+        const std::map<std::string, int> &getTracksId2bits() const {
+            return tracksId2bitsMap_;
         }
 
         /**
@@ -476,6 +506,7 @@ namespace VieVS {
         std::map<std::string, std::string> antennaKey2maskKey_; ///< antenna key 2 mask key
         std::map<std::string, std::vector<std::string>> maskCatalog_; ///< map with mask id as key and catalog entry as value
 
+        std::string modeName_; ///< observing mode name
         std::string freqName_; ///< frequency sequence name
         std::string recName_; ///< rec name
         double bandWidth_; ///< bandwith

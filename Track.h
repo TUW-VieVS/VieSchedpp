@@ -1,4 +1,6 @@
-/* 
+#include <utility>
+
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -29,6 +31,9 @@
 
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <fstream>
+#include <boost/format.hpp>
 #include "VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -49,48 +54,72 @@ namespace VieVS{
             mag,
         };
 
+        std::string toString(Bitstream b) const{
+            switch(b){
+                case Bitstream::sign: return "sign";
+                case Bitstream::mag: return "mag";
+            }
+        }
+
         explicit Track(std::string name);
 
-        void addFanout(std::string name, Bitstream bitstream, double total_lo, int headstack_number,
+        void setBits(int bits){
+            bits_ = bits;
+        }
+
+        int numberOfBits(const std::shared_ptr<const Track> &other) const{
+            return std::min({bits_, other->bits_});
+        }
+
+        void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                        int fourth_multiplex_track = -999);
+
+        void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
 
     private:
         static unsigned long nextId;
 
 
-        class Fanout_definition: public VieVS_NamedObject{
+        class Fanout_definition: public VieVS_Object{
         public:
-            Fanout_definition(std::string name,
+            Fanout_definition(std::string subpass,
+                              std::string trksId,
                               Bitstream bitstream,
-                              double total_lo,
                               int headstack_number,
                               int first_multiplex_track,
                               int second_multiplex_track = -999,
                               int third_multiplex_track = -999,
                               int fourth_multiplex_track = -999):
-                          VieVS_NamedObject{std::move(name), nextId++},
+
+                          VieVS_Object{nextId++},
+
+                          subpass_{std::move(subpass)},
+                          trksid_{std::move(trksId)},
                           bitstream_{bitstream},
-                          total_lo_{total_lo},
                           headstack_number_{headstack_number},
+
                           first_multiplex_track_{first_multiplex_track},
                           second_multiplex_track_{second_multiplex_track},
                           third_multiplex_track_{third_multiplex_track},
                           fourth_multiplex_track_{fourth_multiplex_track}{};
 
-        private:
-            static unsigned long nextId;
-
+            std::string subpass_;
+            std::string trksid_;
             Bitstream bitstream_;
-            double total_lo_;
             int headstack_number_;
+
             int first_multiplex_track_;
             int second_multiplex_track_;
             int third_multiplex_track_;
             int fourth_multiplex_track_;
+
+        private:
+            static unsigned long nextId;
         };
 
         std::vector<Fanout_definition> fanout_definitions_;
+        int bits_ = 1;
 
     };
 }

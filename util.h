@@ -33,6 +33,7 @@
 
 #include <boost/format.hpp>
 #include <boost/date_time.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <cmath>
 #include <vector>
 #include <numeric>
@@ -61,6 +62,24 @@ namespace VieVS{
     namespace util{
 
         /**
+         * @brief get number of stations from xml file
+         * @author Matthias Schartner
+         *
+         * @param xml property tree
+         * @return number of stations
+         */
+        unsigned long getNumberOfStations(const boost::property_tree::ptree &xml);
+
+        /**
+         * @brief get station names from xml file
+         * @author Matthias Schartner
+         *
+         * @param xml property tree
+         * @return vector of station names
+         */
+        std::vector<std::string> getStationNames(const boost::property_tree::ptree &xml);
+
+        /**
          * @brief convert right ascension to string
          * @author Matthias Schartner
          *
@@ -81,6 +100,28 @@ namespace VieVS{
          * @return output string
          */
         std::string dc2hms(double angle);
+
+        /**
+         * @brief transforms frequency to wavelength
+         * @author Matthias Schartner
+         *
+         * assuming speed of light wave velocity
+         *
+         * @param frequency frequency in Hz
+         * @return wavelength in m
+         */
+        double freqency2wavelenth( double frequency );
+
+        /**
+         * @brief transforms wavelength to frequency
+         * @author Matthias Schartner
+         *
+         * assuming speed of light wave velocity
+         *
+         * @param frequency wavelength in m
+         * @return frequency in Hz
+         */
+        double wavelength2frequency( double wavelength);
 
         /**
          * @brief wrap angle to interval [0, pi)
@@ -181,8 +222,9 @@ namespace VieVS{
          * @param title output title
          * @param names object names
          * @param of outstream object
+         * @param indents number of indents
          */
-        void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of);
+        void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of, unsigned long indents = 4);
     }
 }
 

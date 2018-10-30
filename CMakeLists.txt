@@ -36,7 +36,6 @@ set(SOURCE_FILES
         LookupTable.cpp LookupTable.h
         main.cpp
         MultiScheduling.cpp MultiScheduling.h
-        ObservationMode.cpp ObservationMode.h
         Output.cpp Output.h
         ParameterGroup.cpp ParameterGroup.h
         ParameterSettings.cpp ParameterSettings.h
@@ -85,7 +84,7 @@ set(SOURCE_FILES
         Bbc.cpp Bbc.h
         If.cpp If.h
         Track.cpp Track.h
-        Freq.cpp Freq.h)
+        Freq.cpp Freq.h ObservingMode.cpp ObservingMode.h)
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 
