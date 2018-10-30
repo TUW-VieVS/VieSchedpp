@@ -57,7 +57,7 @@ std::unordered_map<std::string, double> Freq::observingRate(const std::shared_pt
                     auto lower_upper_B = lower_upper_bound(channelB.sky_freq_, channelB.chan_bandwidth_, channelB.net_sideband_);
 
                     double overlapping = overlappingBandwidth(lower_upper_A.first, lower_upper_A.second, lower_upper_B.first, lower_upper_B.second);
-                    band2observingRate[channelA.bandId_] += overlapping * bits * sample_rate_ * 1e6;
+                    band2observingRate[channelA.bandId_] += overlapping * 2 * bits * 1e6;
                 }
             }
         }
