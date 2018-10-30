@@ -138,6 +138,8 @@ namespace VieVS{
             return wavelength_.at(band);
         }
 
+        void addDummyBands(const std::map<std::string, std::vector<double>> &band);
+
     private:
         static unsigned long nextId;
         std::vector<std::string> stationNames_;

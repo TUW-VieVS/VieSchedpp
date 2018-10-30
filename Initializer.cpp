@@ -806,7 +806,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 
 
 
-        if (!flux.empty()){
+        if (flux.size() == obsModes_->getAllBands().size()){
             string name1, name2;
             if(commonname.empty()){
                 name1 = name;
@@ -2156,6 +2156,12 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
     #endif
 
     of << "\n";
+}
+
+void Initializer::initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept {
+
+    obsModes_ = std::make_shared<ObservingMode>();
+    obsModes_->addDummyBands(bands);
 }
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {

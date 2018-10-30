@@ -466,3 +466,11 @@ void ObservingMode::calcMeanFrequencies() {
 
 }
 
+void ObservingMode::addDummyBands(const std::map<std::string, std::vector<double>> &band) {
+    for(const auto &any : band){
+        bands_.insert(any.first);
+        double mfreq = accumulate(any.second.begin(), any.second.end(), 0.0) / any.second.size();
+        wavelength_[any.first] = mfreq;
+    }
+}
+

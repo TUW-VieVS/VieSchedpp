@@ -136,6 +136,9 @@ void SkdParser::read() {
             if(!bandsFound && trimmed == "$CODES"){
                 bandsFound = true;
                 while (getline(fid, line)){
+                    if (line == "manual observing mode used!"){
+                        break;
+                    }
                     if (line.empty() || line.at(0) == '*') {
                         continue;
                     }
@@ -209,9 +212,7 @@ void SkdParser::read() {
     path.append("/skdParser.log");
     ofstream of(path);
 
-//    Mode::bands.insert("X");
-//    Mode::bands.insert("S");
-
+    init.initializeObservingMode(freqs_);
     init.createSources(skd_, of);
     init.createStations(skd_, of);
     init.initializeAstronomicalParameteres();

@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     VieVS::VieSchedpp mainScheduler(file);
     mainScheduler.run();
 
-//    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("/home/mschartn/build-scheduling_GUI-Desktop_Qt_5_9_1_GCC_64bit-Debug/out/20180709143715_C1701/c1701.skd");
+////    V2: parse skd and log files
+//    VieVS::SkdParser mySkdParser("/home/mschartn/programming/out/20181029164853_/dummy.skd");
 //    mySkdParser.read();
 //    VieVS::Scheduler sched = mySkdParser.createScheduler();
 //

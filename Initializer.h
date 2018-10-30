@@ -244,6 +244,14 @@ namespace VieVS {
         void initializeObservingMode(const SkdCatalogReader &skdCatalogs, std::ofstream &of) noexcept;
 
         /**
+         * @brief creates dummy observing modes file
+         * @author Matthias Schartner
+         *
+         * @param bands band names
+         */
+        void initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept;
+
+        /**
          * @brief sets station names to observing mode and displays summary
          * @author Matthias Schartner
          *
