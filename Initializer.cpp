@@ -2160,6 +2160,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
 
 void Initializer::initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept {
 
+    ObservingMode::simple = true;
     obsModes_ = std::make_shared<ObservingMode>();
     obsModes_->addDummyBands(bands);
 }
