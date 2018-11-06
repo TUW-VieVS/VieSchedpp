@@ -51,7 +51,7 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
     for(const auto &any : band2channel){
         bands_.insert(any.first);
         double recRate = samplerate * bits * any.second * 1e6;
-        mode->calcRecordingRates(any.first, recRate);
+        mode->setRecordingRates(any.first, recRate);
     }
 
     mode->setBands(bands_);

@@ -56,7 +56,7 @@ void Mode::calcRecordingRates() {
     }
 }
 
-void Mode::calcRecordingRates(const std::string &band, double recRate) {
+void Mode::setRecordingRates(const std::string &band, double recRate) {
     for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
         for(unsigned long staid2 = staid1+1; staid2 < nsta_; ++staid2){
             staids2recordingRate_[{staid1, staid2}][band] = recRate;

@@ -38,9 +38,14 @@ namespace VieVS{
 
     /**
      * @class Freq
-     * @brief freq section of observing mode
+     * @brief FREQ section of observing mode
      *
-     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     * following vex standard
+     * The $FREQ block describes the RF sky Frequency, net sideband, and bandwidth characteristics of the channels recorded,
+     * where a 'channel' is defined as a single USB or LSB output from a BBC. The $FREQ block does not attempt to
+     * describe the recording mode (including format, sample rate, bits per sample, and sample type), since the same set
+     * of channels may be recorded in different recording modes (or on different equipment) at different stations. Each
+     * frequency channel is defined by a chan_def statement with at least seven fields in each statement.
      *
      * @author Matthias Schartner
      * @date 17.09.2018
@@ -48,13 +53,24 @@ namespace VieVS{
     class Freq: public VieVS_NamedObject {
     public:
 
+        /**
+         * @brief net sideband types
+         * @author Matthias Schartner
+         */
         enum class Net_sideband{
-            U,
-            L,
-            UC,
-            LC,
+            U, ///< upper side band
+            L, ///< lower side band
+            UC, ///< upper side band I/Q encoding
+            LC, ///< lower side band I/Q encoding
         };
 
+        /**
+         * @brief converts Net_sidband to string
+         * @author Matthias Schartner
+         *
+         * @param n Net_sideband type
+         * @return string in vex format
+         */
         std::string toString( Net_sideband n) const{
             switch(n){
                 case Net_sideband::U: return "U";
@@ -64,32 +80,104 @@ namespace VieVS{
             }
         }
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param name FREQ name
+         */
         explicit Freq(std::string name);
 
+        /**
+         * @brief add new channel
+         * @author Matthias Schartner
+         *
+         * @param bandId 'Band_ID': RF band name
+         * @param sky_freq RF sky frequency at 0Hz in the BBC output
+         * @param net_sideband Net sideband of this BBC channel
+         * @param chan_bandwidth BBC Channel bandwidth
+         * @param chan_id 'Chan_ID': Logical channel name
+         * @param bbc_id 'BBC_ID': Logical BBC name
+         * @param phase_cal_id 'Phase-cal_ID': Logical phase-cal name
+         */
         void addChannel(std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
                         std::string chan_id, std::string bbc_id, std::string phase_cal_id);
 
+        /**
+         * @brief get all frequencies for a specific band
+         * @author Matthias Schartner
+         *
+         * @param band target band
+         * @return list of all frequencies in this band
+         */
         std::vector<double> getFrequencies(const std::string &band) const;
 
+        /**
+         * @brief set sample rate
+         * @author Matthias Schartner
+         *
+         * @param sample_rate Sample frequency
+         */
         void setSampleRate(double sample_rate){
             sample_rate_ = sample_rate;
         }
 
+        /**
+         * @brief get list of all bands
+         * @author Matthias Schartner
+         *
+         * @return list of all bands
+         */
         const std::set<std::string> &getBands() const {
             return bands_;
         }
 
+        /**
+         * @brief calculates observing rates for each band between two stations with potentially different FREQ blocks
+         * @author Matthias Schartner
+         *
+         * @param other 2nd FREQ block
+         * @param bits number of sampled bits
+         * @return total mutual observing rate per band
+         */
         std::unordered_map<std::string,double> observingRate(const std::shared_ptr<const Freq> &other, int bits) const;
 
+        /**
+         * @brief writes FREQ block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file stream
+         * @param comment optional comment
+         */
         void toVexFreqDefinition(std::ofstream &of, const std::string &comment = "") const;
 
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
 
+        /**
+         * @class Chan_def
+         * @brief Channel definition for observing mode
+         *
+         * @author Matthias Schartner
+         * @date 17.09.2018
+         */
         class Chan_def: public VieVS_Object{
         public:
+
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param bandId 'Band_ID': RF band name
+             * @param sky_freq RF sky frequency at 0Hz in the BBC output
+             * @param net_sideband Net sideband of this BBC channel
+             * @param chan_bandwidth BBC Channel bandwidth
+             * @param chan_id 'Chan_ID': Logical channel name
+             * @param bbc_id 'BBC_ID': Logical BBC name
+             * @param phase_cal_id 'Phase-cal_ID': Logical phase-cal name
+             */
             Chan_def(std::string bandId,
                      double sky_freq,
                      Net_sideband net_sideband,
@@ -109,22 +197,22 @@ namespace VieVS{
                 wavelength_ = util::freqency2wavelenth(sky_freq*1e6);
             };
 
-            std::string bandId_;
-            double sky_freq_;
-            double wavelength_;
-            Net_sideband net_sideband_;
-            double chan_bandwidth_;
-            std::string chan_id_;
-            std::string bbc_id_;
-            std::string phase_cal_id_;
+            std::string bandId_; ///< 'Band_ID': RF band name
+            double sky_freq_; ///< RF sky frequency at 0Hz in the BBC output
+            double wavelength_; ///< corresponding wavelength of sky frequency
+            Net_sideband net_sideband_; ///< Net sideband of this BBC channel
+            double chan_bandwidth_; ///< BBC Channel bandwidth
+            std::string chan_id_; ///< 'Chan_ID': Logical channel name
+            std::string bbc_id_; ///< 'BBC_ID': Logical BBC name
+            std::string phase_cal_id_; ///< 'Phase-cal_ID': Logical phase-cal name
 
         private:
-            static unsigned long nextId;
+            static unsigned long nextId; ///< next id for this object type
         };
 
-        double sample_rate_;
-        std::vector<Chan_def> chan_defs_;
-        std::set<std::string> bands_;
+        double sample_rate_; ///< sample frequency in MHz
+        std::vector<Chan_def> chan_defs_; ///< list of channels
+        std::set<std::string> bands_; ///< list of bands
 
 
         /**

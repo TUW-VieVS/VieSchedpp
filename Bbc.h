@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
@@ -40,9 +38,10 @@ namespace VieVS{
 
     /**
      * @class Bbc
-     * @brief bbc section of observing mode
+     * @brief BBC section of observing mode
      *
-     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     * following vex standard
+     * The $BBC block connects physical BBC's to the 'logical' BBC's defined in the $FREQ section, and also specifies the connection of the BBC to a 'logical' IF.
      *
      * @author Matthias Schartner
      * @date 17.09.2018
@@ -50,17 +49,53 @@ namespace VieVS{
     class Bbc: public VieVS_NamedObject {
     public:
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param name BBC name
+         */
         explicit Bbc(std::string name);
 
+        /**
+         * @brief add new BBC assignment
+         * @author Matthias Schartner
+         *
+         * @param name Logical BBC 'link' with chan_def statement in $FREQ block
+         * @param physical_bbc_number Physical BBC# or DBE channel#
+         * @param if_name Logical IF 'link' with if_def statement in $IF block
+         */
         void addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name);
 
+        /**
+         * @brief writes BBC block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file stream
+         * @param comment optional comment line
+         */
         void toVexBbcDefinition( std::ofstream &of, const std::string &comment = "") const;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
+        /**
+         * @class Bbc_assign
+         * @brief BBC assign section in BBC block
+         *
+         * @author Matthias Schartner
+         * @date 17.09.2018
+         */
         class Bbc_assign: public VieVS_NamedObject{
         public:
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param name Logical BBC 'link' with chan_def statement in $FREQ block
+             * @param physical_bbc_number Physical BBC# or DBE channel#
+             * @param if_name Logical IF 'link' with if_def statement in $IF block
+             */
             Bbc_assign(std::string name,
                        unsigned int physical_bbc_number,
                        std::string if_name):
@@ -68,14 +103,14 @@ namespace VieVS{
                     physical_bbc_number_{physical_bbc_number},
                     if_name_{std::move(if_name)}{};
 
-            unsigned int physical_bbc_number_;
-            std::string if_name_;
+            unsigned int physical_bbc_number_; ///< Physical BBC# or DBE channel#
+            std::string if_name_; ///< Logical IF 'link' with if_def statement in $IF block
         private:
-            static unsigned long nextId;
+            static unsigned long nextId; ///< next id for this object type
 
         };
 
-        std::vector<Bbc_assign> bbc_assigns_;
+        std::vector<Bbc_assign> bbc_assigns_; ///< list of all BBC assigns
     };
 }
 

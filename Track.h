@@ -1,5 +1,3 @@
-#include <utility>
-
 /*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
@@ -42,18 +40,37 @@ namespace VieVS{
      * @class Track
      * @brief track section of observing mode
      *
-     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     * following vex standard
+     * The $TRACKS block defines the various multiplex (fan-in and fan-out) modes that can be used to record data with Mark 5A recorders.
+     * For purposes of multiplex definitions, the sample data from each channel are separated into a 'sign' bitstream
+     * and (for 2-bit sampling) a 'magnitude' bitstream. The fan-out modes (single bitstream to 1, 2 or 4 tracks) are
+     * defined with a set of fanout_def statements, one such statement for each bitstream, which defines the
+     * destination tracks and bit ordering among the tracks. In this way a complete definition of the multiplex format
+     * is specified. The 'ChanID' linkword in each fanout_def statement connects a particular bitstream to the selected
+     * 'def' in the $FREQ block.
      *
      * @author Matthias Schartner
      * @date 17.09.2018
      */
     class Track: public VieVS_NamedObject {
     public:
+
+        /**
+         * @brief bitstream types
+         * @author Matthias Schartner
+         */
         enum class Bitstream{
-            sign,
-            mag,
+            sign, ///< sign
+            mag, ///< magnitude
         };
 
+        /**
+         * @brief convert bitstream type to vex format string
+         * @author Matthias Schartner
+         *
+         * @param b bitsream type
+         * @return vex format type
+         */
         std::string toString(Bitstream b) const{
             switch(b){
                 case Bitstream::sign: return "sign";
@@ -61,28 +78,87 @@ namespace VieVS{
             }
         }
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param name tracks name
+         */
         explicit Track(std::string name);
 
+        /**
+         * @brief set number of recording bits
+         * @author Matthias Schartner
+         *
+         * @param bits number of recording bits
+         */
         void setBits(int bits){
             bits_ = bits;
         }
 
+        /**
+         * @brief get number of recording bits between two TRACKS blocks
+         * @author Matthias Schartner
+         *
+         * @param other other TRACKS block
+         * @return number of recording bits
+         */
         int numberOfBits(const std::shared_ptr<const Track> &other) const{
             return std::min({bits_, other->bits_});
         }
 
+        /**
+         * @brief add new fanout
+         * @author Matthias Schartner
+         *
+         * @param subpass Sub-pass ID
+         * @param trksId 'Chan_ID' linkword
+         * @param bitstream Sign or magnitude bitstream
+         * @param headstack_number Headstack number
+         * @param first_multiplex_track First multiplex track
+         * @param second_multiplex_track Second multiplex track
+         * @param third_multiplex_track Third multiplex track
+         * @param fourth_multiplex_track Fourth multiplex track
+         */
         void addFanout(std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                        int fourth_multiplex_track = -999);
 
+        /**
+         * @brief writes TRACKS block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file stream
+         * @param comment optional comment
+         */
         void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
 
+        /**
+         * @class Fanout_definition
+         * @brief Fanout definition
+         *
+         * @author Matthias Schartner
+         * @date 17.09.2018
+         */
         class Fanout_definition: public VieVS_Object{
         public:
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param subpass Sub-pass ID
+             * @param trksId 'Chan_ID' linkword
+             * @param bitstream Sign or magnitude bitstream
+             * @param headstack_number Headstack number
+             * @param first_multiplex_track First multiplex track
+             * @param second_multiplex_track Second multiplex track
+             * @param third_multiplex_track Third multiplex track
+             * @param fourth_multiplex_track Fourth multiplex track
+             */
             Fanout_definition(std::string subpass,
                               std::string trksId,
                               Bitstream bitstream,
@@ -104,22 +180,22 @@ namespace VieVS{
                           third_multiplex_track_{third_multiplex_track},
                           fourth_multiplex_track_{fourth_multiplex_track}{};
 
-            std::string subpass_;
-            std::string trksid_;
-            Bitstream bitstream_;
-            int headstack_number_;
+            std::string subpass_; ///< Sub-pass ID
+            std::string trksid_; ///< 'Chan_ID' linkword
+            Bitstream bitstream_; ///< Sign or magnitude bitstream
+            int headstack_number_; ///< Headstack number
 
-            int first_multiplex_track_;
-            int second_multiplex_track_;
-            int third_multiplex_track_;
-            int fourth_multiplex_track_;
+            int first_multiplex_track_; ///< First multiplex track
+            int second_multiplex_track_; ///< Second multiplex track
+            int third_multiplex_track_; ///< Third multiplex track
+            int fourth_multiplex_track_; ///< Fourth multiplex track
 
         private:
-            static unsigned long nextId;
+            static unsigned long nextId; ///< next id for this object type
         };
 
-        std::vector<Fanout_definition> fanout_definitions_;
-        int bits_ = 1;
+        std::vector<Fanout_definition> fanout_definitions_; ///< list of fanout definitions
+        int bits_ = 1; ///< number of recording bits
 
     };
 }

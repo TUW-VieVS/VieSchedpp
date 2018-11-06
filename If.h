@@ -37,9 +37,12 @@ namespace VieVS{
 
     /**
      * @class If
-     * @brief if section of observing mode
+     * @brief IF section of observing mode
      *
-     * CURRENTLY UNDER DEVELOPMENT AND UNUSED
+     * following vex standard
+     * The $IF block defines the characteristics of the IF bands used in the observations and is linked to the $BBC
+     * block (which specifies the detailed BBC-to-IF connections). An if_def statement must be defined for each of the
+     * IF 'links' specified in the selected $BBC 'def'.
      *
      * @author Matthias Schartner
      * @date 17.09.2018
@@ -47,21 +50,36 @@ namespace VieVS{
     class If: public VieVS_NamedObject {
     public:
 
+        /**
+         * @brief polarization types
+         * @author Matthias Schartner
+         */
         enum class Polarization{
-            R,
-            L,
-            X,
-            Y,
-            H,
-            V,
+            R, ///< right
+            L, ///< left
+            X, ///< x-axis
+            Y, ///< y-axis
+            H, ///< horizontal
+            V, ///< vertical
         };
 
+        /**
+         * @brief net sideband types
+         * @author Matthias Schartner
+         */
         enum class Net_sidband{
-            U,
-            L,
-            D,
+            U, ///< upper
+            L, ///< lower
+            D, ///< D?
         };
 
+        /**
+         * @brief converts polarization to vex format string
+         * @author Matthias Schartner
+         *
+         * @param p polarization type
+         * @return string in vex format
+         */
         std::string toString(Polarization p) const {
             switch(p){
                 case Polarization::R: return "R";
@@ -73,6 +91,13 @@ namespace VieVS{
             }
         }
 
+        /**
+         * @brief converts net sideband type to vex format string
+         * @author Matthias Schartner
+         *
+         * @param p net sideband type
+         * @return string in vex format
+         */
         std::string toString(Net_sidband n) const {
             switch(n){
                 case Net_sidband::U: return "U";
@@ -81,19 +106,64 @@ namespace VieVS{
             }
         }
 
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param name IF block name
+         */
         explicit If(std::string name);
 
+        /**
+         * @brief define new IF
+         * @author Matthias Schartner
+         *
+         * @param name 'IF_ID' link word
+         * @param physical_name Physical IF name
+         * @param polarization Polarization
+         * @param total_lo Total effective LO of IF (just before signal enters BBC or sampler)
+         * @param net_sidband Net sideband of IF
+         * @param phase_cal_freq_spacing Phase-cal frequency interval
+         * @param phase_cal_base_freqency Phase-cal base frequency
+         */
         void addIf(std::string name, std::string physical_name, Polarization polarization,  double total_lo,
                    Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency);
 
+        /**
+         * @brief writes If block in vex format
+         * @author Matthias Schartner
+         *
+         * @param of vex file stream
+         * @param comment optional comment
+         */
         void toVecIfDefinition( std::ofstream &of, const std::string &comment = "") const;
 
     private:
-        static unsigned long nextId;
+        static unsigned long nextId; ///< next id for this object type
 
 
+        /**
+         * @class If_def
+         * @brief IF definition
+         *
+         * @author Matthias Schartner
+         * @date 17.09.2018
+         */
         class If_def: public VieVS_NamedObject{
         public:
+
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param name 'IF_ID' link word
+             * @param physical_name Physical IF name
+             * @param polarization Polarization
+             * @param total_lo Total effective LO of IF (just before signal enters BBC or sampler)
+             * @param net_sidband Net sideband of IF
+             * @param phase_cal_freq_spacing Phase-cal frequency interval
+             * @param phase_cal_base_freqency Phase-cal base frequency
+             */
             If_def(std::string name,
                    std::string physical_name,
                    Polarization polarization,
@@ -109,20 +179,19 @@ namespace VieVS{
                phase_cal_base_frequency_{phase_cal_base_freqency},
                phase_cal_freq_spacing_{phase_cal_freq_spacing}{};
 
-            std::string physical_name_;
-            Polarization polarization_;
-            double total_lo_;
-            Net_sidband net_sidband_;
-            double phase_cal_freq_spacing_;
-            double phase_cal_base_frequency_;
+            std::string physical_name_; ///< Physical IF name
+            Polarization polarization_; ///< Polarization
+            double total_lo_; ///< Total effective LO of IF (just before signal enters BBC or sampler)
+            Net_sidband net_sidband_; ///< Net sideband of IF
+            double phase_cal_freq_spacing_; ///< Phase-cal frequency interval
+            double phase_cal_base_frequency_; ///< Phase-cal base frequency
 
         private:
-            static unsigned long nextId;
+            static unsigned long nextId; ///< next id for this object type
 
         };
 
-
-        std::vector<If_def> if_defs_;
+        std::vector<If_def> if_defs_; ///< list of IF definitions
     };
 }
 

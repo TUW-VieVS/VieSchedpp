@@ -84,6 +84,7 @@ namespace VieVS {
         friend class Scheduler;
         friend class SkdParser;
     public:
+
         /**
          * @brief possible group types
          * @author Matthias Schartner
