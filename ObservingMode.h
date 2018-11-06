@@ -270,6 +270,76 @@ namespace VieVS{
          */
         void addDummyBands(const std::map<std::string, std::vector<double>> &band);
 
+        /**
+         * @brief getter for all station names
+         * @author Matthias Schartner
+         *
+         * @return all station names
+         */
+        const std::vector<std::string> &getStationNames() const {
+            return stationNames_;
+        }
+
+        /**
+         * @brief getter for all MODE blocks
+         * @author Matthias Schartner
+         *
+         * @return list of all MODE blocks
+         */
+        const std::vector<std::shared_ptr<const Mode>> &getModes() const {
+            return modes_;
+        }
+
+        /**
+         * @brief getter for all IF blocks
+         * @author Matthias Schartner
+         *
+         * @return list of all IF blocks
+         */
+        const std::vector<std::shared_ptr<const If>> &getIfs() const {
+            return ifs_;
+        }
+
+        /**
+         * @brief getter for all BBC blocks
+         * @author Matthias Schartner
+         *
+         * @return list of all BBC blocks
+         */
+        const std::vector<std::shared_ptr<const Bbc>> &getBbcs() const {
+            return bbcs_;
+        }
+
+        /**
+         * @brief getter for all FREQ blocks
+         * @author Matthias Schartner
+         *
+         * @return list of all FREQ blocks
+         */
+        const std::vector<std::shared_ptr<const Freq>> &getFreqs() const {
+            return freqs_;
+        }
+
+        /**
+         * @brief getter for all TRACKS blocks
+         * @author Matthias Schartner
+         *
+         * @return list of all TRACKS blocks
+         */
+        const std::vector<std::shared_ptr<const Track>> &getTracks() const {
+            return tracks_;
+        }
+
+        /**
+         * @brief getter for all track frame formats
+         * @author Matthias Schartner
+         *
+         * @return list of all track frame formats
+         */
+        const std::vector<std::shared_ptr<const std::string>> &getTrackFrameFormats() const {
+            return trackFrameFormats_;
+        }
+
     private:
         static unsigned long nextId; ///< next id for this object type
         std::vector<std::string> stationNames_; ///< station names
