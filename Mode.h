@@ -273,6 +273,80 @@ namespace VieVS{
             return bands_;
         }
 
+        /**
+         * @brief getter for number of stations
+         * @author Matthias Schartner
+         * 
+         * @return number of stations
+         */
+        unsigned long getNSta() const{
+            return nsta_;
+        }
+
+        /**
+         * @brief change IF for station
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         * It changes the IF for station staid
+         *
+         * @param idx index of new IF
+         * @param staid target station
+         */
+        void changeIf(int idx, unsigned long staid);
+
+        /**
+         * @brief change BBC for station
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         * It changes the BBC for station staid
+         *
+         * @param idx index of new BBC
+         * @param staid target station
+         */
+        void changeBbc(int idx, unsigned long staid);
+
+        /**
+         * @brief change TRACK for station
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         * It changes the TRACK for station staid
+         *
+         * @param idx index of new TRACK
+         * @param staid target station
+         */
+        void changeTracks(int idx, unsigned long staid);
+
+        /**
+         * @brief change track frame format for station
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         * It changes the track frame format for station staid
+         *
+         * @param idx index of new track frame format
+         * @param staid target station
+         */
+        void changeTrackFrameFormat(int idx, unsigned long staid);
+
+        /**
+         * @brief change FREQ for station
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         * It changes the FREQ for station staid
+         *
+         * @param idx index of new FREQ
+         * @param staid target station
+         */
+        void changeFreq(int idx, unsigned long staid);
+
+        void getFreqPerIndex(int idx){
+
+        }
+
     private:
         static unsigned long nextId; ///< next id for this object type
 

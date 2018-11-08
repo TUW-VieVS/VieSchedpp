@@ -53,6 +53,8 @@ namespace VieVS{
      * @date 17.09.2018
      */
     class Track: public VieVS_NamedObject {
+    private:
+        class Fanout_definition;
     public:
 
         /**
@@ -71,7 +73,7 @@ namespace VieVS{
          * @param b bitsream type
          * @return vex format type
          */
-        std::string toString(Bitstream b) const{
+        static std::string toString(Bitstream b){
             switch(b){
                 case Bitstream::sign: return "sign";
                 case Bitstream::mag: return "mag";
@@ -133,6 +135,29 @@ namespace VieVS{
          */
         void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
 
+        /**
+          * @brief get fanout definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return all fanout definitions
+          */
+        const std::vector<Fanout_definition> &getFanout_defs() const{
+            return fanout_definitions_;
+        }
+
+        /**
+          * @brief reference fanout definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return reference to all fanout definitions
+          */
+        std::vector<Fanout_definition> &refFanout_defs(){
+            return fanout_definitions_;
+        }
     private:
         static unsigned long nextId; ///< next id for this object type
 

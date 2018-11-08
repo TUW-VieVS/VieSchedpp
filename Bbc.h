@@ -47,6 +47,8 @@ namespace VieVS{
      * @date 17.09.2018
      */
     class Bbc: public VieVS_NamedObject {
+    private:
+        class Bbc_assign;
     public:
 
         /**
@@ -75,6 +77,30 @@ namespace VieVS{
          * @param comment optional comment line
          */
         void toVexBbcDefinition( std::ofstream &of, const std::string &comment = "") const;
+
+        /**
+          * @brief get BBC definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return all BBC definitions
+         */
+        const std::vector<Bbc_assign> &getBbc_assigns() const {
+            return bbc_assigns_;
+        }
+
+        /**
+          * @brief reference BBC definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return reference to all BBC definitions
+         */
+        std::vector<Bbc_assign> &refBbc_assigns() {
+            return bbc_assigns_;
+        }
 
     private:
         static unsigned long nextId; ///< next id for this object type

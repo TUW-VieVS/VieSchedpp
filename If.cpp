@@ -33,7 +33,7 @@ void If::addIf(std::string name, std::string physical_name, If::Polarization pol
                If::Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency) {
 
     if_defs_.emplace_back(name, physical_name, polarization, total_lo, net_sidband, phase_cal_freq_spacing,
-                          phase_cal_freq_spacing);
+                          phase_cal_base_freqency);
 
 }
 

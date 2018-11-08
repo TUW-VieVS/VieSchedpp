@@ -48,6 +48,8 @@ namespace VieVS{
      * @date 17.09.2018
      */
     class If: public VieVS_NamedObject {
+    private:
+        class If_def;
     public:
 
         /**
@@ -80,7 +82,7 @@ namespace VieVS{
          * @param p polarization type
          * @return string in vex format
          */
-        std::string toString(Polarization p) const {
+        static std::string toString(Polarization p) {
             switch(p){
                 case Polarization::R: return "R";
                 case Polarization::L: return "L";
@@ -98,7 +100,7 @@ namespace VieVS{
          * @param p net sideband type
          * @return string in vex format
          */
-        std::string toString(Net_sidband n) const {
+        static std::string toString(Net_sidband n) {
             switch(n){
                 case Net_sidband::U: return "U";
                 case Net_sidband::L: return "L";
@@ -137,6 +139,32 @@ namespace VieVS{
          * @param comment optional comment
          */
         void toVecIfDefinition( std::ofstream &of, const std::string &comment = "") const;
+
+
+        /**
+          * @brief get IF definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return all IF definitions
+          */
+        const std::vector<If_def> &getIf_defs() const{
+            return if_defs_;
+        }
+
+        /**
+          * @brief reference IF definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return reference to all IF definitions
+          */
+        std::vector<If_def> &refIf_defs(){
+            return if_defs_;
+        }
+
 
     private:
         static unsigned long nextId; ///< next id for this object type

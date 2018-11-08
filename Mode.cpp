@@ -325,4 +325,99 @@ void Mode::toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> 
     of << "    enddef;\n";
 }
 
+void Mode::changeIf(int idx, unsigned long staid) {
+    int c = 0;
+    for(auto &any: ifs_){
+        if(c == idx) {
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it == any.second.end()){
+                any.second.push_back(staid);
+            }
+
+        }else{
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it != any.second.end()){
+                any.second.erase(it);
+            }
+        }
+        ++c;
+    }
+}
+
+void Mode::changeBbc(int idx, unsigned long staid) {
+    int c = 0;
+    for(auto &any: bbcs_){
+        if(c == idx) {
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it == any.second.end()){
+                any.second.push_back(staid);
+            }
+
+        }else{
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it != any.second.end()){
+                any.second.erase(it);
+            }
+        }
+        ++c;
+    }
+}
+
+void Mode::changeTracks(int idx, unsigned long staid) {
+    int c = 0;
+    for(auto &any: tracks_){
+        if(c == idx) {
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it == any.second.end()){
+                any.second.push_back(staid);
+            }
+
+        }else{
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it != any.second.end()){
+                any.second.erase(it);
+            }
+        }
+        ++c;
+    }
+}
+
+void Mode::changeTrackFrameFormat(int idx, unsigned long staid) {
+    int c = 0;
+    for(auto &any: track_frame_formats_){
+        if(c == idx) {
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it == any.second.end()){
+                any.second.push_back(staid);
+            }
+
+        }else{
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it != any.second.end()){
+                any.second.erase(it);
+            }
+        }
+        ++c;
+    }
+}
+
+void Mode::changeFreq(int idx, unsigned long staid) {
+    int c = 0;
+    for(auto &any: freqs_){
+        if(c == idx) {
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it == any.second.end()){
+                any.second.push_back(staid);
+            }
+
+        }else{
+            auto it = find(any.second.begin(), any.second.end(), staid);
+            if( it != any.second.end()){
+                any.second.erase(it);
+            }
+        }
+        ++c;
+    }
+}
+
 

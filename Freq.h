@@ -51,6 +51,8 @@ namespace VieVS{
      * @date 17.09.2018
      */
     class Freq: public VieVS_NamedObject {
+    private:
+        class Chan_def;
     public:
 
         /**
@@ -71,7 +73,7 @@ namespace VieVS{
          * @param n Net_sideband type
          * @return string in vex format
          */
-        std::string toString( Net_sideband n) const{
+        static std::string toString( Net_sideband n){
             switch(n){
                 case Net_sideband::U: return "U";
                 case Net_sideband::L: return "L";
@@ -151,6 +153,29 @@ namespace VieVS{
          */
         void toVexFreqDefinition(std::ofstream &of, const std::string &comment = "") const;
 
+        /**
+          * @brief get channel definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return all channel definitions
+          */
+        const std::vector<Chan_def> &getChan_defs() const{
+            return chan_defs_;
+        }
+
+        /**
+          * @brief reference channel definitions
+          * @author Matthias schartner
+          *
+          * necessary for custom observing mode in GUI
+          *
+          * @return reference to all channel definitions
+          */
+        std::vector<Chan_def> &refChan_defs(){
+            return chan_defs_;
+        }
 
     private:
         static unsigned long nextId; ///< next id for this object type

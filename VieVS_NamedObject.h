@@ -97,6 +97,7 @@ namespace VieVS{
 
         /**
          * @brief check if object has name
+         * @author Matthias Schartner
          *
          * checks object name and alternative object name
          *
@@ -105,6 +106,20 @@ namespace VieVS{
          */
         bool hasName(const std::string &name) const{
             return name_ == name || alternativeName_ == name;
+        }
+
+        /**
+         * @brief change name of object
+         * @author Matthias Schartner
+         *
+         * Typically Objects should have an distinct name which should not change.
+         * Try to avoid this function in the VieSchedpp Project!
+         * It is implemented mainly for GUI interactions through VieSchedppGUI.
+         *
+         * @param newName new name
+         */
+        void changeName(const std::string &newName){
+            name_ = newName;
         }
 
     private:
