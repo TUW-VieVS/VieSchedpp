@@ -89,8 +89,8 @@ void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCata
 
 
     // add freq to mode
-    addFreq(thisFreq);
-    mode->addFreq(thisFreq, freqIds);
+    addBlock(thisFreq);
+    mode->addBlock(thisFreq, freqIds);
 }
 
 std::map<int,int> ObservingMode::readSkdTracks(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd) {
@@ -185,8 +185,8 @@ std::map<int,int> ObservingMode::readSkdTracks(const std::shared_ptr<Mode> &mode
         }
 
         // add track to mode
-        addTrack(track);
-        mode->addTrack(track, ids);
+        addBlock(track);
+        mode->addBlock(track, ids);
     }
 
     return channelNr2Bbc;
@@ -243,7 +243,7 @@ void ObservingMode::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalo
 
         // add IF to Mode
         addIf(thisIf);
-        mode->addIf(thisIf, ids);
+        mode->addBlock(thisIf, ids);
     }
 }
 
@@ -278,8 +278,8 @@ void ObservingMode::readSkdBbc(const std::shared_ptr<Mode> &mode, const SkdCatal
         }
 
         // add BBC to Mode
-        addBbc(bbc);
-        mode->addBbc(bbc, ids);
+        addBlock(bbc);
+        mode->addBlock(bbc, ids);
     }
 }
 
@@ -320,8 +320,8 @@ void ObservingMode::readSkdTrackFrameFormat(const std::shared_ptr<Mode> &mode, c
             }
         }
 
-        addTrackFrameFormat(thisRecorder);
-        mode->addTrackFrameFormat(make_shared<std::string>(thisRecorder), ids);
+        addBlock(thisRecorder);
+        mode->addBlock(make_shared<std::string>(thisRecorder), ids);
     }
 
 }
@@ -339,7 +339,7 @@ void ObservingMode::toVexFreqBlock(std::ofstream &of) const {
         string c = "* ";
         for (const auto &mode : modes_) {
             c.append(mode.get()->getName());
-            const auto &o_all = mode->getAllStationsWithFreq(any);
+            const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
                     c.append(" : ").append(stationNames_.at(i));
@@ -358,7 +358,7 @@ void ObservingMode::toVexBbcBlock(std::ofstream &of) const {
         string c = "* ";
         for (const auto &mode : modes_) {
             c.append(mode.get()->getName());
-            const auto &o_all = mode->getAllStationsWithBbc(any);
+            const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
                     c.append(" : ").append(stationNames_.at(i));
@@ -377,7 +377,7 @@ void ObservingMode::toVexIfBlock(std::ofstream &of) const {
         string c = "* ";
         for (const auto &mode : modes_) {
             c.append(mode.get()->getName());
-            const auto &o_all = mode->getAllStationsWithIf(any);
+            const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
                     c.append(" : ").append(stationNames_.at(i));
@@ -397,7 +397,7 @@ void ObservingMode::toVexTracksBlock(std::ofstream &of) const {
         string c = "* ";
         for (const auto &mode : modes_) {
             c.append(mode.get()->getName());
-            const auto &o_all = mode->getAllStationsWithTrack(any);
+            const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
                     c.append(" : ").append(stationNames_.at(i));
@@ -415,7 +415,7 @@ void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
         string c = "* ";
         for (const auto &mode : modes_) {
             c.append(mode.get()->getName());
-            const auto &o_all = mode->getAllStationsWithTrackFrameFormat(any);
+            const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
                     c.append(" : ").append(stationNames_.at(i));

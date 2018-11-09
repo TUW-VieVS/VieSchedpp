@@ -69,7 +69,7 @@ namespace VieVS{
          * @param newIf new IF block
          * @param staids corresponding station Ids
          */
-        void addIf(const std::shared_ptr<const If> &newIf, const std::vector<unsigned long> &staids){
+        void addBlock(const std::shared_ptr<const If> &newIf, const std::vector<unsigned long> &staids){
             ifs_.emplace_back(newIf, staids);
         }
 
@@ -80,7 +80,7 @@ namespace VieVS{
          * @param newBbc new BBC block
          * @param staids corresponding station Ids
          */
-        void addBbc(const std::shared_ptr<const Bbc> &newBbc, const std::vector<unsigned long> &staids){
+        void addBlock(const std::shared_ptr<const Bbc> &newBbc, const std::vector<unsigned long> &staids){
             bbcs_.emplace_back(newBbc, staids);
         }
 
@@ -91,7 +91,7 @@ namespace VieVS{
          * @param newFreq new FREQ block
          * @param staids corresponding station Ids
          */
-        void addFreq(const std::shared_ptr<const Freq> &newFreq, const std::vector<unsigned long> &staids){
+        void addBlock(const std::shared_ptr<const Freq> &newFreq, const std::vector<unsigned long> &staids){
             freqs_.emplace_back(newFreq, staids);
             const auto &tmp = newFreq->getBands();
             bands_.insert(tmp.begin(), tmp.end());
@@ -104,7 +104,7 @@ namespace VieVS{
          * @param newTrack new Tracks block
          * @param staids corresponding station Ids
          */
-        void addTrack(const std::shared_ptr<const Track> &newTrack, const std::vector<unsigned long> &staids){
+        void addBlock(const std::shared_ptr<const Track> &newTrack, const std::vector<unsigned long> &staids){
             tracks_.emplace_back(newTrack, staids);
         }
 
@@ -115,7 +115,8 @@ namespace VieVS{
          * @param newTrackFrameFormat new track frame format block
          * @param staids corresponding station Ids
          */
-        void addTrackFrameFormat(const std::shared_ptr<const std::string> &newTrackFrameFormat, const std::vector<unsigned long> &staids){
+        void addBlock(const std::shared_ptr<const std::string> &newTrackFrameFormat,
+                      const std::vector<unsigned long> &staids){
             track_frame_formats_.emplace_back(newTrackFrameFormat, staids);
         }
 
@@ -207,7 +208,8 @@ namespace VieVS{
          * @param this_if target IF block
          * @return list of stations
          */
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithIf(const std::shared_ptr<const If> &this_if)const ;
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBlock(
+                const std::shared_ptr<const If> &this_if)const ;
 
         /**
          * @brief get list of all station per BBC block
@@ -216,7 +218,8 @@ namespace VieVS{
          * @param bbc target BBC block
          * @return list of stations
          */
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBbc(const std::shared_ptr<const Bbc> &bbc)const ;
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBlock(
+                const std::shared_ptr<const Bbc> &bbc)const ;
 
         /**
          * @brief get list of all station per FREQ block
@@ -225,7 +228,8 @@ namespace VieVS{
          * @param freq target FREQ block
          * @return list of stations
          */
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithFreq(const std::shared_ptr<const Freq> &freq)const ;
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBlock(
+                const std::shared_ptr<const Freq> &freq)const ;
 
         /**
          * @brief get list of all station per TRACKS block
@@ -234,7 +238,8 @@ namespace VieVS{
          * @param track target TRACKS block
          * @return list of stations
          */
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrack(const std::shared_ptr<const Track> &track)const ;
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBlock(
+                const std::shared_ptr<const Track> &track)const ;
 
         /**
          * @brief get list of all station per track frame format
@@ -243,7 +248,8 @@ namespace VieVS{
          * @param trackFrameFormat target track frame format
          * @return list of stations
          */
-        boost::optional<const std::vector<unsigned long> &>getAllStationsWithTrackFrameFormat(const std::shared_ptr<const std::string> &trackFrameFormat)const ;
+        boost::optional<const std::vector<unsigned long> &>getAllStationsWithBlock(
+                const std::shared_ptr<const std::string> &trackFrameFormat)const ;
 
         /**
          * @brief create summary
@@ -343,9 +349,66 @@ namespace VieVS{
          */
         void changeFreq(int idx, unsigned long staid);
 
-        void getFreqPerIndex(int idx){
-
+        /**
+         * @brief remove FREQ block
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of block which whould be removed
+         */
+        void removeFreq(int idx){
+            freqs_.erase(freqs_.begin()+idx);
         }
+
+        /**
+         * @brief remove BBC block
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of block which whould be removed
+         */
+        void removeBbc(int idx){
+            bbcs_.erase(bbcs_.begin()+idx);
+        }
+
+        /**
+         * @brief remove IF block
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of block which whould be removed
+         */
+        void removeIf(int idx){
+            ifs_.erase(ifs_.begin()+idx);
+        }
+
+        /**
+         * @brief remove TRACKS block
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of block which whould be removed
+         */
+        void removeTracks(int idx){
+            tracks_.erase(tracks_.begin()+idx);
+        }
+
+        /**
+         * @brief remove track frame format
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of block which whould be removed
+         */
+        void removeTrackFrameFormats(int idx){
+            track_frame_formats_.erase(track_frame_formats_.begin()+idx);
+        }
+
 
     private:
         static unsigned long nextId; ///< next id for this object type

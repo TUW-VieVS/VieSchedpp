@@ -161,7 +161,8 @@ double Mode::recordingRate(unsigned long staid1, unsigned long staid2, const std
     return it2->second;
 }
 
-boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithIf(const std::shared_ptr<const If> &this_if) const {
+boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
+        const std::shared_ptr<const If> &this_if) const {
     for(const auto &any : ifs_) {
         if (any.first == this_if) {
             return any.second;
@@ -170,7 +171,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithIf(c
     return boost::optional<const vector<unsigned long> &>();
 }
 
-boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBbc(const std::shared_ptr<const Bbc> &bbc) const {
+boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(const std::shared_ptr<const Bbc> &bbc) const {
     for(const auto &any : bbcs_) {
         if (any.first == bbc) {
             return any.second;
@@ -179,7 +180,8 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBbc(
     return boost::optional<const vector<unsigned long> &>();
 }
 
-boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithFreq(const std::shared_ptr<const Freq> &freq) const {
+boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
+        const std::shared_ptr<const Freq> &freq) const {
     for(const auto &any : freqs_) {
         if (any.first == freq) {
             return any.second;
@@ -188,7 +190,8 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithFreq
     return boost::optional<const vector<unsigned long> &>();
 }
 
-boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithTrack(const std::shared_ptr<const Track> &track) const {
+boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
+        const std::shared_ptr<const Track> &track) const {
     for(const auto &any : tracks_) {
         if (any.first == track) {
             return any.second;
@@ -197,9 +200,10 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithTrac
     return boost::optional<const vector<unsigned long> &>();
 }
 
-boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithTrackFrameFormat(const std::shared_ptr<const std::string> &trackFrameFormat) const {
+boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
+        const std::shared_ptr<const std::string> &trackFrameFormat) const {
     for(const auto &any : track_frame_formats_) {
-        if (any.first == trackFrameFormat) {
+        if (*any.first.get() == *trackFrameFormat.get()) {
             return any.second;
         }
     }

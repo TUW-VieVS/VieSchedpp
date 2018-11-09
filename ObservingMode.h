@@ -139,7 +139,7 @@ namespace VieVS{
          *
          * @param newBbc BBC block
          */
-        void addBbc(const std::shared_ptr<const Bbc> &newBbc){
+        void addBlock(const std::shared_ptr<const Bbc> &newBbc){
             bbcs_.push_back(newBbc);
         }
 
@@ -149,7 +149,7 @@ namespace VieVS{
          *
          * @param newFreq FREQ block
          */
-        void addFreq(const std::shared_ptr<const Freq> &newFreq){
+        void addBlock(const std::shared_ptr<const Freq> &newFreq){
             freqs_.push_back(newFreq);
             const auto &tmp = newFreq->getBands();
             ObservingMode::bands_.insert(tmp.begin(), tmp.end());
@@ -161,7 +161,7 @@ namespace VieVS{
          *
          * @param newTrack TRACKS block
          */
-        void addTrack(const std::shared_ptr<const Track> &newTrack){
+        void addBlock(const std::shared_ptr<const Track> &newTrack){
             tracks_.push_back(newTrack);
         }
 
@@ -171,7 +171,7 @@ namespace VieVS{
          *
          * @param newTrackFrameFormat track frame format
          */
-        void addTrackFrameFormat(const std::string &newTrackFrameFormat){
+        void addBlock(const std::string &newTrackFrameFormat){
             trackFrameFormats_.emplace_back(std::make_shared<const std::string>(newTrackFrameFormat));
         }
 
