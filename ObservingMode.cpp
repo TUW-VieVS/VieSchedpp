@@ -112,7 +112,8 @@ std::map<int,int> ObservingMode::readSkdTracks(const std::shared_ptr<Mode> &mode
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2tracksMap.at(thisStation) == tracksId){
+            const auto &it = staName2tracksMap.find(thisStation);
+            if(it != staName2tracksMap.end() && it->second == tracksId){
                 ids.push_back(i);
             }
         }
@@ -207,7 +208,8 @@ void ObservingMode::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalo
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2loifId.at(thisStation) == loifId){
+            const auto it = staName2loifId.find(thisStation);
+            if(it != staName2loifId.end() && it->second == loifId){
                 ids.push_back(i);
             }
         }
@@ -261,7 +263,9 @@ void ObservingMode::readSkdBbc(const std::shared_ptr<Mode> &mode, const SkdCatal
         vector<unsigned long> ids;
         for(unsigned long i=0; i<staNames.size(); ++i){
             const auto &thisStation = staNames[i];
-            if(staName2loifId.at(thisStation) == bbcId){
+
+            const auto it = staName2loifId.find(thisStation);
+            if(it != staName2loifId.end() && it->second == bbcId){
                 ids.push_back(i);
             }
         }
