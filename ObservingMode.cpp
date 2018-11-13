@@ -244,7 +244,7 @@ void ObservingMode::readSkdIf(const std::shared_ptr<Mode> &mode, const SkdCatalo
         }
 
         // add IF to Mode
-        addIf(thisIf);
+        addBlock(thisIf);
         mode->addBlock(thisIf, ids);
     }
 }

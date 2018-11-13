@@ -129,7 +129,7 @@ namespace VieVS{
          *
          * @param newIf IF block
          */
-        void addIf(const std::shared_ptr<const If> &newIf){
+        void addBlock(const std::shared_ptr<const If> &newIf){
             ifs_.push_back(newIf);
         }
 
@@ -274,6 +274,8 @@ namespace VieVS{
          * @brief getter for all station names
          * @author Matthias Schartner
          *
+         * This function is used for setting up manual observing mode in the GUI
+         *
          * @return all station names
          */
         const std::vector<std::string> &getStationNames() const {
@@ -283,6 +285,8 @@ namespace VieVS{
         /**
          * @brief getter for all MODE blocks
          * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
          *
          * @return list of all MODE blocks
          */
@@ -294,6 +298,8 @@ namespace VieVS{
          * @brief getter for all IF blocks
          * @author Matthias Schartner
          *
+         * This function is used for setting up manual observing mode in the GUI
+         *
          * @return list of all IF blocks
          */
         const std::vector<std::shared_ptr<const If>> &getIfs() const {
@@ -303,6 +309,8 @@ namespace VieVS{
         /**
          * @brief getter for all BBC blocks
          * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
          *
          * @return list of all BBC blocks
          */
@@ -314,6 +322,8 @@ namespace VieVS{
          * @brief getter for all FREQ blocks
          * @author Matthias Schartner
          *
+         * This function is used for setting up manual observing mode in the GUI
+         *
          * @return list of all FREQ blocks
          */
         const std::vector<std::shared_ptr<const Freq>> &getFreqs() const {
@@ -323,6 +333,8 @@ namespace VieVS{
         /**
          * @brief getter for all TRACKS blocks
          * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
          *
          * @return list of all TRACKS blocks
          */
@@ -334,10 +346,97 @@ namespace VieVS{
          * @brief getter for all track frame formats
          * @author Matthias Schartner
          *
+         * This function is used for setting up manual observing mode in the GUI
+         *
          * @return list of all track frame formats
          */
         const std::vector<std::shared_ptr<const std::string>> &getTrackFrameFormats() const {
             return trackFrameFormats_;
+        }
+
+        /**
+         * @brief get MODE block per index
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of requried block
+         * @return required block
+         */
+        std::shared_ptr<const Mode> getModePerIndex(int idx){
+            if(idx > modes_.size()){
+                return nullptr;
+            }else{
+                return  modes_.at(idx);
+            }
+        }
+
+        /**
+         * @brief get FREQ block per index
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of requried block
+         * @return required block
+         */
+        std::shared_ptr<const Freq> getFreqPerIndex(int idx){
+            if(idx > freqs_.size()){
+                return nullptr;
+            }else{
+                return  freqs_.at(idx);
+            }
+        }
+
+        /**
+         * @brief get BBC block per index
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of requried block
+         * @return required block
+         */
+        std::shared_ptr<const Bbc> getBbcPerIndex(int idx){
+            if(idx > bbcs_.size()){
+                return nullptr;
+            }else{
+                return  bbcs_.at(idx);
+            }
+        }
+
+        /**
+         * @brief get IF block per index
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of requried block
+         * @return required block
+         */
+        std::shared_ptr<const If> getIfPerIndex(int idx){
+            if(idx > ifs_.size()){
+                return nullptr;
+            }else{
+                return  ifs_.at(idx);
+            }
+        }
+
+        /**
+         * @brief get TRACKS block per index
+         * @author Matthias Schartner
+         *
+         * This function is used for setting up manual observing mode in the GUI
+         *
+         * @param idx index of requried block
+         * @return required block
+         */
+        std::shared_ptr<const Track> getTracksPerIndex(int idx){
+            if(idx > tracks_.size()){
+                return nullptr;
+            }else{
+                return  tracks_.at(idx);
+            }
         }
 
     private:
