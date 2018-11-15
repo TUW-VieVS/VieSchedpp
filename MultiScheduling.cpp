@@ -304,6 +304,9 @@ void MultiScheduling::addParameter(vector<MultiScheduling::Parameters> &allPara,
                 allPara[c].subnetting_minParticipatingStations = thisValue;
 
             }else if(name == "weight_factor_idle_time"){
+                allPara[c].weightIdleTime = thisValue;
+
+            }else if(name == "weight_factor_idle_time_interval"){
                 allPara[c].weightIdleTime_interval = thisValue;
 
             }else if(name == "weight_factor_low_declination_begin"){
