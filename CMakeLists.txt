@@ -22,69 +22,69 @@ project(VieSchedpp)
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCE_FILES
-        AbstractAntenna.cpp AbstractAntenna.h
-        Baseline.cpp Baseline.h
-        AstronomicalParameters.cpp AstronomicalParameters.h
-        AbstractCableWrap.cpp AbstractCableWrap.h
-        CalibratorBlock.cpp CalibratorBlock.h
-        Constants.h
-        Equipment.cpp Equipment.h
-        StationEndposition.cpp StationEndposition.h
-        AbstractFlux.cpp AbstractFlux.h
-        AbstractHorizonMask.cpp AbstractHorizonMask.h
+        Station/Antenna/AbstractAntenna.cpp Station/Antenna/AbstractAntenna.h
+        Station/Baseline.cpp Station/Baseline.h
+        Misc/AstronomicalParameters.cpp Misc/AstronomicalParameters.h
+        Station/CableWrap/AbstractCableWrap.cpp Station/CableWrap/AbstractCableWrap.h
+        Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h
+        Misc/Constants.h
+        Station/Equip/Equipment.cpp Station/Equip/Equipment.h
+        Misc/StationEndposition.cpp Misc/StationEndposition.h
+        Source/Flux/AbstractFlux.cpp Source/Flux/AbstractFlux.h
+        Station/HorizonMask/AbstractHorizonMask.cpp Station/HorizonMask/AbstractHorizonMask.h
         Initializer.cpp Initializer.h
-        LookupTable.cpp LookupTable.h
+        Misc/LookupTable.cpp Misc/LookupTable.h
         main.cpp
-        MultiScheduling.cpp MultiScheduling.h
-        Output.cpp Output.h
-        ParameterGroup.cpp ParameterGroup.h
-        ParameterSettings.cpp ParameterSettings.h
-        ParameterSetup.cpp ParameterSetup.h
-        PointingVector.cpp PointingVector.h
-        Position.cpp Position.h
+        Misc/MultiScheduling.cpp Misc/MultiScheduling.h
+        Output/Output.cpp Output/Output.h
+        XML/ParameterGroup.cpp XML/ParameterGroup.h
+        XML/ParameterSettings.cpp XML/ParameterSettings.h
+        XML/ParameterSetup.cpp XML/ParameterSetup.h
+        Scan/PointingVector.cpp Scan/PointingVector.h
+        Station/Position.cpp Station/Position.h
         README.md
-        Scan.cpp Scan.h
-        ScanTimes.cpp ScanTimes.h
+        Scan/Scan.cpp Scan/Scan.h
+        Scan/ScanTimes.cpp Scan/ScanTimes.h
         Scheduler.cpp Scheduler.h
-        SkdCatalogReader.cpp SkdCatalogReader.h
-        SkyCoverage.cpp SkyCoverage.h
-        sofa.h sofam.h
-        Source.cpp Source.h
-        Station.cpp Station.h
-        Subcon.cpp Subcon.h
-        TimeSystem.cpp TimeSystem.h
+        Input/SkdCatalogReader.cpp Input/SkdCatalogReader.h
+        Station/SkyCoverage.cpp Station/SkyCoverage.h
+        Misc/sofa.h Misc/sofam.h
+        Source/Source.cpp Source/Source.h
+        Station/Station.cpp Station/Station.h
+        Scan/Subcon.cpp Scan/Subcon.h
+        Misc/TimeSystem.cpp Misc/TimeSystem.h
         VieSchedpp.h VieSchedpp.cpp
-        WeightFactors.cpp WeightFactors.h
-        Vex.cpp Vex.h
-        Skd.cpp Skd.h
-        SkdParser.cpp SkdParser.h
-        LogParser.cpp LogParser.h
-        VieVS_Object.cpp
-        VieVS_Object.h
-        VieVS_NamedObject.cpp
-        VieVS_NamedObject.h
-        Flux_B.cpp Flux_B.h
-        Flux_M.cpp Flux_M.h
-        Antenna_AzEl.cpp Antenna_AzEl.h
-        Antenna_HaDc.cpp Antenna_HaDc.h
-        Antenna_XYew.cpp Antenna_XYew.h
-        CableWrap_AzEl.cpp CableWrap_AzEl.h
-        CableWrap_HaDc.cpp CableWrap_HaDc.h
-        CableWrap_XYew.cpp CableWrap_XYew.h
-        Equipment_elDependent.cpp Equipment_elDependent.h
-        HorizonMask_line.cpp HorizonMask_line.h
-        HorizonMask_step.cpp HorizonMask_step.h
-        HighImpactScanDescriptor.cpp HighImpactScanDescriptor.h
-        Subnetting.h
-        util.h util.cpp
-        Network.cpp Network.h
-        Observation.cpp Observation.h
-        Flags.h Flags.cpp
-        Mode.cpp Mode.h
-        Bbc.cpp Bbc.h
-        If.cpp If.h
-        Track.cpp Track.h
-        Freq.cpp Freq.h ObservingMode.cpp ObservingMode.h)
+        Misc/WeightFactors.cpp Misc/WeightFactors.h
+        Output/Vex.cpp Output/Vex.h
+        Output/Skd.cpp Output/Skd.h
+        Input/SkdParser.cpp Input/SkdParser.h
+        Input/LogParser.cpp Input/LogParser.h
+        Misc/VieVS_Object.cpp
+        Misc/VieVS_Object.h
+        Misc/VieVS_NamedObject.cpp
+        Misc/VieVS_NamedObject.h
+        Source/Flux/Flux_B.cpp Source/Flux/Flux_B.h
+        Source/Flux/Flux_M.cpp Source/Flux/Flux_M.h
+        Station/Antenna/Antenna_AzEl.cpp Station/Antenna/Antenna_AzEl.h
+        Station/Antenna/Antenna_HaDc.cpp Station/Antenna/Antenna_HaDc.h
+        Station/Antenna/Antenna_XYew.cpp Station/Antenna/Antenna_XYew.h
+        Station/CableWrap/CableWrap_AzEl.cpp Station/CableWrap/CableWrap_AzEl.h
+        Station/CableWrap/CableWrap_HaDc.cpp Station/CableWrap/CableWrap_HaDc.h
+        Station/CableWrap/CableWrap_XYew.cpp Station/CableWrap/CableWrap_XYew.h
+        Station/Equip/Equipment_elDependent.cpp Station/Equip/Equipment_elDependent.h
+        Station/HorizonMask/HorizonMask_line.cpp Station/HorizonMask/HorizonMask_line.h
+        Station/HorizonMask/HorizonMask_step.cpp Station/HorizonMask/HorizonMask_step.h
+        Misc/HighImpactScanDescriptor.cpp Misc/HighImpactScanDescriptor.h
+        Misc/Subnetting.h
+        Misc/util.h Misc/util.cpp
+        Station/Network.cpp Station/Network.h
+        Scan/Observation.cpp Scan/Observation.h
+        Misc/Flags.h Misc/Flags.cpp
+        ObservingMode/Mode.cpp ObservingMode/Mode.h
+        ObservingMode/Bbc.cpp ObservingMode/Bbc.h
+        ObservingMode/If.cpp ObservingMode/If.h
+        ObservingMode/Track.cpp ObservingMode/Track.h
+        ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h)
 
 add_executable(VieSchedpp ${SOURCE_FILES})
 

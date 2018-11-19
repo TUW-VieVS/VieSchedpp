@@ -32,12 +32,12 @@
 #include <tuple>
 #include <boost/optional.hpp>
 
-#include "Network.h"
+#include "Station/Network.h"
 #include "Initializer.h"
-#include "Subcon.h"
-#include "Constants.h"
-#include "StationEndposition.h"
-#include "Subnetting.h"
+#include "Scan/Subcon.h"
+#include "Misc/Constants.h"
+#include "Misc/StationEndposition.h"
+#include "Misc/Subnetting.h"
 
 namespace VieVS{
     /**

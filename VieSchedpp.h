@@ -51,10 +51,10 @@
 
 #include "Initializer.h"
 #include "Scheduler.h"
-#include "Output.h"
-#include "ParameterSettings.h"
-#include "HighImpactScanDescriptor.h"
-#include "Mode.h"
+#include "Output/Output.h"
+#include "XML/ParameterSettings.h"
+#include "Misc/HighImpactScanDescriptor.h"
+#include "ObservingMode/Mode.h"
 
 
 #ifdef _OPENMP

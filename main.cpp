@@ -18,8 +18,8 @@
 
 #include <chrono>
 #include "VieSchedpp.h"
-#include "SkdParser.h"
-#include "LogParser.h"
+#include "Input/SkdParser.h"
+#include "Input/LogParser.h"
 
 /**
  * @file main.cpp
