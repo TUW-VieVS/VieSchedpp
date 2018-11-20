@@ -139,10 +139,11 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param other 2nd FREQ block
-         * @param bits number of sampled bits
+         * @param bitsPerChannel number of sampled bits per channel
          * @return total mutual observing rate per band
          */
-        std::unordered_map<std::string,double> observingRate(const std::shared_ptr<const Freq> &other, int bits) const;
+        std::unordered_map<std::string,double> observingRate(const std::shared_ptr<const Freq> &other,
+                                                             const std::map<std::string, int> &bitsPerChannel) const;
 
         /**
          * @brief writes FREQ block in vex format

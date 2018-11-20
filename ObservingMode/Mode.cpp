@@ -48,8 +48,8 @@ void Mode::calcRecordingRates() {
                 continue;
             }
 
-            auto bits = tracks1.get()->numberOfBits(tracks2.get());
-            auto overlappingFrequencies = freq1.get()->observingRate(freq2.get(), bits);
+            auto bitsPerChannel = tracks1.get()->numberOfBitsPerChannel(tracks2.get());
+            auto overlappingFrequencies = freq1.get()->observingRate(freq2.get(), bitsPerChannel);
 
             staids2recordingRate_[{staid1, staid2}] = overlappingFrequencies;
         }

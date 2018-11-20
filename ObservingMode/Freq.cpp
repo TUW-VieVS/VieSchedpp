@@ -37,7 +37,8 @@ void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband ne
 
 }
 
-std::unordered_map<std::string, double> Freq::observingRate(const std::shared_ptr<const Freq> &other, int bits) const {
+std::unordered_map<std::string, double> Freq::observingRate(const std::shared_ptr<const Freq> &other,
+                                                            const std::map<string, int> &bitsPerChannel) const {
 
     unordered_map<string, double> band2observingRate;
     for(const auto &band : bands_){
@@ -46,7 +47,7 @@ std::unordered_map<std::string, double> Freq::observingRate(const std::shared_pt
 
     if(other->hasName(getName())){
         for(const auto &channel : chan_defs_){
-            band2observingRate[channel.bandId_] +=  bits * sample_rate_ * 1e6;
+            band2observingRate[channel.bandId_] +=  bitsPerChannel.at(channel.chan_id_) * sample_rate_ * 1e6;
         }
     }else if(sample_rate_ == other->sample_rate_){
         for(const auto &channelA : chan_defs_){
@@ -57,7 +58,7 @@ std::unordered_map<std::string, double> Freq::observingRate(const std::shared_pt
                     auto lower_upper_B = lower_upper_bound(channelB.sky_freq_, channelB.chan_bandwidth_, channelB.net_sideband_);
 
                     double overlapping = overlappingBandwidth(lower_upper_A.first, lower_upper_A.second, lower_upper_B.first, lower_upper_B.second);
-                    band2observingRate[channelA.bandId_] += overlapping * 2 * bits * 1e6;
+                    band2observingRate[channelA.bandId_] += overlapping * 2 * bitsPerChannel.at(channelA.chan_id_) * 1e6;
                 }
             }
         }

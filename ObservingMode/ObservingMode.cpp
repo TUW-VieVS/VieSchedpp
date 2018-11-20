@@ -118,7 +118,6 @@ std::map<int,int> ObservingMode::readSkdTracks(const std::shared_ptr<Mode> &mode
             }
         }
         auto track = make_shared<Track>(tracksId);
-        track->setBits(tracksId2bits.at(tracksId));
 
         if(tracksId2fanout.at(tracksId) == 1){
             // 1:1 fanout

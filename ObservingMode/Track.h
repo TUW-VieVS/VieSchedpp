@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <fstream>
 #include <boost/format.hpp>
+#include <map>
 #include "../Misc/VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -89,25 +90,13 @@ namespace VieVS{
         explicit Track(std::string name);
 
         /**
-         * @brief set number of recording bits
-         * @author Matthias Schartner
-         *
-         * @param bits number of recording bits
-         */
-        void setBits(int bits){
-            bits_ = bits;
-        }
-
-        /**
          * @brief get number of recording bits between two TRACKS blocks
          * @author Matthias Schartner
          *
          * @param other other TRACKS block
-         * @return number of recording bits
+         * @return number of recording bits per channel
          */
-        int numberOfBits(const std::shared_ptr<const Track> &other) const{
-            return std::min({bits_, other->bits_});
-        }
+        std::map<std::string, int> numberOfBitsPerChannel(const std::shared_ptr<const Track> &other) const;
 
         /**
          * @brief add new fanout
@@ -220,7 +209,6 @@ namespace VieVS{
         };
 
         std::vector<Fanout_definition> fanout_definitions_; ///< list of fanout definitions
-        int bits_ = 1; ///< number of recording bits
 
     };
 }

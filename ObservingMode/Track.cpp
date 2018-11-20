@@ -76,3 +76,41 @@ void Track::toVexTracksDefinition(std::ofstream &of, const std::string &comment)
     of << "    enddef;\n";
 
 }
+
+map<string, int> Track::numberOfBitsPerChannel(const std::shared_ptr<const Track> &other) const {
+    map<string, int> v;
+    for(const auto &fanout1 : fanout_definitions_){
+        for(const auto &fanout2 : other->fanout_definitions_){
+            if(fanout1.trksid_ == fanout2.trksid_ && fanout1.bitstream_ == fanout2.bitstream_){
+                if(v.find(fanout1.trksid_) != v.end()){
+                    ++v[fanout1.trksid_];
+                    break;
+                }else{
+                    v[fanout1.trksid_] = 1;
+                    break;
+                }
+            }
+        }
+    }
+    return v;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
