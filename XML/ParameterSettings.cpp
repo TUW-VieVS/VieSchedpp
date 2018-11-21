@@ -898,13 +898,16 @@ void ParameterSettings::mode(const std::string &skdMode) {
     master_.add_child("VieSchedpp.mode", mode.get_child("mode"));
 }
 
+void ParameterSettings::mode(const boost::property_tree::ptree &obsMode) {
+    master_.add_child("VieSchedpp.mode.custom", obsMode);
+}
 
 void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     boost::property_tree::ptree mode;
     mode.add("mode.sampleRate", sampleRate);
     mode.add("mode.bits", bits);
 
-    master_.add_child("VieSchedpp.mode.simple", mode.get_child("mode"));
+    master_.add_child("VieSchedpp.mode.type", mode.get_child("mode"));
 }
 
 void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int channels) {
@@ -914,7 +917,7 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, un
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("VieSchedpp.mode.simple.bands.band", band.get_child("band"));
+    master_.add_child("VieSchedpp.mode.type.bands.band", band.get_child("band"));
 }
 
 void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,

@@ -29,12 +29,29 @@ If::If(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
 
 }
 
+If::If(const boost::property_tree::ptree &tree): VieVS_NamedObject{tree.get<std::string>("<xmlattr>.name"), nextId++} {
+    for(const auto &any : tree){
+        if(any.first == "if_def"){
+            if_defs_.emplace_back(any.second);
+        }
+    }
+}
+
 void If::addIf(std::string name, std::string physical_name, If::Polarization polarization, double total_lo,
                If::Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency) {
 
     if_defs_.emplace_back(name, physical_name, polarization, total_lo, net_sidband, phase_cal_freq_spacing,
                           phase_cal_base_freqency);
 
+}
+
+boost::property_tree::ptree If::toPropertytree() const {
+    boost::property_tree::ptree p;
+    p.add("<xmlattr>.name",getName());
+    for(const auto &any : if_defs_){
+        p.add_child("if_def",any.toPropertytree());
+    }
+    return p;
 }
 
 void If::toVecIfDefinition(std::ofstream &of, const std::string &comment) const {
@@ -51,3 +68,44 @@ void If::toVecIfDefinition(std::ofstream &of, const std::string &comment) const 
     of << "    enddef;\n";
 
 }
+
+
+
+If::If_def::If_def(std::string name, std::string physical_name, If::Polarization polarization, double total_lo,
+                   If::Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency):
+        VieVS_NamedObject{std::move(name), If_def::nextId++},
+        physical_name_{std::move(physical_name)},
+        polarization_{polarization},
+        total_lo_{total_lo},
+        net_sidband_{net_sidband},
+        phase_cal_base_frequency_{phase_cal_base_freqency},
+        phase_cal_freq_spacing_{phase_cal_freq_spacing}{
+
+}
+
+If::If_def::If_def(const boost::property_tree::ptree &tree):
+        VieVS_NamedObject{tree.get<std::string>("IF_ID"), If_def::nextId++}  {
+
+    physical_name_ = tree.get<std::string>("physical_name");
+    polarization_ = polarizationFromString(tree.get<std::string>("polarization"));
+    total_lo_ = tree.get<double>("total_lo");
+    net_sidband_ = netSidebandFromString(tree.get<std::string>("net_sidband"));
+    phase_cal_freq_spacing_ = tree.get<double>("phase_cal_freq_spacing");
+    phase_cal_base_frequency_ = tree.get<double>("phase_cal_base_frequency");
+
+}
+
+boost::property_tree::ptree If::If_def::toPropertytree() const {
+    boost::property_tree::ptree p;
+
+    p.add("IF_ID",getName());
+    p.add("physical_name",physical_name_);
+    p.add("polarization",toString(polarization_));
+    p.add("total_lo",total_lo_);
+    p.add("net_sidband",toString(net_sidband_));
+    p.add("phase_cal_freq_spacing",phase_cal_freq_spacing_);
+    p.add("phase_cal_base_frequency",phase_cal_base_frequency_);
+
+    return p;
+};
+

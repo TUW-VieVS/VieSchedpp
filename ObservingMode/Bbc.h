@@ -31,6 +31,7 @@
 #include <vector>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include "../Misc/VieVS_NamedObject.h"
 
 
@@ -60,6 +61,14 @@ namespace VieVS{
         explicit Bbc(std::string name);
 
         /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree from xml file
+         */
+        explicit Bbc(const boost::property_tree::ptree &tree);
+
+        /**
          * @brief add new BBC assignment
          * @author Matthias Schartner
          *
@@ -68,6 +77,14 @@ namespace VieVS{
          * @param if_name Logical IF 'link' with if_def statement in $IF block
          */
         void addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name);
+
+        /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree() const;
 
         /**
          * @brief writes BBC block in vex format
@@ -124,10 +141,24 @@ namespace VieVS{
              */
             Bbc_assign(std::string name,
                        unsigned int physical_bbc_number,
-                       std::string if_name):
-                    VieVS_NamedObject{std::move(name), nextId++},
-                    physical_bbc_number_{physical_bbc_number},
-                    if_name_{std::move(if_name)}{};
+                       std::string if_name);
+
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param tree input property tree from xml file
+             */
+            explicit Bbc_assign(const boost::property_tree::ptree &tree);
+
+            /**
+             * @brief converts object to property tree
+             * @author Matthias Schartner
+             *
+             * @return property tree
+             */
+            boost::property_tree::ptree toPropertytree() const;
+
 
             unsigned int physical_bbc_number_; ///< Physical BBC# or DBE channel#
             std::string if_name_; ///< Logical IF 'link' with if_def statement in $IF block

@@ -576,7 +576,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
     of << "$CODES\n";
     of << "*=========================================================================================================\n";
     of << "*\n";
-    if(!ObservingMode::simple) {
+    if(ObservingMode::type == ObservingMode::Type::sked) {
 
         unsigned long nchannels = skd.getChannelNumber2band().size();
         const std::map<std::string, char> &olc = skd.getOneLetterCode();
@@ -640,7 +640,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
         }
 
     }else{
-        of << "manual observing mode used!\n";
+        of << "* no sked observind mode used! \n";
 //        of << "    bits:     " << ObservationMode::bits << "\n";
 //        of << "    channels: " << ObservationMode::sampleRate << "\n";
 //        for (const auto &any: ObservationMode::bands){

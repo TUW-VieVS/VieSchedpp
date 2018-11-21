@@ -24,14 +24,32 @@ using namespace std;
 unsigned long VieVS::Bbc::nextId = 0;
 unsigned long VieVS::Bbc::Bbc_assign::nextId = 0;
 
+
 Bbc::Bbc(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
 
+}
+
+Bbc::Bbc(const boost::property_tree::ptree &tree): VieVS_NamedObject{tree.get<std::string>("<xmlattr>.name"), nextId++}{
+    for(const auto &any : tree){
+        if(any.first == "BBC_assign"){
+            bbc_assigns_.emplace_back(any.second);
+        }
+    }
 }
 
 void Bbc::addBbc(std::string name, unsigned int physical_bbc_number, std::string if_name) {
 
     bbc_assigns_.emplace_back(name, physical_bbc_number, if_name);
 
+}
+
+boost::property_tree::ptree Bbc::toPropertytree() const {
+    boost::property_tree::ptree p;
+    p.add("<xmlattr>.name",getName());
+    for(const auto &any : bbc_assigns_){
+        p.add_child("BBC_assign",any.toPropertytree());
+    }
+    return p;
 }
 
 void Bbc::toVexBbcDefinition(std::ofstream &of, const std::string &comment) const {
@@ -46,3 +64,28 @@ void Bbc::toVexBbcDefinition(std::ofstream &of, const std::string &comment) cons
     of << "    enddef;\n";
 
 }
+
+
+
+Bbc::Bbc_assign::Bbc_assign(std::string name, unsigned int physical_bbc_number, std::string if_name):
+        VieVS_NamedObject{std::move(name), Bbc_assign::nextId++}, physical_bbc_number_{physical_bbc_number},
+        if_name_{std::move(if_name)}{
+
+}
+
+Bbc::Bbc_assign::Bbc_assign(const boost::property_tree::ptree &tree) :
+        VieVS_NamedObject{tree.get<std::string>("BBC_ID"), Bbc_assign::nextId++} {
+
+    physical_bbc_number_ = tree.get<unsigned int>("physical_bbc_number");;
+    if_name_ = tree.get<std::string>("IF_ID");
+}
+
+boost::property_tree::ptree Bbc::Bbc_assign::toPropertytree() const {
+    boost::property_tree::ptree p;
+
+    p.add("BBC_ID",getName());
+    p.add("physical_bbc_number",physical_bbc_number_);
+    p.add("IF_ID", if_name_);
+
+    return p;
+};

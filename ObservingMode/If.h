@@ -31,6 +31,7 @@
 #include <vector>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include "../Misc/VieVS_NamedObject.h"
 
 namespace VieVS{
@@ -94,6 +95,35 @@ namespace VieVS{
         }
 
         /**
+         * @brief convert vex format string to polarization type
+         * @author Matthias Schartner
+         *
+         * @param name name in vex format
+         * @return polarization type
+         */
+        static Polarization polarizationFromString(const std::string &s){
+            if(s == "R"){
+                return Polarization::R;
+            }
+            if(s == "L"){
+                return Polarization::L;
+            }
+            if(s == "X"){
+                return Polarization::X;
+            }
+            if(s == "Y"){
+                return Polarization::Y;
+            }
+            if(s == "H"){
+                return Polarization::H;
+            }
+            if(s == "V"){
+                return Polarization::V;
+            }
+        }
+
+
+        /**
          * @brief converts net sideband type to vex format string
          * @author Matthias Schartner
          *
@@ -109,12 +139,41 @@ namespace VieVS{
         }
 
         /**
+         * @brief convert vex format string to net sideband type
+         * @author Matthias Schartner
+         *
+         * @param name name in vex format
+         * @return net sideband type
+         */
+        static Net_sidband netSidebandFromString(const std::string &s){
+            if(s == "U"){
+                return Net_sidband::U;
+            }
+            if(s == "L"){
+                return Net_sidband::L;
+            }
+            if(s == "D"){
+                return Net_sidband::D;
+            }
+        }
+
+
+        /**
          * @brief constructor
          * @author Matthias Schartner
          *
          * @param name IF block name
          */
         explicit If(std::string name);
+
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree from xml file
+         */
+        explicit If(const boost::property_tree::ptree &tree);
+
 
         /**
          * @brief define new IF
@@ -130,6 +189,15 @@ namespace VieVS{
          */
         void addIf(std::string name, std::string physical_name, Polarization polarization,  double total_lo,
                    Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency);
+
+        /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree() const;
+
 
         /**
          * @brief writes If block in vex format
@@ -198,14 +266,25 @@ namespace VieVS{
                    double total_lo,
                    Net_sidband net_sidband,
                    double phase_cal_freq_spacing,
-                   double phase_cal_base_freqency):
-               VieVS_NamedObject{std::move(name), nextId++},
-               physical_name_{std::move(physical_name)},
-               polarization_{polarization},
-               total_lo_{total_lo},
-               net_sidband_{net_sidband},
-               phase_cal_base_frequency_{phase_cal_base_freqency},
-               phase_cal_freq_spacing_{phase_cal_freq_spacing}{};
+                   double phase_cal_base_freqency);
+
+
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param tree input property tree from xml file
+             */
+            explicit If_def(const boost::property_tree::ptree &tree);
+
+            /**
+             * @brief converts object to property tree
+             * @author Matthias Schartner
+             *
+             * @return property tree
+             */
+            boost::property_tree::ptree toPropertytree() const;
+
 
             std::string physical_name_; ///< Physical IF name
             Polarization polarization_; ///< Polarization

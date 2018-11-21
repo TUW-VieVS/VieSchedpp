@@ -30,6 +30,50 @@ Mode::Mode(std::string name, unsigned long nsta): VieVS_NamedObject{std::move(na
 
 }
 
+boost::property_tree::ptree Mode::toPropertytree(const std::vector<std::string> &stations) const {
+    boost::property_tree::ptree p;
+    p.add("<xmlattr>.name",getName());
+    for(const auto &any : freqs_){
+        if(!any.second.empty()){
+            p.add_child("FREQ",staids2propertyTree(any.first->getName(), any.second, stations));
+        }
+    }
+    for(const auto &any : bbcs_){
+        if(!any.second.empty()){
+            p.add_child("BBC",staids2propertyTree(any.first->getName(), any.second, stations));
+        }
+    }
+    for(const auto &any : ifs_){
+        if(!any.second.empty()){
+            p.add_child("IF",staids2propertyTree(any.first->getName(), any.second, stations));
+        }
+    }
+    for(const auto &any : tracks_){
+        if(!any.second.empty()){
+            p.add_child("TRACKS",staids2propertyTree(any.first->getName(), any.second, stations));
+        }
+    }
+    for(const auto &any : track_frame_formats_){
+        if(!any.second.empty()){
+            p.add_child("track_frame_formats",staids2propertyTree(*any.first, any.second, stations));
+        }
+    }
+    return p;
+}
+
+boost::property_tree::ptree Mode::staids2propertyTree(const std::string &name, const std::vector<unsigned long> &ids,
+                                                      const std::vector<std::string> &staNames) const {
+    boost::property_tree::ptree t;
+    t.add("<xmlattr>.name", name);
+    for(unsigned long staid : ids){
+        boost::property_tree::ptree s;
+        s.add("station",staNames[staid]);
+        t.add_child("station",s.get_child("station"));
+    }
+    return t;
+}
+
+
 void Mode::calcRecordingRates() {
 
     for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
@@ -203,7 +247,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
         const std::shared_ptr<const std::string> &trackFrameFormat) const {
     for(const auto &any : track_frame_formats_) {
-        if (*any.first.get() == *trackFrameFormat.get()) {
+        if (*any.first == *trackFrameFormat) {
             return any.second;
         }
     }
@@ -237,8 +281,8 @@ void Mode::toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> 
         }
     }
     for(const auto &any : track_frame_formats_){
-        if(any.first->length() > longestName){
-            longestName = any.first->length();
+        if(any.first->length()+7 > longestName){
+            longestName = any.first->length()+7;
         }
     }
     string fmt = (boost::format("%%-%ds") %longestName).str();
@@ -296,7 +340,7 @@ void Mode::toVexModeDefiniton(std::ofstream &of, const std::vector<std::string> 
     }
 
     for(const auto &any : track_frame_formats_){
-        of << "        ref $TRACKS =           " << boost::format(fmt) % any.first.get();
+        of << "        ref $TRACKS =           " << boost::format(fmt) % (*any.first+"_format");
         for(int i=0; i<nsta_; ++i){
             if(find(any.second.begin(), any.second.end(), i) == any.second.end()){
                 of << "     ";
@@ -423,5 +467,6 @@ void Mode::changeFreq(int idx, unsigned long staid) {
         ++c;
     }
 }
+
 
 

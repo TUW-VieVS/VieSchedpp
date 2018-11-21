@@ -29,6 +29,19 @@ Freq::Freq(std::string name): VieVS_NamedObject{std::move(name), nextId++} {
 
 }
 
+Freq::Freq(const boost::property_tree::ptree &tree): VieVS_NamedObject{tree.get<std::string>("<xmlattr>.name"), nextId++} {
+    for(const auto &any : tree){
+        if(any.first == "chan_def"){
+            chan_defs_.emplace_back(any.second);
+            bands_.insert(chan_defs_.back().bandId_);
+        }
+        if(any.first == "sample_rate"){
+            sample_rate_ = any.second.get_value<double>();
+        }
+    }
+}
+
+
 void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                       std::string chan_id, std::string bbc_id, std::string phase_cal_id) {
 
@@ -36,6 +49,17 @@ void Freq::addChannel(std::string bandId, double sky_freq, Freq::Net_sideband ne
     chan_defs_.emplace_back(bandId, sky_freq, net_sideband, chan_bandwidth, chan_id, bbc_id, phase_cal_id);
 
 }
+
+boost::property_tree::ptree Freq::toPropertytree() const {
+    boost::property_tree::ptree p;
+    p.add("<xmlattr>.name",getName());
+    for(const auto &any : chan_defs_){
+        p.add_child("chan_def", any.toPropertytree());
+    }
+    p.add("sample_rate",sample_rate_);
+    return p;
+}
+
 
 std::unordered_map<std::string, double> Freq::observingRate(const std::shared_ptr<const Freq> &other,
                                                             const std::map<string, int> &bitsPerChannel) const {
@@ -151,3 +175,47 @@ void Freq::toVexFreqDefinition(std::ofstream &of, const std::string &comment) co
     of << "    enddef;\n";
 
 }
+
+
+Freq::Chan_def::Chan_def(std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
+                         std::string chan_id, std::string bbc_id, std::string phase_cal_id):
+        VieVS_Object{Chan_def::nextId++},
+        bandId_{std::move(bandId)},
+        sky_freq_{sky_freq},
+        net_sideband_{net_sideband},
+        chan_bandwidth_{chan_bandwidth},
+        chan_id_{std::move(chan_id)},
+        bbc_id_{std::move(bbc_id)},
+        phase_cal_id_{std::move(phase_cal_id)}{
+
+    wavelength_ = util::freqency2wavelenth(sky_freq*1e6);
+
+}
+
+Freq::Chan_def::Chan_def(const boost::property_tree::ptree &tree): VieVS_Object{Chan_def::nextId++} {
+    bandId_ = tree.get<std::string>("Band_ID");
+    sky_freq_ = tree.get<double>("Sky_freq");
+    net_sideband_ = netSidebandFromString(tree.get<std::string>("Band_ID"));
+    chan_bandwidth_ = tree.get<double>("Chan_BW");
+    chan_id_ = tree.get<std::string>("Chan_ID");
+    bbc_id_ = tree.get<std::string>("BBC_ID");
+    phase_cal_id_ = tree.get<std::string>("Phase-cal_ID");
+
+    wavelength_ = util::freqency2wavelenth(sky_freq_*1e6);
+
+}
+
+boost::property_tree::ptree Freq::Chan_def::toPropertytree() const {
+    boost::property_tree::ptree p;
+
+    p.add("Band_ID",bandId_);
+    p.add("Sky_freq",sky_freq_);
+    p.add("Net_SB",toString(net_sideband_));
+    p.add("Chan_BW",chan_bandwidth_);
+    p.add("Chan_ID",chan_id_);
+    p.add("BBC_ID",bbc_id_);
+    p.add("Phase-cal_ID",phase_cal_id_);
+    return p;
+
+};
+

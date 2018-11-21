@@ -2010,7 +2010,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
             obsModes_ = std::make_shared<ObservingMode>();
             obsModes_->readFromSkedCatalogs(skdCatalogs);
 
-            ObservingMode::simple = false;
+            ObservingMode::type = ObservingMode::Type::sked;
 
             unordered_map<string, ObservingMode::Property> stationProperty;
             unordered_map<string, ObservingMode::Backup> stationBackup;
@@ -2040,7 +2040,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
 
         } else if (it.first == "simple") {
 
-            ObservingMode::simple = true;
+            ObservingMode::type = ObservingMode::Type::simple;
 
             auto samplerate = it.second.get<double>("sampleRate");
             auto bits = it.second.get<unsigned int>("bits");
@@ -2068,6 +2068,13 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
                 if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "band " << any.first << " mean wavelenght " << band2wavelength[any.first] << " [MHz] channels " << any.second;
             }
             #endif
+
+        } else if (it.first == "custom") {
+
+            ObservingMode::type = ObservingMode::Type::custom;
+
+            ObservingMode om(it.second, skdCatalogs.getStaNames());
+            obsModes_ = std::make_shared<ObservingMode>(it.second, skdCatalogs.getStaNames());
 
         }else if(it.first == "bandPolicies"){
 
@@ -2160,7 +2167,7 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
 
 void Initializer::initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept {
 
-    ObservingMode::simple = true;
+    ObservingMode::type = ObservingMode::Type::simple;
     obsModes_ = std::make_shared<ObservingMode>();
     obsModes_->addDummyBands(bands);
 }

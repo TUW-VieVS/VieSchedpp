@@ -63,6 +63,15 @@ namespace VieVS{
         Mode(std::string name, unsigned long nsta);
 
         /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @param stations station names
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree(const std::vector<std::string> &stations) const;
+
+        /**
          * @brief add new ID block
          * @author Matthias Schartner
          *
@@ -429,6 +438,17 @@ namespace VieVS{
 
         std::set<std::string> bands_; ///< list of all bands
 
+
+        /**
+         * @brief station ids to property tree
+         * @author Matthias Schartner
+         *
+         * @param name block name
+         * @param ids station ids
+         * @param staNames station names
+         * @return property tree
+         */
+        boost::property_tree::ptree staids2propertyTree(const std::string &name, const std::vector<unsigned long> &ids, const std::vector<std::string> &staNames) const;
     };
 
 }

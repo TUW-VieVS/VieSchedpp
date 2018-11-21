@@ -370,7 +370,7 @@ void Vex::freq_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$FREQ;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservingMode::simple) {
+    if(ObservingMode::type != ObservingMode::Type::simple) {
         obsModes->toVexFreqBlock( of );
     }else{
         of << "simple observation mode used!";
@@ -381,7 +381,7 @@ void Vex::bbc_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$BBC;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservingMode::simple) {
+    if(ObservingMode::type != ObservingMode::Type::simple) {
         obsModes->toVexBbcBlock( of );
     }else{
         of << "simple observation mode used!";
@@ -394,7 +394,7 @@ void Vex::if_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "$IF;\n";
     of << "*=========================================================================================================\n";
 //    of << "* WARNING: Polarization, Phase-cal frequency interval and Phase-cal frequency is hard coded!\n";
-    if(!ObservingMode::simple) {
+    if(ObservingMode::type != ObservingMode::Type::simple) {
 
         obsModes->toVexIfBlock( of );
 
@@ -407,7 +407,7 @@ void Vex::tracks_block(const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$TRACKS;\n";
     of << "*=========================================================================================================\n";
-    if(!ObservingMode::simple) {
+    if(ObservingMode::type != ObservingMode::Type::simple) {
         obsModes->toVexTracksBlock( of );
     }else{
         of << "simple observation mode used!";

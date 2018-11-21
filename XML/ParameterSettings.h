@@ -43,6 +43,7 @@
 #include "ParameterSetup.h"
 #include "ParameterGroup.h"
 
+
 namespace VieVS {
     /**
      * @class ParameterSettings
@@ -473,6 +474,14 @@ namespace VieVS {
          * @param skdMode name of observing mode in skd catalogs
          */
         void mode(const std::string & skdMode);
+
+        /**
+         * @brief custom observing mode to parameter.xml file
+         * @author Matthias Schartner
+         *
+         * @param obsMode custom observing mode property tree
+         */
+        void mode(const boost::property_tree::ptree &obsMode);
 
         /**
          * @brief band sub-block in mode block in parameter.xml

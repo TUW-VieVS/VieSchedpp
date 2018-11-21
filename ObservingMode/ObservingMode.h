@@ -60,7 +60,17 @@ namespace VieVS{
             none, ///< no backup model
         };
 
-        static bool simple; ///< flag if manual observation mode was selected
+        /**
+         * @brief observing mode types
+         * @author Matthias Schartner
+         */
+        enum class Type{
+            simple, ///< simple observing mode
+            sked, ///< observing mode from sked catalogs
+            custom, ///< custom observing mode
+        };
+
+        static Type type; ///< flag if manual observation mode was selected
 
         static std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration per band
 
@@ -82,6 +92,16 @@ namespace VieVS{
         ObservingMode();
 
         /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree from xml file
+         * @param staNames station names
+         */
+        ObservingMode(const boost::property_tree::ptree &tree, const std::vector<std::string> &staNames);
+
+
+        /**
          * @brief set station names
          * @author Matthias Schartner
          *
@@ -98,6 +118,16 @@ namespace VieVS{
          * @param skd sked catalog reader
          */
         void readFromSkedCatalogs(const SkdCatalogReader &skd);
+
+        /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @param stations station names
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree() const;
+
 
         /**
          * @brief add observing mode from simple manual model
@@ -510,6 +540,15 @@ namespace VieVS{
          * @param of vex file stream
          */
         void toTrackFrameFormatDefinitions(std::ofstream &of) const;
+
+        /**
+         * @brief get list of station ids from property tree
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree
+         * @return list of station ids
+         */
+        std::vector<unsigned long> getStationIds(const boost::property_tree::ptree &tree);
 
     };
 }

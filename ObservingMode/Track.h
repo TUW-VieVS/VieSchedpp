@@ -32,6 +32,7 @@
 #include <algorithm>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <map>
 #include "../Misc/VieVS_NamedObject.h"
 
@@ -72,12 +73,27 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param b bitsream type
-         * @return vex format type
+         * @return name in vex format
          */
         static std::string toString(Bitstream b){
             switch(b){
                 case Bitstream::sign: return "sign";
                 case Bitstream::mag: return "mag";
+            }
+        }
+
+        /**
+         * @brief convert vex format string to bitstream type
+         * @author Matthias Schartner
+         *
+         * @param name name in vex format
+         * @return bitsream type
+         */
+        static Bitstream bitstreamFromString(const std::string &name){
+            if(name == "mag"){
+                return Bitstream::mag;
+            }else {
+                return Bitstream::sign;
             }
         }
 
@@ -88,6 +104,14 @@ namespace VieVS{
          * @param name tracks name
          */
         explicit Track(std::string name);
+
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree from xml file
+         */
+        explicit Track(const boost::property_tree::ptree &tree);
 
         /**
          * @brief get number of recording bits between two TRACKS blocks
@@ -123,6 +147,14 @@ namespace VieVS{
          * @param comment optional comment
          */
         void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
+
+        /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree() const;
 
         /**
           * @brief get fanout definitions
@@ -180,19 +212,24 @@ namespace VieVS{
                               int first_multiplex_track,
                               int second_multiplex_track = -999,
                               int third_multiplex_track = -999,
-                              int fourth_multiplex_track = -999):
+                              int fourth_multiplex_track = -999);
 
-                          VieVS_Object{nextId++},
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param tree input property tree from xml file
+             */
+            explicit Fanout_definition(const boost::property_tree::ptree &tree);
 
-                          subpass_{std::move(subpass)},
-                          trksid_{std::move(trksId)},
-                          bitstream_{bitstream},
-                          headstack_number_{headstack_number},
 
-                          first_multiplex_track_{first_multiplex_track},
-                          second_multiplex_track_{second_multiplex_track},
-                          third_multiplex_track_{third_multiplex_track},
-                          fourth_multiplex_track_{fourth_multiplex_track}{};
+            /**
+             * @brief converts object to property tree
+             * @author Matthias Schartner
+             *
+             * @return property tree
+             */
+            boost::property_tree::ptree toPropertytree() const;
 
             std::string subpass_; ///< Sub-pass ID
             std::string trksid_; ///< 'Chan_ID' linkword

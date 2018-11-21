@@ -9,7 +9,7 @@ using namespace std;
 
 unsigned long VieVS::ObservingMode::nextId = 0;
 
-bool VieVS::ObservingMode::simple = false;
+VieVS::ObservingMode::Type VieVS::ObservingMode::type = VieVS::ObservingMode::Type::simple;
 
 std::unordered_map<std::string, double> VieVS::ObservingMode::minSNR;                             ///< backup min SNR
 
@@ -24,6 +24,126 @@ std::unordered_map<std::string, double> VieVS::ObservingMode::sourceBackupValue;
 ObservingMode::ObservingMode(): VieVS_Object(nextId++) {
 
 }
+
+ObservingMode::ObservingMode(const boost::property_tree::ptree &tree, const std::vector<std::string> &staNames) :
+        VieVS_Object(nextId++), stationNames_{staNames} {
+    for(const auto &any : tree){
+        if(any.first == "FREQ"){
+            addBlock(make_shared<Freq>(any.second));
+        }else if(any.first == "BBC"){
+            addBlock(make_shared<Bbc>(any.second));
+        }else if(any.first == "IF"){
+            addBlock(make_shared<If>(any.second));
+        }else if(any.first == "TRACKS"){
+            addBlock(make_shared<Track>(any.second));
+        }else if(any.first == "track_frame_format"){
+            addBlock(any.second.get<string>("<xmlattr>.name"));
+        }
+    }
+
+    for(const auto &any : tree){
+        if(any.first == "MODE"){
+            const boost::property_tree::ptree &m = any.second;
+            const string name = m.get<string>("<xmlattr>.name");
+            shared_ptr<Mode> mode = make_shared<Mode>(name,stationNames_.size());
+
+            vector<vector<unsigned long>> freqIds(freqs_.size());
+            vector<vector<unsigned long>> bbcIds(bbcs_.size());
+            vector<vector<unsigned long>> ifIds(ifs_.size());
+            vector<vector<unsigned long>> tracksIds(tracks_.size());
+            vector<vector<unsigned long>> trackFrameFormatIds(trackFrameFormats_.size());
+
+            for(const auto &t : m){
+                if(t.first == "FREQ"){
+                    const string n = t.second.get<string>("<xmlattr>.name");
+                    for(int i=0; i<freqs_.size();++i){
+                        if(freqs_[i]->hasName(n)){
+                            freqIds[i] = getStationIds(t.second);
+                        }
+                    }
+                }
+            }
+            for(const auto &t : m){
+                if(t.first == "BBC"){
+                    const string n = t.second.get<string>("<xmlattr>.name");
+                    for(int i=0; i<bbcs_.size();++i){
+                        if(bbcs_[i]->hasName(n)){
+                            bbcIds[i] = getStationIds(t.second);
+                        }
+                    }
+                }
+            }
+            for(const auto &t : m){
+                if(t.first == "IF"){
+                    const string n = t.second.get<string>("<xmlattr>.name");
+                    for(int i=0; i<ifs_.size();++i){
+                        if(ifs_[i]->hasName(n)){
+                            ifIds[i] = getStationIds(t.second);
+                        }
+                    }
+                }
+            }
+            for(const auto &t : m){
+                if(t.first == "TRACKS"){
+                    const string n = t.second.get<string>("<xmlattr>.name");
+                    for(int i=0; i<tracks_.size();++i){
+                        if(tracks_[i]->hasName(n)){
+                            tracksIds[i] = getStationIds(t.second);
+                        }
+                    }
+                }
+            }
+            for(const auto &t : m){
+                if(t.first == "track_frame_formats"){
+                    const string n = t.second.get<string>("<xmlattr>.name");
+                    for(int i=0; i<trackFrameFormats_.size();++i){
+                        if(*trackFrameFormats_[i] == n){
+                            trackFrameFormatIds[i] = getStationIds(t.second);
+                        }
+                    }
+                }
+            }
+
+            for(int i=0; i<freqs_.size(); ++i){
+                mode->addBlock(freqs_[i], freqIds[i]);
+            }
+            for(int i=0; i<bbcs_.size(); ++i){
+                mode->addBlock(bbcs_[i], bbcIds[i]);
+            }
+            for(int i=0; i<ifs_.size(); ++i){
+                mode->addBlock(ifs_[i], ifIds[i]);
+            }
+            for(int i=0; i<tracks_.size(); ++i){
+                mode->addBlock(tracks_[i], tracksIds[i]);
+            }
+            for(int i=0; i<trackFrameFormats_.size(); ++i){
+                mode->addBlock(trackFrameFormats_[i], trackFrameFormatIds[i]);
+            }
+
+            mode->calcRecordingRates();
+            modes_.push_back(mode);
+        }
+    }
+    calcMeanFrequencies();
+}
+
+std::vector<unsigned long> ObservingMode::getStationIds(const boost::property_tree::ptree &tree) {
+    vector<unsigned long> v;
+    for(const auto &any : tree){
+        if(any.first == "station"){
+            for(unsigned long i = 0; i<stationNames_.size(); ++i){
+                if(any.second.get_value<string>() == stationNames_[i]){
+                    v.push_back(i);
+                    break;
+                }
+            }
+        }
+    }
+    return v;
+}
+
+
+
 
 
 void ObservingMode::readFromSkedCatalogs(const SkdCatalogReader &skd) {
@@ -46,7 +166,7 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
         const std::unordered_map<std::string, unsigned int> &band2channel,
         const std::unordered_map<std::string, double> &band2wavelength) {
 
-    auto mode = make_shared<Mode>("simple", nsta);
+    auto mode = make_shared<Mode>("type", nsta);
 
     for(const auto &any : band2channel){
         bands_.insert(any.first);
@@ -58,6 +178,32 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
     addMode(mode);
     wavelength_ = band2wavelength;
 }
+
+boost::property_tree::ptree ObservingMode::toPropertytree() const {
+    boost::property_tree::ptree p;
+    for(const auto &any : freqs_){
+        p.add_child("FREQ",any->toPropertytree());
+    }
+    for(const auto &any : bbcs_){
+        p.add_child("BBC",any->toPropertytree());
+    }
+    for(const auto &any : ifs_){
+        p.add_child("IF",any->toPropertytree());
+    }
+    for(const auto &any : tracks_){
+        p.add_child("TRACKS",any->toPropertytree());
+    }
+    for(const auto &any : trackFrameFormats_){
+        boost::property_tree::ptree t;
+        t.add("<xmlattr>.name",*any);
+        p.add_child("track_frame_format",t);
+    }
+    for(const auto &any : modes_){
+        p.add_child("MODE",any->toPropertytree(stationNames_));
+    }
+    return p;
+}
+
 
 void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd, const std::map<int,int> &channelNr2Bbc) {
 
@@ -417,7 +563,7 @@ void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
     for(const auto &any : trackFrameFormats_){
         string c = "* ";
         for (const auto &mode : modes_) {
-            c.append(mode.get()->getName());
+            c.append(mode->getName());
             const auto &o_all = mode->getAllStationsWithBlock(any);
             if(o_all.is_initialized()){
                 for(auto i : *o_all){
@@ -427,8 +573,8 @@ void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
             c.append("; ");
         }
 
-        of << "    def " << any << "_format;    " << c << "\n";
-        of << "        track_frame_format = " << any << ";\n";
+        of << "    def " << *any << "_format;    " << c << "\n";
+        of << "        track_frame_format = " << *any << ";\n";
         of << "    enddef;\n";
     }
 }
@@ -476,4 +622,5 @@ void ObservingMode::addDummyBands(const std::map<std::string, std::vector<double
         wavelength_[any.first] = mfreq;
     }
 }
+
 

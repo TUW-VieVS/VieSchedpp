@@ -71,7 +71,7 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param n Net_sideband type
-         * @return string in vex format
+         * @return name in vex format
          */
         static std::string toString( Net_sideband n){
             switch(n){
@@ -83,12 +83,43 @@ namespace VieVS{
         }
 
         /**
+         * @brief convert vex format string to net sideband type
+         * @author Matthias Schartner
+         *
+         * @param name name in vex format
+         * @return net sideband type
+         */
+        static Net_sideband netSidebandFromString(const std::string &s){
+            if(s == "U"){
+                return Net_sideband::U;
+            }
+            if(s == "L"){
+                return Net_sideband::L;
+            }
+            if(s == "UC"){
+                return Net_sideband::UC;
+            }
+            if(s == "LC"){
+                return Net_sideband::LC;
+            }
+        }
+
+
+        /**
          * @brief constructor
          * @author Matthias Schartner
          *
          * @param name FREQ name
          */
         explicit Freq(std::string name);
+
+        /**
+         * @brief constructor
+         * @author Matthias Schartner
+         *
+         * @param tree input property tree from xml file
+         */
+        explicit Freq(const boost::property_tree::ptree &tree);
 
         /**
          * @brief add new channel
@@ -104,6 +135,15 @@ namespace VieVS{
          */
         void addChannel(std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
                         std::string chan_id, std::string bbc_id, std::string phase_cal_id);
+
+        /**
+         * @brief converts object to property tree
+         * @author Matthias Schartner
+         *
+         * @return property tree
+         */
+        boost::property_tree::ptree toPropertytree() const;
+
 
         /**
          * @brief get all frequencies for a specific band
@@ -210,18 +250,24 @@ namespace VieVS{
                      double chan_bandwidth,
                      std::string chan_id,
                      std::string bbc_id,
-                     std::string phase_cal_id):
-                VieVS_Object{nextId++},
-                bandId_{std::move(bandId)},
-                sky_freq_{sky_freq},
-                net_sideband_{net_sideband},
-                chan_bandwidth_{chan_bandwidth},
-                chan_id_{std::move(chan_id)},
-                bbc_id_{std::move(bbc_id)},
-                phase_cal_id_{std::move(phase_cal_id)}{
+                     std::string phase_cal_id);
 
-                wavelength_ = util::freqency2wavelenth(sky_freq*1e6);
-            };
+            /**
+             * @brief constructor
+             * @author Matthias Schartner
+             *
+             * @param tree input property tree from xml file
+             */
+            explicit Chan_def(const boost::property_tree::ptree &tree);
+
+
+            /**
+             * @brief converts object to property tree
+             * @author Matthias Schartner
+             *
+             * @return property tree
+             */
+            boost::property_tree::ptree toPropertytree() const;
 
             std::string bandId_; ///< 'Band_ID': RF band name
             double sky_freq_; ///< RF sky frequency at 0Hz in the BBC output
