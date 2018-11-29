@@ -169,6 +169,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         if(fromSkdFile && type == CATALOG::equip){
                             splitVector.insert(splitVector.begin(),eqId2staName[boost::algorithm::to_upper_copy(splitVector[indexOfKey-1])]);
                         }
+                        if(type == CATALOG::equip && splitVector[5] == "C"){
+                            continue;
+                        }
 
 
                         // get key and convert it to upper case for case insensitivity

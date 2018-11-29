@@ -708,11 +708,15 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
                 unsigned long npara = parameters.size();
                 for(int i=0; i<npara; ++i){
                     try{
+                        double value = boost::lexical_cast<double>(parameters[i]);
                         if (i%2==0){
-                            knots.push_back(boost::lexical_cast<double>(parameters[i]));
+                            knots.push_back(value);
                         }
                         else {
-                            values.push_back(boost::lexical_cast<double>(parameters[i]));
+                            if(value == 0){
+                                value = 0.001;
+                            }
+                            values.push_back(value);
                         }
                     }
                     catch(const std::exception& e){

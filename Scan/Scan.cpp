@@ -309,6 +309,9 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source,
 
             // calculate observed flux density for each band
             double SEFD_src = source.observedFlux(band, gmst, network.getDxyz(staid1,staid2));
+            if(SEFD_src == 0){
+                SEFD_src = 0.001;
+            }
 
             // calculate system equivalent flux density for each station
             double el1 = pointingVectorsStart_[*findIdxOfStationId(staid1)].getEl();
@@ -1243,33 +1246,68 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
     string line1Right = (boost::format(" duration: %8s - %8s")
             % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::start))
             % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::end))).str();
-    of << boost::format("| scan:   no%04d   %-15s    %74s |\n") % observed_scan_nr % printId() % line1Right;
+    of << boost::format("| scan:   no%04d   %-15s                                  %74s |\n") % observed_scan_nr % printId() % line1Right;
 
     string line2Right = (boost::format(" type: %s %s") % type % type2).str();
-    of << boost::format("| Source: %8s %-15s      %72s |\n") % source.getName() % source.printId() % line2Right;
+    of << boost::format("| Source: %8s %-15s                                    %72s |\n") % source.getName() % source.printId() % line2Right;
 
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
     if(observed_scan_nr%5 == 0){
-        of << "|     station  | field |  slew |  idle | preob |  obs  |       duration      |     az    |    unaz   |     el    |\n"
-              "|              |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |                     |   [deg]   |   [deg]   |   [deg]   |\n"
-              "|--------------|-------|-------|-------|-------|-------|---------------------|-----------|-----------|-----------|\n";
+        of << "|     station  | field |  slew |  idle | preob |  obs  |       duration      |        az [deg]     |       unaz [deg]      |       el [deg]    |\n"
+              "|              |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |    start - end      |    start - end      |     start - end       |   start - end     |\n"
+              "|--------------|-------|-------|-------|-------|-------|---------------------|---------------------|-----------------------|-------------------|\n";
     }
 
     for(int i=0; i<nsta_; ++i){
         const PointingVector &pv = pointingVectorsStart_[i];
         const PointingVector &pve = pointingVectorsEnd_[i];
         const Station &thisSta = network.getStation(pv.getStaid());
-        double az = util::wrapToPi(pv.getAz())*rad2deg;
+        double az_s = util::wrapToPi(pv.getAz())*rad2deg;
+        double az_e = util::wrapToPi(pve.getAz())*rad2deg;
 
-        of << boost::format("|     %-8s | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %9.4f | %9.4f | %9.4f | (id: %d and %d) \n")
+        of << boost::format("|     %-8s | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %8.4f - %8.4f | %9.4f - %9.4f | %7.4f - %7.4f | (id: %d and %d) \n")
               % thisSta.getName() % times_.getFieldSystemDuration(i) % times_.getSlewDuration(i) % times_.getIdleDuration(i) %
                 times_.getPreobDuration(i) %
                 times_.getObservingDuration(i)
               % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::start))
               % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::end))
-              % az % (pv.getAz()*rad2deg) % (pv.getEl()*rad2deg) %pv.getId() %pve.getId();
+              % az_s % az_e % (pv.getAz()*rad2deg) % (pve.getAz()*rad2deg) % (pv.getEl()*rad2deg) % (pve.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    vector<string> ignoreBaseline;
+    for(int i=0; i<nsta_; ++i){
+        for(int j=i+1; j<nsta_; ++j){
+            unsigned long staid1 = pointingVectorsStart_[i].getStaid();
+            unsigned long staid2 = pointingVectorsStart_[j].getStaid();
+            bool found = false;
+            for(const auto &any : observations_){
+                if(any.containsStation(staid1) && any.containsStation(staid2)){
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                ignoreBaseline.push_back(network.getBaseline(staid1,staid2).getName());
+            }
+        }
+    }
+    if(!ignoreBaseline.empty()){
+        of << "| ignore observations: ";
+        int i=0;
+        for (; i<ignoreBaseline.size(); ++i) {
+            if(i%20==0 && i>0){
+                of <<"|\n|                      ";
+            }
+            of << ignoreBaseline[i] << " ";
+        }
+        i = i%15;
+        if(i>0){
+            for(; i<20;++i){
+                of << "      ";
+            }
+        }
+        of << "|\n";
+    }
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 }
 
 boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, const Source &source) const noexcept {

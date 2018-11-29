@@ -396,7 +396,7 @@ void Scheduler::start() noexcept {
         highImpactScans(himp_.get(), of);
     }
 
-    of << ".----------------------------------------------------------------------------------------------------------------.\n";
+    of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
     // check if you have some fixed high impact scans
     if(scans_.empty()){
         // no fixed scans: start creating a schedule
@@ -411,11 +411,11 @@ void Scheduler::start() noexcept {
 
     // start fillinmode a posterior
     if(parameters_.fillinmodeAPosteriori){
-        of << "|----------------------------------------------------------------------------------------------------------------|\n";
-        of << "|                                                                                                                |\n";
-        of << "|                                         start fillin mode a posteriori                                         |\n";
-        of << "|                                                                                                                |\n";
-        of << "|----------------------------------------------------------------------------------------------------------------|\n";
+        of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+        of << "|                                                                                                                                              |\n";
+        of << "|                                                        start fillin mode a posteriori                                                        |\n";
+        of << "|                                                                                                                                              |\n";
+        of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
         startScanSelectionBetweenScans(TimeSystem::duration, of, Scan::ScanType::fillin, false, true);
     }
 
@@ -578,7 +578,7 @@ void Scheduler::consideredUpdate(unsigned long n1scans, unsigned long n2scans, i
         }else{
             right = (boost::format("considered single scans %d, subnetting scans %d") % n1scans % n2scans).str();
         }
-        of << boost::format("| depth:  %d %100s |\n") % depth % right;
+        of << boost::format("| depth:  %d %130s |\n") % depth % right;
         nSingleScansConsidered += n1scans;
         nSubnettingScansConsidered += n2scans;
     }
@@ -1008,6 +1008,9 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                     for (auto &band : currentObservingMode_->getAllBands()) {
 
                         double SEFD_src = source.observedFlux(band, gmst, network_.getDxyz(sta1.getId(), sta2.getId()));
+                        if(SEFD_src == 0){
+                            SEFD_src = 0.001;
+                        }
 
                         double el1 = pv_new_start.getEl();
                         double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
@@ -1300,9 +1303,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     for(int i=0; i<nMainScans-1; ++i){
 
         if(output){
-            of << "|----------------------------------------------------------------------------------------------------------------|\n";
-            of << "|                                            start new scan selection                                            |\n";
-            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+            of << "|                                                           start new scan selection                                                           |\n";
+            of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
         }
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
@@ -1350,9 +1353,9 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
     // do the same between time at from last scan until duration with no endposition
     if(output){
-        of << "|----------------------------------------------------------------------------------------------------------------|\n";
-        of << "|                                           start final scan selection                                           |\n";
-        of << "|----------------------------------------------------------------------------------------------------------------|\n";
+        of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+        of << "|                                                          start final scan selection                                                          |\n";
+        of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
     }
 
     // get last predefined scan and set current position of station
@@ -1388,11 +1391,11 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "fix high impact scans";
     #endif
 
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
-    of << "|                                                                                                                |\n";
-    of << "|                                            fixing high impact scans                                            |\n";
-    of << "|                                                                                                                |\n";
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+    of << "|                                                                                                                                              |\n";
+    of << "|                                                           fixing high impact scans                                                           |\n";
+    of << "|                                                                                                                                              |\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 
     unsigned int interval = himp.getInterval();
     int n = TimeSystem::duration/interval;
@@ -1439,11 +1442,11 @@ void Scheduler::highImpactScans(HighImpactScanDescriptor &himp, ofstream &of) {
     sortSchedule(Timestamp::start);
 
 
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
-    of << "|                                                                                                                |\n";
-    of << "|                                        start with normal scan selection                                        |\n";
-    of << "|                                                                                                                |\n";
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+    of << "|                                                                                                                                              |\n";
+    of << "|                                                       start with normal scan selection                                                       |\n";
+    of << "|                                                                                                                                              |\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 
 
     // reset all events
@@ -1487,19 +1490,19 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             #ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at start of scan";
             #endif
-            of << "|                                                                                                                |\n"
-                  "|                                   increasing observing time at start of scan                                   |\n"
-                  "|                                                                                                                |\n"
-                  "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|                                                                                                                                              |\n"
+                  "|                                                  increasing observing time at start of scan                                                  |\n"
+                  "|                                                                                                                                              |\n"
+                  "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
             break;
         case Timestamp::end:
             #ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "start changing idle to observing time at end of scan";
             #endif
-            of << "|                                                                                                                |\n"
-                  "|                                    increasing observing time at end of scan                                    |\n"
-                  "|                                                                                                                |\n"
-                  "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|                                                                                                                                              |\n"
+                  "|                                                   increasing observing time at end of scan                                                   |\n"
+                  "|                                                                                                                                              |\n"
+                  "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
             break;
     }
 
@@ -1868,13 +1871,13 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
         // output if there was a change
         if(change){
             string right = (boost::format("source:  %s %s") % source.getName() % source.printId()).str();
-            of << boost::format("| scan: %-15s    %85s |\n") % scan.printId() % right;
+            of << boost::format("| scan: %-15s                                  %85s |\n") % scan.printId() % right;
 
-            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
             if(counter%5==0){
-                of << "|     station  | increase |     new duration    | new obs |                      |     old duration    | old obs |\n"
-                      "|              |    [s]   |                     |   [s]   |                      |                     |   [s]   |\n"
-                      "|--------------|----------|---------------------|---------|----------------------|---------------------|---------|\n";
+                of << "|     station  | increase |     new duration    | new obs |                         |     old duration    | old obs |                          |\n"
+                      "|              |    [s]   |    start - end      |   [s]   |                         |    start - end      |   [s]   |                          |\n"
+                      "|--------------|----------|---------------------|---------|-------------------------|---------------------|---------|--------------------------|\n";
             }
 
             for(int i=0; i<scan.getNSta(); ++i){
@@ -1887,7 +1890,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 int diff = static_cast<int>(newObservingTime)-static_cast<int>(oldObservingTime);
                 sum += diff;
                 sumPerSta[staid] +=diff;
-                of << boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                      | %8s - %8s |  %5d  | %s\n")
+                of << boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                         | %8s - %8s |  %5d  |                          | %s\n")
                                      % network_.getStation(staid).getName()
                                      % diff
                                      % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
@@ -1898,7 +1901,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                                      % oldObservingTime
                                      % scan.getPointingVector(i, ts).printId();
             }
-            of << "|----------------------------------------------------------------------------------------------------------------|\n";
+            of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
             ++counter;
         }
     }
@@ -1911,7 +1914,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     }else{
         tmp = (boost::format("%2d [h] %02d [min] %02d [s]") %(sum/3600) %(sum%3600/60) %(sum%60)).str();
     }
-    of << boost::format("| sum of additional observing time: %-40s                                     |\n") %tmp;
+    of << boost::format("| sum of additional observing time: %-40s                                                                   |\n") %tmp;
     unsigned long sumAvg = sum / network_.getNSta();
     if(sumAvg<60){
         tmp = (boost::format("%2d [s]") %sumAvg).str();
@@ -1920,8 +1923,8 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     }else{
         tmp = (boost::format("%2d [h] %02d [min] %02d [s]") %(sumAvg/3600) %(sumAvg%3600/60) %(sumAvg%60)).str();
     }
-    of << boost::format("|           on average per station: %-40s                                     |\n") %tmp;
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << boost::format("|           on average per station: %-40s                                                                   |\n") %tmp;
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 
     bool h = false;
     bool m = false;
@@ -1946,10 +1949,10 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             tmp = (boost::format("%2d [s]") % thisSum).str();
         }
 
-        of << boost::format("|                         %-8s: %-40s                                     |\n") %thisSta.getName() %tmp;
+        of << boost::format("|                         %-8s: %-40s                                                                   |\n") %thisSta.getName() %tmp;
 
     }
-    of << "|----------------------------------------------------------------------------------------------------------------|\n";
+    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 }
 
 
@@ -1993,31 +1996,31 @@ void Scheduler::sortSchedule(unsigned long staid, Timestamp ts) {
 
 void Scheduler::writeCalibratorHeader(std::ofstream &of) {
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|                                            start calibration block                                             |\n";
+            << "|                                                           start calibration block                                                            |\n";
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|----------------------------------------------------------------------------------------------------------------|\n";
+            << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 }
 
 void Scheduler::writeCalibratorStatistics(std::ofstream &of, std::vector<double> &highestElevations,
                                           std::vector<double> &lowestElevations) {
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|                                           calibration block summary                                            |\n";
+            << "|                                                          calibration block summary                                                           |\n";
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|----------------------------------------------------------------------------------------------------------------|\n";
+            << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
     of
-            << "|     station  | highest elevation | lowest elevation  |                                                         |\n";
+            << "|     station  | highest elevation | lowest elevation  |                                                                                       |\n";
     of
-            << "|              |       [deg]       |       [deg]       |                                                         |\n";
+            << "|              |       [deg]       |       [deg]       |                                                                                       |\n";
     of
-            << "|--------------|-------------------|-------------------|                                                         |\n";
+            << "|--------------|-------------------|-------------------|                                                                                       |\n";
     for (unsigned long i = 0; i < network_.getNSta(); ++i) {
         const Station &sta = network_.getStation(i);
         double high = highestElevations[i] * rad2deg;
@@ -2035,19 +2038,19 @@ void Scheduler::writeCalibratorStatistics(std::ofstream &of, std::vector<double>
             lowstr = (boost::format("%5.2f") % low).str();
         }
         of << boost::format(
-                "|     %-8s |       %5s       |       %5s       |                                                         |\n") %
+                "|     %-8s |       %5s       |       %5s       |                                                                                       |\n") %
               sta.getName() % highstr % lowstr;
     }
     of
-            << "|----------------------------------------------------------------------------------------------------------------|\n";
+            << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|                                           finished calibration block                                           |\n";
+            << "|                                                          finished calibration block                                                          |\n";
     of
-            << "|                                                                                                                |\n";
+            << "|                                                                                                                                              |\n";
     of
-            << "|----------------------------------------------------------------------------------------------------------------|\n";
+            << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
 }
 
 bool Scheduler::calibratorUpdate(const std::vector<Scan> &bestScans,
