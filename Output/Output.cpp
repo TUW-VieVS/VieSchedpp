@@ -1266,7 +1266,12 @@ void Output::writeStatistics(std::ofstream &of) {
     }
     oString.append(std::to_string(n_src)).append(",");
 
-    of << oString << endl;
+    of << oString;
+
+    if(multiSchedulingParameters_.is_initialized()){
+        multiSchedulingParameters_->statisticsOutput(of);
+    }
+    of << endl;
 
 }
 

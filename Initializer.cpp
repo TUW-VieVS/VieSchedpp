@@ -2559,7 +2559,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
 
         for (const auto &any:mstree) {
             std::string name = any.first;
-            if(name == "maxNumber" || name == "seed"){
+            if(name == "maxNumber" || name == "seed" || name == "version"){
                 continue;
             }
             if(name == "general_subnetting" || name == "general_fillinmode_during_scan_selection" ||
@@ -2605,6 +2605,13 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched(std::ostream &ou
             #endif
             out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: "<< seed << "!\n";
         }
+
+        // only calculate single version from multi scheduling
+        auto version = xml_.get_optional<int>("VieSchedpp.multisched.version");
+        if( version.is_initialized() && *version-1 < ans.size()){
+            ans = std::vector<MultiScheduling::Parameters>{ans.at(*version-1)};
+        }
+
         return ans;
     }
     return std::vector<MultiScheduling::Parameters>{};
@@ -2794,7 +2801,7 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
     return minutes;
 }
 
-void Initializer::statisticsLogHeader(ofstream &of) {
+void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms) {
 
     of << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
     of << "n_stations,";
@@ -2804,7 +2811,11 @@ void Initializer::statisticsLogHeader(ofstream &of) {
     for(const auto&any : network_.getStations()){
         of << "n_obs_" << any.getName() << ",";
     }
-    of << "n_sources,\n";
+    of << "n_sources,";
+    if(!ms.empty()){
+        ms[0].statisticsHeaderOutput(of);
+    }
+    of << "\n";
 }
 
 void Initializer::initializeOptimization(std::ofstream &of) {

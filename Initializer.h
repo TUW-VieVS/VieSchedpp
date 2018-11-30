@@ -306,8 +306,9 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param of outstream to statistics.csv file
+         * @param ms vector multi scheduling parameters
          */
-        void statisticsLogHeader(std::ofstream &of);
+        void statisticsLogHeader(std::ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms);
 
         /**
          * @brief initializes optimization conditions with settings from VieSchedpp.xml file

@@ -113,7 +113,6 @@ void VieSchedpp::run() {
     init.initializeWeightFactors();
     init.initializeSkyCoverages();
 
-    init.statisticsLogHeader(statisticsOf);
 
     // check if multi scheduling is selected
     bool flag_multiSched = false;
@@ -124,6 +123,8 @@ void VieSchedpp::run() {
         nsched = multiSchedParameters_.size();
     }
     of.close();
+
+    init.statisticsLogHeader(statisticsOf, multiSchedParameters_);
 
     // check if openmp is available
     #ifdef _OPENMP
@@ -186,6 +187,11 @@ void VieSchedpp::run() {
         int version = 0;
         if (flag_multiSched) {
             version = i+1;
+            // change version number in case you only process one solution
+            auto o_version = xml_.get_optional<int>("VieSchedpp.multisched.version");
+            if( o_version.is_initialized()){
+                version = *o_version;
+            }
         }
 
         // get file name
@@ -193,9 +199,9 @@ void VieSchedpp::run() {
 
         // if you have multi schedule append version number to file name
         if (flag_multiSched) {
-            fname.append((boost::format("_v%03d") % (i+1)).str());
+            fname.append((boost::format("_v%03d") % (version)).str());
             #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL(info) << boost::format("creating multi scheduling version %d of %d") % (i+1) % nsched;
+            BOOST_LOG_TRIVIAL(info) << boost::format("creating multi scheduling version %d of %d") % version % nsched;
             #else
             cout << boost::format("[info] creating multi scheduling version %d of %d") % (i+1) % nsched;
             #endif
@@ -227,7 +233,7 @@ void VieSchedpp::run() {
 
         if(flag_multiSched){
         #ifdef VIESCHEDPP_LOG
-         BOOST_LOG_TRIVIAL(info) << boost::format("version %d finished") % (i + 1);
+         BOOST_LOG_TRIVIAL(info) << boost::format("version %d finished") % version;
         #else
         cout << boost::format("[info] version %d finished") % (i + 1);
         #endif

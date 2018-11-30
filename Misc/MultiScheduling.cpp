@@ -206,15 +206,61 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
             auto thisValue = weightFactorValues[i_block % n_this];
 
             for (int i_item = 0; i_item < n_items; ++i_item) {
-                allPARA[c].weightSkyCoverage = thisValue[0];
-                allPARA[c].weightNumberOfObservations = thisValue[1];
-                allPARA[c].weightDuration = thisValue[2];
-                allPARA[c].weightAverageSources = thisValue[3];
-                allPARA[c].weightAverageStations = thisValue[4];
-                allPARA[c].weightAverageBaselines = thisValue[5];
-                allPARA[c].weightIdleTime = thisValue[6];
-                allPARA[c].weightLowDeclination = thisValue[7];
-                allPARA[c].weightLowElevation = thisValue[8];
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_sky_coverage"){
+                        allPARA[c].weightSkyCoverage = thisValue[0];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_number_of_observations"){
+                        allPARA[c].weightNumberOfObservations = thisValue[1];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_duration"){
+                        allPARA[c].weightDuration = thisValue[2];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_average_sources"){
+                        allPARA[c].weightAverageSources = thisValue[3];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_average_stations"){
+                        allPARA[c].weightAverageStations = thisValue[4];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_average_baselines"){
+                        allPARA[c].weightAverageBaselines = thisValue[5];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_idle_time"){
+                        allPARA[c].weightIdleTime = thisValue[6];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_low_declination"){
+                        allPARA[c].weightLowDeclination = thisValue[7];
+                        break;
+                    }
+                }
+                for(const auto &any: singleArgumentNumeric){
+                    if(any.first == "weight_factor_low_elevation"){
+                        allPARA[c].weightLowElevation = thisValue[8];
+                        break;
+                    }
+                }
+
                 ++c;
             }
         }

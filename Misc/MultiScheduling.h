@@ -263,6 +263,302 @@ namespace VieVS {
                 }
                 of << "\n";
             }
+
+            /**
+             * @brief output function to write header to statistics file
+             * @author Matthias Schartner
+             *
+             * @param of outfile stream object
+             */
+            void statisticsHeaderOutput(std::ofstream &of) const{
+                if (start.is_initialized()) {
+                    of << "start,";
+                }
+                if (subnetting.is_initialized()) {
+                    of << "subnetting,";
+                }
+                if (subnetting_minSourceAngle.is_initialized()) {
+                    of << "subnetting_minSourceAngle,";
+                }
+                if (subnetting_minParticipatingStations.is_initialized()) {
+                    of << "subnetting_minParticipatingStations,";
+                }
+
+                if (fillinmode_duringScanSelection.is_initialized()) {
+                    of << "fillinmode_duringScanSelection,";
+                }
+                if (fillinmode_aPosteriori.is_initialized()) {
+                    of << "fillinmode_aPosteriori,";
+                }
+                if (fillinmode_influenceOnScanSelection.is_initialized()) {
+                    of << "fillinmode_influenceOnScanSelection,";
+                }
+
+                if (weightSkyCoverage.is_initialized()) {
+                    of << "weightSkyCoverage,";
+                }
+                if (weightNumberOfObservations.is_initialized()) {
+                    of << "weightNumberOfObservations,";
+                }
+                if (weightDuration.is_initialized()) {
+                    of << "weightDuration,";
+                }
+                if (weightAverageSources.is_initialized()) {
+                    of << "weightAverageSources,";
+                }
+                if (weightAverageStations.is_initialized()) {
+                    of << "weightAverageStations,";
+                }
+                if (weightAverageBaselines.is_initialized()) {
+                    of << "weightAverageBaselines,";
+                }
+                if (weightIdleTime.is_initialized()) {
+                    of << "weightIdleTime,";
+                }
+                if (weightIdleTime_interval.is_initialized()) {
+                    of << "weightIdleTime_interval,";
+                }
+                if (weightLowDeclination.is_initialized()) {
+                    of << "weightLowDeclination,";
+                }
+                if (weightLowDeclination_begin.is_initialized()) {
+                    of << "weightLowDeclination_begin,";
+                }
+                if (weightLowDeclination_full.is_initialized()) {
+                    of << "weightLowDeclination_full,";
+                }
+                if (weightLowElevation.is_initialized()) {
+                    of << "weightLowElevation,";
+                }
+                if (weightLowElevation_begin.is_initialized()) {
+                    of << "weightLowElevation_begin,";
+                }
+                if (weightLowElevation_full.is_initialized()) {
+                    of << "weightLowElevation_full,";
+                }
+
+                if (skyCoverageInfluenceDistance.is_initialized()) {
+                    of << "skyCoverageInfluenceDistance,";
+                }
+                if (skyCoverageInfluenceTime.is_initialized()) {
+                    of << "skyCoverageInfluenceTime,";
+                }
+
+                for (const auto &any: stationWeight) {
+                    of << "stationWeight_" << any.first << ",";
+                }
+                for (const auto &any: stationMaxSlewtime) {
+                    of << "stationMaxSlewtime_" << any.first << ",";
+                }
+                for (const auto &any: stationMinSlewDistance) {
+                    of << "stationMinSlewDistance_" << any.first << ",";
+                }
+                for (const auto &any: stationMaxSlewDistance) {
+                    of << "stationMaxSlewDistance_" << any.first << ",";
+                }
+                for (const auto &any: stationMaxWait) {
+                    of << "stationMaxWait_" << any.first << ",";
+                }
+                for (const auto &any: stationMinElevation) {
+                    of << "stationMinElevation_" << any.first << ",";
+                }
+                for (const auto &any: stationMaxNumberOfScans) {
+                    of << "stationMaxNumberOfScans_" << any.first << ",";
+                }
+                for (const auto &any: stationMaxScan) {
+                    of << "stationMaxScan_" << any.first << ",";
+                }
+                for (const auto &any: stationMinScan) {
+                    of << "stationMinScan_" << any.first << ",";
+                }
+
+                for (const auto &any: sourceWeight) {
+                    of << "sourceWeight_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinNumberOfStations) {
+                    of << "sourceMinNumberOfStations_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinFlux) {
+                    of << "sourceMinFlux_" << any.first << ",";
+                }
+                for (const auto &any: sourceMaxNumberOfScans) {
+                    of << "sourceMaxNumberOfScans_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinElevation) {
+                    of << "sourceMinElevation_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinSunDistance) {
+                    of << "sourceMinSunDistance_" << any.first << ",";
+                }
+                for (const auto &any: sourceMaxScan) {
+                    of << "sourceMaxScan_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinScan) {
+                    of << "sourceMinScan_" << any.first << ",";
+                }
+                for (const auto &any: sourceMinRepeat) {
+                    of << "sourceMinRepeat_" << any.first << ",";
+                }
+
+                for (const auto &any: baselineWeight) {
+                    of << "baselineWeight_" << any.first << ",";
+                }
+                for (const auto &any: baselineMaxScan) {
+                    of << "baselineMaxScan_" << any.first << ",";
+                }
+                for (const auto &any: baselineMinScan) {
+                    of << "baselineMinScan_" << any.first << ",";
+                }
+            }
+
+            /**
+             * @brief output function to data to statistics file
+             * @author Matthias Schartner
+             *
+             * @param of outfile stream object
+             */
+            void statisticsOutput(std::ofstream &of) const{
+                std::string str;
+                if (start.is_initialized()) {
+                    of << *start << ",";
+                }
+                if (subnetting.is_initialized()) {
+                    of << *subnetting << ",";
+                }
+                if (subnetting_minSourceAngle.is_initialized()) {
+                    of << *subnetting_minSourceAngle*rad2deg << ",";
+                }
+                if (subnetting_minParticipatingStations.is_initialized()) {
+                    of << *subnetting_minParticipatingStations << " [%]\n";
+                }
+
+                if (fillinmode_duringScanSelection.is_initialized()) {
+                    of << *fillinmode_duringScanSelection << ",";
+                }
+                if (fillinmode_aPosteriori.is_initialized()) {
+                    of << *fillinmode_aPosteriori << ",";
+                }
+                if (fillinmode_influenceOnScanSelection.is_initialized()) {
+                    of << *fillinmode_influenceOnScanSelection << ",";
+                }
+
+                if (weightSkyCoverage.is_initialized()) {
+                    of << *weightSkyCoverage << ",";
+                }
+                if (weightNumberOfObservations.is_initialized()) {
+                    of << *weightNumberOfObservations << ",";
+                }
+                if (weightDuration.is_initialized()) {
+                    of << *weightDuration << ",";
+                }
+                if (weightAverageSources.is_initialized()) {
+                    of << *weightAverageSources << ",";
+                }
+                if (weightAverageStations.is_initialized()) {
+                    of << *weightAverageStations << ",";
+                }
+                if (weightAverageBaselines.is_initialized()) {
+                    of << *weightAverageBaselines << ",";
+                }
+                if (weightIdleTime.is_initialized()) {
+                    of << *weightIdleTime << ",";
+                }
+                if (weightIdleTime_interval.is_initialized()) {
+                    of << *weightIdleTime_interval << ",";
+                }
+                if (weightLowDeclination.is_initialized()) {
+                    of << *weightLowDeclination << ",";
+                }
+                if (weightLowDeclination_begin.is_initialized()) {
+                    of << *weightLowDeclination_begin*rad2deg << ",";
+                }
+                if (weightLowDeclination_full.is_initialized()) {
+                    of << *weightLowDeclination_full*rad2deg << ",";
+                }
+                if (weightLowElevation.is_initialized()) {
+                    of << *weightLowElevation << ",";
+                }
+                if (weightLowElevation_begin.is_initialized()) {
+                    of << *weightLowElevation_begin*rad2deg << ",";
+                }
+                if (weightLowElevation_full.is_initialized()) {
+                    of << *weightLowElevation_full*rad2deg << ",";
+                }
+
+                if (skyCoverageInfluenceDistance.is_initialized()) {
+                    of << *skyCoverageInfluenceDistance*rad2deg << ",";
+                }
+                if (skyCoverageInfluenceTime.is_initialized()) {
+                    of << *skyCoverageInfluenceTime*rad2deg << ",";
+                }
+
+                for (const auto &any: stationWeight) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: stationMaxSlewtime) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: stationMinSlewDistance) {
+                    of << any.second*rad2deg << ",";
+                }
+                for (const auto &any: stationMaxSlewDistance) {
+                    of << any.second*rad2deg << ",";
+                }
+                for (const auto &any: stationMaxWait) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: stationMinElevation) {
+                    of << any.second*rad2deg << ",";
+                }
+                for (const auto &any: stationMaxNumberOfScans) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: stationMaxScan) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: stationMinScan) {
+                    of << any.second << ",";
+                }
+
+                for (const auto &any: sourceWeight) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: sourceMinNumberOfStations) {
+                    of << any.first << ": " << any.second << ",";
+                }
+                for (const auto &any: sourceMinFlux) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: sourceMaxNumberOfScans) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: sourceMinElevation) {
+                    of << any.second*rad2deg << ",";
+                }
+                for (const auto &any: sourceMinSunDistance) {
+                    of << any.second*rad2deg << ",";
+                }
+                for (const auto &any: sourceMaxScan) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: sourceMinScan) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: sourceMinRepeat) {
+                    of << any.second << ",";
+                }
+
+                for (const auto &any: baselineWeight) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: baselineMaxScan) {
+                    of << any.second << ",";
+                }
+                for (const auto &any: baselineMinScan) {
+                    of << any.second << ",";
+                }
+            }
+
         };
 
 
