@@ -36,6 +36,7 @@
 #include <boost/format.hpp>
 #include <numeric>
 #include <random>
+#include <string>
 
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
@@ -415,150 +416,150 @@ namespace VieVS {
              * @brief output function to data to statistics file
              * @author Matthias Schartner
              *
-             * @param of outfile stream object
+             * @return string with statistics information
              */
-            void statisticsOutput(std::ofstream &of) const{
+            std::string statisticsOutput() const{
                 std::string str;
                 if (start.is_initialized()) {
-                    of << *start << ",";
+          //        str.append( std::to_string(*start)) ).append(",");
                 }
                 if (subnetting.is_initialized()) {
-                    of << *subnetting << ",";
+                    str.append( std::to_string(*subnetting) ).append(",");
                 }
                 if (subnetting_minSourceAngle.is_initialized()) {
-                    of << *subnetting_minSourceAngle*rad2deg << ",";
+                    str.append( std::to_string(*subnetting_minSourceAngle*rad2deg) ).append(",");
                 }
                 if (subnetting_minParticipatingStations.is_initialized()) {
-                    of << *subnetting_minParticipatingStations << " [%]\n";
+                    str.append( std::to_string(*subnetting_minParticipatingStations)).append(",");
                 }
 
                 if (fillinmode_duringScanSelection.is_initialized()) {
-                    of << *fillinmode_duringScanSelection << ",";
+                    str.append( std::to_string(*fillinmode_duringScanSelection) ).append(",");
                 }
                 if (fillinmode_aPosteriori.is_initialized()) {
-                    of << *fillinmode_aPosteriori << ",";
+                    str.append( std::to_string(*fillinmode_aPosteriori) ).append(",");
                 }
                 if (fillinmode_influenceOnScanSelection.is_initialized()) {
-                    of << *fillinmode_influenceOnScanSelection << ",";
+                    str.append( std::to_string(*fillinmode_influenceOnScanSelection) ).append(",");
                 }
 
                 if (weightSkyCoverage.is_initialized()) {
-                    of << *weightSkyCoverage << ",";
+                    str.append( std::to_string(*weightSkyCoverage) ).append(",");
                 }
                 if (weightNumberOfObservations.is_initialized()) {
-                    of << *weightNumberOfObservations << ",";
+                    str.append( std::to_string(*weightNumberOfObservations) ).append(",");
                 }
                 if (weightDuration.is_initialized()) {
-                    of << *weightDuration << ",";
+                    str.append( std::to_string(*weightDuration) ).append(",");
                 }
                 if (weightAverageSources.is_initialized()) {
-                    of << *weightAverageSources << ",";
+                    str.append( std::to_string(*weightAverageSources) ).append(",");
                 }
                 if (weightAverageStations.is_initialized()) {
-                    of << *weightAverageStations << ",";
+                    str.append( std::to_string(*weightAverageStations) ).append(",");
                 }
                 if (weightAverageBaselines.is_initialized()) {
-                    of << *weightAverageBaselines << ",";
+                    str.append( std::to_string(*weightAverageBaselines) ).append(",");
                 }
                 if (weightIdleTime.is_initialized()) {
-                    of << *weightIdleTime << ",";
+                    str.append( std::to_string(*weightIdleTime) ).append(",");
                 }
                 if (weightIdleTime_interval.is_initialized()) {
-                    of << *weightIdleTime_interval << ",";
+                    str.append( std::to_string(*weightIdleTime_interval) ).append(",");
                 }
                 if (weightLowDeclination.is_initialized()) {
-                    of << *weightLowDeclination << ",";
+                    str.append( std::to_string(*weightLowDeclination) ).append(",");
                 }
                 if (weightLowDeclination_begin.is_initialized()) {
-                    of << *weightLowDeclination_begin*rad2deg << ",";
+                    str.append( std::to_string(*weightLowDeclination_begin*rad2deg) ).append(",");
                 }
                 if (weightLowDeclination_full.is_initialized()) {
-                    of << *weightLowDeclination_full*rad2deg << ",";
+                    str.append( std::to_string(*weightLowDeclination_full*rad2deg) ).append(",");
                 }
                 if (weightLowElevation.is_initialized()) {
-                    of << *weightLowElevation << ",";
+                    str.append( std::to_string(*weightLowElevation) ).append(",");
                 }
                 if (weightLowElevation_begin.is_initialized()) {
-                    of << *weightLowElevation_begin*rad2deg << ",";
+                    str.append( std::to_string(*weightLowElevation_begin*rad2deg) ).append(",");
                 }
                 if (weightLowElevation_full.is_initialized()) {
-                    of << *weightLowElevation_full*rad2deg << ",";
+                    str.append( std::to_string(*weightLowElevation_full*rad2deg) ).append(",");
                 }
 
                 if (skyCoverageInfluenceDistance.is_initialized()) {
-                    of << *skyCoverageInfluenceDistance*rad2deg << ",";
+                    str.append( std::to_string(*skyCoverageInfluenceDistance*rad2deg) ).append(",");
                 }
                 if (skyCoverageInfluenceTime.is_initialized()) {
-                    of << *skyCoverageInfluenceTime*rad2deg << ",";
+                    str.append( std::to_string(*skyCoverageInfluenceTime*rad2deg) ).append(",");
                 }
 
                 for (const auto &any: stationWeight) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: stationMaxSlewtime) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: stationMinSlewDistance) {
-                    of << any.second*rad2deg << ",";
+                    str.append( std::to_string(any.second*rad2deg) ).append(",");
                 }
                 for (const auto &any: stationMaxSlewDistance) {
-                    of << any.second*rad2deg << ",";
+                    str.append( std::to_string(any.second*rad2deg) ).append(",");
                 }
                 for (const auto &any: stationMaxWait) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: stationMinElevation) {
-                    of << any.second*rad2deg << ",";
+                    str.append( std::to_string(any.second*rad2deg) ).append(",");
                 }
                 for (const auto &any: stationMaxNumberOfScans) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: stationMaxScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: stationMinScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
 
                 for (const auto &any: sourceWeight) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMinNumberOfStations) {
-                    of << any.first << ": " << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMinFlux) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMaxNumberOfScans) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMinElevation) {
-                    of << any.second*rad2deg << ",";
+                    str.append( std::to_string(any.second*rad2deg) ).append(",");
                 }
                 for (const auto &any: sourceMinSunDistance) {
-                    of << any.second*rad2deg << ",";
+                    str.append( std::to_string(any.second*rad2deg) ).append(",");
                 }
                 for (const auto &any: sourceMaxScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMinScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: sourceMinRepeat) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
 
                 for (const auto &any: baselineWeight) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: baselineMaxScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
                 for (const auto &any: baselineMinScan) {
-                    of << any.second << ",";
+                    str.append( std::to_string(any.second) ).append(",");
                 }
+                return str;
             }
-
         };
 
 

@@ -1212,6 +1212,7 @@ void Output::writeStatistics(std::ofstream &of) {
     vector<unsigned int> nobs_sta(network_.getNSta(),0);
     vector<unsigned int> nobs_bl(network_.getNBls(),0);
     vector<unsigned int> nscan_src(sources_.size(),0);
+    vector<unsigned int> nobs_src(sources_.size(),0);
 
     for (const auto&any:scans_){
         switch (any.getType()){
@@ -1242,7 +1243,8 @@ void Output::writeStatistics(std::ofstream &of) {
                 break;
             }
         }
-        n_bl += any.getNObs();
+        auto n_obs = any.getNObs();
+        n_bl += n_obs;
         for (int ista = 0; ista < any.getNSta(); ++ista) {
             const PointingVector& pv =  any.getPointingVector(ista);
             unsigned long id = pv.getStaid();
@@ -1256,6 +1258,7 @@ void Output::writeStatistics(std::ofstream &of) {
         }
         unsigned long id = any.getSourceId();
         ++nscan_src[id];
+        nobs_src[id] += n_obs;
     }
     int n_src = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
 
@@ -1268,6 +1271,7 @@ void Output::writeStatistics(std::ofstream &of) {
     oString.append(std::to_string(n_calibrator)).append(",");
     oString.append(std::to_string(n_bl)).append(",");
     oString.append(std::to_string(network_.getNSta())).append(",");
+    oString.append(std::to_string(n_src)).append(",");
     for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nscan_sta[i])).append(",");
     }
@@ -1277,14 +1281,24 @@ void Output::writeStatistics(std::ofstream &of) {
     for (int i = 0; i < network_.getNBls(); ++i) {
         oString.append(std::to_string(nobs_bl[i])).append(",");
     }
-    oString.append(std::to_string(n_src)).append(",");
-
-    of << oString;
+    for (int i = 0; i < sources_.size(); ++i) {
+        oString.append(std::to_string(nscan_src[i])).append(",");
+    }
+    for (int i = 0; i < sources_.size(); ++i) {
+        oString.append(std::to_string(nobs_src[i])).append(",");
+    }
 
     if(multiSchedulingParameters_.is_initialized()){
-        multiSchedulingParameters_->statisticsOutput(of);
+       oString.append(multiSchedulingParameters_->statisticsOutput());
     }
-    of << endl;
+
+    #ifdef _OPENMP
+    #pragma omp critical
+    #endif
+    {
+        of << oString << endl;
+    };
+
 
 }
 

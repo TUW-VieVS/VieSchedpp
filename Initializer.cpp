@@ -2804,17 +2804,22 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
 void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms) {
 
     of << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_baselines,";
-    of << "n_stations,";
+    of << "n_stations,n_sources,";
     for(const auto&any : network_.getStations()){
-        of << "n_scans_" << any.getName() << ",";
+        of << "n_sta_scans_" << any.getName() << ",";
     }
     for(const auto&any : network_.getStations()){
-        of << "n_obs_" << any.getName() << ",";
+        of << "n_sta_obs_" << any.getName() << ",";
     }
     for(const auto&any : network_.getBaselines()){
         of << "n_bl_obs_" << any.getName() << ",";
     }
-    of << "n_sources,";
+    for(const auto&any : sources_){
+        of << "n_src_scans_" << any.getName() << ",";
+    }
+    for(const auto&any : sources_){
+        of << "n_src_obs_" << any.getName() << ",";
+    }
     if(!ms.empty()){
         ms[0].statisticsHeaderOutput(of);
     }
