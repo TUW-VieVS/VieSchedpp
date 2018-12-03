@@ -2811,6 +2811,9 @@ void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::Mul
     for(const auto&any : network_.getStations()){
         of << "n_obs_" << any.getName() << ",";
     }
+    for(const auto&any : network_.getBaselines()){
+        of << "n_bl_obs_" << any.getName() << ",";
+    }
     of << "n_sources,";
     if(!ms.empty()){
         ms[0].statisticsHeaderOutput(of);

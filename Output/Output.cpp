@@ -116,12 +116,20 @@ void  Output::displayGeneralStatistics(ofstream &of) {
 void Output::displayBaselineStatistics(ofstream &of) {
     unsigned long nsta = network_.getNSta();
     int n_bl = 0;
+    int n_bl_max = 0;
     for (const auto&any:scans_){
         unsigned long this_n_bl = any.getNObs();
         n_bl += this_n_bl;
+        n_bl_max += any.getNSta() * (any.getNSta()-1) / 2;
     }
 
-    of << "number of scheduled observations: " << n_bl << "\n";
+    of << "number of scheduled observations: " << n_bl << " of " << n_bl_max;
+    if(n_bl_max-n_bl > 0){
+        int diff = n_bl_max-n_bl;
+        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR\n") % diff % (static_cast<double>(diff)/static_cast<double>(n_bl_max)*100);
+    }else{
+        of << ")\n";
+    }
     of << ".-----------";
     for (int i = 0; i < nsta-1; ++i) {
         of << "----------";
@@ -336,9 +344,9 @@ void Output::displayScanDurationStatistics(ofstream &of) {
     of << "\n";
 
     of << "required scan length:\n";
-    of << ".----------------------------------------------------------------------------------.\n";
-    of << "| S1-S2 |  min    10%    50%    90%    95%  97.5%    99%    max   |   sum  average |\n";
-    of << "|-------|---------------------------------------------------------|----------------|\n";
+    of << ".-----------------------------------------------------------------------------------.\n";
+    of << "| S1-S2 |  min    10%    50%    90%    95%  97.5%    99%    max   |    sum  average |\n";
+    of << "|-------|---------------------------------------------------------|-----------------|\n";
 
     {
         auto n = static_cast<int>(maxScanDurations.size() - 1);
@@ -354,11 +362,11 @@ void Output::displayScanDurationStatistics(ofstream &of) {
         of << boost::format("%4d   ") % maxScanDurations[n];
         int sum = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0);
         double average = static_cast<double>(sum) / (n + 1);
-        of << boost::format("| %5d %8.1f |") % sum % average;
+        of << boost::format("| %6d %8.1f |") % sum % average;
         of << "\n";
     }
 
-    of << "|-------|---------------------------------------------------------|----------------|\n";
+    of << "|-------|---------------------------------------------------------|-----------------|\n";
 
     for (unsigned long i = 1; i < nsta; ++i) {
         for (unsigned long j = 0; j < i; ++j) {
@@ -379,12 +387,12 @@ void Output::displayScanDurationStatistics(ofstream &of) {
             of << boost::format("%4d   ") % this_duration[n];
             int sum = accumulate(this_duration.begin(), this_duration.end(), 0);
             double average = static_cast<double>(sum) / (n + 1);
-            of << boost::format("| %5d %8.1f |") % sum % average;
+            of << boost::format("| %6d %8.1f |") % sum % average;
             of << "\n";
         }
 
     }
-    of << "'----------------------------------------------------------------------------------'\n\n";
+    of << "'-----------------------------------------------------------------------------------'\n\n";
 }
 
 void Output::displayTimeStatistics(std::ofstream &of) {
@@ -1202,6 +1210,7 @@ void Output::writeStatistics(std::ofstream &of) {
     int n_bl = 0;
     vector<unsigned int> nscan_sta(network_.getNSta(),0);
     vector<unsigned int> nobs_sta(network_.getNSta(),0);
+    vector<unsigned int> nobs_bl(network_.getNBls(),0);
     vector<unsigned int> nscan_src(sources_.size(),0);
 
     for (const auto&any:scans_){
@@ -1243,6 +1252,7 @@ void Output::writeStatistics(std::ofstream &of) {
             const Observation &obs = any.getObservation(ibl);
             ++nobs_sta[obs.getStaid1()];
             ++nobs_sta[obs.getStaid2()];
+            ++nobs_bl[network_.getBaseline(obs.getStaid1(), obs.getStaid2()).getId()];
         }
         unsigned long id = any.getSourceId();
         ++nscan_src[id];
@@ -1263,6 +1273,9 @@ void Output::writeStatistics(std::ofstream &of) {
     }
     for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nobs_sta[i])).append(",");
+    }
+    for (int i = 0; i < network_.getNBls(); ++i) {
+        oString.append(std::to_string(nobs_bl[i])).append(",");
     }
     oString.append(std::to_string(n_src)).append(",");
 

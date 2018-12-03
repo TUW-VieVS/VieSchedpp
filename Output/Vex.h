@@ -216,11 +216,11 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param scans list of all scans
-         * @param stations list of all stations
+         * @param network station network
          * @param sources list of all sources
          * @param obsModes observing mode
          */
-        void sched_block(const std::vector<Scan>& scans, const std::vector<Station>& stations,
+        void sched_block(const std::vector<Scan>& scans, const Network &network,
                          const std::vector<Source>& sources, const std::shared_ptr<const ObservingMode> &obsModes);
 
     };

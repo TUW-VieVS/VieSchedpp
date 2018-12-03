@@ -47,7 +47,7 @@ void Vex::writeVex(const Network &network, const std::vector<Source> &sources, c
 
     station_block(network.getStations());
     mode_block(obsModes);
-    sched_block(scans, network.getStations(), sources, obsModes);
+    sched_block(scans, network, sources, obsModes);
 
     sites_block(network.getStations());
     antenna_block(network.getStations());
@@ -285,7 +285,7 @@ void Vex::phase_cal_detect_block() {
     of << "    enddef;\n";
 }
 
-void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station> &stations,
+void Vex::sched_block(const std::vector<Scan> &scans, const Network &network,
                       const std::vector<Source> &sources, const std::shared_ptr<const ObservingMode> &obsModes) {
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
@@ -333,7 +333,7 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             const PointingVector &pv = scan.getPointingVector(j);
             unsigned long staid = pv.getStaid();
             double az = pv.getAz();
-            const Station &thisStation = stations.at(staid);
+            const Station &thisStation = network.getStation(staid);
             const string &thisTlc = thisStation.getAlternativeName();
             string cwvex;
 
@@ -354,6 +354,41 @@ void Vex::sched_block(const std::vector<Scan> &scans, const std::vector<Station>
             int dataObs = times.getObservingTime(j, Timestamp::end);
             of << boost::format("        station = %2s : %4d sec : %4d sec : 0 ft : 1A : %4s : 1;\n") % thisTlc % (dataGood-start) % (dataObs-start) % cwvex;
         }
+
+
+        vector<string> ignoreBaseline;
+        for(int staidx1=0; staidx1<scan.getNSta(); ++staidx1){
+            for(int staidx2=staidx1+1; staidx2<scan.getNSta(); ++staidx2){
+                unsigned long staid1 = scan.getPointingVector(staidx1).getStaid();
+                unsigned long staid2 = scan.getPointingVector(staidx2).getStaid();
+                bool found = false;
+                for(const auto &any : scan.getObservations()){
+                    if(any.containsStation(staid1) && any.containsStation(staid2)){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    ignoreBaseline.push_back(network.getBaseline(staid1,staid2).getName());
+                }
+            }
+        }
+
+        if(!ignoreBaseline.empty()){
+            of << "*       ignore observation = ";
+            for (int i_ignore=0; i_ignore<ignoreBaseline.size(); ++i_ignore) {
+                if(i_ignore%6==0 && i_ignore>0){
+                    of <<"\n*                            ";
+                }
+                of << ignoreBaseline[i_ignore];
+                if(i_ignore+1 != ignoreBaseline.size()){
+                    of << " : ";
+                }
+            }
+            of << ";\n";
+        }
+
+
         of << "    endscan;\n";
     }
 }
