@@ -246,8 +246,8 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << "\n";
     of << boost::format("%-14s %6s\n") % "SkyCov" % "No";
     of << boost::format("%-14s %6s\n") % "AllBlGood" % "Yes";
-    of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 360;
-    of << boost::format("%-14s %6.2f\n") % "MinAngle" % 0;
+    of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 180;
+    of << boost::format("%-14s %6.2f\n") % "MinAngle" % 2;
     of << boost::format("%-14s %6d\n") % "MinBetween" % (sources[0].getPARA().minRepeat / 60);
     of << boost::format("%-14s %6d\n") % "MinSunDist" % 0;
     of << boost::format("%-14s %6d\n") % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
@@ -267,7 +267,7 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
         of << boost::format("%-14s %6s\n") % "FillIn" % "No";
     }
     of << boost::format("%-14s %6d\n") % "FillMinSub" % sources[0].getPARA().minNumberOfStations;
-    of << boost::format("%-14s %6d\n") % "FillMinTime" % 0;
+    of << boost::format("%-14s %6d\n") % "FillMinTime" % 20;
     of << boost::format("%-14s %6d\n") % "FillBest" % 100;
     of << boost::format("%-14s %6.2f\n") % "Add_ps" % 0.00;
     of << boost::format("%-14s %6s\n") % "SNRWts" % "No";
@@ -291,9 +291,9 @@ void Skd::skd_MINOR() {
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "NumObs" % "Yes" % "Abs" %
           WeightFactors::weightNumberOfObservations;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "SkyCov" % "Yes" % "Abs" % WeightFactors::weightSkyCoverage;
-    of << boost::format("%-14s %-3s %-3s %8.2f EVN\n") % "SrcEvn" % "Yes" % "Abs" % WeightFactors::weightAverageSources;
+    of << boost::format("%-14s %-3s %-3s %8.2f NONE\n") % "SrcEvn" % "Yes" % "Abs" % WeightFactors::weightAverageSources;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "SrcWt" % "Yes" % "Abs" % 1.00;
-    of << boost::format("%-14s %-3s %-3s %8.2f EVN\n") % "StatEvn" % "Yes" % "Abs" %
+    of << boost::format("%-14s %-3s %-3s %8.2f NONE\n") % "StatEvn" % "Yes" % "Abs" %
           WeightFactors::weightAverageStations;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "StatIdle" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "StatWt" % "Yes" % "Abs" % 1.00;
