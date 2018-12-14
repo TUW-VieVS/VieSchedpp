@@ -77,39 +77,39 @@ SkyCoverage::scorePerPointingVector(const PointingVector &pv_new,
         return 1;
     }
 
-    double scoreDistance;
+    double saturationDistance;
     switch (interpolationDistance) {
         case Interpolation::constant: {
-            scoreDistance = 0;
+            saturationDistance = 1;
             break;
         }
         case Interpolation::linear: {
-            scoreDistance = distance / maxInfluenceDistance;
+            saturationDistance = 1 - distance / maxInfluenceDistance;
             break;
         }
         case Interpolation::cosine: {
-            scoreDistance = .5 + .5 * (LookupTable::cosLookup(distance * pi / maxInfluenceDistance));
+            saturationDistance = .5 + .5 * (LookupTable::cosLookup(distance * pi / maxInfluenceDistance));
             break;
         }
     }
 
-    double scoreTime;
+    double saturationTime;
     switch (interpolationTime) {
         case Interpolation::constant: {
-            scoreTime = 0;
+            saturationTime = 1;
             break;
         }
         case Interpolation::linear: {
-            scoreTime = deltaTime / maxInfluenceTime;
+            saturationTime = 1 - deltaTime / maxInfluenceTime;
             break;
         }
         case Interpolation::cosine: {
-            scoreTime = .5 + .5 * (LookupTable::cosLookup(deltaTime * pi / maxInfluenceTime));
+            saturationTime = .5 + .5 * (LookupTable::cosLookup(deltaTime * pi / maxInfluenceTime));
             break;
         }
     }
 
-    return 1 - (scoreDistance * scoreTime);
+    return 1 - (saturationDistance * saturationTime);
 }
 
 void SkyCoverage::clearObservations() {

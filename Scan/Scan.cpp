@@ -567,7 +567,7 @@ double Scan::calcScore_averageStations(const vector<double> &astas, unsigned lon
     for(const auto &pv:pointingVectorsStart_){
         unsigned long staid = pv.getStaid();
         unsigned long nObs = getNObs(staid);
-        finalScore += astas[staid] * nObs / nMaxStaPossible;
+        finalScore += astas[staid] * static_cast<double>(nObs) / static_cast<double>(nMaxStaPossible);
     }
 
     return finalScore;
@@ -588,11 +588,11 @@ double Scan::calcScore_averageBaselines(const std::vector<double> &abls) const n
 double Scan::calcScore_averageSources(const vector<double> &asrcs, unsigned long nMaxBls) const noexcept {
 
     unsigned long nbl = observations_.size();
-    return asrcs[srcid_] * nbl / nMaxBls;
+    return asrcs[srcid_] * static_cast<double>(nbl) / static_cast<double>(nMaxBls);
 
 }
 
-double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept {
+double Scan::calcScore_duration(unsigned long nMaxSta, unsigned int minTime, unsigned int maxTime) const noexcept {
     unsigned int thisScanDuration = times_.getScanDuration();
     double score;
     if (maxTime - minTime == 0) {
@@ -600,6 +600,7 @@ double Scan::calcScore_duration(unsigned int minTime, unsigned int maxTime) cons
     } else {
         score = 1 - static_cast<double>(thisScanDuration - minTime) / static_cast<double>(maxTime - minTime);
     }
+    score *= static_cast<double>(nsta_) / static_cast<double>(nMaxSta);
     return score;
 }
 
@@ -613,12 +614,26 @@ double Scan::calcScore_lowElevation(unsigned long nmaxsta) {
         } else if (el < WeightFactors::lowElevationFullWeight) {
             f = 1;
         } else {
-            f = (WeightFactors::lowElevationStartWeight - el) /
+            f = (el - WeightFactors::lowElevationStartWeight) /
                 (WeightFactors::lowElevationFullWeight - WeightFactors::lowElevationStartWeight);
         }
         score += f ;
     }
     return score / nmaxsta;
+}
+
+double Scan::calcScore_lowDeclination(unsigned long nMaxObs) {
+    double dec = pointingVectorsStart_[0].getDc();
+    double score = 0;
+    if (dec > WeightFactors::declinationStartWeight) {
+        score = 0;
+    } else if (dec < WeightFactors::declinationFullWeight) {
+        score = 1;
+    } else {
+        score = (dec - WeightFactors::declinationStartWeight) /
+                (WeightFactors::declinationFullWeight - WeightFactors::declinationStartWeight);
+    }
+    return score * static_cast<double>(observations_.size()) / static_cast<double>(nMaxObs);
 }
 
 
@@ -997,11 +1012,8 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
         this_score += calcScore_averageBaselines(abls) * weight_averageBaselines;
     }
     double weight_duration = WeightFactors::weightDuration;
-    if(subnetting){
-        weight_duration /= 2;
-    }
     if (weight_duration != 0) {
-        this_score += calcScore_duration(minTime, maxTime) * weight_duration;
+        this_score += calcScore_duration(nmaxsta, minTime, maxTime) * weight_duration;
     }
     double weight_idle = WeightFactors::weightIdleTime;
     if(weight_idle != 0) {
@@ -1009,21 +1021,8 @@ double Scan::calcScore_firstPart(const std::vector<double> &astas, const std::ve
     }
 
     double weightDeclination = WeightFactors::weightDeclination;
-    if(subnetting){
-        weightDeclination /= 2;
-    }
     if (weightDeclination != 0) {
-        double dec = source.getDe();
-        double f = 0;
-        if (dec > WeightFactors::declinationStartWeight) {
-            f = 0;
-        } else if (dec < WeightFactors::declinationFullWeight) {
-            f = 1;
-        } else {
-            f = (dec - WeightFactors::declinationFullWeight) /
-                (WeightFactors::declinationStartWeight - WeightFactors::declinationFullWeight);
-        }
-        this_score += f * weightDeclination;
+        this_score += calcScore_lowDeclination(nmaxbl) * weightDeclination;
     }
 
     double weightLowElevation = WeightFactors::weightLowElevation;
@@ -1196,10 +1195,7 @@ bool Scan::calcScore(const std::vector<double> &prevLowElevationScores, const st
         ++i;
     }
 
-    double scoreDuration = calcScore_duration(minRequiredTime, maxRequiredTime);
-    if(subnetting){
-        scoreDuration = scoreDuration / 2;
-    }
+    double scoreDuration = calcScore_duration(nMaxSta, minRequiredTime, maxRequiredTime);
 
     double scoreBaselines = calcScore_numberOfObservations(network.getNBls());
 

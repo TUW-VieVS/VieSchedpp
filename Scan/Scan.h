@@ -743,11 +743,12 @@ namespace VieVS{
          * @brief calculates score for duration
          * @author Matthias Schartner
          *
+         * @param nMaxSta number of stations in network
          * @param minTime minimum time required for a scan in seconds
          * @param maxTime maximum time required for a scan in seconds
          * @return score
          */
-        double calcScore_duration(unsigned int minTime, unsigned int maxTime) const noexcept;
+        double calcScore_duration(unsigned long nMaxSta, unsigned int minTime, unsigned int maxTime) const noexcept;
 
         /**
          * @brief calculates score based on idle time
@@ -779,10 +780,19 @@ namespace VieVS{
          * @brief calculate score for low elevation scans
          * @author Matthias Schartner
          *
-         * @param maximum number of stations
+         * @param nmaxsta number of stations in network
          * @return score for low elevation scans
          */
         double calcScore_lowElevation(unsigned long nmaxsta);
+
+        /**
+         * @brief calculate score for low declination scans
+         * @author Matthias Schartner
+         *
+         * @param nMaxObs maximum number of possible observations in network
+         * @return score for low declination scans
+         */
+        double calcScore_lowDeclination(unsigned long nMaxObs);
 
         /**
          * @brief first part of score calculation

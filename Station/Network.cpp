@@ -244,8 +244,7 @@ double Network::calcScore_skyCoverage(const vector<PointingVector> &pvs,
 
     double score = 0;
 
-    for(int i=0; i<pvs.size(); ++i){
-        const PointingVector &pv = pvs[i];
+    for (const auto &pv : pvs) {
         unsigned long staid = pv.getStaid();
         unsigned long skyCovid = staids2skyCoverageId_.at(staid);
         const SkyCoverage &thisSkyCov = skyCoverages_.at(skyCovid);
