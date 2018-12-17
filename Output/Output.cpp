@@ -18,8 +18,6 @@
 
 #include "Output.h"
 
-#include <utility>
-
 using namespace std;
 using namespace VieVS;
 unsigned long Output::nextId = 0;
@@ -127,8 +125,6 @@ void Output::displayBaselineStatistics(ofstream &of) {
     if(n_bl_max-n_bl > 0){
         int diff = n_bl_max-n_bl;
         of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR\n") % diff % (static_cast<double>(diff)/static_cast<double>(n_bl_max)*100);
-    }else{
-        of << ")\n";
     }
     of << ".-----------";
     for (int i = 0; i < nsta-1; ++i) {
