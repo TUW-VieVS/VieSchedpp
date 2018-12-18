@@ -136,7 +136,7 @@ void SkdParser::read() {
             if(!bandsFound && trimmed == "$CODES"){
                 bandsFound = true;
                 while (getline(fid, line)){
-                    if (line == "manual observing mode used!"){
+                    if (line == "* no sked observind mode used! "){
                         break;
                     }
                     if (line.empty() || line.at(0) == '*') {
