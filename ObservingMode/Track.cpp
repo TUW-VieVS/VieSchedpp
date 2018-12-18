@@ -122,9 +122,9 @@ Track::Fanout_definition::Fanout_definition(const boost::property_tree::ptree &t
     bitstream_ = bitstreamFromString(tree.get<std::string>("bitstream"));
     headstack_number_ = tree.get<int>("headstack_number");
     first_multiplex_track_  = tree.get<int>("first_multiplex_track");
-    second_multiplex_track_ = tree.get("second_multiplex_track",-1);
-    third_multiplex_track_  = tree.get("third_multiplex_track",-1);
-    fourth_multiplex_track_ = tree.get("fourth_multiplex_track",-1);
+    second_multiplex_track_ = tree.get("second_multiplex_track",-999);
+    third_multiplex_track_  = tree.get("third_multiplex_track",-999);
+    fourth_multiplex_track_ = tree.get("fourth_multiplex_track",-999);
 }
 
 Track::Fanout_definition::Fanout_definition(std::string subpass, std::string trksId, Track::Bitstream bitstream,

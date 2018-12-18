@@ -81,6 +81,9 @@ void Mode::calcRecordingRates() {
         const auto &tracks1 = getTracks(staid1);
         // check if station 1 is part of this observing mode
         if(!freq1.is_initialized() || !tracks1.is_initialized()){
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(warning) << "undefined observing rate for station " << staid1 << " for observing mode " << getName();
+            #endif
             continue;
         }
 

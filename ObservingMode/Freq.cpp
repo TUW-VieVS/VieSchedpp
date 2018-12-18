@@ -195,7 +195,7 @@ Freq::Chan_def::Chan_def(std::string bandId, double sky_freq, Freq::Net_sideband
 Freq::Chan_def::Chan_def(const boost::property_tree::ptree &tree): VieVS_Object{Chan_def::nextId++} {
     bandId_ = tree.get<std::string>("Band_ID");
     sky_freq_ = tree.get<double>("Sky_freq");
-    net_sideband_ = netSidebandFromString(tree.get<std::string>("Band_ID"));
+    net_sideband_ = netSidebandFromString(tree.get<std::string>("Net_SB"));
     chan_bandwidth_ = tree.get<double>("Chan_BW");
     chan_id_ = tree.get<std::string>("Chan_ID");
     bbc_id_ = tree.get<std::string>("BBC_ID");

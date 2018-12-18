@@ -124,9 +124,9 @@ void Output::displayBaselineStatistics(ofstream &of) {
     of << "number of scheduled observations: " << n_bl << " of " << n_bl_max;
     if(n_bl_max-n_bl > 0){
         int diff = n_bl_max-n_bl;
-        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR\n") % diff % (static_cast<double>(diff)/static_cast<double>(n_bl_max)*100);
+        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR") % diff % (static_cast<double>(diff)/static_cast<double>(n_bl_max)*100);
     }
-    of << ".-----------";
+    of << "\n.-----------";
     for (int i = 0; i < nsta-1; ++i) {
         of << "----------";
     }
@@ -156,7 +156,11 @@ void Output::displayBaselineStatistics(ofstream &of) {
                 of << "          ";
             }else{
                 unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
-                of << boost::format(" %8d ") % nBl;
+                if(nBl == 0){
+                    of << "        - ";
+                }else{
+                    of << boost::format(" %8d ") % nBl;
+                }
             }
         }
         of << "|";
@@ -1172,7 +1176,7 @@ void Output::writeOperationsNotes() {
 
     if(scans_.size()>=2){
         of << "Scans:\n";
-        of << ".----------------------------------------------------------------------------------------------------------------.\n";
+        of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
         for(unsigned long i=0; i<3; ++i){
             const auto &thisScan = scans_[i];
             thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);

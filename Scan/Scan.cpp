@@ -337,6 +337,9 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source,
             double anum = (1.75*maxminSNR / SEFD_src);
             double anu1 = SEFD_sta1*SEFD_sta2;
             double anu2 = mode->recordingRate(staid1, staid2, band);
+            if(anu2 == 0){
+                return false;
+            }
             double new_duration = anum*anum *anu1/anu2 + maxCorSynch;
             new_duration = ceil(new_duration);
             auto new_duration_uint = static_cast<unsigned int>(new_duration);
