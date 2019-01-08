@@ -21,11 +21,11 @@ using namespace std;
 using namespace VieVS;
 
 
-ParameterSetup::ParameterSetup(): start_{0}, end_{0}, transition_{Transition::soft} {
+ParameterSetup::ParameterSetup(): start_{0}, end_{0}, transition_{Transition::smooth} {
 }
 
 ParameterSetup::ParameterSetup(unsigned int start, unsigned int end) :
-        start_{start}, end_{end}, transition_{Transition::soft} {
+        start_{start}, end_{end}, transition_{Transition::smooth} {
 
 }
 

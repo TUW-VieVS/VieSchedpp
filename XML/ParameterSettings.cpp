@@ -794,7 +794,7 @@ boost::property_tree::ptree ParameterSettings::getChildTree(const ParameterSetup
             root.add("root.end", stmp);
         }
 
-        if (setup.getTransition() != ParameterSetup::Transition::soft) {
+        if (setup.getTransition() != ParameterSetup::Transition::smooth) {
             root.add("root.transition", "hard");
         }
     }

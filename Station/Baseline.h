@@ -118,15 +118,15 @@ namespace VieVS{
              * @author Matthias Schartner
              *
              * @param time time when transition should occure
-             * @param softTransition true if it is a soft transition, otherwise hard
+             * @param smoothTransition true if it is a soft transition, otherwise hard
              * @param PARA new parameters
              */
-            Event(unsigned int time, bool softTransition, Parameters PARA): time{time},
-                                                                            softTransition{softTransition},
+            Event(unsigned int time, bool smoothTransition, Parameters PARA): time{time},
+                                                                            smoothTransition{smoothTransition},
                                                                             PARA{std::move(PARA)}{}
 
             unsigned int time; ///< time when new parameters should be used in seconds since start
-            bool softTransition; ///< transition type
+            bool smoothTransition; ///< transition type
             Parameters PARA; ///< new parameters
         };
 

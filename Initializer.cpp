@@ -1184,7 +1184,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
-    bool softTransition = true;
+    bool smoothTransition = true;
 
     for (auto &it: tree) {
         string paraName = it.first;
@@ -1269,12 +1269,12 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
-                softTransition = false;
-            } else if (tmp == "soft") {
-                softTransition = true;
+                smoothTransition = false;
+            } else if (tmp == "smooth") {
+                smoothTransition = true;
             } else {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <station><setup> block -> set to 'soft'";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <station><setup> block -> set to 'smooth'";
                 #else
                 cout << "[warning] unknown transition type in <station><setup> block -> set to 'soft'";
                 #endif
@@ -1294,7 +1294,7 @@ void Initializer::stationSetup(vector<vector<Station::Event> > &events,
         auto &thisEvents = events[id];
 
 
-        Station::Event newEvent_start(start,softTransition,combinedPARA);
+        Station::Event newEvent_start(start,smoothTransition,combinedPARA);
 
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
@@ -1454,7 +1454,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
-    bool softTransition = true;
+    bool smoothTransition = true;
 
     for (auto &it: tree) {
         string paraName = it.first;
@@ -1563,12 +1563,12 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
-                softTransition = false;
-            } else if (tmp == "soft") {
-                softTransition = true;
+                smoothTransition = false;
+            } else if (tmp == "smooth") {
+                smoothTransition = true;
             } else {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <source><setup> block -> set to 'soft'";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <source><setup> block -> set to 'smooth'";
                 #else
                 cout << "[warning] unknown transition type in <source><setup> block -> set to 'soft'";
                 #endif
@@ -1614,7 +1614,7 @@ void Initializer::sourceSetup(vector<vector<Source::Event> > &events,
         auto &thisEvents = events[id];
 
 
-        Source::Event newEvent_start(start, softTransition, combinedPARA);
+        Source::Event newEvent_start(start, smoothTransition, combinedPARA);
 
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {
@@ -1752,7 +1752,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
     combinedPARA.setParameters(parentPARA);
     unsigned int start = 0;
     unsigned int end = TimeSystem::duration;
-    bool softTransition = true;
+    bool smoothTransition = true;
 
     for (auto &it: tree) {
         string paraName = it.first;
@@ -1803,12 +1803,12 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
         } else if (paraName == "transition") {
             string tmp = it.second.data();
             if (tmp == "hard") {
-                softTransition = false;
-            } else if (tmp == "soft") {
-                softTransition = true;
+                smoothTransition = false;
+            } else if (tmp == "smooth") {
+                smoothTransition = true;
             } else {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <baseline><setup> block -> set to 'soft'";
+                BOOST_LOG_TRIVIAL(warning) << "unknown transition type in <baseline><setup> block -> set to 'smooth'";
                 #else
                 cout << "[warning] unknown transition type in <baseline><setup> block -> set to 'soft'";
                 #endif
@@ -1829,7 +1829,7 @@ void Initializer::baselineSetup(vector<vector<Baseline::Event> > &events,
         auto &thisEvents = events[id];
 
 
-        Baseline::Event newEvent_start(start,softTransition,combinedPARA);
+        Baseline::Event newEvent_start(start,smoothTransition,combinedPARA);
 
         for (auto iit = thisEvents.begin(); iit < thisEvents.end(); ++iit) {
             if (iit->time > newEvent_start.time) {

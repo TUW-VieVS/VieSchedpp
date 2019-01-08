@@ -363,7 +363,7 @@ bool Station::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
 
         parameters_ = events_->at(nextEvent_).PARA;
 
-        hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
+        hardBreak = hardBreak || !events_->at(nextEvent_).smoothTransition;
         bool newAvailable = parameters_.available;
 
         if (!oldAvailable && newAvailable) {

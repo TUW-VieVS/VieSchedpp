@@ -143,7 +143,7 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
         parameters_ = events_->at(nextEvent_).PARA;
         parameters_.globalAvailable = oldGlobalAvailable;
 
-        hardBreak = hardBreak || !events_->at(nextEvent_).softTransition;
+        hardBreak = hardBreak || !events_->at(nextEvent_).smoothTransition;
         nextEvent_++;
 
         if(getMaxFlux() < parameters_.minFlux){

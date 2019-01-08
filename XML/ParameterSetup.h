@@ -49,7 +49,7 @@ namespace VieVS {
          * @author Matthias Schartner
          */
         enum class Transition {
-            soft, ///< soft transition
+            smooth, ///< soft transition
             hard ///< hard transition
         };
 
@@ -80,7 +80,7 @@ namespace VieVS {
          * @param transition transition type
          */
         ParameterSetup(const std::string &parameterName, const std::string &memberName,
-                   unsigned int start, unsigned int end, Transition transition = Transition::soft);
+                   unsigned int start, unsigned int end, Transition transition = Transition::smooth);
 
 
         /**
@@ -96,7 +96,7 @@ namespace VieVS {
          */
         ParameterSetup(const std::string &parameterName, const std::string &groupName,
                    const std::vector<std::string> &groupMembers, unsigned int start, unsigned int end,
-                   Transition transition = Transition::soft);
+                   Transition transition = Transition::smooth);
 
         /**
          * @brief getter for parameter name
