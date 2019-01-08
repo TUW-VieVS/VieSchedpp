@@ -114,8 +114,8 @@ namespace VieVS{
             unsigned int minNumberOfStations = 2; ///< minimum number of stations for a scan
             double minFlux = 0.001; ///< minimum flux density required for this source in jansky
             unsigned int minRepeat = 1800; ///< minimum time between two observations of this source in seconds
-            unsigned int maxScan = 20; ///< maximum allowed scan time in seconds
-            unsigned int minScan = 600; ///< minimum required scan time in seconds
+            unsigned int maxScan = 9999; ///< maximum allowed scan time in seconds
+            unsigned int minScan = 0; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum number of scans
             double minElevation = 0; ///< minimum elevation in radians
             double minSunDistance = 4*deg2rad; ///< minimum sun distance in radians
