@@ -1967,8 +1967,8 @@ void Initializer::initializeWeightFactors() noexcept {
     WeightFactors::declinationFullWeight = xml_.get<double>("VieSchedpp.weightFactor.declinationFullWeight", 0) * deg2rad;
 
     WeightFactors::weightLowElevation = xml_.get<double>("VieSchedpp.weightFactor.weightLowElevation", 0);
-    WeightFactors::lowElevationStartWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationStartWeight", 0) * deg2rad;
-    WeightFactors::lowElevationFullWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationFullWeight", 0) * deg2rad;
+    WeightFactors::lowElevationStartWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationStartWeight", 30) * deg2rad;
+    WeightFactors::lowElevationFullWeight = xml_.get<double>("VieSchedpp.weightFactor.lowElevationFullWeight", 20) * deg2rad;
 }
 
 void Initializer::initializeSkyCoverages() noexcept {
@@ -2303,24 +2303,24 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
         WeightFactors::weightDeclination = *parameters.weightLowDeclination;
     }
     if (parameters.weightLowDeclination_begin.is_initialized()) {
-        WeightFactors::declinationStartWeight = *parameters.weightLowDeclination_begin;
+        WeightFactors::declinationStartWeight = *parameters.weightLowDeclination_begin * deg2rad;
     }
     if (parameters.weightLowDeclination_full.is_initialized()) {
-        WeightFactors::declinationFullWeight = *parameters.weightLowDeclination_full;
+        WeightFactors::declinationFullWeight = *parameters.weightLowDeclination_full * deg2rad;
     }
     if (parameters.weightLowElevation.is_initialized()) {
         WeightFactors::weightLowElevation = *parameters.weightLowElevation;
     }
     if (parameters.weightLowElevation_begin.is_initialized()) {
-        WeightFactors::lowElevationStartWeight = *parameters.weightLowElevation_begin;
+        WeightFactors::lowElevationStartWeight = *parameters.weightLowElevation_begin * deg2rad;
     }
     if (parameters.weightLowElevation_full.is_initialized()) {
-        WeightFactors::lowElevationFullWeight = *parameters.weightLowElevation_full;
+        WeightFactors::lowElevationFullWeight = *parameters.weightLowElevation_full * deg2rad;
     }
 
     // SKY COVERAGE
     if(parameters.skyCoverageInfluenceDistance.is_initialized()){
-        SkyCoverage::maxInfluenceDistance = *parameters.skyCoverageInfluenceDistance;
+        SkyCoverage::maxInfluenceDistance = *parameters.skyCoverageInfluenceDistance * deg2rad;
     }
     if(parameters.skyCoverageInfluenceTime.is_initialized()){
         SkyCoverage::maxInfluenceTime = *parameters.skyCoverageInfluenceTime;
@@ -2350,7 +2350,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().maxSlewDistance = any.second;
+                network_.refStation(id).referencePARA().maxSlewDistance = any.second * deg2rad;
             }
         }
     }
@@ -2359,7 +2359,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().minSlewDistance = any.second;
+                network_.refStation(id).referencePARA().minSlewDistance = any.second * deg2rad;
             }
         }
     }
@@ -2377,7 +2377,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,network_.getStations());
             for(auto id : ids){
-                network_.refStation(id).referencePARA().minElevation = any.second;
+                network_.refStation(id).referencePARA().minElevation = any.second * deg2rad;
             }
         }
     }
@@ -2451,7 +2451,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minElevation = any.second;
+                sources_[id].referencePARA().minElevation = any.second * deg2rad;
             }
         }
     }
@@ -2460,7 +2460,7 @@ void Initializer::applyMultiSchedParameters(const VieVS::MultiScheduling::Parame
             string name = any.first;
             vector<unsigned long> ids = getMembers(name,sources_);
             for(auto id : ids){
-                sources_[id].referencePARA().minSunDistance = any.second;
+                sources_[id].referencePARA().minSunDistance = any.second * deg2rad;
             }
         }
     }

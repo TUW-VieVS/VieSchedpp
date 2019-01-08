@@ -101,7 +101,7 @@ namespace VieVS{
                 of << "    elevation               " << weightLowElevation << "\n";
                 of << "        from 90 to " << lowElevationStartWeight * rad2deg << " = 0\n";
                 of << "        from " << lowElevationStartWeight * rad2deg << " to " << lowElevationFullWeight * rad2deg << " = linear\n";
-                of << "        from " << lowElevationFullWeight * rad2deg << " to -90" << " = 1\n";
+                of << "        from " << lowElevationFullWeight * rad2deg << " to 0" << " = 1\n";
             }
             of << "\n";
         }
