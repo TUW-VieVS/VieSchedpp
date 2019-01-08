@@ -113,7 +113,7 @@ namespace VieVS{
             double minSlewDistance = 0; ///< minimum allowed slew distance in radians
             unsigned int maxWait = 600; ///< maximum allowed wait time for slow antennas in seconds
             unsigned int maxScan = 600; ///< maximum allowed scan time in seconds
-            unsigned int minScan = 20; ///< minimum required scan time in seconds
+            unsigned int minScan = 30; ///< minimum required scan time in seconds
             unsigned int maxNumberOfScans = 9999; ///< maximum allowed number of scans
 
             std::vector<unsigned long> ignoreSources; ///< list of all source ids which should be ignored

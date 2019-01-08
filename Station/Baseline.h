@@ -102,8 +102,8 @@ namespace VieVS{
 
             bool ignore = false; ///< ignore this baseline in scheduling process
             double weight = 1; ///< weight of this baseline
-            unsigned int minScan = 30; ///< minimum scan time in seconds
-            unsigned int maxScan = 600; ///< maximum scan time in seconds
+            unsigned int minScan = 0; ///< minimum scan time in seconds
+            unsigned int maxScan = 9999; ///< maximum scan time in seconds
             std::unordered_map<std::string, double> minSNR; ///< minimum signal to noise ration for each band
         };
 
