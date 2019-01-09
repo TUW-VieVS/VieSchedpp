@@ -191,10 +191,10 @@ namespace VieVS {
                 }
 
                 if (skyCoverageInfluenceDistance.is_initialized()) {
-                    of << "    sky coverage influence distance " << *skyCoverageInfluenceDistance*rad2deg << " [deg]\n";
+                    of << "    sky coverage influence distance " << *skyCoverageInfluenceDistance << " [deg]\n";
                 }
                 if (skyCoverageInfluenceTime.is_initialized()) {
-                    of << "    sky coverage influence time " << *skyCoverageInfluenceTime*rad2deg << " [deg]\n";
+                    of << "    sky coverage influence time " << *skyCoverageInfluenceTime << " [s]\n";
                 }
 
                 for (const auto &any: stationWeight) {
@@ -487,10 +487,10 @@ namespace VieVS {
                 }
 
                 if (skyCoverageInfluenceDistance.is_initialized()) {
-                    str.append( std::to_string(*skyCoverageInfluenceDistance*rad2deg) ).append(",");
+                    str.append( std::to_string(*skyCoverageInfluenceDistance) ).append(",");
                 }
                 if (skyCoverageInfluenceTime.is_initialized()) {
-                    str.append( std::to_string(*skyCoverageInfluenceTime*rad2deg) ).append(",");
+                    str.append( std::to_string(*skyCoverageInfluenceTime) ).append(",");
                 }
 
                 for (const auto &any: stationWeight) {

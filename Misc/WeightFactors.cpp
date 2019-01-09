@@ -35,5 +35,5 @@ double thread_local VieVS::WeightFactors::declinationStartWeight = 0;
 double thread_local VieVS::WeightFactors::declinationFullWeight = 0;
 
 double thread_local VieVS::WeightFactors::weightLowElevation = 0;
-double thread_local VieVS::WeightFactors::lowElevationStartWeight = 0;
-double thread_local VieVS::WeightFactors::lowElevationFullWeight = 0;
+double thread_local VieVS::WeightFactors::lowElevationStartWeight = 30;
+double thread_local VieVS::WeightFactors::lowElevationFullWeight = 20;
