@@ -2803,7 +2803,7 @@ unsigned int Initializer::minutesVisible(const Source &source, const Source::Par
 
 void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms) {
 
-    of << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_obs,";
+    of << "version,n_scans,n_single_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_observations,";
     of << "n_stations,n_sources,";
     for(const auto&any : network_.getStations()){
         of << "n_sta_scans_" << any.getName() << ",";
