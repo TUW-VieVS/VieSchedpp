@@ -279,136 +279,136 @@ namespace VieVS {
                     of << "subnetting,";
                 }
                 if (subnetting_minSourceAngle.is_initialized()) {
-                    of << "subnetting_minSourceAngle,";
+                    of << "subnetting_min_source_angle,";
                 }
                 if (subnetting_minParticipatingStations.is_initialized()) {
-                    of << "subnetting_minParticipatingStations,";
+                    of << "subnetting_min_participating_stations,";
                 }
 
                 if (fillinmode_duringScanSelection.is_initialized()) {
-                    of << "fillinmode_duringScanSelection,";
+                    of << "fillinmode_during_scan_selection,";
                 }
                 if (fillinmode_aPosteriori.is_initialized()) {
-                    of << "fillinmode_aPosteriori,";
+                    of << "fillinmode_a_posteriori,";
                 }
                 if (fillinmode_influenceOnScanSelection.is_initialized()) {
-                    of << "fillinmode_influenceOnScanSelection,";
+                    of << "fillinmode_influence_on_scan_selection,";
                 }
 
                 if (weightSkyCoverage.is_initialized()) {
-                    of << "weightSkyCoverage,";
+                    of << "weight_sky_coverage,";
                 }
                 if (weightNumberOfObservations.is_initialized()) {
-                    of << "weightNumberOfObservations,";
+                    of << "weight_number_of_observations,";
                 }
                 if (weightDuration.is_initialized()) {
-                    of << "weightDuration,";
+                    of << "weight_duration,";
                 }
                 if (weightAverageSources.is_initialized()) {
-                    of << "weightAverageSources,";
+                    of << "weight_average_sources,";
                 }
                 if (weightAverageStations.is_initialized()) {
-                    of << "weightAverageStations,";
+                    of << "weight_average_stations,";
                 }
                 if (weightAverageBaselines.is_initialized()) {
-                    of << "weightAverageBaselines,";
+                    of << "weight_average_baselines,";
                 }
                 if (weightIdleTime.is_initialized()) {
-                    of << "weightIdleTime,";
+                    of << "weigh_iIdle_time,";
                 }
                 if (weightIdleTime_interval.is_initialized()) {
-                    of << "weightIdleTime_interval,";
+                    of << "weight_idle_time_interval,";
                 }
                 if (weightLowDeclination.is_initialized()) {
-                    of << "weightLowDeclination,";
+                    of << "weight_low_declination,";
                 }
                 if (weightLowDeclination_begin.is_initialized()) {
-                    of << "weightLowDeclination_begin,";
+                    of << "weight_low_declination_begin,";
                 }
                 if (weightLowDeclination_full.is_initialized()) {
-                    of << "weightLowDeclination_full,";
+                    of << "weight_low_declination_full,";
                 }
                 if (weightLowElevation.is_initialized()) {
-                    of << "weightLowElevation,";
+                    of << "weight_low_elevation,";
                 }
                 if (weightLowElevation_begin.is_initialized()) {
-                    of << "weightLowElevation_begin,";
+                    of << "weight_low_elevation_begin,";
                 }
                 if (weightLowElevation_full.is_initialized()) {
-                    of << "weightLowElevation_full,";
+                    of << "weight_low_elevation_full,";
                 }
 
                 if (skyCoverageInfluenceDistance.is_initialized()) {
-                    of << "skyCoverageInfluenceDistance,";
+                    of << "sky_coverage_influence_distance,";
                 }
                 if (skyCoverageInfluenceTime.is_initialized()) {
-                    of << "skyCoverageInfluenceTime,";
+                    of << "sky_coverage_influence_time,";
                 }
 
                 for (const auto &any: stationWeight) {
-                    of << "stationWeight_" << any.first << ",";
+                    of << "station_weight_" << any.first << ",";
                 }
                 for (const auto &any: stationMaxSlewtime) {
-                    of << "stationMaxSlewtime_" << any.first << ",";
+                    of << "station_max_slewtime_" << any.first << ",";
                 }
                 for (const auto &any: stationMinSlewDistance) {
-                    of << "stationMinSlewDistance_" << any.first << ",";
+                    of << "station_min_slew_distance_" << any.first << ",";
                 }
                 for (const auto &any: stationMaxSlewDistance) {
-                    of << "stationMaxSlewDistance_" << any.first << ",";
+                    of << "station_max_slew_distance_" << any.first << ",";
                 }
                 for (const auto &any: stationMaxWait) {
-                    of << "stationMaxWait_" << any.first << ",";
+                    of << "station_max_wait_" << any.first << ",";
                 }
                 for (const auto &any: stationMinElevation) {
-                    of << "stationMinElevation_" << any.first << ",";
+                    of << "station_min_elevation_" << any.first << ",";
                 }
                 for (const auto &any: stationMaxNumberOfScans) {
-                    of << "stationMaxNumberOfScans_" << any.first << ",";
+                    of << "station_max_number_of_scans_" << any.first << ",";
                 }
                 for (const auto &any: stationMaxScan) {
-                    of << "stationMaxScan_" << any.first << ",";
+                    of << "station_max_scan_" << any.first << ",";
                 }
                 for (const auto &any: stationMinScan) {
-                    of << "stationMinScan_" << any.first << ",";
+                    of << "station_min_scan_" << any.first << ",";
                 }
 
                 for (const auto &any: sourceWeight) {
-                    of << "sourceWeight_" << any.first << ",";
+                    of << "source_weight_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinNumberOfStations) {
-                    of << "sourceMinNumberOfStations_" << any.first << ",";
+                    of << "source_min_number_of_stations_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinFlux) {
-                    of << "sourceMinFlux_" << any.first << ",";
+                    of << "source_min_flux_" << any.first << ",";
                 }
                 for (const auto &any: sourceMaxNumberOfScans) {
-                    of << "sourceMaxNumberOfScans_" << any.first << ",";
+                    of << "source_max_number_of_scans_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinElevation) {
-                    of << "sourceMinElevation_" << any.first << ",";
+                    of << "source_min_elevation_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinSunDistance) {
-                    of << "sourceMinSunDistance_" << any.first << ",";
+                    of << "source_min_sun_distance_" << any.first << ",";
                 }
                 for (const auto &any: sourceMaxScan) {
-                    of << "sourceMaxScan_" << any.first << ",";
+                    of << "source_max_scan_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinScan) {
-                    of << "sourceMinScan_" << any.first << ",";
+                    of << "source_min_scan_" << any.first << ",";
                 }
                 for (const auto &any: sourceMinRepeat) {
-                    of << "sourceMinRepeat_" << any.first << ",";
+                    of << "source_min_repeat_" << any.first << ",";
                 }
 
                 for (const auto &any: baselineWeight) {
-                    of << "baselineWeight_" << any.first << ",";
+                    of << "baseline_weight_" << any.first << ",";
                 }
                 for (const auto &any: baselineMaxScan) {
-                    of << "baselineMaxScan_" << any.first << ",";
+                    of << "baseline_max_scan_" << any.first << ",";
                 }
                 for (const auto &any: baselineMinScan) {
-                    of << "baselineMinScan_" << any.first << ",";
+                    of << "baseline_min_scan_" << any.first << ",";
                 }
             }
 
