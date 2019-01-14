@@ -57,7 +57,7 @@ void Skd::writeSkd(const Network &network,
 
     skd_PARAM(network, xml, skdCatalogReader);
     skd_OP();
-    skd_DOWNTIME();
+    skd_DOWNTIME(network);
     skd_MAJOR(network.getStations(), sources,xml, skdCatalogReader);
     skd_MINOR();
     skd_ASTROMETRIC();
@@ -222,13 +222,17 @@ void Skd::skd_OP() {
     of << "*\n";
 }
 
-void Skd::skd_DOWNTIME() {
+void Skd::skd_DOWNTIME(const Network& network) {
     of << "*\n";
     of << "*=========================================================================================================\n";
     of << "$DOWNTIME\n";
     of << "*=========================================================================================================\n";
-    of << "* Downtime information is stored in parameters \n";
-    of << "*\n";
+    for(const auto &sta : network.getStations()){
+        sta.listDownTimes(of, true);
+    }
+    for(const auto &sta : network.getStations()){
+        sta.listTagalongTimes(of, true);
+    }
 }
 
 void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sources,

@@ -92,8 +92,10 @@ namespace VieVS {
         /**
          * @brief write skd $DOWNTIME block
          * @author Matthias Schartner
+         *
+         * @param network station network
          */
-        void skd_DOWNTIME();
+        void skd_DOWNTIME(const Network& network);
 
         /**
          * @brief write skd $MAJOR block

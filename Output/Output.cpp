@@ -1143,10 +1143,16 @@ void Output::writeOperationsNotes() {
 
     of << "Operation notes: \n";
     of << "---------------------------------------------------------------------------------------------------------\n";
-    string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes","no additional notes"),"\\n","\n");
+    string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes",""),"\\n","\n");
     of << newStr << "\n";
+    for(const auto &sta : network_.getStations()){
+        sta.listDownTimes(of);
+    }
+    for(const auto &sta : network_.getStations()){
+        sta.listTagalongTimes(of);
+    }
     if(version_>0){
-        of << "    Version: " << version_ << " from multi scheduling setup:\nUsed multi scheduling parameters:\n";
+        of << "Version: " << version_ << " from multi scheduling setup:\nMulti scheduling parameters:\n";
         multiSchedulingParameters_->output(of);
     }
     of << "---------------------------------------------------------------------------------------------------------\n\n";

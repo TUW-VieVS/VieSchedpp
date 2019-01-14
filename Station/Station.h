@@ -562,8 +562,6 @@ namespace VieVS{
         /**
          * @brief getter for electronics rack type_
          * @author Matthias Schartner
-         *
-         * @param of electronics rack type_
          */
         const std::string &getElectronics_rack_type_() const {
             return electronics_rack_type_;
@@ -572,8 +570,6 @@ namespace VieVS{
         /**
          * @brief getter for record transport type
          * @author Matthias Schartner
-         *
-         * @param of record transport type
          */
         const std::string &getRecord_transport_type() const {
             return record_transport_type_;
@@ -582,8 +578,6 @@ namespace VieVS{
         /**
          * @brief getter for recording system id
          * @author Matthias Schartner
-         *
-         * @param of recording system id
          */
         const std::string &getRecording_system_id() const {
             return recording_system_id_;
@@ -600,6 +594,24 @@ namespace VieVS{
          */
         void addAdditionalParameters( std::string occupation_code, std::string record_transport_type,
                                       std::string electronics_rack_type, std::string recording_system_ID);
+
+        /**
+         * @brief lists downtime for this station
+         * @author Matthias Schartner
+         *
+         * @param of output file
+         * @param skdFormat display output in skd format
+         */
+        void listDownTimes(std::ofstream &of, bool skdFormat = false) const;
+
+        /**
+         * @brief lists tagalong for this station
+         * @author Matthias Schartner
+         *
+         * @param of output file
+         * @param skdFormat display output in skd format
+         */
+        void listTagalongTimes(std::ofstream &of, bool skdFormat = false) const;
 
     private:
         static unsigned long nextId; ///< next id for this object type

@@ -92,6 +92,18 @@ namespace VieVS {
         static std::string ptime2string_doy(const boost::posix_time::ptime &ptime);
 
         /**
+         * @brief converts datetime to string in skd file $DOWNTIME format
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 2018-001-00:00:00
+         *
+         * @param ptime target datetime
+         * @return datetime string
+         */
+        static std::string ptime2string_doySkdDowntime(const boost::posix_time::ptime &ptime);
+
+        /**
          * @brief convert string to datetime
          * @author Matthias Schartner
          *
