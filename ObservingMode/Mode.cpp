@@ -96,8 +96,15 @@ void Mode::calcRecordingRates() {
             }
 
             auto bitsPerChannel = tracks1.get()->numberOfBitsPerChannel(tracks2.get());
+            double efficiency = 0.6366 * 0.97;
+            for (const auto &any : bitsPerChannel){
+                if(any.second != 2){
+                    efficiency = 0.5715 * 0.97;
+                }
+            }
             auto overlappingFrequencies = freq1.get()->observingRate(freq2.get(), bitsPerChannel);
 
+            staids2efficiency_[{staid1, staid2}] = efficiency;
             staids2recordingRate_[{staid1, staid2}] = overlappingFrequencies;
         }
     }
@@ -164,28 +171,29 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
 
     for(const auto &band : bands_){
 
-        std::map<double, vector<string>> rate2baseline;
+        std::map<pair<double, double>, vector<string>> rate2baseline;
         for(unsigned long staid1=0; staid1<nsta_; ++staid1){
             for(unsigned long staid2=staid1+1; staid2<nsta_; ++staid2){
 
                 double rate = recordingRate(staid1,staid2,band);
-                if(rate == 0){
+                double e = efficiency(staid1,staid2);
+                if(rate == 0 || e == 0){
                     continue;
                 }
 
                 string name = (boost::format("%s-%s") % stations[staid1] % stations[staid2]).str();
 
-                auto it2 = rate2baseline.find(rate);
+                auto it2 = rate2baseline.find({rate,e});
                 if(it2 == rate2baseline.end()){
-                    rate2baseline[rate] = {name};
+                    rate2baseline[{rate,e}] = {name};
                 }else{
-                    rate2baseline[rate].push_back(name);
+                    rate2baseline[{rate,e}].push_back(name);
                 }
             }
         }
 
         for(const auto &any : rate2baseline){
-            string title = (boost::format("        band: %2s recording rate: %7.2f [Mbit/s]") % band % (any.first *1e-6)).str();
+            string title = (boost::format("        band: %2s recording rate %7.2f [Mbit/s] with efficiency factor %.4f") % band % (any.first.first*1e-6) %any.first.second).str();
             util::outputObjectList(title, any.second, of, 12);
         }
     }
@@ -469,6 +477,17 @@ void Mode::changeFreq(int idx, unsigned long staid) {
         }
         ++c;
     }
+}
+
+double Mode::efficiency(unsigned long staid1, unsigned long staid2) const {
+
+    auto it = staids2efficiency_.find({staid1, staid2});
+    // if station id combination is not saved in map return 0
+    if(it == staids2efficiency_.end()){
+        return 0;
+    }
+
+    return it->second;
 }
 
 

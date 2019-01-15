@@ -334,7 +334,8 @@ bool Scan::calcObservationDuration(const Network &network, const Source &source,
             double maxCorSynch = max({maxCorSynch1, maxCorSynch2});
 
             // calc required baseline scan duration
-            double anum = (1.75*maxminSNR / SEFD_src);
+            double efficiency = mode->efficiency(sta1.getId(), sta2.getId());
+            double anum = (maxminSNR / (SEFD_src * efficiency));
             double anu1 = SEFD_sta1*SEFD_sta2;
             double anu2 = mode->recordingRate(staid1, staid2, band);
             if(anu2 == 0){

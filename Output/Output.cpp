@@ -1408,7 +1408,8 @@ void Output::displaySNRSummary(std::ofstream &of) {
                 double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
 
                 double recordingRate = obsModes_->getMode(0)->recordingRate(staid1, staid2, band);
-                double snr = 0.571428571 * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(recordingRate * duration);
+                double efficiency = obsModes_->getMode(0)->efficiency(sta1.getId(), sta2.getId());
+                double snr = efficiency * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(recordingRate * duration);
 
                 SNRs[band][blid].push_back(snr);
             }
