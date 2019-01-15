@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -1213,7 +1213,7 @@ void Output::writeStatistics(std::ofstream &of) {
     int n_calibrator = 0;
     int n_single = 0;
     int n_subnetting = 0;
-    int n_bl = 0;
+    int n_obs_total = 0;
     vector<unsigned int> nscan_sta(network_.getNSta(),0);
     vector<unsigned int> nobs_sta(network_.getNSta(),0);
     vector<unsigned int> nobs_bl(network_.getNBls(),0);
@@ -1250,7 +1250,7 @@ void Output::writeStatistics(std::ofstream &of) {
             }
         }
         auto n_obs = any.getNObs();
-        n_bl += n_obs;
+        n_obs_total += n_obs;
         for (int ista = 0; ista < any.getNSta(); ++ista) {
             const PointingVector& pv =  any.getPointingVector(ista);
             unsigned long id = pv.getStaid();
@@ -1269,15 +1269,74 @@ void Output::writeStatistics(std::ofstream &of) {
     int n_src = static_cast<int>(count_if(nscan_src.begin(), nscan_src.end(), [](int i) {return i > 0;}));
 
 
+    auto totalTime = static_cast<double>(TimeSystem::duration);
+    vector<double> obsPer;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalObservingTime;
+        obsPer.push_back(static_cast<double>(t)/totalTime*100);
+    }
+    double obsMean = accumulate(obsPer.begin(),obsPer.end(),0.0)/(network_.getNSta());
+
+    vector<double> preobPer;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalPreobTime;
+        preobPer.push_back(static_cast<double>(t)/totalTime*100);
+    }
+    double preobMean = accumulate(preobPer.begin(),preobPer.end(),0.0)/(network_.getNSta());
+
+    vector<double> slewPer;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalSlewTime;
+        slewPer.push_back(static_cast<double>(t)/totalTime*100);
+    }
+    double slewMean = accumulate(slewPer.begin(),slewPer.end(),0.0)/(network_.getNSta());
+
+    vector<double> idlePer;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalIdleTime;
+        idlePer.push_back(static_cast<double>(t)/totalTime*100);
+    }
+    double idleMean = accumulate(idlePer.begin(),idlePer.end(),0.0)/(network_.getNSta());
+
+    vector<double> fieldPer;
+    for (const auto &station: network_.getStations()) {
+        int t = station.getStatistics().totalFieldSystemTime;
+        fieldPer.push_back(static_cast<double>(t)/totalTime*100);
+    }
+    double fieldMean = accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta());
+
+
     oString.append(std::to_string(version_)).append(",");
     oString.append(std::to_string(n_scans)).append(",");
     oString.append(std::to_string(n_single)).append(",");
     oString.append(std::to_string(n_subnetting)).append(",");
     oString.append(std::to_string(n_fillin)).append(",");
     oString.append(std::to_string(n_calibrator)).append(",");
-    oString.append(std::to_string(n_bl)).append(",");
+    oString.append(std::to_string(n_obs_total)).append(",");
     oString.append(std::to_string(network_.getNSta())).append(",");
     oString.append(std::to_string(n_src)).append(",");
+
+    oString.append(std::to_string(obsMean)).append(",");
+    oString.append(std::to_string(preobMean)).append(",");
+    oString.append(std::to_string(slewMean)).append(",");
+    oString.append(std::to_string(idleMean)).append(",");
+    oString.append(std::to_string(fieldMean)).append(",");
+    for (auto any : obsPer) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : preobPer) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : slewPer) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : idlePer) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : fieldPer) {
+        oString.append(std::to_string(any)).append(",");
+    }
+
     for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nscan_sta[i])).append(",");
     }

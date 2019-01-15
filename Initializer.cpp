@@ -2805,6 +2805,22 @@ void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::Mul
 
     of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_observations,";
     of << "n_stations,n_sources,";
+    of << "time_average_observation,time_average_preob,time_average_slew,time_average_idle,time_average_field_system,";
+    for(const auto&any : network_.getStations()){
+        of << "time_" << any.getName() << "_observation,";
+    }
+    for(const auto&any : network_.getStations()){
+        of << "time_" << any.getName() << "_preob,";
+    }
+    for(const auto&any : network_.getStations()){
+        of << "time_" << any.getName() << "_slew,";
+    }
+    for(const auto&any : network_.getStations()){
+        of << "time_" << any.getName() << "_idle,";
+    }
+    for(const auto&any : network_.getStations()){
+        of << "time_" << any.getName() << "_field_system,";
+    }
     for(const auto&any : network_.getStations()){
         of << "n_sta_scans_" << any.getName() << ",";
     }
