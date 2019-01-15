@@ -225,6 +225,24 @@ namespace VieVS {
         }
 
         /**
+         * @brief get observing duration between two stations
+         * @author Matthias Schartner
+         *
+         * @param idx1 index of first station
+         * @param idx2 index of second station
+         * @return observing duration between two stations
+         */
+         const unsigned int getObservingDuration(int idx1, int idx2) const noexcept{
+             unsigned int start = std::max({endOfPreobTime_[idx1], endOfPreobTime_[idx2]});
+             unsigned int end = std::min({endOfObservingTime_[idx1], endOfObservingTime_[idx2]});
+             if(start>end) {
+                 return 0;
+             }else{
+                 return end-start;
+             }
+         }
+
+        /**
          * @brief get total observing duration
          * @author Matthias Schartner
          *
@@ -335,6 +353,26 @@ namespace VieVS {
                 }
                 case Timestamp::end:{
                     return endOfObservingTime_[idx];
+                }
+            }
+        }
+
+        /**
+         * @brief get observing time between two stations
+         * @author Matthias Schartner
+         *
+         * @param idx1 index of first station
+         * @param idx2 index of second station
+         * @param ts time stamp
+         * @return observing time
+         */
+        const unsigned int getObservingTime(int idx1, int idx2, Timestamp ts) const noexcept {
+            switch (ts){
+                case Timestamp::start:{
+                    return std::max({endOfPreobTime_[idx1],endOfPreobTime_[idx2]});
+                }
+                case Timestamp::end:{
+                    return std::min({endOfObservingTime_[idx1], endOfObservingTime_[idx2]});
                 }
             }
         }

@@ -143,6 +143,16 @@ namespace VieVS{
         }
 
         /**
+         * @brief set start time for this observation
+         * @author Matthias Schartner
+         *
+         * @param startTime start time
+         */
+        void setStartTime(unsigned int startTime) {
+            startTime_ = startTime;
+        }
+
+        /**
          * @brief number of created observations
          * @author Matthias Schartner
          *

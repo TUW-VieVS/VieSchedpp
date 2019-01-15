@@ -639,6 +639,12 @@ namespace VieVS{
         void removeAdditionalObservingTime(unsigned int time, const Station &thisSta, const Source &thisSource,
                                            std::ofstream &of, Timestamp ts);
 
+        /**
+         * @brief updates the time of each observation according to the observing times of the station
+         * @author Matthias Schartner
+         */
+        void updateObservingTime();
+
     private:
         static unsigned long nextId; ///< next id for this object type
 

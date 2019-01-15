@@ -139,7 +139,7 @@ namespace VieVS{
          * @brief general statistics of the schedule
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayGeneralStatistics(std::ofstream &of);
 
@@ -147,7 +147,7 @@ namespace VieVS{
          * @brief baseline dependent statistics of the schedule
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayBaselineStatistics(std::ofstream &of);
 
@@ -155,7 +155,7 @@ namespace VieVS{
          * @brief displays some station dependent statistics of the schedule
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          * @return vector of statistical values
          */
         void displayStationStatistics(std::ofstream &of);
@@ -164,7 +164,7 @@ namespace VieVS{
          * @brief displays some source dependent statistics of the schedule
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          * @param number of scheduled sources
          */
         void displaySourceStatistics(std::ofstream &of);
@@ -173,7 +173,7 @@ namespace VieVS{
          * @brief number of stations per scan statistics
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayNstaStatistics(std::ofstream &of);
 
@@ -181,7 +181,7 @@ namespace VieVS{
          * @brief list astronomical parameters
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayAstronomicalParameters(std::ofstream &of);
 
@@ -189,7 +189,7 @@ namespace VieVS{
          * @brief source dependent statistics of the schedule
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayScanDurationStatistics(std::ofstream &of);
 
@@ -197,9 +197,16 @@ namespace VieVS{
          * @brief time spend per station
          * @author Matthias Schartner
          *
-         * @param of outsteam file object
+         * @param of outstream file object
          */
         void displayTimeStatistics(std::ofstream &of);
+
+        /**
+         * @brief display summary of theoretical SNR values
+         * @author Matthias Schartner
+         * @param of outstream file object
+         */
+        void displaySNRSummary(std::ofstream &of);
 
         /**
          * @brief read all groups from VieSchedpp.xml file

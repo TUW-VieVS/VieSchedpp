@@ -419,42 +419,14 @@ void Scheduler::start() noexcept {
         startScanSelectionBetweenScans(TimeSystem::duration, of, Scan::ScanType::fillin, false, true);
     }
 
-    if(parameters_.idleToObservingTime){
-        switch (ScanTimes::getAlignmentAnchor()){
-
-            case ScanTimes::AlignmentAnchor::start:{
-                idleToScanTime(Timestamp::end,of);
-                break;
-            }
-            case ScanTimes::AlignmentAnchor::end:{
-                idleToScanTime(Timestamp::start,of);
-                break;
-            }
-            case ScanTimes::AlignmentAnchor::individual:{
-                idleToScanTime(Timestamp::end,of);
-                idleToScanTime(Timestamp::start,of);
-                break;
-            }
-        }
-    }
-
-    // check if there was an error during the session
-    if (!checkAndStatistics(of)) {
-        #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
-        #else
-        cout << boost::format("[error] %s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
-        #endif
-    }
-
     // output some statistics
-    statistics(of);
 
     bool newScheduleNecessary = checkOptimizationConditions(of);
-    of.close();
 
     // check if new iteration is necessary
     if(newScheduleNecessary){
+        statistics(of);
+        of.close();
         ++parameters_.currentIteration;
 
         #ifdef VIESCHEDPP_LOG
@@ -465,6 +437,39 @@ void Scheduler::start() noexcept {
 
         // restart schedule
         start();
+    }else{
+
+        if(parameters_.idleToObservingTime){
+            switch (ScanTimes::getAlignmentAnchor()){
+
+                case ScanTimes::AlignmentAnchor::start:{
+                    idleToScanTime(Timestamp::end,of);
+                    break;
+                }
+                case ScanTimes::AlignmentAnchor::end:{
+                    idleToScanTime(Timestamp::start,of);
+                    break;
+                }
+                case ScanTimes::AlignmentAnchor::individual:{
+                    idleToScanTime(Timestamp::end,of);
+                    idleToScanTime(Timestamp::start,of);
+                    break;
+                }
+            }
+        }
+
+        statistics(of);
+        updateObservingTimes();
+
+        // check if there was an error during the session
+        if (!checkAndStatistics(of)) {
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(error) << boost::format("%s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
+            #else
+            cout << boost::format("[error] %s iteration %d error while checking the schedule") % getName() %(parameters_.currentIteration);
+            #endif
+        }
+        of.close();
     }
 
 }
@@ -2123,4 +2128,11 @@ bool Scheduler::calibratorUpdate(const std::vector<Scan> &bestScans,
     }
 
     return stopScanSelection;
+}
+
+void Scheduler::updateObservingTimes() {
+
+    for(auto &scan : scans_){
+        scan.updateObservingTime();
+    }
 }

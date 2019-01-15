@@ -1519,3 +1519,13 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisS
     }
 }
 
+void Scan::updateObservingTime(){
+    for(auto &obs : observations_){
+        int idx1 = static_cast<int>(*findIdxOfStationId(obs.getStaid1()));
+        int idx2 = static_cast<int>(*findIdxOfStationId(obs.getStaid2()));
+        unsigned int dur = times_.getObservingDuration(idx1, idx2);
+        obs.setObservingTime(dur);
+        unsigned int start = times_.getObservingTime(idx1, idx2, VieVS::Timestamp::start);
+        obs.setStartTime(start);
+    }
+}

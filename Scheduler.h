@@ -383,6 +383,11 @@ namespace VieVS{
          */
         void writeCalibratorHeader(std::ofstream &of);
 
+        /**
+         * @brief updates the time of each observation according to the observing times of the station
+         * @author Matthias Schartner
+         */
+        void updateObservingTimes();
     };
 }
 #endif /* SCHEDULER_H */

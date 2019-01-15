@@ -1367,5 +1367,106 @@ void Output::writeStatistics(std::ofstream &of) {
 
 }
 
+void Output::displaySNRSummary(std::ofstream &of) {
+
+    map<string,vector<vector<double>>> SNRs;
+    const auto &bands = obsModes_->getAllBands();
+
+    for(const auto &band : bands){
+        SNRs[band] = vector<vector<double>>(network_.getNBls());
+    }
+
+    for(const auto &scan : scans_){
+
+        unsigned long srcid = scan.getSourceId();
+        const auto &source = sources_[srcid];
+
+        for(int i=0; i<scan.getNObs(); ++i){
+            const auto &obs = scan.getObservation(i);
+            unsigned long blid = obs.getBlid();
+
+            unsigned long staid1 = obs.getStaid1();
+            unsigned long staid2 = obs.getStaid2();
+
+            const auto &sta1 = network_.getStation(staid1);
+            const auto &sta2 = network_.getStation(staid2);
+
+            double el1 = scan.getPointingVector(static_cast<int>(*scan.findIdxOfStationId(staid1))).getEl();
+            double el2 = scan.getPointingVector(static_cast<int>(*scan.findIdxOfStationId(staid2))).getEl();
+
+            double date1 = 2400000.5;
+            double date2 = TimeSystem::mjdStart + static_cast<double>(obs.getStartTime()) / 86400.0;
+            double gmst = iauGmst82(date1, date2);
+
+
+            for(const auto &band : bands){
+                double observedFlux = source.observedFlux(band, gmst, network_.getDxyz(staid1,staid2));
+
+                double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
+                double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
+
+                double snr = 0.571428571 * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(obsModes_->getMode(0)->recordingRate(staid1, staid2, band));
+
+                SNRs[band][blid].push_back(snr);
+            }
+        }
+    }
+
+    unsigned long nsta = network_.getNSta();
+    for(const auto &band : SNRs){
+        of << "mean theoretical SNR for " << band.first << "\n";
+        of << ".-----------";
+        for (int i = 0; i < nsta-1; ++i) {
+            of << "----------";
+        }
+        of << "-----------";
+        of << "----------.\n";
+
+
+        of << boost::format("| %8s |") % "STATIONS";
+        for (const auto &any:network_.getStations()) {
+            of << boost::format(" %8s ") % any.getName();
+        }
+        of << "|";
+        of << boost::format(" %8s ") % "TOTAL";
+        of << "|\n";
+
+        of << "|----------|";
+        for (int i = 0; i < nsta-1; ++i) {
+            of << "----------";
+        }
+        of << "----------|";
+        of << "----------|\n";
+
+        for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
+            of << boost::format("| %8s |") % network_.getStation(staid1).getName();
+            for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
+                if (staid2<staid1+1){
+                    of << "          ";
+                }else{
+                    unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
+                    if(nBl == 0){
+                        of << "        - ";
+                    }else{
+                        of << boost::format(" %8d ") % nBl;
+                    }
+                }
+            }
+            of << "|";
+            of << boost::format(" %8d ") % network_.getStation(staid1).getNObs();
+            of << "|\n";
+        }
+
+        of << "'-----------";
+        for (int i = 0; i < nsta-1; ++i) {
+            of << "----------";
+        }
+        of << "-----------";
+        of << "----------'\n\n";
+
+    }
+
+}
+
 
 
