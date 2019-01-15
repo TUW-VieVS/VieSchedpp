@@ -1174,6 +1174,7 @@ void Output::writeOperationsNotes() {
     displaySourceStatistics(of);
     obsModes_->summary(of);
     of << "\n";
+    displaySNRSummary(of);
     displayNstaStatistics(of);
     displayScanDurationStatistics(of);
     displayAstronomicalParameters(of);
@@ -1398,6 +1399,7 @@ void Output::displaySNRSummary(std::ofstream &of) {
             double date2 = TimeSystem::mjdStart + static_cast<double>(obs.getStartTime()) / 86400.0;
             double gmst = iauGmst82(date1, date2);
 
+            unsigned int duration = obs.getObservingTime();
 
             for(const auto &band : bands){
                 double observedFlux = source.observedFlux(band, gmst, network_.getDxyz(staid1,staid2));
@@ -1405,7 +1407,8 @@ void Output::displaySNRSummary(std::ofstream &of) {
                 double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
                 double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
 
-                double snr = 0.571428571 * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(obsModes_->getMode(0)->recordingRate(staid1, staid2, band));
+                double recordingRate = obsModes_->getMode(0)->recordingRate(staid1, staid2, band);
+                double snr = 0.571428571 * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(recordingRate * duration);
 
                 SNRs[band][blid].push_back(snr);
             }
@@ -1413,8 +1416,8 @@ void Output::displaySNRSummary(std::ofstream &of) {
     }
 
     unsigned long nsta = network_.getNSta();
-    for(const auto &band : SNRs){
-        of << "mean theoretical SNR for " << band.first << "\n";
+    for(const auto &snr : SNRs){
+        of << "average theoretical SNR for " << snr.first << "-band per baseline:\n";
         of << ".-----------";
         for (int i = 0; i < nsta-1; ++i) {
             of << "----------";
@@ -1428,7 +1431,7 @@ void Output::displaySNRSummary(std::ofstream &of) {
             of << boost::format(" %8s ") % any.getName();
         }
         of << "|";
-        of << boost::format(" %8s ") % "TOTAL";
+        of << boost::format(" %8s ") % "AVERAGE";
         of << "|\n";
 
         of << "|----------|";
@@ -1438,22 +1441,32 @@ void Output::displaySNRSummary(std::ofstream &of) {
         of << "----------|";
         of << "----------|\n";
 
+        vector<double> sumSNR(nsta,0.0);
+        vector<int> counterSNR(nsta,0);
         for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
             of << boost::format("| %8s |") % network_.getStation(staid1).getName();
             for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
                 if (staid2<staid1+1){
                     of << "          ";
                 }else{
-                    unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
-                    if(nBl == 0){
+                    unsigned long blid = network_.getBaseline(staid1,staid2).getId();
+                    if(snr.second[blid].empty()){
                         of << "        - ";
                     }else{
-                        of << boost::format(" %8d ") % nBl;
+                        double SNR = accumulate(snr.second[blid].begin(), snr.second[blid].end(), 0.0);
+                        int n = static_cast<int>(snr.second[blid].size());
+                        sumSNR[staid1] += SNR;
+                        counterSNR[staid1] +=n;
+                        sumSNR[staid2] += SNR;
+                        counterSNR[staid2] +=n;
+
+                        of << boost::format(" %8.2f ") % (SNR/n);
                     }
+
                 }
             }
             of << "|";
-            of << boost::format(" %8d ") % network_.getStation(staid1).getNObs();
+            of << boost::format(" %8.2f ") % (sumSNR[staid1]/counterSNR[staid1]);
             of << "|\n";
         }
 
