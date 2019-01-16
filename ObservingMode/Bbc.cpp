@@ -65,6 +65,13 @@ void Bbc::toVexBbcDefinition(std::ofstream &of, const std::string &comment) cons
 
 }
 
+int Bbc::numberOfBBCs() const {
+    set<string> names;
+    for(const auto &any : bbc_assigns_){
+        names.insert(any.getName());
+    }
+    return static_cast<int>(names.size());
+}
 
 
 Bbc::Bbc_assign::Bbc_assign(std::string name, unsigned int physical_bbc_number, std::string if_name):

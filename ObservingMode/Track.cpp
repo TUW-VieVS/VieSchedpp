@@ -114,6 +114,19 @@ map<string, int> Track::numberOfBitsPerChannel(const std::shared_ptr<const Track
     return v;
 }
 
+map<string, int> Track::numberOfBitsPerChannel() const {
+    map<string, int> v;
+    for(const auto &fanout1 : fanout_definitions_){
+        if(v.find(fanout1.trksid_) != v.end()){
+            ++v[fanout1.trksid_];
+        }else{
+            v[fanout1.trksid_] = 1;
+        }
+    }
+
+    return v;
+}
+
 
 Track::Fanout_definition::Fanout_definition(const boost::property_tree::ptree &tree) :
         VieVS_Object(++Fanout_definition::nextId) {

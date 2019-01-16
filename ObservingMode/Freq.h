@@ -218,6 +218,23 @@ namespace VieVS{
             return chan_defs_;
         }
 
+        /**
+         * @brief calculate total bandwidth for all channels
+         * @author Matthias Schartner
+         *
+         * @return total bandwidth in MHz
+         */
+        double totalBandwidth() const;
+
+        /**
+         * @brief calculate total observing rate
+         * @author Matthias Schartner
+         *
+         * @param bitsPerChannel number of sampled bits per channel
+         * @return total observing rate
+         */
+        double totalRate(const std::map<std::string,int> &bitsPerChannel) const ;
+
     private:
         static unsigned long nextId; ///< next id for this object type
 

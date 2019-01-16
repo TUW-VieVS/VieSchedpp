@@ -601,8 +601,9 @@ namespace VieVS{
          *
          * @param of output file
          * @param skdFormat display output in skd format
+         * @return true if there are down times
          */
-        void listDownTimes(std::ofstream &of, bool skdFormat = false) const;
+        bool listDownTimes(std::ofstream &of, bool skdFormat = false) const;
 
         /**
          * @brief lists tagalong for this station
@@ -610,8 +611,9 @@ namespace VieVS{
          *
          * @param of output file
          * @param skdFormat display output in skd format
+         * @return true if tagalong mode was used
          */
-        void listTagalongTimes(std::ofstream &of, bool skdFormat = false) const;
+        bool listTagalongTimes(std::ofstream &of, bool skdFormat = false) const;
 
     private:
         static unsigned long nextId; ///< next id for this object type

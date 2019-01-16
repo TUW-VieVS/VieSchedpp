@@ -518,20 +518,21 @@ void Station::addAdditionalParameters(std::string occupation_code, std::string r
 }
 
 
-void Station::listDownTimes(std::ofstream &of, bool skdFormat) const {
+bool Station::listDownTimes(std::ofstream &of, bool skdFormat) const {
     unsigned int start = 0;
     bool search = false;
+    bool res = false;
     for(const auto &any : *events_){
         if(!any.PARA.available){
             start = any.time;
             search = true;
+            res = true;
         }
         if(search && any.PARA.available){
             unsigned int end = any.time;
             search = false;
-
             if(!skdFormat){
-                of << boost::format("    %-8s downtime %s - %s \n")
+                of << boost::format("    %-8s %s - %s \n")
                       % getName()
                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(start))
                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(end));
@@ -545,23 +546,26 @@ void Station::listDownTimes(std::ofstream &of, bool skdFormat) const {
             }
         }
     }
+    return res;
 }
 
 
-void Station::listTagalongTimes(std::ofstream &of, bool skdFormat) const {
+bool Station::listTagalongTimes(std::ofstream &of, bool skdFormat) const {
     unsigned int start = 0;
     bool search = false;
+    bool res = false;
     for(const auto &any : *events_){
         if(any.PARA.tagalong){
             start = any.time;
             search = true;
+            res = true;
         }
         if(search && !any.PARA.tagalong){
             unsigned int end = any.time;
             search = false;
 
             if(!skdFormat){
-                of << boost::format("    %-8s tagalong %s - %s \n")
+                of << boost::format("    %-8s %s - %s \n")
                       % getName()
                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(start))
                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(end));
@@ -575,7 +579,7 @@ void Station::listTagalongTimes(std::ofstream &of, bool skdFormat) const {
             }
         }
     }
-
+    return res;
 }
 
 

@@ -270,6 +270,16 @@ namespace VieVS{
         void summary( std::ofstream &of, const std::vector<std::string> &stations) const;
 
         /**
+         * @brief create summary for operation notes
+         * @author Matthias Schartner
+         *
+         * @param of outstream
+         * @param stations station names
+         */
+        void operationNotesSummary( std::ofstream &of, const std::vector<std::string> &stations) const;
+
+
+        /**
          * @brief writes MODE block in vex format
          * @author Matthias Schartner
          *

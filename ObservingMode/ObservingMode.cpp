@@ -599,6 +599,13 @@ void ObservingMode::summary(std::ofstream &of) const {
     }
 }
 
+void ObservingMode::operationNotesSummary(std::ofstream &of) const {
+    of << "Recording mode:\n";
+    for(const auto &any : modes_){
+        any->operationNotesSummary(of, stationNames_);
+    }
+}
+
 void ObservingMode::calcMeanFrequencies() {
 
     for(const auto &band : bands_){

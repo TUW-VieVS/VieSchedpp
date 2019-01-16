@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_BBC_H
 #define VIESCHEDPP_BBC_H
 
+#include <set>
 #include <utility>
 #include <vector>
 #include <fstream>
@@ -118,6 +119,14 @@ namespace VieVS{
         std::vector<Bbc_assign> &refBbc_assigns() {
             return bbc_assigns_;
         }
+
+        /**
+         * @brief get number of BBCs
+         * @author Matthias Schartner
+         *
+         * @return number of BBCs
+         */
+        int numberOfBBCs() const;
 
     private:
         static unsigned long nextId; ///< next id for this object type

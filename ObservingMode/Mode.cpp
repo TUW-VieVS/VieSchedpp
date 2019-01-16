@@ -191,6 +191,117 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
     }
 }
 
+void Mode::operationNotesSummary(std::ofstream &of, const std::vector<std::string> &stations) const {
+    of << "Mode: " << getName() << "\n";
+    for(const auto &tmp : freqs_){
+        const auto &freq = tmp.first;
+        const auto &sta = tmp.second;
+
+        if(!sta.empty()){
+            of << "    Freq: " << freq->getName() << "\n";
+            const auto &bands = freq->getBands();
+            double totalBW = freq->totalBandwidth();
+
+            set<double> chanBWs;
+            for(const auto &any : freq->getChan_defs()){
+                chanBWs.insert(any.chan_bandwidth_);
+            }
+            string chanBW = "multiple";
+            if(chanBWs.size() == 1){
+                chanBW = (boost::format("%8.2f") %*chanBWs.begin()).str();
+            }
+
+            // get bits per station
+            map<unsigned long, string> staid2bits;
+            map<unsigned long, double> staid2totalRate;
+            for(auto staid : sta){
+                const auto &track = getTracks(staid).get();
+                auto bitsPerChannel = track->numberOfBitsPerChannel();
+
+                staid2totalRate[staid] = freq->totalRate(bitsPerChannel);
+
+                set<int> bits;
+                for(const auto &any : bitsPerChannel){
+                    bits.insert(any.second);
+                }
+
+                auto it = bits.begin();
+                string s;
+                if(it == bits.end()){
+                    s = "-";
+                }
+                else{
+                    s.append(to_string(*it));
+                    ++it;
+                    while(it != bits.end()){
+                        s.append(",").append(to_string(*it));
+                        ++it;
+                    }
+                }
+                staid2bits[staid] = s;
+            }
+
+            // get #BBCs per station
+            map<unsigned long, int> staid2bbc;
+            for(auto staid : sta){
+                int n_bbcs = getBbc(staid).get()->numberOfBBCs();
+                staid2bbc[staid] = n_bbcs;
+            }
+
+            // get #tracks per station
+            map<unsigned long, int> staid2tracks;
+            for(auto staid : sta){
+                int n_tracks = getTracks(staid).get()->numberOfTracks();
+                staid2tracks[staid] = n_tracks;
+            }
+
+            vector<char>found(sta.size(),false);
+            for(int i=0; i<found.size(); ++i){
+                if(!found[i]){
+                    of << "        Recording mode for: ";
+                    of << stations[sta[i]];
+                    found[i] = true;
+                    for(int j=i+1; j<found.size(); ++j) {
+                        if((staid2totalRate[i] == staid2totalRate[j]) &&(staid2bits[i] == staid2bits[j]) && (staid2bbc[i] = staid2bbc[j]) && (staid2tracks[i] == staid2tracks[j])) {
+                            of << " " << stations[sta[j]];
+                            found[j] = true;
+                        }
+                    }
+                    of << "\n";
+
+                    of << boost::format("        %13s %12s %12s %6s %6s %6s\n") %"Tot.Rate" %"Tot.BandW" %"Chan.BW" %"#BBC" %"#bits" %"Tracks";
+                    of << boost::format("        %6.0f Mbit/s %8.0f MHz %8.2f MHz %6d %6s %6d\n") %staid2totalRate[i] %totalBW %chanBW %staid2bbc[i] %staid2bits[i] %staid2tracks[i];
+                }
+            }
+
+
+
+            for(const auto &band : bands){
+                const auto &frequencies = freq->getFrequencies(band);
+                auto minmax = std::minmax_element(frequencies.begin(), frequencies.end());
+
+                double spanned = *minmax.second-*minmax.first;
+
+                double sum = std::accumulate(std::begin(frequencies), std::end(frequencies), 0.0);
+                double m =  sum / frequencies.size();
+
+                double accum = 0.0;
+                std::for_each (std::begin(frequencies), std::end(frequencies), [&](const double d) {
+                    accum += (d - m) * (d - m);
+                });
+
+                double rms = sqrt(accum / (frequencies.size()-1));
+                of << boost::format("        %s-band spanned bw = %7.1f MHz     rms spanned bw = %7.1f MHz\n") % band % spanned % rms;
+            }
+
+
+
+        }
+    }
+    of << "\n";
+}
+
+
 double Mode::recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const{
 
     auto it = staids2recordingRate_.find({staid1, staid2});

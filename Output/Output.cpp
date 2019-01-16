@@ -66,6 +66,7 @@ void  Output::displayGeneralStatistics(ofstream &of) {
     int n_calibrator = 0;
     int n_single = 0;
     int n_subnetting = 0;
+    int n_obs = 0;
 
     for (const auto&any:scans_){
         switch (any.getType()){
@@ -95,18 +96,28 @@ void  Output::displayGeneralStatistics(ofstream &of) {
                 break;
             }
         }
+        n_obs += any.getNObs();
     }
 
     of << ".--------------------------------------.\n";
-    of << boost::format("| number of total scans:         %5d |\n") %n_scans;
+    of << boost::format("| total number of scans:         %5d |\n") %n_scans;
+    of << boost::format("| total number of observations:  %5d |\n") %n_obs;
     of << "|--------------------------------------|\n";
-    of << boost::format("| number of single source scans: %5d |\n") %n_single;
-    of << boost::format("| number of subnetting scans:    %5d |\n") %n_subnetting;
-    of << "|--------------------------------------|\n";
+    if(n_subnetting != 0){
+        of << boost::format("| number of single source scans: %5d |\n") %n_single;
+        of << boost::format("| number of subnetting scans:    %5d |\n") %n_subnetting;
+        of << "|--------------------------------------|\n";
+    }
     of << boost::format("| number of standard scans:      %5d |\n") %n_standard;
-    of << boost::format("| number of high impact scans    %5d |\n") %n_highImpact;
-    of << boost::format("| number of fillin mode scans:   %5d |\n") %n_fillin;
-    of << boost::format("| number of calibrator scans:    %5d |\n") %n_calibrator;
+    if(n_highImpact != 0){
+        of << boost::format("| number of high impact scans    %5d |\n") %n_highImpact;
+    }
+    if(n_fillin != 0){
+        of << boost::format("| number of fillin mode scans:   %5d |\n") %n_fillin;
+    }
+    if(n_calibrator != 0){
+        of << boost::format("| number of calibrator scans:    %5d |\n") %n_calibrator;
+    }
     of << "'--------------------------------------'\n\n";
 
 }
@@ -343,7 +354,7 @@ void Output::displayScanDurationStatistics(ofstream &of) {
     }
     of << "\n";
 
-    of << "required scan length:\n";
+    of << "scheduled scan length:\n";
     of << ".-----------------------------------------------------------------------------------.\n";
     of << "| S1-S2 |  min    10%    50%    90%    95%  97.5%    99%    max   |    sum  average |\n";
     of << "|-------|---------------------------------------------------------|-----------------|\n";
@@ -1106,8 +1117,8 @@ void Output::writeOperationsNotes() {
 
     of << "    experiment description: " << xml_.get("VieSchedpp.output.experimentDescription","no description") << "\n";
     of << "    created with          : VieSched++ \n";
-    of << "    version               : " << util::version() << "\n";
-    of << "    GUI version           : " << xml_.get("VieSchedpp.software.GUI_version","unknown") << "\n";
+    of << "    version hash code     : " << util::version() << "\n";
+    of << "    GUI version hash code : " << xml_.get("VieSchedpp.software.GUI_version","unknown") << "\n";
     of << "    creation time (local) : " << xml_.get("VieSchedpp.created.time","unknown") << "\n\n";
 
     of << "    nominal start time    : " << xml_.get("VieSchedpp.general.startTime","unknown") << "\n";
@@ -1132,8 +1143,7 @@ void Output::writeOperationsNotes() {
 
     of << "    scheduler             : " << xml_.get("VieSchedpp.output.scheduler","unknown") << "\n";
     of << "    scheduler name        : " << xml_.get("VieSchedpp.created.name","unknown") << "\n";
-    of << "    scheduler email       : " << xml_.get("VieSchedpp.created.email","unknown") << "\n\n";
-
+    of << "    scheduler email       : " << xml_.get("VieSchedpp.created.email","unknown") << "\n";
     of << "    target correlator     : " << xml_.get("VieSchedpp.output.correlator","unknown") << "\n\n";
 
     std::string notes = xml_.get("VieSchedpp.output.notes","");
@@ -1145,56 +1155,79 @@ void Output::writeOperationsNotes() {
     of << "---------------------------------------------------------------------------------------------------------\n";
     string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes",""),"\\n","\n");
     of << newStr << "\n";
+
+    bool down = false;
+    of << "Station down times:\n";
     for(const auto &sta : network_.getStations()){
-        sta.listDownTimes(of);
+        bool flag = sta.listDownTimes(of);
+        down = down || flag;
     }
+    if(!down){
+        of << "    no\n";
+    }
+
+    of << "Tagalong mode used:\n";
+    bool tag = false;
     for(const auto &sta : network_.getStations()){
-        sta.listTagalongTimes(of);
+        bool flag = sta.listTagalongTimes(of);
+        tag = tag || flag;
     }
+    if(!tag){
+        of << "    no\n";
+    }
+
     if(version_>0){
-        of << "Version: " << version_ << " from multi scheduling setup:\nMulti scheduling parameters:\n";
+        of << "Schedule was created using multi scheduling tool\n";
+        of << "    version " << version_ << "\n";
         multiSchedulingParameters_->output(of);
     }
     of << "---------------------------------------------------------------------------------------------------------\n\n";
 
-    of << ".---------------------.\n";
-    of << "| scheduled stations: |\n";
-    of << "|---------------------|\n";
-    of << "| Name         |  Id  |\n";
-    of << "|---------------------|\n";
+    of << ".-------------------------.\n";
+    of << "| participating stations: |\n";
+    of << "|-------------------------|\n";
     for (const auto &any:network_.getStations()){
-        of << boost::format("| %-8s     |  %2s  |\n") %any.getName() %any.getAlternativeName();
+        of << boost::format("| %-8s         |  %2s  |\n") %any.getName() %any.getAlternativeName();
     }
-    of << "'---------------------'\n\n";
+    of << "'-------------------------'\n\n";
 
     displayGeneralStatistics(of);
     displayTimeStatistics(of);
     displayBaselineStatistics(of);
-    displayStationStatistics(of);
-    displaySourceStatistics(of);
-    obsModes_->summary(of);
-    of << "\n";
-    displaySNRSummary(of);
     displayNstaStatistics(of);
-    displayScanDurationStatistics(of);
-    displayAstronomicalParameters(of);
-
-    WeightFactors::summary(of);
+    obsModes_->operationNotesSummary(of);
 
     if(scans_.size()>=2){
-        of << "Scans:\n";
+        of << "First Scans:\n";
         of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
         for(unsigned long i=0; i<3; ++i){
             const auto &thisScan = scans_[i];
             thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
         }
-        of << "...\n";
+        of << "\n";
+        of << "Last Scans:\n";
+        of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
         for(unsigned long i= scans_.size() - 3; i < scans_.size(); ++i){
             const auto &thisScan = scans_[i];
             thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
         }
         of << "\n";
     }
+
+    of << "================================================================================================================================================\n";
+    of << "                                                         ADDITONAL NOTES FOR SCHEDULER                                                         \n";
+    of << "================================================================================================================================================\n\n";
+
+    displayStationStatistics(of);
+    displaySourceStatistics(of);
+    obsModes_->summary(of);
+    of << "\n";
+    displaySNRSummary(of);
+    displayScanDurationStatistics(of);
+    displayAstronomicalParameters(of);
+
+    WeightFactors::summary(of);
+
 
     of << ".------------------------.\n";
     of << "| full scheduling setup: |\n";

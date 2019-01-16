@@ -228,10 +228,10 @@ void Skd::skd_DOWNTIME(const Network& network) {
     of << "$DOWNTIME\n";
     of << "*=========================================================================================================\n";
     for(const auto &sta : network.getStations()){
-        sta.listDownTimes(of, true);
+        bool tmp = sta.listDownTimes(of, true);
     }
     for(const auto &sta : network.getStations()){
-        sta.listTagalongTimes(of, true);
+        bool tmp = sta.listTagalongTimes(of, true);
     }
 }
 

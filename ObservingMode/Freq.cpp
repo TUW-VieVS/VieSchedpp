@@ -176,6 +176,24 @@ void Freq::toVexFreqDefinition(std::ofstream &of, const std::string &comment) co
 
 }
 
+double Freq::totalBandwidth() const {
+    double t = 0;
+    for(const auto & any : chan_defs_){
+        t += any.chan_bandwidth_;
+    }
+    return t;
+}
+
+double Freq::totalRate(const std::map<std::string, int> &bitsPerChannel) const {
+    double r = 0;
+    for(const auto & any : chan_defs_){
+        const string &bandId = any.chan_id_;
+        int bits = bitsPerChannel.at(bandId);
+        r += 2*any.chan_bandwidth_*bits;
+    }
+    return r;
+}
+
 
 Freq::Chan_def::Chan_def(std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                          std::string chan_id, std::string bbc_id, std::string phase_cal_id):

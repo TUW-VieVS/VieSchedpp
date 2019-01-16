@@ -260,9 +260,17 @@ namespace VieVS{
          * @brief write observing mode summary
          * @author Matthias Schartner
          *
-         * @param of vex file stream
+         * @param of output file stream
          */
         void summary(std::ofstream &of) const;
+
+        /**
+         * @brief write observing mode summary for operation notes
+         * @author Matthias Schartner
+         *
+         * @param of operation Nnotes file stream
+         */
+        void operationNotesSummary(std::ofstream &of) const;
 
         /**
          * @brief calculate mean frequencies

@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_TRACKS_H
 #define VIESCHEDPP_TRACKS_H
 
+#include <set>
 #include <utility>
 #include <vector>
 #include <algorithm>
@@ -121,6 +122,25 @@ namespace VieVS{
          * @return number of recording bits per channel
          */
         std::map<std::string, int> numberOfBitsPerChannel(const std::shared_ptr<const Track> &other) const;
+
+        /**
+         * @brief get number of recording bits
+         * @author Matthias Schartner
+         *
+         * @return number of recording bits per channel
+         */
+        std::map<std::string, int> numberOfBitsPerChannel() const;
+
+        /**
+         * @brief number of tracks
+         * @author Matthias Schartner
+         *
+         * @return number of track definitions
+         */
+        int numberOfTracks() const{
+            return static_cast<int>(fanout_definitions_.size());
+        }
+
 
         /**
          * @brief add new fanout
