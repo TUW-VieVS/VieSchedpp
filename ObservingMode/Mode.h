@@ -166,6 +166,23 @@ namespace VieVS{
         double recordingRate(unsigned long staid1, unsigned long staid2, const std::string &band) const;
 
         /**
+         * @brief efficiency factor between stations
+         * @author Matthias Schartner
+         *
+         * efficiency is based on bit efficiency and correlator efficiency
+         * Bit efficiency:
+         * 1-bit: 0.5715
+         * 2-bit: 0.6366
+         * Correlator efficiency:
+         * DiFX: 0.97
+         *
+         * @param staid1 station 1
+         * @param staid2 station 2
+         * @return efficiency factor
+         */
+        double efficiency(unsigned long staid1, unsigned long staid2) const;
+
+        /**
          * @brief get IF block per station
          * @author Matthias Schartner
          *
@@ -444,6 +461,9 @@ namespace VieVS{
         std::unordered_map< std::pair<unsigned long, unsigned long>,
                                       std::unordered_map<std::string,double>,
                                       boost::hash<std::pair<unsigned long, unsigned long>>> staids2recordingRate_; ///< recording rate per station ids and band
+        std::unordered_map< std::pair<unsigned long, unsigned long>,
+                                      double,
+                                      boost::hash<std::pair<unsigned long, unsigned long>>> staids2efficiency_; ///< efficiency per station ids
 
 
         std::set<std::string> bands_; ///< list of all bands

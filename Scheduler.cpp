@@ -1048,7 +1048,8 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
                             maxCorSynch = maxCorSynch2;
                         }
 
-                        double anum = (1.75 * maxminSNR / SEFD_src);
+                        double efficiency = currentObservingMode_->efficiency(sta1.getId(), sta2.getId());
+                        double anum = (maxminSNR / (SEFD_src * efficiency));
                         double anu1 = SEFD_sta1 * SEFD_sta2;
                         double anu2 = currentObservingMode_->recordingRate(sta1.getId(), sta2.getId(), band);
 
