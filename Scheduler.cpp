@@ -55,6 +55,7 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
+    parameters_.maxExtendedObservingTime = init.parameters_.maxExtendedObservingTime;
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -1661,7 +1662,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 }
             }
 
-            // iteratively adjust new idle time and new slew time until it is equal to previouse slew time
+            // iteratively adjust new idle time and new slew time until it is equal to previous slew time
             // we also allow 1 second offset (1 sec additional idle time) as a live saver
             int offset = 0;
             bool valid = true;
@@ -1799,6 +1800,24 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
             // look for maximum allowed time before/after current event time
             unsigned int maximum = thisSta.maximumAllowedObservingTime(ts);
+            switch (ts){
+                case Timestamp::start:{
+                    if(thisScan.getTimes().getObservingTime(Timestamp::end) > parameters_.maxExtendedObservingTime){
+                        unsigned int newMax = thisScan.getTimes().getObservingTime(Timestamp::end) - parameters_.maxExtendedObservingTime;
+                        if(newMax > maximum){
+                            maximum = newMax;
+                        }
+                        break;
+                    }
+                }
+                case Timestamp::end:{
+                    unsigned int newMax = thisScan.getTimes().getObservingTime(Timestamp::start) + parameters_.maxExtendedObservingTime;
+                    if(newMax < maximum){
+                        maximum = newMax;
+                    }
+                    break;
+                }
+            }
 
 
             // check if it is necessary to adjust observing time

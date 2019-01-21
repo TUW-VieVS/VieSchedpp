@@ -65,6 +65,7 @@ namespace VieVS{
             bool fillinmodeAPosteriori = false; ///< fillin mode a posteriori
 
             bool idleToObservingTime = true; ///< idle to observing time
+            int maxExtendedObservingTime = 9999; ///< maximum extended observing time in seconds
 
             bool andAsConditionCombination = true; ///< condition combination model
             unsigned int currentIteration = 0; ///< current iteration number

@@ -914,7 +914,9 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
         parameters_.fillinmodeDuringScanSelection = xml_.get<bool>("VieSchedpp.general.fillinmodeDuringScanSelection",false);
         parameters_.fillinmodeInfluenceOnSchedule = xml_.get<bool>("VieSchedpp.general.fillinmodeInfluenceOnSchedule",false);
         parameters_.fillinmodeAPosteriori = xml_.get<bool>("VieSchedpp.general.fillinmodeAPosteriori",false);
+
         parameters_.idleToObservingTime = xml_.get<bool>("VieSchedpp.general.idleToObservingTime",false);
+        parameters_.maxExtendedObservingTime = xml_.get<int>("VieSchedpp.general.maxExtendedObservingTime",9999);
 
         std::string anchor = xml_.get<std::string>("VieSchedpp.general.scanAlignment","start");
         if(anchor == "start"){

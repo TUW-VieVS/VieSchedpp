@@ -214,6 +214,7 @@ namespace VieVS {
          * @param fillinmodeDuringScan flag if fillin mode scans are allowed
          * @param fillinmodeAPosteriori flag if fillin mode a posterior scans are allowed
          * @param idleToObservingTime flag if idle time should be converted to observing time
+         * @param maxIdleToObserving maximum extenden observing time in seconds
          * @param stations list of all stations
          * @param useSourcesFromParameter_otherwiseIgnore flag which model is used for srcNames
          * @param srcNames source names for model from useSourcesFromParameter_otherwiseIgnore
@@ -225,7 +226,7 @@ namespace VieVS {
                      const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                      bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
-                     bool idleToObservingTime,
+                     bool idleToObservingTime, int maxIdleToObserving,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                      const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                      const std::string &logConsole, const std::string &logFile);
