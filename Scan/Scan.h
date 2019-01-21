@@ -645,6 +645,19 @@ namespace VieVS{
          */
         void updateObservingTime();
 
+        /**
+         * @brief remove stations from scan whose observations last longer then session
+         * @author Matthias Schartner
+         *
+         * @param network station network
+         * @param thisSource observed source
+         * @param mode observing mode
+         * @param endTime session end time
+         * @return flag if scan is still valid
+         */
+        bool prepareForScanEnd(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
+                               unsigned int endTime);
+
     private:
         static unsigned long nextId; ///< next id for this object type
 

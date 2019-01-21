@@ -151,12 +151,12 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         if (bestScans.empty()) {
             if (depth == 0) {
                 if (type == Scan::ScanType::calibrator) {
-#ifdef VIESCHEDPP_LOG
+                    #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning)
                         << "no valid scan found in calibrator block -> finished calibration block";
-#else
+                    #else
                     cout << "[warning] no valid scan found in calibrator block -> finished calibration block\n";
-#endif
+                    #endif
                     break;
                 }
 
@@ -170,11 +170,11 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                         maxScanEnd = pv.getTime();
                     }
                 }
-#ifdef VIESCHEDPP_LOG
+                #ifdef VIESCHEDPP_LOG
                 BOOST_LOG_TRIVIAL(warning) << "no valid scan found, checking one minute later";
-#else
+                #else
                 cout << "[warning] no valid scan found, checking one minute later\n";
-#endif
+                #endif
 
                 of << (boost::format("[warning] no valid scan found, checking one minute later: %s\n")
                        % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
@@ -205,8 +205,21 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
         }
 
         // if end time of best possible next scans is greate than end time of scan selection stop
-        if (maxScanEnd > endTime) {
-            break;
+        if (maxScanEnd > endTime && depth == 0) {
+            int i=0;
+            while( i < bestScans.size() ){
+                Scan &any = bestScans[i];
+                bool valid = any.prepareForScanEnd(network_, sources_[any.getSourceId()], currentObservingMode_, endTime);
+                if(!valid){
+                    bestScans.erase(bestScans.begin()+i);
+                } else {
+                    ++i;
+                }
+            }
+
+            if(bestScans.empty()){
+                break;
+            }
         }
 
 

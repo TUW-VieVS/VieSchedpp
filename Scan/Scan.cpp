@@ -1530,3 +1530,36 @@ void Scan::updateObservingTime(){
         obs.setStartTime(start);
     }
 }
+
+bool Scan::prepareForScanEnd(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
+                             unsigned int endTime) {
+    int ista = 0;
+    while(ista < nsta_){
+        if(times_.getObservingTime(ista,Timestamp::end) > endTime){
+            bool valid = removeStation(ista,source);
+            if(!valid){
+                return false;
+            }
+        }else{
+            ++ista;
+        }
+    }
+
+    bool valid = rigorousUpdate(network, source, mode);
+    if(!valid){
+        return false;
+    }
+
+    while(ista < nsta_){
+        if(times_.getObservingTime(ista,Timestamp::end) > endTime){
+            bool valid = removeStation(ista,source);
+            if(!valid){
+                return false;
+            }
+        }else{
+            ++ista;
+        }
+    }
+
+    return true;
+}
