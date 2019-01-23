@@ -461,7 +461,7 @@ void Station::toVexStationBlock(std::ofstream &of) const{
     }else{
         of << "        ref $DAS = " << electronics_rack_type_ << "_rack" << eol;
     }
-    of << "        ref $DAS = " << recording_system_id_ << eol;
+    of << "        ref $DAS = " << getAlternativeName() << "_" <<recording_system_id_ << eol;
 //    of << "*        ref $PHASE_CAL_DETECT = " << "Standard" << eol;
     of << "    enddef;\n";
 

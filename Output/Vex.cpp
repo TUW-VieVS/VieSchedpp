@@ -217,7 +217,7 @@ void Vex::das_block(const std::vector<Station> &stations) {
 
     for(const auto &any: stations){
 
-        const string & recorder = any.getElectronics_rack_type_();
+        const string & recorder = any.getRecord_transport_type();
         string rack = any.getElectronics_rack_type_();
         if(rack == "DBBC"){
             rack.append("_DDC");
