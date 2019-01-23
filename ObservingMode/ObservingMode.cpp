@@ -227,7 +227,7 @@ void ObservingMode::readSkdFreq(const std::shared_ptr<Mode> &mode, const SkdCata
         int bbcNr = any.second;
         string chStr = (boost::format("&CH%02d") % chNr).str();
         string bbcStr = (boost::format("&BBC%02d") % bbcNr).str();
-        Freq::Net_sideband sideband = bbcNr == lastBbcNr ? Freq::Net_sideband::U : Freq::Net_sideband::L;
+        Freq::Net_sideband sideband = bbcNr == lastBbcNr ? Freq::Net_sideband::L : Freq::Net_sideband::U;
         auto skyFreq = boost::lexical_cast<double>(channelNumber2skyFreq.at(bbcNr));
         thisFreq->addChannel(channelNumber2band.at(bbcNr), skyFreq, sideband,  bandwidth, chStr, bbcStr, "&U_cal");
         lastBbcNr = bbcNr;
