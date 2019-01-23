@@ -1617,7 +1617,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
             unsigned int preobTime = thisSta.getWaittimes().preob;
 
             // avoid rounding errors
-            if( availableTime < prevSlewTime-fsTime-preobTime ){
+            if( availableTime < prevSlewTime+fsTime+preobTime ){
                 continue;
             }
 
