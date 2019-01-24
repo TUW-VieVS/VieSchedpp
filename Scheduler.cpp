@@ -1177,7 +1177,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     vector<string> excludedSources;
     int excludedScans = 0;
     int excludedBaselines = 0;
-    of << "checking optimization conditions... ";
+    string message = "checking optimization conditions... ";
     int consideredSources = 0;
     bool lastExcluded = false;
     for (auto &thisSource : sources_) {
@@ -1229,15 +1229,14 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     }
     if(parameters_.currentIteration>parameters_.maxNumberOfIterations){
         newScheduleNecessary = false;
-        of << "max number of iterations reached ";
+        message.append("max number of iterations reached ");
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "max number of iterations reached";
         #endif
     }
     if(excludedSources.size() < parameters_.minNumberOfSourcesToReduce){
         newScheduleNecessary = false;
-        of << "only " << excludedSources.size() <<
-           " sources have to be excluded (minimum = " << parameters_.minNumberOfSourcesToReduce << ") ";
+        message.append("only ").append(to_string(excludedSources.size())).append(" sources have to be excluded (minimum = ").append(to_string(parameters_.minNumberOfSourcesToReduce)).append(") ");
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "not enough sources left for new iteration";
         #endif
@@ -1247,19 +1246,25 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "new schedule with reduced source list necessary";
         #endif
-        of << "new schedule with reduced source list necessary\n";
+        message.append("new schedule with reduced source list necessary");
         CalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
-        of << "==========================================================================================\n";
+        of << "|                                                                                                                                              |\n";
         if(sourcesLeft<50){
-            of << boost::format("Abortion: only %d sources left!\n")%sourcesLeft;
+            of << boost::format("| %=140s |\n") %message;
+            string message2 = (boost::format("Abortion: only %d sources left")%sourcesLeft).str();
+            of << boost::format("| %=140s |\n") %message2;
+            of << "|                                                                                                                                              |\n";
+            of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
             return false;
         }
-        of << boost::format("creating new schedule with %d sources\n")%sourcesLeft;
-        of << "==========================================================================================\n";
+        string message2 = (boost::format("creating new schedule with %d sources")%sourcesLeft).str();
+        of << boost::format("| %=140s |\n") %message;
+        of << boost::format("| %=140s |\n") %message2;
+        of << "|                                                                                                                                              |\n";
+        of << "'----------------------------------------------------------------------------------------------------------------------------------------------'\n\n";
 
         util::outputObjectList("List of removed sources",excludedSources,of);
-        of << "\n";
 
         scans_.clear();
         for(auto &any:network_.refStations()){
@@ -1279,7 +1284,11 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         #ifdef VIESCHEDPP_LOG
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "no new iteration needed";
         #endif
-        of << "no new iteration needed!\n";
+        message.append("no new iteration needed!");
+        of << "|                                                                                                                                              |\n";
+        of << boost::format("| %=140s |\n") %message;
+        of << "|                                                                                                                                              |\n";
+        of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
         newScheduleNecessary = false;
     }
     return newScheduleNecessary;
@@ -1990,7 +1999,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
         of << boost::format("|                         %-8s: %-40s                                                                   |\n") %thisSta.getName() %tmp;
 
     }
-    of << "|----------------------------------------------------------------------------------------------------------------------------------------------|\n";
+    of << "'----------------------------------------------------------------------------------------------------------------------------------------------'\n";
 }
 
 

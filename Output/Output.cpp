@@ -66,59 +66,69 @@ void  Output::displayGeneralStatistics(ofstream &of) {
     int n_calibrator = 0;
     int n_single = 0;
     int n_subnetting = 0;
-    int n_obs = 0;
+
+    int obs = 0;
+    int obs_standard = 0;
+    int obs_highImpact = 0;
+    int obs_fillin = 0;
+    int obs_calibrator = 0;
+    int obs_single = 0;
+    int obs_subnetting = 0;
 
     for (const auto&any:scans_){
         switch (any.getType()){
             case Scan::ScanType::fillin:{
                 ++n_fillin;
+                obs_fillin += any.getNObs();
                 break;
             }
             case Scan::ScanType::calibrator:{
                 ++n_calibrator;
+                obs_calibrator += any.getNObs();
                 break;
             }
             case Scan::ScanType::standard:{
                 ++n_standard;
+                obs_standard += any.getNObs();
                 break;
             }
             case Scan::ScanType::highImpact:{
                 ++n_highImpact;
+                obs_highImpact += any.getNObs();
                 break;}
         }
         switch (any.getScanConstellation()){
             case Scan::ScanConstellation::single:{
                 ++n_single;
+                obs_single += any.getNObs();
                 break;
             }
             case Scan::ScanConstellation::subnetting:{
                 ++n_subnetting;
+                obs_subnetting += any.getNObs();
                 break;
             }
         }
-        n_obs += any.getNObs();
+        obs += any.getNObs();
     }
+    of << ".---------------------------------.\n";
+    of << boost::format("|               | #scans |  #obs  |\n");
+    of << "|---------------------------------|\n";
+    of << boost::format("| total         | %6d | %6d |\n") %n_scans %obs;
+    of << "|---------------------------------|\n";
+    of << boost::format("| single source | %6d | %6d |\n") %n_single %obs_single;
+    of << boost::format("| subnetting    | %6d | %6d |\n") %n_subnetting %obs_subnetting;
+    of << "|---------------------------------|\n";
+    of << boost::format("| standard      | %6d | %6d |\n") %n_standard %obs_standard;
+    of << boost::format("| fillin mode   | %6d | %6d |\n") %n_fillin %obs_fillin;
+    if(n_calibrator > 0){
+        of << boost::format("| calibrator    | %6d | %6d |\n") %n_calibrator %obs_calibrator;
+    }
+    if(n_highImpact > 0){
+        of << boost::format("| high impact   | %6d | %6d |\n") %n_highImpact %obs_highImpact;
+    }
+    of << "'---------------------------------'\n\n";
 
-    of << ".--------------------------------------.\n";
-    of << boost::format("| total number of scans:         %5d |\n") %n_scans;
-    of << boost::format("| total number of observations:  %5d |\n") %n_obs;
-    of << "|--------------------------------------|\n";
-    if(n_subnetting != 0){
-        of << boost::format("| number of single source scans: %5d |\n") %n_single;
-        of << boost::format("| number of subnetting scans:    %5d |\n") %n_subnetting;
-        of << "|--------------------------------------|\n";
-    }
-    of << boost::format("| number of standard scans:      %5d |\n") %n_standard;
-    if(n_highImpact != 0){
-        of << boost::format("| number of high impact scans    %5d |\n") %n_highImpact;
-    }
-    if(n_fillin != 0){
-        of << boost::format("| number of fillin mode scans:   %5d |\n") %n_fillin;
-    }
-    if(n_calibrator != 0){
-        of << boost::format("| number of calibrator scans:    %5d |\n") %n_calibrator;
-    }
-    of << "'--------------------------------------'\n\n";
 
 }
 
