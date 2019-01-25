@@ -243,7 +243,7 @@ void SkdParser::createScans(std::ofstream &of) {
                 continue;
             }
             string trimmed = boost::trim_copy(line);
-            if(line == "$SKED"){
+            if(trimmed == "$SKED"){
                 break;
             }
         }
