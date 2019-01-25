@@ -123,7 +123,6 @@ namespace VieVS{
          * @brief converts object to property tree
          * @author Matthias Schartner
          *
-         * @param stations station names
          * @return property tree
          */
         boost::property_tree::ptree toPropertytree() const;

@@ -98,7 +98,7 @@ namespace VieVS{
          * @brief convert vex format string to polarization type
          * @author Matthias Schartner
          *
-         * @param name name in vex format
+         * @param s name in vex format
          * @return polarization type
          */
         static Polarization polarizationFromString(const std::string &s){
@@ -127,7 +127,7 @@ namespace VieVS{
          * @brief converts net sideband type to vex format string
          * @author Matthias Schartner
          *
-         * @param p net sideband type
+         * @param n net sideband type
          * @return string in vex format
          */
         static std::string toString(Net_sidband n) {
@@ -142,7 +142,7 @@ namespace VieVS{
          * @brief convert vex format string to net sideband type
          * @author Matthias Schartner
          *
-         * @param name name in vex format
+         * @param s net sideband name in vex format
          * @return net sideband type
          */
         static Net_sidband netSidebandFromString(const std::string &s){

@@ -119,6 +119,7 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param of statistics.csv file
+         * @param skdCatalogReader sked catalogs
          */
         void createAllOutputFiles(std::ofstream& of, const SkdCatalogReader &skdCatalogReader);
 
@@ -165,7 +166,6 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param of outstream file object
-         * @param number of scheduled sources
          */
         void displaySourceStatistics(std::ofstream &of);
 

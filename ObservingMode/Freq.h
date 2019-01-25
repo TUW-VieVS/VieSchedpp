@@ -86,7 +86,7 @@ namespace VieVS{
          * @brief convert vex format string to net sideband type
          * @author Matthias Schartner
          *
-         * @param name name in vex format
+         * @param s net sideband name in vex format
          * @return net sideband type
          */
         static Net_sideband netSidebandFromString(const std::string &s){

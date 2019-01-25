@@ -542,10 +542,7 @@ namespace VieVS {
          * @brief This function reads a specific sked catalog file and stores the data in a map.
          * @author Matthias Schartner
          *
-         * @param root path to catalog file
-         * @param fname catalog name
          * @param type catalog file which should be read
-         * @param headerLog outstream to log file
          * @return key is list of all Ids, value is corresponding catalog entry
          */
         std::map<std::string, std::vector<std::string>> readCatalog(CATALOG type) noexcept;

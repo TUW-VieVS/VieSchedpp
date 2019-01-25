@@ -156,7 +156,6 @@ namespace VieVS {
          * @brief write vex $FREQ block
          * @author Matthias Schartner
          *
-         * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
         void freq_block(const std::shared_ptr<const ObservingMode> &obsModes);
@@ -165,7 +164,6 @@ namespace VieVS {
          * @brief write vex $BBC block
          * @author Matthias Schartner
          *
-         * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
         void bbc_block(const std::shared_ptr<const ObservingMode> &obsModes);
@@ -174,7 +172,6 @@ namespace VieVS {
          * @brief write vex $IF block
          * @author Matthias Schartner
          *
-         * @param skdCatalogReader sked catalogs
          * @param obsModes observing mode
          */
         void if_block(const std::shared_ptr<const ObservingMode> &obsModes);

@@ -198,6 +198,7 @@ namespace VieVS {
          * @brief creates all possible sources from sked catalogs
          * @author Matthias Schartner
          *
+         * @param reader sked catalogs
          * @param of outstream to log file
          */
         void createSources(const SkdCatalogReader &reader, std::ofstream &of) noexcept;
@@ -283,7 +284,6 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param parameters multi scheduling parameters
-         * @param bodyLog outstream to log file
          */
         void applyMultiSchedParameters(const VieVS::MultiScheduling::Parameters &parameters);
 
@@ -435,7 +435,7 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param name group name
-         * @param stations list of all available sources
+         * @param baselines list of all available baselines
          * @return list of baseline ids
          */
         std::vector<unsigned long> getMembers(const std::string &name, const std::vector<Baseline> &baselines);
@@ -445,7 +445,7 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * @param name group name
-         * @param stations list of all available baselines
+         * @param sources list of all available sources
          * @return list of source ids
          */
         std::vector<unsigned long> getMembers(const std::string &name, const std::vector<Source> &sources);

@@ -220,7 +220,7 @@ namespace VieVS{
          * @param sta_position station position
          * @param sta_equip station equipment
          * @param sta_mask station horizon mask
-         * @param nSource number of sources
+         * @param nSources number of sources
          */
         Station(std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
                 std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,

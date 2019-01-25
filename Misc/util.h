@@ -118,7 +118,7 @@ namespace VieVS{
          *
          * assuming speed of light wave velocity
          *
-         * @param frequency wavelength in m
+         * @param wavelength wavelength in m
          * @return frequency in Hz
          */
         double wavelength2frequency( double wavelength);

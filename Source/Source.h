@@ -453,10 +453,9 @@ namespace VieVS{
          * @brief observed flux density per band
          * @author Matthias Schartner
          *
+         * @param band observed band
          * @param gmst greenwhich meridian sedirial time
-         * @param dx baseline delta x
-         * @param dy baseline delta y
-         * @param dz baseline delta z
+         * @param dxyz coordinate difference of participating stations
          * @return observed flux density per band
          */
         double observedFlux(const std::string &band, double gmst, const std::vector<double> &dxyz) const noexcept;

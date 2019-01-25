@@ -96,7 +96,7 @@ namespace VieVS{
              * @brief copies parameters
              * @author Matthias Schartner
              *
-             * @param source parameters
+             * @param other parent parameters
              */
             void setParameters(const Parameters &other);
 

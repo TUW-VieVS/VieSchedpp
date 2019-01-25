@@ -300,6 +300,7 @@ namespace VieVS{
          * If a scan no longer has enough stations or the number of baselines will get zero, it gets invalid.
          *
          * @param idx index of element to delete
+         * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
         bool removeStation(int idx, const Source &source) noexcept;
@@ -311,6 +312,7 @@ namespace VieVS{
          * If a station has no longer any observations it gets removed
          *
          * @param iobs index of observation
+         * @param source observed source
          * @return true if scan is still valid, false if scan is no longer valid
          */
         bool removeObservation(int iobs, const Source &source) noexcept;
@@ -650,7 +652,7 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param network station network
-         * @param thisSource observed source
+         * @param source observed source
          * @param mode observing mode
          * @param endTime session end time
          * @return flag if scan is still valid

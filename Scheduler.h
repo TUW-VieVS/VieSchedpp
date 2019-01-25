@@ -90,7 +90,7 @@ namespace VieVS{
          *
          * @param init initializer
          * @param path path to VieSchedpp.xml file
-         * @param session name
+         * @param fname file name
          */
         Scheduler(Initializer &init, std::string path, std::string fname);
 
@@ -129,6 +129,7 @@ namespace VieVS{
          * @brief constructs all visible scans
          * @author Matthias Schartner
          *
+         * @param type scan type
          * @param endposition required endposition
          * @return subcon with all visible single source scans
          */
@@ -265,7 +266,7 @@ namespace VieVS{
          * @brief output of source overview
          * @author Matthias Schartner
          *
-         * @param outstream object
+         * @param of object
          */
         void listSourceOverview(std::ofstream &of) noexcept;
 

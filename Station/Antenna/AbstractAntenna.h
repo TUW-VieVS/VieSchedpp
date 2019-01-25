@@ -50,7 +50,6 @@ namespace VieVS{
          * @brief constructor
          * @author Matthias Schartner
          *
-         * @param type axis type
          * @param offset_m offset of antenna axis intersection in meters
          * @param diam_m diameter of antenna dish in meters
          * @param rate1_deg_per_min slew rate of first axis in degrees/seconds

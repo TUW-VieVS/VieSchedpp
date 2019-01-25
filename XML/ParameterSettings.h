@@ -415,7 +415,7 @@ namespace VieVS {
          * @param interpolationDistance distance model function
          * @param interpolationTime time model function
          */
-        void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistancestring,
+        void skyCoverage(double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance,
                          std::string interpolationDistance, std::string interpolationTime);
 
         /**
@@ -558,7 +558,7 @@ namespace VieVS {
          * @param contactEmail contact email
          * @param notes schedule notes
          * @param initializer create initializer
-         * @prarm iteration_log iteration log file
+         * @param iteration_log iteration log file
          * @param createSummary create summary file
          * @param createNGS create NGS file
          * @param createSKD create SKD file
