@@ -1006,8 +1006,9 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 void
 ParameterSettings::output(const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
-                          const string &contactEmail, const string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, bool createSKD, bool createVEX, bool createSnrTable,
-                          bool operNotes, const string &operationNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
+                          const string &contactEmail, const string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, const std::string &NGS_directory,
+                          bool createSKD, bool createVEX, bool createSnrTable, bool operNotes, const string &operationNotes,
+                          bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     if(experimentDescription.empty()){
         output.add("output.experimentDescription", "no further description");
@@ -1047,6 +1048,9 @@ ParameterSettings::output(const string &experimentDescription, const string &sch
     output.add("output.iteration_log", iteration_log);
     output.add("output.createSummary", createSummary);
     output.add("output.createNGS", createNGS);
+    if(!NGS_directory.empty()){
+        output.add("output.NGS_directory", NGS_directory);
+    }
     output.add("output.createSKD", createSKD);
     output.add("output.createVEX", createVEX);
     output.add("output.createSnrTable", createSnrTable);

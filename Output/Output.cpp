@@ -604,7 +604,28 @@ void Output::writeNGS() {
     #else
     cout << "[info] writing empty NGS file to " << fname;
     #endif
-    ofstream of(path_+fname);
+
+    string NGS_path = xml_.get("VieSchedpp.output.NGS_directory","");
+    int idx = NGS_path.find_last_of('/',NGS_path.length()-1);
+    if(idx>0){
+        NGS_path.append(path_.substr(idx+1,path_.size()-1-idx));
+    }
+
+
+    ofstream of;
+    if(NGS_path.empty()){
+        of.open(path_+fname);
+    }else{
+        of.open(NGS_path+fname);
+        if(!of.good()){
+            of.open(path_+fname);
+            #ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(warning) << "NGS output path changed to " << path_;
+            #else
+            cout << "[warning] NGS output path changed to " << path_;
+            #endif
+        }
+    }
 
 
     boost::posix_time::ptime start = TimeSystem::startTime;
