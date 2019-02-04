@@ -1522,8 +1522,8 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisS
 
 void Scan::updateObservingTime(){
     for(auto &obs : observations_){
-        int idx1 = static_cast<int>(*findIdxOfStationId(obs.getStaid1()));
-        int idx2 = static_cast<int>(*findIdxOfStationId(obs.getStaid2()));
+        int idx1 = *findIdxOfStationId(obs.getStaid1());
+        int idx2 = *findIdxOfStationId(obs.getStaid2());
         unsigned int dur = times_.getObservingDuration(idx1, idx2);
         obs.setObservingTime(dur);
         unsigned int start = times_.getObservingTime(idx1, idx2, VieVS::Timestamp::start);
@@ -1562,4 +1562,63 @@ bool Scan::prepareForScanEnd(Network &network, const Source &source, const std::
     }
 
     return true;
+}
+
+string Scan::getName(unsigned long indexOfThisScanInList, const std::vector<Scan> &otherScans) const{
+
+    unsigned int start = times_.getObservingTime(Timestamp::start);
+    boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(start);
+    int doy = scanStart.date().day_of_year();
+    auto hour = static_cast<int>(scanStart.time_of_day().hours());
+    auto min = static_cast<int>(scanStart.time_of_day().minutes());
+    string scanId = (boost::format("%03d-%02d%02d") % doy % hour % min).str();
+
+    int suffix = 0;
+    if(indexOfThisScanInList > 0){
+        for (long i = indexOfThisScanInList - 1; i >= 0; --i) {
+
+            unsigned int ostart = otherScans[i].getTimes().getObservingTime(Timestamp::start);
+            boost::posix_time::ptime oScanStart = TimeSystem::internalTime2PosixTime(ostart);
+            int odoy = oScanStart.date().day_of_year();
+            auto ohour = static_cast<int>(oScanStart.time_of_day().hours());
+            auto omin = static_cast<int>(oScanStart.time_of_day().minutes());
+
+
+            if(odoy == doy && ohour == hour && omin == min){
+                ++suffix;
+            } else {
+                break;
+            }
+        }
+        if(suffix >0){
+            char csuffix = static_cast<char>('a' + suffix);
+            scanId += csuffix;
+        }
+    }
+
+    if(suffix == 0 && indexOfThisScanInList+1 < otherScans.size()){
+
+        unsigned int ostart = otherScans[indexOfThisScanInList+1].getTimes().getObservingTime(Timestamp::start);
+        boost::posix_time::ptime oScanStart = TimeSystem::internalTime2PosixTime(ostart);
+        int odoy = oScanStart.date().day_of_year();
+        auto ohour = static_cast<int>(oScanStart.time_of_day().hours());
+        auto omin = static_cast<int>(oScanStart.time_of_day().minutes());
+
+
+        if(odoy == doy && ohour == hour && omin == min){
+            scanId += 'a';
+        }
+    }
+
+    return  scanId;
+}
+
+bool Scan::hasObservation(unsigned long staid1, unsigned long staid2) const {
+    for(const auto &any : observations_){
+        if(any.containsStation(staid1) && any.containsStation(staid2)){
+            return true;
+        }
+    }
+
+    return false;
 }

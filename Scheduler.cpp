@@ -486,6 +486,7 @@ void Scheduler::start() noexcept {
         of.close();
     }
 
+    sortSchedule(Timestamp::start);
 }
 
 void Scheduler::statistics(ofstream &of) {

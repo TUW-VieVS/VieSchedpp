@@ -686,6 +686,18 @@ void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
     skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
 
+void Output::writeSnrTable() {
+    string fileName = getName();
+    fileName.append(".snr");
+    #ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing SNR table to: " << fileName;
+    #else
+    cout << "[info] writing SNR table to: " << fileName;
+    #endif
+    SNR_table snr(path_+fileName);
+    snr.writeTable(network_,sources_,scans_,obsModes_);
+}
+
 
 void Output::writeStatisticsPerSourceGroup() {
 
@@ -1109,13 +1121,16 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
     if(xml_.get<bool>("VieSchedpp.output.createSourceGroupStatistics",false)) {
         writeStatisticsPerSourceGroup();
     }
+    if(xml_.get<bool>("VieSchedpp.output.createSnrTable",false)) {
+        writeSnrTable();
+    }
 }
 
 void Output::writeOperationsNotes() {
     string expName = xml_.get("VieSchedpp.general.experimentName","schedule");
 
     string fileName = getName();
-    fileName.append("_operationsNotes.txt");
+    fileName.append(".txt");
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing operationsNotes file to: " << fileName;
     #else

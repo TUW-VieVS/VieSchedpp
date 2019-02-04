@@ -290,33 +290,10 @@ void Vex::sched_block(const std::vector<Scan> &scans, const Network &network,
     of << "*=========================================================================================================\n";
     of << "$SCHED;\n";
     of << "*=========================================================================================================\n";
-    vector<string>scanIds;
-    for(const auto &scan:scans) {
-        unsigned long nsta = scan.getNSta();
-        unsigned long srcid = scan.getSourceId();
-        boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
-        int doy = scanStart.date().day_of_year();
-        auto hour = static_cast<int>(scanStart.time_of_day().hours());
-        auto min = static_cast<int>(scanStart.time_of_day().minutes());
-        string scanId = (boost::format("%03d-%02d%02d") % doy % hour % min).str();
-        scanIds.push_back(scanId);
-    }
 
-    unordered_map<std::string, char> suffix;
     for(int i=0; i<scans.size(); ++i){
         const Scan &scan = scans[i];
-        string scanId = scanIds[i];
-        long count = std::count(scanIds.begin(), scanIds.end(), scanId);
-        if(count>1){
-            char suf;
-            if(suffix.find(scanId) == suffix.end()){
-                suf = 'a';
-                suffix[scanId] = 'a';
-            }else{
-                suf = ++suffix[scanId];
-            }
-            scanId += suf;
-        }
+        string scanId = scan.getName(i, scans);
 
         unsigned long nsta = scan.getNSta();
         unsigned long srcid = scan.getSourceId();

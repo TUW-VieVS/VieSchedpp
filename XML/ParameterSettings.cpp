@@ -1006,7 +1006,7 @@ void ParameterSettings::multiCore(const string &threads, int nThreadsManual, con
 void
 ParameterSettings::output(const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
-                          const string &contactEmail, const string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, bool createSKD, bool createVEX,
+                          const string &contactEmail, const string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, bool createSKD, bool createVEX, bool createSnrTable,
                           bool operNotes, const string &operationNotes, bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     if(experimentDescription.empty()){
@@ -1049,6 +1049,7 @@ ParameterSettings::output(const string &experimentDescription, const string &sch
     output.add("output.createNGS", createNGS);
     output.add("output.createSKD", createSKD);
     output.add("output.createVEX", createVEX);
+    output.add("output.createSnrTable", createSnrTable);
     output.add("output.createOperationsNotes", operNotes);
     output.add("output.createSourceGroupStatistics", createSrcGrp);
     if(createSrcGrp){

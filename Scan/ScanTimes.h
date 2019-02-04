@@ -232,7 +232,7 @@ namespace VieVS {
          * @param idx2 index of second station
          * @return observing duration between two stations
          */
-         const unsigned int getObservingDuration(int idx1, int idx2) const noexcept{
+         const unsigned int getObservingDuration(unsigned long idx1, unsigned long idx2) const noexcept{
              unsigned int start = std::max({endOfPreobTime_[idx1], endOfPreobTime_[idx2]});
              unsigned int end = std::min({endOfObservingTime_[idx1], endOfObservingTime_[idx2]});
              if(start>end) {

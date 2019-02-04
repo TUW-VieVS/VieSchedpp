@@ -660,6 +660,31 @@ namespace VieVS{
         bool prepareForScanEnd(Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                                unsigned int endTime);
 
+        /**
+         * @brief get scan name in vex format
+         * @author Matthias Schartner
+         *
+         * Scan name is based on observation start.
+         * If two scans start at same time a suffix is added to distinguish the scans.
+         *
+         * @param indexOfThisScanInList index of this scan in scan list
+         * @param otherScans list of all other scans
+         * @return name of this scan
+         */
+        std::string getName(unsigned long indexOfThisScanInList, const std::vector<Scan> &otherScans) const;
+
+
+        /**
+         * @brief check if a obseration betwen two stations is scheduled
+         * @author Matthias Schartner
+         *
+         * @param staid1 first station id
+         * @param staid2 second station id
+         * @return true if observation is scheduled
+         */
+        bool hasObservation(unsigned long staid1, unsigned long staid2) const;
+
+
     private:
         static unsigned long nextId; ///< next id for this object type
 
