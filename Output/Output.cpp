@@ -1287,7 +1287,7 @@ void Output::writeOperationsNotes() {
         }
     }
     of << "Last observations\n";
-    
+
 
     std::string notes = xml_.get("VieSchedpp.output.notes","");
     if(!notes.empty()){
