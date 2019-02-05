@@ -80,6 +80,12 @@ std::string VieVS::TimeSystem::ptime2string_doy(const boost::posix_time::ptime &
     return dateStr;
 }
 
+std::string VieVS::TimeSystem::ptime2string_doy_minus(const boost::posix_time::ptime &ptime){
+    std::string dateStr = (boost::format("%02d%03d-%02d%02d%02d") % (ptime.date().year()%100) % ptime.date().day_of_year() %
+                           ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();
+    return dateStr;
+}
+
 std::string VieVS::TimeSystem::ptime2string_doySkdDowntime(const boost::posix_time::ptime &ptime) {
     std::string dateStr = (boost::format("%04d-%03d-%02d:%02d:%02d") % (ptime.date().year()) % ptime.date().day_of_year() %
                            ptime.time_of_day().hours() % ptime.time_of_day().minutes() % ptime.time_of_day().seconds()).str();

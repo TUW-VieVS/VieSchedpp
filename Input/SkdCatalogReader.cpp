@@ -141,9 +141,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                         }
                     }
 
+                    line = boost::algorithm::trim_copy(line);
                     if (line.length() > 0 && line.at(0) != '*') {
                         // trim leading and trailing blanks
-                        line = boost::algorithm::trim_copy(line);
                         if(line.at(0) == '$'){
                             break;
                         }
@@ -262,9 +262,9 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
                     }
 
 
+                    line = boost::algorithm::trim_copy(line);
                     if (line.length() > 0 && line.at(0) != '*') {
                         // trim leading and trailing blanks
-                        line = boost::algorithm::trim_copy(line);
                         if(line.at(0) == '$'){
                             break;
                         }

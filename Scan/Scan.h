@@ -684,6 +684,16 @@ namespace VieVS{
          */
         bool hasObservation(unsigned long staid1, unsigned long staid2) const;
 
+        /**
+         * @brief output observing duration in sked output format
+         * @author Matthias Schartner
+         *
+         * @param of outfile stream
+         * @param nMaxSta maximum number of station
+         * @param flag flag lists which stations were found
+         */
+        void toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta, std::vector<char> &flag) const;
+
 
     private:
         static unsigned long nextId; ///< next id for this object type

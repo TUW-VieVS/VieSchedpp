@@ -1622,3 +1622,17 @@ bool Scan::hasObservation(unsigned long staid1, unsigned long staid2) const {
 
     return false;
 }
+
+void Scan::toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta, std::vector<char> &flag) const{
+
+    for(int staid=0; staid<nMaxSta; ++staid){
+        const auto &idx = findIdxOfStationId(staid);
+        if(idx.is_initialized()){
+            of << boost::format("%4d") %times_.getObservingDuration(*idx);
+            flag[staid] = true;
+        }else{
+            of << "    ";
+        }
+    }
+
+}

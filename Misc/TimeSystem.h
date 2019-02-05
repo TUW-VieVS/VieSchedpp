@@ -92,6 +92,17 @@ namespace VieVS {
         static std::string ptime2string_doy(const boost::posix_time::ptime &ptime);
 
         /**
+         * @brief convert string to datetime
+         * @author Matthias Schartner
+         *
+         * example output: 18001-000000
+         *
+         * @param input input string
+         * @return datetime
+         */
+        static std::string ptime2string_doy_minus(const boost::posix_time::ptime &ptime);
+
+        /**
          * @brief converts datetime to string in skd file $DOWNTIME format
          * @author Matthias Schartner
          *

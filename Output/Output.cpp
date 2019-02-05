@@ -1157,48 +1157,72 @@ void Output::writeOperationsNotes() {
     #else
     cout << "[info] writing operationsNotes file to: " << fileName;
     #endif
+
+    string currentTimeString = xml_.get<string>("VieSchedpp.created.time","");
+
+    boost::posix_time::ptime currentTime;
+    if(!currentTimeString.empty()){
+        currentTime = TimeSystem::string2ptime(currentTimeString);
+    }else{
+        currentTime = boost::posix_time::second_clock::local_time();
+    }
+
+    int year = currentTime.date().year();
+    int month = currentTime.date().month();
+    int day = currentTime.date().day();
+    int doy = currentTime.date().day_of_year();
+
+    int maxDoy;
+    boost::gregorian::gregorian_calendar::is_leap_year(year) ? maxDoy = 366 : maxDoy = 365;
+    short weekday = currentTime.date().day_of_week();
+
+    string wd;
+    switch(weekday){
+        case 0:{ wd = "SUN"; break; }
+        case 1:{ wd = "MON"; break; }
+        case 2:{ wd = "TUE"; break; }
+        case 3:{ wd = "WED"; break; }
+        case 4:{ wd = "THU"; break; }
+        case 5:{ wd = "FRI"; break; }
+        case 6:{ wd = "SAT"; break; }
+        default:break;
+    }
+
+    string monthStr;
+    switch(month){
+        case  1:{ monthStr = "JAN"; break; }
+        case  2:{ monthStr = "FEB"; break; }
+        case  3:{ monthStr = "MAR"; break; }
+        case  4:{ monthStr = "APR"; break; }
+        case  5:{ monthStr = "MAY"; break; }
+        case  6:{ monthStr = "JUN"; break; }
+        case  7:{ monthStr = "JUL"; break; }
+        case  8:{ monthStr = "AUG"; break; }
+        case  9:{ monthStr = "SEP"; break; }
+        case 10:{ monthStr = "OCT"; break; }
+        case 11:{ monthStr = "NOV"; break; }
+        case 12:{ monthStr = "DEC"; break; }
+        default:break;
+    }
+
+    double yearDecimal = year + static_cast<double>(doy) / static_cast<double>(maxDoy);
+
+
     ofstream of(path_+fileName);
+    of << "\n                     <<<<< " << expName << " >>>>>\n\n";
 
-    of << "Session Notes for: " << expName << "\n";
+    of << boost::format("Date of experiment: %4d,%3s,%02d\n") %(TimeSystem::startTime.date().year()) %(TimeSystem::startTime.date().month()) %(TimeSystem::startTime.date().day()) ;
+    of << boost::format("Nominal Start Time: %02dh%02d UT\n") %(TimeSystem::startTime.time_of_day().hours()) %(TimeSystem::startTime.time_of_day().minutes());
+    of << boost::format("Nominal End Time:   %02dh%02d UT\n") %(TimeSystem::endTime.time_of_day().hours()) %(TimeSystem::endTime.time_of_day().minutes());
+    of << boost::format("Duration:           %.1f hr\n") %(TimeSystem::duration/3600.);
+    of << "Correlator:         " << xml_.get("VieSchedpp.output.correlator","unknown") << "\n\n";
 
-    of << "    experiment description: " << xml_.get("VieSchedpp.output.experimentDescription","no description") << "\n";
-    of << "    created with          : VieSched++ \n";
-    of << "    version hash code     : " << util::version() << "\n";
-    of << "    GUI version hash code : " << xml_.get("VieSchedpp.software.GUI_version","unknown") << "\n";
-    of << "    creation time (local) : " << xml_.get("VieSchedpp.created.time","unknown") << "\n\n";
-
-    of << "    nominal start time    : " << xml_.get("VieSchedpp.general.startTime","unknown") << "\n";
-    of << "    nominal end time      : " << xml_.get("VieSchedpp.general.endTime","unknown") << "\n\n";
-
-    std::string piName = xml_.get("VieSchedpp.output.piName","");
-    if(!piName.empty()) {
-        of << "    PI  name              : " << xml_.get("VieSchedpp.output.piName", "") << "\n";
+    of << "Participating stations: \n";
+    for (const auto &any:network_.getStations()){
+        of << boost::format("%-8s    %2s \n") %any.getName() %any.getAlternativeName();
     }
-    std::string piEmail = xml_.get("VieSchedpp.output.piEmail", "");
-    if(!piEmail.empty()) {
-        of << "    PI email              : " << xml_.get("VieSchedpp.output.piEmail", "") << "\n\n";
-    }
-    std::string contactName = xml_.get("VieSchedpp.output.contactName","");
-    if(!contactName.empty()) {
-        of << "    contact name          : " << xml_.get("VieSchedpp.output.contactName", "") << "\n";
-    }
-    std::string contactEmail = xml_.get("VieSchedpp.output.contactEmail","");
-    if(!contactEmail.empty()) {
-        of << "    contact email         : " << xml_.get("VieSchedpp.output.contactEmail", "") << "\n\n";
-    }
+    of << "\n";
 
-    of << "    scheduler             : " << xml_.get("VieSchedpp.output.scheduler","unknown") << "\n";
-    of << "    scheduler name        : " << xml_.get("VieSchedpp.created.name","unknown") << "\n";
-    of << "    scheduler email       : " << xml_.get("VieSchedpp.created.email","unknown") << "\n";
-    of << "    target correlator     : " << xml_.get("VieSchedpp.output.correlator","unknown") << "\n\n";
-
-    std::string notes = xml_.get("VieSchedpp.output.notes","");
-    if(!notes.empty()){
-        of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
-    }
-
-    of << "Operation notes: \n";
-    of << "---------------------------------------------------------------------------------------------------------\n";
     string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes",""),"\\n","\n");
     of << newStr << "\n";
 
@@ -1221,21 +1245,63 @@ void Output::writeOperationsNotes() {
     if(!tag){
         of << "    no\n";
     }
+    of << "\n";
+
+    of << "Session Notes for session: " << expName << "\n";
+    of << "===========================================================\n";
+    of << boost::format("  Experiment: %-17s            Description: %-s\n") %expName %(xml_.get("VieSchedpp.output.experimentDescription","no_description"));
+    of << boost::format("  Scheduler:  %-17s            Correlator:  %-s\n") %(xml_.get("VieSchedpp.output.scheduler","unknown")) %(xml_.get("VieSchedpp.output.correlator","unknown"));
+    of << boost::format("  Start:      %-17s            End:         %-s\n") %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(0))) %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(TimeSystem::duration)));
+    of << boost::format("  Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n") %year %doy %yearDecimal %(currentTime.date().modjulian_day()) %wd %day %monthStr;
+    of << "===========================================================\n";
+    of << boost::format("  Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
+    of << boost::format("  GUI:        %-17s            Version:     %-s\n") %"VieSched++" %(xml_.get("VieSchedpp.software.GUI_version","unknown").substr(0,7));
+    std::string piName = xml_.get("VieSchedpp.output.piName","");
+    if(!piName.empty()) {
+        of << boost::format("  PI:         %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.piName", "")) %(xml_.get("VieSchedpp.output.piEmail", "unknown"));
+    }
+    std::string contactName = xml_.get("VieSchedpp.output.contactName","");
+    if(!piName.empty()) {
+        of << boost::format("  contact:    %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.contactName", "")) %(xml_.get("VieSchedpp.output.contactEmail", "unknown"));
+    }
+    std::string scheduler = xml_.get("VieSchedpp.created.name","");
+    if(!piName.empty()) {
+        of << boost::format("  scheduler:  %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.created.name", "")) %(xml_.get("VieSchedpp.created.email", "unknown"));
+    }
+    of << "===========================================================\n";
+    of << "First observations\n";
+    of << "Observation listing from file " << boost::algorithm::to_lower_copy(expName) << ".skd for experiment " << expName << "\n";
+    of << "Source      Start      DURATIONS           \n";
+    of << "name     yyddd-hhmmss   " ;
+    for (const auto &any : network_.getStations()){
+        of << any.getAlternativeName() << "  ";
+    }
+    of << "\n";
+    vector<char> found(network_.getNSta(),false);
+    for (const auto &scan : scans_){
+        of << boost::format("%-8s %s|") %sources_[scan.getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start)));
+        scan.toSkedOutputTimes(of, network_.getNSta(), found);
+        of << "\n";
+        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
+            break;
+        }
+    }
+    of << "Last observations\n";
+    
+
+    std::string notes = xml_.get("VieSchedpp.output.notes","");
+    if(!notes.empty()){
+        of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
+    }
+
 
     if(version_>0){
         of << "Schedule was created using multi scheduling tool\n";
         of << "    version " << version_ << "\n";
         multiSchedulingParameters_->output(of);
     }
-    of << "---------------------------------------------------------------------------------------------------------\n\n";
+    of << "=========================================================================================================\n\n";
 
-    of << ".-------------------------.\n";
-    of << "| participating stations: |\n";
-    of << "|-------------------------|\n";
-    for (const auto &any:network_.getStations()){
-        of << boost::format("| %-8s         |  %2s  |\n") %any.getName() %any.getAlternativeName();
-    }
-    of << "'-------------------------'\n\n";
 
     displayGeneralStatistics(of);
     displayTimeStatistics(of);
