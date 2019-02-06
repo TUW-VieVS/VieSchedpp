@@ -251,9 +251,15 @@ namespace VieVS {
          * @brief creates dummy observing modes file
          * @author Matthias Schartner
          *
-         * @param bands band names
+         * @param nsta number of stations
+         * @param samplerate sample rate
+         * @param bits sampling bits
+         * @param band2channel band name to number of channels
+         * @param band2wavelength band name to wavelength
          */
-        void initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept;
+        void initializeObservingMode(unsigned long nsta, double samplerate, unsigned int bits,
+                                     const std::unordered_map<std::string, unsigned int> &band2channel,
+                                     const std::unordered_map<std::string, double> &band2wavelength) noexcept;
 
         /**
          * @brief sets station names to observing mode and displays summary

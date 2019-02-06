@@ -172,6 +172,13 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
         bands_.insert(any.first);
         double recRate = samplerate * bits * any.second * 1e6;
         mode->setRecordingRates(any.first, recRate);
+
+        if(bits == 1){
+            mode->setEfficiencyFactor(0.6366 * 0.97);
+        }else{
+            mode->setEfficiencyFactor(0.5715 * 0.97);
+        }
+
     }
 
     mode->setBands(bands_);
@@ -581,28 +588,37 @@ void ObservingMode::toTrackFrameFormatDefinitions(std::ofstream &of) const {
 
 void ObservingMode::summary(std::ofstream &of) const {
 
-    of << "Summary of observing mode(s):\n";
-    for(const auto &band : bands_){
-        double meanFrequency = 0;
-        auto it = wavelength_.find(band);
-        if(it == wavelength_.end()){
-            continue;
-        }else{
-            meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
+    if(ObservingMode::type != ObservingMode::Type::simple){
+        of << "Summary of observing mode(s):\n";
+        for(const auto &band : bands_){
+            double meanFrequency = 0;
+            auto it = wavelength_.find(band);
+            if(it == wavelength_.end()){
+                continue;
+            }else{
+                meanFrequency = util::wavelength2frequency(it->second) * 1e-6;
+            }
+            of << boost::format("    band %2s mean frequency %9.3f [MHz]\n") % band %meanFrequency;
         }
-        of << boost::format("    band %2s mean frequency %9.3f [MHz]\n") % band %meanFrequency;
-    }
-    of << "\n";
+        of << "\n";
 
-    for (const auto &any : modes_) {
-        any->summary(of, stationNames_);
+        for (const auto &any : modes_) {
+            any->summary(of, stationNames_);
+        }
+
+    }else{
+        of << "Simple observing mode used!\n";
     }
 }
 
 void ObservingMode::operationNotesSummary(std::ofstream &of) const {
-    of << "Recording mode:\n";
-    for(const auto &any : modes_){
-        any->operationNotesSummary(of, stationNames_);
+    if(ObservingMode::type != ObservingMode::Type::simple){
+        of << "Recording mode:\n";
+        for(const auto &any : modes_){
+            any->operationNotesSummary(of, stationNames_);
+        }
+    }else{
+        of << "Simple observing mode used!\n";
     }
 }
 

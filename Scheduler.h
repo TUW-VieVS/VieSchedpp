@@ -105,7 +105,7 @@ namespace VieVS{
          * @param xml VieSchedpp.xml file
          */
         Scheduler(std::string name, Network network_, std::vector<Source> sources,
-                  std::vector<Scan> scans, boost::property_tree::ptree xml);
+                  std::vector<Scan> scans, boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ = nullptr);
 
         /**
          * @brief main function that starts the scheduling
@@ -200,6 +200,14 @@ namespace VieVS{
         const Network &getNetwork() const noexcept{
             return network_;
         }
+
+        /**
+         * @brief get number of observations scheduled in this observation
+         * @author Matthias Schartner
+         *
+         * @return number of observations scheduled in this schedule
+         */
+        int getNumberOfObservations() const noexcept;
 
         /**
          * @brief get all scans

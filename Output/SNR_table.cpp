@@ -31,6 +31,12 @@ void SNR_table::writeTable(const Network &network, const std::vector<Source> &so
 
     const set<string> &bands = obsModes->getAllBands();
 
+    vector<string>stations;
+    for(const auto &any : network.getStations()){
+        stations.push_back(any.getAlternativeName());
+    }
+    obsModes->getMode(0)->summary(of, stations);
+
     of << boost::format("%-9s  %-8s  %-8s  %-4s  %7s  %5s  %5s  %7s  %7s  %9s\n") %"scan" %"baseline" %"source" %"band" %"SNR" %"el1" %"el2" %"unaz1" %"unaz2" %"scheduled";
 
     for (unsigned long iScan = 0; iScan < scans.size(); ++iScan) {

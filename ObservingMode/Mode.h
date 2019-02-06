@@ -145,6 +145,14 @@ namespace VieVS{
         void setRecordingRates(const std::string &band, double recRate);
 
         /**
+         * @brief set efficiency factor for simple manual model
+         * @author Matthias Schartner
+         *
+         * @param eff efficiency factor
+         */
+        void setEfficiencyFactor(double eff);
+
+        /**
          * @brief set band names for simple manual model
          * @author Matthias Schartner
          *

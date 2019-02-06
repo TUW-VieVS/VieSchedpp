@@ -31,6 +31,11 @@ void SkdParser::read() {
     Initializer init;
     vector<string> staNames;
     ifstream fid(filename_);
+
+    int bits = 0;
+    double samRate = 0;
+    std::unordered_map<std::string, unsigned int> band2channel{{"X",10},{"S",6}};
+
     if (!fid.is_open()) {
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_;
@@ -47,6 +52,8 @@ void SkdParser::read() {
         bool corSynchFound = false;
         bool calibrationFound = false;
         bool bandsFound = false;
+
+
 
         // loop through file
         int counter = 0;
@@ -135,6 +142,7 @@ void SkdParser::read() {
             }
             if(!bandsFound && trimmed == "$CODES"){
                 bandsFound = true;
+                bool first = true;
                 while (getline(fid, line)){
                     if (line == "* no sked observind mode used! "){
                         break;
@@ -168,6 +176,17 @@ void SkdParser::read() {
                                 #endif
                             }
 
+                            if(first){
+                                string txt = splitVector[8];
+                                int x = std::count( txt.begin(), txt.end(), ',' );
+                                if(x == 3){
+                                    bits = 2;
+                                }else{
+                                    bits = 1;
+                                }
+                            }
+                            first = false;
+
                         }else{
                             #ifdef VIESCHEDPP_LOG
                             BOOST_LOG_TRIVIAL(warning) << "cannot read frequency setup";
@@ -175,6 +194,10 @@ void SkdParser::read() {
                             cout << "cannot read frequency setup\n";
                             #endif
                         }
+                    }
+
+                    if(splitVector[0] == "R"){
+                        samRate = boost::lexical_cast<double>(splitVector.at(2));
                     }
 
                     if (splitVector[0] == "L") {
@@ -212,14 +235,23 @@ void SkdParser::read() {
     path.append("/skdParser.log");
     ofstream of(path);
 
-    init.initializeObservingMode(freqs_);
+
+    std::unordered_map<std::string, double> band2wavelength;
+    for(const auto &any : freqs_){
+        double mfreq = accumulate(any.second.begin(), any.second.end(), 0.0) / any.second.size();
+        band2wavelength[any.first] = util::freqency2wavelenth(mfreq);
+    }
+
+    init.initializeObservingMode(staNames.size(), samRate, bits, band2channel, band2wavelength);
+
     init.createSources(skd_, of);
     init.createStations(skd_, of);
     init.initializeAstronomicalParameteres();
     init.precalcAzElStations();
 
-    network_ = init.network_;
-    sources_ = move(init.sources_);
+    network_  = init.network_;
+    sources_  = init.sources_;
+    obsModes_ = init.obsModes_;
 
 
     createScans(of);
@@ -471,6 +503,7 @@ Scheduler SkdParser::createScheduler() {
         fname = filename_;
     }else{
         fname = filename_.substr(found+1);
+        fname = fname.substr(0, fname.size()-4);
     }
 
     xml.add("output.experimentName",fname);
@@ -478,7 +511,10 @@ Scheduler SkdParser::createScheduler() {
 
     xml.add("output.experimentDescription",description);
 
-    return Scheduler(filename_, network_, sources_, scans_, xml);
+    Scheduler sched(fname, network_, sources_, scans_, xml, obsModes_);
+    ofstream dummy;
+    sched.checkAndStatistics(dummy);
+    return sched;
 }
 
 void SkdParser::setLogFiles() {

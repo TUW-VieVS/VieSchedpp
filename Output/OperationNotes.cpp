@@ -685,27 +685,30 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
     of << boost::format("%6.2f ") % (accumulate(scanSec.begin(),scanSec.end(),0.0)/(network.getNSta()));
     of << "\n";
 
-    of << " # Mk5 tracks:   ";
-    for (const auto &station: network.getStations()) {
-        int tracks = obsModes->getMode(0)->getTracks(station.getId()).get()->numberOfTracks();
-        of << boost::format("%6d ") % tracks;
+    if(ObservingMode::type != ObservingMode::Type::simple){
+        of << " # Mk5 tracks:   ";
+        for (const auto &station: network.getStations()) {
+            int tracks = obsModes->getMode(0)->getTracks(station.getId()).get()->numberOfTracks();
+            of << boost::format("%6d ") % tracks;
+        }
+        of << "\n";
+
+        of << " Total TB(M5):   ";
+        vector<double> total_tb;
+        for (const auto &station: network.getStations()) {
+            double obsFreq = obsModes->getMode(0)->recordingRate(station.getId());
+            int t = station.getStatistics().totalObservingTime;
+
+            total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
+        }
+        for(auto p:total_tb){
+            of << boost::format("%6.2f ") % p;
+        }
+        of << boost::format("%6.2f ") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network.getNSta()));
+        of << "\n";
     }
-    of << "\n";
 
 
-    of << " Total TB(M5):   ";
-    vector<double> total_tb;
-    for (const auto &station: network.getStations()) {
-        double obsFreq = obsModes->getMode(0)->recordingRate(station.getId());
-        int t = station.getStatistics().totalObservingTime;
-
-        total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
-    }
-    for(auto p:total_tb){
-        of << boost::format("%6.2f ") % p;
-    }
-    of << boost::format("%6.2f ") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network.getNSta()));
-    of << "\n";
 
 }
 

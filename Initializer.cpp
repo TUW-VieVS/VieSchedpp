@@ -2171,11 +2171,13 @@ void Initializer::initializeObservingMode(const SkdCatalogReader &skdCatalogs, o
     of << "\n";
 }
 
-void Initializer::initializeObservingMode(const std::map<std::string, std::vector<double>> &bands) noexcept {
+void Initializer::initializeObservingMode(unsigned long nsta, double samplerate, unsigned int bits,
+                                          const std::unordered_map<std::string, unsigned int> &band2channel,
+                                          const std::unordered_map<std::string, double> &band2wavelength) noexcept {
 
     ObservingMode::type = ObservingMode::Type::simple;
     obsModes_ = std::make_shared<ObservingMode>();
-    obsModes_->addDummyBands(bands);
+    obsModes_->simpleMode(nsta, samplerate, bits, band2channel, band2wavelength);
 }
 
 unordered_map<string, vector<string> > Initializer::readGroups(boost::property_tree::ptree root, GroupType type) noexcept {

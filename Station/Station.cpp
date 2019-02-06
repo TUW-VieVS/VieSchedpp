@@ -522,6 +522,11 @@ bool Station::listDownTimes(std::ofstream &of, bool skdFormat) const {
     unsigned int start = 0;
     bool search = false;
     bool res = false;
+
+    if(events_ == nullptr){
+        return res;
+    }
+
     for(const auto &any : *events_){
         if(!any.PARA.available){
             start = any.time;
@@ -554,6 +559,11 @@ bool Station::listTagalongTimes(std::ofstream &of, bool skdFormat) const {
     unsigned int start = 0;
     bool search = false;
     bool res = false;
+
+    if(events_ == nullptr){
+        return res;
+    }
+
     for(const auto &any : *events_){
         if(any.PARA.tagalong){
             start = any.time;

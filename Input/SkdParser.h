@@ -119,6 +119,8 @@ namespace VieVS{
         Network network_; ///< station network
         std::vector<Source> sources_; ///< all sources
         std::vector<Scan> scans_; ///< all scans in schedule
+        std::shared_ptr<ObservingMode> obsModes_ = nullptr; ///< observing mode
+
 
         std::map<std::string, std::vector<double>> freqs_; ///< all observed frequencies per band
 

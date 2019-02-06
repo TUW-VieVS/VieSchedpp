@@ -118,6 +118,13 @@ void Mode::setRecordingRates(const std::string &band, double recRate) {
     }
 }
 
+void Mode::setEfficiencyFactor(double eff) {
+    for(unsigned long staid1 = 0; staid1 < nsta_; ++staid1){
+        for(unsigned long staid2 = staid1+1; staid2 < nsta_; ++staid2){
+            staids2efficiency_[{staid1, staid2}] = eff;
+        }
+    }
+}
 
 
 boost::optional<const std::shared_ptr<const If> &> Mode::getIf(unsigned long staid) const {
@@ -199,7 +206,7 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
     }
 }
 
-double Mode::recordingRate(unsigned long staid) const {
+double Mode::recordingRate(unsigned long staid) const {    
     const auto &freq = getFreq(staid);
     const auto &track = getTracks(staid);
     if(freq.is_initialized() && track.is_initialized()){

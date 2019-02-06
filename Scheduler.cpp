@@ -66,11 +66,12 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
 }
 
 Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sources, std::vector<Scan> scans,
-                     boost::property_tree::ptree xml): VieVS_NamedObject(move(name),nextId++),
+                     boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_):
+                                                       VieVS_NamedObject(move(name),nextId++),
                                                        network_{std::move(network)},
                                                        sources_{std::move(sources)},
                                                        scans_{std::move(scans)},
-                                                       obsModes_{nullptr},
+                                                       obsModes_{obsModes_},
                                                        currentObservingMode_{nullptr},
                                                        xml_{std::move(xml)} {
 }
@@ -2178,4 +2179,12 @@ void Scheduler::updateObservingTimes() {
     for(auto &scan : scans_){
         scan.updateObservingTime();
     }
+}
+
+int Scheduler::getNumberOfObservations() const noexcept {
+    int n = 0;
+    for(const auto &any:scans_) {
+        n += any.getNObs();
+    }
+    return n;
 }
