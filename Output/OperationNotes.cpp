@@ -151,6 +151,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     of << "================================================================================================================================================\n\n";
 
     displayGeneralStatistics(scans);
+    WeightFactors::summary(of);
     displayStationStatistics(network);
     displaySourceStatistics(sources);
     obsModes->summary(of);
@@ -174,9 +175,6 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
         of << "\n";
     }
     displayAstronomicalParameters();
-
-    WeightFactors::summary(of);
-
 
     of << "================================================================================================================================================\n";
     of << "                                                              FULL SCHEDULING SETUP                                                             \n";
