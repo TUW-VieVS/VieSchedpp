@@ -302,7 +302,7 @@ namespace VieVS{
          * @param staid station id
          * @return recording rate
          */
-        double recordingRate(unsigned int staid) const;
+        double recordingRate(unsigned long staid) const;
 
         /**
          * @brief writes MODE block in vex format

@@ -199,7 +199,7 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
     }
 }
 
-double Mode::recordingRate(unsigned int staid) const {
+double Mode::recordingRate(unsigned long staid) const {
     const auto &freq = getFreq(staid);
     const auto &track = getTracks(staid);
     if(freq.is_initialized() && track.is_initialized()){
