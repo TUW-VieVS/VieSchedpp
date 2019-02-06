@@ -139,7 +139,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
         of << "===========================================================\n";
     }
     listKeys(network);
-    displayTimeStatistics(network);
+    displayTimeStatistics(network, obsModes);
     displayBaselineStatistics(network);
     displayNstaStatistics(network, scans);
     of << "===========================================================\n";
@@ -197,7 +197,6 @@ void OperationNotes::writeSkdsum(const Network &network, const std::vector<Sourc
         displaySourceStatistics(sources);
         displayNstaStatistics(network, scans);
         displayScanDurationStatistics(network, scans);
-        displayTimeStatistics(network);
         displayAstronomicalParameters();
     }
 }
@@ -452,9 +451,9 @@ void OperationNotes::displayNstaStatistics(const Network &network, const std::ve
         ++nstas[scan.getNSta()];
         obs += scan.getNObs();
         for(int i=0; i<scan.getNObs(); ++i){
-            const auto &obs = scan.getObservation(i);
-            unsigned long idx1 = *scan.findIdxOfStationId(obs.getStaid1());
-            unsigned long idx2 = *scan.findIdxOfStationId(obs.getStaid2());
+            const auto &tobs = scan.getObservation(i);
+            unsigned long idx1 = *scan.findIdxOfStationId(tobs.getStaid1());
+            unsigned long idx2 = *scan.findIdxOfStationId(tobs.getStaid2());
             intObs += scan.getTimes().getObservingDuration(idx1,idx2);
         }
     }
@@ -462,7 +461,7 @@ void OperationNotes::displayNstaStatistics(const Network &network, const std::ve
     unsigned long sum = scans.size();
 
     for(int i=2; i<=nsta; ++i){
-        of << boost::format(" Number of %2d-station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
+        of << boost::format(" Number of %2d-station scans:   %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
                                                                                             static_cast<double>(sum)*100);
     }
     of << boost::format("Total number of scans:    %9d\n") %(scans.size());
@@ -581,154 +580,132 @@ void OperationNotes::displayScanDurationStatistics(const Network &network, const
     of << "'-----------------------------------------------------------------------------------'\n\n";
 }
 
-void OperationNotes::displayTimeStatistics(const Network &network) {
+void OperationNotes::displayTimeStatistics(const Network &network, const std::shared_ptr<const ObservingMode> &obsModes) {
 
     unsigned long nstaTotal = network.getNSta();
 
-    of << ".-----------------";
-    of << "------------";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------.\n";
 
-    of << "|                 ";
-    of << boost::format("| %8s |") % "average";
+    of << "                 ";
     for (const auto &station: network.getStations()) {
-        of << boost::format(" %8s ") % station.getName();
+        of << boost::format("    %s ") % station.getAlternativeName();
     }
-    of << "|\n";
+    of << "   Avg\n";
 
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------|\n";
-
-    of << "| % obs. time:    ";
+    of << " % obs. time:    ";
     vector<double> obsPer;
     for (const auto &station: network.getStations()) {
         int t = station.getStatistics().totalObservingTime;
         obsPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    of << boost::format("| %8.2f |") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network.getNSta()));
     for(auto p:obsPer){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "| % preob time:   ";
+    of << " % cal. time:    ";
     vector<double> preobPer;
     for (const auto &station: network.getStations()) {
         int t = station.getStatistics().totalPreobTime;
         preobPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    of << boost::format("| %8.2f |") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network.getNSta()));
     for(auto p:preobPer){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "| % slew time:    ";
+    of << " % slew time:    ";
     vector<double> slewPer;
     for (const auto &station: network.getStations()) {
         int t = station.getStatistics().totalSlewTime;
         slewPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    of << boost::format("| %8.2f |") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network.getNSta()));
     for(auto p:slewPer){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "| % idle time:    ";
+    of << " % idle time:    ";
     vector<double> idlePer;
     for (const auto &station: network.getStations()) {
         int t = station.getStatistics().totalIdleTime;
         idlePer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    of << boost::format("| %8.2f |") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network.getNSta()));
     for(auto p:idlePer){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "| % field system: ";
+    of << " % field system: ";
     vector<double> fieldPer;
     for (const auto &station: network.getStations()) {
         int t = station.getStatistics().totalFieldSystemTime;
         fieldPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
     }
-    of << boost::format("| %8.2f |") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network.getNSta()));
     for(auto p:fieldPer){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------|\n";
 
-    of << "|   #scans:       ";
+    of << " total # scans:  ";
     vector<int> scans;
     for (const auto &station: network.getStations()) {
         scans.push_back(station.getNTotalScans());
     }
-    of << boost::format("| %8.2f |") % (accumulate(scans.begin(),scans.end(),0.0)/(network.getNSta()));
     for(auto p:scans){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % static_cast<double>(p);
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(scans.begin(),scans.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "|   scans per h:  ";
+    of << " # scans/hour :  ";
     vector<double> scansPerH;
     for (const auto &station: network.getStations()) {
         scansPerH.push_back(static_cast<double>(station.getNTotalScans())/(TimeSystem::duration/3600.));
     }
-    of << boost::format("| %8.2f |") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network.getNSta()));
     for(auto p:scansPerH){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
+    of << boost::format("%6.2f ") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
+    of << " Avg scan (sec): ";
+    vector<double> scanSec;
+    for (const auto &station: network.getStations()) {
+        scanSec.push_back( static_cast<double>(station.getStatistics().totalObservingTime) / station.getNTotalScans() );
     }
-    of << "----------|\n";
+    for(auto p:scanSec){
+        of << boost::format("%6.2f ") % p;
+    }
+    of << boost::format("%6.2f ") % (accumulate(scanSec.begin(),scanSec.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
-    of << "|   Total TB:     ";
-//    unsigned int nChannels = 0;
-//    for(const auto &any: ObservationMode::nChannels){
-//        nChannels += any.second;
-//    }
-//    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
-// TODO: calc TB based on mode_ variable
-    double obsFreq = 0;
+    of << " # Mk5 tracks:   ";
+    for (const auto &station: network.getStations()) {
+        int tracks = obsModes->getMode(0)->getTracks(station.getId()).get()->numberOfTracks();
+        of << boost::format("%6d ") % tracks;
+    }
+    of << "\n";
 
+
+    of << " Total TB(M5):   ";
     vector<double> total_tb;
     for (const auto &station: network.getStations()) {
+        double obsFreq = obsModes->getMode(0)->recordingRate(station.getId());
         int t = station.getStatistics().totalObservingTime;
 
         total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
     }
-    of << boost::format("| %8.2f |") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network.getNSta()));
     for(auto p:total_tb){
-        of << boost::format(" %8.2f ") % p;
+        of << boost::format("%6.2f ") % p;
     }
-    of << "|\n";
-
-    of << "'-----------------";
-    of << "------------";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------'\n";
+    of << boost::format("%6.2f ") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network.getNSta()));
+    of << "\n";
 
 }
 

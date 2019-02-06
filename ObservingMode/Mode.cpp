@@ -199,6 +199,16 @@ void Mode::summary(std::ofstream &of, const std::vector<std::string> &stations) 
     }
 }
 
+double Mode::recordingRate(unsigned int staid) const {
+    const auto &freq = getFreq(staid);
+    const auto &track = getTracks(staid);
+    if(freq.is_initialized() && track.is_initialized()){
+        auto bitsPerChannel = track.get()->numberOfBitsPerChannel();
+        return freq.get()->totalRate(bitsPerChannel);
+    }
+    return 0;
+}
+
 void Mode::operationNotesSummary(std::ofstream &of, const std::vector<std::string> &stations) const {
     of << "Mode: " << getName() << "\n";
     for(const auto &tmp : freqs_){

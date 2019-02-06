@@ -140,8 +140,9 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param network station network
+         * @param obsModes observing mode
          */
-        void displayTimeStatistics(const Network &network);
+        void displayTimeStatistics(const Network &network, const std::shared_ptr<const ObservingMode> &obsModes);
 
         /**
          * @brief list astronomical parameters

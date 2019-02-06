@@ -295,6 +295,14 @@ namespace VieVS{
          */
         void operationNotesSummary( std::ofstream &of, const std::vector<std::string> &stations) const;
 
+        /**
+         * @brief get recording rate per station
+         * @author Matthias Schartner
+         *
+         * @param staid station id
+         * @return recording rate
+         */
+        double recordingRate(unsigned int staid) const;
 
         /**
          * @brief writes MODE block in vex format
