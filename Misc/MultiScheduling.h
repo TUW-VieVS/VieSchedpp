@@ -262,7 +262,6 @@ namespace VieVS {
                 for (const auto &any: baselineMinScan) {
                     of << "    baseline min scan time " << any.first << ": " << any.second << " [s]\n";
                 }
-                of << "\n";
             }
 
             /**

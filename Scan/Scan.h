@@ -690,10 +690,16 @@ namespace VieVS{
          *
          * @param of outfile stream
          * @param nMaxSta maximum number of station
+         */
+        void toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta) const;
+
+        /**
+         * @brief checks if station is participating and notes it in flag vector
+         * @author Matthias Schartner
+         *
          * @param flag flag lists which stations were found
          */
-        void toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta, std::vector<char> &flag) const;
-
+        void includesStations(std::vector<char> &flag) const;
 
     private:
         static unsigned long nextId; ///< next id for this object type

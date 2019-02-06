@@ -67,6 +67,7 @@ void  Output::displayGeneralStatistics(ofstream &of) {
     int n_single = 0;
     int n_subnetting = 0;
 
+    int obs_max = 0;
     int obs = 0;
     int obs_standard = 0;
     int obs_highImpact = 0;
@@ -110,91 +111,62 @@ void  Output::displayGeneralStatistics(ofstream &of) {
             }
         }
         obs += any.getNObs();
+        obs_max += (any.getNSta()*(any.getNSta()-1))/2;
     }
-    of << ".---------------------------------.\n";
-    of << boost::format("|               | #scans |  #obs  |\n");
-    of << "|---------------------------------|\n";
-    of << boost::format("| total         | %6d | %6d |\n") %n_scans %obs;
-    of << "|---------------------------------|\n";
-    of << boost::format("| single source | %6d | %6d |\n") %n_single %obs_single;
-    of << boost::format("| subnetting    | %6d | %6d |\n") %n_subnetting %obs_subnetting;
-    of << "|---------------------------------|\n";
-    of << boost::format("| standard      | %6d | %6d |\n") %n_standard %obs_standard;
-    of << boost::format("| fillin mode   | %6d | %6d |\n") %n_fillin %obs_fillin;
+
+    if(obs_max-obs > 0){
+        of << "number of scheduled observations: " << obs << " of " << obs_max;
+        int diff = obs_max-obs;
+        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR\n") % diff % (static_cast<double>(diff)/static_cast<double>(obs_max)*100);
+    }
+
+    of << boost::format("                  #scans     #obs   \n");
+    of << " --------------------------------- \n";
+    of << boost::format("  total           %6d   %6d  \n") %n_scans %obs;
+    of << " --------------------------------- \n";
+    of << boost::format("  single source   %6d   %6d  \n") %n_single %obs_single;
+    of << boost::format("  subnetting      %6d   %6d  \n") %n_subnetting %obs_subnetting;
+    of << " --------------------------------- \n";
+    of << boost::format("  standard        %6d   %6d  \n") %n_standard %obs_standard;
+    of << boost::format("  fillin mode     %6d   %6d  \n") %n_fillin %obs_fillin;
     if(n_calibrator > 0){
-        of << boost::format("| calibrator    | %6d | %6d |\n") %n_calibrator %obs_calibrator;
+        of << boost::format("  calibrator      %6d   %6d  \n") %n_calibrator %obs_calibrator;
     }
     if(n_highImpact > 0){
-        of << boost::format("| high impact   | %6d | %6d |\n") %n_highImpact %obs_highImpact;
+        of << boost::format("  high impact     %6d   %6d  \n") %n_highImpact %obs_highImpact;
     }
-    of << "'---------------------------------'\n\n";
+    of << "\n";
 
 
 }
 
 void Output::displayBaselineStatistics(ofstream &of) {
     unsigned long nsta = network_.getNSta();
-    int n_bl = 0;
-    int n_bl_max = 0;
-    for (const auto&any:scans_){
-        unsigned long this_n_bl = any.getNObs();
-        n_bl += this_n_bl;
-        n_bl_max += any.getNSta() * (any.getNSta()-1) / 2;
-    }
+    of << "\n      # OF OBSERVATIONS BY BASELINE \n";
 
-    of << "number of scheduled observations: " << n_bl << " of " << n_bl_max;
-    if(n_bl_max-n_bl > 0){
-        int diff = n_bl_max-n_bl;
-        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR") % diff % (static_cast<double>(diff)/static_cast<double>(n_bl_max)*100);
-    }
-    of << "\n.-----------";
-    for (int i = 0; i < nsta-1; ++i) {
-        of << "----------";
-    }
-    of << "-----------";
-    of << "----------.\n";
-
-
-    of << boost::format("| %8s |") % "STATIONS";
+    of << "  |";
     for (const auto &any:network_.getStations()) {
-        of << boost::format(" %8s ") % any.getName();
+        of << "  " << any.getAlternativeName() << " ";
     }
-    of << "|";
-    of << boost::format(" %8s ") % "TOTAL";
-    of << "|\n";
-
-    of << "|----------|";
-    for (int i = 0; i < nsta-1; ++i) {
-        of << "----------";
+    of << " Total\n";
+    of << "---";
+    for(int i=0; i<network_.getNSta(); ++i){
+        of << "-----";
     }
-    of << "----------|";
-    of << "----------|\n";
+    of << "--------\n";
 
     for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
-        of << boost::format("| %8s |") % network_.getStation(staid1).getName();
+        of <<  network_.getStation(staid1).getAlternativeName() << "|";
         for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
             if (staid2<staid1+1){
-                of << "          ";
+                of << "     ";
             }else{
                 unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
-                if(nBl == 0){
-                    of << "        - ";
-                }else{
-                    of << boost::format(" %8d ") % nBl;
-                }
+                of << boost::format("%4d ") % nBl;
             }
         }
-        of << "|";
-        of << boost::format(" %8d ") % network_.getStation(staid1).getNObs();
-        of << "|\n";
+        of << boost::format("%7d\n") % network_.getStation(staid1).getNObs();
     }
-
-    of << "'-----------";
-    for (int i = 0; i < nsta-1; ++i) {
-        of << "----------";
-    }
-    of << "-----------";
-    of << "----------'\n\n";
 
 }
 
@@ -292,18 +264,29 @@ void Output::displaySourceStatistics(ofstream &of) {
 void Output::displayNstaStatistics(std::ofstream &of) {
     unsigned long nsta = network_.getNSta();
     vector<int> nstas(nsta+1,0);
+    int obs = 0;
+    int intObs = 0;
     for(const auto &scan:scans_){
         ++nstas[scan.getNSta()];
+        obs += scan.getNObs();
+        for(int i=0; i<scan.getNObs(); ++i){
+            const auto &obs = scan.getObservation(i);
+            unsigned long idx1 = *scan.findIdxOfStationId(obs.getStaid1());
+            unsigned long idx2 = *scan.findIdxOfStationId(obs.getStaid2());
+            intObs += scan.getTimes().getObservingDuration(idx1,idx2);
+        }
     }
 
     unsigned long sum = scans_.size();
 
-    of << "number of scans per number of participating stations:\n";
     for(int i=2; i<=nsta; ++i){
-        of << boost::format("    number of %2d station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
+        of << boost::format(" Number of %2d-station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
                                                                                                 static_cast<double>(sum)*100);
     }
-    of << "\n";
+    of << boost::format("Total number of scans:    %9d\n") %(scans_.size());
+    of << boost::format("Total number of obs:      %9d\n") %obs;
+    of << boost::format("Total integrated obs-time:%9d\n") %intObs;
+    of << boost::format("Average obs-time:         %9.1f\n") % (static_cast<double>(intObs)/obs);
 }
 
 
@@ -563,7 +546,7 @@ void Output::displayTimeStatistics(std::ofstream &of) {
     for (int i = 0; i < nstaTotal-1; ++i) {
         of << "----------";
     }
-    of << "----------'\n\n";
+    of << "----------'\n";
 
 }
 
@@ -1224,7 +1207,10 @@ void Output::writeOperationsNotes() {
     of << "\n";
 
     string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes",""),"\\n","\n");
-    of << newStr << "\n";
+    if(!newStr.empty()){
+        of << newStr << "\n";
+    }
+
 
     bool down = false;
     of << "Station down times:\n";
@@ -1249,65 +1235,94 @@ void Output::writeOperationsNotes() {
 
     of << "Session Notes for session: " << expName << "\n";
     of << "===========================================================\n";
-    of << boost::format("  Experiment: %-17s            Description: %-s\n") %expName %(xml_.get("VieSchedpp.output.experimentDescription","no_description"));
-    of << boost::format("  Scheduler:  %-17s            Correlator:  %-s\n") %(xml_.get("VieSchedpp.output.scheduler","unknown")) %(xml_.get("VieSchedpp.output.correlator","unknown"));
-    of << boost::format("  Start:      %-17s            End:         %-s\n") %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(0))) %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(TimeSystem::duration)));
-    of << boost::format("  Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n") %year %doy %yearDecimal %(currentTime.date().modjulian_day()) %wd %day %monthStr;
+    of << boost::format(" Experiment: %-17s            Description: %-s\n") %expName %(xml_.get("VieSchedpp.output.experimentDescription","no_description"));
+    of << boost::format(" Scheduler:  %-17s            Correlator:  %-s\n") %(xml_.get("VieSchedpp.output.scheduler","unknown")) %(xml_.get("VieSchedpp.output.correlator","unknown"));
+    of << boost::format(" Start:      %-17s            End:         %-s\n") %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(0))) %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(TimeSystem::duration)));
+    of << boost::format(" Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n") %year %doy %yearDecimal %(currentTime.date().modjulian_day()) %wd %day %monthStr;
     of << "===========================================================\n";
-    of << boost::format("  Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
-    of << boost::format("  GUI:        %-17s            Version:     %-s\n") %"VieSched++" %(xml_.get("VieSchedpp.software.GUI_version","unknown").substr(0,7));
+    of << boost::format(" Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
+    of << boost::format(" GUI:        %-17s            Version:     %-s\n") %"VieSched++" %(xml_.get("VieSchedpp.software.GUI_version","unknown").substr(0,7));
     std::string piName = xml_.get("VieSchedpp.output.piName","");
     if(!piName.empty()) {
-        of << boost::format("  PI:         %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.piName", "")) %(xml_.get("VieSchedpp.output.piEmail", "unknown"));
+        of << boost::format(" PI:         %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.piName", "")) %(xml_.get("VieSchedpp.output.piEmail", "unknown"));
     }
     std::string contactName = xml_.get("VieSchedpp.output.contactName","");
     if(!piName.empty()) {
-        of << boost::format("  contact:    %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.contactName", "")) %(xml_.get("VieSchedpp.output.contactEmail", "unknown"));
+        of << boost::format(" contact:    %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.contactName", "")) %(xml_.get("VieSchedpp.output.contactEmail", "unknown"));
     }
     std::string scheduler = xml_.get("VieSchedpp.created.name","");
     if(!piName.empty()) {
-        of << boost::format("  scheduler:  %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.created.name", "")) %(xml_.get("VieSchedpp.created.email", "unknown"));
+        of << boost::format(" scheduler:  %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.created.name", "")) %(xml_.get("VieSchedpp.created.email", "unknown"));
     }
     of << "===========================================================\n";
-    of << "First observations\n";
-    of << "Observation listing from file " << boost::algorithm::to_lower_copy(expName) << ".skd for experiment " << expName << "\n";
-    of << "Source      Start      DURATIONS           \n";
-    of << "name     yyddd-hhmmss   " ;
+    of << " First observations\n";
+    of << " Observation listing from file " << boost::algorithm::to_lower_copy(expName) << ".skd for experiment " << expName << "\n";
+    of << " Source      Start      DURATIONS           \n";
+    of << " name     yyddd-hhmmss   " ;
     for (const auto &any : network_.getStations()){
         of << any.getAlternativeName() << "  ";
     }
     of << "\n";
     vector<char> found(network_.getNSta(),false);
     for (const auto &scan : scans_){
-        of << boost::format("%-8s %s|") %sources_[scan.getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start)));
-        scan.toSkedOutputTimes(of, network_.getNSta(), found);
+        of << boost::format(" %-8s %s|") %sources_[scan.getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start)));
+        scan.toSkedOutputTimes(of, network_.getNSta());
+        scan.includesStations(found);
         of << "\n";
         if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
             break;
         }
     }
-    of << "Last observations\n";
-
+    of << " Last observations\n";
+    unsigned long i = scans_.size() - 1;
+    for ( ; i>=0; --i){
+        scans_[i].includesStations(found);
+        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
+            break;
+        }
+    }
+    for ( ; i<scans_.size(); ++i){
+        of << boost::format(" %-8s %s|") %sources_[scans_[i].getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scans_[i].getTimes().getObservingTime(Timestamp::start)));
+        scans_[i].toSkedOutputTimes(of, network_.getNSta());
+        of << "\n";
+    }
+    of << "===========================================================\n";
 
     std::string notes = xml_.get("VieSchedpp.output.notes","");
     if(!notes.empty()){
         of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
+        of << "===========================================================\n";
     }
 
-
     if(version_>0){
-        of << "Schedule was created using multi scheduling tool\n";
+        of << " Schedule was created using multi scheduling tool\n";
         of << "    version " << version_ << "\n";
         multiSchedulingParameters_->output(of);
     }
-    of << "=========================================================================================================\n\n";
+    of << "===========================================================\n";
+    of << " Key:     ";
+    i = 0;
+    for(const auto &station : network_.getStations()){
+        of << boost::format("%2s=%-8s   ") %station.getAlternativeName() %station.getName();
+        ++i;
+        if(i%5 == 0 && i<network_.getNSta()){
+            of << "\n          ";
+        }
+    }
+    of << "\n\n";
 
-
-    displayGeneralStatistics(of);
     displayTimeStatistics(of);
     displayBaselineStatistics(of);
     displayNstaStatistics(of);
+    of << "===========================================================\n";
+
     obsModes_->operationNotesSummary(of);
+
+    of << "================================================================================================================================================\n";
+    of << "                                                         ADDITONAL NOTES FOR SCHEDULER                                                         \n";
+    of << "================================================================================================================================================\n\n";
+
+    displayGeneralStatistics(of);
 
     if(scans_.size()>=2){
         of << "First Scans:\n";
@@ -1326,9 +1341,6 @@ void Output::writeOperationsNotes() {
         of << "\n";
     }
 
-    of << "================================================================================================================================================\n";
-    of << "                                                         ADDITONAL NOTES FOR SCHEDULER                                                         \n";
-    of << "================================================================================================================================================\n\n";
 
     displayStationStatistics(of);
     displaySourceStatistics(of);
