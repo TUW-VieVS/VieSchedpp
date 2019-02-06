@@ -35,6 +35,7 @@
 #include "boost/format.hpp"
 #include "Vex.h"
 #include "Skd.h"
+#include "OperationNotes.h"
 #include "SNR_table.h"
 
 namespace VieVS{
@@ -143,77 +144,6 @@ namespace VieVS{
         const std::shared_ptr<const ObservingMode> &obsModes_; ///< observing mode
         boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_; ///< multi scheduling parameters
 
-        /**
-         * @brief general statistics of the schedule
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayGeneralStatistics(std::ofstream &of);
-
-        /**
-         * @brief baseline dependent statistics of the schedule
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayBaselineStatistics(std::ofstream &of);
-
-        /**
-         * @brief displays some station dependent statistics of the schedule
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         * @return vector of statistical values
-         */
-        void displayStationStatistics(std::ofstream &of);
-
-        /**
-         * @brief displays some source dependent statistics of the schedule
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displaySourceStatistics(std::ofstream &of);
-
-        /**
-         * @brief number of stations per scan statistics
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayNstaStatistics(std::ofstream &of);
-
-        /**
-         * @brief list astronomical parameters
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayAstronomicalParameters(std::ofstream &of);
-
-        /**
-         * @brief source dependent statistics of the schedule
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayScanDurationStatistics(std::ofstream &of);
-
-        /**
-         * @brief time spend per station
-         * @author Matthias Schartner
-         *
-         * @param of outstream file object
-         */
-        void displayTimeStatistics(std::ofstream &of);
-
-        /**
-         * @brief display summary of theoretical SNR values
-         * @author Matthias Schartner
-         * @param of outstream file object
-         */
-        void displaySNRSummary(std::ofstream &of);
 
         /**
          * @brief read all groups from VieSchedpp.xml file

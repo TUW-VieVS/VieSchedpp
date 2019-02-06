@@ -225,6 +225,33 @@ namespace VieVS{
          * @param indents number of indents
          */
         void outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of, unsigned long indents = 4);
+
+        /**
+         * @brief convert weekday integer to string
+         * @author Matthias Schartner
+         *
+         * 0 = SUN
+         * 1 = MON
+         * 2 = TUE...
+         *
+         * @param weekday weekday in integer format
+         * @return weekday in string format
+         */
+        std::string weekDay2string(int weekday);
+
+
+        /**
+         * @brief convert month integer to string
+         * @author Matthias Schartner
+         *
+         * 1 = JAN
+         * 2 = FEB...
+         *
+         * @param month month in integer format
+         * @return month in string format
+         */
+        std::string month2string(int month);
+
     }
 }
 

@@ -34,545 +34,97 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
 
 }
 
+void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skdCatalogReader) {
 
-void Output::writeSkdsum() {
-
-    string fileName = getName();
-    fileName.append("_skdsum.txt");
-
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing statistics to: " << fileName;
-    #else
-    cout << "[info] writing statistics to: " << fileName;
-    #endif
-
-    ofstream of(path_+fileName);
-    displayGeneralStatistics(of);
-    displayBaselineStatistics(of);
-    displayStationStatistics(of);
-    displaySourceStatistics(of);
-    displayNstaStatistics(of);
-    displayScanDurationStatistics(of);
-    displayTimeStatistics(of);
-    displayAstronomicalParameters(of);
-    of.close();
-}
-
-void  Output::displayGeneralStatistics(ofstream &of) {
-    auto n_scans = static_cast<int>(scans_.size());
-    int n_standard = 0;
-    int n_highImpact = 0;
-    int n_fillin = 0;
-    int n_calibrator = 0;
-    int n_single = 0;
-    int n_subnetting = 0;
-
-    int obs_max = 0;
-    int obs = 0;
-    int obs_standard = 0;
-    int obs_highImpact = 0;
-    int obs_fillin = 0;
-    int obs_calibrator = 0;
-    int obs_single = 0;
-    int obs_subnetting = 0;
-
-    for (const auto&any:scans_){
-        switch (any.getType()){
-            case Scan::ScanType::fillin:{
-                ++n_fillin;
-                obs_fillin += any.getNObs();
-                break;
-            }
-            case Scan::ScanType::calibrator:{
-                ++n_calibrator;
-                obs_calibrator += any.getNObs();
-                break;
-            }
-            case Scan::ScanType::standard:{
-                ++n_standard;
-                obs_standard += any.getNObs();
-                break;
-            }
-            case Scan::ScanType::highImpact:{
-                ++n_highImpact;
-                obs_highImpact += any.getNObs();
-                break;}
-        }
-        switch (any.getScanConstellation()){
-            case Scan::ScanConstellation::single:{
-                ++n_single;
-                obs_single += any.getNObs();
-                break;
-            }
-            case Scan::ScanConstellation::subnetting:{
-                ++n_subnetting;
-                obs_subnetting += any.getNObs();
-                break;
-            }
-        }
-        obs += any.getNObs();
-        obs_max += (any.getNSta()*(any.getNSta()-1))/2;
-    }
-
-    if(obs_max-obs > 0){
-        of << "number of scheduled observations: " << obs << " of " << obs_max;
-        int diff = obs_max-obs;
-        of << boost::format(" -> %d (%.2f [%%]) observations not optimized for SNR\n") % diff % (static_cast<double>(diff)/static_cast<double>(obs_max)*100);
-    }
-
-    of << boost::format("                  #scans     #obs   \n");
-    of << " --------------------------------- \n";
-    of << boost::format("  total           %6d   %6d  \n") %n_scans %obs;
-    of << " --------------------------------- \n";
-    of << boost::format("  single source   %6d   %6d  \n") %n_single %obs_single;
-    of << boost::format("  subnetting      %6d   %6d  \n") %n_subnetting %obs_subnetting;
-    of << " --------------------------------- \n";
-    of << boost::format("  standard        %6d   %6d  \n") %n_standard %obs_standard;
-    of << boost::format("  fillin mode     %6d   %6d  \n") %n_fillin %obs_fillin;
-    if(n_calibrator > 0){
-        of << boost::format("  calibrator      %6d   %6d  \n") %n_calibrator %obs_calibrator;
-    }
-    if(n_highImpact > 0){
-        of << boost::format("  high impact     %6d   %6d  \n") %n_highImpact %obs_highImpact;
-    }
-    of << "\n";
-
-
-}
-
-void Output::displayBaselineStatistics(ofstream &of) {
-    unsigned long nsta = network_.getNSta();
-    of << "\n      # OF OBSERVATIONS BY BASELINE \n";
-
-    of << "  |";
-    for (const auto &any:network_.getStations()) {
-        of << "  " << any.getAlternativeName() << " ";
-    }
-    of << " Total\n";
-    of << "---";
-    for(int i=0; i<network_.getNSta(); ++i){
-        of << "-----";
-    }
-    of << "--------\n";
-
-    for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
-        of <<  network_.getStation(staid1).getAlternativeName() << "|";
-        for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
-            if (staid2<staid1+1){
-                of << "     ";
-            }else{
-                unsigned long nBl = network_.getBaseline(staid1,staid2).getStatistics().scanStartTimes.size();
-                of << boost::format("%4d ") % nBl;
-            }
-        }
-        of << boost::format("%7d\n") % network_.getStation(staid1).getNObs();
-    }
-
-}
-
-void Output::displayStationStatistics(ofstream &of) {
-
-    of << "number of scans per 15 minutes:\n";
-    of << ".-------------------------------------------------------------"
-           "----------------------------------------------------------------------------.\n";
-    of << "|          time since session start (1 char equals 15 minutes)"
-           "                                             | #SCANS #OBS |   OBS Time [s] |\n";
-    of << "| STATION |0   1   2   3   4   5   6   7   8   9   10  11  12 "
-           " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
-    of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
-           "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
-    for (const auto &thisStation : network_.getStations()) {
-        of << boost::format("| %8s|") % thisStation.getName();
-        const Station::Statistics &stat = thisStation.getStatistics();
-        const auto& time_sta = stat.scanStartTimes;
-        unsigned int timeStart = 0;
-        unsigned int timeEnd = 900;
-        for (int j = 0; j < 96; ++j) {
-            long c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
-                return k>=timeStart && k<timeEnd ;
-            });
-            if(c==0){
-                of << " ";
-            }else if (c<=9){
-                of << c;
-            }else{
-                of << "X";
-            }
-
-            timeEnd += 900;
-            timeStart += 900;
-        }
-        of << boost::format("| %6d %4d ") % thisStation.getNTotalScans() % thisStation.getNObs();
-        of << boost::format("| %5d %8.1f |\n") % thisStation.getStatistics().totalObservingTime
-               % (static_cast<double>(thisStation.getStatistics().totalObservingTime) / static_cast<double>(thisStation.getNTotalScans()));
-    }
-    of << "'--------------------------------------------------------------"
-           "---------------------------------------------------------------------------'\n\n";
-}
-
-void Output::displaySourceStatistics(ofstream &of) {
-    of << "number of available sources:   " << sources_.size() << "\n";
-
-    long number = count_if(sources_.begin(), sources_.end(), [](const Source &any){
-        return any.getNTotalScans() > 0;
-    });
-
-    of << "number of scheduled sources:   " << number << "\n";
-    of << "number of scans per 15 minutes:\n";
-    of << ".-------------------------------------------------------------"
-           "----------------------------------------------------------------------------.\n";
-    of << "|          time since session start (1 char equals 15 minutes)"
-           "                                             | #SCANS #OBS |   OBS Time [s] |\n";
-    of << "|  SOURCE |0   1   2   3   4   5   6   7   8   9   10  11  12 "
-           " 13  14  15  16  17  18  19  20  21  22  23  |             |   sum  average |\n";
-    of << "|---------|+---+---+---+---+---+---+---+---+---+---+---+---+--"
-           "-+---+---+---+---+---+---+---+---+---+---+---|-------------|----------------|\n";
-    for (const auto &thisSource : sources_) {
-        const Source::Statistics &stat = thisSource.getStatistics();
-        const auto& time_sta = stat.scanStartTimes;
-
-        if (thisSource.getNObs() == 0) {
-            continue;
-        }
-        of << boost::format("| %8s|") % thisSource.getName();
-
-        unsigned int timeStart = 0;
-        unsigned int timeEnd = 900;
-        for (int j = 0; j < 96; ++j) {
-            long c = count_if(time_sta.begin(), time_sta.end(), [timeEnd,timeStart](unsigned int k){
-                return k>=timeStart && k<timeEnd ;
-            });
-            if(c==0){
-                of << " ";
-            }else if (c<=9){
-                of << c;
-            }else{
-                of << "X";
-            }
-
-            timeEnd += 900;
-            timeStart += 900;
-        }
-        of << boost::format("| %6d %4d ") % thisSource.getNTotalScans() % thisSource.getNObs();
-        of << boost::format("| %5d %8.1f |\n") % thisSource.getStatistics().totalObservingTime
-               % (static_cast<double>(thisSource.getStatistics().totalObservingTime) / static_cast<double>(thisSource.getNTotalScans()));
-    }
-    of << "'--------------------------------------------------------------"
-           "---------------------------------------------------------------------------'\n\n";
-}
-
-void Output::displayNstaStatistics(std::ofstream &of) {
-    unsigned long nsta = network_.getNSta();
-    vector<int> nstas(nsta+1,0);
-    int obs = 0;
-    int intObs = 0;
-    for(const auto &scan:scans_){
-        ++nstas[scan.getNSta()];
-        obs += scan.getNObs();
-        for(int i=0; i<scan.getNObs(); ++i){
-            const auto &obs = scan.getObservation(i);
-            unsigned long idx1 = *scan.findIdxOfStationId(obs.getStaid1());
-            unsigned long idx2 = *scan.findIdxOfStationId(obs.getStaid2());
-            intObs += scan.getTimes().getObservingDuration(idx1,idx2);
-        }
-    }
-
-    unsigned long sum = scans_.size();
-
-    for(int i=2; i<=nsta; ++i){
-        of << boost::format(" Number of %2d-station scans: %4d (%6.2f %%)\n")%i %nstas[i] %(static_cast<double>(nstas[i])/
-                                                                                                static_cast<double>(sum)*100);
-    }
-    of << boost::format("Total number of scans:    %9d\n") %(scans_.size());
-    of << boost::format("Total number of obs:      %9d\n") %obs;
-    of << boost::format("Total integrated obs-time:%9d\n") %intObs;
-    of << boost::format("Average obs-time:         %9.1f\n") % (static_cast<double>(intObs)/obs);
-}
-
-
-void Output::displayScanDurationStatistics(ofstream &of) {
-    unsigned long nsta = network_.getNSta();
-    of << "scan observing durations:\n";
-    vector<vector<vector<unsigned int>>> bl_durations(nsta,vector<vector<unsigned int>>(nsta));
-    vector< unsigned int> maxScanDurations;
-
-    for(const auto&any: scans_){
-        unsigned long nbl = any.getNObs();
-        maxScanDurations.push_back(any.getTimes().getObservingDuration());
-
-        for (int i = 0; i < nbl; ++i) {
-            const Observation &obs = any.getObservation(i);
-            unsigned long staid1 = obs.getStaid1();
-            unsigned long staid2 = obs.getStaid2();
-            unsigned int obs_duration = obs.getObservingTime();
-
-            if(staid1<staid2){
-                swap(staid1,staid2);
-            }
-            bl_durations[staid1][staid2].push_back(obs_duration);
-        }
-    }
-    if(maxScanDurations.empty()){
+    if(scans_.empty()){
         return;
     }
-    unsigned int maxMax = *max_element(maxScanDurations.begin(),maxScanDurations.end());
-    maxMax = maxMax/10*10+10;
-    unsigned int cache_size = (1+maxMax/100)*10;
-    vector<unsigned int> bins;
 
-    unsigned int upper_bound = 0;
-    while (upper_bound<maxMax+cache_size){
-        bins.push_back(upper_bound);
-        upper_bound+=cache_size;
+    writeStatistics(of);
+
+    if(xml_.get<bool>("VieSchedpp.output.createSummary",false)){
+        writeSkdsum();
     }
-
-    vector<unsigned int> hist(bins.size()-1,0);
-    for (unsigned int any:maxScanDurations) {
-        int i = 1;
-        while(any>bins[i]){
-            ++i;
-        }
-        ++hist[i-1];
+    if(xml_.get<bool>("VieSchedpp.output.createNGS",false)) {
+        writeNGS();
     }
-
-    of << "scan duration:\n";
-    for (int i = 0; i < hist.size(); ++i) {
-        of << boost::format("%3d-%3d | ") % bins[i] % (bins[i + 1] - 1);
-        double percent = 100 * static_cast<double>(hist[i]) / static_cast<double>(maxScanDurations.size());
-        percent = round(percent);
-        for (int j = 0; j < percent; ++j) {
-            of << "+";
-        }
-        of << "\n";
+    if(xml_.get<bool>("VieSchedpp.output.createSKD",false)) {
+        writeSkd(skdCatalogReader);
     }
-    of << "\n";
-
-    of << "scheduled scan length:\n";
-    of << ".-----------------------------------------------------------------------------------.\n";
-    of << "| S1-S2 |  min    10%    50%    90%    95%  97.5%    99%    max   |    sum  average |\n";
-    of << "|-------|---------------------------------------------------------|-----------------|\n";
-
-    {
-        auto n = static_cast<int>(maxScanDurations.size() - 1);
-        sort(maxScanDurations.begin(),maxScanDurations.end());
-        of << boost::format("|  ALL  | ");
-        of << boost::format("%4d   ") % maxScanDurations[0];
-        of << boost::format("%4d   ") % maxScanDurations[n * 0.1];
-        of << boost::format("%4d   ") % maxScanDurations[n / 2];
-        of << boost::format("%4d   ") % maxScanDurations[n * 0.9];
-        of << boost::format("%4d   ") % maxScanDurations[n * 0.95];
-        of << boost::format("%4d   ") % maxScanDurations[n * 0.975];
-        of << boost::format("%4d   ") % maxScanDurations[n * 0.99];
-        of << boost::format("%4d   ") % maxScanDurations[n];
-        int sum = accumulate(maxScanDurations.begin(), maxScanDurations.end(), 0);
-        double average = static_cast<double>(sum) / (n + 1);
-        of << boost::format("| %6d %8.1f |") % sum % average;
-        of << "\n";
+    if(xml_.get<bool>("VieSchedpp.output.createVEX",false)) {
+        writeVex();
     }
-
-    of << "|-------|---------------------------------------------------------|-----------------|\n";
-
-    for (unsigned long i = 1; i < nsta; ++i) {
-        for (unsigned long j = 0; j < i; ++j) {
-            vector<unsigned int>& this_duration = bl_durations[i][j];
-            if(this_duration.empty()){
-                continue;
-            }
-            int n = (int) this_duration.size()-1;
-            sort(this_duration.begin(),this_duration.end());
-            of << boost::format("| %5s | ") % network_.getBaseline(i,j).getName();
-            of << boost::format("%4d   ") % this_duration[0];
-            of << boost::format("%4d   ") % this_duration[n * 0.1];
-            of << boost::format("%4d   ") % this_duration[n / 2];
-            of << boost::format("%4d   ") % this_duration[n * 0.9];
-            of << boost::format("%4d   ") % this_duration[n * 0.95];
-            of << boost::format("%4d   ") % this_duration[n * 0.975];
-            of << boost::format("%4d   ") % this_duration[n * 0.99];
-            of << boost::format("%4d   ") % this_duration[n];
-            int sum = accumulate(this_duration.begin(), this_duration.end(), 0);
-            double average = static_cast<double>(sum) / (n + 1);
-            of << boost::format("| %6d %8.1f |") % sum % average;
-            of << "\n";
-        }
-
+    if(xml_.get<bool>("VieSchedpp.output.createOperationsNotes",false)) {
+        writeOperationsNotes();
     }
-    of << "'-----------------------------------------------------------------------------------'\n\n";
+    if(xml_.get<bool>("VieSchedpp.output.createSourceGroupStatistics",false)) {
+        writeStatisticsPerSourceGroup();
+    }
+    if(xml_.get<bool>("VieSchedpp.output.createSnrTable",false)) {
+        writeSnrTable();
+    }
 }
 
-void Output::displayTimeStatistics(std::ofstream &of) {
-
-    unsigned long nstaTotal = network_.getNSta();
-
-    of << ".-----------------";
-    of << "------------";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------.\n";
-
-    of << "|                 ";
-    of << boost::format("| %8s |") % "average";
-    for (const auto &station: network_.getStations()) {
-        of << boost::format(" %8s ") % station.getName();
-    }
-    of << "|\n";
-
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------|\n";
-
-    of << "| % obs. time:    ";
-    vector<double> obsPer;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalObservingTime;
-        obsPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
-    }
-    of << boost::format("| %8.2f |") % (accumulate(obsPer.begin(),obsPer.end(),0.0)/(network_.getNSta()));
-    for(auto p:obsPer){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "| % preob time:   ";
-    vector<double> preobPer;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalPreobTime;
-        preobPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
-    }
-    of << boost::format("| %8.2f |") % (accumulate(preobPer.begin(),preobPer.end(),0.0)/(network_.getNSta()));
-    for(auto p:preobPer){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "| % slew time:    ";
-    vector<double> slewPer;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalSlewTime;
-        slewPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
-    }
-    of << boost::format("| %8.2f |") % (accumulate(slewPer.begin(),slewPer.end(),0.0)/(network_.getNSta()));
-    for(auto p:slewPer){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "| % idle time:    ";
-    vector<double> idlePer;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalIdleTime;
-        idlePer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
-    }
-    of << boost::format("| %8.2f |") % (accumulate(idlePer.begin(),idlePer.end(),0.0)/(network_.getNSta()));
-    for(auto p:idlePer){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "| % field system: ";
-    vector<double> fieldPer;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalFieldSystemTime;
-        fieldPer.push_back(static_cast<double>(t)/static_cast<double>(TimeSystem::duration)*100);
-    }
-    of << boost::format("| %8.2f |") % (accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta()));
-    for(auto p:fieldPer){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------|\n";
-
-    of << "|   #scans:       ";
-    vector<int> scans;
-    for (const auto &station: network_.getStations()) {
-        scans.push_back(station.getNTotalScans());
-    }
-    of << boost::format("| %8.2f |") % (accumulate(scans.begin(),scans.end(),0.0)/(network_.getNSta()));
-    for(auto p:scans){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "|   scans per h:  ";
-    vector<double> scansPerH;
-    for (const auto &station: network_.getStations()) {
-        scansPerH.push_back(static_cast<double>(station.getNTotalScans())/(TimeSystem::duration/3600.));
-    }
-    of << boost::format("| %8.2f |") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network_.getNSta()));
-    for(auto p:scansPerH){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "|-----------------";
-    of << "|----------|";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------|\n";
-
-    of << "|   Total TB:     ";
-//    unsigned int nChannels = 0;
-//    for(const auto &any: ObservationMode::nChannels){
-//        nChannels += any.second;
-//    }
-//    double obsFreq = ObservationMode::sampleRate * ObservationMode::bits * nChannels;
-// TODO: calc TB based on mode_ variable
-    double obsFreq = 0;
-
-    vector<double> total_tb;
-    for (const auto &station: network_.getStations()) {
-        int t = station.getStatistics().totalObservingTime;
-
-        total_tb.push_back(static_cast<double>(t) * obsFreq / (1024*1024*8) );
-    }
-    of << boost::format("| %8.2f |") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network_.getNSta()));
-    for(auto p:total_tb){
-        of << boost::format(" %8.2f ") % p;
-    }
-    of << "|\n";
-
-    of << "'-----------------";
-    of << "------------";
-    for (int i = 0; i < nstaTotal-1; ++i) {
-        of << "----------";
-    }
-    of << "----------'\n";
-
+void Output::writeVex() {
+    string fileName = getName();
+    fileName.append(".vex");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing vex file to: " << fileName;
+#else
+    cout << "[info] writing vex file to: " << fileName;
+#endif
+    Vex vex(path_+fileName);
+    vex.writeVex(network_, sources_, scans_, obsModes_, xml_);
 }
 
-void Output::displayAstronomicalParameters(std::ofstream &of) {
-    of << ".------------------------------------------.\n";
-    of << "| sun position:        | earth velocity:   |\n";
-    of << "|----------------------|-------------------|\n";
-    of << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
-    of << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
-    of << "|                      " << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
-    of << "'------------------------------------------'\n\n";
-
-    of << ".--------------------------------------------------------------------.\n";
-    of << "| earth nutation:                                                    |\n";
-    of << boost::format("| %=19s | %=14s %=14s %=14s |\n") %"time" %"X" %"Y" %"S";
-    of << "|---------------------|----------------------------------------------|\n";
-    for(int i=0; i<AstronomicalParameters::earth_nutTime.size(); ++i){
-        of << boost::format("| %19s | %+14.6e %+14.6e %+14.6e |\n")
-               % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(AstronomicalParameters::earth_nutTime[i]))
-               % AstronomicalParameters::earth_nutX[i]
-               % AstronomicalParameters::earth_nutY[i]
-               % AstronomicalParameters::earth_nutS[i];
-    }
-    of << "'--------------------------------------------------------------------'\n\n";
-
+void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
+    string fileName = getName();
+    fileName.append(".skd");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing skd file to: " << fileName;
+#else
+    cout << "[info] writing skd file to: " << fileName;
+#endif
+    Skd skd(path_+fileName);
+    skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
 }
+
+void Output::writeOperationsNotes() {
+    string fileName = getName();
+    fileName.append(".txt");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing operation notes file to: " << fileName;
+#else
+    cout << "[info] writing operation notes file to: " << fileName;
+#endif
+    OperationNotes notes(path_+fileName);
+    notes.writeOperationNotes(network_, sources_, scans_, obsModes_, xml_, version_, multiSchedulingParameters_);
+}
+
+void Output::writeSkdsum() {
+    string fileName = getName();
+    fileName.append("_skdsum.txt");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing skdsum to: " << fileName;
+#else
+    cout << "[info] writing skdsum to: " << fileName;
+#endif
+    OperationNotes notes(path_+fileName);
+    notes.writeSkdsum(network_, sources_, scans_);
+}
+
+void Output::writeSnrTable() {
+    string fileName = getName();
+    fileName.append(".snr");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing SNR table to: " << fileName;
+#else
+    cout << "[info] writing SNR table to: " << fileName;
+#endif
+    SNR_table snr(path_+fileName);
+    snr.writeTable(network_,sources_,scans_,obsModes_);
+}
+
 
 void Output::writeNGS() {
 
@@ -664,44 +216,6 @@ void Output::writeNGS() {
 
     of.close();
 }
-
-
-void Output::writeVex() {
-    string fileName = getName();
-    fileName.append(".vex");
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing vex file to: " << fileName;
-    #else
-    cout << "[info] writing vex file to: " << fileName;
-    #endif
-    Vex vex(path_+fileName);
-    vex.writeVex(network_, sources_, scans_, obsModes_, xml_);
-}
-
-void Output::writeSkd(const SkdCatalogReader &skdCatalogReader) {
-    string fileName = getName();
-    fileName.append(".skd");
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing skd file to: " << fileName;
-    #else
-    cout << "[info] writing skd file to: " << fileName;
-    #endif
-    Skd skd(path_+fileName);
-    skd.writeSkd(network_,sources_,scans_,skdCatalogReader,xml_);
-}
-
-void Output::writeSnrTable() {
-    string fileName = getName();
-    fileName.append(".snr");
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing SNR table to: " << fileName;
-    #else
-    cout << "[info] writing SNR table to: " << fileName;
-    #endif
-    SNR_table snr(path_+fileName);
-    snr.writeTable(network_,sources_,scans_,obsModes_);
-}
-
 
 void Output::writeStatisticsPerSourceGroup() {
 
@@ -1099,268 +613,7 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
     return visibleTimes;
 }
 
-void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skdCatalogReader) {
 
-    if(scans_.empty()){
-        return;
-    }
-
-    writeStatistics(of);
-
-    if(xml_.get<bool>("VieSchedpp.output.createSummary",false)){
-        writeSkdsum();
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createNGS",false)) {
-        writeNGS();
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createSKD",false)) {
-        writeSkd(skdCatalogReader);
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createVEX",false)) {
-        writeVex();
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createOperationsNotes",false)) {
-        writeOperationsNotes();
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createSourceGroupStatistics",false)) {
-        writeStatisticsPerSourceGroup();
-    }
-    if(xml_.get<bool>("VieSchedpp.output.createSnrTable",false)) {
-        writeSnrTable();
-    }
-}
-
-void Output::writeOperationsNotes() {
-    string expName = xml_.get("VieSchedpp.general.experimentName","schedule");
-
-    string fileName = getName();
-    fileName.append(".txt");
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing operationsNotes file to: " << fileName;
-    #else
-    cout << "[info] writing operationsNotes file to: " << fileName;
-    #endif
-
-    string currentTimeString = xml_.get<string>("VieSchedpp.created.time","");
-
-    boost::posix_time::ptime currentTime;
-    if(!currentTimeString.empty()){
-        currentTime = TimeSystem::string2ptime(currentTimeString);
-    }else{
-        currentTime = boost::posix_time::second_clock::local_time();
-    }
-
-    int year = currentTime.date().year();
-    int month = currentTime.date().month();
-    int day = currentTime.date().day();
-    int doy = currentTime.date().day_of_year();
-
-    int maxDoy;
-    boost::gregorian::gregorian_calendar::is_leap_year(year) ? maxDoy = 366 : maxDoy = 365;
-    short weekday = currentTime.date().day_of_week();
-
-    string wd;
-    switch(weekday){
-        case 0:{ wd = "SUN"; break; }
-        case 1:{ wd = "MON"; break; }
-        case 2:{ wd = "TUE"; break; }
-        case 3:{ wd = "WED"; break; }
-        case 4:{ wd = "THU"; break; }
-        case 5:{ wd = "FRI"; break; }
-        case 6:{ wd = "SAT"; break; }
-        default:break;
-    }
-
-    string monthStr;
-    switch(month){
-        case  1:{ monthStr = "JAN"; break; }
-        case  2:{ monthStr = "FEB"; break; }
-        case  3:{ monthStr = "MAR"; break; }
-        case  4:{ monthStr = "APR"; break; }
-        case  5:{ monthStr = "MAY"; break; }
-        case  6:{ monthStr = "JUN"; break; }
-        case  7:{ monthStr = "JUL"; break; }
-        case  8:{ monthStr = "AUG"; break; }
-        case  9:{ monthStr = "SEP"; break; }
-        case 10:{ monthStr = "OCT"; break; }
-        case 11:{ monthStr = "NOV"; break; }
-        case 12:{ monthStr = "DEC"; break; }
-        default:break;
-    }
-
-    double yearDecimal = year + static_cast<double>(doy) / static_cast<double>(maxDoy);
-
-
-    ofstream of(path_+fileName);
-    of << "\n                     <<<<< " << expName << " >>>>>\n\n";
-
-    of << boost::format("Date of experiment: %4d,%3s,%02d\n") %(TimeSystem::startTime.date().year()) %(TimeSystem::startTime.date().month()) %(TimeSystem::startTime.date().day()) ;
-    of << boost::format("Nominal Start Time: %02dh%02d UT\n") %(TimeSystem::startTime.time_of_day().hours()) %(TimeSystem::startTime.time_of_day().minutes());
-    of << boost::format("Nominal End Time:   %02dh%02d UT\n") %(TimeSystem::endTime.time_of_day().hours()) %(TimeSystem::endTime.time_of_day().minutes());
-    of << boost::format("Duration:           %.1f hr\n") %(TimeSystem::duration/3600.);
-    of << "Correlator:         " << xml_.get("VieSchedpp.output.correlator","unknown") << "\n\n";
-
-    of << "Participating stations: \n";
-    for (const auto &any:network_.getStations()){
-        of << boost::format("%-8s    %2s \n") %any.getName() %any.getAlternativeName();
-    }
-    of << "\n";
-
-    string newStr = boost::replace_all_copy(xml_.get("VieSchedpp.output.operationNotes",""),"\\n","\n");
-    if(!newStr.empty()){
-        of << newStr << "\n";
-    }
-
-
-    bool down = false;
-    of << "Station down times:\n";
-    for(const auto &sta : network_.getStations()){
-        bool flag = sta.listDownTimes(of);
-        down = down || flag;
-    }
-    if(!down){
-        of << "    no\n";
-    }
-
-    of << "Tagalong mode used:\n";
-    bool tag = false;
-    for(const auto &sta : network_.getStations()){
-        bool flag = sta.listTagalongTimes(of);
-        tag = tag || flag;
-    }
-    if(!tag){
-        of << "    no\n";
-    }
-    of << "\n";
-
-    of << "Session Notes for session: " << expName << "\n";
-    of << "===========================================================\n";
-    of << boost::format(" Experiment: %-17s            Description: %-s\n") %expName %(xml_.get("VieSchedpp.output.experimentDescription","no_description"));
-    of << boost::format(" Scheduler:  %-17s            Correlator:  %-s\n") %(xml_.get("VieSchedpp.output.scheduler","unknown")) %(xml_.get("VieSchedpp.output.correlator","unknown"));
-    of << boost::format(" Start:      %-17s            End:         %-s\n") %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(0))) %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(TimeSystem::duration)));
-    of << boost::format(" Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n") %year %doy %yearDecimal %(currentTime.date().modjulian_day()) %wd %day %monthStr;
-    of << "===========================================================\n";
-    of << boost::format(" Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
-    of << boost::format(" GUI:        %-17s            Version:     %-s\n") %"VieSched++" %(xml_.get("VieSchedpp.software.GUI_version","unknown").substr(0,7));
-    std::string piName = xml_.get("VieSchedpp.output.piName","");
-    if(!piName.empty()) {
-        of << boost::format(" PI:         %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.piName", "")) %(xml_.get("VieSchedpp.output.piEmail", "unknown"));
-    }
-    std::string contactName = xml_.get("VieSchedpp.output.contactName","");
-    if(!piName.empty()) {
-        of << boost::format(" contact:    %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.output.contactName", "")) %(xml_.get("VieSchedpp.output.contactEmail", "unknown"));
-    }
-    std::string scheduler = xml_.get("VieSchedpp.created.name","");
-    if(!piName.empty()) {
-        of << boost::format(" scheduler:  %-17s            mail:        %-s\n") %(xml_.get("VieSchedpp.created.name", "")) %(xml_.get("VieSchedpp.created.email", "unknown"));
-    }
-    of << "===========================================================\n";
-    of << " First observations\n";
-    of << " Observation listing from file " << boost::algorithm::to_lower_copy(expName) << ".skd for experiment " << expName << "\n";
-    of << " Source      Start      DURATIONS           \n";
-    of << " name     yyddd-hhmmss   " ;
-    for (const auto &any : network_.getStations()){
-        of << any.getAlternativeName() << "  ";
-    }
-    of << "\n";
-    vector<char> found(network_.getNSta(),false);
-    for (const auto &scan : scans_){
-        of << boost::format(" %-8s %s|") %sources_[scan.getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start)));
-        scan.toSkedOutputTimes(of, network_.getNSta());
-        scan.includesStations(found);
-        of << "\n";
-        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
-            break;
-        }
-    }
-    of << " Last observations\n";
-    unsigned long i = scans_.size() - 1;
-    for ( ; i>=0; --i){
-        scans_[i].includesStations(found);
-        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
-            break;
-        }
-    }
-    for ( ; i<scans_.size(); ++i){
-        of << boost::format(" %-8s %s|") %sources_[scans_[i].getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scans_[i].getTimes().getObservingTime(Timestamp::start)));
-        scans_[i].toSkedOutputTimes(of, network_.getNSta());
-        of << "\n";
-    }
-    of << "===========================================================\n";
-
-    std::string notes = xml_.get("VieSchedpp.output.notes","");
-    if(!notes.empty()){
-        of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
-        of << "===========================================================\n";
-    }
-
-    if(version_>0){
-        of << " Schedule was created using multi scheduling tool\n";
-        of << "    version " << version_ << "\n";
-        multiSchedulingParameters_->output(of);
-    }
-    of << "===========================================================\n";
-    of << " Key:     ";
-    i = 0;
-    for(const auto &station : network_.getStations()){
-        of << boost::format("%2s=%-8s   ") %station.getAlternativeName() %station.getName();
-        ++i;
-        if(i%5 == 0 && i<network_.getNSta()){
-            of << "\n          ";
-        }
-    }
-    of << "\n\n";
-
-    displayTimeStatistics(of);
-    displayBaselineStatistics(of);
-    displayNstaStatistics(of);
-    of << "===========================================================\n";
-
-    obsModes_->operationNotesSummary(of);
-
-    of << "================================================================================================================================================\n";
-    of << "                                                         ADDITONAL NOTES FOR SCHEDULER                                                         \n";
-    of << "================================================================================================================================================\n\n";
-
-    displayGeneralStatistics(of);
-
-    if(scans_.size()>=2){
-        of << "First Scans:\n";
-        of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
-        for(unsigned long i=0; i<3; ++i){
-            const auto &thisScan = scans_[i];
-            thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
-        }
-        of << "\n";
-        of << "Last Scans:\n";
-        of << ".----------------------------------------------------------------------------------------------------------------------------------------------.\n";
-        for(unsigned long i= scans_.size() - 3; i < scans_.size(); ++i){
-            const auto &thisScan = scans_[i];
-            thisScan.output(i,network_,sources_[thisScan.getSourceId()],of);
-        }
-        of << "\n";
-    }
-
-
-    displayStationStatistics(of);
-    displaySourceStatistics(of);
-    obsModes_->summary(of);
-    of << "\n";
-    displaySNRSummary(of);
-    displayScanDurationStatistics(of);
-    displayAstronomicalParameters(of);
-
-    WeightFactors::summary(of);
-
-
-    of << ".------------------------.\n";
-    of << "| full scheduling setup: |\n";
-    of << "'------------------------'\n";
-    boost::property_tree::xml_parser::write_xml(of, xml_,
-                                                boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
-//    boost::property_tree::xml_parser::write_xml(of, xml_, boost::property_tree::xml_writer_make_settings<string>('\t', 1));
-    of << "==================\n";
-}
 
 void Output::writeStatistics(std::ofstream &of) {
     string oString;
@@ -1525,119 +778,6 @@ void Output::writeStatistics(std::ofstream &of) {
 
 }
 
-void Output::displaySNRSummary(std::ofstream &of) {
-
-    map<string,vector<vector<double>>> SNRs;
-    const auto &bands = obsModes_->getAllBands();
-
-    for(const auto &band : bands){
-        SNRs[band] = vector<vector<double>>(network_.getNBls());
-    }
-
-    for(const auto &scan : scans_){
-
-        unsigned long srcid = scan.getSourceId();
-        const auto &source = sources_[srcid];
-
-        for(int i=0; i<scan.getNObs(); ++i){
-            const auto &obs = scan.getObservation(i);
-            unsigned long blid = obs.getBlid();
-
-            unsigned long staid1 = obs.getStaid1();
-            unsigned long staid2 = obs.getStaid2();
-
-            const auto &sta1 = network_.getStation(staid1);
-            const auto &sta2 = network_.getStation(staid2);
-
-            double el1 = scan.getPointingVector(static_cast<int>(*scan.findIdxOfStationId(staid1))).getEl();
-            double el2 = scan.getPointingVector(static_cast<int>(*scan.findIdxOfStationId(staid2))).getEl();
-
-            double date1 = 2400000.5;
-            double date2 = TimeSystem::mjdStart + static_cast<double>(obs.getStartTime()) / 86400.0;
-            double gmst = iauGmst82(date1, date2);
-
-            unsigned int duration = obs.getObservingTime();
-
-            for(const auto &band : bands){
-                double observedFlux = source.observedFlux(band, gmst, network_.getDxyz(staid1,staid2));
-
-                double SEFD_sta1 = sta1.getEquip().getSEFD(band, el1);
-                double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
-
-                double recordingRate = obsModes_->getMode(0)->recordingRate(staid1, staid2, band);
-                double efficiency = obsModes_->getMode(0)->efficiency(sta1.getId(), sta2.getId());
-                double snr = efficiency * observedFlux/(sqrt(SEFD_sta1 * SEFD_sta2)) * sqrt(recordingRate * duration);
-
-                SNRs[band][blid].push_back(snr);
-            }
-        }
-    }
-
-    unsigned long nsta = network_.getNSta();
-    for(const auto &snr : SNRs){
-        of << "average theoretical SNR for " << snr.first << "-band per baseline:\n";
-        of << ".-----------";
-        for (int i = 0; i < nsta-1; ++i) {
-            of << "----------";
-        }
-        of << "-----------";
-        of << "----------.\n";
-
-
-        of << boost::format("| %8s |") % "STATIONS";
-        for (const auto &any:network_.getStations()) {
-            of << boost::format(" %8s ") % any.getName();
-        }
-        of << "|";
-        of << boost::format(" %8s ") % "AVERAGE";
-        of << "|\n";
-
-        of << "|----------|";
-        for (int i = 0; i < nsta-1; ++i) {
-            of << "----------";
-        }
-        of << "----------|";
-        of << "----------|\n";
-
-        vector<double> sumSNR(nsta,0.0);
-        vector<int> counterSNR(nsta,0);
-        for (unsigned long staid1 = 0; staid1 < nsta; ++staid1) {
-            of << boost::format("| %8s |") % network_.getStation(staid1).getName();
-            for (unsigned long staid2 = 0; staid2 < nsta; ++staid2) {
-                if (staid2<staid1+1){
-                    of << "          ";
-                }else{
-                    unsigned long blid = network_.getBaseline(staid1,staid2).getId();
-                    if(snr.second[blid].empty()){
-                        of << "        - ";
-                    }else{
-                        double SNR = accumulate(snr.second[blid].begin(), snr.second[blid].end(), 0.0);
-                        int n = static_cast<int>(snr.second[blid].size());
-                        sumSNR[staid1] += SNR;
-                        counterSNR[staid1] +=n;
-                        sumSNR[staid2] += SNR;
-                        counterSNR[staid2] +=n;
-
-                        of << boost::format(" %8.2f ") % (SNR/n);
-                    }
-
-                }
-            }
-            of << "|";
-            of << boost::format(" %8.2f ") % (sumSNR[staid1]/counterSNR[staid1]);
-            of << "|\n";
-        }
-
-        of << "'-----------";
-        for (int i = 0; i < nsta-1; ++i) {
-            of << "----------";
-        }
-        of << "-----------";
-        of << "----------'\n\n";
-
-    }
-
-}
 
 
 

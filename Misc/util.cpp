@@ -137,3 +137,38 @@ std::vector<std::string> util::getStationNames(const boost::property_tree::ptree
     }
     return names;
 }
+
+std::string util::weekDay2string(int weekday) {
+    string wd;
+    switch(weekday){
+        case 0:{ wd = "SUN"; break; }
+        case 1:{ wd = "MON"; break; }
+        case 2:{ wd = "TUE"; break; }
+        case 3:{ wd = "WED"; break; }
+        case 4:{ wd = "THU"; break; }
+        case 5:{ wd = "FRI"; break; }
+        case 6:{ wd = "SAT"; break; }
+        default:{ wd = "   "; break; };
+    }
+    return wd;
+}
+
+std::string util::month2string(int month) {
+    string monthStr;
+    switch(month){
+        case  1:{ monthStr = "JAN"; break; }
+        case  2:{ monthStr = "FEB"; break; }
+        case  3:{ monthStr = "MAR"; break; }
+        case  4:{ monthStr = "APR"; break; }
+        case  5:{ monthStr = "MAY"; break; }
+        case  6:{ monthStr = "JUN"; break; }
+        case  7:{ monthStr = "JUL"; break; }
+        case  8:{ monthStr = "AUG"; break; }
+        case  9:{ monthStr = "SEP"; break; }
+        case 10:{ monthStr = "OCT"; break; }
+        case 11:{ monthStr = "NOV"; break; }
+        case 12:{ monthStr = "DEC"; break; }
+        default:{ monthStr = "   "; break; };
+    }
+    return monthStr;
+}
