@@ -43,6 +43,10 @@
  */
 void welcome();
 
+void VieSchedppTerminate() {
+    std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue yourself contact matthias.schartner@geo.tuwien.ac.at";
+}
+
 /**
  * @brief main function
  * @author Matthias Schartner
@@ -56,6 +60,8 @@ void welcome();
  */
 int main(int argc, char *argv[])
 {
+    std::set_terminate (VieSchedppTerminate);
+
     if(argc != 2){
         welcome();
         return 0;

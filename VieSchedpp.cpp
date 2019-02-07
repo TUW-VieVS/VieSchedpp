@@ -45,7 +45,6 @@ VieSchedpp::VieSchedpp(const std::string &inputFile): inputFile_{inputFile}{
         #else
         cout << "[error] unable to open " << inputFile_;
         #endif
-        terminate();
     }
 
 }
@@ -275,6 +274,7 @@ void VieSchedpp::readSkdCatalogs() {
         BOOST_LOG_TRIVIAL(fatal) << "no stations selected";
 #else
         cout << "[fatal] no stations selected";
+        terminate();
 #endif
     }
 }

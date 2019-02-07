@@ -98,10 +98,11 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             ifstream fid(filepath);
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath << " file";
+                BOOST_LOG_TRIVIAL(fatal) << "unable to open " << filepath << " file";
                 #else
-                cout << "[error] unable to open " << filepath << " file";
+                cout << "[fatal] unable to open " << filepath << " file";
                 #endif
+                terminate();
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -231,10 +232,11 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             ifstream fid(filepath);
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                BOOST_LOG_TRIVIAL(fatal) << "unable to open " << filepath;
                 #else
-                cout << "[error] unable to open " << filepath;
+                cout << "[fatal] unable to open " << filepath;
                 #endif
+                terminate();
             } else {
                 string line;
                 // if read from skd file read until you reach flag
@@ -321,10 +323,11 @@ SkdCatalogReader::readCatalog(SkdCatalogReader::CATALOG type) noexcept {
             ifstream fid(filepath);
             if (!fid.is_open()) {
                 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(error) << "unable to open " << filepath;
+                BOOST_LOG_TRIVIAL(fatal) << "unable to open " << filepath;
                 #else
-                cout << "[error] unable to open " << filepath;
+                cout << "[fatal] unable to open " << filepath;
                 #endif
+                terminate();
             } else {
                 string line;
                 vector<string> lines;
@@ -604,10 +607,11 @@ void SkdCatalogReader::readTracksCatalog() {
                     if(bits_ == 0){
                         bits_ = bits;
                     } else if(bits_ != bits){
+                        bits = 1;
                         #ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL(error) << "number of recorded bits is different for different track ids -> ignored";
+                        BOOST_LOG_TRIVIAL(error) << "number of recorded bits is different for different track ids -> assuming 1 bit sampling";
                         #else
-                        cout << "[error] number of recorded bits is different for different track ids -> ignored";
+                        cout << "[error] number of recorded bits is different for different track ids -> assuming 1 bit sampling";
                         #endif
                     }
                     tracksId2bitsMap_[tracksId] = bits;

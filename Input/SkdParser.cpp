@@ -38,11 +38,11 @@ void SkdParser::read() {
 
     if (!fid.is_open()) {
         #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL(error) << "unable to open " << filename_;
+        BOOST_LOG_TRIVIAL(fatal) << "unable to open " << filename_;
         #else
-        cout << "[error] unable to open " << filename_;
+        cout << "[fatal] unable to open " << filename_;
         #endif
-        return;
+        terminate();
     } else {
         vector <string> splitVector;
         string line;
@@ -69,20 +69,22 @@ void SkdParser::read() {
                     TimeSystem::startTime = TimeSystem::string_doy2ptime(splitVector[5]);
                 }else{
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(error) << "session start time not found";
+                    BOOST_LOG_TRIVIAL(fatal) << "session start time not found";
                     #else
-                    cout << "[error] session start time not found";
+                    cout << "[fatal] session start time not found";
                     #endif
+                    terminate();
                     return;
                 }
                 if(splitVector[6] == "END"){
                     TimeSystem::endTime = TimeSystem::string_doy2ptime(splitVector[7]);
                 }else{
                     #ifdef VIESCHEDPP_LOG
-                    BOOST_LOG_TRIVIAL(error) << "session end time not found";
+                    BOOST_LOG_TRIVIAL(fatal) << "session end time not found";
                     #else
-                    cout << "[error] session end time not found";
+                    cout << "[fatal] session end time not found";
                     #endif
+                    terminate();
                     return;
                 }
             }

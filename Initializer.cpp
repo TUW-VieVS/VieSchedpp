@@ -1148,6 +1148,7 @@ void Initializer::initializeStations() noexcept {
     }else{
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(fatal) << "cannot read <station> block in VieSchedpp.xml file";
+        terminate();
         #else
         cout << "cannot read <station> block in VieSchedpp.xml file";
         #endif
@@ -1432,6 +1433,7 @@ void Initializer::initializeSources() noexcept {
     }else{
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(fatal) << "cannot read <source> block in VieSchedpp.xml file";
+        terminate();
         #else
         cout << "cannot read <source> block in VieSchedpp.xml file";
         #endif
@@ -1730,6 +1732,7 @@ void Initializer::initializeBaselines() noexcept {
     }else{
         #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL(fatal) << "cannot read <baseline> block in VieSchedpp.xml file";
+        terminate();
         #else
         cout << "cannot read <baseline> block in VieSchedpp.xml file";
         #endif
