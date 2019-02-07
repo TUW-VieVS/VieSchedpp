@@ -238,8 +238,15 @@ void SkdParser::read() {
 
     std::unordered_map<std::string, double> band2wavelength;
     for(const auto &any : freqs_){
-        double mfreq = accumulate(any.second.begin(), any.second.end(), 0.0) / any.second.size();
-        band2wavelength[any.first] = util::freqency2wavelenth(mfreq);
+        double mfreq = accumulate(any.second.begin(), any.second.end(), 0.0);
+        if(any.first == "X"){
+            mfreq += any.second.front();
+            mfreq += any.second.back();
+            mfreq /= (any.second.size() +2);
+        }else{
+            mfreq /= any.second.size();
+        }
+        band2wavelength[any.first] = util::freqency2wavelenth(mfreq*1e6);
     }
 
     init.initializeObservingMode(staNames.size(), samRate, bits, band2channel, band2wavelength);

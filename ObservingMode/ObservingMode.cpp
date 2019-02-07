@@ -174,9 +174,9 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
         mode->setRecordingRates(any.first, recRate);
 
         if(bits == 1){
-            mode->setEfficiencyFactor(0.6366 * 0.97);
-        }else{
             mode->setEfficiencyFactor(0.5715 * 0.97);
+        }else{
+            mode->setEfficiencyFactor(0.6366 * 0.97);
         }
 
     }

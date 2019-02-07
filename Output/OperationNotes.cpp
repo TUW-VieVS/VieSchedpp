@@ -327,7 +327,7 @@ void OperationNotes::firstLastObservations_skdStyle(const string &expName,
     of << "\n";
     vector<char> found(network.getNSta(),false);
     for (const auto &scan : scans){
-        of << scan.toSkedOutputTimes(scan.getTimes().getObservingTime(Timestamp::start), sources[scan.getSourceId()], network.getNSta());
+        of << scan.toSkedOutputTimes(sources[scan.getSourceId()], network.getNSta());
         scan.includesStations(found);
         if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
             break;
@@ -343,7 +343,7 @@ void OperationNotes::firstLastObservations_skdStyle(const string &expName,
     }
     for ( ; i<scans.size(); ++i){
         const auto &scan = scans[i];
-        of << scan.toSkedOutputTimes(scan.getTimes().getObservingTime(Timestamp::start), sources[scan.getSourceId()], network.getNSta());
+        of << scan.toSkedOutputTimes(sources[scan.getSourceId()], network.getNSta());
     }
 }
 

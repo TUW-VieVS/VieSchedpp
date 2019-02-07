@@ -688,11 +688,11 @@ namespace VieVS{
          * @brief output observing duration in sked output format
          * @author Matthias Schartner
          *
-         * @param of outfile stream
+         * @param source observedSource
          * @param nMaxSta maximum number of station
          * @return line output in sked format
          */
-        std::string toSkedOutputTimes( unsigned int time, const Source &source, unsigned long nMaxSta) const;
+        std::string toSkedOutputTimes( const Source &source, unsigned long nMaxSta) const;
 
         /**
          * @brief checks if station is participating and notes it in flag vector

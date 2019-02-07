@@ -635,7 +635,6 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
                 string band = splitVector[3];
                 string freq = splitVector[4];
                 string sideBand = splitVector[5];
-
                 of << boost::format("L %c %2s %2s %2s %8s %3s %s\n") % olc.at(staName) % skd.getFreqTwoLetterCode() %
                       band % IF % freq % nr % sideBand;
             }

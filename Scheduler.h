@@ -202,6 +202,16 @@ namespace VieVS{
         }
 
         /**
+         * @brief get observing mode network
+         * @author Matthias Schartner
+         *
+         * @return observing mode
+         */
+        const std::shared_ptr<const ObservingMode> &getObservingMode() const noexcept{
+            return obsModes_;
+        }
+
+        /**
          * @brief get number of observations scheduled in this observation
          * @author Matthias Schartner
          *

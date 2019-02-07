@@ -1623,8 +1623,8 @@ bool Scan::hasObservation(unsigned long staid1, unsigned long staid2) const {
     return false;
 }
 
-std::string Scan::toSkedOutputTimes( unsigned int time, const Source &source, unsigned long nMaxSta)  const{
-
+std::string Scan::toSkedOutputTimes( const Source &source, unsigned long nMaxSta)  const{
+    unsigned int time = times_.getObservingTime(Timestamp::start);
     string out = (boost::format(" %-8s %s|") %source.getName() % TimeSystem::time2string_doy_minus(time)).str();
 
     for(int staid=0; staid<nMaxSta; ++staid){
