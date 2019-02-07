@@ -130,9 +130,9 @@ void Output::writeNGS() {
 
     string fname;
     if (version_ == 0) {
-        fname = TimeSystem::date2string(TimeSystem::startTime).erase(0,2).append("VS_N000");
+        fname = TimeSystem::time2date(TimeSystem::startTime).erase(0,2).append("VS_N000");
     } else {
-        fname = (boost::format("%sVS_v%03d") % TimeSystem::date2string(TimeSystem::startTime).erase(0,2) % (version_)).str();
+        fname = (boost::format("%sVS_v%03d") % TimeSystem::time2date(TimeSystem::startTime).erase(0,2) % (version_)).str();
     }
     #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL(info) << "writing empty NGS file to " << fname;
@@ -415,7 +415,7 @@ void Output::writeStatisticsPerSourceGroup() {
                         unsigned int ttt = scanTime[srcid][i];
 
                         boost::posix_time::ptime pt = TimeSystem::internalTime2PosixTime(ttt);
-                        of << TimeSystem::ptime2string(pt).substr(11,5).append("[");
+                        of << TimeSystem::time2string(pt).substr(11,5).append("[");
                         of << flag[srcid][i] ;
                         of << boost::format("%02d], ") % scanNsta[srcid][i];
                     }
@@ -424,8 +424,8 @@ void Output::writeStatisticsPerSourceGroup() {
                     }
                     of << "||, ";
                     for (auto &i : visibleTimes[srcid]) {
-                        of << "[" << TimeSystem::ptime2string(i.first).substr(11,5)
-                           << " - " << TimeSystem::ptime2string(i.second).substr(11,5) << "], ";
+                        of << "[" << TimeSystem::time2string(i.first).substr(11,5)
+                           << " - " << TimeSystem::time2string(i.second).substr(11,5) << "], ";
                     }
                     of << "\n";
                 }

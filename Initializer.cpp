@@ -853,9 +853,9 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
         string startString = xml_.get<string>("VieSchedpp.general.startTime");
         boost::posix_time::ptime startTime = TimeSystem::string2ptime(startString);
-        of << "start time: " << TimeSystem::ptime2string(startTime) << "\n";
+        of << "start time: " << TimeSystem::time2string(startTime) << "\n";
         #ifdef VIESCHEDPP_LOG
-        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session start time: " << TimeSystem::ptime2string(startTime);
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session start time: " << TimeSystem::time2string(startTime);
         #endif
         int sec_ = startTime.time_of_day().total_seconds();
         double mjdStart = startTime.date().modjulian_day() + sec_ / 86400.0;
@@ -863,9 +863,9 @@ void Initializer::initializeGeneral(ofstream &of) noexcept {
 
         string endString = xml_.get<string>("VieSchedpp.general.endTime");
         boost::posix_time::ptime endTime = TimeSystem::string2ptime(endString);
-        of << "end time:   " << TimeSystem::ptime2string(endTime) << "\n";
+        of << "end time:   " << TimeSystem::time2string(endTime) << "\n";
         #ifdef VIESCHEDPP_LOG
-        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session end time: " << TimeSystem::ptime2string(endTime);
+        if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "session end time: " << TimeSystem::time2string(endTime);
         #endif
 
 

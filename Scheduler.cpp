@@ -178,7 +178,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                 #endif
 
                 of << (boost::format("[warning] no valid scan found, checking one minute later: %s\n")
-                       % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(maxScanEnd))).str();
+                       % TimeSystem::time2string(maxScanEnd)).str();
                 checkForNewEvents(maxScanEnd, true, of, true);
                 if (maxScanEnd > endTime) {
                     break;
@@ -1153,8 +1153,8 @@ void Scheduler::startTagelongMode(Station &station, std::ofstream &of) {
             auto txt = boost::format("    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n")
                        %source.getName()
                        %counter
-                       %TimeSystem::internalTime2timeString(pv_new_start.getTime())
-                       %TimeSystem::internalTime2timeString(pv_new_end.getTime());
+                       % TimeSystem::time2timeOfDay(pv_new_start.getTime())
+                       % TimeSystem::time2timeOfDay(pv_new_end.getTime());
 
             #ifdef VIESCHEDPP_LOG
             if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << txt;
@@ -1883,7 +1883,7 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                     auto txt = boost::format("extending observing time to idle time: source %s might not be visible from %s during %s. ")
                                % thisSource.getName()
                                % thisSta.getName()
-                               %TimeSystem::internalTime2timeString(maximum);
+                               % TimeSystem::time2timeOfDay(maximum);
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(error) << txt;
                     #else
@@ -1942,11 +1942,11 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
                 of << boost::format("|     %-8s |  %+6d  | %8s - %8s |  %5d  |                         | %8s - %8s |  %5d  |                          | %s\n")
                                      % network_.getStation(staid).getName()
                                      % diff
-                                     % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::start))
-                                     % TimeSystem::internalTime2timeString(scan.getTimes().getObservingTime(i, Timestamp::end))
+                                     % TimeSystem::time2timeOfDay(scan.getTimes().getObservingTime(i, Timestamp::start))
+                                     % TimeSystem::time2timeOfDay(scan.getTimes().getObservingTime(i, Timestamp::end))
                                      % newObservingTime
-                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::start))
-                                     % TimeSystem::internalTime2timeString(copyOfScanTimes.getObservingTime(i, Timestamp::end))
+                                     % TimeSystem::time2timeOfDay(copyOfScanTimes.getObservingTime(i, Timestamp::start))
+                                     % TimeSystem::time2timeOfDay(copyOfScanTimes.getObservingTime(i, Timestamp::end))
                                      % oldObservingTime
                                      % scan.getPointingVector(i, ts).printId();
             }

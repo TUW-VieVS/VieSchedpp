@@ -90,13 +90,13 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
     of << "* GUI_VERSION " << GUI_versionNr << "\n";
     auto ctstr = xml.get<string>("VieSchedpp.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
-    of << boost::format("SCHEDULE_CREATE_DATE %s \n") %TimeSystem::ptime2string_doy(ct);
+    of << boost::format("SCHEDULE_CREATE_DATE %s \n") % TimeSystem::time2string_doy(ct);
     of << "SCHEDULER " << xml.get("VieSchedpp.output.scheduler","----") << " ";
     of << "CORRELATOR " << xml.get("VieSchedpp.output.correlator","----") << " ";
     auto st = TimeSystem::startTime;
-    of << boost::format("START %s ") %TimeSystem::ptime2string_doy(st);
+    of << boost::format("START %s ") % TimeSystem::time2string_doy(st);
     auto et = TimeSystem::endTime;
-    of << boost::format("END %s \n") %TimeSystem::ptime2string_doy(et);
+    of << boost::format("END %s \n") % TimeSystem::time2string_doy(et);
 
     of << boost::format("%-12s %4d ") % "CALIBRATION" % network.getStation(0).getWaittimes().preob;
     of << boost::format("%-12s %4d ") % "CORSYNCH" % network.getStation(0).getWaittimes().midob;
@@ -531,7 +531,6 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 
     for (const auto &scan:scans) {
         const string &srcName = sources[scan.getSourceId()].getName();
-        boost::posix_time::ptime start = TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start));
 
         unsigned int scanTime = scan.getTimes().getObservingDuration();
 
@@ -542,7 +541,7 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
             ftlc = skdCatalogReader.getFreqTwoLetterCode();
         }
         of << boost::format("%-8s %3d %s PREOB  %s  %8d MIDOB         0 POSTOB ")
-              % srcName %preob %ftlc %TimeSystem::ptime2string_doy(start) %scanTime;
+              % srcName %preob %ftlc % TimeSystem::time2string_doy(scan.getTimes().getObservingTime(Timestamp::start)) %scanTime;
 
         for (int i = 0; i < scan.getNSta(); ++i) {
             const PointingVector &pv = scan.getPointingVector(i);

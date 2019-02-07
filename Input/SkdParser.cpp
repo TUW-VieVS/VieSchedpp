@@ -358,7 +358,7 @@ void SkdParser::createScans(std::ofstream &of) {
                 if(error){
                     pair<double,double>limits = thisSta.getCableWrap().getLimits(cwflag);
                     of << boost::format("Station %8s scan %4d source %8s time %s azimuth error! Flag: %c (from %7.2f to %7.2f) calculated: %7.2f (or %7.2f)\n")
-                            %thisSta.getName()%counter%thisSource.getName()%TimeSystem::ptime2string_doy(scanStart)%cwflag%(limits.first*rad2deg)%(limits.second*rad2deg)%(p.getAz()*rad2deg)%(p.getAz()*rad2deg-360);
+                            %thisSta.getName()%counter%thisSource.getName()% TimeSystem::time2string_doy(scanStart)%cwflag%(limits.first*rad2deg)%(limits.second*rad2deg)%(p.getAz()*rad2deg)%(p.getAz()*rad2deg-360);
                 }
                 pv.push_back(p);
 
@@ -399,16 +399,16 @@ void SkdParser::createScans(std::ofstream &of) {
                 const auto &tmp = scan.getTimes();
                 for (int i = 0; i < nsta; ++i) {
                     if(tmp.getObservingTime(i, Timestamp::start)- tmp.getPreobDuration(i) < tmp.getSlewTime(i, Timestamp::end)-2){
-                        unsigned int eost = tmp.getSlewTime(i, Timestamp::end);
-                        unsigned int eoit = tmp.getObservingTime(i, Timestamp::start)- tmp.getPreobDuration(i);
-                        boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
-                        boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
+//                        unsigned int eost = tmp.getSlewTime(i, Timestamp::end);
+//                        unsigned int eoit = tmp.getObservingTime(i, Timestamp::start)- tmp.getPreobDuration(i);
+//                        boost::posix_time::ptime eostp = TimeSystem::internalTime2PosixTime(eost);
+//                        boost::posix_time::ptime eoitp = TimeSystem::internalTime2PosixTime(eoit);
 
                         of << boost::format("Station %8s scan %4d source %8s time %s idle time error!\n")
                                 %network_.getStation(scan.getPointingVector(i).getStaid()).getName()
                                 %counter
                                 %sources_[scan.getPointingVector(i).getSrcid()].getName()
-                                %TimeSystem::ptime2string_doy(scanStart);
+                                % TimeSystem::time2string_doy(scanStart);
                     }
                 }
             }
@@ -490,8 +490,8 @@ Scheduler SkdParser::createScheduler() {
     }
 
     boost::property_tree::ptree xml;
-    xml.add("general.startTime",TimeSystem::ptime2string(TimeSystem::startTime));
-    xml.add("general.endTime",TimeSystem::ptime2string(TimeSystem::endTime));
+    xml.add("general.startTime", TimeSystem::time2string(TimeSystem::startTime));
+    xml.add("general.endTime", TimeSystem::time2string(TimeSystem::endTime));
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
     xml.add("created.time",now);

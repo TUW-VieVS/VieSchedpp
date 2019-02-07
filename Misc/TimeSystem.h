@@ -66,7 +66,20 @@ namespace VieVS {
          * @param ptime target datetime
          * @return datetime string
          */
-        static std::string ptime2string(const boost::posix_time::ptime &ptime);
+        static std::string time2string(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * example output: 2018.01.01 00:00:00
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string(unsigned int time){
+            return time2string(internalTime2PosixTime(time));
+        }
 
         /**
          * @brief converts datetime to string
@@ -77,7 +90,20 @@ namespace VieVS {
          * @param ptime target datetime
          * @return datetime string
          */
-        static std::string ptime2string_units(const boost::posix_time::ptime &ptime);
+        static std::string time2string_units(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * example output: 2018y01m01d00h00m00s
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string_units(unsigned int time){
+            return time2string_units(internalTime2PosixTime(time));
+        }
 
         /**
          * @brief converts datetime to string
@@ -89,21 +115,48 @@ namespace VieVS {
          * @param ptime target datetime
          * @return datetime string
          */
-        static std::string ptime2string_doy(const boost::posix_time::ptime &ptime);
+        static std::string time2string_doy(const boost::posix_time::ptime &ptime);
 
         /**
-         * @brief convert string to datetime
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 18001000000
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string_doy(unsigned int time){
+            return time2string_doy(internalTime2PosixTime(time));
+        }
+
+        /**
+         * @brief convert datetime to string
          * @author Matthias Schartner
          *
          * example output: 18001-000000
          *
-         * @param input input string
+         * @param ptime target datetime
          * @return datetime
          */
-        static std::string ptime2string_doy_minus(const boost::posix_time::ptime &ptime);
+        static std::string time2string_doy_minus(const boost::posix_time::ptime &ptime);
 
         /**
-         * @brief converts datetime to string in skd file $DOWNTIME format
+         * @brief convert internal time to string
+         * @author Matthias Schartner
+         *
+         * example output: 18001-000000
+         *
+         * @param time target time in seconds from session start
+         * @return datetime
+         */
+        static std::string time2string_doy_minus(unsigned int time){
+            return time2string_doy_minus(internalTime2PosixTime(time));
+        }
+
+        /**
+         * @brief converts datetime to string
          * @author Matthias Schartner
          *
          * instead of month and day the day of year is used
@@ -112,7 +165,121 @@ namespace VieVS {
          * @param ptime target datetime
          * @return datetime string
          */
-        static std::string ptime2string_doySkdDowntime(const boost::posix_time::ptime &ptime);
+        static std::string time2string_doySkdDowntime(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 2018-001-00:00:00
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string_doySkdDowntime(unsigned int time){
+            return time2string_doySkdDowntime(internalTime2PosixTime(time));
+        }
+
+        /**
+         * @brief converts datetime to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 2018y001d00h00m00s
+         *
+         * @param ptime target datetime
+         * @return datetime string
+         */
+        static std::string time2string_doy_units(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 2018y001d00h00m00s
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string_doy_units(unsigned int time){
+            return time2string_doy_units(internalTime2PosixTime(time));
+        }
+
+
+        /**
+         * @brief converts datetime to string
+         * @author Matthias Schartner
+         *
+         * three character month string is used
+         * example output: 18JAN01
+         *
+         * @param ptime target datetime
+         * @return date string
+         */
+        static std::string time2date(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * three character month string is used
+         * example output: 18JAN01
+         *
+         * @param time target time in seconds from session start
+         * @return date string
+         */
+        static std::string time2date(unsigned int time){
+            return time2date(internalTime2PosixTime(time));
+        }
+
+        /**
+         * @brief converts datetime to string
+         * @author Matthias Schartner
+         *
+         * example output: 00:00:00
+         *
+         * @param ptime target datetime
+         * @return time string
+         */
+        static std::string time2timeOfDay(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * example output: 00:00:00
+         *
+         * @param time target time in seconds from session start
+         * @return time string
+         */
+        static std::string time2timeOfDay(unsigned int time){
+            return time2timeOfDay(internalTime2PosixTime(time));
+        }
+
+
+
+        /**
+         * @brief internal time format to datetime
+         * @author Matthias Schartner
+         *
+         * @param time target internal time
+         * @return datetime
+         */
+        static boost::posix_time::ptime internalTime2PosixTime(unsigned int time);
+
+
+        /**
+         * @brief converts time to internal time format
+         * @author Matthias Schartner
+         *
+         * @param ptime target datetime
+         * @return internal time
+         */
+        static unsigned int posixTime2InternalTime(const boost::posix_time::ptime &ptime);
+
+
 
         /**
          * @brief convert string to datetime
@@ -131,18 +298,6 @@ namespace VieVS {
         static boost::posix_time::ptime string_doy2ptime(std::string input);
 
         /**
-         * @brief converts datetime to string
-         * @author Matthias Schartner
-         *
-         * instead of month and day the day of year is used
-         * example output: 2018y001d00h00m00s
-         *
-         * @param ptime target datetime
-         * @return datetime string
-         */
-        static std::string ptime2string_doy_units(const boost::posix_time::ptime &ptime);
-
-        /**
          * @brief convert string to datetime
          * @author Matthias Schartner
          *
@@ -159,46 +314,6 @@ namespace VieVS {
          */
         static boost::posix_time::ptime string2ptime(std::string input);
 
-        /**
-         * @brief date to string
-         * @author Matthias Schartner
-         *
-         * three character month string is used
-         * example output: 18JAN01
-         *
-         * @param ptime target datetime
-         * @return date string
-         */
-        static std::string date2string(const boost::posix_time::ptime &ptime);
-
-        /**
-         * @brief internal time format to datetime
-         * @author Matthias Schartner
-         *
-         * @param time target internal time
-         * @return datetime
-         */
-        static boost::posix_time::ptime internalTime2PosixTime(unsigned int time);
-
-        /**
-         * @brief internal time format to time
-         * @author Matthias Schartner
-         *
-         * example output: 00:00:00
-         *
-         * @param time target internal time
-         * @return time string
-         */
-        static std::string internalTime2timeString(unsigned int time);
-
-        /**
-         * @brief converts time to internal time format
-         * @author Matthias Schartner
-         *
-         * @param ptime target datetime
-         * @return internal time
-         */
-        static unsigned int posixTime2InternalTime(const boost::posix_time::ptime &ptime);
     };
 }
 

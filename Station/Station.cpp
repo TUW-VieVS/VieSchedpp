@@ -539,14 +539,14 @@ bool Station::listDownTimes(std::ofstream &of, bool skdFormat) const {
             if(!skdFormat){
                 of << boost::format("    %-8s %s - %s \n")
                       % getName()
-                      % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(start))
-                      % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(end));
+                      % TimeSystem::time2string(start)
+                      % TimeSystem::time2string(end);
 
             }else{
                 of << boost::format("%2s %s %s \n")
                       % getAlternativeName()
-                      % TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(start))
-                      % TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(end));
+                      % TimeSystem::time2string_doySkdDowntime(start)
+                      % TimeSystem::time2string_doySkdDowntime(end);
 
             }
         }
@@ -577,14 +577,14 @@ bool Station::listTagalongTimes(std::ofstream &of, bool skdFormat) const {
             if(!skdFormat){
                 of << boost::format("    %-8s %s - %s \n")
                       % getName()
-                      % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(start))
-                      % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(end));
+                      % TimeSystem::time2string(start)
+                      % TimeSystem::time2string(end);
 
             }else{
                 of << boost::format("* %2s %s %s TAGALONG\n")
                       % getAlternativeName()
-                      % TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(start))
-                      % TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(end));
+                      % TimeSystem::time2string_doySkdDowntime(start)
+                      % TimeSystem::time2string_doySkdDowntime(end);
 
             }
         }

@@ -105,7 +105,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     of << "===========================================================\n";
     of << boost::format(" Experiment: %-17s            Description: %-s\n") %expName %(xml.get("VieSchedpp.output.experimentDescription","no_description"));
     of << boost::format(" Scheduler:  %-17s            Correlator:  %-s\n") %(xml.get("VieSchedpp.output.scheduler","unknown")) %(xml.get("VieSchedpp.output.correlator","unknown"));
-    of << boost::format(" Start:      %-17s            End:         %-s\n") %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(0))) %(TimeSystem::ptime2string_doySkdDowntime(TimeSystem::internalTime2PosixTime(TimeSystem::duration)));
+    of << boost::format(" Start:      %-17s            End:         %-s\n") %(TimeSystem::time2string_doySkdDowntime(0)) %(TimeSystem::time2string_doySkdDowntime(TimeSystem::duration));
     of << boost::format(" Current yyyyddd:    %4d%03d (%7.2f)  ( %5d MJD, %s. %2d%s.)\n") %year %doy %yearDecimal %(currentTime.date().modjulian_day()) %wd %day %monthStr;
     of << "===========================================================\n";
     of << boost::format(" Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
@@ -327,10 +327,8 @@ void OperationNotes::firstLastObservations_skdStyle(const string &expName,
     of << "\n";
     vector<char> found(network.getNSta(),false);
     for (const auto &scan : scans){
-        of << boost::format(" %-8s %s|") %sources[scan.getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scan.getTimes().getObservingTime(Timestamp::start)));
-        scan.toSkedOutputTimes(of, network.getNSta());
+        of << scan.toSkedOutputTimes(scan.getTimes().getObservingTime(Timestamp::start), sources[scan.getSourceId()], network.getNSta());
         scan.includesStations(found);
-        of << "\n";
         if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
             break;
         }
@@ -344,9 +342,8 @@ void OperationNotes::firstLastObservations_skdStyle(const string &expName,
         }
     }
     for ( ; i<scans.size(); ++i){
-        of << boost::format(" %-8s %s|") %sources[scans[i].getSourceId()].getName() %TimeSystem::ptime2string_doy_minus(TimeSystem::internalTime2PosixTime(scans[i].getTimes().getObservingTime(Timestamp::start)));
-        scans[i].toSkedOutputTimes(of, network.getNSta());
-        of << "\n";
+        const auto &scan = scans[i];
+        of << scan.toSkedOutputTimes(scan.getTimes().getObservingTime(Timestamp::start), sources[scan.getSourceId()], network.getNSta());
     }
 }
 
@@ -727,7 +724,7 @@ void OperationNotes::displayAstronomicalParameters() {
     of << "|---------------------|----------------------------------------------|\n";
     for(int i=0; i<AstronomicalParameters::earth_nutTime.size(); ++i){
         of << boost::format("| %19s | %+14.6e %+14.6e %+14.6e |\n")
-              % TimeSystem::ptime2string(TimeSystem::internalTime2PosixTime(AstronomicalParameters::earth_nutTime[i]))
+              % TimeSystem::time2string(AstronomicalParameters::earth_nutTime[i])
               % AstronomicalParameters::earth_nutX[i]
               % AstronomicalParameters::earth_nutY[i]
               % AstronomicalParameters::earth_nutS[i];

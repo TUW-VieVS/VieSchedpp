@@ -83,9 +83,9 @@ void Vex::exper_block(const std::string &expName, const std::string &expDescript
     of << "        exper_name = " << boost::replace_all_copy(expName," ","_") << eol;
     of << "        exper_description = " << boost::replace_all_copy(expDescription," ","_") << eol;
     auto st = TimeSystem::startTime;
-    of << "        exper_nominal_start = " << TimeSystem::ptime2string_doy_units(st) << eol;
+    of << "        exper_nominal_start = " << TimeSystem::time2string_doy_units(st) << eol;
     auto et = TimeSystem::endTime;
-    of << "        exper_nominal_stop = " << TimeSystem::ptime2string_doy_units(et) << eol;
+    of << "        exper_nominal_stop = " << TimeSystem::time2string_doy_units(et) << eol;
 
     if(!piName.empty()){
         of << "        PI_name = " << boost::replace_all_copy(piName," ","_") << eol;
@@ -297,9 +297,8 @@ void Vex::sched_block(const std::vector<Scan> &scans, const Network &network,
 
         unsigned long nsta = scan.getNSta();
         unsigned long srcid = scan.getSourceId();
-        boost::posix_time::ptime scanStart = TimeSystem::internalTime2PosixTime(scan.getPointingVector(0).getTime());
         of << "    scan " << scanId << eol;
-        of << "        start = " << TimeSystem::ptime2string_doy_units(scanStart) << eol;
+        of << "        start = " << TimeSystem::time2string_doy_units(scan.getTimes().getObservingTime(Timestamp::start)) << eol;
         of << "        mode = " << obsModes->getMode(0)->getName() << eol;
         of << "        source = " << sources.at(srcid).getName() << eol;
 

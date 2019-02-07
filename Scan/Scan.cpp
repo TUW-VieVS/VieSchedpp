@@ -1244,8 +1244,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
     }
 
     string line1Right = (boost::format(" duration: %8s - %8s")
-            % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::start))
-            % TimeSystem::internalTime2timeString(times_.getObservingTime(Timestamp::end))).str();
+            % TimeSystem::time2timeOfDay(times_.getObservingTime(Timestamp::start))
+            % TimeSystem::time2timeOfDay(times_.getObservingTime(Timestamp::end))).str();
     of << boost::format("| scan:   no%04d   %-15s                                  %74s |\n") % observed_scan_nr % printId() % line1Right;
 
     string line2Right = (boost::format(" type: %s %s") % type % type2).str();
@@ -1269,8 +1269,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
               % thisSta.getName() % times_.getFieldSystemDuration(i) % times_.getSlewDuration(i) % times_.getIdleDuration(i) %
                 times_.getPreobDuration(i) %
                 times_.getObservingDuration(i)
-              % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::start))
-              % TimeSystem::internalTime2timeString(times_.getObservingTime(i, Timestamp::end))
+              % TimeSystem::time2timeOfDay(times_.getObservingTime(i, Timestamp::start))
+              % TimeSystem::time2timeOfDay(times_.getObservingTime(i, Timestamp::end))
               % az_s % az_e % (pv.getAz()*rad2deg) % (pve.getAz()*rad2deg) % (pv.getEl()*rad2deg) % (pve.getEl()*rad2deg) %pv.getId() %pve.getId();
     }
     vector<string> ignoreBaseline;
@@ -1476,7 +1476,7 @@ void Scan::removeUnnecessaryObservingTime(Network &network, const Source &thisSo
                               "source %s might not be visible from %s during %s. ")
                 % thisSource.getName()
                 % thisSta.getName()
-                %TimeSystem::internalTime2timeString(t)).str();
+                % TimeSystem::time2timeOfDay(t)).str();
     }
 }
 
@@ -1514,7 +1514,7 @@ void Scan::removeAdditionalObservingTime(unsigned int time, const Station &thisS
                                       "source %s might not be visible from %s during %s. ")
                         % thisSource.getName()
                         % thisSta.getName()
-                        %TimeSystem::internalTime2timeString(t)).str();
+                        % TimeSystem::time2timeOfDay(t)).str();
             }
         }
     }
@@ -1623,17 +1623,20 @@ bool Scan::hasObservation(unsigned long staid1, unsigned long staid2) const {
     return false;
 }
 
-void Scan::toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta) const{
+std::string Scan::toSkedOutputTimes( unsigned int time, const Source &source, unsigned long nMaxSta)  const{
+
+    string out = (boost::format(" %-8s %s|") %source.getName() % TimeSystem::time2string_doy_minus(time)).str();
 
     for(int staid=0; staid<nMaxSta; ++staid){
         const auto &idx = findIdxOfStationId(staid);
         if(idx.is_initialized()){
-            of << boost::format("%4d") %times_.getObservingDuration(*idx);
+            out.append((boost::format("%4d") %times_.getObservingDuration(*idx)).str());
         }else{
-            of << "    ";
+            out.append("    ");
         }
     }
-
+    out.append("\n");
+    return out;
 }
 
 void Scan::includesStations(std::vector<char> &flag) const{

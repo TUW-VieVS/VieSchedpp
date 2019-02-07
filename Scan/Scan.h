@@ -690,8 +690,9 @@ namespace VieVS{
          *
          * @param of outfile stream
          * @param nMaxSta maximum number of station
+         * @return line output in sked format
          */
-        void toSkedOutputTimes(std::ofstream &of, unsigned long nMaxSta) const;
+        std::string toSkedOutputTimes( unsigned int time, const Source &source, unsigned long nMaxSta) const;
 
         /**
          * @brief checks if station is participating and notes it in flag vector
