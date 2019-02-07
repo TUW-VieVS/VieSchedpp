@@ -910,7 +910,7 @@ void ParameterSettings::mode(double sampleRate, unsigned int bits) {
     mode.add("mode.sampleRate", sampleRate);
     mode.add("mode.bits", bits);
 
-    master_.add_child("VieSchedpp.mode.type", mode.get_child("mode"));
+    master_.add_child("VieSchedpp.mode.simple", mode.get_child("mode"));
 }
 
 void ParameterSettings::mode_band(const std::string &name, double wavelength, unsigned int channels) {
@@ -920,7 +920,7 @@ void ParameterSettings::mode_band(const std::string &name, double wavelength, un
 
     band.add("band.<xmlattr>.name", name);
 
-    master_.add_child("VieSchedpp.mode.type.bands.band", band.get_child("band"));
+    master_.add_child("VieSchedpp.mode.simple.bands.band", band.get_child("band"));
 }
 
 void ParameterSettings::mode_bandPolicy(const std::string &name, double minSNR, ObservationModeProperty station,
