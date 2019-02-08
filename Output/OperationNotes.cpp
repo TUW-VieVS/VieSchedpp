@@ -79,6 +79,33 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
         of << newStr << "\n";
     }
 
+    of << "Contact\n";
+    of << "=======\n";
+    std::string piName = xml.get("VieSchedpp.output.piName","");
+    std::string piEmail = xml.get("VieSchedpp.output.piEmail", "");
+
+    std::string contactName = xml.get("VieSchedpp.output.contactName","");
+    std::string contactEmail = xml.get("VieSchedpp.output.contactEmail", "");
+
+    std::string schedulerName = xml.get("VieSchedpp.created.name","");
+    std::string schedulerEmail = xml.get("VieSchedpp.created.email", "");
+
+    unsigned long nmax = max({piName.size(), contactName.size(), schedulerName.size()});
+    string format = (boost::format("%%%ds    %%s\n") %nmax).str();
+
+    if(!contactName.empty()){
+        of << boost::format(format) %contactName %contactEmail;
+    }
+    if(!schedulerName.empty()){
+        of << boost::format(format) %schedulerName %schedulerEmail;
+    }
+    if(!piName.empty()){
+        of << boost::format(format) %piName %piEmail;
+    }
+    of << "\n";
+
+
+
 
     bool down = false;
     of << "Station down times:\n";
@@ -87,7 +114,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
         down = down || flag;
     }
     if(!down){
-        of << "    no\n";
+        of << "    none\n";
     }
 
     of << "Tagalong mode used:\n";
@@ -97,7 +124,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
         tag = tag || flag;
     }
     if(!tag){
-        of << "    no\n";
+        of << "    none\n";
     }
     of << "\n";
 
@@ -110,17 +137,14 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     of << "===========================================================\n";
     of << boost::format(" Software:   %-17s            Version:     %-s\n") %"VieSched++" %(util::version().substr(0,7));
     of << boost::format(" GUI:        %-17s            Version:     %-s\n") %"VieSched++" %(xml.get("VieSchedpp.software.GUI_version","unknown").substr(0,7));
-    std::string piName = xml.get("VieSchedpp.output.piName","");
     if(!piName.empty()) {
-        of << boost::format(" PI:         %-17s            mail:        %-s\n") %(xml.get("VieSchedpp.output.piName", "")) %(xml.get("VieSchedpp.output.piEmail", "unknown"));
+        of << boost::format(" PI:         %-27s  mail:        %-s\n") %piName %piEmail;
     }
-    std::string contactName = xml.get("VieSchedpp.output.contactName","");
-    if(!piName.empty()) {
-        of << boost::format(" contact:    %-17s            mail:        %-s\n") %(xml.get("VieSchedpp.output.contactName", "")) %(xml.get("VieSchedpp.output.contactEmail", "unknown"));
+    if(!contactName.empty()) {
+        of << boost::format(" contact:    %-27s  mail:        %-s\n") %contactName %contactEmail;
     }
-    std::string scheduler = xml.get("VieSchedpp.created.name","");
-    if(!piName.empty()) {
-        of << boost::format(" scheduler:  %-17s            mail:        %-s\n") %(xml.get("VieSchedpp.created.name", "")) %(xml.get("VieSchedpp.created.email", "unknown"));
+    if(!schedulerName.empty()) {
+        of << boost::format(" scheduler:  %-27s  mail:        %-s\n") %schedulerName %schedulerEmail;
     }
     of << "===========================================================\n";
     firstLastObservations_skdStyle(expName, network, sources, scans);

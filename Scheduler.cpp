@@ -435,12 +435,11 @@ void Scheduler::start() noexcept {
     }
 
     // output some statistics
-
+    statistics(of);
     bool newScheduleNecessary = checkOptimizationConditions(of);
 
     // check if new iteration is necessary
     if(newScheduleNecessary){
-        statistics(of);
         of.close();
         ++parameters_.currentIteration;
 
@@ -473,7 +472,6 @@ void Scheduler::start() noexcept {
             }
         }
 
-        statistics(of);
         updateObservingTimes();
 
         // check if there was an error during the session
