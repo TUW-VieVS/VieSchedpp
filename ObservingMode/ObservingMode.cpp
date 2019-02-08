@@ -609,7 +609,7 @@ void ObservingMode::summary(std::ofstream &of) const {
     }else{
         of << "Simple observing mode used!\n";
         for(const auto &any : bands_){
-            double rec = getMode(0)->recordingRate(0,1,any);
+            double rec = getMode(0)->recordingRate(0,1,any) *1e-6;
             double eff = getMode(0)->efficiency(0,1);
 
             of << "    band: " << any << "\n";

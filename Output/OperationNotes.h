@@ -170,7 +170,7 @@ namespace VieVS{
          * @brief list first and last observations in skd style
          * @author Matthias Schartner
          *
-         * lists as many scans until all stations are listed
+         * lists as many scans until all stations are listed (maximum of 5)
          *
          * @param expName experiment name
          * @param network station network

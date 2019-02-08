@@ -326,20 +326,26 @@ void OperationNotes::firstLastObservations_skdStyle(const string &expName,
     }
     of << "\n";
     vector<char> found(network.getNSta(),false);
+    int counter = 0;
     for (const auto &scan : scans){
         of << scan.toSkedOutputTimes(sources[scan.getSourceId()], network.getNSta());
         scan.includesStations(found);
-        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
+        if (counter > 5 || all_of(found.begin(), found.end(), [](bool v) { return v; })) {
             break;
         }
+        ++counter;
     }
+
+    found = vector<char>(network.getNSta(),false);
     of << " Last observations\n";
     unsigned long i = scans.size() - 1;
+    counter = 0;
     for ( ; i>=0; --i){
         scans[i].includesStations(found);
-        if (all_of(found.begin(), found.end(), [](bool v) { return v; })) {
+        if (counter > 5 || all_of(found.begin(), found.end(), [](bool v) { return v; })) {
             break;
         }
+        ++counter;
     }
     for ( ; i<scans.size(); ++i){
         const auto &scan = scans[i];
