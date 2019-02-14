@@ -35,25 +35,25 @@ void Skd::writeSkd(const Network &network,
                    const boost::property_tree::ptree &xml) {
 
     of << "$EXPER " << xml.get<string>("VieSchedpp.general.experimentName") << endl;
-    if(xml.get_optional<std::string>("VieSchedpp.output.piName").is_initialized()){
-        of << "* PI name:       " << *xml.get_optional<std::string>("VieSchedpp.output.piName") << "\n";
-    }
-    if(xml.get_optional<std::string>("VieSchedpp.output.piEmail").is_initialized()){
-        of << "* PI email:      " << *xml.get_optional<std::string>("VieSchedpp.output.piEmail") << "\n";
-    }
-    if(xml.get_optional<std::string>("VieSchedpp.output.contactName").is_initialized()){
-        of << "* contact name:  " << *xml.get_optional<std::string>("VieSchedpp.output.contactName") << "\n";
-    }
-    if(xml.get_optional<std::string>("VieSchedpp.output.contactEmail").is_initialized()){
-        of << "* contact email: " << *xml.get_optional<std::string>("VieSchedpp.output.contactEmail") << "\n";
-    }
-    if(xml.get_optional<std::string>("VieSchedpp.output.notes").is_initialized()){
-        string notes = "*";
-        notes.append(*xml.get_optional<std::string>("VieSchedpp.output.notes")).append("\n");
-        notes = boost::replace_all_copy(notes,"\\n","\n*");
-        of << "* notes: \n";
-        of << notes << "*\n*";
-    }
+//    if(xml.get_optional<std::string>("VieSchedpp.output.piName").is_initialized()){
+//        of << "* PI name:       " << *xml.get_optional<std::string>("VieSchedpp.output.piName") << "\n";
+//    }
+//    if(xml.get_optional<std::string>("VieSchedpp.output.piEmail").is_initialized()){
+//        of << "* PI email:      " << *xml.get_optional<std::string>("VieSchedpp.output.piEmail") << "\n";
+//    }
+//    if(xml.get_optional<std::string>("VieSchedpp.output.contactName").is_initialized()){
+//        of << "* contact name:  " << *xml.get_optional<std::string>("VieSchedpp.output.contactName") << "\n";
+//    }
+//    if(xml.get_optional<std::string>("VieSchedpp.output.contactEmail").is_initialized()){
+//        of << "* contact email: " << *xml.get_optional<std::string>("VieSchedpp.output.contactEmail") << "\n";
+//    }
+//    if(xml.get_optional<std::string>("VieSchedpp.output.notes").is_initialized()){
+//        string notes = "*";
+//        notes.append(*xml.get_optional<std::string>("VieSchedpp.output.notes")).append("\n");
+//        notes = boost::replace_all_copy(notes,"\\n","\n*");
+//        of << "* notes: \n";
+//        of << notes << "*\n*";
+//    }
 
     skd_PARAM(network, xml, skdCatalogReader);
     skd_OP();
@@ -75,19 +75,19 @@ void Skd::writeSkd(const Network &network,
 
 void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,
                     const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$PARAM\n";
-    of << "*=========================================================================================================\n";
-    of << "* WARNING: some of the following parameters are not compatible with VieSched++!\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* WARNING: some of the following parameters are not compatible with VieSched++!\n";
+//    of << "*\n";
     of << "DESCRIPTION " << xml.get<string>("VieSchedpp.output.experimentDescription","no description") << endl;
     of << "SCHEDULING_SOFTWARE VieSched++\n";
 
     string versionNr = util::version();
     of << "SOFTWARE_VERSION " << versionNr << "\n";
-    string GUI_versionNr = xml.get("VieSchedpp.software.GUI_version","unknown");
-    of << "* GUI_VERSION " << GUI_versionNr << "\n";
+//    string GUI_versionNr = xml.get("VieSchedpp.software.GUI_version","unknown");
+//    of << "* GUI_VERSION " << GUI_versionNr << "\n";
     auto ctstr = xml.get<string>("VieSchedpp.created.time","unknown");
     boost::posix_time::ptime ct = TimeSystem::string2ptime(ctstr);
     of << boost::format("SCHEDULE_CREATE_DATE %s \n") % TimeSystem::time2string_doy(ct);
@@ -214,19 +214,19 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
 }
 
 void Skd::skd_OP() {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$OP\n";
-    of << "*=========================================================================================================\n";
-    of << "* OP is not supported in VieSched++ \n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* OP is not supported in VieSched++ \n";
+//    of << "*\n";
 }
 
 void Skd::skd_DOWNTIME(const Network& network) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$DOWNTIME\n";
-    of << "*=========================================================================================================\n";
+//    of << "*=========================================================================================================\n";
     for(const auto &sta : network.getStations()){
         bool tmp = sta.listDownTimes(of, true);
     }
@@ -237,12 +237,12 @@ void Skd::skd_DOWNTIME(const Network& network) {
 
 void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sources,
                     const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$MAJOR\n";
-    of << "*=========================================================================================================\n";
-    of << "* Sked MAJOR parameters can not be translated directly to VieSched++ parameters\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* Sked MAJOR parameters can not be translated directly to VieSched++ parameters\n";
+//    of << "*\n";
     of << "Subnet ";
     for (const auto &any:stations) {
         of << any.getAlternativeName();
@@ -279,12 +279,12 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
 }
 
 void Skd::skd_MINOR() {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$MINOR\n";
-    of << "*=========================================================================================================\n";
-    of << "* Sked MINOR parameters can not be translated directly to VieSched++ parameters\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* Sked MINOR parameters can not be translated directly to VieSched++ parameters\n";
+//    of << "*\n";
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "Astro" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "BegScan" % "No" % "Abs" % 0.00;
     of << boost::format("%-14s %-3s %-3s %8.2f\n") % "Covar" % "No" % "Abs" % 0.00;
@@ -305,21 +305,21 @@ void Skd::skd_MINOR() {
 }
 
 void Skd::skd_ASTROMETRIC() {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$ASTROMETRIC\n";
-    of << "*=========================================================================================================\n";
-    of << "* ASTROMETRIC is not supported in VieSched++ \n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* ASTROMETRIC is not supported in VieSched++ \n";
+//    of << "*\n";
 }
 
 void Skd::skd_STATWT(const std::vector<Station>& stations) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$STATWT\n";
-    of << "*=========================================================================================================\n";
-    of << "* all weights except weight=1 are listed here\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* all weights except weight=1 are listed here\n";
+//    of << "*\n";
     for (const auto &any:stations) {
         if(any.getPARA().weight != 1) {
             of << boost::format("%-10s %6.2f\n") % any.getName() % any.getPARA().weight;
@@ -328,12 +328,12 @@ void Skd::skd_STATWT(const std::vector<Station>& stations) {
 }
 
 void Skd::skd_SRCWT(const std::vector<Source> &sources) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$SRCWT\n";
-    of << "*=========================================================================================================\n";
-    of << "* all weights except weight=1 are listed here\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* all weights except weight=1 are listed here\n";
+//    of << "*\n";
     for (const auto &any:sources) {
         if (any.getNTotalScans() > 0) {
             if(any.getPARA().weight != 1){
@@ -344,11 +344,11 @@ void Skd::skd_SRCWT(const std::vector<Source> &sources) {
 }
 
 void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$CATALOG_USED\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
     string source = xml.get<string>("VieSchedpp.catalogs.source","UNKNOWN");
     string flux = xml.get<string>("VieSchedpp.catalogs.flux","UNKNOWN");
 
@@ -384,20 +384,20 @@ void Skd::skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCata
 }
 
 void Skd::skd_BROADBAND() {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$BROADBAND\n";
-    of << "*=========================================================================================================\n";
-    of << "* $BROADBAND is not supported in VieSched++ \n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "* $BROADBAND is not supported in VieSched++ \n";
+//    of << "*\n";
 }
 
 void Skd::skd_SOURCES(const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$SOURCES\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
     const map<string, vector<string> > &src = skdCatalogReader.getSourceCatalog();
 
     for (const auto &any:sources) {
@@ -420,11 +420,11 @@ void Skd::skd_SOURCES(const std::vector<Source> &sources, const SkdCatalogReader
 }
 
 void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$STATIONS\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
     const map<string, vector<string> > &ant = skdCatalogReader.getAntennaCatalog();
     const map<string, vector<string> > &pos = skdCatalogReader.getPositionCatalog();
     const map<string, vector<string> > &equ = skdCatalogReader.getEquipCatalog();
@@ -497,11 +497,11 @@ void Skd::skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogRea
 }
 
 void Skd::skd_FLUX(const vector<Source> &sources, const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$FLUX\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
 
     const map<string, vector<string> > &flu = skdCatalogReader.getFluxCatalog();
     for (const auto &any:sources) {
@@ -520,11 +520,11 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
                    const std::vector<Source> &sources,
                    const std::vector<Scan> &scans,
                    const SkdCatalogReader &skdCatalogReader) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$SKED\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
     int preob = stations[0].getWaittimes().preob;
 
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
@@ -574,11 +574,11 @@ void Skd::skd_SKED(const std::vector<Station> &stations,
 }
 
 void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader &skd) {
-    of << "*\n";
-    of << "*=========================================================================================================\n";
+//    of << "*\n";
+//    of << "*=========================================================================================================\n";
     of << "$CODES\n";
-    of << "*=========================================================================================================\n";
-    of << "*\n";
+//    of << "*=========================================================================================================\n";
+//    of << "*\n";
     if(ObservingMode::type == ObservingMode::Type::sked) {
 
         unsigned long nchannels = skd.getChannelNumber2band().size();
@@ -600,7 +600,7 @@ void Skd::skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader
                 of << "C " << skd.getFreqTwoLetterCode() << " " << skd.getChannelNumber2band().at(i) << " "
                    << skd.getChannelNumber2skyFreq().at(i) << " "
                    << skd.getChannelNumber2phaseCalFrequency().at(i) << " "
-                   << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " MK341:"
+                   << boost::format("%2d") % skd.getChannelNumber2BBC().at(i) << " Mk341:"
                    << skd.getTracksId2fanoutMap().at(trackId) << boost::format("%6.2f") % skd.getBandWidth() << " "
                    << skd.getTracksId2channelNumber2tracksMap().at(trackId).at(i) << "\n";
             }
