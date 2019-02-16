@@ -43,15 +43,14 @@ This section descripes how to install __VieSched++__ on LINUX.
 While an installation is possible on Windows (tested with Windows 10) it is no
 further discussed due to the many possibilieties of different compilers and options.
 
-Pre-build binaries are available for github releases.
-Visit https://github.com/TUW-VieVS/VieSchedppGUI/releases.
+Pre-build binaries are available for github releases. Visit https://github.com/TUW-VieVS/VieSchedpp/releases.
 
 If you run into any problems compiling __VieSched++__, contact me
 under matthias.schartner@geo.tuwien.ac.at and I can send you some pre-build binaries.
 
 The source code is hosted at two git repositories:
 * https://github.com/TUW-VieVS/VieSchedpp.git (public)
-* https://git.geo.tuwien.ac.at/vievs/VieSchedpp/VieSchedppGUI.git (inside TU Vienna GEO Domain)
+* https://git.geo.tuwien.ac.at/vievs/VieSchedpp/VieSchedpp.git (inside TU Vienna GEO Domain)
 
 ## Dependencies
 
@@ -60,7 +59,7 @@ Before you install __VieSched++__ check if you have the following dependencies i
 * gcc/g++ (tested with version 7.2.0, 7.3.0 and 8.1.0)
   * possible installation on Ubuntu: `sudo apt-get install build-essentials`
 * SOFA libraries
-  * check out git project `vievs/VieSchedpp/IAU_SOFA.git` or visit http://www.iausofa.org/
+  * check out git project `https://git.geo.tuwien.ac.at/vievs/VieSchedpp/IAU_SOFA.git` or visit http://www.iausofa.org/
 * boost c++ libraries (tested with version 1.58.00, 1.64.0 and 1.67.0)
   * possible installation on Ubuntu: `sudo apt-get install libboost-all-dev` or check out https://www.boost.org/
 * cmake (tested with Version 3.8 and 3.12)
