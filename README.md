@@ -28,6 +28,16 @@ Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
 # Installation
 
+The software consists of two parts:
+* VieSched++: the scheduler (this repository)
+* VieSched++ GUI: the graphical user interface, hostet on https://github.com/TUW-VieVS/VieSchedppGUI
+
+__It is highly recommended to use the GUI to create the VieSchedpp.xml input files!__
+
+Have a look at https://github.com/TUW-VieVS/VieSchedppGUI/blob/master/README.md for installing the GUI.
+
+## Installation of VieSched++
+
 This section descripes how to install __VieSched++__ on LINUX.
 
 While an installation is possible on Windows (tested with Windows 10) it is no
