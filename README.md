@@ -59,7 +59,8 @@ Before you install __VieSched++__ check if you have the following dependencies i
 * gcc/g++ (tested with version 7.2.0, 7.3.0 and 8.1.0)
   * possible installation on Ubuntu: `sudo apt-get install build-essentials`
 * SOFA libraries
-  * check out git project `https://git.geo.tuwien.ac.at/vievs/VieSchedpp/IAU_SOFA.git` or visit http://www.iausofa.org/
+  * check out git project `https://git.geo.tuwien.ac.at/vievs/VieSchedpp/IAU_SOFA.git` (inside TU-Wien GEO domain) or visit http://www.iausofa.org/
+  * The SOFA library has to be locate in `../IAU_SOFA/Release`, otherwise change search path in `CMakeLists.txt` file manually
 * boost c++ libraries (tested with version 1.58.00, 1.64.0 and 1.67.0)
   * possible installation on Ubuntu: `sudo apt-get install libboost-all-dev` or check out https://www.boost.org/
 * cmake (tested with Version 3.8 and 3.12)
