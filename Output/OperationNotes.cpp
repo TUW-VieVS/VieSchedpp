@@ -91,7 +91,7 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     std::string schedulerEmail = xml.get("VieSchedpp.created.email", "");
 
     unsigned long nmax = max({piName.size(), contactName.size(), schedulerName.size()});
-    string format = (boost::format("%%%ds    %%s\n") %nmax).str();
+    string format = (boost::format("%%-%ds    %%s\n") %nmax).str();
 
     if(!contactName.empty()){
         of << boost::format(format) %contactName %contactEmail;
@@ -104,29 +104,6 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     }
     of << "\n";
 
-
-
-
-    bool down = false;
-    of << "Station down times:\n";
-    for(const auto &sta : network.getStations()){
-        bool flag = sta.listDownTimes(of);
-        down = down || flag;
-    }
-    if(!down){
-        of << "    none\n";
-    }
-
-    of << "Tagalong mode used:\n";
-    bool tag = false;
-    for(const auto &sta : network.getStations()){
-        bool flag = sta.listTagalongTimes(of);
-        tag = tag || flag;
-    }
-    if(!tag){
-        of << "    none\n";
-    }
-    of << "\n";
 
     of << "Session Notes for session: " << expName << "\n";
     of << "===========================================================\n";
@@ -150,11 +127,34 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
     firstLastObservations_skdStyle(expName, network, sources, scans);
     of << "===========================================================\n";
 
+    of << "Notes: \n";
     std::string notes = xml.get("VieSchedpp.output.notes","");
     if(!notes.empty()){
-        of << "Notes : \n" <<  boost::replace_all_copy(notes,"\\n","\n") << "\n";
-        of << "===========================================================\n";
+        of << boost::replace_all_copy(notes,"\\n","\n") << "\n";
     }
+
+    bool down = false;
+    of << "Station down times:\n";
+    for(const auto &sta : network.getStations()){
+        bool flag = sta.listDownTimes(of);
+        down = down || flag;
+    }
+    if(!down){
+        of << "    none\n";
+    }
+
+    of << "Tagalong mode used:\n";
+    bool tag = false;
+    for(const auto &sta : network.getStations()){
+        bool flag = sta.listTagalongTimes(of);
+        tag = tag || flag;
+    }
+    if(!tag){
+        of << "    none\n";
+    }
+    of << "\n";
+    of << "===========================================================\n";
+
 
     if(version>0){
         of << " Schedule was created using multi scheduling tool\n";

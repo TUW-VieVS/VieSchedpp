@@ -211,6 +211,9 @@ void Skd::skd_PARAM(const Network& network, const boost::property_tree::ptree &x
             }
         }
     }
+    if(counter != 0){
+        of << "\n";
+    }
 }
 
 void Skd::skd_OP() {

@@ -50,15 +50,13 @@ void SNR_table::writeTable(const Network &network, const std::vector<Source> &so
         const Source &src = sources[thisScan.getSourceId()];
 
 
-        for (int i = 0; i < nsta; ++i) {
-            unsigned long staid1 = staids[i];
+        for (unsigned long staidx1 = 0; staidx1 < nsta; ++staidx1) {
+            unsigned long staid1 = staids[staidx1];
             const Station &sta1 = network.getStation(staid1);
-            unsigned long staidx1 = *thisScan.findIdxOfStationId(staid1);
 
-            for (int j = i+1; j < nsta; ++j) {
-                unsigned long staid2 = staids[j];
+            for (unsigned long staidx2 = staidx1+1; staidx2 < nsta; ++staidx2) {
+                unsigned long staid2 = staids[staidx2];
                 const Station &sta2 = network.getStation(staid2);
-                unsigned long staidx2 = *thisScan.findIdxOfStationId(staid2);
 
                 unsigned int dur = thisScan.getTimes().getObservingDuration(staidx1,staidx2);
                 unsigned int startTime = thisScan.getTimes().getObservingTime(Timestamp::start);
@@ -85,7 +83,7 @@ void SNR_table::writeTable(const Network &network, const std::vector<Source> &so
                     double az2 = pv2.getAz();
                     double SEFD_sta2 = sta2.getEquip().getSEFD(band, el2);
 
-                    double efficiency = obsModes->getMode(0)->efficiency(sta1.getId(), sta2.getId());
+                    double efficiency = obsModes->getMode(0)->efficiency(staid1, staid2);
                     double recRate = obsModes->getMode(0)->recordingRate(staid1, staid2, band);
 
                     double SNR = efficiency * SEFD_src / sqrt(SEFD_sta1 * SEFD_sta2) * sqrt(recRate * dur);
@@ -98,8 +96,10 @@ void SNR_table::writeTable(const Network &network, const std::vector<Source> &so
                         sscheduled = "false";
                     }
 
+                    string blName = sta1.getAlternativeName() + "-" +sta2.getAlternativeName();
+
                     of << boost::format("%-9s  %=8s  %8.2f  %8.2f  %8s  %5.2f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  %9s\n")
-                                        %scanName %network.getBaseline(staid1,staid2).getName() %SEFD_sta1 %SEFD_sta2 %src.getName() %SEFD_src %band %dur %SNR %(el1*rad2deg) %(el2*rad2deg) %(pv1.getAz()*rad2deg) %(pv2.getAz()*rad2deg) %sscheduled;
+                                        %scanName %blName %SEFD_sta1 %SEFD_sta2 %src.getName() %SEFD_src %band %dur %SNR %(el1*rad2deg) %(el2*rad2deg) %(pv1.getAz()*rad2deg) %(pv2.getAz()*rad2deg) %sscheduled;
                 }
             }
         }
