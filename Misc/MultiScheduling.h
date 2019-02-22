@@ -313,7 +313,7 @@ namespace VieVS {
                     of << "weight_average_baselines,";
                 }
                 if (weightIdleTime.is_initialized()) {
-                    of << "weigh_iIdle_time,";
+                    of << "weight_iIdle_time,";
                 }
                 if (weightIdleTime_interval.is_initialized()) {
                     of << "weight_idle_time_interval,";

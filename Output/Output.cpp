@@ -141,7 +141,7 @@ void Output::writeNGS() {
     #endif
 
     string NGS_path = xml_.get("VieSchedpp.output.NGS_directory","");
-    int idx = NGS_path.find_last_of('/',NGS_path.length()-1);
+    unsigned long idx = path_.find_last_of('/', path_.length() - 1);
     if(idx>0){
         NGS_path.append(path_.substr(idx+1,path_.size()-1-idx));
     }
