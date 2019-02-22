@@ -140,8 +140,9 @@ namespace VieVS{
          * @param pv all pointing vectors
          * @param times all scan times
          * @param obs all observations
+         * @param type scan type (default = Scan::ScanType::standard)
          */
-        Scan(std::vector<PointingVector> pv, ScanTimes times, std::vector<Observation> obs);
+        Scan(std::vector<PointingVector> pv, ScanTimes times, std::vector<Observation> obs, ScanType type=Scan::ScanType::standard);
 
         /**
          * @brief sets the scan type

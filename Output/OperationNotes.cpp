@@ -685,9 +685,9 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
         scans.push_back(station.getNTotalScans());
     }
     for(auto p:scans){
-        of << boost::format("%6.2f ") % static_cast<double>(p);
+        of << boost::format("%6d ") % static_cast<double>(p);
     }
-    of << boost::format("%6.2f ") % (accumulate(scans.begin(),scans.end(),0.0)/(network.getNSta()));
+    of << boost::format("%6d ") % roundl(accumulate(scans.begin(),scans.end(),0.0)/(network.getNSta()));
     of << "\n";
 
     of << " # scans/hour :  ";

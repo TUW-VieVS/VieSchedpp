@@ -150,7 +150,7 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
 
         // check if you have possible next scan
         if (bestScans.empty()) {
-            if (depth == 0) {
+            if (depth == 0 && type != Scan::ScanType::fillin) {
                 if (type == Scan::ScanType::calibrator) {
                     #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL(warning)
@@ -1377,7 +1377,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection(scans_[i + 1].getTimes().getScanTime(Timestamp::end), of, type, endposition, subcon, 1);
+        startScanSelection(scans_[i + 1].getTimes().getScanTime(Timestamp::end), of, type, endposition, subcon, 0);
     }
 
     // do the same between time at from last scan until duration with no endposition
@@ -1408,7 +1408,7 @@ void Scheduler::startScanSelectionBetweenScans(unsigned int duration, std::ofstr
     // recursively start scan selection
     boost::optional<Subcon> subcon = boost::none;
     boost::optional<StationEndposition> endposition = boost::none;
-    startScanSelection(duration, of, type, endposition, subcon, 1);
+    startScanSelection(duration, of, type, endposition, subcon, 0);
 
     // sort scans at the end
     sortSchedule(Timestamp::start);

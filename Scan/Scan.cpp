@@ -43,10 +43,10 @@ Scan::Scan(vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfL
     observations_.reserve((nsta_ * (nsta_ - 1)) / 2);
 }
 
-Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs):
+Scan::Scan(vector<PointingVector> pv, ScanTimes times, vector<Observation> obs, ScanType type):
         VieVS_Object(nextId++), srcid_{pv[0].getSrcid()}, nsta_{pv.size()}, pointingVectorsStart_{move(pv)},
         score_{0}, times_{move(times)}, observations_{move(obs)}, constellation_{ScanConstellation::subnetting},
-        type_{ScanType::standard}{
+        type_{type}{
 
     times_.giveNewId();
 
@@ -1364,7 +1364,7 @@ boost::optional<Scan> Scan::copyScan(const std::vector<unsigned long> &ids, cons
         return boost::none;
     }
 
-    return Scan(move(pv), move(t), move(obs));
+    return Scan(move(pv), move(t), move(obs), type_);
 }
 
 
