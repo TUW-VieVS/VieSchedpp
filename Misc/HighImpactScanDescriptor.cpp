@@ -136,7 +136,7 @@ const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids
 void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
                                                      const std::vector<Source> &sources,
                                                      const std::shared_ptr<const Mode> &mode,
-                                                     const boost::optional<Subnetting> &subnetting) {
+                                                     const std::shared_ptr<Subnetting> &subnetting) {
     highImpactScans_.calcStartTimes(network, sources);
     highImpactScans_.updateAzEl(network, sources);
     highImpactScans_.constructAllBaselines(network, sources);
@@ -144,8 +144,8 @@ void HighImpactScanDescriptor::updateHighImpactScans(const Network &network,
     highImpactScans_.calcAllScanDurations(network, sources);
     highImpactScans_.checkIfEnoughTimeToReachEndposition(network, sources);
 
-    if (subnetting.is_initialized()) {
-        highImpactScans_.createSubnettingScans(*subnetting, sources);
+    if (subnetting != nullptr) {
+        highImpactScans_.createSubnettingScans(subnetting, network, sources);
     }
 
     highImpactScans_.generateScore(network,sources,scores_,interval_);

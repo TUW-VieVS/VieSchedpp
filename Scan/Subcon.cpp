@@ -314,7 +314,7 @@ void Subcon::calcCalibratorScanDuration(const vector<Station> &stations, const v
 }
 
 
-void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<Source> &sources) noexcept {
+void Subcon::createSubnettingScans(const std::shared_ptr<Subnetting> &subnetting,  const Network &network, const vector<Source> &sources) noexcept {
     #ifdef VIESCHEDPP_LOG
     if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "subcon " << this->printId() << " create subnetting scans";
     #endif
@@ -325,10 +325,17 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
         sourceIds[i] = singleScans_[i].getSourceId();
     }
 
+    unsigned long availableSta = 0;
+    for(const auto &any : network.getStations()){
+        if(any.getPARA().available && !any.getPARA().tagalong){
+            ++availableSta;
+        }
+    }
+
     for (int i = 0; i < nSingleScans_; ++i) {
         unsigned long firstSrcId = sourceIds[i];
         Scan &first = singleScans_[i];
-        const vector<unsigned long> &secondSrcIds = subnetting.subnettingSrcIds[firstSrcId];
+        const vector<unsigned long> &secondSrcIds = subnetting->getSubnettingSrcIds().at(firstSrcId);
         for (unsigned long secondSrcId : secondSrcIds) {
 
             auto it = find(sourceIds.begin(), sourceIds.end(), secondSrcId);
@@ -359,7 +366,8 @@ void Subcon::createSubnettingScans(const Subnetting &subnetting, const vector<So
                     }
                 }
 
-                if (uniqueSta1.size() + uniqueSta2.size() + intersection.size() < subnetting.subnettingMinNSta) {
+                unsigned long scheduledSta = uniqueSta1.size() + uniqueSta2.size() + intersection.size();
+                if ( !subnetting->isAllowed(scheduledSta, availableSta)) {
                     continue;
                 }
 

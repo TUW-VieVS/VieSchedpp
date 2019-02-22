@@ -180,9 +180,10 @@ namespace VieVS{
          * @author Matthias Schartner
          *
          * @param subnetting subnetting parameters
+         * @param network station network
          * @param sources list of all sources
          */
-        void createSubnettingScans(const Subnetting &subnetting, const std::vector<Source> &sources) noexcept;
+        void createSubnettingScans(const std::shared_ptr<Subnetting> &subnetting, const Network &network, const std::vector<Source> &sources) noexcept;
 
         /**
          * @brief generate scores for all single source and subnetting scans

@@ -134,7 +134,7 @@ namespace VieVS{
          * @param subnetting subnetting information
          */
         void updateHighImpactScans(const Network &network, const std::vector<Source> &sources, const std::shared_ptr<const Mode> &mode,
-                                   const boost::optional<Subnetting> &subnetting);
+                                   const std::shared_ptr<Subnetting> &subnetting);
 
         /**
          * @brief get highest impact scans
