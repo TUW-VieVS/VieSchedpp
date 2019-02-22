@@ -58,7 +58,7 @@ namespace VieVS{
          * @author Matthias Schartner
          */
         struct Parameters {
-            boost::optional<Subnetting> subnetting = boost::none; ///< subnetting parameters
+            std::shared_ptr<Subnetting> subnetting = nullptr; ///< subnetting parameters
             double subnettingMinNSta = 0.60; /// minimum number of subnetting station percent (deprecated)
             bool fillinmodeDuringScanSelection = true; ///< flag if fillin modes are allowed
             bool fillinmodeInfluenceOnSchedule = true; ///< fillin modes scans influence schedule if set to true
@@ -122,7 +122,7 @@ namespace VieVS{
          * @param endposition required endposition
          * @return subcon with all information
          */
-        Subcon createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
+        Subcon createSubcon(const std::shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                             const boost::optional<StationEndposition> &endposition = boost::none) noexcept;
 
         /**

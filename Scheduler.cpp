@@ -39,15 +39,11 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
                                                                     currentObservingMode_{obsModes_->getMode(0)}{
 
     if(init.parameters_.subnetting){
-        Subnetting subnetting;
         if(init.parameters_.subnettingMinNStaPercent_otherwiseAllBut){
-            subnetting.subnettingMinNSta = static_cast<unsigned int>(network_.getNSta() * init.parameters_.subnettingMinNStaPercent);
+            parameters_.subnetting = make_unique<Subnetting_percent>(init.preCalculated_.subnettingSrcIds, init.parameters_.subnettingMinNStaPercent);
         }else{
-            int n = static_cast<int>(network_.getNSta() - init.parameters_.subnettingMinNStaAllBut);
-            subnetting.subnettingMinNSta = max({0,n});
+            parameters_.subnetting = make_unique<Subnetting_minIdle>(init.preCalculated_.subnettingSrcIds, init.parameters_.subnettingMinNStaAllBut);
         }
-        subnetting.subnettingSrcIds = std::move(init.preCalculated_.subnettingSrcIds);
-        parameters_.subnetting = move(subnetting);
     }
 
     parameters_.fillinmodeDuringScanSelection = init.parameters_.fillinmodeDuringScanSelection;
@@ -116,8 +112,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             subcon.changeType(Scan::ScanType::fillin);
             subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, opt_endposition);
             subcon.clearSubnettingScans();
-            if (parameters_.subnetting) {
-                subcon.createSubnettingScans(*parameters_.subnetting, sources_);
+            if (parameters_.subnetting != nullptr) {
+                subcon.createSubnettingScans(parameters_.subnetting, network_, sources_);
             }
         } else {
             // otherwise calculate new subcon
@@ -506,7 +502,7 @@ void Scheduler::statistics(ofstream &of) {
 
 }
 
-Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Scan::ScanType type,
+Subcon Scheduler::createSubcon(const shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                                const boost::optional<StationEndposition> & endposition) noexcept {
     Subcon subcon = allVisibleScans(type, endposition);
     subcon.calcStartTimes(network_, sources_, endposition);
@@ -516,8 +512,8 @@ Subcon Scheduler::createSubcon(const boost::optional<Subnetting> &subnetting, Sc
     subcon.calcAllScanDurations(network_, sources_, endposition);
     subcon.checkIfEnoughTimeToReachEndposition(network_, sources_, endposition);
 
-    if (subnetting.is_initialized()) {
-        subcon.createSubnettingScans(*subnetting, sources_);
+    if (subnetting != nullptr) {
+        subcon.createSubnettingScans(subnetting, network_, sources_);
     }
     return subcon;
 }
