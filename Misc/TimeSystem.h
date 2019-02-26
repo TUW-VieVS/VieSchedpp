@@ -186,6 +186,32 @@ namespace VieVS {
          * @author Matthias Schartner
          *
          * instead of month and day the day of year is used
+         * example output: 2018.01.01-00:00:00.0
+         *
+         * @param ptime target datetime
+         * @return datetime string
+         */
+        static std::string time2string_ast(const boost::posix_time::ptime &ptime);
+
+        /**
+         * @brief converts internal time to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
+         * example output: 2018-001-00:00:00
+         *
+         * @param time target time in seconds from session start
+         * @return datetime string
+         */
+        static std::string time2string_ast(unsigned int time){
+            return time2string_ast(internalTime2PosixTime(time));
+        }
+
+        /**
+         * @brief converts datetime to string
+         * @author Matthias Schartner
+         *
+         * instead of month and day the day of year is used
          * example output: 2018y001d00h00m00s
          *
          * @param ptime target datetime

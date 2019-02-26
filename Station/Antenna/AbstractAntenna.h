@@ -132,6 +132,14 @@ namespace VieVS{
         slewTime(const PointingVector &old_pointingVector,
                  const PointingVector &new_pointingVector) const noexcept = 0;
 
+        /**
+         * @brief get mount name
+         * @author Matthias Schartner
+         *
+         * @return mount name
+         */
+        virtual std::string getMount() const noexcept = 0;
+
     protected:
 
         /**

@@ -92,6 +92,14 @@ std::string VieVS::TimeSystem::time2string_doySkdDowntime(const boost::posix_tim
     return dateStr;
 }
 
+std::string VieVS::TimeSystem::time2string_ast(const boost::posix_time::ptime &ptime) {
+    int month = ptime.date().month();
+    std::string dateStr = (boost::format("%04d.%02d.%02d-%02d:%02d:%02d.0")
+                           % ptime.date().year() %month %ptime.date().day()
+                           % ptime.time_of_day().hours() %ptime.time_of_day().minutes() %ptime.time_of_day().seconds()).str();
+    return dateStr;
+}
+
 boost::posix_time::ptime VieVS::TimeSystem::string_doy2ptime(std::string timeStr){
     unsigned long i =0;
     if(timeStr.length() == 13){

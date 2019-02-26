@@ -251,6 +251,26 @@ namespace VieVS{
          */
         virtual std::string vexPointingSectors() const noexcept = 0;
 
+        /**
+         * @brief getter for lowest possible value of 2nd axis
+         * @author Matthias Schartner
+         *
+         * @return lowest possible value of 2nd axis
+         */
+        double getAxis2Low() const{
+            return axis2Low_;
+        }
+
+        /**
+         * @brief getter for highest possible value of 2nd axis
+         * @author Matthias Schartner
+         *
+         * @return highest possible value of 2nd axis
+         */
+        double getAxis2Up() const{
+            return axis2Up_;
+        }
+
     protected:
 
         /**

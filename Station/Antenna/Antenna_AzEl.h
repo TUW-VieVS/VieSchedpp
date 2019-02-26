@@ -66,6 +66,15 @@ namespace VieVS{
         unsigned int slewTime(const PointingVector &old_pointingVector,
                               const PointingVector &new_pointingVector) const noexcept override;
 
+        /**
+         * @brief get mount name
+         * @author Matthias Schartner
+         *
+         * @return mount name
+         */
+        std::string getMount() const noexcept override{return "ALTAZ";};
+
+
     private:
 
     };
