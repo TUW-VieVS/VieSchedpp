@@ -31,6 +31,15 @@ string util::ra2dms(double angle){
     return (boost::format("%02dh %02dm %05.2fs") %d %m %sf).str();
 
 }
+std::string util::ra2dms_astFormat(double angle) {
+    double af = angle*rad2deg/15;
+    double d = floor(af);
+    double mf = (af - d)*60;
+    double m = floor(mf);
+    double sf = (mf - m)*60;
+
+    return (boost::format("%02d:%02d:%09.6f") %d %m %sf).str();
+}
 
 string util::dc2hms(double angle){
     double af = angle*rad2deg;
@@ -48,6 +57,25 @@ string util::dc2hms(double angle){
     }
 
     return (boost::format("%+03d° %02d' %05.2f\"") %h %m %sf).str();
+
+}
+
+string util::dc2hms_astFormat(double angle){
+    double af = angle*rad2deg;
+    bool positive = true;
+    if( af < 0){
+        positive = false;
+    }
+    af = abs(af);
+    double h = floor(af);
+    double mf = (af - h)*60;
+    double m = floor(mf);
+    double sf = (mf - m)*60;
+    if(!positive){
+        h*=-1;
+    }
+
+    return (boost::format("%+03d:%02d:%9.6f\"") %h %m %sf).str();
 
 }
 

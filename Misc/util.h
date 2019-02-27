@@ -91,6 +91,17 @@ namespace VieVS{
         std::string ra2dms(double angle);
 
         /**
+         * @brief convert right ascension to string
+         * @author Matthias Schartner
+         *
+         * example output: 00:00:00.000
+         *
+         * @param angle right ascension angle in radians
+         * @return output string
+         */
+        std::string ra2dms_astFormat(double angle);
+
+        /**
          * @brief convert declination to string
          * @author Matthias Schartner
          *
@@ -100,6 +111,17 @@ namespace VieVS{
          * @return output string
          */
         std::string dc2hms(double angle);
+
+        /**
+         * @brief convert declination to string
+         * @author Matthias Schartner
+         *
+         * example output: +00° 00' 00.00"
+         *
+         * @param angle declination angle in radians
+         * @return output string
+         */
+        std::string dc2hms_astFormat(double angle);
 
         /**
          * @brief transforms frequency to wavelength

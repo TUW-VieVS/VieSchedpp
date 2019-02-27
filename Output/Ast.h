@@ -80,8 +80,27 @@ namespace VieVS{
          */
         void experiment(const boost::property_tree::ptree &xml);
 
-        void stationParameters(const Station &station, double Mbps);
+        /**
+         * @brief write experiment block
+         * @author Matthias Schartner
+         *
+         * @param station station
+         * @param obsModes observing modes
+         */
+        void stationParameters(const Station &station, const std::shared_ptr<const ObservingMode> &obsModes);
 
+        /**
+         * @brief write experiment block
+         * @author Matthias Schartner
+         *
+         * @param name scan name
+         * @param scan scan
+         * @param source observed source
+         * @param stations list of stations
+         * @param obsModes observing modes
+         */
+        void scanOutput(const std::string &name, const Scan &scan, const Source &source, const std::vector<Station> &stations,
+                    const std::shared_ptr<const ObservingMode> &obsModes);
     };
 
 }

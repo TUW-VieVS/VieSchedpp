@@ -32,11 +32,19 @@ void Ast::writeAstFile(const Network &network, const std::vector<Source> &source
 
     experiment(xml);
 
-    for (unsigned long idx=0; idx<network.getNSta(); ++idx){
-        const auto &station = network.getStation(idx);
-        double mbps = obsModes->getMode(0)->recordingRate(idx);
-        stationParameters(station,mbps);
+    for (const auto &station : network.getStations()){
+        stationParameters(station,obsModes);
     }
+
+    for (unsigned long i=0; i<scans.size(); ++i){
+        const Scan &scan = scans[i];
+        const Source &source = sources[scan.getSourceId()];
+
+        string name = scan.getName(i, scans);
+
+        scanOutput(name, scan, source, network.getStations(), obsModes);
+    }
+
 }
 
 void Ast::experiment(const boost::property_tree::ptree &xml) {
@@ -73,7 +81,7 @@ void Ast::experiment(const boost::property_tree::ptree &xml) {
 
 }
 
-void Ast::stationParameters(const Station &station, double Mbps) {
+void Ast::stationParameters(const Station &station, const std::shared_ptr<const ObservingMode> &obsModes) {
 
     const string &staName = station.getName();
     const auto &position = station.getPosition();
@@ -131,8 +139,92 @@ void Ast::stationParameters(const Station &station, double Mbps) {
     of << boost::format("  %26s %-6s    %d  sec\n") %"Preob_proc_duration:"   %staName %station.getWaittimes().preob;
     of << boost::format("  %26s %-6s    %d  sec\n") %"Postob_proc_duration:"  %staName %station.getWaittimes().postob;
 
-    of << boost::format("  %26s %-6s    %s\n") %"Recorder:"              %staName %"unknown";
-    of << boost::format("  %26s %-6s    %f  Gbps\n") %"Recording_rate:"        %staName %Mbps;
+    string recorder = boost::to_lower_copy(station.getRecord_transport_type());
+    of << boost::format("  %26s %-6s    %s\n") %"Recorder:"              %staName %recorder;
+    double mbps = obsModes->getMode(0)->recordingRate(station.getId());
+    of << boost::format("  %26s %-6s    %f  Gbps\n") %"Recording_rate:"        %staName %mbps;
+    of << "#";
 
 }
+
+void Ast::scanOutput(const std::string &name, const Scan &scan, const Source &source, const std::vector<Station> &stations,
+                     const std::shared_ptr<const ObservingMode> &obsModes) {
+
+    string type = "unknown";
+    switch (scan.getType()){
+
+        case Scan::ScanType::highImpact: type = "target"; break;
+        case Scan::ScanType::standard: type = "target"; break;
+        case Scan::ScanType::fillin: type = "target"; break;
+        case Scan::ScanType::calibrator: type = "calibrator"; break;
+    }
+
+    of << boost::format("Scan: %-9s  Source: %8s  Alt_source_name: %16s  Ra: %s  Dec %s  Start_time: %s  Stop_time %s  Type: %s\n")
+                        %name %source.getName() %source.getAlternativeName()
+                        %util::ra2dms_astFormat(source.getRa()) %util::dc2hms_astFormat(source.getDe())
+                        %TimeSystem::time2string_ast(scan.getTimes().getScanTime(Timestamp::start))
+                        %TimeSystem::time2string_ast(scan.getTimes().getScanTime(Timestamp::end))
+                        %type;
+
+    vector<string>prevSourceNames(stations.size());
+    vector<double>prevElev(stations.size());
+    vector<double>prevAz(stations.size());
+    vector<double>prevHourAngle(stations.size());
+
+    for (unsigned long staid = 0; staid < stations.size(); ++staid){
+        auto opt = scan.findIdxOfStationId(staid);
+
+        string operation;
+        if(opt.is_initialized()){
+            operation = "observing";
+        }else{
+            operation = "skipping";
+        }
+        const Station &station = stations[staid];
+        of << boost::format("  Station: %8s  Scan: %-9s  Operation: %s  Source: %8s\n")
+              %station.getName() %name %operation %source.getName();
+
+
+        if(opt.is_initialized()){
+            int idx = static_cast<int>(opt.get());
+            const ScanTimes &times = scan.getTimes();
+
+            const PointingVector &pv  = scan.getPointingVector(idx);
+            const PointingVector &pve = scan.getPointingVector(idx, Timestamp::end);
+            string wrap = "&und";
+            switch (station.getCableWrap().cableWrapFlag(pv)){
+                case AbstractCableWrap::CableWrapFlag::ccw: wrap = "&ccw"; break;
+                case AbstractCableWrap::CableWrapFlag::n:   wrap =   "&n"; break;
+                case AbstractCableWrap::CableWrapFlag::cw:  wrap =  "&cw"; break;
+            }
+
+            of << boost::format("    %9s %8s  %s %s Scan: %-9s  Sources: %8s %8s  Duration: %6.1f  Elevs: %5.2f %5.2f  Azims: %7.2f %7.2f  Hour_angles: %6.2f %6.2f  Wrap: %s\n")
+                                %"Slew:"
+                                %station.getName()
+                                %TimeSystem::time2string_ast(times.getSlewTime(idx,Timestamp::start))
+                                %TimeSystem::time2string_ast(times.getSlewTime(idx, Timestamp::end))
+                                %name
+                                %prevSourceNames[staid]
+                                %source.getName()
+                                %times.getSlewDuration(idx)
+                                %(prevElev[idx]*rad2deg)
+                                %(pv.getEl()*rad2deg)
+                                %(prevAz[idx]*rad2deg)
+                                %(pv.getAz()*rad2deg)
+                                %(prevHourAngle[idx]*rad2deg)
+                                %(pv.getHa()*rad2deg)
+                                %wrap;
+
+            prevSourceNames[staid] = source.getName();
+            prevElev[staid] =      pve.getEl();
+            prevAz[staid] =        pve.getAz();
+            prevHourAngle[staid] = pve.getHa();
+            
+
+
+        }
+    }
+
+}
+
 
