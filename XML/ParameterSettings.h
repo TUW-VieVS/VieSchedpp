@@ -226,7 +226,7 @@ namespace VieVS {
                      const boost::posix_time::ptime &startTime, const boost::posix_time::ptime &endTime,
                      bool subnetting, double subnettingAngle, bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
                      bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan, bool fillinmodeAPosteriori,
-                     bool idleToObservingTime, int maxIdleToObserving,
+                     bool idleToObservingTime,
                      const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                      const std::vector<std::string> &srcNames, const std::string &scanAlignment,
                      const std::string &logConsole, const std::string &logFile);

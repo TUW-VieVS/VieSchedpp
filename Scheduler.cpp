@@ -51,7 +51,6 @@ Scheduler::Scheduler(Initializer &init, string path, string fname): VieVS_NamedO
     parameters_.fillinmodeAPosteriori = init.parameters_.fillinmodeAPosteriori;
 
     parameters_.idleToObservingTime = init.parameters_.idleToObservingTime;
-    parameters_.maxExtendedObservingTime = init.parameters_.maxExtendedObservingTime;
 
     parameters_.andAsConditionCombination = init.parameters_.andAsConditionCombination;
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
@@ -1796,13 +1795,24 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
     #endif
     // remove unnecessary observing times
     for(auto &thisScan : scans_){
-        const Source &thisSource = sources_[thisScan.getSourceId()];
+        Source &thisSource = sources_[thisScan.getSourceId()];
+        bool dummy;
+        switch (ts) {
+            case Timestamp::start: {
+                thisSource.checkForNewEvent(thisScan.getTimes().getScanTime(Timestamp::end), dummy);
+                break;
+            }
+            case Timestamp::end: {
+                thisSource.checkForNewEvent(thisScan.getTimes().getScanTime(Timestamp::start), dummy);
+                break;
+            }
+        }
+
 
         // loop over all stations and check for down times
         for(int staidx = 0; staidx<thisScan.getNSta(); ++staidx){
             unsigned long staid = thisScan.getStationId(staidx);
             Station &thisSta = network_.refStation(staid);
-            bool dummy;
 
             // change event to time of scan
             switch (ts) {
@@ -1818,18 +1828,22 @@ void Scheduler::idleToScanTime(Timestamp ts, std::ofstream &of) {
 
             // look for maximum allowed time before/after current event time
             unsigned int maximum = thisSta.maximumAllowedObservingTime(ts);
+            unsigned int maxExtendedObservingTime = min({thisSource.getPARA().maxScan, thisSta.getPARA().maxScan});
+
             switch (ts){
                 case Timestamp::start:{
-                    if(thisScan.getTimes().getObservingTime(Timestamp::end) > parameters_.maxExtendedObservingTime){
-                        unsigned int newMax = thisScan.getTimes().getObservingTime(Timestamp::end) - parameters_.maxExtendedObservingTime;
-                        if(newMax > maximum){
-                            maximum = newMax;
-                        }
-                        break;
+                    unsigned int newMax = 0;
+                    // check underflow
+                    if(thisScan.getTimes().getObservingTime(Timestamp::end) > maxExtendedObservingTime){
+                        newMax = thisScan.getTimes().getObservingTime(Timestamp::end) - maxExtendedObservingTime;
                     }
+                    if(newMax > maximum){
+                        maximum = newMax;
+                    }
+                    break;
                 }
                 case Timestamp::end:{
-                    unsigned int newMax = thisScan.getTimes().getObservingTime(Timestamp::start) + parameters_.maxExtendedObservingTime;
+                    unsigned int newMax = thisScan.getTimes().getObservingTime(Timestamp::start) + maxExtendedObservingTime;
                     if(newMax < maximum){
                         maximum = newMax;
                     }
