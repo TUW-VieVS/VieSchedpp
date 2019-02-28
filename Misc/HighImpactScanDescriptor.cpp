@@ -118,7 +118,7 @@ double HighImpactScanDescriptor::AzElDescriptor::highImpactScore(const PointingV
     unsigned long staid = pv.getStaid();
     double score = 0;
     if(std::find(staids_.begin(), staids_.end(), staid) != staids_.end()){
-        double thisAz = util::wrapToPi(pv.getAz());
+        double thisAz = util::wrap2twoPi(pv.getAz());
         double thisEl = pv.getEl();
         double dist = LookupTable::angularDistance(thisAz,thisEl,az_,el_);
         if(dist<margin_){

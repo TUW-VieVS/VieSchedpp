@@ -1262,8 +1262,8 @@ void Scan::output(unsigned long observed_scan_nr, const Network &network, const 
         const PointingVector &pv = pointingVectorsStart_[i];
         const PointingVector &pve = pointingVectorsEnd_[i];
         const Station &thisSta = network.getStation(pv.getStaid());
-        double az_s = util::wrapToPi(pv.getAz())*rad2deg;
-        double az_e = util::wrapToPi(pve.getAz())*rad2deg;
+        double az_s = util::wrap2twoPi(pv.getAz())*rad2deg;
+        double az_e = util::wrap2twoPi(pve.getAz())*rad2deg;
 
         of << boost::format("|     %-8s | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %8.4f - %8.4f | %9.4f - %9.4f | %7.4f - %7.4f | (id: %d and %d) \n")
               % thisSta.getName() % times_.getFieldSystemDuration(i) % times_.getSlewDuration(i) % times_.getIdleDuration(i) %

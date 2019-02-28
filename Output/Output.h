@@ -35,6 +35,7 @@
 #include "boost/format.hpp"
 #include "Vex.h"
 #include "Skd.h"
+#include "Ast.h"
 #include "OperationNotes.h"
 #include "SNR_table.h"
 
@@ -115,6 +116,12 @@ namespace VieVS{
          * @author Matthias Schartner
          */
         void writeSnrTable();
+
+        /**
+         * @brief creates a ast file
+         * @author Matthias Schartner
+         */
+        void writeAstFile();
 
         /**
          * @brief write statistics per source group file

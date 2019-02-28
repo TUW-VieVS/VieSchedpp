@@ -63,6 +63,9 @@ void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skd
     if(xml_.get<bool>("VieSchedpp.output.createSnrTable",false)) {
         writeSnrTable();
     }
+    if(false) {
+        writeAstFile();
+    }
 }
 
 void Output::writeVex() {
@@ -123,6 +126,18 @@ void Output::writeSnrTable() {
 #endif
     SNR_table snr(path_+fileName);
     snr.writeTable(network_,sources_,scans_,obsModes_);
+}
+
+void Output::writeAstFile() {
+    string fileName = getName();
+    fileName.append(".ast");
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL(info) << "writing ast file to: " << fileName;
+#else
+    cout << "[info] writing ast file to: " << fileName;
+#endif
+    Ast ast(path_+fileName);
+    ast.writeAstFile(network_,sources_,scans_,xml_,obsModes_);
 }
 
 

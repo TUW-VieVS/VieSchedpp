@@ -30,6 +30,20 @@
 #include "../Scan/Scan.h"
 #include "../ObservingMode/ObservingMode.h"
 
+/*
+ * NOTES: units for acceleration
+ *        ordering (station, scan, source, time, duration...)
+ *        source name - why only 6 characters
+ *        what if no alt source name
+ *        what if downtime -> new Set_mode?
+ *        what if observing mode change?
+ *        multiple observing modes -> Station recording rate?
+ *        station parameters -> last update?
+ *        why not elevation at end of scan for slew time?
+ *        general question -> what covers Postob?
+ *
+ */
+
 namespace VieVS{
 
     /**
@@ -93,14 +107,15 @@ namespace VieVS{
          * @brief write experiment block
          * @author Matthias Schartner
          *
-         * @param name scan name
-         * @param scan scan
-         * @param source observed source
+         * @param scans list of all scans
+         * @param sources observed source
          * @param stations list of stations
          * @param obsModes observing modes
          */
-        void scanOutput(const std::string &name, const Scan &scan, const Source &source, const std::vector<Station> &stations,
-                    const std::shared_ptr<const ObservingMode> &obsModes);
+        void scanOutput(const std::vector<Scan> & scans,
+                        const std::vector<Source>& sources,
+                        const std::vector<Station> &stations,
+                        const std::shared_ptr<const ObservingMode> &obsModes);
     };
 
 }

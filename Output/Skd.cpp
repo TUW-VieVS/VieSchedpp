@@ -256,7 +256,7 @@ void Skd::skd_MAJOR(const vector<Station> &stations, const vector<Source> &sourc
     of << boost::format("%-14s %6.2f\n") % "MaxAngle" % 180;
     of << boost::format("%-14s %6.2f\n") % "MinAngle" % 2;
     of << boost::format("%-14s %6d\n") % "MinBetween" % (sources[0].getPARA().minRepeat / 60);
-    of << boost::format("%-14s %6d\n") % "MinSunDist" % 0;
+    of << boost::format("%-14s %6d\n") % "MinSunDist" % (sources[0].getPARA().minSunDistance *rad2deg);
     of << boost::format("%-14s %6d\n") % "MaxSlewTime" % stations[0].getPARA().maxSlewtime;
     of << boost::format("%-14s %6.2f\n") % "TimeWindow" % (SkyCoverage::maxInfluenceTime / 3600);
     of << boost::format("%-14s %6.2f\n") % "MinSubNetSize" % sources[0].getPARA().minNumberOfStations;

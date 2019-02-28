@@ -146,13 +146,22 @@ namespace VieVS{
         double wavelength2frequency( double wavelength);
 
         /**
-         * @brief wrap angle to interval [0, pi)
+         * @brief wrap angle to interval [0, 2*pi)
          * @author Matthias Schartner
          *
          * @param angle input angle in radians
          * @return output angle
          */
-        double wrapToPi(double angle);
+        double wrap2twoPi(double angle);
+
+        /**
+         * @brief wrap angle to interval [-pi, pi)
+         * @author Matthias Schartner
+         *
+         * @param angle input angle in radians
+         * @return output angle
+         */
+        double wrap2pi(double angle);
 
         /**
          * @brief calculate duration between two time points

@@ -79,13 +79,18 @@ string util::dc2hms_astFormat(double angle){
 
 }
 
-double util::wrapToPi(double angle){
+double util::wrap2twoPi(double angle){
     angle = fmod(angle,twopi);
     if(angle<0){
         angle += twopi;
     }
     return angle;
 
+}
+
+double util::wrap2pi(double angle){
+    angle = fmod(angle,pi);
+    return angle;
 }
 
 int util::duration(const boost::posix_time::ptime &start, const boost::posix_time::ptime &end) {
