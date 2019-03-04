@@ -796,10 +796,21 @@ void SkdCatalogReader::saveOneLetterCode() {
         char oneLetterCode = tmp[0][0];
         if (charsUsed.find(oneLetterCode) != charsUsed.end()) {
 
+            bool found = false;
             for (char l = 'A'; l <= 'Z'; ++l) {
                 if (charsUsed.find(l) == charsUsed.end()) {
                     oneLetterCode = l;
+                    found = true;
                     break;
+                }
+            }
+
+            if(!found){
+                for (char l = 'a'; l <= 'z'; ++l) {
+                    if (charsUsed.find(l) == charsUsed.end()) {
+                        oneLetterCode = l;
+                        break;
+                    }
                 }
             }
 

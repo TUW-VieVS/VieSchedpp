@@ -715,8 +715,14 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
     if(ObservingMode::type != ObservingMode::Type::simple){
         of << " # Mk5 tracks:   ";
         for (const auto &station: network.getStations()) {
-            int tracks = obsModes->getMode(0)->getTracks(station.getId()).get()->numberOfTracks();
-            of << boost::format("%6d ") % tracks;
+            const auto &tracksBlock = obsModes->getMode(0)->getTracks(station.getId());
+            if(tracksBlock.is_initialized()){
+                int tracks = tracksBlock.get()->numberOfTracks();
+                of << boost::format("%6d ") % tracks;
+            }else{
+                of << boost::format("%6s ") % "-";
+            }
+
         }
         of << "\n";
 
