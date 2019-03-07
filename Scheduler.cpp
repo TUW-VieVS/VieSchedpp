@@ -200,8 +200,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
             continue;
         }
 
-        // if end time of best possible next scans is greate than end time of scan selection stop
-        if (maxScanEnd > endTime && depth == 0) {
+        // if end time of best possible next scans is greater than end time of scan selection stop
+        if (maxScanEnd > TimeSystem::duration) {
             int i=0;
             while( i < bestScans.size() ){
                 Scan &any = bestScans[i];
@@ -1245,7 +1245,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         CalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
         of << "|                                                                                                                                              |\n";
-        if(sourcesLeft<50){
+        if(sourcesLeft<25){
             of << boost::format("| %=140s |\n") %message;
             string message2 = (boost::format("Abortion: only %d sources left")%sourcesLeft).str();
             of << boost::format("| %=140s |\n") %message2;

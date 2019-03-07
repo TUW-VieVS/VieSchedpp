@@ -270,10 +270,26 @@ void Output::writeStatisticsPerSourceGroup() {
         vector<double> sWeight;
         vector<unsigned int> nscansTarget;
         vector<unsigned int> targetScans;
+        vector<char> necessaryFlags;
         vector<double> minRepeat;
         vector<vector<pair<boost::posix_time::ptime,boost::posix_time::ptime>>> visibleTimes(nsrc);
         bool hardBreak = false;
         for(auto &src:sources_){
+            necessaryFlags.push_back(false);
+            for(const auto &group : group_source){
+                if(find(interestedSrcGroups.begin(),interestedSrcGroups.end(),group.first) == interestedSrcGroups.end()){
+                    continue;
+                }
+                if(find(group.second.begin(),group.second.end(),src.getName()) != group.second.end()){
+                    necessaryFlags[src.getId()] = true;
+                }
+            }
+            if(!necessaryFlags[src.getId()]){
+                continue;
+            }
+
+
+
             src.setNextEvent(0);
             src.checkForNewEvent(0, hardBreak);
             sWeight.push_back(src.getPARA().weight);
@@ -319,6 +335,12 @@ void Output::writeStatisticsPerSourceGroup() {
 
         for(const auto &scan:scans_){
             unsigned long srcid = scan.getSourceId();
+            if(!necessaryFlags[srcid]){
+                continue;
+            }
+
+
+
             scanTime[srcid].push_back(scan.getPointingVector(0).getTime());
             scanNsta[srcid].push_back(scan.getNSta());
             scanNbl[srcid].push_back(scan.getNObs());
@@ -600,11 +622,12 @@ vector<unsigned int> Output::minutesVisible(const Source &source) {
                 continue;
             }
 
-            const Station &thisSta = network_.getStation(staid);
+            Station &thisSta = network_.refStation(staid);
             PointingVector p(staid,source.getId());
             p.setTime(t);
 
             thisSta.calcAzEl_simple(source, p);
+            thisSta.calcAzEl_rigorous(source, p);
 
             // check if source is up from station
             bool flag = thisSta.isVisible(p, source.getPARA().minElevation);

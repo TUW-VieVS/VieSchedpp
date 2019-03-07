@@ -508,6 +508,9 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         }
     }
 
+    bool fluxNecessary = all_of(ObservingMode::sourceProperty.begin(), ObservingMode::sourceProperty.end(), [](auto item){return item.second == ObservingMode::Property::required;});
+
+
     for (auto any: sourceCatalog){
         counter ++;
         string name = any.first;
@@ -554,7 +557,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         bool foundName = fluxCatalog.find(name) != fluxCatalog.end();
         bool foundCommName = (!commonname.empty() && fluxCatalog.find(commonname) != fluxCatalog.end());
 
-        if ( !foundName && !foundCommName){
+        if ( !foundName && !foundCommName && fluxNecessary){
             src_fluxInformationNotFound.push_back(name);
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "source " << name << " flux.cat: source not found";
@@ -594,10 +597,9 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
         vector<string> flux_cat;
         if(foundName){
             flux_cat = fluxCatalog.at(name);
-        }else{
+        }else if(foundCommName){
             flux_cat = fluxCatalog.at(commonname);
         }
-
         unordered_map<string, unique_ptr<AbstractFlux> > flux;
 
         vector<vector<string> > flux_split;
@@ -755,7 +757,7 @@ void Initializer::createSources(const SkdCatalogReader &reader, std::ofstream &o
 
                     flux[bandName] = make_unique<Flux_B>(obsModes_->getWavelength(bandName),
                                                           vector<double>{0,13000},
-                                                          vector<double>{ObservingMode::stationBackupValue[bandName]});
+                                                          vector<double>{ObservingMode::sourceBackupValue[bandName]});
                 }
             }
         }
@@ -1157,7 +1159,6 @@ void Initializer::initializeStations() noexcept {
 void Initializer::precalcAzElStations() noexcept {
     for(auto &sta : network_.refStations()){
         for(const auto &source : sources_){
-            PointingVector pv(getId(),source.getId());
             int step = 600;
             PointingVector npv(sta.getId(),source.getId());
             for(unsigned int t=0; t<TimeSystem::duration+1800; t+=step){

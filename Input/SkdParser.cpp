@@ -238,7 +238,16 @@ void SkdParser::read() {
     ofstream of(path);
 
 
-    std::unordered_map<std::string, double> band2wavelength;
+    std::unordered_map<std::string, double> band2wavelength{
+        {"L",0.3},
+        {"S",0.131},
+        {"C",0.06},
+        {"X",0.0349},
+        {"Ku",0.0231},
+        {"K",0.0134},
+        {"Ka",0.01000},
+        {"E",0.005},
+        {"W",0.00375}};
     for(const auto &any : freqs_){
         double mfreq = accumulate(any.second.begin(), any.second.end(), 0.0);
         if(any.first == "X"){
@@ -252,6 +261,41 @@ void SkdParser::read() {
     }
 
     init.initializeObservingMode(staNames.size(), samRate, bits, band2channel, band2wavelength);
+
+    std::unordered_map<string, ObservingMode::Property> srcProperty{
+        {"L",ObservingMode::Property::optional},
+        {"S",ObservingMode::Property::optional},
+        {"C",ObservingMode::Property::optional},
+        {"X",ObservingMode::Property::optional},
+        {"Ku",ObservingMode::Property::optional},
+        {"K",ObservingMode::Property::optional},
+        {"Ka",ObservingMode::Property::optional},
+        {"E",ObservingMode::Property::optional},
+        {"W",ObservingMode::Property::optional}};
+    std::unordered_map<string, ObservingMode::Backup> sourceBackup{
+        {"L",ObservingMode::Backup::value},
+        {"S",ObservingMode::Backup::value},
+        {"C",ObservingMode::Backup::value},
+        {"X",ObservingMode::Backup::value},
+        {"Ku",ObservingMode::Backup::value},
+        {"K",ObservingMode::Backup::value},
+        {"Ka",ObservingMode::Backup::value},
+        {"E",ObservingMode::Backup::value},
+        {"W",ObservingMode::Backup::value}};
+    std::unordered_map<string, double> sourceBackupValue{
+        {"L",1},
+        {"S",1},
+        {"C",1},
+        {"X",1},
+        {"Ku",1},
+        {"K",1},
+        {"Ka",1},
+        {"E",1},
+        {"W",1}};
+
+    ObservingMode::sourceProperty = srcProperty;
+    ObservingMode::sourceBackup = sourceBackup;
+    ObservingMode::sourceBackupValue = sourceBackupValue;
 
     init.createSources(skd_, of);
     init.createStations(skd_, of);

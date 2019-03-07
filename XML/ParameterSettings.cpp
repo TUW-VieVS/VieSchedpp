@@ -1096,7 +1096,9 @@ void ParameterSettings::ruleCalibratorBlockTime(unsigned int cadence, const std:
     rules.add("calibratorBlock.cadence_seconds",cadence);
     rules.add("calibratorBlock.member",member);
     rules.add("calibratorBlock.nMaxScans",nMaxScans);
-    rules.add("calibratorBlock.fixedScanTime",scanTime);
+    if(scanTime <0){
+        rules.add("calibratorBlock.fixedScanTime",scanTime);
+    }
 
     rules.add("calibratorBlock.lowElevation.startWeight",between_elevation.at(0).first);
     rules.add("calibratorBlock.lowElevation.fullWeight",between_elevation.at(0).second);
@@ -1128,7 +1130,9 @@ void ParameterSettings::ruleCalibratorBlockNScanSelections(unsigned int cadence,
     rules.add("calibratorBlock.cadence_nScanSelections",cadence);
     rules.add("calibratorBlock.member",member);
     rules.add("calibratorBlock.nMaxScans",nMaxScans);
-    rules.add("calibratorBlock.fixedScanTime",scanTime);
+    if(scanTime <0){
+        rules.add("calibratorBlock.fixedScanTime",scanTime);
+    }
 
 
     rules.add("calibratorBlock.lowElevation.startWeight",between_elevation.at(0).first);

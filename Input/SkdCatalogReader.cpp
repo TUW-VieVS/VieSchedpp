@@ -806,6 +806,16 @@ void SkdCatalogReader::saveOneLetterCode() {
             }
 
             if(!found){
+                for (char l = '0'; l <= '9'; ++l) {
+                    if (charsUsed.find(l) == charsUsed.end()) {
+                        oneLetterCode = l;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!found){
                 for (char l = 'a'; l <= 'z'; ++l) {
                     if (charsUsed.find(l) == charsUsed.end()) {
                         oneLetterCode = l;
@@ -813,6 +823,7 @@ void SkdCatalogReader::saveOneLetterCode() {
                     }
                 }
             }
+
 
             #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(warning) << "changing one letter code of station " << staName << " to '"<< oneLetterCode <<"'";

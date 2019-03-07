@@ -510,10 +510,14 @@ void Skd::skd_FLUX(const vector<Source> &sources, const SkdCatalogReader &skdCat
     for (const auto &any:sources) {
         if (any.getNTotalScans() > 0) {
             const string &name = any.getName();
-            vector<string> tmp = flu.at(name);
 
-            for (const auto &any2:tmp) {
-                of << any2 << "\n";
+            if(flu.find(name) != flu.end()){
+
+                vector<string> tmp = flu.at(name);
+                for (const auto &any2:tmp) {
+                    of << any2 << "\n";
+                }
+
             }
         }
     }

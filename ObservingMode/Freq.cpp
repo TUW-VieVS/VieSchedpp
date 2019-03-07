@@ -71,9 +71,9 @@ std::unordered_map<std::string, double> Freq::observingRate(const std::shared_pt
 
     if(other->hasName(getName())){
         for(const auto &channel : chan_defs_){
-            band2observingRate[channel.bandId_] +=  bitsPerChannel.at(channel.chan_id_) * sample_rate_ * 1e6;
+            band2observingRate[channel.bandId_] +=  bitsPerChannel.at(channel.chan_id_) * channel.chan_bandwidth_*2 * 1e6;
         }
-    }else if(sample_rate_ == other->sample_rate_){
+    }else{
         for(const auto &channelA : chan_defs_){
             for(const auto &channelB : other->chan_defs_){
                 if(channelA.bandId_ == channelB.bandId_){
