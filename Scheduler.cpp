@@ -1175,6 +1175,9 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
     string message = "checking optimization conditions... ";
     int consideredSources = 0;
     bool lastExcluded = false;
+
+    vector<pair<unsigned long, unsigned long>> possibleExcludeIds;
+
     for (auto &thisSource : sources_) {
         if(!thisSource.getPARA().globalAvailable){
             continue;
@@ -1198,22 +1201,88 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         if(exclude){
-            if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions) {
-                if(thisSource.getNTotalScans() >= 0) {
-                    if (lastExcluded) {
-                        lastExcluded = false;
-                        #ifdef VIESCHEDPP_LOG
-                        if (Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
-                        #endif
-                        continue;
-                    } else {
-                        lastExcluded = true;
-                    }
-                }
+            possibleExcludeIds.push_back({thisSource.getId(),thisSource.getNTotalScans()});
+        }
+
+//        if(exclude){
+//            if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions) {
+//                if(thisSource.getNTotalScans() >= 0) {
+//                    if (lastExcluded) {
+//                        lastExcluded = false;
+//                        #ifdef VIESCHEDPP_LOG
+//                        if (Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
+//                        #endif
+//                        continue;
+//                    } else {
+//                        lastExcluded = true;
+//                    }
+//                }
+//            }
+//            #ifdef VIESCHEDPP_LOG
+//            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
+//            #endif
+//
+//            excludedScans += thisSource.getNTotalScans();
+//            excludedBaselines += thisSource.getNObs();
+//            excludedSources.push_back(thisSource.getName());
+//            newScheduleNecessary = true;
+//            thisSource.referencePARA().setGlobalAvailable(false);
+//        }
+    }
+
+
+
+
+
+    // exclude only half the sources
+    if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions){
+
+        std::sort(possibleExcludeIds.begin(),possibleExcludeIds.end(), [](auto &left, auto &right) {
+            return left.second < right.second;
+        });
+
+        int counter = 0;
+
+
+        // exclude all sources with zero scans
+        for(const auto &any : possibleExcludeIds) {
+            auto &thisSource = sources_[any.first];
+
+            if (any.second == 0) {
+                excludedScans += thisSource.getNTotalScans();
+                excludedBaselines += thisSource.getNObs();
+                excludedSources.push_back(thisSource.getName());
+                newScheduleNecessary = true;
+                thisSource.referencePARA().setGlobalAvailable(false);
+                continue;
             }
-            #ifdef VIESCHEDPP_LOG
-            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
-            #endif
+        }
+
+        auto diff = possibleExcludeIds.size() - excludedSources.size();
+        // exclude half of the remaining sources
+        for(const auto &any : possibleExcludeIds){
+            auto &thisSource = sources_[any.first];
+
+
+            if(any.second == 0){
+                continue;
+            }
+
+            if(counter < diff/2.0){
+                excludedScans += thisSource.getNTotalScans();
+                excludedBaselines += thisSource.getNObs();
+                excludedSources.push_back(thisSource.getName());
+                newScheduleNecessary = true;
+                thisSource.referencePARA().setGlobalAvailable(false);
+                ++counter;
+            }
+        }
+
+
+    // exclude all sources
+    }else{
+        for(const auto &any : possibleExcludeIds){
+            auto &thisSource = sources_[any.first];
 
             excludedScans += thisSource.getNTotalScans();
             excludedBaselines += thisSource.getNObs();
@@ -1221,7 +1290,10 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
             newScheduleNecessary = true;
             thisSource.referencePARA().setGlobalAvailable(false);
         }
+
     }
+
+
     if(parameters_.currentIteration>parameters_.maxNumberOfIterations){
         newScheduleNecessary = false;
         message.append("max number of iterations reached ");
@@ -1229,7 +1301,7 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "max number of iterations reached";
         #endif
     }
-    if(excludedSources.size() < parameters_.minNumberOfSourcesToReduce){
+    if(possibleExcludeIds.size() < parameters_.minNumberOfSourcesToReduce){
         newScheduleNecessary = false;
         message.append("only ").append(to_string(excludedSources.size())).append(" sources have to be excluded (minimum = ").append(to_string(parameters_.minNumberOfSourcesToReduce)).append(") ");
         #ifdef VIESCHEDPP_LOG

@@ -267,21 +267,23 @@ void Output::writeStatisticsPerSourceGroup() {
         ofstream of(path_+fileName);
 
         auto nsrc = sources_.size();
-        vector<double> sWeight;
-        vector<unsigned int> nscansTarget;
-        vector<unsigned int> targetScans;
-        vector<char> necessaryFlags;
-        vector<double> minRepeat;
+        vector<double> sWeight(nsrc);
+        vector<unsigned int> nscansTarget(nsrc);
+        vector<unsigned int> targetScans(nsrc);
+        vector<char> necessaryFlags(nsrc);
+        vector<double> minRepeat(nsrc);
         vector<vector<pair<boost::posix_time::ptime,boost::posix_time::ptime>>> visibleTimes(nsrc);
         bool hardBreak = false;
         for(auto &src:sources_){
-            necessaryFlags.push_back(false);
+            auto srcid = src.getId();
+            
+            necessaryFlags[srcid] = false;
             for(const auto &group : group_source){
                 if(find(interestedSrcGroups.begin(),interestedSrcGroups.end(),group.first) == interestedSrcGroups.end()){
                     continue;
                 }
                 if(find(group.second.begin(),group.second.end(),src.getName()) != group.second.end()){
-                    necessaryFlags[src.getId()] = true;
+                    necessaryFlags[srcid] = true;
                 }
             }
             if(!necessaryFlags[src.getId()]){
@@ -294,12 +296,12 @@ void Output::writeStatisticsPerSourceGroup() {
             src.checkForNewEvent(0, hardBreak);
             sWeight.push_back(src.getPARA().weight);
             if(src.getPARA().tryToObserveXTimesEvenlyDistributed.is_initialized()){
-                nscansTarget.push_back(*src.getPARA().tryToObserveXTimesEvenlyDistributed);
+                nscansTarget[srcid] = *src.getPARA().tryToObserveXTimesEvenlyDistributed;
             }else{
-                nscansTarget.push_back(0);
+                nscansTarget[srcid] = 0;
             }
-            minRepeat.push_back(static_cast<double>(src.getPARA().minRepeat)/3600.0);
-            targetScans.push_back(src.getPARA().maxNumberOfScans);
+            minRepeat[srcid] = static_cast<double>(src.getPARA().minRepeat)/3600.0;
+            targetScans[srcid] = src.getPARA().maxNumberOfScans;
             auto visTimes = minutesVisible(src);
 
             unsigned int start = 0;
@@ -312,7 +314,7 @@ void Output::writeStatisticsPerSourceGroup() {
                     if (t - lastElement != 60) {
                         boost::posix_time::ptime ptstart = TimeSystem::internalTime2PosixTime(start);
                         boost::posix_time::ptime ptend = TimeSystem::internalTime2PosixTime(lastElement);
-                        visibleTimes[src.getId()].emplace_back(ptstart, ptend);
+                        visibleTimes[srcid].emplace_back(ptstart, ptend);
                         start = 0;
                     }
                     lastElement = t;
@@ -321,7 +323,7 @@ void Output::writeStatisticsPerSourceGroup() {
             if(start != 0){
                 boost::posix_time::ptime ptstart = TimeSystem::internalTime2PosixTime(start);
                 boost::posix_time::ptime ptend = TimeSystem::internalTime2PosixTime(lastElement);
-                visibleTimes[src.getId()].emplace_back(ptstart, ptend);
+                visibleTimes[srcid].emplace_back(ptstart, ptend);
             }
         }
 
