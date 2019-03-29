@@ -99,7 +99,7 @@ void Mode::calcRecordingRates() {
             double efficiency = 0.5715 * 0.97;
             for (const auto &any : bitsPerChannel){
                 if(any.second != 2){
-                    efficiency = 0.5715 * 0.97;
+                    efficiency = 0.6366 * 0.97;
                 }
             }
             auto overlappingFrequencies = freq1.get()->observingRate(freq2.get(), bitsPerChannel);
