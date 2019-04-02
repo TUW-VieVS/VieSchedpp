@@ -1004,7 +1004,7 @@ void
 ParameterSettings::output(const string &experimentDescription, const string &scheduler,
                           const string &correlator, const string &piName, const string &piEmail, const string &contactName,
                           const string &contactEmail, const string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, const std::string &NGS_directory,
-                          bool createSKD, bool createVEX, bool createSnrTable, bool operNotes, const string &operationNotes,
+                          bool createSKD, bool createVEX, bool createSnrTable, bool operNotes,
                           bool createSrcGrp, const vector<string> &srcGroupsForStatistic, bool createSkyCoverage) {
     boost::property_tree::ptree output;
     if(experimentDescription.empty()){
@@ -1037,9 +1037,7 @@ ParameterSettings::output(const string &experimentDescription, const string &sch
     if(!notes.empty()){
         output.add("output.notes",notes);
     }
-    if(!operationNotes.empty()){
-        output.add("output.operationNotes",operationNotes);
-    }
+
 
     output.add("output.initializer_log", initializer);
     output.add("output.iteration_log", iteration_log);

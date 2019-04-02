@@ -566,7 +566,6 @@ namespace VieVS {
          * @param createVex create VEX file
          * @param createSnrTable create SNR table
          * @param operNotes create operation notes file
-         * @param operationNotes operation notes comments
          * @param srcGrp create source group statistics file
          * @param srcGroupsForStatistic groups for source group statistics file
          * @param createSkyCoverage create sky coverage file
@@ -576,7 +575,7 @@ namespace VieVS {
                     const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
                     const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, const std::string &NGS_directory,
                     bool createSKD, bool createVex, bool createSnrTable,
-                    bool operNotes, const std::string &operationNotes, bool srcGrp,
+                    bool operNotes, bool srcGrp,
                     const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage);
 
 
