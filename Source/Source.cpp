@@ -97,11 +97,20 @@ double Source::getMaxFlux() const noexcept {
 }
 
 double Source::getSunDistance() const noexcept{
-    double sunRa = AstronomicalParameters::sun_radc[0];
-    double sunDe = AstronomicalParameters::sun_radc[1];
 
-    double tmp = sin(sunDe) * sinDe_ + cos(sunDe) * cosDe_ * cos(sunRa - ra_);
-    return acos(tmp);
+    double d = numeric_limits<double>::max();
+
+    for(int i=0; i<AstronomicalParameters::sun_time.size(); ++i){
+        double sunRa = AstronomicalParameters::sun_ra[i];
+        double sunDe = AstronomicalParameters::sun_dec[i];
+        double tmp = sin(sunDe) * sinDe_ + cos(sunDe) * cosDe_ * cos(sunRa - ra_);
+        tmp = acos(tmp);
+        if(tmp<d){
+            d = tmp;
+        }
+    }
+
+    return d;
 }
 
 double Source::observedFlux(const string &band, double gmst, const std::vector<double> &dxyz) const noexcept {
@@ -149,6 +158,11 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
         if(getMaxFlux() < parameters_.minFlux){
             parameters_.available = false;
         }
+
+        if(getSunDistance() < parameters_.minSunDistance){
+            parameters_.available = false;
+        }
+
         flag = true;
     }
     return flag;

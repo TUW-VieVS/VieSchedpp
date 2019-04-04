@@ -49,7 +49,9 @@ namespace VieVS{
         static std::vector<double> earth_nutS; ///< nutation s in one hour steps from IAU2006a model
         static std::vector<unsigned int> earth_nutTime; ///< corresponding times of nut_x nut_y nut_s entries
 
-        static std::vector<double> sun_radc; ///< right ascension and declination of sun in radians
+      static std::vector<double> sun_ra; ///< right ascension of sun in radians
+      static std::vector<double> sun_dec; ///< declination of sun in radians
+      static std::vector<unsigned int> sun_time; ///< corresponding times of sun_ra and sun_rc entries
 
     };
 }

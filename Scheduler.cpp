@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,10 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   Scheduler.cpp
  * Author: mschartn
- * 
+ *
  * Created on June 29, 2017, 2:29 PM
  */
 
@@ -66,9 +66,9 @@ Scheduler::Scheduler(std::string name, Network network, std::vector<Source> sour
                                                        network_{std::move(network)},
                                                        sources_{std::move(sources)},
                                                        scans_{std::move(scans)},
-                                                       obsModes_{obsModes_},
+                                                       obsModes_{std::move(obsModes_)},
                                                        currentObservingMode_{nullptr},
-                                                       xml_{std::move(xml)} {
+                                                       xml_{xml} {
 }
 
 void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan::ScanType type,
@@ -263,8 +263,8 @@ void Scheduler::startScanSelection(unsigned int endTime, std::ofstream &of, Scan
                             boost::optional<unsigned int> oSlewTime = thisSta.slewTime(slewEnd);
                             if (oSlewTime.is_initialized()) {
                                 unsigned int slewTime = oSlewTime.get();
-                                auto oidx = thisScan.findIdxOfStationId(staid);
-                                if(oidx.is_initialized()){
+                                auto oidx2 = thisScan.findIdxOfStationId(staid);
+                                if(oidx2.is_initialized()){
                                     if(thisSta.getPARA().firstScan){
                                         valid = thisScan.referenceTime().updateAfterFillinmode(idx, thisSta.getCurrentTime(),
                                                                                                0,
@@ -904,7 +904,6 @@ void Scheduler::listSourceOverview(ofstream &of) noexcept {
         }else{
 
             notAvailable.push_back(any.getName());
-
         }
     }
 
@@ -1201,38 +1200,9 @@ bool Scheduler::checkOptimizationConditions(ofstream &of) {
         }
 
         if(exclude){
-            possibleExcludeIds.push_back({thisSource.getId(),thisSource.getNTotalScans()});
+            possibleExcludeIds.emplace_back(thisSource.getId(),thisSource.getNTotalScans());
         }
-
-//        if(exclude){
-//            if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions) {
-//                if(thisSource.getNTotalScans() >= 0) {
-//                    if (lastExcluded) {
-//                        lastExcluded = false;
-//                        #ifdef VIESCHEDPP_LOG
-//                        if (Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions but is valid because of gentle source reduction";
-//                        #endif
-//                        continue;
-//                    } else {
-//                        lastExcluded = true;
-//                    }
-//                }
-//            }
-//            #ifdef VIESCHEDPP_LOG
-//            if(Flags::logDebug) BOOST_LOG_TRIVIAL(debug) << "source " << thisSource.getName() << " does not met optimization conditions";
-//            #endif
-//
-//            excludedScans += thisSource.getNTotalScans();
-//            excludedBaselines += thisSource.getNObs();
-//            excludedSources.push_back(thisSource.getName());
-//            newScheduleNecessary = true;
-//            thisSource.referencePARA().setGlobalAvailable(false);
-//        }
     }
-
-
-
-
 
     // exclude only half the sources
     if(parameters_.currentIteration < parameters_.numberOfGentleSourceReductions){

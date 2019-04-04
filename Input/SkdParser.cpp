@@ -564,7 +564,7 @@ Scheduler SkdParser::createScheduler() {
 
     xml.add("output.experimentDescription",description);
 
-    Scheduler sched(fname, network_, sources_, scans_, xml, obsModes_);
+    Scheduler sched(filename_, network_, sources_, scans_, xml, obsModes_);
     ofstream dummy;
     sched.checkAndStatistics(dummy);
     return sched;

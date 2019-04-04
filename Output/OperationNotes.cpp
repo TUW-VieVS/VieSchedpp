@@ -739,8 +739,8 @@ void OperationNotes::displayAstronomicalParameters() {
     of << ".------------------------------------------.\n";
     of << "| sun position:        | earth velocity:   |\n";
     of << "|----------------------|-------------------|\n";
-    of << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_radc[0]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
-    of << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_radc[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
+    of << "| RA:   " << util::ra2dms(AstronomicalParameters::sun_ra[1]) << " " << boost::format("| x: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[0];
+    of << "| DEC: "  << util::dc2hms(AstronomicalParameters::sun_dec[1]) << " " << boost::format("| y: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[1];
     of << "|                      " << boost::format("| z: %8.0f [m/s] |\n")%AstronomicalParameters::earth_velocity[2];
     of << "'------------------------------------------'\n\n";
 

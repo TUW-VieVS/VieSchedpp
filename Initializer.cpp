@@ -1913,43 +1913,49 @@ void Initializer::initializeAstronomicalParameteres() noexcept{
     AstronomicalParameters::earth_nutS = nut_s;
     AstronomicalParameters::earth_nutTime = nut_t;
 
-    //sunPosition
-    double mjd = TimeSystem::mjdStart+static_cast<double>(TimeSystem::duration)/2/86400;
-    // NUMBER OF DAYS SINCE J2000.0
-    double days = mjd - 51544.5;
-    // MEAN SOLAR LONGITUDE
-    double slon = 280.460 + 0.9856474 * days;
-    slon = fmod(slon, 360);
-    if (slon < 1.0e-3){
+    vector<unsigned int> reftimeSun = {0, TimeSystem::duration / 2, TimeSystem::duration};
+
+    for (unsigned int t : reftimeSun){
+        // sunPosition
+        double mjd = TimeSystem::mjdStart + static_cast<double>(t) / 86400.0;
+        // NUMBER OF DAYS SINCE J2000.0
+        double days = mjd - 51544.5;
+        // MEAN SOLAR LONGITUDE
+        double slon = 280.460 + 0.9856474 * days;
+        slon = fmod(slon, 360);
+        if (slon < 1.0e-3) {
         slon = slon + 360.0;
-    }
-    // MEAN ANOMALY OF THE SUN
-    double sanom = 357.528 + 0.9856003 * days;
-    sanom = sanom * pi / 180.0;
-    sanom = fmod(sanom, 2*pi);
-    if (sanom < 1.0e-3){
+        }
+        // MEAN ANOMALY OF THE SUN
+        double sanom = 357.528 + 0.9856003 * days;
+        sanom = sanom * pi / 180.0;
+        sanom = fmod(sanom, 2 * pi);
+        if (sanom < 1.0e-3) {
         sanom = sanom + 2 * pi;
-    }
-    // ECLIPTIC LONGITUDE AND OBLIQUITY OF THE ECLIPTIC
-    double ecllon = slon + 1.915 * sin(sanom) + 0.020 * sin(2*sanom);
-    ecllon = ecllon * pi / 180.0;
-    ecllon = fmod(ecllon, 2*pi);
-    double quad = ecllon / (0.5*pi);
-    double iquad = floor(1 + quad);
-    double obliq = 23.439 - 0.0000004 * days;
-    obliq = obliq * pi / 180.0;
-    // RIGHT ASCENSION AND DECLINATION
-    // (RA IS IN SAME QUADRANT AS ECLIPTIC LONGITUDE)
-    double sunra = atan(cos(obliq)*tan(ecllon));
-    if (iquad == 2){
+        }
+        // ECLIPTIC LONGITUDE AND OBLIQUITY OF THE ECLIPTIC
+        double ecllon = slon + 1.915 * sin(sanom) + 0.020 * sin(2 * sanom);
+        ecllon = ecllon * pi / 180.0;
+        ecllon = fmod(ecllon, 2 * pi);
+        double quad = ecllon / (0.5 * pi);
+        double iquad = floor(1 + quad);
+        double obliq = 23.439 - 0.0000004 * days;
+        obliq = obliq * pi / 180.0;
+        // RIGHT ASCENSION AND DECLINATION
+        // (RA IS IN SAME QUADRANT AS ECLIPTIC LONGITUDE)
+        double sunra = atan(cos(obliq) * tan(ecllon));
+        if (iquad == 2) {
         sunra = sunra + pi;
-    }else if(iquad == 3){
+        } else if (iquad == 3) {
         sunra = sunra + pi;
-    }else if(iquad == 4){
-        sunra = sunra + 2*pi;
+        } else if (iquad == 4) {
+        sunra = sunra + 2 * pi;
+        }
+        double sunde = asin(sin(obliq) * sin(ecllon));
+        AstronomicalParameters::sun_ra.push_back(sunra);
+        AstronomicalParameters::sun_dec.push_back(sunde);
+        AstronomicalParameters::sun_time.push_back(t);
     }
-    double sunde = asin(sin(obliq) * sin(ecllon));
-    AstronomicalParameters::sun_radc = {sunra, sunde};
 }
 
 void Initializer::initializeWeightFactors() noexcept {

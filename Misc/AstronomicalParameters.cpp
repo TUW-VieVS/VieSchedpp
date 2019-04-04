@@ -26,4 +26,6 @@ std::vector<double> AstronomicalParameters::earth_nutY; ///< nutation y in one h
 std::vector<double> AstronomicalParameters::earth_nutS; ///< nutation s in one hour steps from IAU2006a model
 std::vector<unsigned int> AstronomicalParameters::earth_nutTime; ///< corresponding times of nut_x nut_y nut_s entries
 
-std::vector<double> AstronomicalParameters::sun_radc; ///< right ascension and declination of sun
+std::vector<double> AstronomicalParameters::sun_ra; ///< right ascension and declination of sun
+std::vector<double> AstronomicalParameters::sun_dec; ///< right ascension and declination of sun
+std::vector<unsigned int> AstronomicalParameters::sun_time; ///< right ascension and declination of sun
