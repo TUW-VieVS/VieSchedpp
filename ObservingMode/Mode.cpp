@@ -96,12 +96,21 @@ void Mode::calcRecordingRates() {
             }
 
             auto bitsPerChannel = tracks1.get()->numberOfBitsPerChannel(tracks2.get());
-            double efficiency = 0.5715 * 0.97;
+            int bits = 1;
+
             for (const auto &any : bitsPerChannel){
-                if(any.second != 2){
-                    efficiency = 0.5715 * 0.97;
+                if(any.second == 2){
+                    bits = 2;
                 }
             }
+
+            double efficiency = 0;
+            if(bits == 1){
+                efficiency = 0.6366 * 0.97;
+            }else if(bits == 2){
+                efficiency = 0.625 * 0.97;
+            }
+
             auto overlappingFrequencies = freq1.get()->observingRate(freq2.get(), bitsPerChannel);
 
             staids2efficiency_[{staid1, staid2}] = efficiency;

@@ -36,6 +36,10 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
 
 void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skdCatalogReader) {
 
+    for(auto & sky : network_.refSkyCoverages()){
+        sky.sort();
+    }
+
     if(scans_.empty()){
         return;
     }

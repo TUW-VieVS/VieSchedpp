@@ -680,7 +680,7 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
     of << boost::format("%6d ") % roundl(accumulate(scans.begin(),scans.end(),0.0)/(network.getNSta()));
     of << "\n";
 
-    of << " # scans/hour :  ";
+    of << " # scans/hour:   ";
     vector<double> scansPerH;
     for (const auto &station: network.getStations()) {
         scansPerH.push_back(static_cast<double>(station.getNTotalScans())/(TimeSystem::duration/3600.));
@@ -689,6 +689,31 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
         of << boost::format("%6.2f ") % p;
     }
     of << boost::format("%6.2f ") % (accumulate(scansPerH.begin(),scansPerH.end(),0.0)/(network.getNSta()));
+    of << "\n";
+
+    of << " total # obs:    ";
+    vector<int> obs;
+    for (const auto &station: network.getStations()) {
+        obs.push_back(station.getNObs());
+    }
+    for(auto p:obs){
+        of << boost::format("%6d ") % static_cast<double>(p);
+    }
+    of << boost::format("%6d ") % roundl(accumulate(obs.begin(),obs.end(),0.0)/(network.getNSta()));
+    of << "\n";
+
+    of << " sky cov. score  ";
+    vector<double> sky;
+    for (const auto &station: network.getStations()) {
+        unsigned long id = station.getId();
+        const auto &map = network.getStaid2skyCoverageId();
+        unsigned long skyCovId = map.at(id);
+        sky.push_back(network.getSkyCoverage(skyCovId).skyCoverageScore());
+    }
+    for(auto p:sky){
+        of << boost::format("%6.2f ") % static_cast<double>(p);
+    }
+    of << boost::format("%6.2f ") % (accumulate(sky.begin(),sky.end(),0.0)/(network.getNSta()));
     of << "\n";
 
     of << " Avg scan (sec): ";

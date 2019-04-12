@@ -30,10 +30,12 @@
 #include <iostream>
 #include <cmath>
 #include <limits>
+#include <set>
 
 #include "../Scan/PointingVector.h"
 #include "../Misc/LookupTable.h"
 #include "Station.h"
+
 
 namespace VieVS{
     /**
@@ -111,10 +113,57 @@ namespace VieVS{
             return pointingVectors_;
         }
 
+        /**
+         * @brief calculate total sky coverage score of all observations over schedule session
+         * @author Matthias Schartner
+         *
+         * @return sky coverage score. Maximum score is 1, minimum score is 0.
+         */
+        const double skyCoverageScore( ) const;
+
+
+        /**
+         * @brief sort pointing vectors based on time
+         * @author Matthias Schartner
+         */
+        void sort(){
+            std::sort(pointingVectors_.begin(), pointingVectors_.end(), [](const PointingVector &left,const PointingVector &right) {
+                return left.getTime() < right.getTime();
+            });
+        }
+
     private:
         static unsigned long nextId; ///< next id for this object type
 
         std::vector<PointingVector> pointingVectors_; ///< all pointing vectors
+
+
+        /**
+         * @brief area index of observation
+         * @author Matthias Schartner
+         *
+         * Sky is distributed in 25 areas.
+         * An index is given to each area.
+         * This function returns the index of the area where the observation is located.
+         *
+         * @param pv pointing vector containing azimuth and elevation
+         * @return area index
+         */
+        static int areaIndex1(const PointingVector &pv) noexcept;
+
+        /**
+         * @brief area index of observation
+         * @author Matthias Schartner
+         *
+         * Sky is distributed in 25 areas.
+         * An index is given to each area.
+         * This function returns the index of the area where the observation is located.
+         *
+         * @param pv pointing vector containing azimuth and elevation
+         * @return area index
+         */
+        static int areaIndex2(const PointingVector &pv) noexcept;
+
     };
 }
 
