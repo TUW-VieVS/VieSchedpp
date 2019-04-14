@@ -2819,8 +2819,8 @@ void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::Mul
     of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_observations,";
     of << "n_stations,n_sources,";
     of << "time_average_observation,time_average_preob,time_average_slew,time_average_idle,time_average_field_system,";
-    of << "skyCoverageScore_average_13_30,skyCoverageScore_average_25_30,skyCoverageScore_average_37_30,"
-          "skyCoverageScore_average_13_60,skyCoverageScore_average_25_60,skyCoverageScore_average_37_60,";
+    of << "sky_coverage_average_13_areas_30_min,sky_coverage_average_25_areas_30_min,sky_coverage_average_37_areas_30_min,"
+          "sky_coverage_average_13_areas_60_min,sky_coverage_average_25_areas_60_min,sky_coverage_average_37_areas_60_min,";
     for(const auto&any : network_.getStations()){
         of << "time_" << any.getName() << "_observation,";
     }
@@ -2838,22 +2838,22 @@ void Initializer::statisticsLogHeader(ofstream &of, const std::vector<VieVS::Mul
     }
 
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_13_30,";
+        of << "sky_coverage_" << any.getName() << "_13_areas_30_min,";
     }
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_25_30,";
+        of << "sky_coverage_" << any.getName() << "_25_areas_30_min,";
     }
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_37_30,";
+        of << "sky_coverage_" << any.getName() << "_37_areas_30_min,";
     }
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_13_60,";
+        of << "sky_coverage_" << any.getName() << "_13_areas_60_min,";
     }
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_25_60,";
+        of << "sky_coverage_" << any.getName() << "_25_areas_60_min,";
     }
     for(const auto&any : network_.getStations()){
-        of << "skyCoverageScore_" << any.getName() << "_37_60,";
+        of << "sky_coverage_" << any.getName() << "_37_areas_60_min,";
     }
 
     for(const auto&any : network_.getStations()){
