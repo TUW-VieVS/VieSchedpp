@@ -37,7 +37,7 @@ Output::Output(Scheduler &sched, std::string path, string fname, int version): V
 void Output::createAllOutputFiles(std::ofstream &of, const SkdCatalogReader &skdCatalogReader) {
 
     for(auto & sky : network_.refSkyCoverages()){
-        sky.sort();
+        sky.calculateSkyCoverageScores();
     }
 
     if(scans_.empty()){
@@ -761,6 +761,32 @@ void Output::writeStatistics(std::ofstream &of) {
     double fieldMean = accumulate(fieldPer.begin(),fieldPer.end(),0.0)/(network_.getNSta());
 
 
+    vector<double> a13m30;
+    vector<double> a25m30;
+    vector<double> a37m30;
+    vector<double> a13m60;
+    vector<double> a25m60;
+    vector<double> a37m60;
+    for (const auto &station : network_.getStations()){
+        unsigned long id = station.getId();
+        const auto &map = network_.getStaid2skyCoverageId();
+        unsigned long skyCovId = map.at(id);
+        const auto & skyCov = network_.getSkyCoverage(skyCovId);
+        a13m30.push_back(skyCov.getSkyCoverageScore_a13m30());
+        a25m30.push_back(skyCov.getSkyCoverageScore_a25m30());
+        a37m30.push_back(skyCov.getSkyCoverageScore_a37m30());
+        a13m60.push_back(skyCov.getSkyCoverageScore_a13m60());
+        a25m60.push_back(skyCov.getSkyCoverageScore_a25m60());
+        a37m60.push_back(skyCov.getSkyCoverageScore_a37m60());
+    }
+    double a13m30Mean = accumulate(a13m30.begin(),a13m30.end(),0.0)/(network_.getNSta());
+    double a25m30Mean = accumulate(a25m30.begin(),a25m30.end(),0.0)/(network_.getNSta());
+    double a37m30Mean = accumulate(a37m30.begin(),a37m30.end(),0.0)/(network_.getNSta());
+    double a13m60Mean = accumulate(a13m60.begin(),a13m60.end(),0.0)/(network_.getNSta());
+    double a25m60Mean = accumulate(a25m60.begin(),a25m60.end(),0.0)/(network_.getNSta());
+    double a37m60Mean = accumulate(a37m60.begin(),a37m60.end(),0.0)/(network_.getNSta());
+
+
     oString.append(std::to_string(version_)).append(",");
     oString.append(std::to_string(n_scans)).append(",");
     oString.append(std::to_string(n_single)).append(",");
@@ -776,6 +802,15 @@ void Output::writeStatistics(std::ofstream &of) {
     oString.append(std::to_string(slewMean)).append(",");
     oString.append(std::to_string(idleMean)).append(",");
     oString.append(std::to_string(fieldMean)).append(",");
+
+    oString.append(std::to_string(a13m30Mean)).append(",");
+    oString.append(std::to_string(a25m30Mean)).append(",");
+    oString.append(std::to_string(a37m30Mean)).append(",");
+    oString.append(std::to_string(a13m60Mean)).append(",");
+    oString.append(std::to_string(a25m60Mean)).append(",");
+    oString.append(std::to_string(a37m60Mean)).append(",");
+
+
     for (auto any : obsPer) {
         oString.append(std::to_string(any)).append(",");
     }
@@ -791,6 +826,27 @@ void Output::writeStatistics(std::ofstream &of) {
     for (auto any : fieldPer) {
         oString.append(std::to_string(any)).append(",");
     }
+
+    for (auto any : a13m30) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : a25m30) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : a37m30) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : a13m60) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : a25m60) {
+        oString.append(std::to_string(any)).append(",");
+    }
+    for (auto any : a37m60) {
+        oString.append(std::to_string(any)).append(",");
+    }
+
+
 
     for (int i = 0; i < network_.getNSta(); ++i) {
         oString.append(std::to_string(nscan_sta[i])).append(",");

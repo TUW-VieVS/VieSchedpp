@@ -166,6 +166,8 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
 
     displayGeneralStatistics(scans);
     WeightFactors::summary(of);
+
+    displaySkyCoverageScore(network);
     displayStationStatistics(network);
     displaySourceStatistics(sources);
     obsModes->summary(of);
@@ -192,14 +194,10 @@ void OperationNotes::writeOperationNotes(const Network &network, const std::vect
 
     of << "================================================================================================================================================\n";
     of << "                                                              FULL SCHEDULING SETUP                                                             \n";
-    of << "================================================================================================================================================\n\n";
-    of << ".------------------------.\n";
-    of << "| full scheduling setup: |\n";
-    of << "'------------------------'\n";
+    of << "================================================================================================================================================\n";
+    of << "Can be used to recreate schedule:\n\n";
     boost::property_tree::xml_parser::write_xml(of, xml,
                                                 boost::property_tree::xml_writer_make_settings<std::string>('\t', 1));
-//    boost::property_tree::xmlparser::write_xml(of, xml, boost::property_tree::xmlwriter_make_settings<string>('\t', 1));
-    of << "==================\n";
 
 }
 
@@ -702,19 +700,17 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
     of << boost::format("%6d ") % roundl(accumulate(obs.begin(),obs.end(),0.0)/(network.getNSta()));
     of << "\n";
 
-    of << " sky cov. score  ";
-    vector<double> sky;
+    of << " # obs/hour:     ";
+    vector<double> obsPerH;
     for (const auto &station: network.getStations()) {
-        unsigned long id = station.getId();
-        const auto &map = network.getStaid2skyCoverageId();
-        unsigned long skyCovId = map.at(id);
-        sky.push_back(network.getSkyCoverage(skyCovId).skyCoverageScore());
+        obsPerH.push_back(static_cast<double>(station.getNObs())/(TimeSystem::duration/3600.));
     }
-    for(auto p:sky){
-        of << boost::format("%6.2f ") % static_cast<double>(p);
+    for(auto p:obsPerH){
+        of << boost::format("%6.2f ") % p;
     }
-    of << boost::format("%6.2f ") % (accumulate(sky.begin(),sky.end(),0.0)/(network.getNSta()));
+    of << boost::format("%6.2f ") % (accumulate(obsPerH.begin(),obsPerH.end(),0.0)/(network.getNSta()));
     of << "\n";
+
 
     of << " Avg scan (sec): ";
     vector<double> scanSec;
@@ -755,8 +751,6 @@ void OperationNotes::displayTimeStatistics(const Network &network, const std::sh
         of << boost::format("%6.2f ") % (accumulate(total_tb.begin(),total_tb.end(),0.0)/(network.getNSta()));
         of << "\n";
     }
-
-
 
 }
 
@@ -912,6 +906,97 @@ void OperationNotes::listKeys(const Network &network) {
         }
     }
     of << "\n\n";
+}
+
+void OperationNotes::displaySkyCoverageScore(const Network &network) {
+
+    vector<double> a13m30;
+    vector<double> a25m30;
+    vector<double> a37m30;
+    vector<double> a13m60;
+    vector<double> a25m60;
+    vector<double> a37m60;
+    for (const auto &station : network.getStations()){
+        unsigned long id = station.getId();
+        const auto &map = network.getStaid2skyCoverageId();
+        unsigned long skyCovId = map.at(id);
+        const auto & skyCov = network.getSkyCoverage(skyCovId);
+        a13m30.push_back(skyCov.getSkyCoverageScore_a13m30());
+        a25m30.push_back(skyCov.getSkyCoverageScore_a25m30());
+        a37m30.push_back(skyCov.getSkyCoverageScore_a37m30());
+        a13m60.push_back(skyCov.getSkyCoverageScore_a13m60());
+        a25m60.push_back(skyCov.getSkyCoverageScore_a25m60());
+        a37m60.push_back(skyCov.getSkyCoverageScore_a37m60());
+    }
+
+
+    of << "sky coverage score (1 means perfect distribution)\n";
+    of << ".--------------------";
+    for (int i=0; i<network.getNSta(); ++i){
+        of << boost::format("----------");
+    }
+    of << "-----------.\n";
+
+    of << "|                   |";
+    for (const auto &station : network.getStations()){
+        of << boost::format(" %8s ") % station.getName();
+    }
+    of << "| average  |\n";
+
+    of << "|-------------------|";
+    for (int i=0; i<network.getNSta(); ++i){
+        of << boost::format("----------");
+    }
+    of << "|----------|\n";
+
+    of << "| 13 areas @ 30 min |";
+    for ( double v : a13m30){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a13m30.begin(), a13m30.end(), 0.0)/network.getNSta());
+
+    of << "| 25 areas @ 30 min |";
+    for ( double v : a25m30){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a25m30.begin(), a25m30.end(), 0.0)/network.getNSta());
+
+    of << "| 37 areas @ 30 min |";
+    for ( double v : a37m30){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a37m30.begin(), a37m30.end(), 0.0)/network.getNSta());
+
+    of << "|--------------------";
+    for (const auto &station : network.getStations()){
+        of << boost::format("----------") ;
+    }
+    of << "-----------|\n";
+
+    of << "| 13 areas @ 60 min |";
+    for ( double v : a13m60){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a13m60.begin(), a13m60.end(), 0.0)/network.getNSta());
+
+    of << "| 25 areas @ 60 min |";
+    for ( double v : a25m60){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a25m60.begin(), a25m60.end(), 0.0)/network.getNSta());
+
+    of << "| 37 areas @ 60 min |";
+    for ( double v : a37m60){
+        of << boost::format(" %8.2f ") % v;
+    }
+    of << boost::format("| %8.2f |\n") % (accumulate(a37m60.begin(), a37m60.end(), 0.0)/network.getNSta());
+
+    of << "'--------------------";
+    for (int i=0; i<network.getNSta(); ++i){
+        of << boost::format("----------");
+    }
+    of << "-----------'\n\n";
+
 }
 
 

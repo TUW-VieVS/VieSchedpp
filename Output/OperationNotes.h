@@ -190,6 +190,14 @@ namespace VieVS{
          */
         void listKeys(const Network &network);
 
+        /**
+         * @brief list sky coverage scores
+         * @author Matthias Schartner
+         *
+         * @param network station network
+         */
+        void displaySkyCoverageScore(const Network &network);
+
     };
 }
 
