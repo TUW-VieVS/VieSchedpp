@@ -27,13 +27,19 @@
 #ifndef VIEVS_SCHEDULER_H
 #define VIEVS_SCHEDULER_H
 
+
 #include <boost/format.hpp>
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <thread>
 #include <vector>
-
+#include "Initializer.h"
+#include "Misc/HighImpactScanDescriptor.h"
+#include "ObservingMode/Mode.h"
+#include "Output/Output.h"
+#include "Scheduler.h"
+#include "XML/ParameterSettings.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/attributes/named_scope.hpp>
 #include <boost/log/core.hpp>
@@ -48,14 +54,6 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #endif
-
-#include "Initializer.h"
-#include "Misc/HighImpactScanDescriptor.h"
-#include "ObservingMode/Mode.h"
-#include "Output/Output.h"
-#include "Scheduler.h"
-#include "XML/ParameterSettings.h"
-
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -81,6 +79,7 @@ class VieSchedpp {
      */
     VieSchedpp() = default;
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -89,11 +88,13 @@ class VieSchedpp {
      */
     explicit VieSchedpp( const std::string &inputFile );
 
+
     /**
      * @brief start VieSched++
      * @author Matthias Schartner
      */
     void run();
+
 
    private:
     std::string inputFile_;            ///< VieSchedpp.xml file
@@ -110,11 +111,13 @@ class VieSchedpp {
      */
     void readSkdCatalogs();
 
+
     /**
      * @brief initialize parallel processing
      * @author Matthias Schartner
      */
     void multiCoreSetup();
+
 
     /**
      * @brief initialize log files

@@ -17,12 +17,16 @@
  */
 
 #include "SNR_table.h"
+
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long SNR_table::nextId = 0;
 
+
 SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
+
 
 void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {

@@ -28,11 +28,13 @@
 #ifndef PARAMETERSETUP_H
 #define PARAMETERSETUP_H
 
+
 #include <boost/optional.hpp>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
 
 namespace VieVS {
 /**
@@ -53,11 +55,13 @@ class ParameterSetup {
         hard     ///< hard transition
     };
 
+
     /**
      * @brief empty default constructor
      * @author Matthias Schartner
      */
     ParameterSetup();
+
 
     /**
      * @brief constructor for root object
@@ -67,6 +71,7 @@ class ParameterSetup {
      * @param end end of this setup in seconds since start
      */
     ParameterSetup( unsigned int start, unsigned int end );
+
 
     /**
      * @brief constructor for setup with single member
@@ -80,6 +85,7 @@ class ParameterSetup {
      */
     ParameterSetup( const std::string &parameterName, const std::string &memberName, unsigned int start,
                     unsigned int end, Transition transition = Transition::smooth );
+
 
     /**
      * @brief constructor for setup with group member
@@ -96,6 +102,7 @@ class ParameterSetup {
                     const std::vector<std::string> &groupMembers, unsigned int start, unsigned int end,
                     Transition transition = Transition::smooth );
 
+
     /**
      * @brief getter for parameter name
      * @author Matthias Schartner
@@ -103,6 +110,7 @@ class ParameterSetup {
      * @return parameter name
      */
     const std::string &getParameterName() const { return parameterName_; }
+
 
     /**
      * @brief getter for member name
@@ -112,6 +120,7 @@ class ParameterSetup {
      */
     const std::string &getMemberName() const { return memberName_; }
 
+
     /**
      * @brief getter for start time
      * @author Matthias Schartner
@@ -119,6 +128,7 @@ class ParameterSetup {
      * @return start time in seconds since start
      */
     unsigned int getStart() const { return start_; }
+
 
     /**
      * @brief getter for end time
@@ -128,6 +138,7 @@ class ParameterSetup {
      */
     unsigned int getEnd() const { return end_; }
 
+
     /**
      * @brief getter for member
      * @author Matthias Schartner
@@ -135,6 +146,7 @@ class ParameterSetup {
      * @return list of all members
      */
     const std::vector<std::string> &getMembers() const { return members_; }
+
 
     /**
      * @brief getter for setup childrens
@@ -144,6 +156,7 @@ class ParameterSetup {
      */
     const std::vector<ParameterSetup> &getChildren() const { return childrens_; }
 
+
     /**
      * @brief getter for transition type
      * @author Matthias Schartner
@@ -151,6 +164,7 @@ class ParameterSetup {
      * @return transition type
      */
     Transition getTransition() const { return transition_; }
+
 
     /**
      * @brief checks if this setup is a valid child of other setup
@@ -161,6 +175,7 @@ class ParameterSetup {
      */
     int isValidChild( const ParameterSetup &other ) const;
 
+
     /**
      * @brief checks if this setup is a valid siblig of other setup
      * @author Matthias Schartner
@@ -170,6 +185,7 @@ class ParameterSetup {
      */
     int isValidSibling( const ParameterSetup &other ) const;
 
+
     /**
      * @brief add a child setup to current setup
      * @author Matthias Schartner
@@ -178,6 +194,7 @@ class ParameterSetup {
      * @return error code or 0 if everything is ok
      */
     int addChild( const ParameterSetup &child );
+
 
     /**
      * @brief search parameter child
@@ -197,6 +214,7 @@ class ParameterSetup {
                                               const std::string &memberName, const std::vector<std::string> &members,
                                               Transition transition, unsigned int start, unsigned int end );
 
+
     /**
      * @brief delete parameter setup
      * @author Matthias Schartner
@@ -214,6 +232,7 @@ class ParameterSetup {
     bool deleteChild( int thisLevel, int level, const std::string &parameterName, const std::string &memberName,
                       const std::vector<std::string> &members, Transition transition, unsigned int start,
                       unsigned int end );
+
 
    private:
     std::string parameterName_;  ///< parameter name

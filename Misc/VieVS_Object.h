@@ -28,7 +28,9 @@
 #ifndef VLBI_SCHEDULER_VIEVS_OBJECT_H
 #define VLBI_SCHEDULER_VIEVS_OBJECT_H
 
+
 #include <string>
+
 
 namespace VieVS {
 
@@ -50,6 +52,7 @@ class VieVS_Object {
      */
     explicit VieVS_Object( unsigned long id ) : id_{id} {};
 
+
     /**
      * @brief get object id
      * @author Matthias Schartner
@@ -58,6 +61,7 @@ class VieVS_Object {
      */
     const unsigned long getId() const { return id_; }
 
+
     /**
      * @brief check if id is valid
      * @author Matthias Schartner
@@ -65,6 +69,7 @@ class VieVS_Object {
      * @return flag if id is valid
      */
     bool hasValidId() const { return id_ > 0; }
+
 
     /**
      * @brief check if object has specific id
@@ -75,6 +80,7 @@ class VieVS_Object {
      */
     bool hasId( unsigned long id ) const { return id_ == id; }
 
+
     /**
      * @brief set object id
      * @author Matthias Schartner
@@ -83,6 +89,7 @@ class VieVS_Object {
      */
     void setId( unsigned long id ) { id_ = id; }
 
+
     /**
      * @brief object id string
      * @author Matthias Schartner
@@ -90,6 +97,7 @@ class VieVS_Object {
      * @return formatted string with object id
      */
     std::string printId() const { return std::string( "(id: " ).append( std::to_string( id_ ) ).append( ")" ); }
+
 
    private:
     unsigned long id_;  ///< object id

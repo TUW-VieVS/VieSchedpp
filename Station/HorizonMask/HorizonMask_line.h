@@ -28,7 +28,9 @@
 #ifndef HORIZONMASK_LINE_H
 #define HORIZONMASK_LINE_H
 
+
 #include "AbstractHorizonMask.h"
+
 
 namespace VieVS {
 
@@ -50,6 +52,7 @@ class HorizonMask_line : public AbstractHorizonMask {
      */
     HorizonMask_line( const std::vector<double> &azimuths, const std::vector<double> &elevations );
 
+
     /**
      * @brief checks if a pointing vector is visible
      * @author Matthias Schartner
@@ -59,6 +62,7 @@ class HorizonMask_line : public AbstractHorizonMask {
      */
     bool visible( const PointingVector &pv ) const noexcept override;
 
+
     /**
      * @brief horizon mask string in .vex format
      * @author Matthias Schartner
@@ -67,6 +71,7 @@ class HorizonMask_line : public AbstractHorizonMask {
      */
     std::string vexOutput() const noexcept override;
 
+
     /**
      * @brief getter for horizon mask
      * @author Matthias Schartner
@@ -74,6 +79,7 @@ class HorizonMask_line : public AbstractHorizonMask {
      * @return first vector is azimuth in radians, second vector is elevation in radians
      */
     std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept override;
+
 
    private:
     std::vector<double> azimuth_;    ///< horizon mask knots in radians

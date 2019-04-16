@@ -17,11 +17,15 @@
  */
 
 #include "CableWrap_AzEl.h"
+
+
 using namespace VieVS;
 using namespace std;
 
+
 CableWrap_AzEl::CableWrap_AzEl( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg )
     : AbstractCableWrap( axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg ) {}
+
 
 bool CableWrap_AzEl::anglesInside( const PointingVector &p ) const noexcept {
     double ax1 = p.getAz();
@@ -29,6 +33,7 @@ bool CableWrap_AzEl::anglesInside( const PointingVector &p ) const noexcept {
 
     return axisInsideCableWrap( ax1, ax2 );
 }
+
 
 void CableWrap_AzEl::unwrapAzNearAz( PointingVector &new_pointingVector, double az_old ) const noexcept {
     double az_new = new_pointingVector.getAz();
@@ -57,6 +62,7 @@ void CableWrap_AzEl::unwrapAzNearAz( PointingVector &new_pointingVector, double 
     new_pointingVector.setAz( this_unaz );
 }
 
+
 AbstractCableWrap::CableWrapFlag CableWrap_AzEl::cableWrapFlag( double unaz ) const noexcept {
     if ( unaz <= getNUp() && unaz >= getNLow() ) {
         return AbstractCableWrap::CableWrapFlag::n;
@@ -70,6 +76,7 @@ AbstractCableWrap::CableWrapFlag CableWrap_AzEl::cableWrapFlag( double unaz ) co
 
     return AbstractCableWrap::CableWrapFlag::n;
 }
+
 
 bool CableWrap_AzEl::unwrapAzInSection( PointingVector &pv, char section ) const noexcept {
     double az = pv.getAz();
@@ -111,7 +118,9 @@ bool CableWrap_AzEl::unwrapAzInSection( PointingVector &pv, char section ) const
     return flag;
 }
 
+
 std::pair<std::string, std::string> CableWrap_AzEl::getMotions() const noexcept { return {"az", "el"}; }
+
 
 std::string CableWrap_AzEl::vexPointingSectors() const noexcept {
     return pointingSector( "az", "el", 'W' ) + pointingSector( "az", "el", '-' ) + pointingSector( "az", "el", 'C' );

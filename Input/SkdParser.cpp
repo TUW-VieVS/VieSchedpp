@@ -17,12 +17,16 @@
  */
 
 #include "SkdParser.h"
+
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long SkdParser::nextId = 0;
 
+
 SkdParser::SkdParser( const std::string &filename ) : VieVS_Object( nextId++ ), filename_{filename} {}
+
 
 void SkdParser::read() {
     Initializer init;
@@ -280,6 +284,7 @@ void SkdParser::read() {
     of.close();
 }
 
+
 void SkdParser::createScans( std::ofstream &of ) {
     ifstream fid( filename_ );
     if ( !fid.is_open() ) {
@@ -442,6 +447,7 @@ void SkdParser::createScans( std::ofstream &of ) {
     }
 }
 
+
 void SkdParser::copyScanMembersToObjects( std::ofstream &of ) {
     for ( const auto &scan : scans_ ) {
         unsigned long srcid = scan.getSourceId();
@@ -464,6 +470,7 @@ void SkdParser::copyScanMembersToObjects( std::ofstream &of ) {
         thisSource.update( nbl, latestTime, true );
     }
 }
+
 
 std::vector<vector<unsigned int>> SkdParser::getScheduledTimes( const string &station ) {
     vector<vector<unsigned int>> times;
@@ -494,6 +501,7 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes( const string &st
     }
     return times;
 }
+
 
 Scheduler SkdParser::createScheduler() {
     Station::WaitTimes wt;
@@ -532,6 +540,7 @@ Scheduler SkdParser::createScheduler() {
     sched.checkAndStatistics( dummy );
     return sched;
 }
+
 
 void SkdParser::setLogFiles() {
 #ifdef VIESCHEDPP_LOG

@@ -17,10 +17,13 @@
  */
 
 #include "Observation.h"
+
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Observation::nextId = 0;
+
 
 Observation::Observation( unsigned long blid, unsigned long staid1, unsigned long staid2, unsigned long srcid,
                           unsigned int startTime, unsigned int observingTime )
@@ -32,6 +35,7 @@ Observation::Observation( unsigned long blid, unsigned long staid1, unsigned lon
       startTime_{startTime},
       observingTime_{observingTime} {}
 
+
 Observation::Observation( const Observation &other )
     : VieVS_Object{nextId++},
       blid_{other.blid_},
@@ -40,5 +44,6 @@ Observation::Observation( const Observation &other )
       srcid_{other.srcid_},
       startTime_{other.startTime_},
       observingTime_{other.observingTime_} {}
+
 
 bool Observation::containsStation( unsigned long staid ) const noexcept { return staid == staid1_ || staid == staid2_; }

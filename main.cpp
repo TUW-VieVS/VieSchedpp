@@ -43,6 +43,7 @@
  */
 void welcome();
 
+
 /**
  * @brief error message in case of termination
  * @author Matthias Schartner
@@ -51,6 +52,7 @@ void VieSchedppTerminate() {
     std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue "
                  "yourself contact matthias.schartner@geo.tuwien.ac.at\n";
 }
+
 
 /**
  * @brief main function
@@ -131,6 +133,7 @@ int main( int argc, char *argv[] ) {
 
     return 0;
 }
+
 
 void welcome() {
     std::cout << " __     ___      ____       _              _             \n"

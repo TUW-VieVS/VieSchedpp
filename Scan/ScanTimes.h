@@ -27,12 +27,13 @@
 #ifndef SCANTIMES_H
 #define SCANTIMES_H
 
+
 #include <limits>
 #include <vector>
-
 #include "../Misc/VieVS_Object.h"
 #include "../Misc/util.h"
 #include "PointingVector.h"
+
 
 namespace VieVS {
 
@@ -57,6 +58,7 @@ class ScanTimes : public VieVS_Object {
         individual  ///< do not align observations
     };
 
+
     /**
      * @brief set observation time alignment anchor
      * @author Matthias Schartner
@@ -64,6 +66,7 @@ class ScanTimes : public VieVS_Object {
      * @param newAnchor alignment anchor
      */
     static void setAlignmentAnchor( AlignmentAnchor newAnchor ) { anchor = newAnchor; }
+
 
     /**
      * @brief get alignment anchor
@@ -73,6 +76,7 @@ class ScanTimes : public VieVS_Object {
      */
     static AlignmentAnchor getAlignmentAnchor() { return anchor; }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -80,6 +84,7 @@ class ScanTimes : public VieVS_Object {
      * @param nsta number of stations
      */
     explicit ScanTimes( unsigned int nsta );
+
 
     /**
      * @brief sets the endtime of the last scan
@@ -92,6 +97,7 @@ class ScanTimes : public VieVS_Object {
     void setEndOfLastScan( const std::vector<unsigned int> &endOfLastScan ) noexcept {
         ScanTimes::endOfLastScan_ = endOfLastScan;
     }
+
 
     /**
      * @brief update times after fillin mode scan
@@ -125,6 +131,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief adds the times for an element
      * @author Matthias Schartner
@@ -136,11 +143,13 @@ class ScanTimes : public VieVS_Object {
      */
     void addTimes( int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob ) noexcept;
 
+
     /**
      * @brief set new id
      * @author Matthias Schartner
      */
     void giveNewId() { setId( nextId++ ); }
+
 
     /**
      * @brief get end of slew times
@@ -150,12 +159,14 @@ class ScanTimes : public VieVS_Object {
      */
     const std::vector<unsigned int> getEndOfSlewTimes() const noexcept { return endOfSlewTime_; }
 
+
     /**
      * @brief removes an element
      *
      * @param idx index of the element that should be removed
      */
     void removeElement( int idx ) noexcept;
+
 
     /**
      * @brief get field system duration
@@ -168,6 +179,7 @@ class ScanTimes : public VieVS_Object {
         return endOfFieldSystemTime_[idx] - endOfLastScan_[idx];
     }
 
+
     /**
      * @brief get slew duration
      * @author Matthias Schartner
@@ -179,6 +191,7 @@ class ScanTimes : public VieVS_Object {
         return endOfSlewTime_[idx] - endOfFieldSystemTime_[idx];
     }
 
+
     /**
      * @brief get idle duration
      * @author Matthias Schartner
@@ -188,6 +201,7 @@ class ScanTimes : public VieVS_Object {
      */
     const unsigned int getIdleDuration( int idx ) const noexcept { return endOfIdleTime_[idx] - endOfSlewTime_[idx]; }
 
+
     /**
      * @brief get preob duration
      * @author Matthias Schartner
@@ -196,6 +210,7 @@ class ScanTimes : public VieVS_Object {
      * @return preob duration
      */
     const unsigned int getPreobDuration( int idx ) const noexcept { return endOfPreobTime_[idx] - endOfIdleTime_[idx]; }
+
 
     /**
      * @brief get observing duration
@@ -207,6 +222,7 @@ class ScanTimes : public VieVS_Object {
     const unsigned int getObservingDuration( int idx ) const noexcept {
         return endOfObservingTime_[idx] - endOfPreobTime_[idx];
     }
+
 
     /**
      * @brief get observing duration between two stations
@@ -226,6 +242,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get total observing duration
      * @author Matthias Schartner
@@ -236,6 +253,7 @@ class ScanTimes : public VieVS_Object {
         return getObservingTime( Timestamp::end ) - getObservingTime( Timestamp::start );
     }
 
+
     /**
      * @brief get total scan duration
      * @author Matthias Schartner
@@ -245,6 +263,7 @@ class ScanTimes : public VieVS_Object {
     const unsigned int getScanDuration() const noexcept {
         return getScanTime( Timestamp::end ) - getScanTime( Timestamp::start );
     }
+
 
     /**
      * @brief get field system time
@@ -265,6 +284,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get slew time
      * @author Matthias Schartner
@@ -283,6 +303,7 @@ class ScanTimes : public VieVS_Object {
             }
         }
     }
+
 
     /**
      * @brief get idle time
@@ -303,6 +324,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get preob time
      * @author Matthias Schartner
@@ -322,6 +344,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get observing time
      * @author Matthias Schartner
@@ -340,6 +363,7 @@ class ScanTimes : public VieVS_Object {
             }
         }
     }
+
 
     /**
      * @brief get observing time between two stations
@@ -361,6 +385,7 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get total observing time
      * @author Matthias Schartner
@@ -378,6 +403,7 @@ class ScanTimes : public VieVS_Object {
             }
         }
     }
+
 
     /**
      * @brief get total scan time
@@ -397,11 +423,13 @@ class ScanTimes : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief align start times
      * @author Matthias Schartner
      */
     void alignStartTimes() noexcept;
+
 
     /**
      * @brief set observing start time
@@ -411,6 +439,7 @@ class ScanTimes : public VieVS_Object {
      */
     void setObservingStarts( unsigned int scanStart ) noexcept;
 
+
     /**
      * @brief updates the slewtime of one element
      * @author Matthias Schartner
@@ -419,6 +448,7 @@ class ScanTimes : public VieVS_Object {
      * @param new_slewtime new slew time in seconds
      */
     void setSlewTime( int idx, unsigned int new_slewtime ) noexcept;
+
 
     /**
      * @brief adds scan times to each element
@@ -430,6 +460,7 @@ class ScanTimes : public VieVS_Object {
      */
     void setObservingTimes( const std::vector<unsigned int> &scanTimes ) noexcept;
 
+
     /**
      * @brief set observing times
      * @author Matthias Schartner
@@ -437,6 +468,7 @@ class ScanTimes : public VieVS_Object {
      * @param scanTimes new observing times
      */
     void setObservingTimes( unsigned int scanTimes ) noexcept;
+
 
     /**
      * @brief set observing time
@@ -448,6 +480,7 @@ class ScanTimes : public VieVS_Object {
      */
     void setObservingTime( int idx, unsigned int time, Timestamp ts );
 
+
     /**
      * @brief reduce observing time
      * @author Matthias Schartner
@@ -458,6 +491,7 @@ class ScanTimes : public VieVS_Object {
      * @return true if time was reduced, otherwise false
      */
     bool reduceObservingTime( int idx, unsigned int maxObsTime, Timestamp ts );
+
 
     /**
      * @brief add tagalong station times
@@ -474,6 +508,7 @@ class ScanTimes : public VieVS_Object {
                                  unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
                                  unsigned int preob );
 
+
     /**
      * @brief set preob time for all stations
      * @author Matthias Schartner
@@ -482,6 +517,7 @@ class ScanTimes : public VieVS_Object {
      * @return true if value was valid, otherwise false
      */
     bool setPreobTime( const std::vector<unsigned int> &preob );
+
 
     /**
      * @brief set preob time for one station
@@ -493,6 +529,7 @@ class ScanTimes : public VieVS_Object {
      */
     bool setPreobTime( int idx, unsigned int preob );
 
+
     /**
      * @brief remove unnecessary observing time
      * @author Matthias Schartner
@@ -501,6 +538,7 @@ class ScanTimes : public VieVS_Object {
      * @return index where observing time was removed
      */
     int removeUnnecessaryObservingTime( Timestamp ts );
+
 
    private:
     static unsigned long nextId;    ///< next id for this object type

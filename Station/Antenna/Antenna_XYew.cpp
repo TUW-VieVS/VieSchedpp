@@ -17,13 +17,17 @@
  */
 
 #include "Antenna_XYew.h"
+
+
 using namespace VieVS;
 using namespace std;
+
 
 Antenna_XYew::Antenna_XYew( double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
                             double rateY_deg_per_min, unsigned int constantOverheadY_s )
     : AbstractAntenna( offset_m, diam_m, rateX_deg_per_min, constantOverheadX_s, rateY_deg_per_min,
                        constantOverheadY_s ) {}
+
 
 unsigned int Antenna_XYew::slewTime( const PointingVector &old_pointingVector,
                                      const PointingVector &new_pointingVector ) const noexcept {

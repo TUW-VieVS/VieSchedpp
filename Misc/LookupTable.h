@@ -27,12 +27,14 @@
 #ifndef LOOKUPTABLE_H
 #define LOOKUPTABLE_H
 
+
 #include <unordered_map>
 #include <vector>
 
 #include "Constants.h"
 
 #include "../Scan/PointingVector.h"
+
 
 namespace VieVS {
 /**
@@ -63,6 +65,7 @@ class LookupTable {
      */
     static void initialize();
 
+
     /**
      * @brief sinus lookup table
      * @author Matthias Schartner
@@ -71,6 +74,7 @@ class LookupTable {
      * @return sinus of argument
      */
     static double sinLookup( double x );
+
 
     /**
      * @brief cosine lookup table
@@ -81,6 +85,7 @@ class LookupTable {
      */
     static double cosLookup( double x );
 
+
     /**
      * @brief arcus cosine lookup table
      * @author Matthias Schartner
@@ -89,6 +94,7 @@ class LookupTable {
      * @return arcus cosine of argument
      */
     static double acosLookup( double x );
+
 
     /**
      * @brief angular distance between two points
@@ -99,6 +105,7 @@ class LookupTable {
      * @return angular distance between two points in radians
      */
     static float angularDistance( const PointingVector &p1, const PointingVector &p2 ) noexcept;
+
 
     /**
      * @brief angular distance between two points

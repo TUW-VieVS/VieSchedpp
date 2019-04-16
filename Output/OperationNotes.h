@@ -27,11 +27,13 @@
 #ifndef VIESCHEDPP_OPERATIONNOTES_H
 #define VIESCHEDPP_OPERATIONNOTES_H
 
+
 #include <boost/property_tree/xml_parser.hpp>
 
 #include "../Misc/MultiScheduling.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
+
 
 namespace VieVS {
 
@@ -52,6 +54,7 @@ class OperationNotes : public VieVS_Object {
      */
     explicit OperationNotes( const std::string &file );
 
+
     /**
      * @brief write operation notes file
      * @author Matthias Schartner
@@ -69,6 +72,7 @@ class OperationNotes : public VieVS_Object {
                               const boost::property_tree::ptree &xml, int version,
                               boost::optional<MultiScheduling::Parameters> multiSchedulingParameters = boost::none );
 
+
     /**
      * @brief write simple skdsum file
      * @author Matthias Schartner
@@ -78,6 +82,7 @@ class OperationNotes : public VieVS_Object {
      * @param scans list of all scans
      */
     void writeSkdsum( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -92,6 +97,7 @@ class OperationNotes : public VieVS_Object {
      */
     void displayGeneralStatistics( const std::vector<Scan> &scans );
 
+
     /**
      * @brief baseline dependent statistics of the schedule
      * @author Matthias Schartner
@@ -99,6 +105,7 @@ class OperationNotes : public VieVS_Object {
      * @param network station network
      */
     void displayBaselineStatistics( const Network &network );
+
 
     /**
      * @brief displays some station dependent statistics of the schedule
@@ -108,6 +115,7 @@ class OperationNotes : public VieVS_Object {
      */
     void displayStationStatistics( const Network &network );
 
+
     /**
      * @brief displays some source dependent statistics of the schedule
      * @author Matthias Schartner
@@ -115,6 +123,7 @@ class OperationNotes : public VieVS_Object {
      * @param sources list of all sources
      */
     void displaySourceStatistics( const std::vector<Source> &sources );
+
 
     /**
      * @brief number of stations per scan statistics
@@ -125,6 +134,7 @@ class OperationNotes : public VieVS_Object {
      */
     void displayNstaStatistics( const Network &network, const std::vector<Scan> &scans );
 
+
     /**
      * @brief source dependent statistics of the schedule
      * @author Matthias Schartner
@@ -133,6 +143,7 @@ class OperationNotes : public VieVS_Object {
      * @param scans list of all scans
      */
     void displayScanDurationStatistics( const Network &network, const std::vector<Scan> &scans );
+
 
     /**
      * @brief time spend per station
@@ -143,12 +154,14 @@ class OperationNotes : public VieVS_Object {
      */
     void displayTimeStatistics( const Network &network, const std::shared_ptr<const ObservingMode> &obsModes );
 
+
     /**
      * @brief list astronomical parameters
      * @author Matthias Schartner
      *
      */
     void displayAstronomicalParameters();
+
 
     /**
      * @brief display summary of theoretical SNR values
@@ -161,6 +174,7 @@ class OperationNotes : public VieVS_Object {
      */
     void displaySNRSummary( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes );
+
 
     /**
      * @brief list first and last observations in skd style
@@ -176,6 +190,7 @@ class OperationNotes : public VieVS_Object {
     void firstLastObservations_skdStyle( const std::string &expName, const Network &network,
                                          const std::vector<Source> &sources, const std::vector<Scan> &scans );
 
+
     /**
      * @brief list key=stationName
      * @author Matthias Schartner
@@ -183,6 +198,7 @@ class OperationNotes : public VieVS_Object {
      * @param network station network
      */
     void listKeys( const Network &network );
+
 
     /**
      * @brief list sky coverage scores

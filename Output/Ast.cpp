@@ -18,12 +18,15 @@
 
 #include "Ast.h"
 
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long Ast::nextId = 0;
 
+
 Ast::Ast( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
+
 
 void Ast::writeAstFile( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                         const boost::property_tree::ptree &xml, const std::shared_ptr<const ObservingMode> &obsModes ) {
@@ -35,6 +38,7 @@ void Ast::writeAstFile( const Network &network, const std::vector<Source> &sourc
 
     scanOutput( scans, sources, network.getStations(), obsModes );
 }
+
 
 void Ast::experiment( const boost::property_tree::ptree &xml ) {
     const string &expName = xml.get( "VieSchedpp.general.experimentName", "schedule" );
@@ -73,6 +77,7 @@ void Ast::experiment( const boost::property_tree::ptree &xml ) {
     of << boost::format( "  %-26s %-6s    %s\n" ) % "Corr_time_resolution:" % expName % "1.000   sec";
     of << "#\n";
 }
+
 
 void Ast::stationParameters( const Station &station, const std::shared_ptr<const ObservingMode> &obsModes ) {
     const string &staName = station.getName();
@@ -145,6 +150,7 @@ void Ast::stationParameters( const Station &station, const std::shared_ptr<const
     of << boost::format( "  %-26s %-6s    %f  Mbps\n" ) % "Recording_rate:" % staName % mbps;
     of << "#\n";
 }
+
 
 void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> &sources,
                       const std::vector<Station> &stations, const std::shared_ptr<const ObservingMode> &obsModes ) {

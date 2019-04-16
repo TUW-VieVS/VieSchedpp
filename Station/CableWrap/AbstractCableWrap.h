@@ -26,17 +26,18 @@
 
 #ifndef CABLEWRAP_H
 #define CABLEWRAP_H
+
+
 #include <boost/format.hpp>
 #include <cmath>
 #include <iostream>
-
+#include "../../Misc/Constants.h"
+#include "../../Misc/VieVS_Object.h"
+#include "../../Scan/PointingVector.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
 
-#include "../../Misc/Constants.h"
-#include "../../Misc/VieVS_Object.h"
-#include "../../Scan/PointingVector.h"
 
 namespace VieVS {
 /**
@@ -61,6 +62,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     AbstractCableWrap( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg );
 
+
     /**
      * @brief enum to distinguish cable wraps
      * @author Matthias Schartner
@@ -70,6 +72,7 @@ class AbstractCableWrap : public VieVS_Object {
         n,    ///< neutral
         cw    ///< clock wise
     };
+
 
     /**
      * @brief sets safety margins for axis limits
@@ -82,6 +85,7 @@ class AbstractCableWrap : public VieVS_Object {
     void setMinimumOffsets( double axis1_low_offset, double axis1_up_offset, double axis2_low_offset,
                             double axis2_up_offset ) noexcept;
 
+
     /**
      * @brief getter for lower neutral cable wrap limit in radians
      * @author Matthias Schartner
@@ -89,6 +93,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return lower neutral cable wrap limit in radians
      */
     double getNLow() const { return nLow_; }
+
 
     /**
      * @brief getter for upper neutral cable wrap limit in radians
@@ -98,6 +103,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     double getNUp() const { return nUp_; }
 
+
     /**
      * @brief getter for lower clock wise cable wrap limit in radians
      * @author Matthias Schartner
@@ -105,6 +111,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return lower clock wise cable wrap limit in radians
      */
     double getCLow() const { return cLow_; }
+
 
     /**
      * @brief getter for upper clock wise cable wrap limit in radians
@@ -114,6 +121,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     double getCUp() const { return cUp_; }
 
+
     /**
      * @brief getter for lower counter clock wise cable wrap limit in radians
      * @author Matthias Schartner
@@ -122,6 +130,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     double getWLow() const { return wLow_; }
 
+
     /**
      * @brief getter for upper counter clock wise cable wrap limit in radians
      * @author Matthias Schartner
@@ -129,6 +138,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return upper counter clock wise cable wrap limit in radians
      */
     double getWUp() const { return wUp_; }
+
 
     /**
      * @brief getter for limits of cable wrap section in radians
@@ -144,6 +154,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     std::pair<double, double> getLimits( char section ) const;
 
+
     /**
      * @brief checks if this pointing vectors azimuth and elevation are inside the axis limits
      * @author Matthias Schartner
@@ -152,6 +163,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return true if inside, otherwise false
      */
     virtual bool anglesInside( const PointingVector &p ) const noexcept = 0;
+
 
     /**
      * @brief unwraps the current azimuth of pointing vector
@@ -167,6 +179,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     virtual void unwrapAzNearAz( PointingVector &new_pointingVector, double az_old ) const noexcept = 0;
 
+
     /**
      * @brief unwraps the current azimuth of pointing vector
      * @author Matthias Schartner
@@ -180,6 +193,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @param new_pointingVector pointing vector whose azimuth should be unwrapped
      */
     void calcUnwrappedAz( const PointingVector &old_pointingVector, PointingVector &new_pointingVector ) const noexcept;
+
 
     /**
      * @brief unwraps the current azimuth of pointing vector in specific cable wrap section
@@ -199,6 +213,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     virtual bool unwrapAzInSection( PointingVector &pv, char section ) const noexcept = 0;
 
+
     /**
      * @brief cable wrap section based on unwrapped azimuth from pointing vector
      * @author Matthias Schartner
@@ -210,6 +225,7 @@ class AbstractCableWrap : public VieVS_Object {
         return cableWrapFlag( pointingVector.getAz() );
     }
 
+
     /**
      * @brief cable wrap section based on unwrapped azimuth
      * @author Matthias Schartner
@@ -219,6 +235,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     virtual CableWrapFlag cableWrapFlag( double unaz ) const noexcept = 0;
 
+
     /**
      * @brief antenna motion names in .vex format
      * @author Matthias Schartner
@@ -226,6 +243,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return antenna motion name for first and second axis (e.g.: {"az", "el"})
      */
     virtual std::pair<std::string, std::string> getMotions() const noexcept = 0;
+
 
     /**
      * @brief cable wrap sections in .vex format
@@ -235,6 +253,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     virtual std::string vexPointingSectors() const noexcept = 0;
 
+
     /**
      * @brief getter for lowest possible value of 2nd axis
      * @author Matthias Schartner
@@ -243,6 +262,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     double getAxis2Low() const { return axis2Low_; }
 
+
     /**
      * @brief getter for highest possible value of 2nd axis
      * @author Matthias Schartner
@@ -250,6 +270,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return highest possible value of 2nd axis
      */
     double getAxis2Up() const { return axis2Up_; }
+
 
    protected:
     /**
@@ -260,6 +281,7 @@ class AbstractCableWrap : public VieVS_Object {
         axis1,  ///< first antenna axis
         axis2,  ///< second antenna axis
     };
+
 
     /**
      * @brief checks if axis values are inside of possible value range
@@ -273,6 +295,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return all cable wrap sections in .vex format
      */
     bool axisInsideCableWrap( double ax1, double ax2 ) const noexcept;
+
 
     /**
      * @brief pointing sector in vex format for one axis
@@ -290,6 +313,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     std::string pointingSector( const std::string &motion1, const std::string &motion2, char section ) const noexcept;
 
+
     /**
      * @brief getter for lowest possible value for this antenna axis
      * @author Matthias Schartner
@@ -299,6 +323,7 @@ class AbstractCableWrap : public VieVS_Object {
      */
     double minLow( Axis axis ) const;
 
+
     /**
      * @brief getter for uppermost possible value for this antenna axis
      * @author Matthias Schartner
@@ -307,6 +332,7 @@ class AbstractCableWrap : public VieVS_Object {
      * @return uppermost possible value for this antenna axis in radians
      */
     double maxUp( Axis axis ) const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

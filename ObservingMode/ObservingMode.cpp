@@ -4,6 +4,7 @@
 
 #include "ObservingMode.h"
 
+
 using namespace VieVS;
 using namespace std;
 
@@ -26,6 +27,7 @@ std::unordered_map<std::string, VieVS::ObservingMode::Backup>
 std::unordered_map<std::string, double> VieVS::ObservingMode::sourceBackupValue;  ///< backup value for source
 
 ObservingMode::ObservingMode() : VieVS_Object( nextId++ ) {}
+
 
 ObservingMode::ObservingMode( const boost::property_tree::ptree &tree, const std::vector<std::string> &staNames )
     : VieVS_Object( nextId++ ), stationNames_{staNames} {
@@ -129,6 +131,7 @@ ObservingMode::ObservingMode( const boost::property_tree::ptree &tree, const std
     calcMeanFrequencies();
 }
 
+
 std::vector<unsigned long> ObservingMode::getStationIds( const boost::property_tree::ptree &tree ) {
     vector<unsigned long> v;
     for ( const auto &any : tree ) {
@@ -144,6 +147,7 @@ std::vector<unsigned long> ObservingMode::getStationIds( const boost::property_t
     return v;
 }
 
+
 void ObservingMode::readFromSkedCatalogs( const SkdCatalogReader &skd ) {
     auto mode = make_shared<Mode>( skd.getModeName(), skd.getStaNames().size() );
 
@@ -157,6 +161,7 @@ void ObservingMode::readFromSkedCatalogs( const SkdCatalogReader &skd ) {
     addMode( mode );
     calcMeanFrequencies();
 }
+
 
 void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned int bits,
                                 const std::unordered_map<std::string, unsigned int> &band2channel,
@@ -179,6 +184,7 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
     addMode( mode );
     wavelength_ = band2wavelength;
 }
+
 
 boost::property_tree::ptree ObservingMode::toPropertytree() const {
     boost::property_tree::ptree p;
@@ -204,6 +210,7 @@ boost::property_tree::ptree ObservingMode::toPropertytree() const {
     }
     return p;
 }
+
 
 void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
                                  const std::map<int, int> &channelNr2Bbc ) {
@@ -237,6 +244,7 @@ void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCat
     addBlock( thisFreq );
     mode->addBlock( thisFreq, freqIds );
 }
+
 
 std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
@@ -336,6 +344,7 @@ std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mo
     return channelNr2Bbc;
 }
 
+
 void ObservingMode::readSkdIf( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
     const auto &staName2loifId = skd.getStaName2loifId();
@@ -391,6 +400,7 @@ void ObservingMode::readSkdIf( const std::shared_ptr<Mode> &mode, const SkdCatal
     }
 }
 
+
 void ObservingMode::readSkdBbc( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
     const auto &staName2loifId = skd.getStaName2loifId();
@@ -427,6 +437,7 @@ void ObservingMode::readSkdBbc( const std::shared_ptr<Mode> &mode, const SkdCata
         mode->addBlock( bbc, ids );
     }
 }
+
 
 void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
@@ -467,11 +478,13 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
     }
 }
 
+
 void ObservingMode::toVexModeBlock( std::ofstream &of ) const {
     for ( const auto &any : modes_ ) {
         any->toVexModeDefiniton( of, stationNames_ );
     }
 }
+
 
 void ObservingMode::toVexFreqBlock( std::ofstream &of ) const {
     for ( const auto &any : freqs_ ) {
@@ -491,6 +504,7 @@ void ObservingMode::toVexFreqBlock( std::ofstream &of ) const {
     }
 }
 
+
 void ObservingMode::toVexBbcBlock( std::ofstream &of ) const {
     for ( const auto &any : bbcs_ ) {
         string c = "* ";
@@ -508,6 +522,7 @@ void ObservingMode::toVexBbcBlock( std::ofstream &of ) const {
         any->toVexBbcDefinition( of, c );
     }
 }
+
 
 void ObservingMode::toVexIfBlock( std::ofstream &of ) const {
     for ( const auto &any : ifs_ ) {
@@ -528,6 +543,7 @@ void ObservingMode::toVexIfBlock( std::ofstream &of ) const {
     }
 }
 
+
 void ObservingMode::toVexTracksBlock( std::ofstream &of ) const {
     for ( const auto &any : tracks_ ) {
         string c = "* ";
@@ -545,6 +561,7 @@ void ObservingMode::toVexTracksBlock( std::ofstream &of ) const {
     }
     toTrackFrameFormatDefinitions( of );
 }
+
 
 void ObservingMode::toTrackFrameFormatDefinitions( std::ofstream &of ) const {
     for ( const auto &any : trackFrameFormats_ ) {
@@ -565,6 +582,7 @@ void ObservingMode::toTrackFrameFormatDefinitions( std::ofstream &of ) const {
         of << "    enddef;\n";
     }
 }
+
 
 void ObservingMode::summary( std::ofstream &of ) const {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
@@ -598,6 +616,7 @@ void ObservingMode::summary( std::ofstream &of ) const {
     }
 }
 
+
 void ObservingMode::operationNotesSummary( std::ofstream &of ) const {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
         of << "Recording mode:\n";
@@ -608,6 +627,7 @@ void ObservingMode::operationNotesSummary( std::ofstream &of ) const {
         of << "Simple observing mode used!\n";
     }
 }
+
 
 void ObservingMode::calcMeanFrequencies() {
     for ( const auto &band : bands_ ) {
@@ -622,6 +642,7 @@ void ObservingMode::calcMeanFrequencies() {
         wavelength_[band] = meanWavelength;
     }
 }
+
 
 void ObservingMode::addDummyBands( const std::map<std::string, std::vector<double>> &band ) {
     for ( const auto &any : band ) {

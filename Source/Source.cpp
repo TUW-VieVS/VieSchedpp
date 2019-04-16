@@ -25,10 +25,12 @@
 
 #include "Source.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long VieVS::Source::nextId = 0;
 unsigned long VieVS::Source::Parameters::nextId = 0;
+
 
 void Source::Parameters::setParameters( const Source::Parameters &other ) {
     available = other.available;
@@ -62,6 +64,7 @@ void Source::Parameters::setParameters( const Source::Parameters &other ) {
     requiredStations = other.requiredStations;
 }
 
+
 Source::Source( const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
                 unordered_map<string, unique_ptr<AbstractFlux>> &src_flux )
     : VieVS_NamedObject( src_name, src_name2, nextId++ ),
@@ -82,6 +85,7 @@ Source::Source( const string &src_name, const string &src_name2, double src_ra_d
     condition_ = make_shared<Optimization>( Optimization() );
 }
 
+
 double Source::getMaxFlux() const noexcept {
     double maxFlux = 0;
 
@@ -93,6 +97,7 @@ double Source::getMaxFlux() const noexcept {
     }
     return maxFlux;
 }
+
 
 double Source::getSunDistance() const noexcept {
     double d = numeric_limits<double>::max();
@@ -110,6 +115,7 @@ double Source::getSunDistance() const noexcept {
     return d;
 }
 
+
 double Source::observedFlux( const string &band, double gmst, const std::vector<double> &dxyz ) const noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "source " << this->getName() << " get observed flux density";
@@ -119,6 +125,7 @@ double Source::observedFlux( const string &band, double gmst, const std::vector<
     double flux = flux_->at( band )->observedFlux( uv.first, uv.second );
     return flux;
 }
+
 
 std::pair<double, double> Source::calcUV( double gmst, const std::vector<double> &dxyz ) const noexcept {
     double ha = gmst - ra_;
@@ -131,6 +138,7 @@ std::pair<double, double> Source::calcUV( double gmst, const std::vector<double>
     return {u, v};
 };
 
+
 void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
     if ( addToStatistics ) {
         ++nScans_;
@@ -139,6 +147,7 @@ void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics 
     }
     ++nTotalScans_;
 }
+
 
 bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
@@ -164,6 +173,7 @@ bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     return flag;
 }
 
+
 std::string Source::getRaString() const noexcept {
     double h = rad2deg * ra_ / 15;
     auto m = fmod( h, 1. );
@@ -174,6 +184,7 @@ std::string Source::getRaString() const noexcept {
     return str;
 }
 
+
 std::string Source::getDeString() const noexcept {
     double d = rad2deg * de_;
     auto m = abs( fmod( d, 1. ) );
@@ -183,6 +194,7 @@ std::string Source::getDeString() const noexcept {
     string str = ( boost::format( "%+03dd%02d'%08.5f\"" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
     return str;
 }
+
 
 void Source::clearObservations() {
     lastScan_ = 0;

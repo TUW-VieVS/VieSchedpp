@@ -28,12 +28,14 @@
 #ifndef HIGHIMPACTSCANDESCRIPTOR_H
 #define HIGHIMPACTSCANDESCRIPTOR_H
 
+
 #include <vector>
 
 #include "../Scan/Scan.h"
 #include "../Scan/Subcon.h"
 #include "Subnetting.h"
 #include "VieVS_Object.h"
+
 
 namespace VieVS {
 
@@ -55,6 +57,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     HighImpactScanDescriptor( unsigned int interval, unsigned int minTimeBetweenScans );
 
+
     /**
      * @brief add azimuth elevation based high impact scan selection
      * @author Matthias Schartner
@@ -66,6 +69,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     void addAzElDescriptor( double az, double el, double margin, const std::vector<unsigned long> &staids );
 
+
     /**
      * @brief calc high impact score per station
      * @author Matthias Schartner
@@ -74,6 +78,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @return high impact score per station
      */
     double highImpactScore( const PointingVector &pv ) const;
+
 
     /**
      * @brief calc high impact score per scan
@@ -84,6 +89,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     double highImpactScore( const Scan &scan ) const;
 
+
     /**
      * @brief get target interval
      * @author Matthias Schartner
@@ -91,6 +97,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @return interval in seconds
      */
     unsigned int getInterval() const { return interval_; }
+
 
     /**
      * @brief get minimum time between high impact scans
@@ -100,6 +107,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     unsigned int getMinTimeBetweenScans() const { return minTimeBetweenScans_; }
 
+
     /**
      * @brief list of stations with high impact descriptions
      * @author Matthias Schartner
@@ -107,6 +115,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @return list of stations
      */
     std::vector<unsigned long> getStationIds() const;
+
 
     /**
      * @brief calc possible high impact scans
@@ -117,6 +126,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @param sources source list
      */
     void possibleHighImpactScans( unsigned int time, const Network &network, const std::vector<Source> &sources );
+
 
     /**
      * @brief update high impact scans
@@ -131,6 +141,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
                                 const std::shared_ptr<const Mode> &mode,
                                 const std::shared_ptr<Subnetting> &subnetting );
 
+
     /**
      * @brief get highest impact scans
      * @author Matthias Schartner
@@ -142,6 +153,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     std::vector<Scan> highestImpactScans( Network &network, const std::vector<Source> &sources,
                                           const std::shared_ptr<const Mode> &mode );
+
 
     /**
      * @brief check if target scan is valid high impact scans
@@ -156,6 +168,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     bool isCorrectHighImpactScan( const Scan &target, const std::vector<Scan> &scans, const Source &source );
 
+
     /**
      * @brief checks if there are more possible high impact scans
      * @author Matthias Schartner
@@ -166,6 +179,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
         return highImpactScans_.getNumberSingleScans() > 0 || highImpactScans_.getNumberSubnettingScans() > 0;
     }
 
+
     /**
      * @brief update log file for new high impact scans
      * @author Matthias Schartner
@@ -173,6 +187,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      * @param of out file stream
      */
     void updateLogfile( std::ofstream &of );
+
 
    private:
     /**
@@ -184,6 +199,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
      */
     class AzElDescriptor;
 
+
     static unsigned long nextId;                  ///< next id for this object type
     unsigned int interval_;                       ///< test interval in seconds
     unsigned int minTimeBetweenScans_;            ///< minimum time between high impact scans in seconds
@@ -192,6 +208,7 @@ class HighImpactScanDescriptor : public VieVS_Object {
     std::vector<std::map<unsigned long, double>> scores_;  ///< list of scores by high impact scans
     Subcon highImpactScans_;                               ///< high impact scan subcon
 };
+
 
 class HighImpactScanDescriptor::AzElDescriptor : public VieVS_Object {
    public:
@@ -206,6 +223,7 @@ class HighImpactScanDescriptor::AzElDescriptor : public VieVS_Object {
      */
     AzElDescriptor( double az, double el, double margin, std::vector<unsigned long> staids );
 
+
     /**
      * @brief calculate high impact score
      * @author Matthias Schartner
@@ -215,6 +233,7 @@ class HighImpactScanDescriptor::AzElDescriptor : public VieVS_Object {
      */
     double highImpactScore( const PointingVector &pv ) const;
 
+
     /**
      * @brief high impact station ids
      * @author Matthias Schartner
@@ -222,6 +241,7 @@ class HighImpactScanDescriptor::AzElDescriptor : public VieVS_Object {
      * @return high impact station ids
      */
     const std::vector<unsigned long> &getStaids() const;
+
 
    private:
     static unsigned long nextId;         ///< next id for this object type

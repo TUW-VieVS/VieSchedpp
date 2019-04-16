@@ -28,9 +28,11 @@
 #ifndef VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H
 #define VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H
 
+
 #include <string>
 #include <utility>
 #include "VieVS_Object.h"
+
 
 namespace VieVS {
 
@@ -53,6 +55,7 @@ class VieVS_NamedObject : public VieVS_Object {
      */
     VieVS_NamedObject( std::string name, unsigned long id ) : VieVS_Object( id ), name_{std::move( name )} {};
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -64,6 +67,7 @@ class VieVS_NamedObject : public VieVS_Object {
     VieVS_NamedObject( std::string name, std::string alternativeName, unsigned long id )
         : VieVS_Object( id ), name_{std::move( name )}, alternativeName_{std::move( alternativeName )} {};
 
+
     /**
      * @brief get object name
      * @author Matthias Schartner
@@ -71,6 +75,7 @@ class VieVS_NamedObject : public VieVS_Object {
      * @return object name
      */
     const std::string &getName() const { return name_; }
+
 
     /**
      * @brief get object alternative name
@@ -80,6 +85,7 @@ class VieVS_NamedObject : public VieVS_Object {
      */
     const std::string &getAlternativeName() const { return alternativeName_; }
 
+
     /**
      * @brief check if object has alternative name
      * @author Matthias Schartner
@@ -87,6 +93,7 @@ class VieVS_NamedObject : public VieVS_Object {
      * @return flag if alternative name exists
      */
     bool hasAlternativeName() const { return !alternativeName_.empty(); }
+
 
     /**
      * @brief check if object has name
@@ -99,6 +106,7 @@ class VieVS_NamedObject : public VieVS_Object {
      */
     bool hasName( const std::string &name ) const { return name_ == name || alternativeName_ == name; }
 
+
     /**
      * @brief change name of object
      * @author Matthias Schartner
@@ -110,6 +118,7 @@ class VieVS_NamedObject : public VieVS_Object {
      * @param newName new name
      */
     void changeName( const std::string &newName ) { name_ = newName; }
+
 
    private:
     std::string name_ = "";             ///< object name

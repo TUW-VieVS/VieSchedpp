@@ -20,12 +20,15 @@
 
 #include "Mode.h"
 
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Mode::nextId = 0;
 
+
 Mode::Mode( std::string name, unsigned long nsta ) : VieVS_NamedObject{std::move( name ), nextId++}, nsta_{nsta} {}
+
 
 boost::property_tree::ptree Mode::toPropertytree( const std::vector<std::string> &stations ) const {
     boost::property_tree::ptree p;
@@ -58,6 +61,7 @@ boost::property_tree::ptree Mode::toPropertytree( const std::vector<std::string>
     return p;
 }
 
+
 boost::property_tree::ptree Mode::staids2propertyTree( const std::string &name, const std::vector<unsigned long> &ids,
                                                        const std::vector<std::string> &staNames ) const {
     boost::property_tree::ptree t;
@@ -69,6 +73,7 @@ boost::property_tree::ptree Mode::staids2propertyTree( const std::string &name, 
     }
     return t;
 }
+
 
 void Mode::calcRecordingRates() {
     for ( unsigned long staid1 = 0; staid1 < nsta_; ++staid1 ) {
@@ -115,6 +120,7 @@ void Mode::calcRecordingRates() {
     }
 }
 
+
 void Mode::setRecordingRates( const std::string &band, double recRate ) {
     for ( unsigned long staid1 = 0; staid1 < nsta_; ++staid1 ) {
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
@@ -123,6 +129,7 @@ void Mode::setRecordingRates( const std::string &band, double recRate ) {
     }
 }
 
+
 void Mode::setEfficiencyFactor( double eff ) {
     for ( unsigned long staid1 = 0; staid1 < nsta_; ++staid1 ) {
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
@@ -130,6 +137,7 @@ void Mode::setEfficiencyFactor( double eff ) {
         }
     }
 }
+
 
 boost::optional<const std::shared_ptr<const If> &> Mode::getIf( unsigned long staid ) const {
     for ( const auto &any : ifs_ ) {
@@ -140,6 +148,7 @@ boost::optional<const std::shared_ptr<const If> &> Mode::getIf( unsigned long st
     return boost::none;
 }
 
+
 boost::optional<const std::shared_ptr<const Bbc> &> Mode::getBbc( unsigned long staid ) const {
     for ( const auto &any : bbcs_ ) {
         if ( find( any.second.begin(), any.second.end(), staid ) != any.second.end() ) {
@@ -148,6 +157,7 @@ boost::optional<const std::shared_ptr<const Bbc> &> Mode::getBbc( unsigned long 
     }
     return boost::none;
 }
+
 
 boost::optional<const std::shared_ptr<const Freq> &> Mode::getFreq( unsigned long staid ) const {
     for ( const auto &any : freqs_ ) {
@@ -158,6 +168,7 @@ boost::optional<const std::shared_ptr<const Freq> &> Mode::getFreq( unsigned lon
     return boost::none;
 }
 
+
 boost::optional<const std::shared_ptr<const Track> &> Mode::getTracks( unsigned long staid ) const {
     for ( const auto &any : tracks_ ) {
         if ( find( any.second.begin(), any.second.end(), staid ) != any.second.end() ) {
@@ -167,6 +178,7 @@ boost::optional<const std::shared_ptr<const Track> &> Mode::getTracks( unsigned 
     return boost::none;
 }
 
+
 boost::optional<const std::shared_ptr<const std::string> &> Mode::getTrackFrameFormat( unsigned long staid ) const {
     for ( const auto &any : track_frame_formats_ ) {
         if ( find( any.second.begin(), any.second.end(), staid ) != any.second.end() ) {
@@ -175,6 +187,7 @@ boost::optional<const std::shared_ptr<const std::string> &> Mode::getTrackFrameF
     }
     return boost::none;
 }
+
 
 void Mode::summary( std::ofstream &of, const std::vector<std::string> &stations ) const {
     of << "    observing mode: " << getName() << ":\n";
@@ -210,6 +223,7 @@ void Mode::summary( std::ofstream &of, const std::vector<std::string> &stations 
     }
 }
 
+
 double Mode::recordingRate( unsigned long staid ) const {
     const auto &freq = getFreq( staid );
     const auto &track = getTracks( staid );
@@ -219,6 +233,7 @@ double Mode::recordingRate( unsigned long staid ) const {
     }
     return 0;
 }
+
 
 void Mode::operationNotesSummary( std::ofstream &of, const std::vector<std::string> &stations ) const {
     of << "Mode: " << getName() << "\n";
@@ -327,6 +342,7 @@ void Mode::operationNotesSummary( std::ofstream &of, const std::vector<std::stri
     of << "\n";
 }
 
+
 double Mode::recordingRate( unsigned long staid1, unsigned long staid2, const std::string &band ) const {
     auto it = staids2recordingRate_.find( {staid1, staid2} );
     // if station id combination is not saved in map return 0
@@ -343,6 +359,7 @@ double Mode::recordingRate( unsigned long staid1, unsigned long staid2, const st
     return it2->second;
 }
 
+
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
     const std::shared_ptr<const If> &this_if ) const {
     for ( const auto &any : ifs_ ) {
@@ -352,6 +369,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
     }
     return boost::optional<const vector<unsigned long> &>();
 }
+
 
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
     const std::shared_ptr<const Bbc> &bbc ) const {
@@ -363,6 +381,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
     return boost::optional<const vector<unsigned long> &>();
 }
 
+
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
     const std::shared_ptr<const Freq> &freq ) const {
     for ( const auto &any : freqs_ ) {
@@ -372,6 +391,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
     }
     return boost::optional<const vector<unsigned long> &>();
 }
+
 
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
     const std::shared_ptr<const Track> &track ) const {
@@ -383,6 +403,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
     return boost::optional<const vector<unsigned long> &>();
 }
 
+
 boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBlock(
     const std::shared_ptr<const std::string> &trackFrameFormat ) const {
     for ( const auto &any : track_frame_formats_ ) {
@@ -392,6 +413,7 @@ boost::optional<const std::vector<unsigned long> &> Mode::getAllStationsWithBloc
     }
     return boost::optional<const vector<unsigned long> &>();
 }
+
 
 void Mode::toVexModeDefiniton( std::ofstream &of, const std::vector<std::string> &stations ) const {
     string eol = ";\n";
@@ -511,6 +533,7 @@ void Mode::toVexModeDefiniton( std::ofstream &of, const std::vector<std::string>
     of << "    enddef;\n";
 }
 
+
 void Mode::changeIf( int idx, unsigned long staid ) {
     int c = 0;
     for ( auto &any : ifs_ ) {
@@ -529,6 +552,7 @@ void Mode::changeIf( int idx, unsigned long staid ) {
         ++c;
     }
 }
+
 
 void Mode::changeBbc( int idx, unsigned long staid ) {
     int c = 0;
@@ -549,6 +573,7 @@ void Mode::changeBbc( int idx, unsigned long staid ) {
     }
 }
 
+
 void Mode::changeTracks( int idx, unsigned long staid ) {
     int c = 0;
     for ( auto &any : tracks_ ) {
@@ -567,6 +592,7 @@ void Mode::changeTracks( int idx, unsigned long staid ) {
         ++c;
     }
 }
+
 
 void Mode::changeTrackFrameFormat( int idx, unsigned long staid ) {
     int c = 0;
@@ -587,6 +613,7 @@ void Mode::changeTrackFrameFormat( int idx, unsigned long staid ) {
     }
 }
 
+
 void Mode::changeFreq( int idx, unsigned long staid ) {
     int c = 0;
     for ( auto &any : freqs_ ) {
@@ -605,6 +632,7 @@ void Mode::changeFreq( int idx, unsigned long staid ) {
         ++c;
     }
 }
+
 
 double Mode::efficiency( unsigned long staid1, unsigned long staid2 ) const {
     auto it = staids2efficiency_.find( {staid1, staid2} );

@@ -18,6 +18,7 @@
 
 #include "WeightFactors.h"
 
+
 double thread_local VieVS::WeightFactors::weightSkyCoverage = 0;
 double thread_local VieVS::WeightFactors::weightNumberOfObservations = 0;
 double thread_local VieVS::WeightFactors::weightDuration = 0;

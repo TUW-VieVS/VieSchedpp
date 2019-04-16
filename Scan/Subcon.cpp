@@ -25,11 +25,14 @@
 
 #include "Subcon.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long Subcon::nextId = 0;
 
+
 Subcon::Subcon() : VieVS_Object( nextId++ ), nSingleScans_{0}, nSubnettingScans_{0} {}
+
 
 void Subcon::addScan( Scan &&scan ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -41,6 +44,7 @@ void Subcon::addScan( Scan &&scan ) noexcept {
     singleScans_.push_back( std::move( scan ) );
     nSingleScans_++;
 }
+
 
 void Subcon::calcStartTimes( const Network &network, const vector<Source> &sources,
                              const boost::optional<StationEndposition> &endposition ) noexcept {
@@ -142,6 +146,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
     }
 }
 
+
 void Subcon::constructAllBaselines( const Network &network, const vector<Source> &sources ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " construct all observations";
@@ -164,6 +169,7 @@ void Subcon::constructAllBaselines( const Network &network, const vector<Source>
         }
     }
 }
+
 
 void Subcon::updateAzEl( const Network &network, const vector<Source> &sources ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -228,6 +234,7 @@ void Subcon::updateAzEl( const Network &network, const vector<Source> &sources )
     }
 }
 
+
 void Subcon::calcAllBaselineDurations( const Network &network, const vector<Source> &sources,
                                        const std::shared_ptr<const Mode> &mode ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -251,6 +258,7 @@ void Subcon::calcAllBaselineDurations( const Network &network, const vector<Sour
         }
     }
 }
+
 
 void Subcon::calcAllScanDurations( const Network &network, const vector<Source> &sources,
                                    const boost::optional<StationEndposition> &endposition ) noexcept {
@@ -314,11 +322,13 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
     }
 }
 
+
 void Subcon::calcCalibratorScanDuration( const vector<Station> &stations, const vector<Source> &sources ) {
     for ( auto &thisScan : singleScans_ ) {
         thisScan.setFixedScanDuration( CalibratorBlock::scanLength );
     }
 }
+
 
 void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnetting, const Network &network,
                                     const vector<Source> &sources ) noexcept {
@@ -434,6 +444,7 @@ void Subcon::createSubnettingScans( const std::shared_ptr<Subnetting> &subnettin
     }
 }
 
+
 void Subcon::generateScore( const Network &network, const vector<Source> &sources ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
@@ -468,6 +479,7 @@ void Subcon::generateScore( const Network &network, const vector<Source> &source
         //        double score2 = thisScan2.getScore();
     }
 }
+
 
 void Subcon::generateScore( const Network &network, const std::vector<Source> &sources,
                             const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval ) {
@@ -506,6 +518,7 @@ void Subcon::generateScore( const Network &network, const std::vector<Source> &s
         //        double score2 = thisScan2.getScore();
     }
 }
+
 
 void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
                             const std::vector<double> &highElevationScore, const Network &network,
@@ -555,6 +568,7 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
     }
 }
 
+
 void Subcon::minMaxTime() noexcept {
     unsigned int maxTime = 0;
     unsigned int minTime = numeric_limits<unsigned int>::max();
@@ -588,6 +602,7 @@ void Subcon::minMaxTime() noexcept {
     maxRequiredTime_ = maxTime;
 }
 
+
 void Subcon::prepareAverageScore( const vector<Station> &objects ) noexcept {
     vector<unsigned long> nobs;
     for ( const auto &thisObject : objects ) {
@@ -595,6 +610,7 @@ void Subcon::prepareAverageScore( const vector<Station> &objects ) noexcept {
     }
     astas_ = prepareAverageScore_base( nobs );
 }
+
 
 void Subcon::prepareAverageScore( const vector<Baseline> &objects ) noexcept {
     vector<unsigned long> nobs;
@@ -605,6 +621,7 @@ void Subcon::prepareAverageScore( const vector<Baseline> &objects ) noexcept {
     abls_ = prepareAverageScore_base( nobs );
 }
 
+
 void Subcon::prepareAverageScore( const vector<Source> &objects ) noexcept {
     vector<unsigned long> nobs;
     for ( const auto &thisObject : objects ) {
@@ -612,6 +629,7 @@ void Subcon::prepareAverageScore( const vector<Source> &objects ) noexcept {
     }
     asrcs_ = prepareAverageScore_base( nobs );
 }
+
 
 void Subcon::prepareIdleTimeScore( const std::vector<Station> &stations ) noexcept {
     unsigned int maxTime = 0;
@@ -628,6 +646,7 @@ void Subcon::prepareIdleTimeScore( const std::vector<Station> &stations ) noexce
         idle_.push_back( thisScore );
     }
 }
+
 
 std::vector<double> Subcon::prepareAverageScore_base( const std::vector<unsigned long> &nobs ) noexcept {
     double mean = std::accumulate( std::begin( nobs ), std::end( nobs ), 0.0 ) / nobs.size();
@@ -655,6 +674,7 @@ std::vector<double> Subcon::prepareAverageScore_base( const std::vector<unsigned
     return score;
 }
 
+
 void Subcon::precalcScore( const Network &network, const vector<Source> &sources ) noexcept {
     if ( WeightFactors::weightDuration != 0 ) {
         minMaxTime();
@@ -673,11 +693,13 @@ void Subcon::precalcScore( const Network &network, const vector<Source> &sources
     }
 }
 
+
 vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources,
                                  const std::shared_ptr<const Mode> &mode,
                                  const boost::optional<StationEndposition> &endposition ) noexcept {
     return selectBest( network, sources, mode, vector<double>(), vector<double>(), endposition );
 }
+
 
 vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources,
                                  const std::shared_ptr<const Mode> &mode,
@@ -897,6 +919,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
     return bestScans;
 }
 
+
 void Subcon::removeScan( unsigned long idx ) noexcept {
     if ( idx < nSingleScans_ ) {
         unsigned long thisIdx = idx;
@@ -922,10 +945,12 @@ void Subcon::removeScan( unsigned long idx ) noexcept {
     }
 }
 
+
 void Subcon::clearSubnettingScans() {
     nSubnettingScans_ = 0;
     subnettingScans_.clear();
 }
+
 
 void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
                                                   const boost::optional<StationEndposition> &endposition ) {
@@ -1005,11 +1030,13 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
     }
 }
 
+
 void Subcon::changeType( Scan::ScanType type ) {
     for ( auto &any : singleScans_ ) {
         any.setType( type );
     }
 }
+
 
 void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network,
                           const Source &thisSource, std::set<unsigned long> observedSources ) {

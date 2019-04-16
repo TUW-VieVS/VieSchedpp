@@ -27,7 +27,9 @@
 #ifndef ANTENNA_XYEW_H
 #define ANTENNA_XYEW_H
 
+
 #include "AbstractAntenna.h"
+
 
 namespace VieVS {
 /**
@@ -53,6 +55,7 @@ class Antenna_XYew : public AbstractAntenna {
     Antenna_XYew( double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
                   double rateY_deg_per_min, unsigned int constantOverheadY_s );
 
+
     /**
      * @brief calculates slew time
      * @author Matthias Schartner
@@ -63,6 +66,7 @@ class Antenna_XYew : public AbstractAntenna {
      */
     unsigned int slewTime( const PointingVector &old_pointingVector, const PointingVector &new_pointingVector ) const
         noexcept override;
+
 
     /**
      * @brief get mount name

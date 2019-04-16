@@ -27,6 +27,7 @@
 #ifndef PARAMETERSETTINGS_H
 #define PARAMETERSETTINGS_H
 
+
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -34,14 +35,13 @@
 #include <ostream>
 #include <unordered_map>
 #include <utility>
-
+#include "../Misc/util.h"
+#include "ParameterGroup.h"
+#include "ParameterSetup.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
 
-#include "../Misc/util.h"
-#include "ParameterGroup.h"
-#include "ParameterSetup.h"
 
 namespace VieVS {
 /**
@@ -135,11 +135,11 @@ class ParameterSettings {
         boost::optional<double> minSunDistance;                      ///< minimum sun distance in degrees
         boost::optional<unsigned int>
             tryToObserveXTimesEvenlyDistributed;  ///< tries to observe a source X times over the time span in which the
-                                                  ///< source is scanable. Overwrites maxScan and
-                                                  ///< tryToFocusIfObservedOnce.
+        ///< source is scanable. Overwrites maxScan and
+        ///< tryToFocusIfObservedOnce.
         boost::optional<unsigned int>
             tryToObserveXTimesMinRepeat;  ///< tries to observe a source X times: backup minimum time span between two
-                                          ///< observations to this source in seconds
+        ///< observations to this source in seconds
         boost::optional<unsigned int> fixedScanDuration;  ///< optional fixed scan duration in seconds
 
         std::vector<std::string> ignoreStationsString;   ///< list of all station names which should be ignored
@@ -172,7 +172,7 @@ class ParameterSettings {
     enum class ObservationModeProperty {
         required,  ///< this band information is required. If this information is missing this object is not used.
         optional,  ///< this band information is only optional. If information is available it is used, otherwise it is
-                   ///< interpolated
+        ///< interpolated
     };
 
     /**
@@ -186,11 +186,13 @@ class ParameterSettings {
         none,           ///< no backup model
     };
 
+
     /**
      * @brief empty default constructor
      * @author Matthias Schartner
      */
     ParameterSettings();
+
 
     /**
      * @brief software block in parameter.xml
@@ -200,6 +202,7 @@ class ParameterSettings {
      * @param version software version
      */
     void software( const std::string &name, const std::string &version );
+
 
     /**
      * @brief general block in parameter.xml
@@ -232,6 +235,7 @@ class ParameterSettings {
                   bool useSourcesFromParameter_otherwiseIgnore, const std::vector<std::string> &srcNames,
                   const std::string &scanAlignment, const std::string &logConsole, const std::string &logFile );
 
+
     /**
      * @brief created block in VieSchedpp.xml
      * @author Matthias Schartner
@@ -241,6 +245,7 @@ class ParameterSettings {
      * @param email created email
      */
     void created( const boost::posix_time::ptime &time, std::string name, std::string email );
+
 
     /**
      * @brief catalogs block in VieSchedpp.xml
@@ -265,6 +270,7 @@ class ParameterSettings {
                    const std::string &modes, const std::string &position, const std::string &rec, const std::string &rx,
                    const std::string &source, const std::string &tracks );
 
+
     /**
      * @brief group defined in VieSchedpp.xml
      * @author Matthias Schartner
@@ -273,6 +279,7 @@ class ParameterSettings {
      * @param group group object
      */
     void group( Type type, ParameterGroup group );
+
 
     /**
      * @brief returns all members of a defined group
@@ -284,6 +291,7 @@ class ParameterSettings {
      */
     const std::vector<std::string> &getGroupMembers( Type type, std::string groupName );
 
+
     /**
      * @brief write defined station parameters to VieSchedpp.xml
      * @author Matthias Schartner
@@ -292,6 +300,7 @@ class ParameterSettings {
      * @param PARA parameters
      */
     void parameters( const std::string &name, const ParametersStations &PARA );
+
 
     /**
      * @brief defined station parameters
@@ -304,6 +313,7 @@ class ParameterSettings {
     static boost::property_tree::ptree parameterStation2ptree( const std::string &name,
                                                                const ParametersStations &PARA );
 
+
     /**
      * @brief transforms parameterStations to property_tree
      * @author Matthias Schartner
@@ -313,6 +323,7 @@ class ParameterSettings {
      */
     static std::pair<std::string, ParametersStations> ptree2parameterStation( boost::property_tree::ptree ptree );
 
+
     /**
      * @brief write defined source parameters to VieSchedpp.xml
      * @author Matthias Schartner
@@ -321,6 +332,7 @@ class ParameterSettings {
      * @param PARA parameters
      */
     void parameters( const std::string &name, const ParametersSources &PARA );
+
 
     /**
      * @brief defined source parameters
@@ -332,6 +344,7 @@ class ParameterSettings {
      */
     static boost::property_tree::ptree parameterSource2ptree( const std::string &name, const ParametersSources &PARA );
 
+
     /**
      * @brief transforms parameterSource to property_tree
      * @author Matthias Schartner
@@ -341,6 +354,7 @@ class ParameterSettings {
      */
     static std::pair<std::string, ParametersSources> ptree2parameterSource( boost::property_tree::ptree ptree );
 
+
     /**
      * @brief write defined baseline parameters to VieSchedpp.xml
      * @author Matthias Schartner
@@ -349,6 +363,7 @@ class ParameterSettings {
      * @param PARA parameters
      */
     void parameters( const std::string &name, const ParametersBaselines &PARA );
+
 
     /**
      * @brief defined baseline parameters
@@ -361,6 +376,7 @@ class ParameterSettings {
     static boost::property_tree::ptree parameterBaseline2ptree( const std::string &name,
                                                                 const ParametersBaselines &PARA );
 
+
     /**
      * @brief transforms ParametersBaselines to property_tree
      * @author Matthias Schartner
@@ -370,6 +386,7 @@ class ParameterSettings {
      */
     static std::pair<std::string, ParametersBaselines> ptree2parameterBaseline( boost::property_tree::ptree ptree );
 
+
     /**
      * @brief setup block in parameter.xml
      * @author Matthias Schartner
@@ -378,6 +395,7 @@ class ParameterSettings {
      * @param setup setup object
      */
     void setup( Type type, const ParameterSetup &setup );
+
 
     /**
      * @brief station wait times block
@@ -392,6 +410,7 @@ class ParameterSettings {
     void stationWaitTimes( const std::string &name, unsigned int fieldSystem, unsigned int preob, unsigned int midob,
                            unsigned int postob );
 
+
     /**
      * @brief station cable wrap buffer block
      * @author Matthias Schartner
@@ -405,6 +424,7 @@ class ParameterSettings {
     void stationCableWrapBuffer( const std::string &name, double axis1LowOffset, double axis1UpOffset,
                                  double axis2LowOffset, double axis2UpOffset );
 
+
     /**
      * @brief skyCoverage block in parameter.xml
      * @author Matthias Schartner
@@ -417,6 +437,7 @@ class ParameterSettings {
      */
     void skyCoverage( double influenceDistance, unsigned int influenceInterval, double maxTwinTelecopeDistance,
                       std::string interpolationDistance, std::string interpolationTime );
+
 
     /**
      * @brief weightFactor block in parameter.xml
@@ -443,6 +464,7 @@ class ParameterSettings {
                        double declinationSlopeStart, double declinationSlopeEnd, double weightLowElevation,
                        double lowElevationSlopeStart, double lowElevationSlopeEnd );
 
+
     /**
      * @brief conditions block in paramter.xml
      * @author Matthias Schartner
@@ -459,6 +481,7 @@ class ParameterSettings {
                      bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
                      int minNumberOfSourcesToReduce );
 
+
     /**
      * @brief custom mode block in parameter.xml
      * @author Matthias Schartner
@@ -468,6 +491,7 @@ class ParameterSettings {
      */
     void mode( double sampleRate, unsigned int bits );
 
+
     /**
      * @brief mode block in parameter.xml
      * @author Matthias Schartner
@@ -476,6 +500,7 @@ class ParameterSettings {
      */
     void mode( const std::string &skdMode );
 
+
     /**
      * @brief custom observing mode to parameter.xml file
      * @author Matthias Schartner
@@ -483,6 +508,7 @@ class ParameterSettings {
      * @param obsMode custom observing mode property tree
      */
     void mode( const boost::property_tree::ptree &obsMode );
+
 
     /**
      * @brief band sub-block in mode block in parameter.xml
@@ -493,6 +519,7 @@ class ParameterSettings {
      * @param channels number of channels
      */
     void mode_band( const std::string &name, double wavelength, unsigned int channels );
+
 
     /**
      * @brief bandPolicy sub-block in mode block in parameter.xml
@@ -512,6 +539,7 @@ class ParameterSettings {
                           ObservationModeProperty source, ObservationModeBackup sourceBackup,
                           double sourceBackupValue );
 
+
     /**
      * @brief multisched block in parameter.xml
      * @author Matthias Schartner
@@ -525,6 +553,7 @@ class ParameterSettings {
     void multisched( const boost::property_tree::ptree &multiSched, const std::string &number, int maxn,
                      const std::string &useSeed, int seed );
 
+
     /**
      * @brief multiCore multi core support for scheduling
      * @author Matthias Schartner
@@ -536,6 +565,7 @@ class ParameterSettings {
      */
     void multiCore( const std::string &threads, int nThreadsManual, const std::string &jobScheduler, int chunkSize );
 
+
     /**
      * @brief output routine that produces .xml file
      * @author Matthias Schartner
@@ -543,6 +573,7 @@ class ParameterSettings {
      * @param name output file name (usually "parameter")
      */
     void write( const std::string &name );
+
 
     /**
      * @brief output block in parameter.xml
@@ -576,6 +607,7 @@ class ParameterSettings {
                  bool createSnrTable, bool operNotes, bool srcGrp,
                  const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage );
 
+
     /**
      * @brief specify the sequence in which sources should be observed
      * @author Matthias Schartner
@@ -594,6 +626,7 @@ class ParameterSettings {
     void ruleScanSequence( unsigned int cadence, const std::vector<unsigned int> &modulo,
                            const std::vector<std::string> &member );
 
+
     /**
      * @brief calibrator block in paramters.xml
      * @author Matthias Schartner
@@ -607,6 +640,7 @@ class ParameterSettings {
     void ruleCalibratorBlockTime( unsigned int cadence, const std::string &member,
                                   const std::vector<std::pair<double, double>> &between_elevation,
                                   unsigned int nMaxScans, unsigned int scanTime );
+
 
     /**
      * @brief calibrator block in paramters.xml
@@ -622,6 +656,7 @@ class ParameterSettings {
                                              const std::vector<std::pair<double, double>> &between_elevation,
                                              unsigned int nMaxScans, unsigned int scanTime );
 
+
     /**
      * @brief high impact block in VieSchedpp.xml file
      * @author Matthias Schartner
@@ -636,6 +671,7 @@ class ParameterSettings {
     void highImpactAzEl( const std::vector<std::string> &members, const std::vector<double> &azs,
                          const std::vector<double> &els, const std::vector<double> &margins, int interval, int repeat );
 
+
     /**
      * @brief get station groups
      * @author Matthias Schartner
@@ -643,6 +679,7 @@ class ParameterSettings {
      * @return all station groups
      */
     const std::map<std::string, std::vector<std::string>> &getGroupStations() const { return groupStations_; }
+
 
     /**
      * @brief get source groups
@@ -652,6 +689,7 @@ class ParameterSettings {
      */
     const std::map<std::string, std::vector<std::string>> &getGroupSources() const { return groupSources_; }
 
+
     /**
      * @brief get baseline groups
      * @author Matthias Schartner
@@ -659,6 +697,7 @@ class ParameterSettings {
      * @return all baseline groups
      */
     const std::map<std::string, std::vector<std::string>> &getGroupBaselines() const { return groupBaselines_; }
+
 
     /**
      * @brief get all station parameters
@@ -668,6 +707,7 @@ class ParameterSettings {
      */
     const std::map<std::string, ParametersStations> &getParaStations() const { return paraStations_; }
 
+
     /**
      * @brief get all source parameters
      * @author Matthias Schartner
@@ -676,6 +716,7 @@ class ParameterSettings {
      */
     const std::map<std::string, ParametersSources> &getParaSources() const { return paraSources_; }
 
+
     /**
      * @brief get baseline parameters
      * @author Matthias Schartner
@@ -683,6 +724,7 @@ class ParameterSettings {
      * @return all baseline parameters and name
      */
     const std::map<std::string, ParametersBaselines> &getParaBaselines() const { return paraBaselines_; }
+
 
    private:
     boost::property_tree::ptree master_;  ///< master property tree

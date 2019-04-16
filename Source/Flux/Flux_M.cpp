@@ -18,6 +18,7 @@
 
 #include "Flux_M.h"
 
+
 using namespace VieVS;
 using namespace std;
 
@@ -32,6 +33,7 @@ VieVS::Flux_M::Flux_M( double wavelength, const std::vector<double> &flux, const
       axialRatio_{axialRatio},
       positionAngle_{positionAngle} {}
 
+
 double Flux_M::getMaximumFlux() const noexcept {
     double maxFlux = 0;
 
@@ -43,6 +45,7 @@ double Flux_M::getMaximumFlux() const noexcept {
 
     return maxFlux;
 }
+
 
 double Flux_M::observedFlux( double u, double v ) const noexcept {
     double observedFlux = 0;

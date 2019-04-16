@@ -24,8 +24,11 @@
  */
 
 #include "AbstractHorizonMask.h"
+
+
 using namespace std;
 using namespace VieVS;
 unsigned long AbstractHorizonMask::nextId = 0;
+
 
 AbstractHorizonMask::AbstractHorizonMask() : VieVS_Object( nextId++ ) {}

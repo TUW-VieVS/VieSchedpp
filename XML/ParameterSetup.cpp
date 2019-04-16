@@ -17,13 +17,18 @@
  */
 
 #include "ParameterSetup.h"
+
+
 using namespace std;
 using namespace VieVS;
 
+
 ParameterSetup::ParameterSetup() : start_{0}, end_{0}, transition_{Transition::smooth} {}
+
 
 ParameterSetup::ParameterSetup( unsigned int start, unsigned int end )
     : start_{start}, end_{end}, transition_{Transition::smooth} {}
+
 
 ParameterSetup::ParameterSetup( const std::string &parameterName, const std::string &memberName, unsigned int start,
                                 unsigned int end, Transition transition )
@@ -31,12 +36,14 @@ ParameterSetup::ParameterSetup( const std::string &parameterName, const std::str
     ParameterSetup::members_.push_back( memberName );
 }
 
+
 ParameterSetup::ParameterSetup( const std::string &parameterName, const std::string &groupName,
                                 const std::vector<std::string> &groupMembers, unsigned int start, unsigned int end,
                                 Transition transition )
     : parameterName_{parameterName}, memberName_{groupName}, start_{start}, end_{end}, transition_{transition} {
     ParameterSetup::members_.insert( members_.end(), groupMembers.begin(), groupMembers.end() );
 }
+
 
 int ParameterSetup::isValidChild( const ParameterSetup &other ) const {
     const std::vector<std::string> &otherMembers = other.getMembers();
@@ -60,6 +67,7 @@ int ParameterSetup::isValidChild( const ParameterSetup &other ) const {
     }
     return 0;
 }
+
 
 int ParameterSetup::isValidSibling( const ParameterSetup &other ) const {
     unsigned int otherStart = other.start_;
@@ -88,6 +96,7 @@ int ParameterSetup::isValidSibling( const ParameterSetup &other ) const {
     return 0;
 }
 
+
 int ParameterSetup::addChild( const ParameterSetup &child ) {
     int errorCode = isValidChild( child );
     if ( errorCode != 0 ) {
@@ -104,6 +113,7 @@ int ParameterSetup::addChild( const ParameterSetup &child ) {
 
     return errorCode;
 }
+
 
 boost::optional<ParameterSetup &> ParameterSetup::search( int thisLevel, int level, const std::string &parameterName,
                                                           const std::string &memberName,
@@ -122,6 +132,7 @@ boost::optional<ParameterSetup &> ParameterSetup::search( int thisLevel, int lev
     }
     return boost::none;
 }
+
 
 bool ParameterSetup::deleteChild( int thisLevel, int level, const string &parameterName, const string &memberName,
                                   const std::vector<string> &members, ParameterSetup::Transition transition,
@@ -142,6 +153,7 @@ bool ParameterSetup::deleteChild( int thisLevel, int level, const string &parame
         }
     }
 }
+
 
 bool ParameterSetup::isEqual( std::string parameterName, std::string memberName, std::vector<std::string> members,
                               ParameterSetup::Transition transition, unsigned int start, unsigned int end ) {

@@ -17,11 +17,15 @@
  */
 
 #include "HorizonMask_step.h"
+
+
 using namespace std;
 using namespace VieVS;
 
+
 HorizonMask_step::HorizonMask_step( const std::vector<double> &azimuths, const std::vector<double> &elevations )
     : azimuth_{azimuths}, elevation_{elevations} {}
+
 
 bool HorizonMask_step::visible( const PointingVector &pv ) const noexcept {
     double az = pv.getAz();
@@ -35,6 +39,7 @@ bool HorizonMask_step::visible( const PointingVector &pv ) const noexcept {
 
     return el >= el_mask;
 }
+
 
 std::string HorizonMask_step::vexOutput() const noexcept {
     ostringstream out;
@@ -66,6 +71,7 @@ std::string HorizonMask_step::vexOutput() const noexcept {
     return out.str();
 }
 
+
 pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const noexcept {
     vector<double> az_;
     vector<double> el_;
@@ -80,6 +86,7 @@ pair<vector<double>, vector<double>> HorizonMask_step::getHorizonMask() const no
 
     return {az_, el_};
 }
+
 
 double HorizonMask_step::az2el( double az ) const noexcept {
     unsigned long i = 1;

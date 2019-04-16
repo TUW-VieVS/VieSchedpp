@@ -18,13 +18,16 @@
 
 #include "Track.h"
 
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Track::nextId = 0;
 unsigned long VieVS::Track::Fanout_definition::nextId = 0;
 
+
 Track::Track( std::string name ) : VieVS_NamedObject{std::move( name ), nextId++} {}
+
 
 Track::Track( const boost::property_tree::ptree &tree )
     : VieVS_NamedObject{tree.get<std::string>( "<xmlattr>.name" ), nextId++} {
@@ -35,12 +38,14 @@ Track::Track( const boost::property_tree::ptree &tree )
     }
 }
 
+
 void Track::addFanout( std::string subpass, std::string trksId, Bitstream bitstream, int headstack_number,
                        int first_multiplex_track, int second_multiplex_track, int third_multiplex_track,
                        int fourth_multiplex_track ) {
     fanout_definitions_.emplace_back( subpass, trksId, bitstream, headstack_number, first_multiplex_track,
                                       second_multiplex_track, third_multiplex_track, fourth_multiplex_track );
 }
+
 
 boost::property_tree::ptree Track::toPropertytree() const {
     boost::property_tree::ptree p;
@@ -50,6 +55,7 @@ boost::property_tree::ptree Track::toPropertytree() const {
     }
     return p;
 }
+
 
 void Track::toVexTracksDefinition( std::ofstream &of, const std::string &comment ) const {
     of << "    def " << getName() << ";    " << comment << "\n";
@@ -89,6 +95,7 @@ void Track::toVexTracksDefinition( std::ofstream &of, const std::string &comment
     of << "    enddef;\n";
 }
 
+
 map<string, int> Track::numberOfBitsPerChannel( const std::shared_ptr<const Track> &other ) const {
     map<string, int> v;
     for ( const auto &fanout1 : fanout_definitions_ ) {
@@ -107,6 +114,7 @@ map<string, int> Track::numberOfBitsPerChannel( const std::shared_ptr<const Trac
     return v;
 }
 
+
 map<string, int> Track::numberOfBitsPerChannel() const {
     map<string, int> v;
     for ( const auto &fanout1 : fanout_definitions_ ) {
@@ -120,6 +128,7 @@ map<string, int> Track::numberOfBitsPerChannel() const {
     return v;
 }
 
+
 Track::Fanout_definition::Fanout_definition( const boost::property_tree::ptree &tree )
     : VieVS_Object( ++Fanout_definition::nextId ) {
     subpass_ = tree.get<std::string>( "subpass" );
@@ -131,6 +140,7 @@ Track::Fanout_definition::Fanout_definition( const boost::property_tree::ptree &
     third_multiplex_track_ = tree.get( "third_multiplex_track", -999 );
     fourth_multiplex_track_ = tree.get( "fourth_multiplex_track", -999 );
 }
+
 
 Track::Fanout_definition::Fanout_definition( std::string subpass, std::string trksId, Track::Bitstream bitstream,
                                              int headstack_number, int first_multiplex_track,
@@ -145,6 +155,7 @@ Track::Fanout_definition::Fanout_definition( std::string subpass, std::string tr
       second_multiplex_track_{second_multiplex_track},
       third_multiplex_track_{third_multiplex_track},
       fourth_multiplex_track_{fourth_multiplex_track} {}
+
 
 boost::property_tree::ptree Track::Fanout_definition::toPropertytree() const {
     boost::property_tree::ptree p;

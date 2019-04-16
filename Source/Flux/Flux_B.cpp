@@ -18,8 +18,10 @@
 
 #include "Flux_B.h"
 
+
 VieVS::Flux_B::Flux_B( double wavelength, const std::vector<double> &knots, const std::vector<double> &values )
     : AbstractFlux{wavelength}, knots_{knots}, values_{values} {}
+
 
 double VieVS::Flux_B::getMaximumFlux() const noexcept {
     double maxFlux = 0;
@@ -32,6 +34,7 @@ double VieVS::Flux_B::getMaximumFlux() const noexcept {
 
     return maxFlux;
 }
+
 
 double VieVS::Flux_B::observedFlux( double u, double v ) const noexcept {
     double observedFlux = 0;

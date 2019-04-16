@@ -18,6 +18,7 @@
 
 #include "SkdCatalogReader.h"
 
+
 using namespace VieVS;
 using namespace std;
 unsigned long SkdCatalogReader::nextId = 0;
@@ -28,6 +29,7 @@ unsigned long SkdCatalogReader::nextId = 0;
 // ^[^*]\s*(\w)\s+([\w-]*)\s*(\w*)\s+(\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\d*)\s+([+|-]?\d*\.?\d*)\s+([+|-]?\d*\.?\d*)\s+(\d*\.?\d*)\s+(\w+)\s+(\w+)\s+([\w-]+)
 
 SkdCatalogReader::SkdCatalogReader() : VieVS_Object( nextId++ ), bandWidth_{0}, sampleRate_{0}, bits_{0} {}
+
 
 // TODO only save catalogs of required stations!
 std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
@@ -399,6 +401,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
     return all;
 }
 
+
 void SkdCatalogReader::setCatalogFilePathes( const boost::property_tree::ptree &ptreeWithPathes ) {
     sourcePath_ = ptreeWithPathes.get<string>( "source" );
     fluxPath_ = ptreeWithPathes.get<string>( "flux" );
@@ -415,6 +418,7 @@ void SkdCatalogReader::setCatalogFilePathes( const boost::property_tree::ptree &
     rxPath_ = ptreeWithPathes.get<string>( "rx" );
     loifPath_ = ptreeWithPathes.get<string>( "loif" );
 }
+
 
 void SkdCatalogReader::setCatalogFilePathes( const std::string &antenna, const std::string &equip,
                                              const std::string &flux, const std::string &freq, const std::string &hdpos,
@@ -436,6 +440,8 @@ void SkdCatalogReader::setCatalogFilePathes( const std::string &antenna, const s
     rxPath_ = rx;
     loifPath_ = loif;
 }
+
+
 void SkdCatalogReader::setCatalogFilePathes( const std::string &skdFile ) {
     sourcePath_ = skdFile;
     fluxPath_ = skdFile;
@@ -453,10 +459,12 @@ void SkdCatalogReader::setCatalogFilePathes( const std::string &skdFile ) {
     loifPath_ = "";
 }
 
+
 void SkdCatalogReader::initializeSourceCatalogs() {
     sourceCatalog_ = readCatalog( CATALOG::source );
     fluxCatalog_ = readCatalog( CATALOG::flux );
 }
+
 
 void SkdCatalogReader::initializeStationCatalogs() {
     antennaCatalog_ = readCatalog( CATALOG::antenna );
@@ -468,6 +476,7 @@ void SkdCatalogReader::initializeStationCatalogs() {
     saveTwoLetterCode();
 }
 
+
 void SkdCatalogReader::initializeModesCatalogs( const string &obsModeName ) {
     modeName_ = obsModeName;
     readModesCatalog( obsModeName );
@@ -477,6 +486,7 @@ void SkdCatalogReader::initializeModesCatalogs( const string &obsModeName ) {
     readRxCatalog();
     readLoifCatalog();
 }
+
 
 void SkdCatalogReader::readModesCatalog( const string &obsModeName ) {
     ifstream fmodes( modesPath_ );
@@ -510,6 +520,7 @@ void SkdCatalogReader::readModesCatalog( const string &obsModeName ) {
     }
     fmodes.close();
 }
+
 
 void SkdCatalogReader::readRecCatalog() {
     ifstream frec( recPath_ );
@@ -570,6 +581,7 @@ void SkdCatalogReader::readRecCatalog() {
     }
     frec.close();
 }
+
 
 void SkdCatalogReader::readTracksCatalog() {
     for ( const auto &tracksId : tracksIds_ ) {
@@ -632,6 +644,7 @@ void SkdCatalogReader::readTracksCatalog() {
     }
 }
 
+
 void SkdCatalogReader::readFreqCatalog() {
     ifstream ffreq( freqPath_ );
     string line;
@@ -686,6 +699,7 @@ void SkdCatalogReader::readFreqCatalog() {
     ffreq.close();
 }
 
+
 void SkdCatalogReader::readRxCatalog() {
     ifstream frx( rxPath_ );
     string line;
@@ -735,6 +749,7 @@ void SkdCatalogReader::readRxCatalog() {
     frx.close();
 }
 
+
 void SkdCatalogReader::readLoifCatalog() {
     string line;
     for ( const auto &loifId : loifIds_ ) {
@@ -778,6 +793,7 @@ void SkdCatalogReader::readLoifCatalog() {
         floif.close();
     }
 }
+
 
 void SkdCatalogReader::saveOneLetterCode() {
     const map<string, vector<string>> ant = antennaCatalog_;
@@ -828,6 +844,7 @@ void SkdCatalogReader::saveOneLetterCode() {
     }
 }
 
+
 void SkdCatalogReader::saveTwoLetterCode() {
     const map<string, vector<string>> ant = antennaCatalog_;
 
@@ -838,6 +855,7 @@ void SkdCatalogReader::saveTwoLetterCode() {
         twoLetterCode_[staName] = twoLetterCode;
     }
 }
+
 
 std::string SkdCatalogReader::getVersion( const std::string &name ) const {
     if ( catalogsVersion_.find( name ) != catalogsVersion_.end() ) {

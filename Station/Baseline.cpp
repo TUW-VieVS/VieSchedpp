@@ -24,11 +24,14 @@
  */
 
 #include "Baseline.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long Baseline::nextId = 0;
 unsigned long VieVS::Baseline::Parameters::nextId = 0;
+
 
 void Baseline::Parameters::setParameters( const Baseline::Parameters &other ) {
     ignore = other.ignore;
@@ -36,11 +39,13 @@ void Baseline::Parameters::setParameters( const Baseline::Parameters &other ) {
     minSNR = other.minSNR;
 }
 
+
 Baseline::Baseline( std::string name, std::string alternativeName, unsigned long staid1, unsigned long staid2 )
     : VieVS_NamedObject( move( name ), move( alternativeName ), nextId++ ),
       staid1_{staid1},
       staid2_{staid2},
       parameters_{Parameters( "empty" )} {}
+
 
 bool Baseline::hasStationIds( unsigned long staid1, unsigned long staid2 ) const noexcept {
     if ( staid1 > staid2 ) {
@@ -50,9 +55,11 @@ bool Baseline::hasStationIds( unsigned long staid1, unsigned long staid2 ) const
     return staid1 == staid1_ && staid2 == staid2_;
 }
 
+
 bool Baseline::hasStationIds( const std::pair<unsigned long, unsigned long> &staids ) const noexcept {
     return hasStationIds( staids.first, staids.second );
 }
+
 
 bool Baseline::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
@@ -66,6 +73,7 @@ bool Baseline::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     }
     return flag;
 }
+
 
 void Baseline::update( bool influence ) noexcept {
     if ( influence ) {

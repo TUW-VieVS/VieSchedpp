@@ -26,18 +26,20 @@
 
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
+
+
 #include <boost/date_time.hpp>
 #include <boost/optional.hpp>
 #include <tuple>
 #include <utility>
 #include <vector>
-
 #include "Initializer.h"
 #include "Misc/Constants.h"
 #include "Misc/StationEndposition.h"
 #include "Misc/Subnetting.h"
 #include "Scan/Subcon.h"
 #include "Station/Network.h"
+
 
 namespace VieVS {
 /**
@@ -50,6 +52,7 @@ namespace VieVS {
  */
 class Scheduler : public VieVS_NamedObject {
     friend class Output;
+
 
    public:
     /**
@@ -82,6 +85,7 @@ class Scheduler : public VieVS_NamedObject {
         std::vector<std::vector<int>> subnettingSrcIds;  ///< list of all available second sources in subnetting
     };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -91,6 +95,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param fname file name
      */
     Scheduler( Initializer &init, std::string path, std::string fname );
+
 
     /**
      * @brief constructor
@@ -105,11 +110,13 @@ class Scheduler : public VieVS_NamedObject {
     Scheduler( std::string name, Network network_, std::vector<Source> sources, std::vector<Scan> scans,
                boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ = nullptr );
 
+
     /**
      * @brief main function that starts the scheduling
      * @author Matthias Schartner
      */
     void start() noexcept;
+
 
     /**
      * @brief this function creates a subcon with all scans, times and scores
@@ -123,6 +130,7 @@ class Scheduler : public VieVS_NamedObject {
     Subcon createSubcon( const std::shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                          const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
+
     /**
      * @brief constructs all visible scans
      * @author Matthias Schartner
@@ -134,6 +142,7 @@ class Scheduler : public VieVS_NamedObject {
     Subcon allVisibleScans( Scan::ScanType type,
                             const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
+
     /**
      * @brief updates the selected next scans to the schedule
      * @author Matthias Schartner
@@ -142,6 +151,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of outstream file object
      */
     void update( Scan &scan, std::ofstream &of ) noexcept;
+
 
     /**
      * @brief updates and prints the number of all considered scans
@@ -154,6 +164,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     void consideredUpdate( unsigned long n1scans, unsigned long n2scans, int depth, std::ofstream &of ) noexcept;
 
+
     /**
      * @brief statistics output
      * @author Matthias Schartner
@@ -161,6 +172,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of output stream
      */
     void statistics( std::ofstream &of );
+
 
     /**
      * @brief schedule high impact scans
@@ -171,6 +183,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     void highImpactScans( HighImpactScanDescriptor &himp, std::ofstream &of );
 
+
     /**
      * @brief checks the schedule with an independend methode
      * @author Matthias Schartner
@@ -178,6 +191,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of outstream file object
      */
     bool checkAndStatistics( std::ofstream &of ) noexcept;
+
 
     /**
      * @brief get all sources
@@ -187,6 +201,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     const std::vector<Source> &getSources() const noexcept { return sources_; }
 
+
     /**
      * @brief get station network
      * @author Matthias Schartner
@@ -194,6 +209,7 @@ class Scheduler : public VieVS_NamedObject {
      * @return station network
      */
     const Network &getNetwork() const noexcept { return network_; }
+
 
     /**
      * @brief get observing mode network
@@ -203,6 +219,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     const std::shared_ptr<const ObservingMode> &getObservingMode() const noexcept { return obsModes_; }
 
+
     /**
      * @brief get number of observations scheduled in this observation
      * @author Matthias Schartner
@@ -211,6 +228,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     int getNumberOfObservations() const noexcept;
 
+
     /**
      * @brief get all scans
      * @author Matthias Schartner
@@ -218,6 +236,7 @@ class Scheduler : public VieVS_NamedObject {
      * @return all scans
      */
     const std::vector<Scan> &getScans() const noexcept { return scans_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -241,6 +260,7 @@ class Scheduler : public VieVS_NamedObject {
     boost::optional<HighImpactScanDescriptor> himp_;
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
 
+
     /**
      * @brief start recursive scan selection
      * @author Matthias Schartner
@@ -256,6 +276,7 @@ class Scheduler : public VieVS_NamedObject {
                              boost::optional<StationEndposition> &opt_endposition, boost::optional<Subcon> &subcon,
                              int depth );
 
+
     /**
      * @brief checks if some parameters need to be changed
      * @author Matthias Schartner
@@ -268,6 +289,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     bool checkForNewEvents( unsigned int time, bool output, std::ofstream &of, bool tagalong ) noexcept;
 
+
     /**
      * @brief output of source overview
      * @author Matthias Schartner
@@ -275,6 +297,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of object
      */
     void listSourceOverview( std::ofstream &of ) noexcept;
+
 
     /**
      * @brief start tagalong mode
@@ -285,6 +308,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     void startTagelongMode( Station &station, std::ofstream &of );
 
+
     /**
      * @brief check optimization conditions
      * @author Matthias Schartner
@@ -292,6 +316,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of outstream object
      */
     bool checkOptimizationConditions( std::ofstream &of );
+
 
     /**
      * @brief change station availability
@@ -302,6 +327,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     void changeStationAvailability( const boost::optional<StationEndposition> &endposition,
                                     StationEndposition::change change );
+
 
     /**
      * @brief start scan selection between scans
@@ -318,6 +344,7 @@ class Scheduler : public VieVS_NamedObject {
     void startScanSelectionBetweenScans( unsigned int duration, std::ofstream &of, Scan::ScanType type,
                                          bool output = false, bool ignoreTagalong = false );
 
+
     /**
      * @brief reset all events to time zero
      * @author Matthias Schartner
@@ -326,11 +353,13 @@ class Scheduler : public VieVS_NamedObject {
      */
     void resetAllEvents( std::ofstream &of );
 
+
     /**
      * @brief ignore tagalong parameter
      * @author Matthias Schartner
      */
     void ignoreTagalongParameter();
+
 
     /**
      * @brief transform idle time to observing time
@@ -341,6 +370,7 @@ class Scheduler : public VieVS_NamedObject {
      */
     void idleToScanTime( Timestamp ts, std::ofstream &of );
 
+
     /**
      * @brief sort schedule
      * @author Matthias Schartner
@@ -348,6 +378,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param ts time stamp
      */
     void sortSchedule( Timestamp ts = Timestamp::start );
+
 
     /**
      * @brief sort schedule based on station
@@ -357,6 +388,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param ts time stamp
      */
     void sortSchedule( unsigned long staid, Timestamp ts = Timestamp::start );
+
 
     /**
      * @brief calibrator update
@@ -373,6 +405,7 @@ class Scheduler : public VieVS_NamedObject {
                            std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
                            std::vector<double> &lowestElevations );
 
+
     /**
      * @brief write calibrator statistics
      * @author Matthias Schartner
@@ -384,6 +417,7 @@ class Scheduler : public VieVS_NamedObject {
     void writeCalibratorStatistics( std::ofstream &of, std::vector<double> &highestElevations,
                                     std::vector<double> &lowestElevations );
 
+
     /**
      * @brief write calibrator block header
      * @author Matthias Schartner
@@ -391,6 +425,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param of outstream object
      */
     void writeCalibratorHeader( std::ofstream &of );
+
 
     /**
      * @brief updates the time of each observation according to the observing times of the station

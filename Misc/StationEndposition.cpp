@@ -17,10 +17,13 @@
  */
 
 #include "StationEndposition.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long StationEndposition::nextId = 0;
+
 
 StationEndposition::StationEndposition( unsigned long nsta ) : VieVS_Object( nextId++ ) {
     stationAvailable_ = vector<char>( nsta, false );
@@ -30,6 +33,7 @@ StationEndposition::StationEndposition( unsigned long nsta ) : VieVS_Object( nex
     // if there is no subcon the earliest scan start is set to zero to be save
     earliestScanStart_ = numeric_limits<unsigned int>::max();
 }
+
 
 void StationEndposition::addPointingVectorAsEndposition( const PointingVector &pv ) {
     unsigned long staid = pv.getStaid();
@@ -54,6 +58,7 @@ void StationEndposition::addPointingVectorAsEndposition( const PointingVector &p
         earliestScanStart_ = pv.getTime();
     }
 }
+
 
 void StationEndposition::checkStationPossibility( const Station &thisStation ) {
     unsigned long staid = thisStation.getId();
@@ -92,6 +97,7 @@ void StationEndposition::checkStationPossibility( const Station &thisStation ) {
     stationPossible_[staid] = availableTime > requiredTime;
 }
 
+
 unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid ) const {
     // check if station has a required endposition, otherwise use earliest scan start.
     if ( finalPosition_[staid].is_initialized() ) {
@@ -101,12 +107,14 @@ unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid ) 
     }
 }
 
+
 bool StationEndposition::checkStationPossibility( const std::vector<Station> &stations ) {
     for ( const auto &any : stations ) {
         checkStationPossibility( any );
     }
     return count( stationPossible_.begin(), stationPossible_.end(), true ) >= 2;
 }
+
 
 std::set<unsigned long> StationEndposition::getObservedSources() const noexcept {
     set<unsigned long> obsSrc;
@@ -119,6 +127,7 @@ std::set<unsigned long> StationEndposition::getObservedSources() const noexcept 
 
     return std::move( obsSrc );
 }
+
 
 void StationEndposition::setStationAvailable( const std::vector<Station> &stations ) {
     for ( int i = 0; i < stations.size(); ++i ) {

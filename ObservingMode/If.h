@@ -27,12 +27,14 @@
 #ifndef VIESCHEDPP_IF_H
 #define VIESCHEDPP_IF_H
 
+
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <fstream>
 #include <utility>
 #include <vector>
 #include "../Misc/VieVS_NamedObject.h"
+
 
 namespace VieVS {
 
@@ -51,6 +53,7 @@ namespace VieVS {
 class If : public VieVS_NamedObject {
    private:
     class If_def;
+
 
    public:
     /**
@@ -76,6 +79,7 @@ class If : public VieVS_NamedObject {
         D,  ///< D?
     };
 
+
     /**
      * @brief converts polarization to vex format string
      * @author Matthias Schartner
@@ -99,6 +103,7 @@ class If : public VieVS_NamedObject {
                 return "V";
         }
     }
+
 
     /**
      * @brief convert vex format string to polarization type
@@ -128,6 +133,7 @@ class If : public VieVS_NamedObject {
         }
     }
 
+
     /**
      * @brief converts net sideband type to vex format string
      * @author Matthias Schartner
@@ -145,6 +151,7 @@ class If : public VieVS_NamedObject {
                 return "D";
         }
     }
+
 
     /**
      * @brief convert vex format string to net sideband type
@@ -165,6 +172,7 @@ class If : public VieVS_NamedObject {
         }
     }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -173,6 +181,7 @@ class If : public VieVS_NamedObject {
      */
     explicit If( std::string name );
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -180,6 +189,7 @@ class If : public VieVS_NamedObject {
      * @param tree input property tree from xml file
      */
     explicit If( const boost::property_tree::ptree &tree );
+
 
     /**
      * @brief define new IF
@@ -196,6 +206,7 @@ class If : public VieVS_NamedObject {
     void addIf( std::string name, std::string physical_name, Polarization polarization, double total_lo,
                 Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency );
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -203,6 +214,7 @@ class If : public VieVS_NamedObject {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree() const;
+
 
     /**
      * @brief writes If block in vex format
@@ -212,6 +224,7 @@ class If : public VieVS_NamedObject {
      * @param comment optional comment
      */
     void toVecIfDefinition( std::ofstream &of, const std::string &comment = "" ) const;
+
 
     /**
      * @brief get IF definitions
@@ -223,6 +236,7 @@ class If : public VieVS_NamedObject {
      */
     const std::vector<If_def> &getIf_defs() const { return if_defs_; }
 
+
     /**
      * @brief reference IF definitions
      * @author Matthias schartner
@@ -232,6 +246,7 @@ class If : public VieVS_NamedObject {
      * @return reference to all IF definitions
      */
     std::vector<If_def> &refIf_defs() { return if_defs_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -260,6 +275,7 @@ class If : public VieVS_NamedObject {
         If_def( std::string name, std::string physical_name, Polarization polarization, double total_lo,
                 Net_sidband net_sidband, double phase_cal_freq_spacing, double phase_cal_base_freqency );
 
+
         /**
          * @brief constructor
          * @author Matthias Schartner
@@ -268,6 +284,7 @@ class If : public VieVS_NamedObject {
          */
         explicit If_def( const boost::property_tree::ptree &tree );
 
+
         /**
          * @brief converts object to property tree
          * @author Matthias Schartner
@@ -275,6 +292,7 @@ class If : public VieVS_NamedObject {
          * @return property tree
          */
         boost::property_tree::ptree toPropertytree() const;
+
 
         std::string physical_name_;        ///< Physical IF name
         Polarization polarization_;        ///< Polarization
@@ -286,6 +304,7 @@ class If : public VieVS_NamedObject {
        private:
         static unsigned long nextId;  ///< next id for this object type
     };
+
 
     std::vector<If_def> if_defs_;  ///< list of IF definitions
 };

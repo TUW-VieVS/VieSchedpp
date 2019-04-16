@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_AST_H
 #define VIESCHEDPP_AST_H
 
+
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
 
@@ -63,6 +64,7 @@ class Ast : public VieVS_Object {
      */
     explicit Ast( const std::string &file );
 
+
     /**
      * @brief write ast file
      * @author Matthias Schartner
@@ -75,6 +77,7 @@ class Ast : public VieVS_Object {
      */
     void writeAstFile( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                        const boost::property_tree::ptree &xml, const std::shared_ptr<const ObservingMode> &obsModes );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -89,6 +92,7 @@ class Ast : public VieVS_Object {
      */
     void experiment( const boost::property_tree::ptree &xml );
 
+
     /**
      * @brief write experiment block
      * @author Matthias Schartner
@@ -97,6 +101,7 @@ class Ast : public VieVS_Object {
      * @param obsModes observing modes
      */
     void stationParameters( const Station &station, const std::shared_ptr<const ObservingMode> &obsModes );
+
 
     /**
      * @brief write experiment block

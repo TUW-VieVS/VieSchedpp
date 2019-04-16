@@ -17,10 +17,13 @@
  */
 
 #include "ScanTimes.h"
+
+
 using namespace std;
 using namespace VieVS;
 unsigned long ScanTimes::nextId = 0;
 ScanTimes::AlignmentAnchor ScanTimes::anchor = ScanTimes::AlignmentAnchor::start;
+
 
 ScanTimes::ScanTimes( unsigned int nsta ) : VieVS_Object( nextId++ ) {
     endOfLastScan_.resize( nsta );
@@ -31,6 +34,7 @@ ScanTimes::ScanTimes( unsigned int nsta ) : VieVS_Object( nextId++ ) {
     endOfObservingTime_.resize( nsta );
 }
 
+
 void ScanTimes::addTimes( int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob ) noexcept {
     endOfFieldSystemTime_[idx] = endOfLastScan_[idx] + fieldSystem;
     endOfSlewTime_[idx] = endOfFieldSystemTime_[idx] + slew;
@@ -38,6 +42,7 @@ void ScanTimes::addTimes( int idx, unsigned int fieldSystem, unsigned int slew, 
     endOfPreobTime_[idx] = endOfIdleTime_[idx] + preob;
     endOfObservingTime_[idx] = endOfIdleTime_[idx] + preob;
 }
+
 
 void ScanTimes::removeElement( int idx ) noexcept {
     endOfLastScan_.erase( next( endOfLastScan_.begin(), idx ) );
@@ -49,6 +54,7 @@ void ScanTimes::removeElement( int idx ) noexcept {
 
     alignStartTimes();
 }
+
 
 void ScanTimes::setSlewTime( int idx, unsigned int new_slewtime ) noexcept {
     unsigned int currentSlewtime = getSlewDuration( idx );
@@ -63,6 +69,7 @@ void ScanTimes::setSlewTime( int idx, unsigned int new_slewtime ) noexcept {
     }
 }
 
+
 void ScanTimes::removeIdleTime() {
     auto nsta = static_cast<int>( endOfSlewTime_.size() );
 
@@ -75,6 +82,7 @@ void ScanTimes::removeIdleTime() {
         endOfObservingTime_[idx] = endOfPreobTime_[idx] + obs;
     }
 }
+
 
 void ScanTimes::alignStartTimes() noexcept {
     auto nsta = static_cast<int>( endOfSlewTime_.size() );
@@ -156,11 +164,13 @@ void ScanTimes::alignStartTimes() noexcept {
     }
 }
 
+
 void ScanTimes::setObservingStarts( unsigned int scanStart ) noexcept {
     for ( unsigned int &i : endOfPreobTime_ ) {
         i = scanStart;
     }
 }
+
 
 void ScanTimes::setObservingTimes( const vector<unsigned int> &scanTimes ) noexcept {
     for ( int i = 0; i < endOfSlewTime_.size(); ++i ) {
@@ -169,12 +179,14 @@ void ScanTimes::setObservingTimes( const vector<unsigned int> &scanTimes ) noexc
     alignStartTimes();
 }
 
+
 void ScanTimes::setObservingTimes( unsigned int scanTimes ) noexcept {
     for ( int i = 0; i < endOfSlewTime_.size(); ++i ) {
         endOfObservingTime_[i] = endOfPreobTime_[i] + scanTimes;
     }
     alignStartTimes();
 }
+
 
 void ScanTimes::addTagalongStationTime( const VieVS::PointingVector &pv_start, const VieVS::PointingVector &pv_end,
                                         unsigned int slewtime, unsigned int currentTime, unsigned int fieldSystem,
@@ -186,6 +198,7 @@ void ScanTimes::addTagalongStationTime( const VieVS::PointingVector &pv_start, c
     endOfPreobTime_.push_back( pv_start.getTime() );
     endOfObservingTime_.push_back( pv_end.getTime() );
 }
+
 
 bool ScanTimes::setPreobTime( const vector<unsigned int> &preob ) {
     bool valid = true;
@@ -208,6 +221,7 @@ bool ScanTimes::setPreobTime( const vector<unsigned int> &preob ) {
     return valid;
 }
 
+
 bool ScanTimes::setPreobTime( int i, unsigned int preob ) {
     bool valid = true;
     endOfIdleTime_[i] = endOfPreobTime_[i] - preob;
@@ -227,6 +241,7 @@ bool ScanTimes::setPreobTime( int i, unsigned int preob ) {
     return valid;
 }
 
+
 void ScanTimes::setObservingTime( int idx, unsigned int time, Timestamp ts ) {
     switch ( ts ) {
         case Timestamp::start: {
@@ -241,6 +256,7 @@ void ScanTimes::setObservingTime( int idx, unsigned int time, Timestamp ts ) {
         }
     }
 }
+
 
 int ScanTimes::removeUnnecessaryObservingTime( Timestamp ts ) {
     switch ( ts ) {
@@ -267,6 +283,7 @@ int ScanTimes::removeUnnecessaryObservingTime( Timestamp ts ) {
         }
     }
 }
+
 
 bool ScanTimes::reduceObservingTime( int idx, unsigned int time, Timestamp ts ) {
     switch ( ts ) {

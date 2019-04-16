@@ -18,10 +18,12 @@
 
 #include "MultiScheduling.h"
 
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long MultiScheduling::nextId = 0;
+
 
 MultiScheduling::MultiScheduling( std::unordered_map<std::string, std::vector<std::string>> sta_group,
                                   std::unordered_map<std::string, std::vector<std::string>> src_group,
@@ -31,16 +33,20 @@ MultiScheduling::MultiScheduling( std::unordered_map<std::string, std::vector<st
       sourceGroups_{move( src_group )},
       baselineGroups_{move( bls_group )} {}
 
+
 void MultiScheduling::addParameters( const std::string &name ) { singleArgumentLogical.push_back( name ); }
+
 
 void MultiScheduling::addParameters( const std::string &name, const std::vector<double> &values ) {
     singleArgumentNumeric.emplace_back( name, values );
 }
 
+
 void MultiScheduling::addParameters( const std::string &name, const std::string &member,
                                      const std::vector<double> &values ) {
     doubleArgumentNumeric.emplace_back( name, make_pair( member, values ) );
 }
+
 
 std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiScheduleParameters( unsigned int maxNr,
                                                                                          unsigned int seed ) {
@@ -302,6 +308,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     return allPARA;
 }
 
+
 void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara, unsigned long &n_before,
                                     const std::string &name ) {
     unsigned long n_total = allPara.size();
@@ -326,6 +333,7 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
     }
     n_before = n_block;
 }
+
 
 void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara, unsigned long &n_before,
                                     const std::string &name, const std::vector<double> &values ) {
@@ -373,6 +381,7 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
     }
     n_before = n_block;
 }
+
 
 void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara, unsigned long &n_before,
                                     const std::string &name, const std::string &member,
@@ -580,6 +589,7 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
     }
     n_before = n_block;
 }
+
 
 boost::property_tree::ptree MultiScheduling::createPropertyTree() const {
     boost::property_tree::ptree pt;

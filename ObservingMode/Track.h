@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_TRACKS_H
 #define VIESCHEDPP_TRACKS_H
 
+
 #include <algorithm>
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -36,6 +37,7 @@
 #include <utility>
 #include <vector>
 #include "../Misc/VieVS_NamedObject.h"
+
 
 namespace VieVS {
 
@@ -59,6 +61,7 @@ class Track : public VieVS_NamedObject {
    private:
     class Fanout_definition;
 
+
    public:
     /**
      * @brief bitstream types
@@ -68,6 +71,7 @@ class Track : public VieVS_NamedObject {
         sign,  ///< sign
         mag,   ///< magnitude
     };
+
 
     /**
      * @brief convert bitstream type to vex format string
@@ -85,6 +89,7 @@ class Track : public VieVS_NamedObject {
         }
     }
 
+
     /**
      * @brief convert vex format string to bitstream type
      * @author Matthias Schartner
@@ -100,6 +105,7 @@ class Track : public VieVS_NamedObject {
         }
     }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -108,6 +114,7 @@ class Track : public VieVS_NamedObject {
      */
     explicit Track( std::string name );
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -115,6 +122,7 @@ class Track : public VieVS_NamedObject {
      * @param tree input property tree from xml file
      */
     explicit Track( const boost::property_tree::ptree &tree );
+
 
     /**
      * @brief get number of recording bits between two TRACKS blocks
@@ -125,6 +133,7 @@ class Track : public VieVS_NamedObject {
      */
     std::map<std::string, int> numberOfBitsPerChannel( const std::shared_ptr<const Track> &other ) const;
 
+
     /**
      * @brief get number of recording bits
      * @author Matthias Schartner
@@ -133,6 +142,7 @@ class Track : public VieVS_NamedObject {
      */
     std::map<std::string, int> numberOfBitsPerChannel() const;
 
+
     /**
      * @brief number of tracks
      * @author Matthias Schartner
@@ -140,6 +150,7 @@ class Track : public VieVS_NamedObject {
      * @return number of track definitions
      */
     int numberOfTracks() const { return static_cast<int>( fanout_definitions_.size() ); }
+
 
     /**
      * @brief add new fanout
@@ -158,6 +169,7 @@ class Track : public VieVS_NamedObject {
                     int first_multiplex_track, int second_multiplex_track = -999, int third_multiplex_track = -999,
                     int fourth_multiplex_track = -999 );
 
+
     /**
      * @brief writes TRACKS block in vex format
      * @author Matthias Schartner
@@ -167,6 +179,7 @@ class Track : public VieVS_NamedObject {
      */
     void toVexTracksDefinition( std::ofstream &of, const std::string &comment = "" ) const;
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -174,6 +187,7 @@ class Track : public VieVS_NamedObject {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree() const;
+
 
     /**
      * @brief get fanout definitions
@@ -185,6 +199,7 @@ class Track : public VieVS_NamedObject {
      */
     const std::vector<Fanout_definition> &getFanout_defs() const { return fanout_definitions_; }
 
+
     /**
      * @brief reference fanout definitions
      * @author Matthias schartner
@@ -194,6 +209,7 @@ class Track : public VieVS_NamedObject {
      * @return reference to all fanout definitions
      */
     std::vector<Fanout_definition> &refFanout_defs() { return fanout_definitions_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -224,6 +240,7 @@ class Track : public VieVS_NamedObject {
                            int first_multiplex_track, int second_multiplex_track = -999,
                            int third_multiplex_track = -999, int fourth_multiplex_track = -999 );
 
+
         /**
          * @brief constructor
          * @author Matthias Schartner
@@ -232,6 +249,7 @@ class Track : public VieVS_NamedObject {
          */
         explicit Fanout_definition( const boost::property_tree::ptree &tree );
 
+
         /**
          * @brief converts object to property tree
          * @author Matthias Schartner
@@ -239,6 +257,7 @@ class Track : public VieVS_NamedObject {
          * @return property tree
          */
         boost::property_tree::ptree toPropertytree() const;
+
 
         std::string subpass_;   ///< Sub-pass ID
         std::string trksid_;    ///< 'Chan_ID' linkword
@@ -253,6 +272,7 @@ class Track : public VieVS_NamedObject {
        private:
         static unsigned long nextId;  ///< next id for this object type
     };
+
 
     std::vector<Fanout_definition> fanout_definitions_;  ///< list of fanout definitions
 };

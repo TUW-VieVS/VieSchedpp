@@ -25,14 +25,17 @@
 
 #include "Initializer.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long Initializer::nextId = 0;
+
 
 Initializer::Initializer()
     : VieVS_Object( nextId++ ){
 
       };
+
 
 Initializer::Initializer( const std::string &path ) : VieVS_Object( nextId++ ) {
     ifstream is( path );
@@ -46,6 +49,7 @@ Initializer::Initializer( const std::string &path ) : VieVS_Object( nextId++ ) {
     network_.setMaxDistBetweenCorrespondingTelescopes( maxDistCorrestpondingTelescopes );
 }
 
+
 Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Object( nextId++ ), xml_{xml} {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "constructing initializer " << this->getId();
@@ -54,6 +58,7 @@ Initializer::Initializer( const boost::property_tree::ptree &xml ) : VieVS_Objec
     double maxDistCorrestpondingTelescopes = xml_.get( "VieSchedpp.skyCoverage.maxTwinTelecopeDistance", 0.0 );
     network_.setMaxDistBetweenCorrespondingTelescopes( maxDistCorrestpondingTelescopes );
 }
+
 
 void Initializer::precalcSubnettingSrcIds() noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -80,6 +85,7 @@ void Initializer::precalcSubnettingSrcIds() noexcept {
     }
     preCalculated_.subnettingSrcIds = subnettingSrcIds;
 }
+
 
 void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -468,6 +474,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #endif
 }
 
+
 void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &of ) noexcept {
     double flcon2{pi / ( 3600.0 * 180.0 * 1000.0 )};
 
@@ -845,6 +852,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
     util::outputObjectList( "failed to create source", src_failed, of );
 }
 
+
 void Initializer::initializeGeneral( ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize general";
@@ -936,6 +944,7 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
 
     of << "\n";
 }
+
 
 void Initializer::initializeStations() noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -1158,6 +1167,7 @@ void Initializer::initializeStations() noexcept {
     }
 }
 
+
 void Initializer::precalcAzElStations() noexcept {
     for ( auto &sta : network_.refStations() ) {
         for ( const auto &source : sources_ ) {
@@ -1170,6 +1180,7 @@ void Initializer::precalcAzElStations() noexcept {
         }
     }
 }
+
 
 void Initializer::stationSetup( vector<vector<Station::Event>> &events, const boost::property_tree::ptree &tree,
                                 const unordered_map<std::string, ParameterSettings::ParametersStations> &parameters,
@@ -1329,6 +1340,7 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
     }
 }
 
+
 void Initializer::initializeSources() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sources";
@@ -1438,6 +1450,7 @@ void Initializer::initializeSources() noexcept {
 #endif
     }
 }
+
 
 void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boost::property_tree::ptree &tree,
                                const unordered_map<std::string, ParameterSettings::ParametersSources> &parameters,
@@ -1648,6 +1661,7 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
     }
 }
 
+
 void Initializer::initializeBaselines() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize baselines";
@@ -1730,6 +1744,7 @@ void Initializer::initializeBaselines() noexcept {
 #endif
     }
 }
+
 
 void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const boost::property_tree::ptree &tree,
                                  const unordered_map<std::string, ParameterSettings::ParametersBaselines> &parameters,
@@ -1855,6 +1870,7 @@ void Initializer::baselineSetup( vector<vector<Baseline::Event>> &events, const 
     }
 }
 
+
 void Initializer::initializeAstronomicalParameteres() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize astronomical parameters";
@@ -1944,6 +1960,7 @@ void Initializer::initializeAstronomicalParameteres() noexcept {
     }
 }
 
+
 void Initializer::initializeWeightFactors() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize weight factors";
@@ -1972,6 +1989,7 @@ void Initializer::initializeWeightFactors() noexcept {
         xml_.get<double>( "VieSchedpp.weightFactor.lowElevationFullWeight", 20 ) * deg2rad;
 }
 
+
 void Initializer::initializeSkyCoverages() noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sky coverage";
@@ -1998,6 +2016,7 @@ void Initializer::initializeSkyCoverages() noexcept {
         SkyCoverage::interpolationTime = SkyCoverage::Interpolation::cosine;
     }
 }
+
 
 void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -2166,6 +2185,7 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
     of << "\n";
 }
 
+
 void Initializer::initializeObservingMode( unsigned long nsta, double samplerate, unsigned int bits,
                                            const std::unordered_map<std::string, unsigned int> &band2channel,
                                            const std::unordered_map<std::string, double> &band2wavelength ) noexcept {
@@ -2173,6 +2193,7 @@ void Initializer::initializeObservingMode( unsigned long nsta, double samplerate
     obsModes_ = std::make_shared<ObservingMode>();
     obsModes_->simpleMode( nsta, samplerate, bits, band2channel, band2wavelength );
 }
+
 
 unordered_map<string, vector<string>> Initializer::readGroups( boost::property_tree::ptree root,
                                                                GroupType type ) noexcept {
@@ -2229,6 +2250,7 @@ unordered_map<string, vector<string>> Initializer::readGroups( boost::property_t
 
     return groups;
 }
+
 
 void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Parameters &parameters ) {
     //    parameters.output(bodyLog);
@@ -2521,6 +2543,7 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
     }
 }
 
+
 vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &out ) {
     vector<MultiScheduling::Parameters> para;
 
@@ -2619,6 +2642,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
     return std::vector<MultiScheduling::Parameters>{};
 }
 
+
 void Initializer::initializeSourceSequence() noexcept {
     boost::optional<boost::property_tree::ptree &> sq = xml_.get_child_optional( "VieSchedpp.rules.sourceSequence" );
     if ( sq.is_initialized() ) {
@@ -2670,6 +2694,7 @@ void Initializer::initializeSourceSequence() noexcept {
         }
     }
 }
+
 
 void Initializer::initializeCalibrationBlocks( std::ofstream &of ) {
     boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional( "VieSchedpp.rules.calibratorBlock" );
@@ -2748,6 +2773,7 @@ void Initializer::initializeCalibrationBlocks( std::ofstream &of ) {
     }
 }
 
+
 unsigned int Initializer::minutesVisible( const Source &source, const Source::Parameters &parameters,
                                           unsigned int start, unsigned int end ) {
 #ifdef VIESCHEDPP_LOG
@@ -2795,6 +2821,7 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
     }
     return minutes;
 }
+
 
 void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms ) {
     of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_"
@@ -2859,6 +2886,7 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
     of << "\n";
 }
 
+
 void Initializer::initializeOptimization( std::ofstream &of ) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional( "VieSchedpp.optimization" );
     if ( ctree.is_initialized() ) {
@@ -2904,6 +2932,7 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
         }
     }
 }
+
 
 void Initializer::initializeHighImpactScanDescriptor( std::ofstream &of ) {
     boost::optional<boost::property_tree::ptree &> ctree = xml_.get_child_optional( "VieSchedpp.highImpact" );
@@ -2959,6 +2988,7 @@ void Initializer::initializeHighImpactScanDescriptor( std::ofstream &of ) {
     }
 }
 
+
 std::vector<unsigned long> Initializer::getMembers( const std::string &name, const std::vector<Station> &stations ) {
     vector<unsigned long> ids;
 
@@ -2990,6 +3020,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
 
     return ids;
 }
+
 
 std::vector<unsigned long> Initializer::getMembers( const std::string &name, const std::vector<Baseline> &baselines ) {
     vector<unsigned long> ids;
@@ -3023,6 +3054,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
     return ids;
 }
 
+
 std::vector<unsigned long> Initializer::getMembers( const std::string &name, const std::vector<Source> &sources ) {
     vector<unsigned long> ids;
 
@@ -3054,6 +3086,7 @@ std::vector<unsigned long> Initializer::getMembers( const std::string &name, con
 
     return ids;
 }
+
 
 void Initializer::connectObservingMode( std::ofstream &of ) noexcept {
     vector<string> staNames;

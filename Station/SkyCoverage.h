@@ -26,6 +26,8 @@
 
 #ifndef SKYCOVERAGE_H
 #define SKYCOVERAGE_H
+
+
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -35,6 +37,7 @@
 #include "../Misc/LookupTable.h"
 #include "../Scan/PointingVector.h"
 #include "Station.h"
+
 
 namespace VieVS {
 /**
@@ -67,6 +70,7 @@ class SkyCoverage : public VieVS_Object {
      */
     SkyCoverage();
 
+
     /**
      * @brief calc score per station
      * @author Matthias Schartner
@@ -75,6 +79,7 @@ class SkyCoverage : public VieVS_Object {
      * @return score
      */
     double calcScore( const PointingVector &pv ) const;
+
 
     /**
      * @brief calculates the influence of the score between two pointing vectors
@@ -86,11 +91,13 @@ class SkyCoverage : public VieVS_Object {
      */
     double scorePerPointingVector( const PointingVector &pv_new, const PointingVector &pv_old ) const noexcept;
 
+
     /**
      * @brief clear all observations
      * @author Matthias Schartner
      */
     void clearObservations();
+
 
     /**
      * @brief updates the pointing vectors
@@ -100,6 +107,7 @@ class SkyCoverage : public VieVS_Object {
      */
     void update( const PointingVector &pv ) noexcept;
 
+
     /**
      * @brief get all pointing vectors
      * @author Matthias Schartner
@@ -107,6 +115,7 @@ class SkyCoverage : public VieVS_Object {
      * @return all pointing vectors
      */
     const std::vector<PointingVector> &getPointingVectors() const noexcept { return pointingVectors_; }
+
 
     /**
      * @brief calculate sky coverage scores
@@ -116,6 +125,7 @@ class SkyCoverage : public VieVS_Object {
      */
     void calculateSkyCoverageScores();
 
+
     /**
      * @brief get total sky coverage score
      * @author Matthias Schartner
@@ -123,6 +133,7 @@ class SkyCoverage : public VieVS_Object {
      * @return sky coverage score with 13 areas over 30 minutes
      */
     double getSkyCoverageScore_a13m30() const { return a13m30_; }
+
 
     /**
      * @brief get total sky coverage score
@@ -132,6 +143,7 @@ class SkyCoverage : public VieVS_Object {
      */
     double getSkyCoverageScore_a25m30() const { return a25m30_; }
 
+
     /**
      * @brief get total sky coverage score
      * @author Matthias Schartner
@@ -139,6 +151,7 @@ class SkyCoverage : public VieVS_Object {
      * @return sky coverage score with 37 areas over 30 minutes
      */
     double getSkyCoverageScore_a37m30() const { return a37m30_; }
+
 
     /**
      * @brief get total sky coverage score
@@ -148,6 +161,7 @@ class SkyCoverage : public VieVS_Object {
      */
     double getSkyCoverageScore_a13m60() const { return a13m60_; }
 
+
     /**
      * @brief get total sky coverage score
      * @author Matthias Schartner
@@ -156,6 +170,7 @@ class SkyCoverage : public VieVS_Object {
      */
     double getSkyCoverageScore_a25m60() const { return a25m60_; }
 
+
     /**
      * @brief get total sky coverage score
      * @author Matthias Schartner
@@ -163,6 +178,7 @@ class SkyCoverage : public VieVS_Object {
      * @return sky coverage score with 37 areas over 60 minutes
      */
     double getSkyCoverageScore_a37m60() const { return a37m60_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -186,6 +202,7 @@ class SkyCoverage : public VieVS_Object {
      */
     double skyCoverageScore_13( unsigned int deltaTime ) const;
 
+
     /**
      * @brief calculate total sky coverage score of all observations over schedule session
      * @author Matthias Schartner
@@ -197,6 +214,7 @@ class SkyCoverage : public VieVS_Object {
      */
     double skyCoverageScore_25( unsigned int deltaTime ) const;
 
+
     /**
      * @brief calculate total sky coverage score of all observations over schedule session
      * @author Matthias Schartner
@@ -207,6 +225,7 @@ class SkyCoverage : public VieVS_Object {
      * @return sky coverage score. Maximum score is 1, minimum score is 0.
      */
     double skyCoverageScore_37( unsigned int deltaTime ) const;
+
 
     /**
      * @brief area index of observation
@@ -221,6 +240,7 @@ class SkyCoverage : public VieVS_Object {
      */
     static int areaIndex13_v1( const PointingVector &pv ) noexcept;
 
+
     /**
      * @brief area index of observation
      * @author Matthias Schartner
@@ -233,6 +253,7 @@ class SkyCoverage : public VieVS_Object {
      * @return area index
      */
     static int areaIndex13_v2( const PointingVector &pv ) noexcept;
+
 
     /**
      * @brief area index of observation
@@ -247,6 +268,7 @@ class SkyCoverage : public VieVS_Object {
      */
     static int areaIndex25_v1( const PointingVector &pv ) noexcept;
 
+
     /**
      * @brief area index of observation
      * @author Matthias Schartner
@@ -260,6 +282,7 @@ class SkyCoverage : public VieVS_Object {
      */
     static int areaIndex25_v2( const PointingVector &pv ) noexcept;
 
+
     /**
      * @brief area index of observation
      * @author Matthias Schartner
@@ -272,6 +295,7 @@ class SkyCoverage : public VieVS_Object {
      * @return area index
      */
     static int areaIndex37_v1( const PointingVector &pv ) noexcept;
+
 
     /**
      * @brief area index of observation

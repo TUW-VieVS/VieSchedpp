@@ -26,12 +26,15 @@
 
 #ifndef HORIOZONMASK_H
 #define HORIOZONMASK_H
+
+
 #include <cmath>
 #include <vector>
 
 #include "../../Misc/Constants.h"
 #include "../../Misc/VieVS_Object.h"
 #include "../../Scan/PointingVector.h"
+
 
 namespace VieVS {
 /**
@@ -52,6 +55,7 @@ class AbstractHorizonMask : public VieVS_Object {
      */
     AbstractHorizonMask();
 
+
     /**
      * @brief checks if a pointing vector is visible
      * @author Matthias Schartner
@@ -61,6 +65,7 @@ class AbstractHorizonMask : public VieVS_Object {
      */
     virtual bool visible( const PointingVector &pv ) const noexcept = 0;
 
+
     /**
      * @brief horizon mask string in .vex format
      * @author Matthias Schartner
@@ -69,6 +74,7 @@ class AbstractHorizonMask : public VieVS_Object {
      */
     virtual std::string vexOutput() const noexcept = 0;
 
+
     /**
      * @brief getter for horizon mask
      * @author Matthias Schartner
@@ -76,6 +82,7 @@ class AbstractHorizonMask : public VieVS_Object {
      * @return first vector is azimuth in radinas, second vector is elevation in radians
      */
     virtual std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept = 0;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

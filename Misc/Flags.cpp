@@ -18,5 +18,6 @@
 
 #include "Flags.h"
 
+
 bool VieVS::Flags::logTrace = false;
 bool VieVS::Flags::logDebug = false;

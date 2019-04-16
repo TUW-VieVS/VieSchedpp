@@ -28,8 +28,10 @@
 #ifndef WEIGHTFACTORS_H
 #define WEIGHTFACTORS_H
 
+
 #include <fstream>
 #include "Constants.h"
+
 
 namespace VieVS {
 /**
@@ -54,15 +56,15 @@ class WeightFactors {
 
     static thread_local double weightDeclination;       ///< weight factor for declination
     static thread_local double declinationStartWeight;  ///< start declination of additional weight
-                                                        ///< (everything above has factor 0)
-    static thread_local double declinationFullWeight;   ///< end declination of additional declination weight slope
-                                                        ///< (everything below has factor 1)
+    ///< (everything above has factor 0)
+    static thread_local double declinationFullWeight;  ///< end declination of additional declination weight slope
+    ///< (everything below has factor 1)
 
     static thread_local double weightLowElevation;       ///< weight factor for low elevation scans
     static thread_local double lowElevationStartWeight;  ///< start elevation of additional weight
-                                                         ///< (everything above has factor 0)
-    static thread_local double lowElevationFullWeight;   ///< end elevation of additional declination weight slope
-                                                         ///< (everything below has factor 1)
+    ///< (everything above has factor 0)
+    static thread_local double lowElevationFullWeight;  ///< end elevation of additional declination weight slope
+    ///< (everything below has factor 1)
     /**
      * @brief summary of all weight factors
      * @author Matthias Schartner

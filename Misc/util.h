@@ -31,6 +31,7 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -39,6 +40,7 @@
 #include <vector>
 
 #include "Constants.h"
+
 
 namespace VieVS {
 /**
@@ -68,6 +70,7 @@ namespace util {
  */
 unsigned long getNumberOfStations( const boost::property_tree::ptree &xml );
 
+
 /**
  * @brief get station names from xml file
  * @author Matthias Schartner
@@ -76,6 +79,7 @@ unsigned long getNumberOfStations( const boost::property_tree::ptree &xml );
  * @return vector of station names
  */
 std::vector<std::string> getStationNames( const boost::property_tree::ptree &xml );
+
 
 /**
  * @brief convert right ascension to string
@@ -88,6 +92,7 @@ std::vector<std::string> getStationNames( const boost::property_tree::ptree &xml
  */
 std::string ra2dms( double angle );
 
+
 /**
  * @brief convert right ascension to string
  * @author Matthias Schartner
@@ -98,6 +103,7 @@ std::string ra2dms( double angle );
  * @return output string
  */
 std::string ra2dms_astFormat( double angle );
+
 
 /**
  * @brief convert declination to string
@@ -110,6 +116,7 @@ std::string ra2dms_astFormat( double angle );
  */
 std::string dc2hms( double angle );
 
+
 /**
  * @brief convert declination to string
  * @author Matthias Schartner
@@ -120,6 +127,7 @@ std::string dc2hms( double angle );
  * @return output string
  */
 std::string dc2hms_astFormat( double angle );
+
 
 /**
  * @brief transforms frequency to wavelength
@@ -132,6 +140,7 @@ std::string dc2hms_astFormat( double angle );
  */
 double freqency2wavelenth( double frequency );
 
+
 /**
  * @brief transforms wavelength to frequency
  * @author Matthias Schartner
@@ -143,6 +152,7 @@ double freqency2wavelenth( double frequency );
  */
 double wavelength2frequency( double wavelength );
 
+
 /**
  * @brief wrap angle to interval [0, 2*pi)
  * @author Matthias Schartner
@@ -152,6 +162,7 @@ double wavelength2frequency( double wavelength );
  */
 double wrap2twoPi( double angle );
 
+
 /**
  * @brief wrap angle to interval [-pi, pi)
  * @author Matthias Schartner
@@ -160,6 +171,7 @@ double wrap2twoPi( double angle );
  * @return output angle
  */
 double wrap2pi( double angle );
+
 
 /**
  * @brief calculate duration between two time points
@@ -171,6 +183,7 @@ double wrap2pi( double angle );
  */
 int duration( const boost::posix_time::ptime &start, const boost::posix_time::ptime &end );
 
+
 /**
  * @brief software version number
  * @author Matthias Schartner
@@ -178,6 +191,7 @@ int duration( const boost::posix_time::ptime &start, const boost::posix_time::pt
  * @return software version number
  */
 std::string version();
+
 
 /**
  * @brief absolute difference between two points
@@ -194,6 +208,7 @@ template <typename T>
 T absDiff( const T &a, const T &b ) {
     return ( a > b ) ? ( a - b ) : ( b - a );
 }
+
 
 /**
  * @brief indices of sorted vector elements
@@ -216,6 +231,7 @@ std::vector<int> sortIndexes( const std::vector<T> &v ) {
 
     return idx;
 }
+
 
 /**
  * @brief checks if a value already exists in a map
@@ -242,6 +258,7 @@ bool valueExists( std::map<K, V> mapOfElemen, V value ) {
     return false;
 }
 
+
 /**
  * @brief outputs list of objects
  * @author Matthias Schartner
@@ -253,6 +270,7 @@ bool valueExists( std::map<K, V> mapOfElemen, V value ) {
  */
 void outputObjectList( const std::string &title, const std::vector<std::string> &names, std::ofstream &of,
                        unsigned long indents = 4 );
+
 
 /**
  * @brief convert weekday integer to string
@@ -266,6 +284,7 @@ void outputObjectList( const std::string &title, const std::vector<std::string> 
  * @return weekday in string format
  */
 std::string weekDay2string( int weekday );
+
 
 /**
  * @brief convert month integer to string

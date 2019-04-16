@@ -27,6 +27,7 @@
 #ifndef SCAN_H
 #define SCAN_H
 
+
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/optional.hpp>
@@ -34,19 +35,18 @@
 #include <limits>
 #include <utility>
 #include <vector>
-
+#include "../Misc/CalibratorBlock.h"
+#include "../Misc/StationEndposition.h"
+#include "../Misc/TimeSystem.h"
 #include "../Misc/WeightFactors.h"
+#include "../Misc/util.h"
+#include "../ObservingMode/Mode.h"
 #include "../Source/Source.h"
 #include "../Station/Network.h"
 #include "Observation.h"
 #include "PointingVector.h"
 #include "ScanTimes.h"
-//#include "ObservationMode.h"
-#include "../Misc/CalibratorBlock.h"
-#include "../Misc/StationEndposition.h"
-#include "../Misc/TimeSystem.h"
-#include "../Misc/util.h"
-#include "../ObservingMode/Mode.h"
+
 
 namespace VieVS {
 
@@ -81,6 +81,7 @@ class Scan : public VieVS_Object {
         calibrator   ///< calibrator scan
     };
 
+
     /**
      * @brief specify custom scan sequence rules
      * @author Matthias Schartner
@@ -105,6 +106,7 @@ class Scan : public VieVS_Object {
         }
     };
 
+
     static ScanSequence scanSequence;  ///< scan sequence rules
 
     /**
@@ -117,6 +119,7 @@ class Scan : public VieVS_Object {
      */
     bool check() { return pointingVectorsStart_.size() != nsta_; }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -128,6 +131,7 @@ class Scan : public VieVS_Object {
      * @param type scan type
      */
     Scan( std::vector<PointingVector> &pointingVectors, std::vector<unsigned int> &endOfLastScan, ScanType type );
+
 
     /**
      * @brief constructor
@@ -144,6 +148,7 @@ class Scan : public VieVS_Object {
     Scan( std::vector<PointingVector> pv, ScanTimes times, std::vector<Observation> obs,
           ScanType type = Scan::ScanType::standard );
 
+
     /**
      * @brief sets the scan type
      * @author Matthias Schartner
@@ -151,6 +156,7 @@ class Scan : public VieVS_Object {
      * @param type new scan type
      */
     void setType( ScanType type ) noexcept { Scan::type_ = type; }
+
 
     /**
      * @brief getter to get all scan times
@@ -160,6 +166,7 @@ class Scan : public VieVS_Object {
      */
     const ScanTimes &getTimes() const noexcept { return times_; }
 
+
     /**
      * @brief referenct to all scan times
      * @author Matthias Schartner
@@ -168,6 +175,7 @@ class Scan : public VieVS_Object {
      */
     ScanTimes &referenceTime() noexcept { return times_; }
 
+
     /**
      * @brief getter for number of stations
      * @author Matthias Schartner
@@ -175,6 +183,7 @@ class Scan : public VieVS_Object {
      * @return number of stations
      */
     unsigned long getNSta() const noexcept { return nsta_; }
+
 
     /**
      * @brief getter for station id for one index
@@ -185,6 +194,7 @@ class Scan : public VieVS_Object {
      */
     unsigned long getStationId( int idx ) const noexcept { return pointingVectorsStart_[idx].getStaid(); }
 
+
     /**
      * @brief getter for source id
      * @author Matthias Schartner
@@ -192,6 +202,7 @@ class Scan : public VieVS_Object {
      * @return source id
      */
     unsigned long getSourceId() const noexcept { return pointingVectorsStart_[0].getSrcid(); }
+
 
     /**
      * @brief getter for pointing vector for an index
@@ -212,6 +223,7 @@ class Scan : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief reference to pointing vector for an index
      * @author Matthias Schartner
@@ -231,6 +243,7 @@ class Scan : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief getter for the total score of this scan
      * @author Matthias Schartner
@@ -238,6 +251,7 @@ class Scan : public VieVS_Object {
      * @return score of this scan
      */
     double getScore() const noexcept { return score_; }
+
 
     /**
      * @brief getter for scan type
@@ -247,6 +261,7 @@ class Scan : public VieVS_Object {
      */
     ScanType getType() const noexcept { return type_; }
 
+
     /**
      * @brief getter for scan constellation type
      * @author Matthias Schartner
@@ -254,6 +269,7 @@ class Scan : public VieVS_Object {
      * @return scan constellation type
      */
     ScanConstellation getScanConstellation() const noexcept { return constellation_; }
+
 
     /**
      * @brief getter for a single observations
@@ -264,6 +280,7 @@ class Scan : public VieVS_Object {
      */
     const Observation &getObservation( int idx ) const noexcept { return observations_[idx]; }
 
+
     /**
      * @brief get all observations
      * @author Matthias Schartner
@@ -271,6 +288,7 @@ class Scan : public VieVS_Object {
      * @return all observations
      */
     const std::vector<Observation> &getObservations() const noexcept { return observations_; }
+
 
     /**
      * @brief delete the pointing vector at position idx and all its corresponding times and observations
@@ -284,6 +302,7 @@ class Scan : public VieVS_Object {
      */
     bool removeStation( int idx, const Source &source ) noexcept;
 
+
     /**
      * @brief delete the observation at position iobs from scan
      * @author Matthias Schartner
@@ -296,6 +315,7 @@ class Scan : public VieVS_Object {
      */
     bool removeObservation( int iobs, const Source &source ) noexcept;
 
+
     /**
      * @brief finds the index of an station id
      * @author Matthias Schartner
@@ -304,6 +324,7 @@ class Scan : public VieVS_Object {
      * @return index
      */
     boost::optional<unsigned long> findIdxOfStationId( unsigned long id ) const noexcept;
+
 
     /**
      * @brief adds scan times
@@ -316,6 +337,7 @@ class Scan : public VieVS_Object {
      */
     void addTimes( int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob ) noexcept;
 
+
     /**
      * @brief constructs all possible observations
      * @author Matthias Schartner
@@ -323,6 +345,7 @@ class Scan : public VieVS_Object {
      * @param source observed source
      */
     bool constructObservations( const Network &network, const Source &source ) noexcept;
+
 
     /**
      * @brief checks if the idle time is not too long
@@ -337,6 +360,7 @@ class Scan : public VieVS_Object {
      */
     bool checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &source ) noexcept;
 
+
     /**
      * @brief calculates the scan durations per observation
      * @author Matthias Schartner
@@ -348,6 +372,7 @@ class Scan : public VieVS_Object {
      */
     bool calcObservationDuration( const Network &network, const Source &sources,
                                   const std::shared_ptr<const Mode> &mode ) noexcept;
+
 
     /**
      * @brief calculates the total scan duration per station
@@ -361,6 +386,7 @@ class Scan : public VieVS_Object {
      */
     bool scanDuration( const Network &network, const Source &source ) noexcept;
 
+
     /**
      * @brief getter for all station ids
      * @author Matthias Schartner
@@ -368,6 +394,7 @@ class Scan : public VieVS_Object {
      * @return all station ids
      */
     std::vector<unsigned long> getStationIds() const noexcept;
+
 
     /**
      * @brief calculates the score of a scan
@@ -389,6 +416,7 @@ class Scan : public VieVS_Object {
                     unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                     bool subnetting, const std::vector<double> &idleScore ) noexcept;
 
+
     /**
      * @brief calculates the score of a scan
      * @author Matthias Schartner
@@ -409,6 +437,7 @@ class Scan : public VieVS_Object {
                     unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                     std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
                     const std::vector<double> &idleScore ) noexcept;
+
 
     /**
      * @brief calculates the score of a scan
@@ -433,6 +462,7 @@ class Scan : public VieVS_Object {
                                const std::unordered_map<unsigned long, double> &staids2skyCoverageScore,
                                const std::vector<double> &idleScore ) noexcept;
 
+
     /**
      * @brief calc score for high impact scans
      * @author Matthias Schartner
@@ -446,6 +476,7 @@ class Scan : public VieVS_Object {
      */
     void calcScore( unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                     double hiscore, bool subnetting );
+
 
     /**
      * @brief calculates the score for a calibrator block scan
@@ -463,6 +494,7 @@ class Scan : public VieVS_Object {
                     const std::vector<double> &prevHighElevationScores, const Network &network,
                     unsigned int minRequiredTime, unsigned int maxRequiredTime, const Source &source, bool subnetting );
 
+
     /**
      * @brief checks a scan with rigorous models
      * @author Matthias Schartner
@@ -475,6 +507,7 @@ class Scan : public VieVS_Object {
      */
     bool rigorousUpdate( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                          const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
+
 
     /**
      * @brief adds observation to scan in tagalong mode
@@ -490,6 +523,7 @@ class Scan : public VieVS_Object {
                              const std::vector<Observation> &observations, unsigned int slewtime,
                              const Station &station );
 
+
     /**
      * @brief makes a hard copy of a scan with all stations from parameter ids
      * @author Matthias Schartner
@@ -500,6 +534,7 @@ class Scan : public VieVS_Object {
      */
     boost::optional<Scan> copyScan( const std::vector<unsigned long> &ids, const Source &source ) const noexcept;
 
+
     /**
      * @brief getter for number of observations
      * @author Matthias Schartner
@@ -507,6 +542,7 @@ class Scan : public VieVS_Object {
      * @return number of baselines
      */
     unsigned long getNObs() const noexcept { return observations_.size(); }
+
 
     /**
      * @brief getter for number of observations per station
@@ -517,6 +553,7 @@ class Scan : public VieVS_Object {
      */
     unsigned long getNObs( unsigned long staid ) const noexcept;
 
+
     /**
      * @brief set fixed scan duration
      * @author Matthias Schartner
@@ -524,6 +561,7 @@ class Scan : public VieVS_Object {
      * @param scanDuration scan duration in seconds
      */
     void setFixedScanDuration( unsigned int scanDuration ) noexcept;
+
 
     /**
      * @brief outputs information of this scan to the current console
@@ -536,6 +574,7 @@ class Scan : public VieVS_Object {
      */
     void output( unsigned long observed_scan_nr, const Network &network, const Source &source, std::ofstream &of ) const
         noexcept;
+
 
     /**
      * @brief set scan times
@@ -553,6 +592,7 @@ class Scan : public VieVS_Object {
                        const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
                        unsigned int scanStart, const std::vector<unsigned int> &observingTimes );
 
+
     /**
      * @brief set pointing vector at scan end time
      * @author Matthias Schartner
@@ -560,6 +600,7 @@ class Scan : public VieVS_Object {
      * @param pv_end pointing vector at scan end time
      */
     void setPointingVectorsEndtime( std::vector<PointingVector> pv_end );
+
 
     /**
      * @brief create dummy observations
@@ -569,6 +610,7 @@ class Scan : public VieVS_Object {
      */
     void createDummyObservations( const Network &network );
 
+
     /**
      * @brief get total number of created scans
      * @author Matthias Schartner
@@ -576,6 +618,7 @@ class Scan : public VieVS_Object {
      * @return total number of created scans
      */
     static unsigned long numberOfCreatedObjects() { return nextId - 1; }
+
 
     /**
      * @brief set pointing vector
@@ -587,6 +630,7 @@ class Scan : public VieVS_Object {
      */
     void setPointingVector( int idx, PointingVector pv, Timestamp ts );
 
+
     /**
      * @brief remove unnecessary observing time
      * @author Matthias Schartner
@@ -597,6 +641,7 @@ class Scan : public VieVS_Object {
      * @param ts time stamp flag
      */
     void removeUnnecessaryObservingTime( Network &network, const Source &thisSource, std::ofstream &of, Timestamp ts );
+
 
     /**
      * @brief remove additional observing time
@@ -613,11 +658,13 @@ class Scan : public VieVS_Object {
     void removeAdditionalObservingTime( unsigned int time, const Station &thisSta, const Source &thisSource,
                                         std::ofstream &of, Timestamp ts );
 
+
     /**
      * @brief updates the time of each observation according to the observing times of the station
      * @author Matthias Schartner
      */
     void updateObservingTime();
+
 
     /**
      * @brief remove stations from scan whose observations last longer then session
@@ -632,6 +679,7 @@ class Scan : public VieVS_Object {
     bool prepareForScanEnd( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                             unsigned int endTime );
 
+
     /**
      * @brief get scan name in vex format
      * @author Matthias Schartner
@@ -645,6 +693,7 @@ class Scan : public VieVS_Object {
      */
     std::string getName( unsigned long indexOfThisScanInList, const std::vector<Scan> &otherScans ) const;
 
+
     /**
      * @brief check if a obseration betwen two stations is scheduled
      * @author Matthias Schartner
@@ -654,6 +703,7 @@ class Scan : public VieVS_Object {
      * @return true if observation is scheduled
      */
     bool hasObservation( unsigned long staid1, unsigned long staid2 ) const;
+
 
     /**
      * @brief output observing duration in sked output format
@@ -665,6 +715,7 @@ class Scan : public VieVS_Object {
      */
     std::string toSkedOutputTimes( const Source &source, unsigned long nMaxSta ) const;
 
+
     /**
      * @brief checks if station is participating and notes it in flag vector
      * @author Matthias Schartner
@@ -672,6 +723,7 @@ class Scan : public VieVS_Object {
      * @param flag flag lists which stations were found
      */
     void includesStations( std::vector<char> &flag ) const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -699,6 +751,7 @@ class Scan : public VieVS_Object {
      */
     bool rigorousSlewtime( Network &network, const Source &source ) noexcept;
 
+
     /**
      * @brief rigorous scan alignment
      * @author Matthias Schartner
@@ -711,6 +764,7 @@ class Scan : public VieVS_Object {
     bool rigorousScanStartTimeAlignment( Network &network, const Source &source,
                                          const std::shared_ptr<const Mode> &mode ) noexcept;
 
+
     /**
      * @brief rigorous scan visibility
      * @author Matthias Schartner
@@ -721,6 +775,7 @@ class Scan : public VieVS_Object {
      * @return true if scan is still valid, otherwise false
      */
     bool rigorousScanVisibility( Network &network, const Source &source, bool &stationRemoved ) noexcept;
+
 
     /**
      * @brief rigorous check if scan can reach required endposition
@@ -736,6 +791,7 @@ class Scan : public VieVS_Object {
                                           const boost::optional<StationEndposition> &endposition,
                                           bool &stationRemoved );
 
+
     /**
      * @brief calculates the score for number of observations
      * @author Matthias Schartner
@@ -745,6 +801,7 @@ class Scan : public VieVS_Object {
      */
     double calcScore_numberOfObservations( unsigned long maxObs ) const noexcept;
 
+
     /**
      * @brief calculates score for average baseline observations
      * @author Matthias Schartner
@@ -753,6 +810,7 @@ class Scan : public VieVS_Object {
      * @return score
      */
     double calcScore_averageBaselines( const std::vector<double> &abls ) const noexcept;
+
 
     /**
      * @brief calculates score for average station observations
@@ -764,6 +822,7 @@ class Scan : public VieVS_Object {
      */
     double calcScore_averageStations( const std::vector<double> &astas, unsigned long nMaxBls ) const noexcept;
 
+
     /**
      * @brief calculates score for average source observations
      * @author Matthias Schartner
@@ -773,6 +832,7 @@ class Scan : public VieVS_Object {
      * @return score
      */
     double calcScore_averageSources( const std::vector<double> &asrcs, unsigned long nMaxBls ) const noexcept;
+
 
     /**
      * @brief calculates score for duration
@@ -785,6 +845,7 @@ class Scan : public VieVS_Object {
      */
     double calcScore_duration( unsigned long nMaxSta, unsigned int minTime, unsigned int maxTime ) const noexcept;
 
+
     /**
      * @brief calculates score based on idle time
      * @author Matthias Schartner
@@ -793,6 +854,7 @@ class Scan : public VieVS_Object {
      * @return score
      */
     double calcScore_idleTime( const std::vector<double> &idleScore ) const noexcept;
+
 
     /**
      * @brief mean of the weight factors for each participating station
@@ -803,6 +865,7 @@ class Scan : public VieVS_Object {
      */
     double weight_stations( const std::vector<Station> &stations );
 
+
     /**
      * @brief mean of the weight factors for each participating baselines
      * @author Matthias Schartner
@@ -810,6 +873,7 @@ class Scan : public VieVS_Object {
      * @return mean of the weight factors
      */
     double weight_baselines( const std::vector<Baseline> &baselines );
+
 
     /**
      * @brief calculate score for low elevation scans
@@ -820,6 +884,7 @@ class Scan : public VieVS_Object {
      */
     double calcScore_lowElevation( unsigned long nmaxsta );
 
+
     /**
      * @brief calculate score for low declination scans
      * @author Matthias Schartner
@@ -828,6 +893,7 @@ class Scan : public VieVS_Object {
      * @return score for low declination scans
      */
     double calcScore_lowDeclination( unsigned long nMaxObs );
+
 
     /**
      * @brief first part of score calculation
@@ -850,6 +916,7 @@ class Scan : public VieVS_Object {
                                 const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                                 const Network &network, const Source &source, bool subnetting,
                                 const std::vector<double> &idleScore );
+
 
     /**
      * @brief second part of score calculations

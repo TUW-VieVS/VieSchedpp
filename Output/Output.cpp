@@ -18,9 +18,11 @@
 
 #include "Output.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long Output::nextId = 0;
+
 
 Output::Output( Scheduler &sched, std::string path, string fname, int version )
     : VieVS_NamedObject( move( fname ), nextId++ ),
@@ -32,6 +34,7 @@ Output::Output( Scheduler &sched, std::string path, string fname, int version )
       path_{std::move( path )},
       multiSchedulingParameters_{std::move( sched.multiSchedulingParameters_ )},
       version_{version} {}
+
 
 void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader ) {
     for ( auto &sky : network_.refSkyCoverages() ) {
@@ -70,6 +73,7 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
     }
 }
 
+
 void Output::writeVex() {
     string fileName = getName();
     fileName.append( ".vex" );
@@ -81,6 +85,7 @@ void Output::writeVex() {
     Vex vex( path_ + fileName );
     vex.writeVex( network_, sources_, scans_, obsModes_, xml_ );
 }
+
 
 void Output::writeSkd( const SkdCatalogReader &skdCatalogReader ) {
     string fileName = getName();
@@ -94,6 +99,7 @@ void Output::writeSkd( const SkdCatalogReader &skdCatalogReader ) {
     skd.writeSkd( network_, sources_, scans_, skdCatalogReader, xml_ );
 }
 
+
 void Output::writeOperationsNotes() {
     string fileName = getName();
     fileName.append( ".txt" );
@@ -105,6 +111,7 @@ void Output::writeOperationsNotes() {
     OperationNotes notes( path_ + fileName );
     notes.writeOperationNotes( network_, sources_, scans_, obsModes_, xml_, version_, multiSchedulingParameters_ );
 }
+
 
 void Output::writeSkdsum() {
     string fileName = getName();
@@ -118,6 +125,7 @@ void Output::writeSkdsum() {
     notes.writeSkdsum( network_, sources_, scans_ );
 }
 
+
 void Output::writeSnrTable() {
     string fileName = getName();
     fileName.append( ".snr" );
@@ -130,6 +138,7 @@ void Output::writeSnrTable() {
     snr.writeTable( network_, sources_, scans_, obsModes_ );
 }
 
+
 void Output::writeAstFile() {
     string fileName = getName();
     fileName.append( ".ast" );
@@ -141,6 +150,7 @@ void Output::writeAstFile() {
     Ast ast( path_ + fileName );
     ast.writeAstFile( network_, sources_, scans_, xml_, obsModes_ );
 }
+
 
 void Output::writeNGS() {
     string fname;
@@ -231,6 +241,7 @@ void Output::writeNGS() {
 
     of.close();
 }
+
 
 void Output::writeStatisticsPerSourceGroup() {
     const auto &tmp0 = xml_.get_child_optional( "VieSchedpp.source" );
@@ -550,6 +561,7 @@ void Output::writeStatisticsPerSourceGroup() {
     }
 }
 
+
 unordered_map<string, vector<string>> Output::readGroups( boost::property_tree::ptree root, GroupType type ) noexcept {
     unordered_map<std::string, std::vector<std::string>> groups;
     auto groupTree = root.get_child_optional( "groups" );
@@ -599,6 +611,7 @@ unordered_map<string, vector<string>> Output::readGroups( boost::property_tree::
     return groups;
 }
 
+
 vector<unsigned int> Output::minutesVisible( const Source &source ) {
     vector<unsigned int> visibleTimes;
     const auto &parameters = source.getPARA();
@@ -643,6 +656,7 @@ vector<unsigned int> Output::minutesVisible( const Source &source ) {
     }
     return visibleTimes;
 }
+
 
 void Output::writeStatistics( std::ofstream &of ) {
     string oString;

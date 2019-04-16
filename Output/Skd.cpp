@@ -19,12 +19,15 @@
 #include "Skd.h"
 #include "../ObservingMode/ObservingMode.h"
 
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long Skd::nextId = 0;
 
+
 Skd::Skd( const string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
+
 
 void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                     const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml ) {
@@ -65,6 +68,7 @@ void Skd::writeSkd( const Network &network, const std::vector<Source> &sources, 
     skd_SKED( network.getStations(), sources, scans, skdCatalogReader );
     skd_FLUX( sources, skdCatalogReader );
 }
+
 
 void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &xml,
                      const SkdCatalogReader &skdCatalogReader ) {
@@ -213,6 +217,7 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
     }
 }
 
+
 void Skd::skd_OP() {
     //    of << "*\n";
     //    of <<
@@ -223,6 +228,7 @@ void Skd::skd_OP() {
     //    of << "* OP is not supported in VieSched++ \n";
     //    of << "*\n";
 }
+
 
 void Skd::skd_DOWNTIME( const Network &network ) {
     //    of << "*\n";
@@ -238,6 +244,7 @@ void Skd::skd_DOWNTIME( const Network &network ) {
         bool tmp = sta.listTagalongTimes( of, true );
     }
 }
+
 
 void Skd::skd_MAJOR( const vector<Station> &stations, const vector<Source> &sources,
                      const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader ) {
@@ -283,6 +290,7 @@ void Skd::skd_MAJOR( const vector<Station> &stations, const vector<Source> &sour
     of << boost::format( "%-14s %6s\n" ) % "SNRWts" % "No";
 }
 
+
 void Skd::skd_MINOR() {
     //    of << "*\n";
     //    of <<
@@ -312,6 +320,7 @@ void Skd::skd_MINOR() {
     of << boost::format( "%-14s %-3s %-3s %8.2f\n" ) % "TimeVar" % "No" % "Abs" % 0.00;
 }
 
+
 void Skd::skd_ASTROMETRIC() {
     //    of << "*\n";
     //    of <<
@@ -322,6 +331,7 @@ void Skd::skd_ASTROMETRIC() {
     //    of << "* ASTROMETRIC is not supported in VieSched++ \n";
     //    of << "*\n";
 }
+
 
 void Skd::skd_STATWT( const std::vector<Station> &stations ) {
     //    of << "*\n";
@@ -338,6 +348,7 @@ void Skd::skd_STATWT( const std::vector<Station> &stations ) {
         }
     }
 }
+
 
 void Skd::skd_SRCWT( const std::vector<Source> &sources ) {
     //    of << "*\n";
@@ -356,6 +367,7 @@ void Skd::skd_SRCWT( const std::vector<Source> &sources ) {
         }
     }
 }
+
 
 void Skd::skd_CATALOG_USED( const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
@@ -398,6 +410,7 @@ void Skd::skd_CATALOG_USED( const boost::property_tree::ptree &xml, const SkdCat
     of << boost::format( "%-10s %-20s %s\n" ) % "HDPOS" % skdCatalogReader.getVersion( "hdpos" ) % hdpos;
 }
 
+
 void Skd::skd_BROADBAND() {
     //    of << "*\n";
     //    of <<
@@ -408,6 +421,7 @@ void Skd::skd_BROADBAND() {
     //    of << "* $BROADBAND is not supported in VieSched++ \n";
     //    of << "*\n";
 }
+
 
 void Skd::skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
@@ -437,6 +451,7 @@ void Skd::skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReade
         }
     }
 }
+
 
 void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
@@ -514,6 +529,7 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
     }
 }
 
+
 void Skd::skd_FLUX( const vector<Source> &sources, const SkdCatalogReader &skdCatalogReader ) {
     //    of << "*\n";
     //    of <<
@@ -537,6 +553,7 @@ void Skd::skd_FLUX( const vector<Source> &sources, const SkdCatalogReader &skdCa
         }
     }
 }
+
 
 void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Source> &sources,
                     const std::vector<Scan> &scans, const SkdCatalogReader &skdCatalogReader ) {
@@ -594,6 +611,7 @@ void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Sour
         of << "\n";
     }
 }
+
 
 void Skd::skd_CODES( const std::vector<Station> &stations, const SkdCatalogReader &skd ) {
     //    of << "*\n";

@@ -26,12 +26,15 @@
 
 #ifndef FLUX_H
 #define FLUX_H
+
+
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <vector>
 
 #include "../../Misc/Constants.h"
 #include "../../Misc/VieVS_Object.h"
+
 
 namespace VieVS {
 /**
@@ -54,11 +57,13 @@ class AbstractFlux : public VieVS_Object {
      */
     explicit AbstractFlux( double wavelength );
 
+
     /**
      * @brief virtual destructor
      * @author Matthias Schartner
      */
     virtual ~AbstractFlux() = default;
+
 
     /**
      * @brief maximum possible flux density
@@ -67,6 +72,7 @@ class AbstractFlux : public VieVS_Object {
      * @return maximum possible flux density
      */
     virtual double getMaximumFlux() const noexcept = 0;
+
 
     /**
      * @brief flux density based on uv
@@ -78,6 +84,7 @@ class AbstractFlux : public VieVS_Object {
      */
     virtual double observedFlux( double u, double v ) const noexcept = 0;
 
+
     /**
      * @brief getter for wavelength
      * @author Matthias Schartner
@@ -85,6 +92,7 @@ class AbstractFlux : public VieVS_Object {
      * @return wavelength in meters
      */
     double getWavelength() const { return wavelength_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

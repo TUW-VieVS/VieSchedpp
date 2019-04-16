@@ -26,12 +26,15 @@
 
 #ifndef VLBI_POINTINGVECTOR_H
 #define VLBI_POINTINGVECTOR_H
+
+
 #include <boost/date_time.hpp>
 #include <iostream>
 
 #include <limits>
 #include "../Misc/Constants.h"
 #include "../Misc/VieVS_Object.h"
+
 
 namespace VieVS {
 /**
@@ -52,13 +55,15 @@ class PointingVector : public VieVS_Object {
      */
     PointingVector( unsigned long staid, unsigned long srcid );
 
+
     /**
      * @brief copy constructor
      * @author Matthias Schartner
      *
      * @param other other pointing vector
      */
-    PointingVector( const PointingVector& other );
+    PointingVector( const PointingVector &other );
+
 
     /**
      * @brief copy assignment operator
@@ -67,7 +72,8 @@ class PointingVector : public VieVS_Object {
      * @param other other pointing vector
      * @return copy of other
      */
-    PointingVector& operator=( const PointingVector& other ) = default;
+    PointingVector &operator=( const PointingVector &other ) = default;
+
 
     /**
      * @brief move constructor
@@ -75,7 +81,8 @@ class PointingVector : public VieVS_Object {
      *
      * @param other other pointing vector
      */
-    PointingVector( PointingVector&& other ) = default;
+    PointingVector( PointingVector &&other ) = default;
+
 
     /**
      * @brief move assignment operator
@@ -84,13 +91,15 @@ class PointingVector : public VieVS_Object {
      * @param other other pointing vector
      * @return move of other
      */
-    PointingVector& operator=( PointingVector&& other ) = default;
+    PointingVector &operator=( PointingVector &&other ) = default;
+
 
     /**
      * @brief destructor
      * @author Matthias Schartner
      */
     ~PointingVector() = default;
+
 
     /**
      * @brief less then operator
@@ -99,7 +108,8 @@ class PointingVector : public VieVS_Object {
      * @param other other pointing vector
      * @return true if time is less then other's time, otherwise false
      */
-    bool operator<( const PointingVector& other ) const { return time_ < other.time_; }
+    bool operator<( const PointingVector &other ) const { return time_ < other.time_; }
+
 
     /**
      * @brief copy values from other pointing vector
@@ -107,7 +117,8 @@ class PointingVector : public VieVS_Object {
      *
      * @param other other pointing vector
      */
-    void copyValuesFromOtherPv( const PointingVector& other );
+    void copyValuesFromOtherPv( const PointingVector &other );
+
 
     /**
      * @brief getter for station id
@@ -117,6 +128,7 @@ class PointingVector : public VieVS_Object {
      */
     unsigned long getStaid() const noexcept { return staid_; }
 
+
     /**
      * @brief getter for source id
      * @author Matthias Schartner
@@ -124,6 +136,7 @@ class PointingVector : public VieVS_Object {
      * @return id of source
      */
     unsigned long getSrcid() const noexcept { return srcid_; }
+
 
     /**
      * @brief getter for azimuth
@@ -133,6 +146,7 @@ class PointingVector : public VieVS_Object {
      */
     double getAz() const noexcept { return az_; }
 
+
     /**
      * @brief getter for elevation
      * @author Matthias Schartner
@@ -140,6 +154,7 @@ class PointingVector : public VieVS_Object {
      * @return elevation in radians
      */
     double getEl() const noexcept { return el_; }
+
 
     /**
      * @brief getter for local hour angle
@@ -149,6 +164,7 @@ class PointingVector : public VieVS_Object {
      */
     double getHa() const { return ha_; }
 
+
     /**
      * @brief getter for declination
      * @author Matthias Schartner
@@ -156,6 +172,7 @@ class PointingVector : public VieVS_Object {
      * @return declination
      */
     double getDc() const { return dc_; }
+
 
     /**
      * @brief getter for time for which azimuth and elevation is calculated
@@ -165,6 +182,7 @@ class PointingVector : public VieVS_Object {
      */
     unsigned int getTime() const noexcept { return time_; }
 
+
     /**
      * @brief sets azimuth
      * @author Matthias Schartner
@@ -172,6 +190,7 @@ class PointingVector : public VieVS_Object {
      * @param new_az new azimuth
      */
     void setAz( double new_az ) noexcept { az_ = new_az; };
+
 
     /**
      * @brief sets elevation
@@ -181,6 +200,7 @@ class PointingVector : public VieVS_Object {
      */
     void setEl( double new_el ) noexcept { el_ = new_el; };
 
+
     /**
      * @brief sets local hour angle
      * @author Matthias Schartner
@@ -188,6 +208,7 @@ class PointingVector : public VieVS_Object {
      * @param ha new local hour angle
      */
     void setHa( double ha ) { PointingVector::ha_ = ha; }
+
 
     /**
      * @brief sets declination
@@ -197,6 +218,7 @@ class PointingVector : public VieVS_Object {
      */
     void setDc( double dc ) { PointingVector::dc_ = dc; }
 
+
     /**
      * @brief sets time for which azimth and elevation is calculated
      * @author Matthias Schartner
@@ -205,6 +227,7 @@ class PointingVector : public VieVS_Object {
      */
     void setTime( unsigned int new_time ) noexcept { time_ = new_time; };
 
+
     /**
      * @brief total number of created pointing vectors
      * @author Matthias Schartner
@@ -212,6 +235,7 @@ class PointingVector : public VieVS_Object {
      * @return total nubmer of created pointing vectors
      */
     static unsigned long numberOfCreatedObjects() { return nextId - 1; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

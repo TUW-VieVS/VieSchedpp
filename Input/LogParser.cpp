@@ -18,11 +18,14 @@
 
 #include "LogParser.h"
 
+
 using namespace VieVS;
 using namespace std;
 unsigned long LogParser::nextId = 0;
 
+
 LogParser::LogParser( const std::string &filename ) : VieVS_Object( nextId++ ), filename_{filename} {}
+
 
 void LogParser::parseLogFile( const string &slewStart, const string &slewEnd ) {
     ifstream fid( filename_ );
@@ -126,6 +129,7 @@ void LogParser::parseLogFile( const string &slewStart, const string &slewEnd ) {
     }
 }
 
+
 boost::posix_time::ptime LogParser::getTime( const std::string &line ) {
     auto year = boost::lexical_cast<unsigned short>( line.substr( 0, 4 ) );
     auto doy = boost::lexical_cast<unsigned short>( line.substr( 5, 3 ) );
@@ -136,6 +140,7 @@ boost::posix_time::ptime LogParser::getTime( const std::string &line ) {
     return {boost::gregorian::date( year, 1, 1 ) + boost::gregorian::days( doy - 1 ),
             boost::posix_time::time_duration( h, m, s, mus )};
 }
+
 
 void LogParser::output( const std::string &outfile ) {
     ofstream of( outfile );
@@ -182,6 +187,7 @@ void LogParser::output( const std::string &outfile ) {
         of << "\n";
     }
 }
+
 
 bool LogParser::addScheduledTimes( const std::vector<std::vector<unsigned int>> &times ) {
     if ( times.size() != logScans_.size() ) {

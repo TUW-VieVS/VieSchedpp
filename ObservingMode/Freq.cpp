@@ -18,13 +18,16 @@
 
 #include "Freq.h"
 
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Freq::nextId = 0;
 unsigned long VieVS::Freq::Chan_def::nextId = 0;
 
+
 Freq::Freq( std::string name ) : VieVS_NamedObject{std::move( name ), nextId++} {}
+
 
 Freq::Freq( const boost::property_tree::ptree &tree )
     : VieVS_NamedObject{tree.get<std::string>( "<xmlattr>.name" ), nextId++} {
@@ -39,11 +42,13 @@ Freq::Freq( const boost::property_tree::ptree &tree )
     }
 }
 
+
 void Freq::addChannel( std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                        std::string chan_id, std::string bbc_id, std::string phase_cal_id ) {
     bands_.insert( bandId );
     chan_defs_.emplace_back( bandId, sky_freq, net_sideband, chan_bandwidth, chan_id, bbc_id, phase_cal_id );
 }
+
 
 boost::property_tree::ptree Freq::toPropertytree() const {
     boost::property_tree::ptree p;
@@ -54,6 +59,7 @@ boost::property_tree::ptree Freq::toPropertytree() const {
     p.add( "sample_rate", sample_rate_ );
     return p;
 }
+
 
 std::unordered_map<std::string, double> Freq::observingRate( const std::shared_ptr<const Freq> &other,
                                                              const std::map<string, int> &bitsPerChannel ) const {
@@ -88,6 +94,7 @@ std::unordered_map<std::string, double> Freq::observingRate( const std::shared_p
     return band2observingRate;
 }
 
+
 std::pair<double, double> Freq::lower_upper_bound( double skyFreq, double bandwidth,
                                                    Freq::Net_sideband net_sideband ) const {
     double lower = 0;
@@ -117,6 +124,7 @@ std::pair<double, double> Freq::lower_upper_bound( double skyFreq, double bandwi
 
     return {lower, upper};
 }
+
 
 double Freq::overlappingBandwidth( double low1, double up1, double low2, double up2 ) const {
     // no overlap
@@ -148,6 +156,7 @@ double Freq::overlappingBandwidth( double low1, double up1, double low2, double 
     return 0;
 }
 
+
 std::vector<double> Freq::getFrequencies( const string &band ) const {
     vector<double> freq;
     for ( const auto &channel : chan_defs_ ) {
@@ -157,6 +166,7 @@ std::vector<double> Freq::getFrequencies( const string &band ) const {
     }
     return freq;
 }
+
 
 void Freq::toVexFreqDefinition( std::ofstream &of, const std::string &comment ) const {
     of << "    def " << getName() << ";    " << comment << "\n";
@@ -171,6 +181,7 @@ void Freq::toVexFreqDefinition( std::ofstream &of, const std::string &comment ) 
     of << "    enddef;\n";
 }
 
+
 double Freq::totalBandwidth() const {
     double t = 0;
     for ( const auto &any : chan_defs_ ) {
@@ -178,6 +189,7 @@ double Freq::totalBandwidth() const {
     }
     return t;
 }
+
 
 double Freq::totalRate( const std::map<std::string, int> &bitsPerChannel ) const {
     double r = 0;
@@ -188,6 +200,7 @@ double Freq::totalRate( const std::map<std::string, int> &bitsPerChannel ) const
     }
     return r;
 }
+
 
 Freq::Chan_def::Chan_def( std::string bandId, double sky_freq, Freq::Net_sideband net_sideband, double chan_bandwidth,
                           std::string chan_id, std::string bbc_id, std::string phase_cal_id )
@@ -202,6 +215,7 @@ Freq::Chan_def::Chan_def( std::string bandId, double sky_freq, Freq::Net_sideban
     wavelength_ = util::freqency2wavelenth( sky_freq * 1e6 );
 }
 
+
 Freq::Chan_def::Chan_def( const boost::property_tree::ptree &tree ) : VieVS_Object{Chan_def::nextId++} {
     bandId_ = tree.get<std::string>( "Band_ID" );
     sky_freq_ = tree.get<double>( "Sky_freq" );
@@ -213,6 +227,7 @@ Freq::Chan_def::Chan_def( const boost::property_tree::ptree &tree ) : VieVS_Obje
 
     wavelength_ = util::freqency2wavelenth( sky_freq_ * 1e6 );
 }
+
 
 boost::property_tree::ptree Freq::Chan_def::toPropertytree() const {
     boost::property_tree::ptree p;

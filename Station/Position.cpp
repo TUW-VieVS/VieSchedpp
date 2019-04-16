@@ -24,9 +24,12 @@
  */
 
 #include "Position.h"
+
+
 using namespace std;
 using namespace VieVS;
 unsigned long Position::nextId = 0;
+
 
 Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId++ ), x_{x_m}, y_{y_m}, z_{z_m} {
     double a = 6378136.6;
@@ -59,6 +62,7 @@ Position::Position( double x_m, double y_m, double z_m ) : VieVS_Object( nextId+
              {g2l_[1][0], g2l_[1][1], g2l_[1][2]},
              {g2l_[2][0], g2l_[2][1], g2l_[2][2]}};
 }
+
 
 double Position::getDistance( const Position &other ) const noexcept {
     double dx = x_ - other.x_;

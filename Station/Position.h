@@ -26,12 +26,15 @@
 
 #ifndef POSITION_H
 #define POSITION_H
+
+
 #include <boost/format.hpp>
 #include <cmath>
 #include <iostream>
 #include "../Misc/Constants.h"
 #include "../Misc/VieVS_Object.h"
 #include "../Misc/sofa.h"
+
 
 namespace VieVS {
 /**
@@ -53,6 +56,7 @@ class Position : public VieVS_Object {
      */
     Position( double x_m, double y_m, double z_m );
 
+
     /**
      * @brief getter for x coordinate
      * @author Matthias Schartner
@@ -60,6 +64,7 @@ class Position : public VieVS_Object {
      * @return x coordinate in meters
      */
     double getX() const noexcept { return x_; }
+
 
     /**
      * @brief getter for y coordinate
@@ -69,6 +74,7 @@ class Position : public VieVS_Object {
      */
     double getY() const noexcept { return y_; }
 
+
     /**
      * @brief getter for z coordinate
      * @author Matthias Schartner
@@ -76,6 +82,7 @@ class Position : public VieVS_Object {
      * @return z coordinate in meters
      */
     double getZ() const noexcept { return z_; }
+
 
     /**
      * @brief getter for latitude
@@ -85,6 +92,7 @@ class Position : public VieVS_Object {
      */
     double getLat() const noexcept { return lat_; }
 
+
     /**
      * @brief getter for longitude
      * @author Matthias Schartner
@@ -92,6 +100,7 @@ class Position : public VieVS_Object {
      * @return longitude in radians
      */
     double getLon() const noexcept { return lon_; }
+
 
     /**
      * @brief calculates distance between two stations
@@ -102,6 +111,7 @@ class Position : public VieVS_Object {
      */
     double getDistance( const Position &other ) const noexcept;
 
+
     /**
      * @brief get geodetic to local transformation matrix
      * @author Matthias Schartner
@@ -110,6 +120,7 @@ class Position : public VieVS_Object {
      */
     void geodetic2Local( double g2l[3][3] ) { g2l = g2l_; }
 
+
     /**
      * @brief get geodetic to local transformation matrix
      * @author Matthias Schartner
@@ -117,6 +128,7 @@ class Position : public VieVS_Object {
      * @return geodetic to local transformation matrix
      */
     const std::vector<std::vector<double>> getGeodetic2Local() const { return g2l_2; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

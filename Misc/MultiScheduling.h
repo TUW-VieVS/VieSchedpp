@@ -27,6 +27,7 @@
 #ifndef MULTISCHEDULING_H
 #define MULTISCHEDULING_H
 
+
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <boost/optional.hpp>
@@ -37,15 +38,14 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#ifdef VIESCHEDPP_LOG
-#include <boost/log/trivial.hpp>
-#endif
-
 #include "../XML/ParameterGroup.h"
 #include "Constants.h"
 #include "VieVS_Object.h"
 #include "WeightFactors.h"
+#ifdef VIESCHEDPP_LOG
+#include <boost/log/trivial.hpp>
+#endif
+
 
 namespace VieVS {
 /**
@@ -264,6 +264,7 @@ class MultiScheduling : public VieVS_Object {
             }
         }
 
+
         /**
          * @brief output function to write header to statistics file
          * @author Matthias Schartner
@@ -410,6 +411,7 @@ class MultiScheduling : public VieVS_Object {
                 of << "baseline_min_scan_" << any.first << ",";
             }
         }
+
 
         /**
          * @brief output function to data to statistics file
@@ -561,6 +563,7 @@ class MultiScheduling : public VieVS_Object {
         }
     };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -573,6 +576,7 @@ class MultiScheduling : public VieVS_Object {
                      std::unordered_map<std::string, std::vector<std::string>> src_group,
                      std::unordered_map<std::string, std::vector<std::string>> bls_group );
 
+
     /**
      * @brief set session start times
      * @author Matthias Schartner
@@ -580,6 +584,7 @@ class MultiScheduling : public VieVS_Object {
      * @param start session start times
      */
     void setStart( const std::vector<boost::posix_time::ptime> &start ) { MultiScheduling::start_ = start; }
+
 
     /**
      * @brief add new boolean parameter
@@ -589,6 +594,7 @@ class MultiScheduling : public VieVS_Object {
      */
     void addParameters( const std::string &name );
 
+
     /**
      * @brief add new value based parameter
      * @author Matthias Schartner
@@ -597,6 +603,7 @@ class MultiScheduling : public VieVS_Object {
      * @param values parameter values
      */
     void addParameters( const std::string &name, const std::vector<double> &values );
+
 
     /**
      * @brief add new value and member based parameter
@@ -608,6 +615,7 @@ class MultiScheduling : public VieVS_Object {
      */
     void addParameters( const std::string &name, const std::string &member, const std::vector<double> &values );
 
+
     /**
      * @brief create vector of all possible multi scheduling parameter combinations
      * @author Matthias Schartner
@@ -618,6 +626,7 @@ class MultiScheduling : public VieVS_Object {
      */
     std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr, unsigned int seed );
 
+
     /**
      * @brief create property tree used for parameter.xml file
      * @author Matthias Schartner
@@ -625,6 +634,7 @@ class MultiScheduling : public VieVS_Object {
      * @return property tree for multiSched block
      */
     boost::property_tree::ptree createPropertyTree() const;
+
 
    private:
     static unsigned long nextId;
@@ -650,6 +660,7 @@ class MultiScheduling : public VieVS_Object {
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name );
 
+
     /**
      * @brief add value based parameters
      * @author Matthias Schartner
@@ -661,6 +672,7 @@ class MultiScheduling : public VieVS_Object {
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
                        const std::vector<double> &value );
+
 
     /**
      * @brief add value and member based parameters

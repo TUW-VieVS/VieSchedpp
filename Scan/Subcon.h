@@ -26,6 +26,8 @@
 
 #ifndef SUBCON_H
 #define SUBCON_H
+
+
 #include <boost/optional.hpp>
 #include <limits>
 #include <numeric>
@@ -38,6 +40,7 @@
 #include "../Source/Source.h"
 #include "../Station/Network.h"
 #include "Scan.h"
+
 
 namespace VieVS {
 /**
@@ -55,6 +58,7 @@ class Subcon : public VieVS_Object {
      */
     Subcon();
 
+
     /**
      * @brief add a single source scan to subcon
      * @author Matthias Schartner
@@ -62,6 +66,7 @@ class Subcon : public VieVS_Object {
      * @param scan scan which should be added
      */
     void addScan( Scan &&scan ) noexcept;
+
 
     /**
      * @brief removes a scan from the subcon
@@ -74,6 +79,7 @@ class Subcon : public VieVS_Object {
      */
     void removeScan( unsigned long idx ) noexcept;
 
+
     /**
      * @brief getter for number of possible single source scans
      * @author Matthias Schartner
@@ -82,6 +88,7 @@ class Subcon : public VieVS_Object {
      */
     unsigned long getNumberSingleScans() const noexcept { return nSingleScans_; }
 
+
     /**
      * @brief getter for number of possible subnetting scans
      * @author Matthias Schartner
@@ -89,6 +96,7 @@ class Subcon : public VieVS_Object {
      * @return number of possible subnetting scans
      */
     unsigned long getNumberSubnettingScans() const noexcept { return nSubnettingScans_; }
+
 
     /**
      * @brief getter for a single source scan
@@ -104,6 +112,7 @@ class Subcon : public VieVS_Object {
         return std::move( tmp );
     }
 
+
     /**
      * @brief getter for subnettin scan
      * @author Matthias Schartner
@@ -118,6 +127,7 @@ class Subcon : public VieVS_Object {
         return std::move( tmp );
     }
 
+
     /**
      * @brief calculates the earliest possible start time for all single source scans in this subcon
      * @author Matthias Schartner
@@ -129,6 +139,7 @@ class Subcon : public VieVS_Object {
     void calcStartTimes( const Network &network, const std::vector<Source> &sources,
                          const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
+
     /**
      * @brief constructs all baselines for all single source scans in this subcon
      * @author Matthias Schartner
@@ -138,6 +149,7 @@ class Subcon : public VieVS_Object {
      */
     void constructAllBaselines( const Network &network, const std::vector<Source> &sources ) noexcept;
 
+
     /**
      * @brief updates all azimuths and elevations of all pointing vectors for each single source scan in this subcon
      * @author Matthias Schartner
@@ -146,6 +158,7 @@ class Subcon : public VieVS_Object {
      * @param sources list of all sources
      */
     void updateAzEl( const Network &network, const std::vector<Source> &sources ) noexcept;
+
 
     /**
      * @brief calculates all baseline scan duration for all single source scans in this subcon
@@ -158,6 +171,7 @@ class Subcon : public VieVS_Object {
     void calcAllBaselineDurations( const Network &network, const std::vector<Source> &sources,
                                    const std::shared_ptr<const Mode> &mode ) noexcept;
 
+
     /**
      * @brief calculates all scan duration of all single source scans in this subcon
      * @author Matthias Schartner
@@ -168,6 +182,7 @@ class Subcon : public VieVS_Object {
      */
     void calcAllScanDurations( const Network &network, const std::vector<Source> &sources,
                                const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
+
 
     /**
      * @brief create all subnetting scans from possible single source scans
@@ -180,6 +195,7 @@ class Subcon : public VieVS_Object {
     void createSubnettingScans( const std::shared_ptr<Subnetting> &subnetting, const Network &network,
                                 const std::vector<Source> &sources ) noexcept;
 
+
     /**
      * @brief generate scores for all single source and subnetting scans
      * @author Matthias Schartner
@@ -188,6 +204,7 @@ class Subcon : public VieVS_Object {
      * @param sources list of all sources
      */
     void generateScore( const Network &network, const std::vector<Source> &sources ) noexcept;
+
 
     /**
      * @brief generate score for all scans during calibrator block
@@ -201,6 +218,7 @@ class Subcon : public VieVS_Object {
     void generateScore( const std::vector<double> &lowElevatrionScore, const std::vector<double> &highElevationScore,
                         const Network &network, const std::vector<Source> &sources );
 
+
     /**
      * @brief
      * @author Matthias Schartner
@@ -213,6 +231,7 @@ class Subcon : public VieVS_Object {
     void generateScore( const Network &network, const std::vector<Source> &sources,
                         const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval );
 
+
     /**
      * @brief check if there is enough time to reach required endposition for all scans
      * @author Matthias Schartner
@@ -224,11 +243,13 @@ class Subcon : public VieVS_Object {
     void checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
                                               const boost::optional<StationEndposition> &endposition = boost::none );
 
+
     /**
      * @brief get minimum and maximum time required for a possible scan
      * @author Matthias Schartner
      */
     void minMaxTime() noexcept;
+
 
     /**
      * @brief rigorousely updates the best scans until the best one is found
@@ -246,6 +267,7 @@ class Subcon : public VieVS_Object {
     std::vector<Scan> selectBest( Network &network, const std::vector<Source> &sources,
                                   const std::shared_ptr<const Mode> &mode,
                                   const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
+
 
     /**
      * @brief rigorousely updates the best scans until the best one is found during calibrator block
@@ -268,11 +290,13 @@ class Subcon : public VieVS_Object {
                                   const std::vector<double> &prevHighElevationScores,
                                   const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
 
+
     /**
      * @brief clear all subnetting scans
      * @author Matthias Schartner
      */
     void clearSubnettingScans();
+
 
     /**
      * @brief calc calibration scan duration (deprecated)
@@ -283,6 +307,7 @@ class Subcon : public VieVS_Object {
      */
     void calcCalibratorScanDuration( const std::vector<Station> &stations, const std::vector<Source> &sources );
 
+
     /**
      * @brief change scan type of all scans
      * @author Matthias Schartner
@@ -290,6 +315,7 @@ class Subcon : public VieVS_Object {
      * @param type new scan type
      */
     void changeType( Scan::ScanType type );
+
 
     /**
      * @brief create possible visible scan to a source
@@ -303,6 +329,7 @@ class Subcon : public VieVS_Object {
      */
     void visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network, const Source &thisSource,
                       std::set<unsigned long> observedSources = std::set<unsigned long>() );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -329,6 +356,7 @@ class Subcon : public VieVS_Object {
      */
     void precalcScore( const Network &network, const std::vector<Source> &sources ) noexcept;
 
+
     /**
      * @brief pre calculate station average number of observation score
      * @author Matthias Schartner
@@ -336,6 +364,7 @@ class Subcon : public VieVS_Object {
      * @param stations list of all stations
      */
     void prepareAverageScore( const std::vector<Station> &stations ) noexcept;
+
 
     /**
      * @brief pre calculate baseline average number of observation score
@@ -345,6 +374,7 @@ class Subcon : public VieVS_Object {
      */
     void prepareAverageScore( const std::vector<Baseline> &baselines ) noexcept;
 
+
     /**
      * @brief pre calculate source average number of observation score
      * @author Matthias Schartner
@@ -353,6 +383,7 @@ class Subcon : public VieVS_Object {
      */
     void prepareAverageScore( const std::vector<Source> &sources ) noexcept;
 
+
     /**
      * @brief pre calculate extra score after long idle times
      * @author Matthias Scharnter
@@ -360,6 +391,7 @@ class Subcon : public VieVS_Object {
      * @param stations list of all stations
      */
     void prepareIdleTimeScore( const std::vector<Station> &stations ) noexcept;
+
 
     /**
      * @brief pre calculate baseline average number of observation score

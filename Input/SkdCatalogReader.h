@@ -27,6 +27,7 @@
 #ifndef SKDCATALOGREADER_H
 #define SKDCATALOGREADER_H
 
+
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -37,13 +38,12 @@
 #include <map>
 #include <set>
 #include <vector>
-
+#include "../Misc/VieVS_Object.h"
+#include "../Misc/util.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
 
-#include "../Misc/VieVS_Object.h"
-#include "../Misc/util.h"
 
 namespace VieVS {
 
@@ -70,11 +70,13 @@ class SkdCatalogReader : public VieVS_Object {
         mask,      ///< mask.cat file
     };
 
+
     /**
      * @brief default constructor
      * @author Matthias Schartner
      */
     SkdCatalogReader();
+
 
     /**
      * @brief setter for catalog pathes
@@ -83,6 +85,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @param ptreeWithPathes property tree with catalog pathes from .xml file
      */
     void setCatalogFilePathes( const boost::property_tree::ptree &ptreeWithPathes );
+
 
     /**
      * @brief set catalog file pathes
@@ -108,6 +111,7 @@ class SkdCatalogReader : public VieVS_Object {
                                const std::string &rec, const std::string &rx, const std::string &source,
                                const std::string &tracks );
 
+
     /**
      * @brief
      * @author Matthias Schartner
@@ -116,17 +120,20 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void setCatalogFilePathes( const std::string &skdFile );
 
+
     /**
      * @brief reads all source specific catalogs
      * @author Matthias Schartner
      */
     void initializeSourceCatalogs();
 
+
     /**
      * @brief reads all station specific catalogs
      * @author Matthias Schartner
      */
     void initializeStationCatalogs();
+
 
     /**
      * @brief reads all modes specific catalogs
@@ -136,6 +143,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void initializeModesCatalogs( const std::string &obsModeName );
 
+
     /**
      * @brief set station names
      * @author Matthias Schartner
@@ -143,6 +151,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @param staNames all participating stations
      */
     void setStationNames( const std::vector<std::string> &staNames ) { staNames_ = staNames; }
+
 
     /**
      * @brief getter for all station names
@@ -152,6 +161,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::vector<std::string> &getStaNames() const { return staNames_; }
 
+
     /**
      * @brief getter for station one letter code
      * @author Matthias Schartner
@@ -159,6 +169,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with station name as key and one letter code as value
      */
     const std::map<std::string, char> &getOneLetterCode() const { return oneLetterCode_; }
+
 
     /**
      * @brief getter for station two letter code
@@ -168,6 +179,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::string> &getTwoLetterCode() const { return twoLetterCode_; }
 
+
     /**
      * @brief getter for source catalog
      * @author Matthias Schartner
@@ -175,6 +187,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with source name id as key and the corresponding catalog line as value
      */
     const std::map<std::string, std::vector<std::string>> &getSourceCatalog() const { return sourceCatalog_; }
+
 
     /**
      * @brief getter for flux catalog
@@ -184,6 +197,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::vector<std::string>> &getFluxCatalog() const { return fluxCatalog_; }
 
+
     /**
      * @brief getter for antenna catalog
      * @author Matthias Schartner
@@ -191,6 +205,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with antenna name as key and the corresponding catalog line as value
      */
     const std::map<std::string, std::vector<std::string>> &getAntennaCatalog() const { return antennaCatalog_; }
+
 
     /**
      * @brief getter for position catalog
@@ -200,6 +215,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::vector<std::string>> &getPositionCatalog() const { return positionCatalog_; }
 
+
     /**
      * @brief getter for equipment catalog
      * @author Matthias Schartner
@@ -207,6 +223,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with equipment id + "|" + station name as key and corresponding catalog line as value
      */
     const std::map<std::string, std::vector<std::string>> &getEquipCatalog() const { return equipCatalog_; }
+
 
     /**
      * @brief getter for mask catalog
@@ -216,6 +233,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::vector<std::string>> &getMaskCatalog() const { return maskCatalog_; }
 
+
     /**
      * @brief getter for observing mode name
      * @author Matthias Schartner
@@ -223,6 +241,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return observing mode name
      */
     const std::string &getModeName() const { return modeName_; }
+
 
     /**
      * @brief getter for frequency sequence name
@@ -232,6 +251,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::string &getFreqName() const { return freqName_; }
 
+
     /**
      * @brief getter for bandwith
      * @author Matthias Schartner
@@ -239,6 +259,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return bandwidth
      */
     double getBandWidth() const { return bandWidth_; }
+
 
     /**
      * @brief getter for sample rate
@@ -248,6 +269,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     double getSampleRate() const { return sampleRate_; }
 
+
     /**
      * @brief getter for station hdpos
      * @author Matthias Schartner
@@ -255,6 +277,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with station name as key and hdpos name as value
      */
     const std::map<std::string, std::string> &getStaName2hdposMap() const { return staName2hdposMap_; }
+
 
     /**
      * @brief getter for station tracks
@@ -264,6 +287,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::string> &getStaName2tracksMap() const { return staName2tracksMap_; }
 
+
     /**
      * @brief getter for all track ids
      * @author Matthias Schartner
@@ -271,6 +295,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return vector of track ids
      */
     const std::vector<std::string> &getTracksIds() const { return tracksIds_; }
+
 
     /**
      * @brief getter for all loif ids
@@ -280,6 +305,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::vector<std::string> &getLoifIds() const { return loifIds_; }
 
+
     /**
      * @brief getter for tracks fanout
      * @author Matthias Schartner
@@ -288,6 +314,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, int> &getTracksId2fanoutMap() const { return tracksId2fanoutMap_; }
 
+
     /**
      * @brief getter for tracks bit
      * @author Matthias Schartner
@@ -295,6 +322,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with tracks name as key and number of sampled bits as value
      */
     const std::map<std::string, int> &getTracksId2bits() const { return tracksId2bitsMap_; }
+
 
     /**
      * @brief getter for channel tracks info
@@ -306,6 +334,7 @@ class SkdCatalogReader : public VieVS_Object {
         return tracksId2channelNumber2tracksMap_;
     }
 
+
     /**
      * @brief getter for frequency two letter code
      * @author Matthias Schartner
@@ -313,6 +342,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return frequency two letter code
      */
     const std::string &getFreqTwoLetterCode() const { return freqTwoLetterCode_; }
+
 
     /**
      * @brief getter for cannel band
@@ -322,6 +352,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<int, std::string> &getChannelNumber2band() const { return channelNumber2band_; }
 
+
     /**
      * @brief getter for channel sky frequency
      * @author Matthias Schartner
@@ -329,6 +360,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with channel number as key and sky frequency as value
      */
     const std::map<int, std::string> &getChannelNumber2skyFreq() const { return channelNumber2skyFreq_; }
+
 
     /**
      * @brief getter for channel phase cal frequency
@@ -340,6 +372,7 @@ class SkdCatalogReader : public VieVS_Object {
         return channelNumber2phaseCalFrequency_;
     }
 
+
     /**
      * @brief getter for station local oscillator frequency setup name
      * @author Matthias Schartner
@@ -347,6 +380,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return map with station name as key and locas oscillator frequency setup name as value
      */
     const std::map<std::string, std::string> &getStaName2loifId() const { return staName2loifId_; }
+
 
     /**
      * @brief getter for local oscillator frequency setup
@@ -356,6 +390,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<std::string, std::vector<std::string>> &getLoifId2loifInfo() const { return loifId2loifInfo_; }
 
+
     /**
      * @brief getter for channel bbc number
      * @author Matthias Schartner
@@ -364,6 +399,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::map<int, std::string> &getChannelNumber2BBC() const { return channelNumber2BBC_; }
 
+
     /**
      * @brief getter for recoreded bits
      * @author Matthias Schartner
@@ -371,6 +407,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return number of recorded bits
      */
     unsigned int getBits() const { return bits_; }
+
 
     /**
      * @brief get position key
@@ -381,6 +418,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::string &positionKey( const std::string &staName ) const { return antennaKey2positionKey_.at( staName ); }
 
+
     /**
      * @brief get equip key
      * @author Matthias Schartner
@@ -389,6 +427,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return equip key
      */
     const std::string &equipKey( const std::string &staName ) const { return antennaKey2equipKey_.at( staName ); }
+
 
     /**
      * @brief get mask key
@@ -399,6 +438,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     const std::string &maskKey( const std::string &staName ) const { return antennaKey2maskKey_.at( staName ); }
 
+
     /**
      * @brief get sked catalog version number
      * @author Matthias Schartner
@@ -407,6 +447,7 @@ class SkdCatalogReader : public VieVS_Object {
      * @return version number
      */
     std::string getVersion( const std::string &name ) const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -495,6 +536,7 @@ class SkdCatalogReader : public VieVS_Object {
      */
     std::map<std::string, std::vector<std::string>> readCatalog( CATALOG type ) noexcept;
 
+
     /**
      * @brief reads modes.cat
      * @author Matthias Schartner
@@ -503,11 +545,13 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void readModesCatalog( const std::string &obsModeName );
 
+
     /**
      * @brief read rec.cat
      * @author Matthias Schartner
      */
     void readRecCatalog();
+
 
     /**
      * @brief read tracks.cat
@@ -515,11 +559,13 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void readTracksCatalog();
 
+
     /**
      * @brief read freq.cat
      * @author Matthias Schartner
      */
     void readFreqCatalog();
+
 
     /**
      * @brief read rx.cat
@@ -527,17 +573,20 @@ class SkdCatalogReader : public VieVS_Object {
      */
     void readRxCatalog();
 
+
     /**
      * @brief read loif.cat
      * @author Matthias Schartner
      */
     void readLoifCatalog();
 
+
     /**
      * @brief save one letter codes
      * @author Matthias Schartner
      */
     void saveOneLetterCode();
+
 
     /**
      * @brief save two letter codes

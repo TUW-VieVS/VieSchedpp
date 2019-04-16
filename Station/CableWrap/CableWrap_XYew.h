@@ -28,7 +28,9 @@
 #ifndef CABLEWRAP_XYEW_H
 #define CABLEWRAP_XYEW_H
 
+
 #include "AbstractCableWrap.h"
+
 
 namespace VieVS {
 /**
@@ -51,6 +53,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      */
     CableWrap_XYew( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg );
 
+
     /**
      * @brief checks if this pointing vectors azimuth and elevation are inside the axis limits
      * @author Matthias Schartner
@@ -59,6 +62,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      * @return true if inside, otherwise false
      */
     bool anglesInside( const PointingVector &p ) const noexcept override;
+
 
     /**
      * @brief unwraps the current azimuth of pointing vector
@@ -73,6 +77,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      * @param az_old closest target antenna azimuth in radians
      */
     void unwrapAzNearAz( PointingVector &new_pointingVector, double az_old ) const noexcept override;
+
 
     /**
      * @brief unwraps the current azimuth of pointing vector in specific cable wrap section
@@ -92,6 +97,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      */
     bool unwrapAzInSection( PointingVector &pv, char section ) const noexcept override;
 
+
     /**
      * @brief cable wrap section based on unwrapped azimuth
      * @author Matthias Schartner
@@ -101,6 +107,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      */
     AbstractCableWrap::CableWrapFlag cableWrapFlag( double unaz ) const noexcept override;
 
+
     /**
      * @brief antenna motion names in .vex format
      * @author Matthias Schartner
@@ -108,6 +115,7 @@ class CableWrap_XYew : public AbstractCableWrap {
      * @return antenna motion name for first and second axis (e.g.: {"x", "yew"})
      */
     std::pair<std::string, std::string> getMotions() const noexcept override;
+
 
     /**
      * @brief cable wrap sections in .vex format

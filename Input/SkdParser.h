@@ -27,9 +27,9 @@
 #ifndef SKDREADER_H
 #define SKDREADER_H
 
+
 #include "../Scheduler.h"
 #include "SkdCatalogReader.h"
-
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/attributes/named_scope.hpp>
 #include <boost/log/core.hpp>
@@ -64,17 +64,20 @@ class SkdParser : public VieVS_Object {
      */
     explicit SkdParser( const std::string &filename );
 
+
     /**
      * @brief enables log files for output
      * @author Matthias Schartner
      */
     void setLogFiles();
 
+
     /**
      * @brief read skd file
      * @author Matthias Schartner
      */
     void read();
+
 
     /**
      * @brief create schedule
@@ -84,6 +87,7 @@ class SkdParser : public VieVS_Object {
      */
     Scheduler createScheduler();
 
+
     /**
      * @brief get observed frequencies
      * @author Matthias Schartner
@@ -92,6 +96,7 @@ class SkdParser : public VieVS_Object {
      */
     std::map<std::string, std::vector<double>> getFrequencies() { return freqs_; };
 
+
     /**
      * @brief get scheduled times
      * @author Matthias Schartner
@@ -99,6 +104,7 @@ class SkdParser : public VieVS_Object {
      * @return vector with scheduled times
      */
     std::vector<std::vector<unsigned int>> getScheduledTimes( const std::string &station );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -125,6 +131,7 @@ class SkdParser : public VieVS_Object {
      * @param of output stream object
      */
     void createScans( std::ofstream &of );
+
 
     /**
      * @brief link created objects

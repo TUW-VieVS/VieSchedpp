@@ -26,6 +26,8 @@
 
 #ifndef SOURCE_H
 #define SOURCE_H
+
+
 #include <fstream>
 #include <iostream>
 
@@ -35,17 +37,16 @@
 #include <memory>
 #include <unordered_map>
 #include <utility>
-
-#ifdef VIESCHEDPP_LOG
-#include <boost/log/trivial.hpp>
-#endif
-
 #include "../Misc/AstronomicalParameters.h"
 #include "../Misc/Constants.h"
 #include "../Misc/Flags.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_NamedObject.h"
 #include "Flux/AbstractFlux.h"
+#ifdef VIESCHEDPP_LOG
+#include <boost/log/trivial.hpp>
+#endif
+
 
 namespace VieVS {
 /**
@@ -75,6 +76,7 @@ class Source : public VieVS_NamedObject {
         multiplicative  ///< multiplicative type
     };
 
+
     /**
      * @brief source parameters
      * @author Matthias Schartner
@@ -91,6 +93,7 @@ class Source : public VieVS_NamedObject {
          */
         explicit Parameters( const std::string &name ) : VieVS_NamedObject( name, nextId++ ) {}
 
+
         /**
          * @brief copy parameters from other
          * @author Matthias Schartner
@@ -98,6 +101,7 @@ class Source : public VieVS_NamedObject {
          * @param other source parameters
          */
         void setParameters( const Parameters &other );
+
 
         bool available = true;               ///< flag is source is available
         bool globalAvailable = true;         ///< flag if source is available
@@ -123,8 +127,8 @@ class Source : public VieVS_NamedObject {
 
         boost::optional<unsigned int>
             tryToObserveXTimesEvenlyDistributed;  ///< tries to observe a source X times over the timespan in which the
-                                                  ///< source is scanable. Overwrites maxScan and
-                                                  ///< tryToFocusIfObservedOnce.
+        ///< source is scanable. Overwrites maxScan and
+        ///< tryToFocusIfObservedOnce.
         boost::optional<unsigned int> tryToObserveXTimesMinRepeat;  ///< backup minimum repeat time
 
         boost::optional<unsigned int> fixedScanDuration;  ///< optional fixed scan duration
@@ -142,6 +146,7 @@ class Source : public VieVS_NamedObject {
          */
         void setAvailable( bool flag ) { Parameters::available = flag; }
 
+
         /**
          * @brief set global availability
          * @author Matthias Schartner
@@ -154,6 +159,7 @@ class Source : public VieVS_NamedObject {
                 Parameters::available = flag;
             }
         }
+
 
         /**
          * @brief output of the curren parameters to out stream
@@ -220,6 +226,7 @@ class Source : public VieVS_NamedObject {
         }
     };
 
+
     /**
      * @brief optimization conditions
      * @author Matthias Schartner
@@ -237,6 +244,7 @@ class Source : public VieVS_NamedObject {
         std::vector<double> sourceInCrs;  ///< source vector in celestrial reference frame
     };
 
+
     /**
      * @brief changes in parameters
      * @author Matthias Schartner
@@ -253,10 +261,12 @@ class Source : public VieVS_NamedObject {
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
             : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
 
+
         unsigned int time;      ///< time when new parameters should be used in seconds since start
         bool smoothTransition;  ///< transition type
         Parameters PARA;        ///< new parameters
     };
+
 
     /**
      * @brief statistics
@@ -266,6 +276,7 @@ class Source : public VieVS_NamedObject {
         std::vector<unsigned int> scanStartTimes;  ///< scan start times
         int totalObservingTime{0};                 ///< integrated observing time
     };
+
 
     /**
      * @brief constructor
@@ -280,6 +291,7 @@ class Source : public VieVS_NamedObject {
     Source( const std::string &src_name, const std::string &src_name2, double src_ra_deg, double src_de_deg,
             std::unordered_map<std::string, std::unique_ptr<AbstractFlux>> &src_flux );
 
+
     /**
      * @brief getter of parameter object
      * @author Matthias Schartner
@@ -287,6 +299,7 @@ class Source : public VieVS_NamedObject {
      * @return parameter object
      */
     const Parameters &getPARA() const { return parameters_; }
+
 
     /**
      * @brief reference of parameter object
@@ -296,6 +309,7 @@ class Source : public VieVS_NamedObject {
      */
     Parameters &referencePARA() { return parameters_; }
 
+
     /**
      * @brief reference for optimization conditions
      * @author Matthias Schartner
@@ -303,6 +317,7 @@ class Source : public VieVS_NamedObject {
      * @return optimization conditons
      */
     Optimization &referenceCondition() { return *condition_; }
+
 
     /**
      * @brief get source position in CRS
@@ -312,6 +327,7 @@ class Source : public VieVS_NamedObject {
      */
     const std::vector<double> &getSourceInCrs() const { return preCalculated_->sourceInCrs; }
 
+
     /**
      * @brief getter for right ascension
      * @author Matthias Schartner
@@ -319,6 +335,7 @@ class Source : public VieVS_NamedObject {
      * @return right ascension of the source in radians
      */
     double getRa() const noexcept { return ra_; }
+
 
     /**
      * @brief getter for right ascension string
@@ -328,6 +345,7 @@ class Source : public VieVS_NamedObject {
      */
     std::string getRaString() const noexcept;
 
+
     /**
      * @brief getter for declination string
      * @author Matthias Schartner
@@ -335,6 +353,7 @@ class Source : public VieVS_NamedObject {
      * @return declination string of the source
      */
     std::string getDeString() const noexcept;
+
 
     /**
      * @brief getter for declination
@@ -344,6 +363,7 @@ class Source : public VieVS_NamedObject {
      */
     double getDe() const noexcept { return de_; }
 
+
     /**
      * @brief getter for number of observed baselines
      * @author Matthias Schartner
@@ -351,6 +371,7 @@ class Source : public VieVS_NamedObject {
      * @return number of baselines already observed for this source
      */
     unsigned long getNObs() const noexcept { return nObs_; }
+
 
     /**
      * @brief geter for number of already scheduled scans to this source
@@ -360,6 +381,7 @@ class Source : public VieVS_NamedObject {
      */
     unsigned int getNscans() const { return nScans_; }
 
+
     /**
      * @brief geter for number of already scheduled scans to this source
      * @author Matthias Schartner
@@ -367,6 +389,7 @@ class Source : public VieVS_NamedObject {
      * @return number of already scheduled scans in total
      */
     unsigned int getNTotalScans() const { return nTotalScans_; }
+
 
     /**
      * @brief get optimization conditons
@@ -376,6 +399,7 @@ class Source : public VieVS_NamedObject {
      */
     const Optimization &getOptimization() const { return *condition_; }
 
+
     /**
      * @brief looks for last scan time
      * @author Matthias Schartner
@@ -383,6 +407,7 @@ class Source : public VieVS_NamedObject {
      * @return last observation time in seconds since session start
      */
     unsigned int lastScanTime() const noexcept { return lastScan_; }
+
 
     /**
      * @brief sets all events to this source
@@ -395,6 +420,7 @@ class Source : public VieVS_NamedObject {
         nextEvent_ = 0;
     }
 
+
     /**
      * @brief set next event index
      * @author Matthias Schartner
@@ -402,6 +428,7 @@ class Source : public VieVS_NamedObject {
      * @param nextEvent index
      */
     void setNextEvent( unsigned int nextEvent ) { Source::nextEvent_ = nextEvent; }
+
 
     /**
      * @brief get maxium possible flux density
@@ -411,6 +438,7 @@ class Source : public VieVS_NamedObject {
      */
     double getMaxFlux() const noexcept;
 
+
     /**
      * @brief get sun distance
      * @author Matthias Schartner
@@ -418,6 +446,7 @@ class Source : public VieVS_NamedObject {
      * @return sun distance
      */
     double getSunDistance() const noexcept;
+
 
     /**
      * @brief observed flux density per band
@@ -430,6 +459,7 @@ class Source : public VieVS_NamedObject {
      */
     double observedFlux( const std::string &band, double gmst, const std::vector<double> &dxyz ) const noexcept;
 
+
     /**
      * @brief calc projection of baseline in uv plane
      * @author Matthias Schartner
@@ -439,6 +469,7 @@ class Source : public VieVS_NamedObject {
      * @return projection of baseline vector in uv plane
      */
     std::pair<double, double> calcUV( double gmst, const std::vector<double> &dxyz ) const noexcept;
+
 
     /**
      * @brief this function checks if it is time to change the parameters
@@ -450,6 +481,7 @@ class Source : public VieVS_NamedObject {
      */
     bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept;
 
+
     /**
      * @brief updates scan to this source
      * @author Matthias Schartner
@@ -460,11 +492,13 @@ class Source : public VieVS_NamedObject {
      */
     void update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept;
 
+
     /**
      * @brief clear all observations
      * @author Matthias Schartner
      */
     void clearObservations();
+
 
     /**
      * @brief set source statistics
@@ -474,6 +508,7 @@ class Source : public VieVS_NamedObject {
      */
     void setStatistics( const Statistics &stat ) { statistics_ = stat; }
 
+
     /**
      * @brief get source statistics
      * @author Matthias Schartner
@@ -481,6 +516,7 @@ class Source : public VieVS_NamedObject {
      * @return source statistics
      */
     const Statistics &getStatistics() const { return statistics_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

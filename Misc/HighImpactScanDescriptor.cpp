@@ -20,23 +20,28 @@
 
 #include <utility>
 
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long HighImpactScanDescriptor::nextId = 0;
 unsigned long HighImpactScanDescriptor::AzElDescriptor::nextId = 0;
 
+
 HighImpactScanDescriptor::AzElDescriptor::AzElDescriptor( double az, double el, double margin,
                                                           std::vector<unsigned long> staids )
     : VieVS_Object( nextId++ ), az_{az}, el_{el}, margin_{margin}, staids_{std::move( staids )} {}
 
+
 HighImpactScanDescriptor::HighImpactScanDescriptor( unsigned int interval, unsigned int minTimeBetweenScans )
     : VieVS_Object( nextId++ ), interval_{interval}, minTimeBetweenScans_{minTimeBetweenScans} {}
+
 
 void HighImpactScanDescriptor::addAzElDescriptor( double az, double el, double margin,
                                                   const std::vector<unsigned long> &staids ) {
     azElDescritors_.emplace_back( az, el, margin, staids );
 }
+
 
 double HighImpactScanDescriptor::highImpactScore( const Scan &scan ) const {
     double score = 0;
@@ -49,6 +54,7 @@ double HighImpactScanDescriptor::highImpactScore( const Scan &scan ) const {
     return score;
 }
 
+
 double HighImpactScanDescriptor::highImpactScore( const PointingVector &pv ) const {
     double score = 0;
     for ( const auto &thisAzElDesc : azElDescritors_ ) {
@@ -57,6 +63,7 @@ double HighImpactScanDescriptor::highImpactScore( const PointingVector &pv ) con
     return score;
 }
 
+
 std::vector<unsigned long> HighImpactScanDescriptor::getStationIds() const {
     vector<unsigned long> ids;
     for ( const auto &any : azElDescritors_ ) {
@@ -64,6 +71,7 @@ std::vector<unsigned long> HighImpactScanDescriptor::getStationIds() const {
     }
     return ids;
 }
+
 
 void HighImpactScanDescriptor::possibleHighImpactScans( unsigned int idxTime, const Network &network,
                                                         const std::vector<Source> &sources ) {
@@ -110,6 +118,7 @@ void HighImpactScanDescriptor::possibleHighImpactScans( unsigned int idxTime, co
     scores_.push_back( move( thisMap ) );
 }
 
+
 double HighImpactScanDescriptor::AzElDescriptor::highImpactScore( const PointingVector &pv ) const {
     unsigned long staid = pv.getStaid();
     double score = 0;
@@ -124,7 +133,9 @@ double HighImpactScanDescriptor::AzElDescriptor::highImpactScore( const Pointing
     return score;
 }
 
+
 const vector<unsigned long> &HighImpactScanDescriptor::AzElDescriptor::getStaids() const { return staids_; }
+
 
 void HighImpactScanDescriptor::updateHighImpactScans( const Network &network, const std::vector<Source> &sources,
                                                       const std::shared_ptr<const Mode> &mode,
@@ -143,10 +154,12 @@ void HighImpactScanDescriptor::updateHighImpactScans( const Network &network, co
     highImpactScans_.generateScore( network, sources, scores_, interval_ );
 }
 
+
 vector<Scan> HighImpactScanDescriptor::highestImpactScans( Network &network, const std::vector<Source> &sources,
                                                            const std::shared_ptr<const Mode> &mode ) {
     return highImpactScans_.selectBest( network, sources, mode );
 }
+
 
 bool HighImpactScanDescriptor::isCorrectHighImpactScan( const Scan &target, const std::vector<Scan> &scans,
                                                         const Source &source ) {
@@ -196,6 +209,7 @@ bool HighImpactScanDescriptor::isCorrectHighImpactScan( const Scan &target, cons
                             return valid;
                         } );
 }
+
 
 void HighImpactScanDescriptor::updateLogfile( std::ofstream &of ) {
     of << "*   depth 0 considered: single Scans " << highImpactScans_.getNumberSingleScans() << " subnetting scans "

@@ -27,12 +27,14 @@
 #ifndef EQUIPMENT_H
 #define EQUIPMENT_H
 
+
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <unordered_map>
 #include <vector>
 #include "../../Misc/VieVS_Object.h"
+
 
 namespace VieVS {
 /**
@@ -52,6 +54,7 @@ class Equipment : public VieVS_Object {
      */
     explicit Equipment( const std::unordered_map<std::string, double> &SEFDs );
 
+
     /**
      * @brief getter function for antenna SEFD information
      * @author Matthias Schartner
@@ -62,6 +65,7 @@ class Equipment : public VieVS_Object {
      */
     virtual double getSEFD( const std::string &band, double el ) const noexcept { return SEFD_.at( band ); };
 
+
     /**
      * @brief returns maximum SEFD of this antenna
      * @author Matthias Schartner
@@ -69,6 +73,7 @@ class Equipment : public VieVS_Object {
      * @return maximum SEFD of this antenna
      */
     double getMaxSEFD() const noexcept;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

@@ -24,6 +24,8 @@
  */
 
 #include "SkyCoverage.h"
+
+
 using namespace std;
 using namespace VieVS;
 
@@ -34,7 +36,9 @@ double thread_local SkyCoverage::maxInfluenceDistance = 30 * deg2rad;
 SkyCoverage::Interpolation thread_local SkyCoverage::interpolationDistance = Interpolation::linear;
 SkyCoverage::Interpolation thread_local SkyCoverage::interpolationTime = Interpolation::linear;
 
+
 SkyCoverage::SkyCoverage() : VieVS_Object( nextId++ ) {}
+
 
 double SkyCoverage::calcScore( const PointingVector &pv ) const {
     double score = 1;
@@ -51,7 +55,9 @@ double SkyCoverage::calcScore( const PointingVector &pv ) const {
     return score;
 }
 
+
 void SkyCoverage::update( const PointingVector &pv ) noexcept { pointingVectors_.push_back( pv ); }
+
 
 double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new, const PointingVector &pv_old ) const
     noexcept {
@@ -105,7 +111,9 @@ double SkyCoverage::scorePerPointingVector( const PointingVector &pv_new, const 
     return 1 - ( saturationDistance * saturationTime );
 }
 
+
 void SkyCoverage::clearObservations() { pointingVectors_.clear(); }
+
 
 void SkyCoverage::calculateSkyCoverageScores() {
     std::sort(
@@ -119,6 +127,7 @@ void SkyCoverage::calculateSkyCoverageScores() {
     a25m60_ = skyCoverageScore_25( 3600 );
     a37m60_ = skyCoverageScore_37( 3600 );
 }
+
 
 double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
     double total_score = 0;
@@ -147,6 +156,7 @@ double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
     return total_score;
 }
 
+
 double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
     double total_score = 0;
 
@@ -174,6 +184,7 @@ double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
     return total_score;
 }
 
+
 double SkyCoverage::skyCoverageScore_37( unsigned int deltaTime ) const {
     double total_score = 0;
 
@@ -200,6 +211,7 @@ double SkyCoverage::skyCoverageScore_37( unsigned int deltaTime ) const {
 
     return total_score;
 }
+
 
 int SkyCoverage::areaIndex13_v1( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 2.;
@@ -232,6 +244,7 @@ int SkyCoverage::areaIndex13_v1( const PointingVector &pv ) noexcept {
 
     return idx;
 }
+
 
 int SkyCoverage::areaIndex13_v2( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 2.75;
@@ -269,6 +282,7 @@ int SkyCoverage::areaIndex13_v2( const PointingVector &pv ) noexcept {
 
     return idx;
 }
+
 
 int SkyCoverage::areaIndex25_v1( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 3.;
@@ -313,6 +327,7 @@ int SkyCoverage::areaIndex25_v1( const PointingVector &pv ) noexcept {
 
     return idx;
 }
+
 
 int SkyCoverage::areaIndex25_v2( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 3.75;
@@ -361,6 +376,7 @@ int SkyCoverage::areaIndex25_v2( const PointingVector &pv ) noexcept {
 
     return idx;
 }
+
 
 int SkyCoverage::areaIndex37_v1( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 4.;
@@ -416,6 +432,7 @@ int SkyCoverage::areaIndex37_v1( const PointingVector &pv ) noexcept {
 
     return idx;
 }
+
 
 int SkyCoverage::areaIndex37_v2( const PointingVector &pv ) noexcept {
     constexpr double el_space = halfpi / 4.75;

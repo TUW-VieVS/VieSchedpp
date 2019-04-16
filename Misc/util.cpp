@@ -18,8 +18,10 @@
 
 #include "util.h"
 
+
 using namespace std;
 using namespace VieVS;
+
 
 string util::ra2dms( double angle ) {
     double af = angle * rad2deg / 15;
@@ -30,6 +32,8 @@ string util::ra2dms( double angle ) {
 
     return ( boost::format( "%02dh %02dm %05.2fs" ) % d % m % sf ).str();
 }
+
+
 std::string util::ra2dms_astFormat( double angle ) {
     double af = angle * rad2deg / 15;
     double d = floor( af );
@@ -39,6 +43,7 @@ std::string util::ra2dms_astFormat( double angle ) {
 
     return ( boost::format( "%02d:%02d:%09.6f" ) % d % m % sf ).str();
 }
+
 
 string util::dc2hms( double angle ) {
     double af = angle * rad2deg;
@@ -58,6 +63,7 @@ string util::dc2hms( double angle ) {
     return ( boost::format( "%+03d° %02d' %05.2f\"" ) % h % m % sf ).str();
 }
 
+
 string util::dc2hms_astFormat( double angle ) {
     double af = angle * rad2deg;
     bool positive = true;
@@ -76,6 +82,7 @@ string util::dc2hms_astFormat( double angle ) {
     return ( boost::format( "%+03d:%02d:%9.6f\"" ) % h % m % sf ).str();
 }
 
+
 double util::wrap2twoPi( double angle ) {
     angle = fmod( angle, twopi );
     if ( angle < 0 ) {
@@ -84,15 +91,18 @@ double util::wrap2twoPi( double angle ) {
     return angle;
 }
 
+
 double util::wrap2pi( double angle ) {
     angle = fmod( angle, pi );
     return angle;
 }
 
+
 int util::duration( const boost::posix_time::ptime &start, const boost::posix_time::ptime &end ) {
     boost::posix_time::time_duration a = end - start;
     return static_cast<int>( a.total_seconds() );
 }
+
 
 void util::outputObjectList( const std::string &title, const std::vector<std::string> &names, std::ofstream &of,
                              unsigned long indents ) {
@@ -123,6 +133,7 @@ void util::outputObjectList( const std::string &title, const std::vector<std::st
     }
 }
 
+
 string util::version() {
     string v;
     v = string( GIT_COMMIT_HASH );
@@ -130,9 +141,12 @@ string util::version() {
     return v;
 }
 
+
 double util::freqency2wavelenth( double frequency ) { return speedOfLight / frequency; }
 
+
 double util::wavelength2frequency( double wavelength ) { return speedOfLight / wavelength; }
+
 
 unsigned long util::getNumberOfStations( const boost::property_tree::ptree &xml ) {
     unsigned long nsta = 0;
@@ -144,6 +158,7 @@ unsigned long util::getNumberOfStations( const boost::property_tree::ptree &xml 
 
     return nsta;
 }
+
 
 std::vector<std::string> util::getStationNames( const boost::property_tree::ptree &xml ) {
     vector<string> names;
@@ -158,6 +173,7 @@ std::vector<std::string> util::getStationNames( const boost::property_tree::ptre
     }
     return names;
 }
+
 
 std::string util::weekDay2string( int weekday ) {
     string wd;
@@ -197,6 +213,7 @@ std::string util::weekDay2string( int weekday ) {
     }
     return wd;
 }
+
 
 std::string util::month2string( int month ) {
     string monthStr;

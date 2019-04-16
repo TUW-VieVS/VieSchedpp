@@ -27,8 +27,10 @@
 #ifndef SKD_H
 #define SKD_H
 
+
 #include "../Input/SkdCatalogReader.h"
 #include "../Scan/Scan.h"
+
 
 namespace VieVS {
 
@@ -49,6 +51,7 @@ class Skd : public VieVS_Object {
      */
     explicit Skd( const std::string &file );
 
+
     /**
      * @brief creates a skd file
      * @author Matthias Schartner
@@ -61,6 +64,7 @@ class Skd : public VieVS_Object {
      */
     void writeSkd( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                    const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -78,11 +82,13 @@ class Skd : public VieVS_Object {
     void skd_PARAM( const Network &network, const boost::property_tree::ptree &xml,
                     const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief write skd $OP block
      * @author Matthias Schartner
      */
     void skd_OP();
+
 
     /**
      * @brief write skd $DOWNTIME block
@@ -91,6 +97,7 @@ class Skd : public VieVS_Object {
      * @param network station network
      */
     void skd_DOWNTIME( const Network &network );
+
 
     /**
      * @brief write skd $MAJOR block
@@ -104,17 +111,20 @@ class Skd : public VieVS_Object {
     void skd_MAJOR( const std::vector<Station> &stations, const std::vector<Source> &sources,
                     const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief write skd $MINOR block
      * @author Matthias Schartner
      */
     void skd_MINOR();
 
+
     /**
      * @brief write skd $ASTROMETRIC block
      * @author Matthias Schartner
      */
     void skd_ASTROMETRIC();
+
 
     /**
      * @brief write skd %STATWT block
@@ -124,6 +134,7 @@ class Skd : public VieVS_Object {
      */
     void skd_STATWT( const std::vector<Station> &stations );
 
+
     /**
      * @brief write skd $SRCWT block
      * @author Matthias Schartner
@@ -131,6 +142,7 @@ class Skd : public VieVS_Object {
      * @param sources list of all sources
      */
     void skd_SRCWT( const std::vector<Source> &sources );
+
 
     /**
      * @brief write skd $CATALOG_USED block
@@ -141,11 +153,13 @@ class Skd : public VieVS_Object {
      */
     void skd_CATALOG_USED( const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief write skd $BROADBAND block
      * @author Matthias Schartner
      */
     void skd_BROADBAND();
+
 
     /**
      * @brief write skd $SOURCES block
@@ -156,6 +170,7 @@ class Skd : public VieVS_Object {
      */
     void skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief write skd $STATIONS block
      * @author Matthias Schartner
@@ -165,6 +180,7 @@ class Skd : public VieVS_Object {
      */
     void skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief write skd $FLUX block
      * @author Matthias Schartner
@@ -173,6 +189,7 @@ class Skd : public VieVS_Object {
      * @param skdCatalogReader catalog reader
      */
     void skd_FLUX( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
+
 
     /**
      * @brief write skd $SKED block
@@ -185,6 +202,7 @@ class Skd : public VieVS_Object {
      */
     void skd_SKED( const std::vector<Station> &stations, const std::vector<Source> &sources,
                    const std::vector<Scan> &scans, const SkdCatalogReader &skdCatalogReader );
+
 
     /**
      * @brief write skd $CODES block

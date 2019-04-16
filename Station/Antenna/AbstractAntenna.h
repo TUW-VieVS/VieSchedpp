@@ -28,11 +28,14 @@
 
 #ifndef ANTENNA_H
 #define ANTENNA_H
+
+
 #include <boost/format.hpp>
 #include <iostream>
 
 #include "../../Misc/VieVS_Object.h"
 #include "../../Scan/PointingVector.h"
+
 
 namespace VieVS {
 
@@ -59,6 +62,7 @@ class AbstractAntenna : public VieVS_Object {
     AbstractAntenna( double offset_m, double diam_m, double rate1_deg_per_min, unsigned int constantOverhead1_s,
                      double rate2_deg_per_min, unsigned int constantOverhead2_s );
 
+
     /**
      * @brief getter for antenna diameter
      * @author Matthias Schartner
@@ -66,6 +70,7 @@ class AbstractAntenna : public VieVS_Object {
      * @return diameter of antenna dish in meters
      */
     double getDiam() const { return diam_; }
+
 
     /**
      * @brief getter for antenna offset
@@ -75,6 +80,7 @@ class AbstractAntenna : public VieVS_Object {
      */
     double getOffset() const { return offset_; }
 
+
     /**
      * @brief slew rate of first axis in rad/seconds
      * @author Matthias Schartner
@@ -82,6 +88,7 @@ class AbstractAntenna : public VieVS_Object {
      * @return slew rate of first antenna axis in rad/seconds
      */
     double getRate1() const { return rate1_; }
+
 
     /**
      * @brief getter for constant overhead for first axis slew time in seconds
@@ -91,6 +98,7 @@ class AbstractAntenna : public VieVS_Object {
      */
     double getCon1() const { return con1_; }
 
+
     /**
      * @brief slew rate of second axis in rad/seconds
      * @author Matthias Schartner
@@ -99,6 +107,7 @@ class AbstractAntenna : public VieVS_Object {
      */
     double getRate2() const { return rate2_; }
 
+
     /**
      * @brief getter for constant overhead for second axis slew time in seconds
      * @author Matthias Schartner
@@ -106,6 +115,7 @@ class AbstractAntenna : public VieVS_Object {
      * @return constant overhead for first axis slew in seconds
      */
     double getCon2() const { return con2_; }
+
 
     /**
      * @brief calculates the slewtime between azimuth and elevation of two pointing vectors
@@ -118,6 +128,7 @@ class AbstractAntenna : public VieVS_Object {
     virtual unsigned int slewTime( const PointingVector &old_pointingVector,
                                    const PointingVector &new_pointingVector ) const noexcept = 0;
 
+
     /**
      * @brief get mount name
      * @author Matthias Schartner
@@ -125,6 +136,7 @@ class AbstractAntenna : public VieVS_Object {
      * @return mount name
      */
     virtual std::string getMount() const noexcept = 0;
+
 
    protected:
     /**
@@ -136,6 +148,7 @@ class AbstractAntenna : public VieVS_Object {
         axis2,  ///< second antenna axis
     };
 
+
     /**
      * @brief calculates slew time per axis
      * @author Matthias Schartner
@@ -145,6 +158,7 @@ class AbstractAntenna : public VieVS_Object {
      * @return slew time in seconds
      */
     unsigned int slewTimePerAxis( double delta, Axis axis ) const noexcept;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

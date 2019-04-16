@@ -27,12 +27,14 @@
 #ifndef VIESCHEDPP_FREQ_H
 #define VIESCHEDPP_FREQ_H
 
+
 #include <set>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 #include "../Misc/VieVS_NamedObject.h"
 #include "../Misc/util.h"
+
 
 namespace VieVS {
 
@@ -54,6 +56,7 @@ class Freq : public VieVS_NamedObject {
    private:
     class Chan_def;
 
+
    public:
     /**
      * @brief net sideband types
@@ -65,6 +68,7 @@ class Freq : public VieVS_NamedObject {
         UC,  ///< upper side band I/Q encoding
         LC,  ///< lower side band I/Q encoding
     };
+
 
     /**
      * @brief converts Net_sidband to string
@@ -85,6 +89,7 @@ class Freq : public VieVS_NamedObject {
                 return "LC";
         }
     }
+
 
     /**
      * @brief convert vex format string to net sideband type
@@ -108,6 +113,7 @@ class Freq : public VieVS_NamedObject {
         }
     }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -116,6 +122,7 @@ class Freq : public VieVS_NamedObject {
      */
     explicit Freq( std::string name );
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -123,6 +130,7 @@ class Freq : public VieVS_NamedObject {
      * @param tree input property tree from xml file
      */
     explicit Freq( const boost::property_tree::ptree &tree );
+
 
     /**
      * @brief add new channel
@@ -139,6 +147,7 @@ class Freq : public VieVS_NamedObject {
     void addChannel( std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
                      std::string chan_id, std::string bbc_id, std::string phase_cal_id );
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -146,6 +155,7 @@ class Freq : public VieVS_NamedObject {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree() const;
+
 
     /**
      * @brief get all frequencies for a specific band
@@ -156,6 +166,7 @@ class Freq : public VieVS_NamedObject {
      */
     std::vector<double> getFrequencies( const std::string &band ) const;
 
+
     /**
      * @brief set sample rate
      * @author Matthias Schartner
@@ -164,6 +175,7 @@ class Freq : public VieVS_NamedObject {
      */
     void setSampleRate( double sample_rate ) { sample_rate_ = sample_rate; }
 
+
     /**
      * @brief get list of all bands
      * @author Matthias Schartner
@@ -171,6 +183,7 @@ class Freq : public VieVS_NamedObject {
      * @return list of all bands
      */
     const std::set<std::string> &getBands() const { return bands_; }
+
 
     /**
      * @brief calculates observing rates for each band between two stations with potentially different FREQ blocks
@@ -183,6 +196,7 @@ class Freq : public VieVS_NamedObject {
     std::unordered_map<std::string, double> observingRate( const std::shared_ptr<const Freq> &other,
                                                            const std::map<std::string, int> &bitsPerChannel ) const;
 
+
     /**
      * @brief writes FREQ block in vex format
      * @author Matthias Schartner
@@ -191,6 +205,7 @@ class Freq : public VieVS_NamedObject {
      * @param comment optional comment
      */
     void toVexFreqDefinition( std::ofstream &of, const std::string &comment = "" ) const;
+
 
     /**
      * @brief get channel definitions
@@ -202,6 +217,7 @@ class Freq : public VieVS_NamedObject {
      */
     const std::vector<Chan_def> &getChan_defs() const { return chan_defs_; }
 
+
     /**
      * @brief reference channel definitions
      * @author Matthias schartner
@@ -212,6 +228,7 @@ class Freq : public VieVS_NamedObject {
      */
     std::vector<Chan_def> &refChan_defs() { return chan_defs_; }
 
+
     /**
      * @brief calculate total bandwidth for all channels
      * @author Matthias Schartner
@@ -219,6 +236,7 @@ class Freq : public VieVS_NamedObject {
      * @return total bandwidth in MHz
      */
     double totalBandwidth() const;
+
 
     /**
      * @brief calculate total observing rate
@@ -228,6 +246,7 @@ class Freq : public VieVS_NamedObject {
      * @return total observing rate
      */
     double totalRate( const std::map<std::string, int> &bitsPerChannel ) const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -256,6 +275,7 @@ class Freq : public VieVS_NamedObject {
         Chan_def( std::string bandId, double sky_freq, Net_sideband net_sideband, double chan_bandwidth,
                   std::string chan_id, std::string bbc_id, std::string phase_cal_id );
 
+
         /**
          * @brief constructor
          * @author Matthias Schartner
@@ -264,6 +284,7 @@ class Freq : public VieVS_NamedObject {
          */
         explicit Chan_def( const boost::property_tree::ptree &tree );
 
+
         /**
          * @brief converts object to property tree
          * @author Matthias Schartner
@@ -271,6 +292,7 @@ class Freq : public VieVS_NamedObject {
          * @return property tree
          */
         boost::property_tree::ptree toPropertytree() const;
+
 
         std::string bandId_;         ///< 'Band_ID': RF band name
         double sky_freq_;            ///< RF sky frequency at 0Hz in the BBC output
@@ -284,6 +306,7 @@ class Freq : public VieVS_NamedObject {
        private:
         static unsigned long nextId;  ///< next id for this object type
     };
+
 
     double sample_rate_;               ///< sample frequency in MHz
     std::vector<Chan_def> chan_defs_;  ///< list of channels
@@ -299,6 +322,7 @@ class Freq : public VieVS_NamedObject {
      * @return lower and upper limit
      */
     std::pair<double, double> lower_upper_bound( double skyFreq, double bandwidth, Net_sideband net_sideband ) const;
+
 
     /**
      * @brief calculate overlapping bandwidth

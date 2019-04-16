@@ -26,10 +26,12 @@
 #include "Station.h"
 #include "../Misc/LookupTable.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long VieVS::Station::nextId = 0;
 unsigned long VieVS::Station::Parameters::nextId = 0;
+
 
 void Station::Parameters::setParameters( const Station::Parameters &other ) {
     firstScan = other.firstScan;
@@ -53,6 +55,7 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     ignoreSources = other.ignoreSources;
 }
 
+
 Station::Station( std::string sta_name, std::string tlc, std::shared_ptr<AbstractAntenna> sta_antenna,
                   std::shared_ptr<AbstractCableWrap> sta_cableWrap, std::shared_ptr<Position> sta_position,
                   std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
@@ -69,9 +72,11 @@ Station::Station( std::string sta_name, std::string tlc, std::shared_ptr<Abstrac
     parameters_.firstScan = true;
 }
 
+
 void Station::setCurrentPointingVector( const PointingVector &pointingVector ) noexcept {
     currentPositionVector_ = pointingVector;
 }
+
 
 bool Station::isVisible( const PointingVector &p, double minElevationSource ) const noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -91,6 +96,7 @@ bool Station::isVisible( const PointingVector &p, double minElevationSource ) co
     }
     return cableWrap_->anglesInside( p );
 }
+
 
 void Station::calcAzEl_simple( const Source &source, PointingVector &p ) const noexcept {
     auto &precalc = azelPrecalc_[source.getId()];
@@ -159,6 +165,7 @@ void Station::calcAzEl_simple( const Source &source, PointingVector &p ) const n
     p.setHa( ha );
     p.setDc( it_n->getDc() );
 }
+
 
 void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexcept {
     unsigned int time = p.getTime();
@@ -304,7 +311,9 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     precalc.push_back( p );
 }
 
+
 double Station::distance( const Station &other ) const noexcept { return position_->getDistance( *other.position_ ); }
+
 
 boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingVector ) const noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -328,6 +337,7 @@ boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingV
     }
 }
 
+
 void Station::update( unsigned long nbl, const PointingVector &end, bool addToStatistics ) noexcept {
     if ( addToStatistics ) {
         ++nScans_;
@@ -340,6 +350,7 @@ void Station::update( unsigned long nbl, const PointingVector &end, bool addToSt
         parameters_.firstScan = false;
     }
 }
+
 
 bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
@@ -360,6 +371,7 @@ bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     }
     return flag;
 }
+
 
 unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept {
     switch ( ts ) {
@@ -387,6 +399,7 @@ unsigned int Station::maximumAllowedObservingTime( Timestamp ts ) const noexcept
     }
 }
 
+
 bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
     bool tagalong = parameters_.tagalong;
     if ( tagalong ) {
@@ -396,6 +409,7 @@ bool Station::checkForTagalongMode( unsigned int time ) const noexcept {
     }
     return false;
 }
+
 
 void Station::applyNextEvent( std::ofstream &of ) noexcept {
     unsigned int nextEventTimes = events_->at( nextEvent_ ).time;
@@ -408,6 +422,7 @@ void Station::applyNextEvent( std::ofstream &of ) noexcept {
         nextEvent_++;
     }
 }
+
 
 void Station::clearObservations() {
     nextEvent_ = 0;
@@ -426,6 +441,7 @@ void Station::clearObservations() {
     parameters_.firstScan = true;
 }
 
+
 std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() const noexcept {
     if ( mask_ != nullptr ) {
         return mask_->getHorizonMask();
@@ -433,6 +449,7 @@ std::pair<std::vector<double>, std::vector<double>> Station::getHorizonMask() co
         return std::pair<std::vector<double>, std::vector<double>>();
     }
 }
+
 
 void Station::toVexStationBlock( std::ofstream &of ) const {
     string eol = ";\n";
@@ -451,6 +468,7 @@ void Station::toVexStationBlock( std::ofstream &of ) const {
     of << "    enddef;\n";
 }
 
+
 void Station::toVexSiteBlock( std::ofstream &of ) const {
     string eol = ";\n";
 
@@ -468,6 +486,7 @@ void Station::toVexSiteBlock( std::ofstream &of ) const {
     }
     of << "    enddef;\n";
 }
+
 
 void Station::toVexAntennaBlock( std::ofstream &of ) const {
     string eol = ";\n";
@@ -493,6 +512,7 @@ void Station::toVexAntennaBlock( std::ofstream &of ) const {
     of << "    enddef;\n";
 }
 
+
 void Station::addAdditionalParameters( std::string occupation_code, std::string record_transport_type,
                                        std::string electronics_rack_type, std::string recording_system_ID ) {
     occupation_code_ = std::move( occupation_code );
@@ -500,6 +520,7 @@ void Station::addAdditionalParameters( std::string occupation_code, std::string 
     electronics_rack_type_ = std::move( electronics_rack_type );
     recording_system_id_ = std::move( recording_system_ID );
 }
+
 
 bool Station::listDownTimes( std::ofstream &of, bool skdFormat ) const {
     unsigned int start = 0;
@@ -532,6 +553,7 @@ bool Station::listDownTimes( std::ofstream &of, bool skdFormat ) const {
     }
     return res;
 }
+
 
 bool Station::listTagalongTimes( std::ofstream &of, bool skdFormat ) const {
     unsigned int start = 0;

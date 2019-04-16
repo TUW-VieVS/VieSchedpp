@@ -18,6 +18,7 @@
 
 #include "LookupTable.h"
 
+
 using namespace VieVS;
 using namespace std;
 
@@ -25,6 +26,7 @@ std::vector<double> VieVS::LookupTable::sinLookupTable;
 std::vector<double> VieVS::LookupTable::cosLookupTable;
 std::vector<double> VieVS::LookupTable::acosLookupTable;
 vector<vector<vector<float>>> VieVS::LookupTable::angularDistanceLookup = {};
+
 
 void LookupTable::initialize() {
     for ( int i = 0; i < twopi * 1001; ++i ) {
@@ -71,15 +73,20 @@ void LookupTable::initialize() {
     }
 }
 
+
 float LookupTable::angularDistance( const PointingVector &p1, const PointingVector &p2 ) noexcept {
     return angularDistance( p1.getAz(), p1.getEl(), p2.getAz(), p2.getEl() );
 }
 
+
 double LookupTable::sinLookup( double x ) { return sinLookupTable[lround( x * 1000 )]; }
+
 
 double LookupTable::cosLookup( double x ) { return cosLookupTable[lround( x * 1000 )]; }
 
+
 double LookupTable::acosLookup( double x ) { return acosLookupTable.at( lround( x * 1000 ) + 1000 ); }
+
 
 float LookupTable::angularDistance( double phi1, double theta1, double phi2, double theta2 ) noexcept {
     if ( phi1 > phi2 ) {

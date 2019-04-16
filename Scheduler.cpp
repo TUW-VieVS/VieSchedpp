@@ -24,9 +24,12 @@
  */
 
 #include "Scheduler.h"
+
+
 using namespace std;
 using namespace VieVS;
 unsigned long Scheduler::nextId = 0;
+
 
 Scheduler::Scheduler( Initializer &init, string path, string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
@@ -62,6 +65,7 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.writeSkyCoverageData = false;
 }
 
+
 Scheduler::Scheduler( std::string name, Network network, std::vector<Source> sources, std::vector<Scan> scans,
                       boost::property_tree::ptree xml, std::shared_ptr<ObservingMode> obsModes_ )
     : VieVS_NamedObject( move( name ), nextId++ ),
@@ -71,6 +75,7 @@ Scheduler::Scheduler( std::string name, Network network, std::vector<Source> sou
       obsModes_{std::move( obsModes_ )},
       currentObservingMode_{nullptr},
       xml_{xml} {}
+
 
 void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Scan::ScanType type,
                                     boost::optional<StationEndposition> &opt_endposition,
@@ -363,6 +368,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
     }
 }
 
+
 void Scheduler::start() noexcept {
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
@@ -485,6 +491,7 @@ void Scheduler::start() noexcept {
     sortSchedule( Timestamp::start );
 }
 
+
 void Scheduler::statistics( ofstream &of ) {
     of << "\n";
     of << "\n";
@@ -503,6 +510,7 @@ void Scheduler::statistics( ofstream &of ) {
 #endif
 }
 
+
 Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                                 const boost::optional<StationEndposition> &endposition ) noexcept {
     Subcon subcon = allVisibleScans( type, endposition );
@@ -518,6 +526,7 @@ Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::
     }
     return subcon;
 }
+
 
 Subcon Scheduler::allVisibleScans( Scan::ScanType type,
                                    const boost::optional<StationEndposition> &endposition ) noexcept {
@@ -547,6 +556,7 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type,
 
     return subcon;
 }
+
 
 void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -581,6 +591,7 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
     scans_.push_back( std::move( scan ) );
 }
 
+
 void Scheduler::consideredUpdate( unsigned long n1scans, unsigned long n2scans, int depth, ofstream &of ) noexcept {
     if ( n1scans + n2scans > 0 ) {
         string right;
@@ -594,6 +605,7 @@ void Scheduler::consideredUpdate( unsigned long n1scans, unsigned long n2scans, 
         nSubnettingScansConsidered += n2scans;
     }
 }
+
 
 bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     bool everythingOk = true;
@@ -792,6 +804,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
     return everythingOk;
 }
 
+
 bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of, bool scheduleTagalong ) noexcept {
     bool hard_break = false;
 #ifdef VIESCHEDPP_LOG
@@ -859,12 +872,14 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     return hard_break;
 }
 
+
 void Scheduler::ignoreTagalongParameter() {
     // ignore the tagalong mode for each station
     for ( auto &any : network_.refStations() ) {
         any.referencePARA().tagalong = false;
     }
 }
+
 
 void Scheduler::listSourceOverview( ofstream &of ) noexcept {
     //    unsigned int counter = 0;
@@ -905,6 +920,7 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
     util::outputObjectList( "not available because too weak", notAvailable_tooWeak, of );
     util::outputObjectList( "not available because of sun distance", notAvailable_tooCloseToSun, of );
 }
+
 
 void Scheduler::startTagelongMode( Station &station, std::ofstream &of ) {
     unsigned long staid = station.getId();
@@ -1164,6 +1180,7 @@ void Scheduler::startTagelongMode( Station &station, std::ofstream &of ) {
     //    station.applyNextEvent(of);
 }
 
+
 bool Scheduler::checkOptimizationConditions( ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "checking optimization condition";
@@ -1337,6 +1354,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
     return newScheduleNecessary;
 }
 
+
 void Scheduler::changeStationAvailability( const boost::optional<StationEndposition> &endposition,
                                            StationEndposition::change change ) {
     switch ( change ) {
@@ -1354,6 +1372,7 @@ void Scheduler::changeStationAvailability( const boost::optional<StationEndposit
         }
     }
 }
+
 
 void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofstream &of, Scan::ScanType type,
                                                 bool output, bool ignoreTagalong ) {
@@ -1460,6 +1479,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     sortSchedule( Timestamp::start );
 }
 
+
 void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix high impact scans";
@@ -1540,6 +1560,7 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
     }
 }
 
+
 void Scheduler::resetAllEvents( std::ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "reset all events";
@@ -1560,6 +1581,7 @@ void Scheduler::resetAllEvents( std::ofstream &of ) {
     }
     checkForNewEvents( 0, false, of, false );
 }
+
 
 void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
     switch ( ts ) {
@@ -2089,11 +2111,13 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
           "-----------------------------------'\n";
 }
 
+
 void Scheduler::sortSchedule( Timestamp ts ) {
     stable_sort( scans_.begin(), scans_.end(), [ts]( const Scan &scan1, const Scan &scan2 ) {
         return scan1.getTimes().getObservingTime( ts ) < scan2.getTimes().getObservingTime( ts );
     } );
 }
+
 
 void Scheduler::sortSchedule( unsigned long staid, Timestamp ts ) {
     stable_sort( scans_.begin(), scans_.end(), [staid, ts]( const Scan &scan1, const Scan &scan2 ) {
@@ -2118,6 +2142,7 @@ void Scheduler::sortSchedule( unsigned long staid, Timestamp ts ) {
     } );
 }
 
+
 void Scheduler::writeCalibratorHeader( std::ofstream &of ) {
     of << "|                                                                                                           "
           "                                   |\n";
@@ -2128,6 +2153,7 @@ void Scheduler::writeCalibratorHeader( std::ofstream &of ) {
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
 }
+
 
 void Scheduler::writeCalibratorStatistics( std::ofstream &of, std::vector<double> &highestElevations,
                                            std::vector<double> &lowestElevations ) {
@@ -2177,6 +2203,7 @@ void Scheduler::writeCalibratorStatistics( std::ofstream &of, std::vector<double
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
 }
+
 
 bool Scheduler::calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
                                   std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
@@ -2245,11 +2272,13 @@ bool Scheduler::calibratorUpdate( const std::vector<Scan> &bestScans, std::vecto
     return stopScanSelection;
 }
 
+
 void Scheduler::updateObservingTimes() {
     for ( auto &scan : scans_ ) {
         scan.updateObservingTime();
     }
 }
+
 
 int Scheduler::getNumberOfObservations() const noexcept {
     int n = 0;

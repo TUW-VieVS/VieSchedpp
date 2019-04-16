@@ -28,7 +28,10 @@
 #ifndef VLBI_SCHEDULER_FLUX_M_H
 #define VLBI_SCHEDULER_FLUX_M_H
 
+
 #include "AbstractFlux.h"
+
+
 namespace VieVS {
 
 /**
@@ -53,6 +56,7 @@ class Flux_M : public AbstractFlux {
     Flux_M( double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
             const std::vector<double> &axialRatio, const std::vector<double> &positionAngle );
 
+
     /**
      * @brief maximum possible flux density
      * @author Matthias Schartner
@@ -60,6 +64,7 @@ class Flux_M : public AbstractFlux {
      * @return maximum possible flux density in Jansky
      */
     double getMaximumFlux() const noexcept override;
+
 
     /**
      * @brief observed flux density
@@ -71,6 +76,7 @@ class Flux_M : public AbstractFlux {
      */
     double observedFlux( double u, double v ) const noexcept override;
 
+
    private:
     std::vector<double> flux_;           ///< flux density
     std::vector<double> majorAxis_;      ///< major axis angle
@@ -78,7 +84,7 @@ class Flux_M : public AbstractFlux {
     std::vector<double> positionAngle_;  ///< position angle
 
     static double flcon1_;  ///< constant precalculated value
-                            //        static double flcon2_; ///< constant precalculated value
+    //        static double flcon2_; ///< constant precalculated value
 };
 }  // namespace VieVS
 

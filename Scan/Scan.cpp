@@ -25,12 +25,14 @@
 
 #include "Scan.h"
 
+
 using namespace std;
 using namespace VieVS;
 
 unsigned int Scan::nScanSelections{0};
 Scan::ScanSequence Scan::scanSequence;
 unsigned long Scan::nextId = 0;
+
 
 Scan::Scan( vector<PointingVector> &pointingVectors, vector<unsigned int> &endOfLastScan, ScanType type )
     : VieVS_Object( nextId++ ),
@@ -45,6 +47,7 @@ Scan::Scan( vector<PointingVector> &pointingVectors, vector<unsigned int> &endOf
     observations_.reserve( ( nsta_ * ( nsta_ - 1 ) ) / 2 );
 }
 
+
 Scan::Scan( vector<PointingVector> pv, ScanTimes times, vector<Observation> obs, ScanType type )
     : VieVS_Object( nextId++ ),
       srcid_{pv[0].getSrcid()},
@@ -57,6 +60,7 @@ Scan::Scan( vector<PointingVector> pv, ScanTimes times, vector<Observation> obs,
       type_{type} {
     times_.giveNewId();
 }
+
 
 bool Scan::constructObservations( const Network &network, const Source &source ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -110,9 +114,11 @@ bool Scan::constructObservations( const Network &network, const Source &source )
     return valid;
 }
 
+
 void Scan::addTimes( int idx, unsigned int fieldSystem, unsigned int slew, unsigned int preob ) noexcept {
     times_.addTimes( idx, fieldSystem, slew, preob );
 }
+
 
 bool Scan::removeStation( int idx, const Source &source ) noexcept {
     unsigned long staid = pointingVectorsStart_[idx].getStaid();
@@ -170,6 +176,7 @@ bool Scan::removeStation( int idx, const Source &source ) noexcept {
     return !( nbl_before != 0 && observations_.empty() );
 }
 
+
 bool Scan::removeObservation( int iobs, const Source &source ) noexcept {
     // remove observation
     unsigned long staid1 = observations_[iobs].getStaid1();
@@ -222,6 +229,7 @@ bool Scan::removeObservation( int iobs, const Source &source ) noexcept {
     return scanValid;
 }
 
+
 bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &source ) noexcept {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " check idle times";
@@ -265,6 +273,7 @@ bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &sou
 
     return scan_valid;
 }
+
 
 bool Scan::calcObservationDuration( const Network &network, const Source &source,
                                     const std::shared_ptr<const Mode> &mode ) noexcept {
@@ -389,6 +398,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
 
     return true;
 }
+
 
 bool Scan::scanDuration( const Network &network, const Source &source ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -540,6 +550,7 @@ bool Scan::scanDuration( const Network &network, const Source &source ) noexcept
     return true;
 }
 
+
 boost::optional<unsigned long> Scan::findIdxOfStationId( unsigned long id ) const noexcept {
     for ( unsigned long idx = 0; idx < nsta_; ++idx ) {
         if ( pointingVectorsStart_[idx].getStaid() == id ) {
@@ -548,6 +559,7 @@ boost::optional<unsigned long> Scan::findIdxOfStationId( unsigned long id ) cons
     }
     return boost::none;
 }
+
 
 vector<unsigned long> Scan::getStationIds() const noexcept {
     vector<unsigned long> ids;
@@ -558,11 +570,13 @@ vector<unsigned long> Scan::getStationIds() const noexcept {
     return std::move( ids );
 }
 
+
 double Scan::calcScore_numberOfObservations( unsigned long maxObs ) const noexcept {
     unsigned long nbl = observations_.size();
     double thisScore = static_cast<double>( nbl ) / static_cast<double>( maxObs );
     return thisScore;
 }
+
 
 double Scan::calcScore_idleTime( const std::vector<double> &idleScore ) const noexcept {
     double score = 0;
@@ -573,6 +587,7 @@ double Scan::calcScore_idleTime( const std::vector<double> &idleScore ) const no
 
     return score;
 }
+
 
 double Scan::calcScore_averageStations( const vector<double> &astas, unsigned long nMaxSta ) const noexcept {
     double finalScore = 0;
@@ -587,6 +602,7 @@ double Scan::calcScore_averageStations( const vector<double> &astas, unsigned lo
     return finalScore;
 }
 
+
 double Scan::calcScore_averageBaselines( const std::vector<double> &abls ) const noexcept {
     double finalScore = 0;
     for ( const auto &obs : observations_ ) {
@@ -597,10 +613,12 @@ double Scan::calcScore_averageBaselines( const std::vector<double> &abls ) const
     return finalScore;
 }
 
+
 double Scan::calcScore_averageSources( const vector<double> &asrcs, unsigned long nMaxBls ) const noexcept {
     unsigned long nbl = observations_.size();
     return asrcs[srcid_] * static_cast<double>( nbl ) / static_cast<double>( nMaxBls );
 }
+
 
 double Scan::calcScore_duration( unsigned long nMaxSta, unsigned int minTime, unsigned int maxTime ) const noexcept {
     unsigned int thisScanDuration = times_.getScanDuration();
@@ -613,6 +631,7 @@ double Scan::calcScore_duration( unsigned long nMaxSta, unsigned int minTime, un
     score *= static_cast<double>( nsta_ ) / static_cast<double>( nMaxSta );
     return score;
 }
+
 
 double Scan::calcScore_lowElevation( unsigned long nmaxsta ) {
     double score = 0;
@@ -632,6 +651,7 @@ double Scan::calcScore_lowElevation( unsigned long nmaxsta ) {
     return score / nmaxsta;
 }
 
+
 double Scan::calcScore_lowDeclination( unsigned long nMaxObs ) {
     double dec = pointingVectorsStart_[0].getDc();
     double score = 0;
@@ -645,6 +665,7 @@ double Scan::calcScore_lowDeclination( unsigned long nMaxObs ) {
     }
     return score * static_cast<double>( observations_.size() ) / static_cast<double>( nMaxObs );
 }
+
 
 bool Scan::rigorousUpdate( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                            const boost::optional<StationEndposition> &endposition ) noexcept {
@@ -701,6 +722,7 @@ bool Scan::rigorousUpdate( Network &network, const Source &source, const std::sh
 
     return true;
 }
+
 
 bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -803,6 +825,7 @@ bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
     return scanValid;
 }
 
+
 bool Scan::rigorousScanStartTimeAlignment( Network &network, const Source &source,
                                            const std::shared_ptr<const Mode> &mode ) noexcept {
     bool scanValid;
@@ -845,6 +868,7 @@ bool Scan::rigorousScanStartTimeAlignment( Network &network, const Source &sourc
 
     return scanValid;
 }
+
 
 bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool &stationRemoved ) noexcept {
 #ifdef VIESCHEDPP_LOG
@@ -923,6 +947,7 @@ bool Scan::rigorousScanVisibility( Network &network, const Source &source, bool 
     return true;
 }
 
+
 bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source &thisSource,
                                             const boost::optional<StationEndposition> &endposition,
                                             bool &stationRemoved ) {
@@ -970,6 +995,7 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source
     return true;
 }
 
+
 void Scan::addTagalongStation( const PointingVector &pv_start, const PointingVector &pv_end,
                                const std::vector<Observation> &observations, unsigned int slewtime,
                                const Station &station ) {
@@ -995,6 +1021,7 @@ void Scan::addTagalongStation( const PointingVector &pv_start, const PointingVec
                                        station.getWaittimes().fieldSystem, station.getWaittimes().preob );
     }
 }
+
 
 double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                   const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
@@ -1042,6 +1069,7 @@ double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::v
     return this_score;
 }
 
+
 double Scan::calcScore_secondPart( double this_score, const Network &network, const Source &source ) {
     if ( source.getPARA().tryToFocusIfObservedOnce ) {
         unsigned int nscans = source.getNscans();
@@ -1080,6 +1108,7 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
     return this_score;
 }
 
+
 void Scan::calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs,
                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                       const Network &network, const Source &source, bool subnetting,
@@ -1097,6 +1126,7 @@ void Scan::calcScore( const std::vector<double> &astas, const std::vector<double
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " score " << score_;
 #endif
 }
+
 
 void Scan::calcScore( const std::vector<double> &astas, const std::vector<double> &asrcs,
                       const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
@@ -1117,6 +1147,7 @@ void Scan::calcScore( const std::vector<double> &astas, const std::vector<double
 #endif
 }
 
+
 void Scan::calcScore_subnetting( const std::vector<double> &astas, const std::vector<double> &asrcs,
                                  const std::vector<double> &abls, unsigned int minTime, unsigned int maxTime,
                                  const Network &network, const Source &source,
@@ -1136,6 +1167,7 @@ void Scan::calcScore_subnetting( const std::vector<double> &astas, const std::ve
 #endif
 }
 
+
 void Scan::calcScore( unsigned int minTime, unsigned int maxTime, const Network &network, const Source &source,
                       double hiscore, bool subnetting ) {
     double this_score = calcScore_firstPart( vector<double>(), vector<double>(), vector<double>(), minTime, maxTime,
@@ -1146,6 +1178,7 @@ void Scan::calcScore( unsigned int minTime, unsigned int maxTime, const Network 
     if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " score " << score_;
 #endif
 }
+
 
 bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
                       const std::vector<double> &prevHighElevationScores, const Network &network,
@@ -1222,6 +1255,7 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
         return false;
     }
 }
+
 
 void Scan::output( unsigned long observed_scan_nr, const Network &network, const Source &source, ofstream &of ) const
     noexcept {
@@ -1328,6 +1362,7 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
           "-----------------------------------|\n";
 }
 
+
 boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids, const Source &source ) const noexcept {
     vector<PointingVector> pv;
     pv.reserve( ids.size() );
@@ -1384,6 +1419,7 @@ boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids, con
     return Scan( move( pv ), move( t ), move( obs ), type_ );
 }
 
+
 double Scan::weight_stations( const std::vector<Station> &stations ) {
     double weight = 1;
     for ( const auto &any : pointingVectorsStart_ ) {
@@ -1392,6 +1428,7 @@ double Scan::weight_stations( const std::vector<Station> &stations ) {
 
     return weight;
 }
+
 
 double Scan::weight_baselines( const std::vector<Baseline> &baselines ) {
     double weight = 1;
@@ -1402,7 +1439,9 @@ double Scan::weight_baselines( const std::vector<Baseline> &baselines ) {
     return weight;
 }
 
+
 void Scan::setFixedScanDuration( unsigned int scanDuration ) noexcept { times_.setObservingTimes( scanDuration ); }
+
 
 bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
                          const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
@@ -1417,7 +1456,9 @@ bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vecto
     return valid;
 }
 
+
 void Scan::setPointingVectorsEndtime( vector<PointingVector> pv_end ) { pointingVectorsEnd_ = std::move( pv_end ); }
+
 
 void Scan::createDummyObservations( const Network &network ) {
     for ( int i = 0; i < nsta_; ++i ) {
@@ -1441,6 +1482,7 @@ void Scan::createDummyObservations( const Network &network ) {
     }
 }
 
+
 unsigned long Scan::getNObs( unsigned long staid ) const noexcept {
     unsigned long n = 0;
     for ( const auto &any : observations_ ) {
@@ -1450,6 +1492,7 @@ unsigned long Scan::getNObs( unsigned long staid ) const noexcept {
     }
     return n;
 }
+
 
 void Scan::setPointingVector( int idx, PointingVector pv, Timestamp ts ) {
     times_.setObservingTime( idx, pv.getTime(), ts );
@@ -1464,6 +1507,7 @@ void Scan::setPointingVector( int idx, PointingVector pv, Timestamp ts ) {
         }
     }
 }
+
 
 void Scan::removeUnnecessaryObservingTime( Network &network, const Source &thisSource, std::ofstream &of,
                                            Timestamp ts ) {
@@ -1492,6 +1536,7 @@ void Scan::removeUnnecessaryObservingTime( Network &network, const Source &thisS
                   .str();
     }
 }
+
 
 void Scan::removeAdditionalObservingTime( unsigned int time, const Station &thisSta, const Source &thisSource,
                                           std::ofstream &of, Timestamp ts ) {
@@ -1531,6 +1576,7 @@ void Scan::removeAdditionalObservingTime( unsigned int time, const Station &this
     }
 }
 
+
 void Scan::updateObservingTime() {
     for ( auto &obs : observations_ ) {
         int idx1 = *findIdxOfStationId( obs.getStaid1() );
@@ -1541,6 +1587,7 @@ void Scan::updateObservingTime() {
         obs.setStartTime( start );
     }
 }
+
 
 bool Scan::prepareForScanEnd( Network &network, const Source &source, const std::shared_ptr<const Mode> &mode,
                               unsigned int endTime ) {
@@ -1574,6 +1621,7 @@ bool Scan::prepareForScanEnd( Network &network, const Source &source, const std:
 
     return true;
 }
+
 
 string Scan::getName( unsigned long indexOfThisScanInList, const std::vector<Scan> &otherScans ) const {
     unsigned int start = times_.getObservingTime( Timestamp::start );
@@ -1619,6 +1667,7 @@ string Scan::getName( unsigned long indexOfThisScanInList, const std::vector<Sca
     return scanId;
 }
 
+
 bool Scan::hasObservation( unsigned long staid1, unsigned long staid2 ) const {
     for ( const auto &any : observations_ ) {
         if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
@@ -1628,6 +1677,7 @@ bool Scan::hasObservation( unsigned long staid1, unsigned long staid2 ) const {
 
     return false;
 }
+
 
 std::string Scan::toSkedOutputTimes( const Source &source, unsigned long nMaxSta ) const {
     unsigned int time = times_.getObservingTime( Timestamp::start );
@@ -1644,6 +1694,7 @@ std::string Scan::toSkedOutputTimes( const Source &source, unsigned long nMaxSta
     out.append( "\n" );
     return out;
 }
+
 
 void Scan::includesStations( std::vector<char> &flag ) const {
     for ( const auto &pv : pointingVectorsStart_ ) {

@@ -17,16 +17,20 @@
  */
 
 #include "Network.h"
+
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long VieVS::Network::nextId = 0;
+
 
 Network::Network() : VieVS_Object( nextId++ ) {
     nsta_ = 0;
     nbls_ = 0;
     maxDistBetweenCorrespondingTelescopes_ = 0;
 }
+
 
 void Network::addStation( Station station ) {
     if ( station.getId() != stations_.size() ) {
@@ -82,7 +86,9 @@ void Network::addStation( Station station ) {
     nbls_ = ( nsta_ * ( nsta_ - 1 ) ) / 2;
 }
 
+
 const Station &Network::getStation( unsigned long id ) const noexcept { return stations_[id]; }
+
 
 const Station &Network::getStation( const std::string &name ) const noexcept {
     for ( const auto &any : stations_ ) {
@@ -92,9 +98,12 @@ const Station &Network::getStation( const std::string &name ) const noexcept {
     }
 }
 
+
 const std::vector<Station> &Network::getStations() const noexcept { return stations_; }
 
+
 const Baseline &Network::getBaseline( unsigned long id ) const noexcept { return baselines_[id]; }
+
 
 const Baseline &Network::getBaseline( unsigned long staid1, unsigned long staid2 ) const noexcept {
     if ( staid1 > staid2 ) {
@@ -105,9 +114,11 @@ const Baseline &Network::getBaseline( unsigned long staid1, unsigned long staid2
     return baselines_[blid];
 }
 
+
 const Baseline &Network::getBaseline( const std::pair<unsigned long, unsigned long> &staids ) const noexcept {
     return getBaseline( staids.first, staids.second );
 }
+
 
 const Baseline &Network::getBaseline( const std::string &name ) const noexcept {
     for ( const auto &any : baselines_ ) {
@@ -117,13 +128,18 @@ const Baseline &Network::getBaseline( const std::string &name ) const noexcept {
     }
 }
 
+
 const std::vector<Baseline> &Network::getBaselines() const noexcept { return baselines_; }
+
 
 const SkyCoverage &Network::getSkyCoverage( unsigned long id ) const noexcept { return skyCoverages_[id]; }
 
+
 const std::vector<SkyCoverage> &Network::getSkyCoverages() const noexcept { return skyCoverages_; }
 
+
 Station &Network::refStation( unsigned long id ) { return stations_[id]; }
+
 
 Station &Network::refStation( const std::string &name ) {
     for ( auto &any : stations_ ) {
@@ -133,9 +149,12 @@ Station &Network::refStation( const std::string &name ) {
     }
 }
 
+
 std::vector<Station> &Network::refStations() { return stations_; }
 
+
 Baseline &Network::refBaseline( unsigned long id ) { return baselines_[id]; }
+
 
 Baseline &Network::refBaseline( unsigned long staid1, unsigned long staid2 ) {
     if ( staid1 > staid2 ) {
@@ -145,9 +164,11 @@ Baseline &Network::refBaseline( unsigned long staid1, unsigned long staid2 ) {
     return baselines_[staids2blid_[{staid1, staid2}]];
 }
 
+
 Baseline &Network::refBaseline( const std::pair<unsigned long, unsigned long> &staids ) {
     return refBaseline( staids.first, staids.second );
 }
+
 
 Baseline &Network::refBaseline( const std::string &name ) {
     for ( auto &any : baselines_ ) {
@@ -157,19 +178,25 @@ Baseline &Network::refBaseline( const std::string &name ) {
     }
 }
 
+
 std::vector<Baseline> &Network::refBaselines() { return baselines_; }
+
 
 unsigned long Network::getBlid( unsigned long staid1, unsigned long staid2 ) const noexcept {
     return getBaseline( staid1, staid2 ).getId();
 }
 
+
 unsigned long Network::getBlid( const std::pair<unsigned long, unsigned long> &staids ) const noexcept {
     return getBaseline( staids.first, staids.second ).getId();
 }
 
+
 SkyCoverage &Network::refSkyCoverage( unsigned long id ) { return skyCoverages_[id]; }
 
+
 std::vector<SkyCoverage> &Network::refSkyCoverages() { return skyCoverages_; }
+
 
 void Network::update( unsigned long nObs, const PointingVector &pointingVector, bool influence ) {
     unsigned long staid = pointingVector.getStaid();
@@ -182,7 +209,9 @@ void Network::update( unsigned long nObs, const PointingVector &pointingVector, 
     }
 }
 
+
 void Network::update( unsigned long blid, bool influence ) { baselines_[blid].update( influence ); }
+
 
 const std::vector<double> &Network::getDxyz( unsigned long staid1, unsigned long staid2 ) const {
     if ( staid1 > staid2 ) {
@@ -191,6 +220,7 @@ const std::vector<double> &Network::getDxyz( unsigned long staid1, unsigned long
 
     return staids2dxyz_.at( {staid1, staid2} );
 }
+
 
 double Network::calcScore_skyCoverage( const vector<PointingVector> &pvs ) const {
     double score = 0;
@@ -204,6 +234,7 @@ double Network::calcScore_skyCoverage( const vector<PointingVector> &pvs ) const
 
     return score / nsta_;
 }
+
 
 double Network::calcScore_skyCoverage( const vector<PointingVector> &pvs,
                                        unordered_map<unsigned long, double> &staids2skyCoverageScore ) const {
@@ -220,6 +251,7 @@ double Network::calcScore_skyCoverage( const vector<PointingVector> &pvs,
 
     return score / nsta_;
 }
+
 
 double Network::calcScore_skyCoverage_subnetting(
     const vector<PointingVector> &pvs, const unordered_map<unsigned long, double> &staids2skyCoverageScore ) const {

@@ -28,7 +28,9 @@
 #ifndef VLBI_SCHEDULER_FLUX_B_H
 #define VLBI_SCHEDULER_FLUX_B_H
 
+
 #include "AbstractFlux.h"
+
 
 namespace VieVS {
 /**
@@ -50,6 +52,7 @@ class Flux_B : public AbstractFlux {
      */
     Flux_B( double wavelength, const std::vector<double> &knots, const std::vector<double> &values );
 
+
     /**
      * @brief maximum possible flux density
      * @author Matthias Schartner
@@ -57,6 +60,7 @@ class Flux_B : public AbstractFlux {
      * @return maximum possible flux density in Jansky
      */
     double getMaximumFlux() const noexcept override;
+
 
     /**
      * @brief observed flux density
@@ -67,6 +71,7 @@ class Flux_B : public AbstractFlux {
      * @return observed flux density in jansky
      */
     double observedFlux( double u, double v ) const noexcept override;
+
 
    private:
     std::vector<double> knots_;   ///< baseline length for flux density

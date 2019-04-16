@@ -17,14 +17,18 @@
  */
 
 #include "Antenna_AzEl.h"
+
+
 using namespace std;
 using namespace VieVS;
+
 
 Antenna_AzEl::Antenna_AzEl( double offset_m, double diam_m, double rateAz_deg_per_min,
                             unsigned int constantOverheadAz_s, double rateEl_deg_per_min,
                             unsigned int constantOverheadEl_s )
     : AbstractAntenna( offset_m, diam_m, rateAz_deg_per_min, constantOverheadAz_s, rateEl_deg_per_min,
                        constantOverheadEl_s ) {}
+
 
 unsigned int Antenna_AzEl::slewTime( const PointingVector &old_pointingVector,
                                      const PointingVector &new_pointingVector ) const noexcept {

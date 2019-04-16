@@ -18,12 +18,15 @@
 
 #include "OperationNotes.h"
 
+
 using namespace VieVS;
 using namespace std;
 
 unsigned long OperationNotes::nextId = 0;
 
+
 OperationNotes::OperationNotes( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
+
 
 void OperationNotes::writeOperationNotes( const Network &network, const std::vector<Source> &sources,
                                           const std::vector<Scan> &scans,
@@ -213,6 +216,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
         of, xml, boost::property_tree::xml_writer_make_settings<std::string>( '\t', 1 ) );
 }
 
+
 void OperationNotes::writeSkdsum( const Network &network, const std::vector<Source> &sources,
                                   const std::vector<Scan> &scans ) {
     {
@@ -225,6 +229,7 @@ void OperationNotes::writeSkdsum( const Network &network, const std::vector<Sour
         displayAstronomicalParameters();
     }
 }
+
 
 void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) {
     auto n_scans = static_cast<int>( scans.size() );
@@ -308,6 +313,7 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
     of << "\n";
 }
 
+
 void OperationNotes::displayBaselineStatistics( const Network &network ) {
     unsigned long nsta = network.getNSta();
     of << "\n      # OF OBSERVATIONS BY BASELINE \n";
@@ -336,6 +342,7 @@ void OperationNotes::displayBaselineStatistics( const Network &network ) {
         of << boost::format( "%7d\n" ) % network.getStation( staid1 ).getNObs();
     }
 }
+
 
 void OperationNotes::firstLastObservations_skdStyle( const string &expName, const Network &network,
                                                      const std::vector<Source> &sources,
@@ -377,6 +384,7 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
     }
 }
 
+
 void OperationNotes::displayStationStatistics( const Network &network ) {
     of << "number of scans per 15 minutes:\n";
     of << ".-------------------------------------------------------------"
@@ -415,6 +423,7 @@ void OperationNotes::displayStationStatistics( const Network &network ) {
     of << "'--------------------------------------------------------------"
           "---------------------------------------------------------------------------'\n\n";
 }
+
 
 void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources ) {
     of << "number of available sources:   " << sources.size() << "\n";
@@ -466,6 +475,7 @@ void OperationNotes::displaySourceStatistics( const std::vector<Source> &sources
           "---------------------------------------------------------------------------'\n\n";
 }
 
+
 void OperationNotes::displayNstaStatistics( const Network &network, const std::vector<Scan> &scans ) {
     unsigned long nsta = network.getNSta();
     vector<int> nstas( nsta + 1, 0 );
@@ -493,6 +503,7 @@ void OperationNotes::displayNstaStatistics( const Network &network, const std::v
     of << boost::format( "Total integrated obs-time:%9d\n" ) % intObs;
     of << boost::format( "Average obs-time:         %9.1f\n" ) % ( static_cast<double>( intObs ) / obs );
 }
+
 
 void OperationNotes::displayScanDurationStatistics( const Network &network, const std::vector<Scan> &scans ) {
     unsigned long nsta = network.getNSta();
@@ -601,6 +612,7 @@ void OperationNotes::displayScanDurationStatistics( const Network &network, cons
     }
     of << "'-----------------------------------------------------------------------------------'\n\n";
 }
+
 
 void OperationNotes::displayTimeStatistics( const Network &network,
                                             const std::shared_ptr<const ObservingMode> &obsModes ) {
@@ -758,6 +770,7 @@ void OperationNotes::displayTimeStatistics( const Network &network,
     }
 }
 
+
 void OperationNotes::displayAstronomicalParameters() {
     of << ".------------------------------------------.\n";
     of << "| sun position:        | earth velocity:   |\n";
@@ -782,6 +795,7 @@ void OperationNotes::displayAstronomicalParameters() {
     }
     of << "'--------------------------------------------------------------------'\n\n";
 }
+
 
 void OperationNotes::displaySNRSummary( const Network &network, const std::vector<Source> &sources,
                                         const std::vector<Scan> &scans,
@@ -894,6 +908,7 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
     }
 }
 
+
 void OperationNotes::listKeys( const Network &network ) {
     of << " Key:     ";
     int i = 0;
@@ -906,6 +921,7 @@ void OperationNotes::listKeys( const Network &network ) {
     }
     of << "\n\n";
 }
+
 
 void OperationNotes::displaySkyCoverageScore( const Network &network ) {
     vector<double> a13m30;

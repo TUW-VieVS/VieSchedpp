@@ -27,10 +27,12 @@
 #ifndef FILLINMODEENDPOSITION_H
 #define FILLINMODEENDPOSITION_H
 
+
 #include <limits>
 #include <set>
 #include <vector>
 #include "../Station/Station.h"
+
 
 namespace VieVS {
 
@@ -57,6 +59,7 @@ class StationEndposition : public VieVS_Object {
         end     ///< end
     };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -64,6 +67,7 @@ class StationEndposition : public VieVS_Object {
      * @param nsta number of stations
      */
     explicit StationEndposition( unsigned long nsta );
+
 
     /**
      * @brief add new endposition
@@ -73,6 +77,7 @@ class StationEndposition : public VieVS_Object {
      */
     void addPointingVectorAsEndposition( const PointingVector &pv );
 
+
     /**
      * @brief check if scan is possible for this station
      * @author Matthias Schartner
@@ -80,6 +85,7 @@ class StationEndposition : public VieVS_Object {
      * @param station station
      */
     void checkStationPossibility( const Station &station );
+
 
     /**
      * @brief check if scan is possible for all stations
@@ -89,6 +95,7 @@ class StationEndposition : public VieVS_Object {
      * @return true if scan is possible
      */
     bool checkStationPossibility( const std::vector<Station> &station );
+
 
     /**
      * @brief get flag if scan is possible with this station
@@ -102,6 +109,7 @@ class StationEndposition : public VieVS_Object {
         return possible;
     }
 
+
     /**
      * @brief check if station has endposition
      * @author Matthias Schartner
@@ -111,6 +119,7 @@ class StationEndposition : public VieVS_Object {
      */
     bool hasEndposition( unsigned long staid ) const noexcept { return finalPosition_[staid].is_initialized(); }
 
+
     /**
      * @brief get required scan end time
      * @author Matthias Schartner
@@ -119,6 +128,7 @@ class StationEndposition : public VieVS_Object {
      * @return latest possible scan end time
      */
     unsigned int requiredEndpositionTime( unsigned long staid ) const;
+
 
     /**
      * @brief getter for all desired positions at the end of the fillin scans.
@@ -131,6 +141,7 @@ class StationEndposition : public VieVS_Object {
      */
     const std::vector<boost::optional<PointingVector>> &getFinalPosition() const noexcept { return finalPosition_; }
 
+
     /**
      * @brief get final position of station
      * @author Matthias Schartner
@@ -142,6 +153,7 @@ class StationEndposition : public VieVS_Object {
         return finalPosition_[staid];
     }
 
+
     /**
      * @brief get flag if station is available
      *
@@ -149,6 +161,7 @@ class StationEndposition : public VieVS_Object {
      * @return flag if station is available
      */
     bool getStationAvailable( unsigned long staid ) const noexcept { return stationAvailable_[staid]; }
+
 
     /**
      * @brief check if every station is initialized
@@ -161,6 +174,7 @@ class StationEndposition : public VieVS_Object {
                             []( const boost::optional<PointingVector> &p ) { return p.is_initialized(); } );
     }
 
+
     /**
      * @brief get observed sources
      * @author Matthias Schartner
@@ -168,6 +182,7 @@ class StationEndposition : public VieVS_Object {
      * @return all next observed source ids
      */
     std::set<unsigned long> getObservedSources() const noexcept;
+
 
     /**
      * @brief get earliest possible scan start
@@ -177,6 +192,7 @@ class StationEndposition : public VieVS_Object {
      */
     unsigned int getEarliestScanStart() const noexcept { return earliestScanStart_; }
 
+
     /**
      * @brief set station available flags
      * @author Matthias Schartner
@@ -184,6 +200,7 @@ class StationEndposition : public VieVS_Object {
      * @param stations list of stations
      */
     void setStationAvailable( const std::vector<Station> &stations );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

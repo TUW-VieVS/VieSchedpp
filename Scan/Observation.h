@@ -27,7 +27,9 @@
 #ifndef OBSERVATION_H
 #define OBSERVATION_H
 
+
 #include "../Misc/VieVS_Object.h"
+
 
 namespace VieVS {
 
@@ -54,6 +56,7 @@ class Observation : public VieVS_Object {
     Observation( unsigned long blid, unsigned long staid1, unsigned long staid2, unsigned long srcid,
                  unsigned int startTime, unsigned int observingTime = 0 );
 
+
     /**
      * @brief copy constructor
      * @author Matthias Schartner
@@ -61,6 +64,7 @@ class Observation : public VieVS_Object {
      * @param other reference observation
      */
     Observation( const Observation &other );
+
 
     /**
      * @brief get baseline id
@@ -70,6 +74,7 @@ class Observation : public VieVS_Object {
      */
     unsigned long getBlid() const { return blid_; }
 
+
     /**
      * @brief get first station id
      * @author Matthias Schartner
@@ -77,6 +82,7 @@ class Observation : public VieVS_Object {
      * @return first station id
      */
     unsigned long getStaid1() const { return staid1_; }
+
 
     /**
      * @brief get second station id
@@ -86,6 +92,7 @@ class Observation : public VieVS_Object {
      */
     unsigned long getStaid2() const { return staid2_; }
 
+
     /**
      * @brief get source id
      * @author Matthias Schartner
@@ -93,6 +100,7 @@ class Observation : public VieVS_Object {
      * @return source id
      */
     unsigned long getSrcid() const { return srcid_; }
+
 
     /**
      * @brief get start time
@@ -102,6 +110,7 @@ class Observation : public VieVS_Object {
      */
     unsigned int getStartTime() const { return startTime_; }
 
+
     /**
      * @brief get observing time
      * @author Matthias Schartner
@@ -109,6 +118,7 @@ class Observation : public VieVS_Object {
      * @return observing time in seconds
      */
     unsigned int getObservingTime() const { return observingTime_; }
+
 
     /**
      * @brief check if observation is with this station
@@ -119,6 +129,7 @@ class Observation : public VieVS_Object {
      */
     bool containsStation( unsigned long staid ) const noexcept;
 
+
     /**
      * @brief set observing time for this observation
      * @author Matthias Schartner
@@ -126,6 +137,7 @@ class Observation : public VieVS_Object {
      * @param observingTime observing time in seconds
      */
     void setObservingTime( unsigned int observingTime ) { observingTime_ = observingTime; }
+
 
     /**
      * @brief set start time for this observation
@@ -135,6 +147,7 @@ class Observation : public VieVS_Object {
      */
     void setStartTime( unsigned int startTime ) { startTime_ = startTime; }
 
+
     /**
      * @brief number of created observations
      * @author Matthias Schartner
@@ -142,6 +155,7 @@ class Observation : public VieVS_Object {
      * @return total number of created observations
      */
     static unsigned long numberOfCreatedObjects() { return nextId; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

@@ -25,16 +25,19 @@
 
 #include "Equipment.h"
 
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long Equipment::nextId = 0;
 
-Equipment::Equipment( const unordered_map<string, double>& SEFDs ) : VieVS_Object( nextId++ ), SEFD_{SEFDs} {}
+
+Equipment::Equipment( const unordered_map<string, double> &SEFDs ) : VieVS_Object( nextId++ ), SEFD_{SEFDs} {}
+
 
 double Equipment::getMaxSEFD() const noexcept {
     double maxSEFD = 0;
-    for ( auto& any : SEFD_ ) {
+    for ( auto &any : SEFD_ ) {
         if ( any.second > maxSEFD ) {
             maxSEFD = any.second;
         }

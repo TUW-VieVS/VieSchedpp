@@ -27,8 +27,10 @@
 #ifndef SUBNETTING_H
 #define SUBNETTING_H
 
+
 #include <utility>
 #include <vector>
+
 
 namespace VieVS {
 /**
@@ -51,6 +53,7 @@ class Subnetting {
 
           };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -61,6 +64,7 @@ class Subnetting {
      */
     bool isAllowed( unsigned long nsta, unsigned long nsta_max ) { return allowedMinSta( nsta, nsta_max ); }
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -68,6 +72,7 @@ class Subnetting {
      * @return list of possible subnetting source ids
      */
     const std::vector<std::vector<unsigned long>> &getSubnettingSrcIds() const { return subnettingSrcIds; }
+
 
    private:
     /**
@@ -80,8 +85,10 @@ class Subnetting {
      */
     virtual bool allowedMinSta( unsigned long nsta, unsigned long nsta_max ) = 0;
 
+
     std::vector<std::vector<unsigned long>> subnettingSrcIds;  ///< list of possible subnetting source ids
 };
+
 
 /**
  * @class Subnetting_percent
@@ -102,6 +109,7 @@ class Subnetting_percent : public Subnetting {
     explicit Subnetting_percent( std::vector<std::vector<unsigned long>> subnettingSrcIds, double percent )
         : Subnetting( std::move( subnettingSrcIds ) ), percent_{percent} {}
 
+
    private:
     /**
      * @brief constructor
@@ -113,8 +121,10 @@ class Subnetting_percent : public Subnetting {
      */
     bool allowedMinSta( unsigned long nsta, unsigned long nsta_max ) override { return nsta >= nsta_max * percent_; }
 
+
     double percent_;  ///< minimum necessary percentage of stations
 };
+
 
 /**
  * @class Subnetting_minIdle
@@ -135,6 +145,7 @@ class Subnetting_minIdle : public Subnetting {
     explicit Subnetting_minIdle( std::vector<std::vector<unsigned long>> subnettingSrcIds, int maxIdle )
         : Subnetting( std::move( subnettingSrcIds ) ), maxIdle_{maxIdle} {}
 
+
    private:
     /**
      * @brief constructor
@@ -145,6 +156,7 @@ class Subnetting_minIdle : public Subnetting {
      * @return true if subnetting scan is allowed
      */
     bool allowedMinSta( unsigned long nsta, unsigned long nsta_max ) override { return nsta >= nsta_max - maxIdle_; }
+
 
     int maxIdle_;  ///< maximum allowed number of idle stations
 };

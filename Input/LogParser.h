@@ -27,17 +27,17 @@
 #ifndef LOGPARSER_H
 #define LOGPARSER_H
 
+
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include <fstream>
 #include <iostream>
-
+#include "../Misc/TimeSystem.h"
+#include "../Misc/VieVS_Object.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
 
-#include "../Misc/TimeSystem.h"
-#include "../Misc/VieVS_Object.h"
 
 namespace VieVS {
 
@@ -79,6 +79,7 @@ class LogParser : public VieVS_Object {
         int scheduledScanTime = 0;   ///< scheduled scan time
     };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -86,6 +87,7 @@ class LogParser : public VieVS_Object {
      * @param filename path to log file
      */
     explicit LogParser( const std::string &filename );
+
 
     /**
      * @brief parse log file
@@ -96,6 +98,7 @@ class LogParser : public VieVS_Object {
      */
     void parseLogFile( const std::string &slewStart, const std::string &slewEnd );
 
+
     /**
      * @brief output parser to text file
      * @author Matthias Schartner
@@ -103,6 +106,7 @@ class LogParser : public VieVS_Object {
      * @param outfile output text file name
      */
     void output( const std::string &outfile );
+
 
     /**
      * @brief add scheduled times for comparison
@@ -121,6 +125,7 @@ class LogParser : public VieVS_Object {
      * @return true if scheduled times can be compared to log file
      */
     bool addScheduledTimes( const std::vector<std::vector<unsigned int>> &times );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

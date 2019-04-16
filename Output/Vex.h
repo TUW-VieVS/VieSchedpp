@@ -27,9 +27,11 @@
 #ifndef VEX_H
 #define VEX_H
 
+
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
 #include "../Station/Station.h"
+
 
 namespace VieVS {
 
@@ -51,6 +53,7 @@ class Vex : public VieVS_Object {
      */
     explicit Vex( const std::string &file );
 
+
     /**
      * @brief writ vex file
      * @author Matthias Schartner
@@ -63,6 +66,7 @@ class Vex : public VieVS_Object {
      */
     void writeVex( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                    const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -78,6 +82,7 @@ class Vex : public VieVS_Object {
      * @param expName experiment name
      */
     void global_block( const std::string &expName );
+
 
     /**
      * @brief write vex $EXPER block
@@ -100,6 +105,7 @@ class Vex : public VieVS_Object {
                       const std::string &schedulerName, const std::string &schedulerEmail, const std::string &notes,
                       const std::string &targetCorrelator, const std::string &gui_version );
 
+
     /**
      * @brief write vex $STATION block
      * @author Matthias Schartner
@@ -107,6 +113,7 @@ class Vex : public VieVS_Object {
      * @param stations list of all stations
      */
     void station_block( const std::vector<Station> &stations );
+
 
     /**
      * @brief write vex $STATION block
@@ -116,6 +123,7 @@ class Vex : public VieVS_Object {
      */
     void sites_block( const std::vector<Station> &stations );
 
+
     /**
      * @brief write vex $ANTENNA block
      * @author Matthias Schartner
@@ -123,6 +131,7 @@ class Vex : public VieVS_Object {
      * @param stations list of all stations
      */
     void antenna_block( const std::vector<Station> &stations );
+
 
     /**
      * @brief write vex $DAS block
@@ -132,6 +141,7 @@ class Vex : public VieVS_Object {
      */
     void das_block( const std::vector<Station> &stations );
 
+
     /**
      * @brief write vex $SOURCE block
      * @author Matthias Schartner
@@ -139,6 +149,7 @@ class Vex : public VieVS_Object {
      * @param sources list of all sources
      */
     void source_block( const std::vector<Source> &sources );
+
 
     /**
      * @brief write vex $MODE block
@@ -148,6 +159,7 @@ class Vex : public VieVS_Object {
      */
     void mode_block( const std::shared_ptr<const ObservingMode> &obsModes );
 
+
     /**
      * @brief write vex $FREQ block
      * @author Matthias Schartner
@@ -155,6 +167,7 @@ class Vex : public VieVS_Object {
      * @param obsModes observing mode
      */
     void freq_block( const std::shared_ptr<const ObservingMode> &obsModes );
+
 
     /**
      * @brief write vex $BBC block
@@ -164,6 +177,7 @@ class Vex : public VieVS_Object {
      */
     void bbc_block( const std::shared_ptr<const ObservingMode> &obsModes );
 
+
     /**
      * @brief write vex $IF block
      * @author Matthias Schartner
@@ -171,6 +185,7 @@ class Vex : public VieVS_Object {
      * @param obsModes observing mode
      */
     void if_block( const std::shared_ptr<const ObservingMode> &obsModes );
+
 
     /**
      * @brief write vex $TRACKS block
@@ -180,11 +195,13 @@ class Vex : public VieVS_Object {
      */
     void tracks_block( const std::shared_ptr<const ObservingMode> &obsModes );
 
+
     /**
      * @brief write vex head block (deprecated)
      * @author Matthias Schartner
      */
     void head_pos_block();
+
 
     /**
      * @brief write $PASS_ORDER block
@@ -192,17 +209,20 @@ class Vex : public VieVS_Object {
      */
     void pass_order_block();
 
+
     /**
      * @brief write $ROLL block
      * @author Matthias Schartner
      */
     void roll_block();
 
+
     /**
      * @brief write $PHASE_CAL_DETECT block
      * @author Matthias Schartner
      */
     void phase_cal_detect_block();
+
 
     /**
      * @brief write $SCHED block

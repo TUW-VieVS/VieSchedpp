@@ -27,8 +27,10 @@
 #ifndef VIESCHEDPP_SNR_TABLE_H
 #define VIESCHEDPP_SNR_TABLE_H
 
+
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
+
 
 namespace VieVS {
 /**
@@ -48,6 +50,7 @@ class SNR_table : public VieVS_Object {
      */
     explicit SNR_table( const std::string &file );
 
+
     /**
      * @brief create the SNR table
      * @author Matthias Schartner
@@ -59,6 +62,7 @@ class SNR_table : public VieVS_Object {
      */
     void writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                      const std::shared_ptr<const ObservingMode> &obsModes );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

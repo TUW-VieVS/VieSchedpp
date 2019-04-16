@@ -27,11 +27,13 @@
 #ifndef VIEVS_TIMEEVENTS_H
 #define VIEVS_TIMEEVENTS_H
 
+
 #include "Constants.h"
 
 #include <boost/date_time.hpp>
 #include <boost/format.hpp>
 #include "util.h"
+
 
 namespace VieVS {
 /**
@@ -57,6 +59,7 @@ class TimeSystem {
      */
     static double mjd2gmst( double mjd );
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -67,6 +70,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -79,6 +83,7 @@ class TimeSystem {
      */
     static std::string time2string( unsigned int time ) { return time2string( internalTime2PosixTime( time ) ); }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -89,6 +94,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string_units( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -103,6 +109,7 @@ class TimeSystem {
         return time2string_units( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -114,6 +121,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string_doy( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -129,6 +137,7 @@ class TimeSystem {
         return time2string_doy( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief convert datetime to string
      * @author Matthias Schartner
@@ -139,6 +148,7 @@ class TimeSystem {
      * @return datetime
      */
     static std::string time2string_doy_minus( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief convert internal time to string
@@ -153,6 +163,7 @@ class TimeSystem {
         return time2string_doy_minus( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -164,6 +175,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string_doySkdDowntime( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -179,6 +191,7 @@ class TimeSystem {
         return time2string_doySkdDowntime( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -190,6 +203,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string_ast( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -205,6 +219,7 @@ class TimeSystem {
         return time2string_ast( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -216,6 +231,7 @@ class TimeSystem {
      * @return datetime string
      */
     static std::string time2string_doy_units( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -231,6 +247,7 @@ class TimeSystem {
         return time2string_doy_units( internalTime2PosixTime( time ) );
     }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -242,6 +259,7 @@ class TimeSystem {
      * @return date string
      */
     static std::string time2date( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -255,6 +273,7 @@ class TimeSystem {
      */
     static std::string time2date( unsigned int time ) { return time2date( internalTime2PosixTime( time ) ); }
 
+
     /**
      * @brief converts datetime to string
      * @author Matthias Schartner
@@ -265,6 +284,7 @@ class TimeSystem {
      * @return time string
      */
     static std::string time2timeOfDay( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief converts internal time to string
@@ -277,6 +297,7 @@ class TimeSystem {
      */
     static std::string time2timeOfDay( unsigned int time ) { return time2timeOfDay( internalTime2PosixTime( time ) ); }
 
+
     /**
      * @brief internal time format to datetime
      * @author Matthias Schartner
@@ -286,6 +307,7 @@ class TimeSystem {
      */
     static boost::posix_time::ptime internalTime2PosixTime( unsigned int time );
 
+
     /**
      * @brief converts time to internal time format
      * @author Matthias Schartner
@@ -294,6 +316,7 @@ class TimeSystem {
      * @return internal time
      */
     static unsigned int posixTime2InternalTime( const boost::posix_time::ptime &ptime );
+
 
     /**
      * @brief convert string to datetime
@@ -310,6 +333,7 @@ class TimeSystem {
      * @return datetime
      */
     static boost::posix_time::ptime string_doy2ptime( std::string input );
+
 
     /**
      * @brief convert string to datetime

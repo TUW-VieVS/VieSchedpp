@@ -17,11 +17,15 @@
  */
 
 #include "HorizonMask_line.h"
+
+
 using namespace std;
 using namespace VieVS;
 
+
 HorizonMask_line::HorizonMask_line( const vector<double> &azimuths, const vector<double> &elevations )
     : azimuth_{azimuths}, elevation_{elevations} {}
+
 
 bool HorizonMask_line::visible( const PointingVector &pv ) const noexcept {
     double az = pv.getAz();
@@ -36,7 +40,9 @@ bool HorizonMask_line::visible( const PointingVector &pv ) const noexcept {
     return el >= el_mask;
 }
 
+
 string HorizonMask_line::vexOutput() const noexcept { return string(); }
+
 
 std::pair<std::vector<double>, std::vector<double>> HorizonMask_line::getHorizonMask() const noexcept {
     vector<double> az_;
@@ -52,6 +58,7 @@ std::pair<std::vector<double>, std::vector<double>> HorizonMask_line::getHorizon
 
     return {az_, el_};
 }
+
 
 double HorizonMask_line::az2el( double az ) const noexcept {
     unsigned long i = 1;

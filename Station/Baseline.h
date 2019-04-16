@@ -27,12 +27,14 @@
 #ifndef BASELINE_H
 #define BASELINE_H
 
+
 #include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
 #include "../Misc/VieVS_NamedObject.h"
+
 
 namespace VieVS {
 
@@ -56,6 +58,7 @@ class Baseline : public VieVS_NamedObject {
      */
     Baseline( std::string name, std::string alternativeName, unsigned long staid1, unsigned long staid2 );
 
+
     /**
      * @brief checks if this baseline is between the two stations
      * @author Matthias Schartner
@@ -66,6 +69,7 @@ class Baseline : public VieVS_NamedObject {
      */
     bool hasStationIds( unsigned long staid1, unsigned long staid2 ) const noexcept;
 
+
     /**
      * @brief checks if this baseline is between the two stations
      * @author Matthias Schartner
@@ -74,6 +78,7 @@ class Baseline : public VieVS_NamedObject {
      * @return true is baseline is between those stations, otherwise false
      */
     bool hasStationIds( const std::pair<unsigned long, unsigned long> &staids ) const noexcept;
+
 
     /**
      * @brief baseline parameters
@@ -91,6 +96,7 @@ class Baseline : public VieVS_NamedObject {
          */
         explicit Parameters( const std::string &name ) : VieVS_NamedObject( name, nextId++ ) {}
 
+
         /**
          * @brief copies parameters
          * @author Matthias Schartner
@@ -99,12 +105,14 @@ class Baseline : public VieVS_NamedObject {
          */
         void setParameters( const Parameters &other );
 
+
         bool ignore = false;                             ///< ignore this baseline in scheduling process
         double weight = 1;                               ///< weight of this baseline
         unsigned int minScan = 0;                        ///< minimum scan time in seconds
         unsigned int maxScan = 9999;                     ///< maximum scan time in seconds
         std::unordered_map<std::string, double> minSNR;  ///< minimum signal to noise ration for each band
     };
+
 
     /**
      * @brief event which changes parameters
@@ -122,10 +130,12 @@ class Baseline : public VieVS_NamedObject {
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
             : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
 
+
         unsigned int time;      ///< time when new parameters should be used in seconds since start
         bool smoothTransition;  ///< transition type
         Parameters PARA;        ///< new parameters
     };
+
 
     /**
      * @brief baseline statistics
@@ -135,6 +145,7 @@ class Baseline : public VieVS_NamedObject {
         std::vector<unsigned int> scanStartTimes{};  ///< observation start times
         int totalObservingTime{0};                   ///< total number of observations
     };
+
 
     /**
      * @brief sets all upcoming events
@@ -147,6 +158,7 @@ class Baseline : public VieVS_NamedObject {
         nextEvent_ = 0;
     }
 
+
     /**
      * @brief getter method for first station id
      * @author Matthias Schartner
@@ -154,6 +166,7 @@ class Baseline : public VieVS_NamedObject {
      * @return first station id
      */
     unsigned long getStaid1() const noexcept { return staid1_; }
+
 
     /**
      * @brief getter method for second station id
@@ -163,6 +176,7 @@ class Baseline : public VieVS_NamedObject {
      */
     unsigned long getStaid2() const noexcept { return staid2_; }
 
+
     /**
      * @brief getter method for station ids
      * @author Matthias Schartner
@@ -170,6 +184,7 @@ class Baseline : public VieVS_NamedObject {
      * @return pair of station ids
      */
     std::pair<unsigned long, unsigned long> getStaids() const noexcept { return {staid1_, staid2_}; };
+
 
     /**
      * @brief getter for current parameters
@@ -179,6 +194,7 @@ class Baseline : public VieVS_NamedObject {
      */
     const Parameters &getParameters() const { return parameters_; }
 
+
     /**
      * @brief reference of current parameters
      * @author Matthias Schartner
@@ -186,6 +202,7 @@ class Baseline : public VieVS_NamedObject {
      * @return current parameters
      */
     Parameters &refParameters() { return parameters_; }
+
 
     /**
      * @brief checks for new events at certain time
@@ -197,6 +214,7 @@ class Baseline : public VieVS_NamedObject {
      */
     bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept;
 
+
     /**
      * @brief update new observation
      * @author Matthias Schartner
@@ -204,6 +222,7 @@ class Baseline : public VieVS_NamedObject {
      * @param influence true is observation should count for further scan selections, otherwise false
      */
     void update( bool influence ) noexcept;
+
 
     /**
      * @brief set next event index
@@ -213,6 +232,7 @@ class Baseline : public VieVS_NamedObject {
      */
     void setNextEvent( unsigned int idx ) noexcept { nextEvent_ = idx; }
 
+
     /**
      * @brief set baseline statistics
      * @author Matthias Schartner
@@ -220,6 +240,7 @@ class Baseline : public VieVS_NamedObject {
      * @param stat baseline statistics
      */
     void setStatistics( const Statistics &stat ) { statistics_ = stat; }
+
 
     /**
      * @brief getter for baseline statistics
@@ -229,6 +250,7 @@ class Baseline : public VieVS_NamedObject {
      */
     const Statistics &getStatistics() const { return statistics_; }
 
+
     /**
      * @brief get number of observations
      * @author Matthias Schartner
@@ -236,6 +258,7 @@ class Baseline : public VieVS_NamedObject {
      * @return number of observations
      */
     unsigned long getNObs() const { return nObs_; }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

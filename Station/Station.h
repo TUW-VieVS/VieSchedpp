@@ -26,6 +26,8 @@
 
 #ifndef STATION_H
 #define STATION_H
+
+
 #include <fstream>
 #include <iostream>
 
@@ -49,6 +51,7 @@
 #include "../Misc/VieVS_NamedObject.h"
 #include "../Misc/sofa.h"
 
+
 namespace VieVS {
 /**
  * @class Station
@@ -71,6 +74,7 @@ class Station : public VieVS_NamedObject {
         rigorous  ///< rigorous model
     };
 
+
     /**
      * @brief station parameters
      * @author Matthias Schartner
@@ -87,6 +91,7 @@ class Station : public VieVS_NamedObject {
          */
         explicit Parameters( const std::string &name ) : VieVS_NamedObject( name, nextId++ ) {}
 
+
         /**
          * @brief set parameters from other
          * @author Matthias Schartner
@@ -94,6 +99,7 @@ class Station : public VieVS_NamedObject {
          * @param other source parameters
          */
         void setParameters( const Parameters &other );
+
 
         bool firstScan = false;  ///< if set to true: no time is spend for setup, source, tape, calibration, and slewing
         bool available = true;   ///< if set to true: this station is available for a scan
@@ -149,6 +155,7 @@ class Station : public VieVS_NamedObject {
         }
     };
 
+
     /**
      * @brief wait times for field system and correlator synchronization
      * @author Matthias Schartner
@@ -160,6 +167,7 @@ class Station : public VieVS_NamedObject {
         unsigned int postob = 0;       ///< postob time
     };
 
+
     /**
      * @brief setter for wait times
      * @author Matthias Schartner
@@ -169,6 +177,7 @@ class Station : public VieVS_NamedObject {
     void setWaitTimes( WaitTimes &waittimes ) {
         Station::waitTimes_ = std::make_shared<WaitTimes>( std::move( waittimes ) );
     }
+
 
     /**
      * @brief changes in parameters
@@ -186,10 +195,12 @@ class Station : public VieVS_NamedObject {
         Event( unsigned int time, bool smoothTransition, Parameters PARA )
             : time{time}, smoothTransition{smoothTransition}, PARA{std::move( PARA )} {}
 
+
         unsigned int time;      ///< time when new parameters should be used in seconds since start
         bool smoothTransition;  ///< transition type
         Parameters PARA;        ///< new parameters
     };
+
 
     /**
      * @brief statistics
@@ -203,6 +214,7 @@ class Station : public VieVS_NamedObject {
         int totalFieldSystemTime{0};                 ///< integrated field system time
         int totalPreobTime{0};                       ///< integrated calibration time
     };
+
 
     /**
      * @brief constructor
@@ -222,6 +234,7 @@ class Station : public VieVS_NamedObject {
              std::shared_ptr<Equipment> sta_equip, std::shared_ptr<AbstractHorizonMask> sta_mask,
              unsigned long nSources );
 
+
     /**
      * @brief getter for parameters
      * @author Matthias Schartner
@@ -229,6 +242,7 @@ class Station : public VieVS_NamedObject {
      * @return currently used parameters
      */
     const Parameters &getPARA() const { return parameters_; }
+
 
     /**
      * @brief reference to current parameters
@@ -238,6 +252,7 @@ class Station : public VieVS_NamedObject {
      */
     Parameters &referencePARA() { return parameters_; }
 
+
     /**
      * @brief getter for wait times
      * @author Matthias Schartner
@@ -245,6 +260,7 @@ class Station : public VieVS_NamedObject {
      * @return station wait times
      */
     const WaitTimes &getWaittimes() const { return *waitTimes_; }
+
 
     /**
      * @brief getter for cable wrap
@@ -254,6 +270,7 @@ class Station : public VieVS_NamedObject {
      */
     const AbstractCableWrap &getCableWrap() const noexcept { return *cableWrap_; }
 
+
     /**
      * @brief reference to cable wrap
      * @author Matthias Schartner
@@ -261,6 +278,7 @@ class Station : public VieVS_NamedObject {
      * @return cable wrap of this station
      */
     AbstractCableWrap &referenceCableWrap() noexcept { return *cableWrap_; }
+
 
     /**
      * @brief getter for last time this antenna was mentioned in scheduling
@@ -270,6 +288,7 @@ class Station : public VieVS_NamedObject {
      */
     unsigned int getCurrentTime() const noexcept { return currentPositionVector_.getTime(); }
 
+
     /**
      * @brief getter for equipment information
      * @author Matthias Schartner
@@ -277,6 +296,7 @@ class Station : public VieVS_NamedObject {
      * @return equipment objecct
      */
     const Equipment &getEquip() const noexcept { return *equip_; }
+
 
     /**
      * @brief check if station has horizon mask
@@ -286,6 +306,7 @@ class Station : public VieVS_NamedObject {
      */
     bool hasHorizonMask() const { return mask_ != nullptr; }
 
+
     /**
      * @brief getter for horizon mask
      * @author Matthias Schartner
@@ -293,6 +314,7 @@ class Station : public VieVS_NamedObject {
      * @return horizon mask object
      */
     const AbstractHorizonMask &getMask() const { return *mask_; }
+
 
     /**
      * @brief getter for antenna
@@ -302,6 +324,7 @@ class Station : public VieVS_NamedObject {
      */
     const AbstractAntenna &getAntenna() const noexcept { return *antenna_; }
 
+
     /**
      * @brief getter for position
      * @author Matthias Schartner
@@ -309,6 +332,7 @@ class Station : public VieVS_NamedObject {
      * @return position object
      */
     const Position &getPosition() const noexcept { return *position_; }
+
 
     /**
      * @brief getter for number of baselines which were already observed with this station
@@ -318,6 +342,7 @@ class Station : public VieVS_NamedObject {
      */
     int getNObs() const noexcept { return nObs_; }
 
+
     /**
      * @brief get number of scans
      * @author Matthias Schartner
@@ -325,6 +350,7 @@ class Station : public VieVS_NamedObject {
      * @return number of scans
      */
     int getNScans() const noexcept { return nScans_; }
+
 
     /**
      * @brief get number of total scans
@@ -334,6 +360,7 @@ class Station : public VieVS_NamedObject {
      */
     int getNTotalScans() const noexcept { return nTotalScans_; }
 
+
     /**
      * @brief getter for current pointing vector
      * @author Matthias Schartner
@@ -341,6 +368,7 @@ class Station : public VieVS_NamedObject {
      * @return current pointing vector
      */
     const PointingVector &getCurrentPointingVector() const noexcept { return currentPositionVector_; }
+
 
     /**
      * @brief distance between two stations
@@ -351,6 +379,7 @@ class Station : public VieVS_NamedObject {
      */
     double distance( const Station &other ) const noexcept;
 
+
     /**
      * @brief checks if a source is visible for this station
      * @author Matthias Schartner
@@ -360,6 +389,7 @@ class Station : public VieVS_NamedObject {
      * @return true if station is visible
      */
     bool isVisible( const PointingVector &p, double minElevationSource = 0 ) const noexcept;
+
 
     /**
      * @brief calculate slew time between current pointing vector and this pointing vector
@@ -372,6 +402,7 @@ class Station : public VieVS_NamedObject {
      */
     boost::optional<unsigned int> slewTime( const PointingVector &pointingVector ) const noexcept;
 
+
     /**
      * @brief calculation of azimuth, elevation, hour angle and declination with rigorouse model
      * @author Matthias Schartner
@@ -380,6 +411,7 @@ class Station : public VieVS_NamedObject {
      * @param p pointing vector
      */
     void calcAzEl_rigorous( const Source &source, PointingVector &p ) noexcept;
+
 
     /**
      * @brief calculation of azimuth, elevation, hour angle and declination with lookup tables
@@ -390,6 +422,7 @@ class Station : public VieVS_NamedObject {
      */
     void calcAzEl_simple( const Source &source, PointingVector &p ) const noexcept;
 
+
     /**
      * @brief change current pointing vector
      * @author Matthias Schartner
@@ -397,6 +430,7 @@ class Station : public VieVS_NamedObject {
      * @param pointingVector new current pointing vector
      */
     void setCurrentPointingVector( const PointingVector &pointingVector ) noexcept;
+
 
     /**
      * @brief sets all upcoming events
@@ -409,6 +443,7 @@ class Station : public VieVS_NamedObject {
         Station::nextEvent_ = 0;
     }
 
+
     /**
      * @brief check for tagalong mode
      * @author Matthias Schartner
@@ -418,6 +453,7 @@ class Station : public VieVS_NamedObject {
      */
     bool checkForTagalongMode( unsigned int time ) const noexcept;
 
+
     /**
      * @brief this function checks if it is time to change the parameters
      *
@@ -425,6 +461,7 @@ class Station : public VieVS_NamedObject {
      * @param hardBreak flag if a hard break was found
      */
     bool checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept;
+
 
     /**
      * @brief maxium allowed observing time
@@ -435,6 +472,7 @@ class Station : public VieVS_NamedObject {
      */
     unsigned int maximumAllowedObservingTime( Timestamp ts ) const noexcept;
 
+
     /**
      * @brief changes parameters to next setup
      * @author Matthias Schartner
@@ -443,6 +481,7 @@ class Station : public VieVS_NamedObject {
      */
     void applyNextEvent( std::ofstream &of ) noexcept;
 
+
     /**
      * @brief set next event index
      * @author Matthias Schartner
@@ -450,6 +489,7 @@ class Station : public VieVS_NamedObject {
      * @param idx next event index
      */
     void setNextEvent( unsigned int idx ) noexcept { nextEvent_ = idx; }
+
 
     /**
      * @brief update station if used for a scan
@@ -461,11 +501,13 @@ class Station : public VieVS_NamedObject {
      */
     void update( unsigned long nbl, const PointingVector &end, bool addToStatistics ) noexcept;
 
+
     /**
      * @brief clear all observations
      * @author Matthias Schartner
      */
     void clearObservations();
+
 
     /**
      * @brief set station statistics
@@ -475,6 +517,7 @@ class Station : public VieVS_NamedObject {
      */
     void setStatistics( const Statistics &stat ) { statistics_ = stat; }
 
+
     /**
      * @brief get station statistics
      * @author Matthias Schartner
@@ -482,6 +525,7 @@ class Station : public VieVS_NamedObject {
      * @return station statistics
      */
     const Statistics &getStatistics() const { return statistics_; }
+
 
     /**
      * @brief get horizon mask
@@ -491,6 +535,7 @@ class Station : public VieVS_NamedObject {
      */
     std::pair<std::vector<double>, std::vector<double>> getHorizonMask() const noexcept;
 
+
     /**
      * @brief writes station defining block in vex format
      * @author Matthias Schartner
@@ -498,6 +543,7 @@ class Station : public VieVS_NamedObject {
      * @param of vex file
      */
     void toVexStationBlock( std::ofstream &of ) const;
+
 
     /**
      * @brief writes site defining block in vex format
@@ -507,6 +553,7 @@ class Station : public VieVS_NamedObject {
      */
     void toVexSiteBlock( std::ofstream &of ) const;
 
+
     /**
      * @brief writes antenna defining block in vex format
      * @author Matthias Schartner
@@ -515,11 +562,13 @@ class Station : public VieVS_NamedObject {
      */
     void toVexAntennaBlock( std::ofstream &of ) const;
 
+
     /**
      * @brief getter for electronics rack type_
      * @author Matthias Schartner
      */
     const std::string &getElectronics_rack_type_() const { return electronics_rack_type_; }
+
 
     /**
      * @brief getter for record transport type
@@ -527,11 +576,13 @@ class Station : public VieVS_NamedObject {
      */
     const std::string &getRecord_transport_type() const { return record_transport_type_; }
 
+
     /**
      * @brief getter for recording system id
      * @author Matthias Schartner
      */
     const std::string &getRecording_system_id() const { return recording_system_id_; }
+
 
     /**
      * @brief adds additional parameters such as hardware names and occupation code
@@ -545,6 +596,7 @@ class Station : public VieVS_NamedObject {
     void addAdditionalParameters( std::string occupation_code, std::string record_transport_type,
                                   std::string electronics_rack_type, std::string recording_system_ID );
 
+
     /**
      * @brief lists downtime for this station
      * @author Matthias Schartner
@@ -555,6 +607,7 @@ class Station : public VieVS_NamedObject {
      */
     bool listDownTimes( std::ofstream &of, bool skdFormat = false ) const;
 
+
     /**
      * @brief lists tagalong for this station
      * @author Matthias Schartner
@@ -564,6 +617,7 @@ class Station : public VieVS_NamedObject {
      * @return true if tagalong mode was used
      */
     bool listTagalongTimes( std::ofstream &of, bool skdFormat = false ) const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

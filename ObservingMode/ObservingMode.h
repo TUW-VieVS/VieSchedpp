@@ -19,6 +19,7 @@
 #ifndef VIESCHEDPP_OBSMODES_H
 #define VIESCHEDPP_OBSMODES_H
 
+
 #include "Mode.h"
 
 /**
@@ -47,7 +48,7 @@ class ObservingMode : public VieVS_Object {
     enum class Property {
         required,  ///< this band information is required. If this information is missing this object is not used.
         optional,  ///< this band information is only optional. If information is available it is used, otherwise it is
-                   ///< calculated based on backup model
+        ///< calculated based on backup model
     };
 
     /**
@@ -90,6 +91,7 @@ class ObservingMode : public VieVS_Object {
      */
     ObservingMode();
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -99,6 +101,7 @@ class ObservingMode : public VieVS_Object {
      */
     ObservingMode( const boost::property_tree::ptree &tree, const std::vector<std::string> &staNames );
 
+
     /**
      * @brief set station names
      * @author Matthias Schartner
@@ -106,6 +109,7 @@ class ObservingMode : public VieVS_Object {
      * @param names list of station names
      */
     void setStationNames( const std::vector<std::string> &names ) { stationNames_ = names; }
+
 
     /**
      * @brief read observin mode from sked catalogs
@@ -115,6 +119,7 @@ class ObservingMode : public VieVS_Object {
      */
     void readFromSkedCatalogs( const SkdCatalogReader &skd );
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -122,6 +127,7 @@ class ObservingMode : public VieVS_Object {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree() const;
+
 
     /**
      * @brief add observing mode from simple manual model
@@ -137,6 +143,7 @@ class ObservingMode : public VieVS_Object {
                      const std::unordered_map<std::string, unsigned int> &band2channel,
                      const std::unordered_map<std::string, double> &band2wavelength );
 
+
     /**
      * @brief add new observing mode
      * @author Matthias Schartner
@@ -144,6 +151,7 @@ class ObservingMode : public VieVS_Object {
      * @param newMode new observing mode
      */
     void addMode( const std::shared_ptr<const Mode> &newMode ) { modes_.push_back( newMode ); }
+
 
     /**
      * @brief add IF block
@@ -153,6 +161,7 @@ class ObservingMode : public VieVS_Object {
      */
     void addBlock( const std::shared_ptr<const If> &newIf ) { ifs_.push_back( newIf ); }
 
+
     /**
      * @brief add BBC block
      * @author Matthias Schartner
@@ -160,6 +169,7 @@ class ObservingMode : public VieVS_Object {
      * @param newBbc BBC block
      */
     void addBlock( const std::shared_ptr<const Bbc> &newBbc ) { bbcs_.push_back( newBbc ); }
+
 
     /**
      * @brief add FREQ block
@@ -173,6 +183,7 @@ class ObservingMode : public VieVS_Object {
         ObservingMode::bands_.insert( tmp.begin(), tmp.end() );
     }
 
+
     /**
      * @brief add TRACKS block
      * @author Matthias Schartner
@@ -180,6 +191,7 @@ class ObservingMode : public VieVS_Object {
      * @param newTrack TRACKS block
      */
     void addBlock( const std::shared_ptr<const Track> &newTrack ) { tracks_.push_back( newTrack ); }
+
 
     /**
      * @brief add track frame format
@@ -191,6 +203,7 @@ class ObservingMode : public VieVS_Object {
         trackFrameFormats_.emplace_back( std::make_shared<const std::string>( newTrackFrameFormat ) );
     }
 
+
     /**
      * @brief get MODE block
      * @author Matthias Schartner
@@ -200,6 +213,7 @@ class ObservingMode : public VieVS_Object {
      */
     const std::shared_ptr<const Mode> &getMode( unsigned long id ) const { return modes_.at( id ); }
 
+
     /**
      * @brief write MODE section in vex format
      * @author Matthias Schartner
@@ -207,6 +221,7 @@ class ObservingMode : public VieVS_Object {
      * @param of vex file stream
      */
     void toVexModeBlock( std::ofstream &of ) const;
+
 
     /**
      * @brief write FREQ section in vex format
@@ -216,6 +231,7 @@ class ObservingMode : public VieVS_Object {
      */
     void toVexFreqBlock( std::ofstream &of ) const;
 
+
     /**
      * @brief write BBC section in vex format
      * @author Matthias Schartner
@@ -223,6 +239,7 @@ class ObservingMode : public VieVS_Object {
      * @param of vex file stream
      */
     void toVexBbcBlock( std::ofstream &of ) const;
+
 
     /**
      * @brief write IF section in vex format
@@ -232,6 +249,7 @@ class ObservingMode : public VieVS_Object {
      */
     void toVexIfBlock( std::ofstream &of ) const;
 
+
     /**
      * @brief write FREQ section in vex format
      * @author Matthias Schartner
@@ -239,6 +257,7 @@ class ObservingMode : public VieVS_Object {
      * @param of vex file stream
      */
     void toVexTracksBlock( std::ofstream &of ) const;
+
 
     /**
      * @brief write observing mode summary
@@ -248,6 +267,7 @@ class ObservingMode : public VieVS_Object {
      */
     void summary( std::ofstream &of ) const;
 
+
     /**
      * @brief write observing mode summary for operation notes
      * @author Matthias Schartner
@@ -256,12 +276,14 @@ class ObservingMode : public VieVS_Object {
      */
     void operationNotesSummary( std::ofstream &of ) const;
 
+
     /**
      * @brief calculate mean frequencies
      * @author Matthias Schartner
      *
      */
     void calcMeanFrequencies();
+
 
     /**
      * @brief get all bands
@@ -270,6 +292,7 @@ class ObservingMode : public VieVS_Object {
      * @return list of all bands
      */
     const std::set<std::string> &getAllBands() const { return bands_; }
+
 
     /**
      * @brief get wavelength per band
@@ -280,6 +303,7 @@ class ObservingMode : public VieVS_Object {
      */
     double getWavelength( const std::string &band ) const { return wavelength_.at( band ); }
 
+
     /**
      * @brief add bands manually
      * @author Matthias Schartner
@@ -287,6 +311,7 @@ class ObservingMode : public VieVS_Object {
      * @param band list of bands and frequencies
      */
     void addDummyBands( const std::map<std::string, std::vector<double>> &band );
+
 
     /**
      * @brief getter for all station names
@@ -298,6 +323,7 @@ class ObservingMode : public VieVS_Object {
      */
     const std::vector<std::string> &getStationNames() const { return stationNames_; }
 
+
     /**
      * @brief getter for all MODE blocks
      * @author Matthias Schartner
@@ -307,6 +333,7 @@ class ObservingMode : public VieVS_Object {
      * @return list of all MODE blocks
      */
     const std::vector<std::shared_ptr<const Mode>> &getModes() const { return modes_; }
+
 
     /**
      * @brief getter for all IF blocks
@@ -318,6 +345,7 @@ class ObservingMode : public VieVS_Object {
      */
     const std::vector<std::shared_ptr<const If>> &getIfs() const { return ifs_; }
 
+
     /**
      * @brief getter for all BBC blocks
      * @author Matthias Schartner
@@ -327,6 +355,7 @@ class ObservingMode : public VieVS_Object {
      * @return list of all BBC blocks
      */
     const std::vector<std::shared_ptr<const Bbc>> &getBbcs() const { return bbcs_; }
+
 
     /**
      * @brief getter for all FREQ blocks
@@ -338,6 +367,7 @@ class ObservingMode : public VieVS_Object {
      */
     const std::vector<std::shared_ptr<const Freq>> &getFreqs() const { return freqs_; }
 
+
     /**
      * @brief getter for all TRACKS blocks
      * @author Matthias Schartner
@@ -348,6 +378,7 @@ class ObservingMode : public VieVS_Object {
      */
     const std::vector<std::shared_ptr<const Track>> &getTracks() const { return tracks_; }
 
+
     /**
      * @brief getter for all track frame formats
      * @author Matthias Schartner
@@ -357,6 +388,7 @@ class ObservingMode : public VieVS_Object {
      * @return list of all track frame formats
      */
     const std::vector<std::shared_ptr<const std::string>> &getTrackFrameFormats() const { return trackFrameFormats_; }
+
 
     /**
      * @brief get MODE block per index
@@ -375,6 +407,7 @@ class ObservingMode : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get FREQ block per index
      * @author Matthias Schartner
@@ -391,6 +424,7 @@ class ObservingMode : public VieVS_Object {
             return freqs_.at( idx );
         }
     }
+
 
     /**
      * @brief get BBC block per index
@@ -409,6 +443,7 @@ class ObservingMode : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get IF block per index
      * @author Matthias Schartner
@@ -426,6 +461,7 @@ class ObservingMode : public VieVS_Object {
         }
     }
 
+
     /**
      * @brief get TRACKS block per index
      * @author Matthias Schartner
@@ -442,6 +478,7 @@ class ObservingMode : public VieVS_Object {
             return tracks_.at( idx );
         }
     }
+
 
    private:
     static unsigned long nextId;                          ///< next id for this object type
@@ -467,6 +504,7 @@ class ObservingMode : public VieVS_Object {
     void readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
                       const std::map<int, int> &channelNr2Bbc );
 
+
     /**
      * @brief create TRACKS block from skd catalogs
      * @author Matthias Schartner
@@ -477,6 +515,7 @@ class ObservingMode : public VieVS_Object {
      */
     std::map<int, int> readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd );
 
+
     /**
      * @brief create IF block from skd catalogs
      * @author Matthias Schartner
@@ -485,6 +524,7 @@ class ObservingMode : public VieVS_Object {
      * @param skd skd catalogs
      */
     void readSkdIf( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd );
+
 
     /**
      * @brief create BBC block from skd catalogs
@@ -495,6 +535,7 @@ class ObservingMode : public VieVS_Object {
      */
     void readSkdBbc( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd );
 
+
     /**
      * @brief create track frame format from skd catalogs
      * @author Matthias Schartner
@@ -504,6 +545,7 @@ class ObservingMode : public VieVS_Object {
      */
     void readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd );
 
+
     /**
      * @brief create track frame format blocks in vex format
      * @author Matthias Schartner
@@ -511,6 +553,7 @@ class ObservingMode : public VieVS_Object {
      * @param of vex file stream
      */
     void toTrackFrameFormatDefinitions( std::ofstream &of ) const;
+
 
     /**
      * @brief get list of station ids from property tree

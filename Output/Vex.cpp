@@ -18,13 +18,17 @@
 
 #include "Vex.h"
 
+
 using namespace std;
 using namespace VieVS;
 unsigned long Vex::nextId = 0;
+
+
 Vex::Vex( const string &file ) : VieVS_Object( nextId++ ) {
     of = ofstream( file );
     of << "VEX_rev = 1.5;\n";
 }
+
 
 void Vex::writeVex( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                     const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml ) {
@@ -62,6 +66,7 @@ void Vex::writeVex( const Network &network, const std::vector<Source> &sources, 
     phase_cal_detect_block();
 }
 
+
 void Vex::global_block( const std::string &expName ) {
     of << "*========================================================================================================="
           "\n";
@@ -70,6 +75,7 @@ void Vex::global_block( const std::string &expName ) {
           "\n";
     of << "    ref $EXPER = " << expName << eol;
 }
+
 
 void Vex::exper_block( const std::string &expName, const std::string &expDescription, const std::string &piName,
                        const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
@@ -121,6 +127,7 @@ void Vex::exper_block( const std::string &expName, const std::string &expDescrip
     of << "    enddef;\n";
 }
 
+
 void Vex::station_block( const std::vector<Station> &stations ) {
     of << "*========================================================================================================="
           "\n";
@@ -158,6 +165,7 @@ void Vex::station_block( const std::vector<Station> &stations ) {
     }
 }
 
+
 void Vex::sites_block( const std::vector<Station> &stations ) {
     of << "*========================================================================================================="
           "\n";
@@ -182,6 +190,7 @@ void Vex::sites_block( const std::vector<Station> &stations ) {
         //        of << "    enddef;\n";
     }
 }
+
 
 void Vex::antenna_block( const std::vector<Station> &stations ) {
     of << "*========================================================================================================="
@@ -214,6 +223,7 @@ void Vex::antenna_block( const std::vector<Station> &stations ) {
         //        of << "    enddef;\n";
     }
 }
+
 
 void Vex::das_block( const std::vector<Station> &stations ) {
     of << "*========================================================================================================="
@@ -261,6 +271,7 @@ void Vex::das_block( const std::vector<Station> &stations ) {
     }
 }
 
+
 void Vex::source_block( const std::vector<Source> &sources ) {
     of << "*========================================================================================================="
           "\n";
@@ -288,6 +299,7 @@ void Vex::source_block( const std::vector<Source> &sources ) {
     }
 }
 
+
 void Vex::phase_cal_detect_block() {
     of << "*========================================================================================================="
           "\n";
@@ -299,6 +311,7 @@ void Vex::phase_cal_detect_block() {
     of << "        phase_cal_detect = &U_cal : 1;\n";
     of << "    enddef;\n";
 }
+
 
 void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, const std::vector<Source> &sources,
                        const std::shared_ptr<const ObservingMode> &obsModes ) {
@@ -385,6 +398,7 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
     }
 }
 
+
 void Vex::mode_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
           "\n";
@@ -394,6 +408,7 @@ void Vex::mode_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
 
     obsModes->toVexModeBlock( of );
 }
+
 
 void Vex::freq_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
@@ -408,6 +423,7 @@ void Vex::freq_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     }
 }
 
+
 void Vex::bbc_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
           "\n";
@@ -420,6 +436,7 @@ void Vex::bbc_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
         of << "simple observation mode used!";
     }
 }
+
 
 void Vex::if_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
@@ -436,6 +453,7 @@ void Vex::if_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     }
 }
 
+
 void Vex::tracks_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     of << "*========================================================================================================="
           "\n";
@@ -449,7 +467,9 @@ void Vex::tracks_block( const std::shared_ptr<const ObservingMode> &obsModes ) {
     }
 }
 
+
 void Vex::head_pos_block() {}
+
 
 void Vex::pass_order_block() {
     of << "*========================================================================================================="
@@ -463,6 +483,7 @@ void Vex::pass_order_block() {
           "13A :  14A;\n";
     of << "    enddef;\n";
 }
+
 
 void Vex::roll_block() {
     of << "*========================================================================================================="

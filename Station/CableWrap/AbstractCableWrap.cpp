@@ -24,10 +24,13 @@
  */
 
 #include "AbstractCableWrap.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long AbstractCableWrap::nextId = 0;
+
 
 AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg,
                                       double axis2_up_deg )
@@ -61,6 +64,7 @@ AbstractCableWrap::AbstractCableWrap( double axis1_low_deg, double axis1_up_deg,
     }
 }
 
+
 void AbstractCableWrap::setMinimumOffsets( double axis1_low_offset, double axis1_up_offset, double axis2_low_offset,
                                            double axis2_up_offset ) noexcept {
     axis1LowOffset_ = axis1_low_offset * deg2rad;
@@ -68,6 +72,7 @@ void AbstractCableWrap::setMinimumOffsets( double axis1_low_offset, double axis1
     axis2LowOffset_ = axis2_low_offset * deg2rad;
     axis2UpOffset_ = axis2_up_offset * deg2rad;
 }
+
 
 pair<double, double> AbstractCableWrap::getLimits( char section ) const {
     double lim1, lim2;
@@ -88,6 +93,7 @@ pair<double, double> AbstractCableWrap::getLimits( char section ) const {
 
     return {lim1, lim2};
 }
+
 
 bool AbstractCableWrap::axisInsideCableWrap( double ax1, double ax2 ) const noexcept {
     if ( ( axis1Up_ - axis1UpOffset_ - axis1Low_ + axis1LowOffset_ ) < 2 * pi ) {
@@ -116,6 +122,7 @@ bool AbstractCableWrap::axisInsideCableWrap( double ax1, double ax2 ) const noex
     return true;
 }
 
+
 std::string AbstractCableWrap::pointingSector( const std::string &motion1, const std::string &motion2,
                                                char section ) const noexcept {
     if ( section == '-' ) {
@@ -139,6 +146,7 @@ std::string AbstractCableWrap::pointingSector( const std::string &motion1, const
     }
 }
 
+
 double AbstractCableWrap::minLow( AbstractCableWrap::Axis axis ) const {
     switch ( axis ) {
         case Axis::axis1: {
@@ -150,6 +158,7 @@ double AbstractCableWrap::minLow( AbstractCableWrap::Axis axis ) const {
     }
 }
 
+
 double AbstractCableWrap::maxUp( AbstractCableWrap::Axis axis ) const {
     switch ( axis ) {
         case Axis::axis1: {
@@ -160,6 +169,7 @@ double AbstractCableWrap::maxUp( AbstractCableWrap::Axis axis ) const {
         }
     }
 }
+
 
 void AbstractCableWrap::calcUnwrappedAz( const PointingVector &old_pointingVector,
                                          PointingVector &new_pointingVector ) const noexcept {

@@ -27,10 +27,6 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#ifdef VIESCHEDPP_LOG
-#include <boost/log/trivial.hpp>
-#endif
-
 #include "../Scheduler.h"
 #include "Ast.h"
 #include "OperationNotes.h"
@@ -38,6 +34,10 @@
 #include "Skd.h"
 #include "Vex.h"
 #include "boost/format.hpp"
+#ifdef VIESCHEDPP_LOG
+#include <boost/log/trivial.hpp>
+#endif
+
 
 namespace VieVS {
 
@@ -60,6 +60,7 @@ class Output : public VieVS_NamedObject {
         baseline,  ///< baseline wise group
     };
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -71,11 +72,13 @@ class Output : public VieVS_NamedObject {
      */
     Output( Scheduler &sched, std::string path, std::string fname, int version );
 
+
     /**
      * @brief writes a summary text file containing some basic statistics and overviews
      * @author Matthias Schartner
      */
     void writeSkdsum();
+
 
     /**
      * @brief write statistics line to statistics.csv file
@@ -85,17 +88,20 @@ class Output : public VieVS_NamedObject {
      */
     void writeStatistics( std::ofstream &of );
 
+
     /**
      * @brief create a ngs file
      * @author Matthias Schartner
      */
     void writeNGS();
 
+
     /**
      * @brief create a operations notes file
      * @author Matthias Schartner
      */
     void writeOperationsNotes();
+
 
     /**
      * @brief creates a skd file
@@ -105,11 +111,13 @@ class Output : public VieVS_NamedObject {
      */
     void writeSkd( const SkdCatalogReader &skdCatalogReader );
 
+
     /**
      * @brief creates a vex file
      * @author Matthias Schartner
      */
     void writeVex();
+
 
     /**
      * @brief creates a SNR overview file
@@ -117,17 +125,20 @@ class Output : public VieVS_NamedObject {
      */
     void writeSnrTable();
 
+
     /**
      * @brief creates a ast file
      * @author Matthias Schartner
      */
     void writeAstFile();
 
+
     /**
      * @brief write statistics per source group file
      * @author Matthias Schartner
      */
     void writeStatisticsPerSourceGroup();
+
 
     /**
      * @brief create all output files
@@ -137,6 +148,7 @@ class Output : public VieVS_NamedObject {
      * @param skdCatalogReader sked catalogs
      */
     void createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader );
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -161,6 +173,7 @@ class Output : public VieVS_NamedObject {
      */
     std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
                                                                           GroupType type ) noexcept;
+
 
     /**
      * @brief calculate minutes where source is visible

@@ -17,6 +17,8 @@
  */
 
 #include "AstronomicalParameters.h"
+
+
 using namespace VieVS;
 
 std::vector<double> AstronomicalParameters::earth_velocity;  ///< velocity of the earth

@@ -27,12 +27,14 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
+
 #include <vector>
 
 #include "../Misc/VieVS_Object.h"
 #include "Baseline.h"
 #include "SkyCoverage.h"
 #include "Station.h"
+
 
 namespace VieVS {
 
@@ -52,6 +54,7 @@ class Network : public VieVS_Object {
      */
     Network();
 
+
     /**
      * @brief add a new station to the network
      * @author Matthias Schartner
@@ -59,6 +62,7 @@ class Network : public VieVS_Object {
      * @param station new station which should be added
      */
     void addStation( Station station );
+
 
     /**
      * @brief get station per id
@@ -69,6 +73,7 @@ class Network : public VieVS_Object {
      */
     const Station &getStation( unsigned long id ) const noexcept;
 
+
     /**
      * @brief get station per name
      * @author Matthias Schartner
@@ -78,6 +83,7 @@ class Network : public VieVS_Object {
      */
     const Station &getStation( const std::string &name ) const noexcept;
 
+
     /**
      * @brief get all stations in this network
      * @author Matthias Schartner
@@ -85,6 +91,7 @@ class Network : public VieVS_Object {
      * @return all station in this network
      */
     const std::vector<Station> &getStations() const noexcept;
+
 
     /**
      * @brief ger baseline per id
@@ -94,6 +101,7 @@ class Network : public VieVS_Object {
      * @return baseline with this id
      */
     const Baseline &getBaseline( unsigned long id ) const noexcept;
+
 
     /**
      * @brief get baselined between two stations
@@ -105,6 +113,7 @@ class Network : public VieVS_Object {
      */
     const Baseline &getBaseline( unsigned long staid1, unsigned long staid2 ) const noexcept;
 
+
     /**
      * @brief get baseline between two stations
      * @author Matthias Schartner
@@ -113,6 +122,7 @@ class Network : public VieVS_Object {
      * @return baseline between those stations
      */
     const Baseline &getBaseline( const std::pair<unsigned long, unsigned long> &staids ) const noexcept;
+
 
     /**
      * @brief get baseline per name
@@ -123,6 +133,7 @@ class Network : public VieVS_Object {
      */
     const Baseline &getBaseline( const std::string &name ) const noexcept;
 
+
     /**
      * @brief get all baselines
      * @author Matthias Schartner
@@ -130,6 +141,7 @@ class Network : public VieVS_Object {
      * @return all baselines
      */
     const std::vector<Baseline> &getBaselines() const noexcept;
+
 
     /**
      * @brief get sky coverage per id
@@ -140,6 +152,7 @@ class Network : public VieVS_Object {
      */
     const SkyCoverage &getSkyCoverage( unsigned long id ) const noexcept;
 
+
     /**
      * @brief get all sky coverages
      * @author Matthias Schartner
@@ -147,6 +160,7 @@ class Network : public VieVS_Object {
      * @return all sky coverage id
      */
     const std::vector<SkyCoverage> &getSkyCoverages() const noexcept;
+
 
     /**
      * @brief reference to station per id
@@ -157,6 +171,7 @@ class Network : public VieVS_Object {
      */
     Station &refStation( unsigned long id );
 
+
     /**
      * @brief reference to station per name
      * @author Matthias Schartner
@@ -166,6 +181,7 @@ class Network : public VieVS_Object {
      */
     Station &refStation( const std::string &name );
 
+
     /**
      * @brief reference to all stations
      * @author Matthias Schartner
@@ -173,6 +189,7 @@ class Network : public VieVS_Object {
      * @return all stations
      */
     std::vector<Station> &refStations();
+
 
     /**
      * @brief reference to baseline per id
@@ -182,6 +199,7 @@ class Network : public VieVS_Object {
      * @return baseline with this id
      */
     Baseline &refBaseline( unsigned long id );
+
 
     /**
      * @brief reference to baseline between two stations
@@ -193,6 +211,7 @@ class Network : public VieVS_Object {
      */
     Baseline &refBaseline( unsigned long staid1, unsigned long staid2 );
 
+
     /**
      * @brief reference to baseline between two stations
      * @author Matthias Schartner
@@ -201,6 +220,7 @@ class Network : public VieVS_Object {
      * @return baseline between those stations
      */
     Baseline &refBaseline( const std::pair<unsigned long, unsigned long> &staids );
+
 
     /**
      * @brief reference to baseline per name
@@ -211,6 +231,7 @@ class Network : public VieVS_Object {
      */
     Baseline &refBaseline( const std::string &name );
 
+
     /**
      * @brief reference to all baselines
      * @author Matthias Schartner
@@ -218,6 +239,7 @@ class Network : public VieVS_Object {
      * @return all baselines
      */
     std::vector<Baseline> &refBaselines();
+
 
     /**
      * @brief reference to sky coverage per id
@@ -228,6 +250,7 @@ class Network : public VieVS_Object {
      */
     SkyCoverage &refSkyCoverage( unsigned long id );
 
+
     /**
      * @brief reference to all sky coverages
      * @author Matthias Schartner
@@ -235,6 +258,7 @@ class Network : public VieVS_Object {
      * @return all sky coverages
      */
     std::vector<SkyCoverage> &refSkyCoverages();
+
 
     /**
      * @brief get baseline id between stations
@@ -245,6 +269,7 @@ class Network : public VieVS_Object {
      */
     unsigned long getBlid( const std::pair<unsigned long, unsigned long> &staids ) const noexcept;
 
+
     /**
      * @brief get baseline id between stations
      * @author Matthias Schartner
@@ -254,6 +279,7 @@ class Network : public VieVS_Object {
      * @return baseline id between these stations
      */
     unsigned long getBlid( unsigned long staid1, unsigned long staid2 ) const noexcept;
+
 
     /**
      * @brief set maximum distance between corresponding telescopes
@@ -267,6 +293,7 @@ class Network : public VieVS_Object {
         maxDistBetweenCorrespondingTelescopes_ = maxDistBetweenCorrespondingTelescopes;
     }
 
+
     /**
      * @brief get number of stations
      * @author Matthias Schartner
@@ -275,6 +302,7 @@ class Network : public VieVS_Object {
      */
     unsigned long getNSta() const noexcept { return nsta_; }
 
+
     /**
      * @brief get number of baselines
      * @author Matthias Schartner
@@ -282,6 +310,7 @@ class Network : public VieVS_Object {
      * @return number of baselines
      */
     unsigned long getNBls() const noexcept { return nbls_; }
+
 
     /**
      * @brief add new observation to station
@@ -293,6 +322,7 @@ class Network : public VieVS_Object {
      */
     void update( unsigned long nObs, const PointingVector &pointingVector, bool influence = true );
 
+
     /**
      * @brief add new observation to baseline
      * @author Matthias Schartner
@@ -301,6 +331,7 @@ class Network : public VieVS_Object {
      * @param influence flag if observation should count for upcoming scan selections
      */
     void update( unsigned long blid, bool influence = true );
+
 
     /**
      * @brief get baseline vector between two stations
@@ -312,6 +343,7 @@ class Network : public VieVS_Object {
      */
     const std::vector<double> &getDxyz( unsigned long staid1, unsigned long staid2 ) const;
 
+
     /**
      * @brief calc total score per sky coverages
      * @author Matthias Schartner
@@ -320,6 +352,7 @@ class Network : public VieVS_Object {
      * @return total score
      */
     double calcScore_skyCoverage( const std::vector<PointingVector> &pvs ) const;
+
 
     /**
      * @brief calc total score per sky coverages
@@ -334,6 +367,7 @@ class Network : public VieVS_Object {
     double calcScore_skyCoverage( const std::vector<PointingVector> &pvs,
                                   std::unordered_map<unsigned long, double> &staids2skyCoverageScore ) const;
 
+
     /**
      * @brief calc total score per sky coverages
      * @author Matthias Schartner
@@ -347,6 +381,7 @@ class Network : public VieVS_Object {
     double calcScore_skyCoverage_subnetting(
         const std::vector<PointingVector> &pvs,
         const std::unordered_map<unsigned long, double> &staids2skyCoverageScore ) const;
+
 
     /**
      * @brief get lookup table for sky coverage id based on station id

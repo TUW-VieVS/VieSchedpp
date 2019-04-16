@@ -24,10 +24,13 @@
  */
 
 #include "AbstractFlux.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long AbstractFlux::nextId = 0;
+
 
 AbstractFlux::AbstractFlux( double wavelength ) : VieVS_Object{nextId++} { wavelength_ = wavelength; }
 

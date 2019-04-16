@@ -18,8 +18,10 @@
 
 #include "VieSchedpp.h"
 
+
 using namespace std;
 using namespace VieVS;
+
 
 VieSchedpp::VieSchedpp( const std::string &inputFile ) : inputFile_{inputFile} {
     std::size_t found = inputFile.find_last_of( "/\\" );
@@ -43,6 +45,7 @@ VieSchedpp::VieSchedpp( const std::string &inputFile ) : inputFile_{inputFile} {
 #endif
     }
 }
+
 
 void VieSchedpp::run() {
     init_log();
@@ -254,6 +257,7 @@ void VieSchedpp::run() {
 #endif
 }
 
+
 void VieSchedpp::readSkdCatalogs() {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "read skd catalogs";
@@ -278,6 +282,7 @@ void VieSchedpp::readSkdCatalogs() {
 #endif
     }
 }
+
 
 void VieSchedpp::multiCoreSetup() {
 #ifdef _OPENMP
@@ -313,6 +318,7 @@ void VieSchedpp::multiCoreSetup() {
     }
 #endif
 }
+
 
 void VieSchedpp::init_log() {
 #ifdef VIESCHEDPP_LOG

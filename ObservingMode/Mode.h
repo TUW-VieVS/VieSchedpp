@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_MODE_H
 #define VIESCHEDPP_MODE_H
 
+
 #include <algorithm>
 #include <boost/functional/hash.hpp>
 #include <boost/optional.hpp>
@@ -38,6 +39,7 @@
 #include "Freq.h"
 #include "If.h"
 #include "Track.h"
+
 
 namespace VieVS {
 
@@ -61,6 +63,7 @@ class Mode : public VieVS_NamedObject {
      */
     Mode( std::string name, unsigned long nsta );
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -69,6 +72,7 @@ class Mode : public VieVS_NamedObject {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree( const std::vector<std::string> &stations ) const;
+
 
     /**
      * @brief add new ID block
@@ -81,6 +85,7 @@ class Mode : public VieVS_NamedObject {
         ifs_.emplace_back( newIf, staids );
     }
 
+
     /**
      * @brief add new BBC block
      * @author Matthias Schartner
@@ -91,6 +96,7 @@ class Mode : public VieVS_NamedObject {
     void addBlock( const std::shared_ptr<const Bbc> &newBbc, const std::vector<unsigned long> &staids ) {
         bbcs_.emplace_back( newBbc, staids );
     }
+
 
     /**
      * @brief add new FREQ block
@@ -105,6 +111,7 @@ class Mode : public VieVS_NamedObject {
         bands_.insert( tmp.begin(), tmp.end() );
     }
 
+
     /**
      * @brief add new Tracks block
      * @author Matthias Schartner
@@ -115,6 +122,7 @@ class Mode : public VieVS_NamedObject {
     void addBlock( const std::shared_ptr<const Track> &newTrack, const std::vector<unsigned long> &staids ) {
         tracks_.emplace_back( newTrack, staids );
     }
+
 
     /**
      * @brief add new track frame format block
@@ -128,11 +136,13 @@ class Mode : public VieVS_NamedObject {
         track_frame_formats_.emplace_back( newTrackFrameFormat, staids );
     }
 
+
     /**
      * @brief calculate recording rates
      * @author Matthias Schartner
      */
     void calcRecordingRates();
+
 
     /**
      * @brief set recording rates for simple manual model
@@ -143,6 +153,7 @@ class Mode : public VieVS_NamedObject {
      */
     void setRecordingRates( const std::string &band, double recRate );
 
+
     /**
      * @brief set efficiency factor for simple manual model
      * @author Matthias Schartner
@@ -151,6 +162,7 @@ class Mode : public VieVS_NamedObject {
      */
     void setEfficiencyFactor( double eff );
 
+
     /**
      * @brief set band names for simple manual model
      * @author Matthias Schartner
@@ -158,6 +170,7 @@ class Mode : public VieVS_NamedObject {
      * @param bands list of all bands
      */
     void setBands( const std::set<std::string> &bands ) { bands_ = bands; }
+
 
     /**
      * @brief recording rate for observation
@@ -169,6 +182,7 @@ class Mode : public VieVS_NamedObject {
      * @return recording rate
      */
     double recordingRate( unsigned long staid1, unsigned long staid2, const std::string &band ) const;
+
 
     /**
      * @brief efficiency factor between stations
@@ -187,6 +201,7 @@ class Mode : public VieVS_NamedObject {
      */
     double efficiency( unsigned long staid1, unsigned long staid2 ) const;
 
+
     /**
      * @brief get IF block per station
      * @author Matthias Schartner
@@ -195,6 +210,7 @@ class Mode : public VieVS_NamedObject {
      * @return IF block
      */
     boost::optional<const std::shared_ptr<const If> &> getIf( unsigned long staid ) const;
+
 
     /**
      * @brief get BBC block per station
@@ -205,6 +221,7 @@ class Mode : public VieVS_NamedObject {
      */
     boost::optional<const std::shared_ptr<const Bbc> &> getBbc( unsigned long staid ) const;
 
+
     /**
      * @brief get FREQ block per station
      * @author Matthias Schartner
@@ -213,6 +230,7 @@ class Mode : public VieVS_NamedObject {
      * @return FREQ block
      */
     boost::optional<const std::shared_ptr<const Freq> &> getFreq( unsigned long staid ) const;
+
 
     /**
      * @brief get TRACKS block per station
@@ -223,6 +241,7 @@ class Mode : public VieVS_NamedObject {
      */
     boost::optional<const std::shared_ptr<const Track> &> getTracks( unsigned long staid ) const;
 
+
     /**
      * @brief get track frame format block per station
      * @author Matthias Schartner
@@ -231,6 +250,7 @@ class Mode : public VieVS_NamedObject {
      * @return track frame format
      */
     boost::optional<const std::shared_ptr<const std::string> &> getTrackFrameFormat( unsigned long staid ) const;
+
 
     /**
      * @brief get list of all station per IF block
@@ -242,6 +262,7 @@ class Mode : public VieVS_NamedObject {
     boost::optional<const std::vector<unsigned long> &> getAllStationsWithBlock(
         const std::shared_ptr<const If> &this_if ) const;
 
+
     /**
      * @brief get list of all station per BBC block
      * @author Matthias Schartner
@@ -251,6 +272,7 @@ class Mode : public VieVS_NamedObject {
      */
     boost::optional<const std::vector<unsigned long> &> getAllStationsWithBlock(
         const std::shared_ptr<const Bbc> &bbc ) const;
+
 
     /**
      * @brief get list of all station per FREQ block
@@ -262,6 +284,7 @@ class Mode : public VieVS_NamedObject {
     boost::optional<const std::vector<unsigned long> &> getAllStationsWithBlock(
         const std::shared_ptr<const Freq> &freq ) const;
 
+
     /**
      * @brief get list of all station per TRACKS block
      * @author Matthias Schartner
@@ -271,6 +294,7 @@ class Mode : public VieVS_NamedObject {
      */
     boost::optional<const std::vector<unsigned long> &> getAllStationsWithBlock(
         const std::shared_ptr<const Track> &track ) const;
+
 
     /**
      * @brief get list of all station per track frame format
@@ -282,6 +306,7 @@ class Mode : public VieVS_NamedObject {
     boost::optional<const std::vector<unsigned long> &> getAllStationsWithBlock(
         const std::shared_ptr<const std::string> &trackFrameFormat ) const;
 
+
     /**
      * @brief create summary
      * @author Matthias Schartner
@@ -290,6 +315,7 @@ class Mode : public VieVS_NamedObject {
      * @param stations station names
      */
     void summary( std::ofstream &of, const std::vector<std::string> &stations ) const;
+
 
     /**
      * @brief create summary for operation notes
@@ -300,6 +326,7 @@ class Mode : public VieVS_NamedObject {
      */
     void operationNotesSummary( std::ofstream &of, const std::vector<std::string> &stations ) const;
 
+
     /**
      * @brief get recording rate per station
      * @author Matthias Schartner
@@ -308,6 +335,7 @@ class Mode : public VieVS_NamedObject {
      * @return recording rate
      */
     double recordingRate( unsigned long staid ) const;
+
 
     /**
      * @brief writes MODE block in vex format
@@ -318,6 +346,7 @@ class Mode : public VieVS_NamedObject {
      */
     void toVexModeDefiniton( std::ofstream &of, const std::vector<std::string> &stations ) const;
 
+
     /**
      * @brief get list of all bands
      * @author Matthias Schartner
@@ -326,6 +355,7 @@ class Mode : public VieVS_NamedObject {
      */
     const std::set<std::string> getAllBands() const { return bands_; }
 
+
     /**
      * @brief getter for number of stations
      * @author Matthias Schartner
@@ -333,6 +363,7 @@ class Mode : public VieVS_NamedObject {
      * @return number of stations
      */
     unsigned long getNSta() const { return nsta_; }
+
 
     /**
      * @brief change IF for station
@@ -346,6 +377,7 @@ class Mode : public VieVS_NamedObject {
      */
     void changeIf( int idx, unsigned long staid );
 
+
     /**
      * @brief change BBC for station
      * @author Matthias Schartner
@@ -357,6 +389,7 @@ class Mode : public VieVS_NamedObject {
      * @param staid target station
      */
     void changeBbc( int idx, unsigned long staid );
+
 
     /**
      * @brief change TRACK for station
@@ -370,6 +403,7 @@ class Mode : public VieVS_NamedObject {
      */
     void changeTracks( int idx, unsigned long staid );
 
+
     /**
      * @brief change track frame format for station
      * @author Matthias Schartner
@@ -381,6 +415,7 @@ class Mode : public VieVS_NamedObject {
      * @param staid target station
      */
     void changeTrackFrameFormat( int idx, unsigned long staid );
+
 
     /**
      * @brief change FREQ for station
@@ -394,6 +429,7 @@ class Mode : public VieVS_NamedObject {
      */
     void changeFreq( int idx, unsigned long staid );
 
+
     /**
      * @brief remove FREQ block
      * @author Matthias Schartner
@@ -403,6 +439,7 @@ class Mode : public VieVS_NamedObject {
      * @param idx index of block which whould be removed
      */
     void removeFreq( int idx ) { freqs_.erase( freqs_.begin() + idx ); }
+
 
     /**
      * @brief remove BBC block
@@ -414,6 +451,7 @@ class Mode : public VieVS_NamedObject {
      */
     void removeBbc( int idx ) { bbcs_.erase( bbcs_.begin() + idx ); }
 
+
     /**
      * @brief remove IF block
      * @author Matthias Schartner
@@ -423,6 +461,7 @@ class Mode : public VieVS_NamedObject {
      * @param idx index of block which whould be removed
      */
     void removeIf( int idx ) { ifs_.erase( ifs_.begin() + idx ); }
+
 
     /**
      * @brief remove TRACKS block
@@ -434,6 +473,7 @@ class Mode : public VieVS_NamedObject {
      */
     void removeTracks( int idx ) { tracks_.erase( tracks_.begin() + idx ); }
 
+
     /**
      * @brief remove track frame format
      * @author Matthias Schartner
@@ -443,6 +483,7 @@ class Mode : public VieVS_NamedObject {
      * @param idx index of block which whould be removed
      */
     void removeTrackFrameFormats( int idx ) { track_frame_formats_.erase( track_frame_formats_.begin() + idx ); }
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type

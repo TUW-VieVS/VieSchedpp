@@ -27,6 +27,7 @@
 #ifndef VIESCHEDPP_BBC_H
 #define VIESCHEDPP_BBC_H
 
+
 #include <boost/format.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <fstream>
@@ -34,6 +35,7 @@
 #include <utility>
 #include <vector>
 #include "../Misc/VieVS_NamedObject.h"
+
 
 namespace VieVS {
 
@@ -52,6 +54,7 @@ class Bbc : public VieVS_NamedObject {
    private:
     class Bbc_assign;
 
+
    public:
     /**
      * @brief constructor
@@ -61,6 +64,7 @@ class Bbc : public VieVS_NamedObject {
      */
     explicit Bbc( std::string name );
 
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -68,6 +72,7 @@ class Bbc : public VieVS_NamedObject {
      * @param tree input property tree from xml file
      */
     explicit Bbc( const boost::property_tree::ptree &tree );
+
 
     /**
      * @brief add new BBC assignment
@@ -79,6 +84,7 @@ class Bbc : public VieVS_NamedObject {
      */
     void addBbc( std::string name, unsigned int physical_bbc_number, std::string if_name );
 
+
     /**
      * @brief converts object to property tree
      * @author Matthias Schartner
@@ -86,6 +92,7 @@ class Bbc : public VieVS_NamedObject {
      * @return property tree
      */
     boost::property_tree::ptree toPropertytree() const;
+
 
     /**
      * @brief writes BBC block in vex format
@@ -95,6 +102,7 @@ class Bbc : public VieVS_NamedObject {
      * @param comment optional comment line
      */
     void toVexBbcDefinition( std::ofstream &of, const std::string &comment = "" ) const;
+
 
     /**
      * @brief get BBC definitions
@@ -106,6 +114,7 @@ class Bbc : public VieVS_NamedObject {
      */
     const std::vector<Bbc_assign> &getBbc_assigns() const { return bbc_assigns_; }
 
+
     /**
      * @brief reference BBC definitions
      * @author Matthias schartner
@@ -116,6 +125,7 @@ class Bbc : public VieVS_NamedObject {
      */
     std::vector<Bbc_assign> &refBbc_assigns() { return bbc_assigns_; }
 
+
     /**
      * @brief get number of BBCs
      * @author Matthias Schartner
@@ -123,6 +133,7 @@ class Bbc : public VieVS_NamedObject {
      * @return number of BBCs
      */
     int numberOfBBCs() const;
+
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -146,6 +157,7 @@ class Bbc : public VieVS_NamedObject {
          */
         Bbc_assign( std::string name, unsigned int physical_bbc_number, std::string if_name );
 
+
         /**
          * @brief constructor
          * @author Matthias Schartner
@@ -153,6 +165,7 @@ class Bbc : public VieVS_NamedObject {
          * @param tree input property tree from xml file
          */
         explicit Bbc_assign( const boost::property_tree::ptree &tree );
+
 
         /**
          * @brief converts object to property tree
@@ -162,11 +175,13 @@ class Bbc : public VieVS_NamedObject {
          */
         boost::property_tree::ptree toPropertytree() const;
 
+
         unsigned int physical_bbc_number_;  ///< Physical BBC# or DBE channel#
         std::string if_name_;               ///< Logical IF 'link' with if_def statement in $IF block
        private:
         static unsigned long nextId;  ///< next id for this object type
     };
+
 
     std::vector<Bbc_assign> bbc_assigns_;  ///< list of all BBC assigns
 };
