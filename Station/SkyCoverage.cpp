@@ -268,7 +268,7 @@ int SkyCoverage::areaIndex13_v2(const PointingVector &pv) noexcept {
         case 1:{
             double n = 4;
             double az_space = twopi / n;
-            int col = static_cast<int>(roundl(util::wrap2twoPi(pv.getAz()) / az_space));
+            int col = static_cast<int>(floorl(util::wrap2twoPi(pv.getAz()) / az_space));
             if(col > n-1) {
                 col = 0;
             }
@@ -492,7 +492,8 @@ int SkyCoverage::areaIndex37_v2(const PointingVector &pv) noexcept {
         }
     }
 
-    return idx;}
+    return idx;
+}
 
 
 
