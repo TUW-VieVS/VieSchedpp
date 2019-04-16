@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -20,33 +20,24 @@
 using namespace VieVS;
 using namespace std;
 
-CableWrap_HaDc::CableWrap_HaDc(double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg)
-        : AbstractCableWrap(axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg) {
-}
+CableWrap_HaDc::CableWrap_HaDc( double axis1_low_deg, double axis1_up_deg, double axis2_low_deg, double axis2_up_deg )
+    : AbstractCableWrap( axis1_low_deg, axis1_up_deg, axis2_low_deg, axis2_up_deg ) {}
 
-bool CableWrap_HaDc::anglesInside(const PointingVector &p) const noexcept {
+bool CableWrap_HaDc::anglesInside( const PointingVector &p ) const noexcept {
     double ax1 = p.getHa();
     double ax2 = p.getDc();
 
-    return axisInsideCableWrap(ax1, ax2);
+    return axisInsideCableWrap( ax1, ax2 );
 }
 
-void CableWrap_HaDc::unwrapAzNearAz(PointingVector &new_pointingVector, double az_old) const noexcept {
-}
+void CableWrap_HaDc::unwrapAzNearAz( PointingVector &new_pointingVector, double az_old ) const noexcept {}
 
-
-AbstractCableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag(double unaz) const noexcept {
+AbstractCableWrap::CableWrapFlag CableWrap_HaDc::cableWrapFlag( double unaz ) const noexcept {
     return AbstractCableWrap::CableWrapFlag::n;
 }
 
-bool CableWrap_HaDc::unwrapAzInSection(PointingVector &pv, char section) const noexcept {
-    return section != '-';
-}
+bool CableWrap_HaDc::unwrapAzInSection( PointingVector &pv, char section ) const noexcept { return section != '-'; }
 
-std::pair<std::string, std::string> CableWrap_HaDc::getMotions() const noexcept {
-    return {"ha","dec"};
-}
+std::pair<std::string, std::string> CableWrap_HaDc::getMotions() const noexcept { return {"ha", "dec"}; }
 
-std::string CableWrap_HaDc::vexPointingSectors() const noexcept {
-    return pointingSector("ha","dec",'-');
-}
+std::string CableWrap_HaDc::vexPointingSectors() const noexcept { return pointingSector( "ha", "dec", '-' ); }

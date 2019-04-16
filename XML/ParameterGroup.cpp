@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -20,7 +20,5 @@
 using namespace std;
 using namespace VieVS;
 
-ParameterGroup::ParameterGroup(const std::string &name, const std::vector<std::string> &members) :
-        name(name), members(members) {
-
-}
+ParameterGroup::ParameterGroup( const std::string &name, const std::vector<std::string> &members )
+    : name( name ), members( members ) {}

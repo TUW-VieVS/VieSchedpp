@@ -16,63 +16,55 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /**
-* @file SNR_table.h
-* @brief class SNR table
-*
-* @author Matthias Schartner
-* @date 04.02.2017
-*/
-
+ * @file SNR_table.h
+ * @brief class SNR table
+ *
+ * @author Matthias Schartner
+ * @date 04.02.2017
+ */
 
 #ifndef VIESCHEDPP_SNR_TABLE_H
 #define VIESCHEDPP_SNR_TABLE_H
 
-#include "../Scan/Scan.h"
 #include "../ObservingMode/ObservingMode.h"
+#include "../Scan/Scan.h"
 
 namespace VieVS {
+/**
+ * @class SNR_table
+ * @brief produces a SNR table for comparison with correlator
+ *
+ * @author Matthias Schartner
+ * @date 04.02.2017
+ */
+class SNR_table : public VieVS_Object {
+   public:
     /**
-     * @class SNR_table
-     * @brief produces a SNR table for comparison with correlator
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 04.02.2017
+     *
+     * @param file file name
      */
-    class SNR_table : public VieVS_Object {
+    explicit SNR_table( const std::string &file );
 
-    public:
+    /**
+     * @brief create the SNR table
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sources list of all souces
+     * @param scans list of all scans
+     * @param obsModes observin mode
+     */
+    void writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+                     const std::shared_ptr<const ObservingMode> &obsModes );
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param file file name
-         */
-        explicit SNR_table(const std::string &file);
+   private:
+    static unsigned long nextId;  ///< next id for this object type
 
-        /**
-         * @brief create the SNR table
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param sources list of all souces
-         * @param scans list of all scans
-         * @param obsModes observin mode
-         */
-        void writeTable(const Network &network,
-                        const std::vector<Source>& sources,
-                        const std::vector<Scan> & scans,
-                        const std::shared_ptr<const ObservingMode> &obsModes);
+    std::ofstream of;  ///< output stream object *filename*.snr
+};
+}  // namespace VieVS
 
-
-    private:
-        static unsigned long nextId; ///< next id for this object type
-
-        std::ofstream of; ///< output stream object *filename*.snr
-
-    };
-}
-
-#endif //VIESCHEDPP_SNR_TABLE_H
+#endif  // VIESCHEDPP_SNR_TABLE_H

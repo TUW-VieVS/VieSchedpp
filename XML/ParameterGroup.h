@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -31,29 +31,28 @@
 #include <vector>
 
 namespace VieVS {
+/**
+ * @class ParameterGroup
+ * @brief objects represents a group of any type (station, source, baseline) used only for creating and reading
+ * of the parameter.xlm file
+ *
+ * @author Matthias Schartner
+ * @date 10.09.2017
+ */
+class ParameterGroup {
+   public:
+    std::string name;                  ///< group name
+    std::vector<std::string> members;  ///< group members
+
     /**
-     * @class ParameterGroup
-     * @brief objects represents a group of any type (station, source, baseline) used only for creating and reading
-     * of the parameter.xlm file
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 10.09.2017
+     *
+     * @param name group name
+     * @param members vector of group members
      */
-    class ParameterGroup {
-    public:
-        std::string name; ///< group name
-        std::vector<std::string> members; ///< group members
+    ParameterGroup( const std::string &name, const std::vector<std::string> &members );
+};
+}  // namespace VieVS
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param name group name
-         * @param members vector of group members
-         */
-        ParameterGroup(const std::string &name, const std::vector<std::string> &members);
-    };
-}
-
-
-#endif //PARAMETERGROUP_H
+#endif  // PARAMETERGROUP_H

@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,10 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * File:   mask.cpp
  * Author: mschartn
- * 
+ *
  * Created on June 27, 2017, 12:58 PM
  */
 
@@ -28,5 +28,4 @@ using namespace std;
 using namespace VieVS;
 unsigned long AbstractHorizonMask::nextId = 0;
 
-AbstractHorizonMask::AbstractHorizonMask() : VieVS_Object(nextId++) {
-}
+AbstractHorizonMask::AbstractHorizonMask() : VieVS_Object( nextId++ ) {}

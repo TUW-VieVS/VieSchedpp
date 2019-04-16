@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,11 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-/* 
+/*
  * File:   Source.cpp
  * Author: mschartn
- * 
+ *
  * Created on June 28, 2017, 11:25 AM
  */
 
@@ -31,7 +30,7 @@ using namespace VieVS;
 unsigned long VieVS::Source::nextId = 0;
 unsigned long VieVS::Source::Parameters::nextId = 0;
 
-void Source::Parameters::setParameters(const Source::Parameters &other) {
+void Source::Parameters::setParameters( const Source::Parameters &other ) {
     available = other.available;
     globalAvailable = other.globalAvailable;
     availableForFillinmode = other.availableForFillinmode;
@@ -61,51 +60,49 @@ void Source::Parameters::setParameters(const Source::Parameters &other) {
     ignoreStations = other.ignoreStations;
     ignoreBaselines = other.ignoreBaselines;
     requiredStations = other.requiredStations;
-
 }
 
-Source::Source(const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
-               unordered_map<string, unique_ptr<AbstractFlux> > &src_flux) : VieVS_NamedObject(src_name, src_name2,
-                                                                                               nextId++),
-                                                                             ra_{src_ra_deg*deg2rad}, de_{src_de_deg*deg2rad},
-                                                                             parameters_{Parameters("empty")}{
-
-    flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>(std::move(src_flux));
+Source::Source( const string &src_name, const string &src_name2, double src_ra_deg, double src_de_deg,
+                unordered_map<string, unique_ptr<AbstractFlux>> &src_flux )
+    : VieVS_NamedObject( src_name, src_name2, nextId++ ),
+      ra_{src_ra_deg * deg2rad},
+      de_{src_de_deg * deg2rad},
+      parameters_{Parameters( "empty" )} {
+    flux_ = std::make_shared<std::unordered_map<std::string, std::unique_ptr<AbstractFlux>>>( std::move( src_flux ) );
 
     PreCalculated preCalculated = PreCalculated();
-    preCalculated.sourceInCrs.resize(3);
-    sinDe_ = sin(de_);
-    cosDe_ = cos(de_);
-    preCalculated.sourceInCrs[0] = cosDe_*cos(ra_);
-    preCalculated.sourceInCrs[1] = cosDe_*sin(ra_);
+    preCalculated.sourceInCrs.resize( 3 );
+    sinDe_ = sin( de_ );
+    cosDe_ = cos( de_ );
+    preCalculated.sourceInCrs[0] = cosDe_ * cos( ra_ );
+    preCalculated.sourceInCrs[1] = cosDe_ * sin( ra_ );
     preCalculated.sourceInCrs[2] = sinDe_;
 
-    preCalculated_ = make_shared<PreCalculated>(move(preCalculated));
-    condition_ = make_shared<Optimization>(Optimization());
+    preCalculated_ = make_shared<PreCalculated>( move( preCalculated ) );
+    condition_ = make_shared<Optimization>( Optimization() );
 }
 
 double Source::getMaxFlux() const noexcept {
     double maxFlux = 0;
 
-    for (auto& any: *flux_){
+    for ( auto &any : *flux_ ) {
         double thisFlux = any.second->getMaximumFlux();
-        if (thisFlux > maxFlux){
+        if ( thisFlux > maxFlux ) {
             maxFlux = thisFlux;
         }
     }
     return maxFlux;
 }
 
-double Source::getSunDistance() const noexcept{
-
+double Source::getSunDistance() const noexcept {
     double d = numeric_limits<double>::max();
 
-    for(int i=0; i<AstronomicalParameters::sun_time.size(); ++i){
+    for ( int i = 0; i < AstronomicalParameters::sun_time.size(); ++i ) {
         double sunRa = AstronomicalParameters::sun_ra[i];
         double sunDe = AstronomicalParameters::sun_dec[i];
-        double tmp = sin(sunDe) * sinDe_ + cos(sunDe) * cosDe_ * cos(sunRa - ra_);
-        tmp = acos(tmp);
-        if(tmp<d){
+        double tmp = sin( sunDe ) * sinDe_ + cos( sunDe ) * cosDe_ * cos( sunRa - ra_ );
+        tmp = acos( tmp );
+        if ( tmp < d ) {
             d = tmp;
         }
     }
@@ -113,30 +110,29 @@ double Source::getSunDistance() const noexcept{
     return d;
 }
 
-double Source::observedFlux(const string &band, double gmst, const std::vector<double> &dxyz) const noexcept {
-    #ifdef VIESCHEDPP_LOG
-    if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "source " << this->getName() << " get observed flux density";
-    #endif
+double Source::observedFlux( const string &band, double gmst, const std::vector<double> &dxyz ) const noexcept {
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "source " << this->getName() << " get observed flux density";
+#endif
 
-    std::pair<double, double> uv = calcUV(gmst, dxyz);
-    double flux = flux_->at(band)->observedFlux(uv.first, uv.second);
+    std::pair<double, double> uv = calcUV( gmst, dxyz );
+    double flux = flux_->at( band )->observedFlux( uv.first, uv.second );
     return flux;
 }
 
-std::pair<double, double> Source::calcUV(double gmst, const std::vector<double> &dxyz) const noexcept {
+std::pair<double, double> Source::calcUV( double gmst, const std::vector<double> &dxyz ) const noexcept {
     double ha = gmst - ra_;
 
-    double sinHa = sin(ha);
-    double cosHa = cos(ha);
+    double sinHa = sin( ha );
+    double cosHa = cos( ha );
 
     double u = dxyz[0] * sinHa + dxyz[1] * cosHa;
-    double v = dxyz[2] * cosDe_ + sinDe_ * (-dxyz[0] * cosHa + dxyz[1] * sinHa);
-    return {u,v};
+    double v = dxyz[2] * cosDe_ + sinDe_ * ( -dxyz[0] * cosHa + dxyz[1] * sinHa );
+    return {u, v};
 };
 
-
-void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) noexcept {
-    if(addToStatistics){
+void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics ) noexcept {
+    if ( addToStatistics ) {
         ++nScans_;
         nObs_ += nbl;
         lastScan_ = time;
@@ -144,22 +140,22 @@ void Source::update(unsigned long nbl, unsigned int time, bool addToStatistics) 
     ++nTotalScans_;
 }
 
-bool Source::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
+bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while (nextEvent_ < events_->size() && events_->at(nextEvent_).time <= time) {
+    while ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
         double oldMinFlux = parameters_.minFlux;
         bool oldGlobalAvailable = parameters_.globalAvailable;
-        parameters_ = events_->at(nextEvent_).PARA;
+        parameters_ = events_->at( nextEvent_ ).PARA;
         parameters_.globalAvailable = oldGlobalAvailable;
 
-        hardBreak = hardBreak || !events_->at(nextEvent_).smoothTransition;
+        hardBreak = hardBreak || !events_->at( nextEvent_ ).smoothTransition;
         nextEvent_++;
 
-        if(getMaxFlux() < parameters_.minFlux){
+        if ( getMaxFlux() < parameters_.minFlux ) {
             parameters_.available = false;
         }
 
-        if(getSunDistance() < parameters_.minSunDistance){
+        if ( getSunDistance() < parameters_.minSunDistance ) {
             parameters_.available = false;
         }
 
@@ -168,23 +164,23 @@ bool Source::checkForNewEvent(unsigned int time, bool &hardBreak) noexcept {
     return flag;
 }
 
-std::string Source::getRaString() const noexcept{
-    double h = rad2deg*ra_/15;
-    auto m = fmod(h, 1.);
+std::string Source::getRaString() const noexcept {
+    double h = rad2deg * ra_ / 15;
+    auto m = fmod( h, 1. );
     m *= 60;
-    auto s = fmod(m, 1.);
+    auto s = fmod( m, 1. );
     s *= 60;
-    string str = (boost::format("%02dh%02dm%08.5fs") % static_cast<int>(h) %static_cast<int>(m) %s).str();
+    string str = ( boost::format( "%02dh%02dm%08.5fs" ) % static_cast<int>( h ) % static_cast<int>( m ) % s ).str();
     return str;
 }
 
-std::string Source::getDeString() const noexcept{
-    double d = rad2deg*de_;
-    auto m = abs(fmod(d, 1.));
+std::string Source::getDeString() const noexcept {
+    double d = rad2deg * de_;
+    auto m = abs( fmod( d, 1. ) );
     m *= 60;
-    auto s = fmod(m, 1.);
+    auto s = fmod( m, 1. );
     s *= 60;
-    string str = (boost::format("%+03dd%02d'%08.5f\"") %static_cast<int>(d) %static_cast<int>(m) %s).str();
+    string str = ( boost::format( "%+03dd%02d'%08.5f\"" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
     return str;
 }
 
@@ -196,10 +192,10 @@ void Source::clearObservations() {
 
     bool hardBreak = false;
     nextEvent_ = 0;
-    checkForNewEvent(0, hardBreak);
+    checkForNewEvent( 0, hardBreak );
 }
 
-//Source Source::clone() const{
+// Source Source::clone() const{
 //    std::unordered_map<string,unique_ptr<Flux> > newFlux;
 //
 //    for(const auto &any: flux_){

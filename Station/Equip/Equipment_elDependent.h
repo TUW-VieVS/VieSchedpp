@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,60 +17,58 @@
  */
 
 /**
-* @file Equipment_elDependent.h
-* @brief class Equipment_elDependent
-*
-* @author Matthias Schartner
-* @date 12.04.2018
-*/
+ * @file Equipment_elDependent.h
+ * @brief class Equipment_elDependent
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
 
 #ifndef EQUIPMENT_ELDEPENDENT_H
 #define EQUIPMENT_ELDEPENDENT_H
 
 #include "Equipment.h"
 
-namespace VieVS{
+namespace VieVS {
+
+/**
+ * @class Equipment_elDependent
+ * @brief representation of elevation dependent VLBI equipment
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
+class Equipment_elDependent : public Equipment {
+   public:
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param SEFDs SEFD per band - key is band name, value is SEFD
+     * @param SEFD_y elevation dependent SEFD parameter "y" per band - key is band name, value is parameter
+     * @param SEFD_c0 elevation dependent SEFD parameter "c1" per band - key is band name, value is parameter
+     * @param SEFD_c1 elevation dependent SEFD parameter "c2" per band - key is band name, value is parameter
+     */
+    explicit Equipment_elDependent( const std::unordered_map<std::string, double> &SEFDs,
+                                    const std::unordered_map<std::string, double> &SEFD_y,
+                                    const std::unordered_map<std::string, double> &SEFD_c0,
+                                    const std::unordered_map<std::string, double> &SEFD_c1 );
 
     /**
-     * @class Equipment_elDependent
-     * @brief representation of elevation dependent VLBI equipment
-     *
+     * @brief getter function for antenna SEFD information
      * @author Matthias Schartner
-     * @date 12.04.2018
+     *
+     * @param band name of band
+     * @param el elevation
+     * @return SEFD of this band
      */
-    class Equipment_elDependent: public Equipment {
-    public:
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param SEFDs SEFD per band - key is band name, value is SEFD
-         * @param SEFD_y elevation dependent SEFD parameter "y" per band - key is band name, value is parameter
-         * @param SEFD_c0 elevation dependent SEFD parameter "c1" per band - key is band name, value is parameter
-         * @param SEFD_c1 elevation dependent SEFD parameter "c2" per band - key is band name, value is parameter
-         */
-        explicit Equipment_elDependent(const std::unordered_map<std::string, double> &SEFDs,
-                                       const std::unordered_map<std::string, double> &SEFD_y,
-                                       const std::unordered_map<std::string, double> &SEFD_c0,
-                                       const std::unordered_map<std::string, double> &SEFD_c1);
+    double getSEFD( const std::string &band, double el ) const noexcept override;
 
-        /**
-         * @brief getter function for antenna SEFD information
-         * @author Matthias Schartner
-         *
-         * @param band name of band
-         * @param el elevation
-         * @return SEFD of this band
-         */
-        double getSEFD(const std::string &band, double el) const noexcept override ;
+   private:
+    std::unordered_map<std::string, double> y_;   ///< elevation dependent SEFD parameter "y"
+    std::unordered_map<std::string, double> c0_;  ///< elevation dependent SEFD parameter "c0"
+    std::unordered_map<std::string, double> c1_;  ///< elevation dependent SEFD parameter "c1"
+};
+}  // namespace VieVS
 
-    private:
-        std::unordered_map<std::string,double> y_; ///< elevation dependent SEFD parameter "y"
-        std::unordered_map<std::string,double> c0_; ///< elevation dependent SEFD parameter "c0"
-        std::unordered_map<std::string,double> c1_; ///< elevation dependent SEFD parameter "c1"
-
-    };
-}
-
-
-#endif //EQUIPMENT_ELDEPENDENT_H
+#endif  // EQUIPMENT_ELDEPENDENT_H

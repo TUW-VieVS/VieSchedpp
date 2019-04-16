@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,117 +17,105 @@
  */
 
 /**
-* @file VieVS_NamedObject.h
-* @brief class VieVS_NamedObject
-*
-*
-* @author Matthias Schartner
-* @date 15.03.2018
-*/
+ * @file VieVS_NamedObject.h
+ * @brief class VieVS_NamedObject
+ *
+ *
+ * @author Matthias Schartner
+ * @date 15.03.2018
+ */
 
 #ifndef VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H
 #define VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H
 
-#include "VieVS_Object.h"
 #include <string>
 #include <utility>
+#include "VieVS_Object.h"
 
-namespace VieVS{
+namespace VieVS {
+
+/**
+ * @class VieVS_NamedObject
+ * @brief VieVS base object with name
+ *
+ * @author Matthias Schartner
+ * @date 15.03.2018
+ */
+
+class VieVS_NamedObject : public VieVS_Object {
+   public:
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param name object name
+     * @param id object id
+     */
+    VieVS_NamedObject( std::string name, unsigned long id ) : VieVS_Object( id ), name_{std::move( name )} {};
 
     /**
-     * @class VieVS_NamedObject
-     * @brief VieVS base object with name
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 15.03.2018
+     *
+     * @param name object name
+     * @param alternativeName object alternative name
+     * @param id object id
      */
+    VieVS_NamedObject( std::string name, std::string alternativeName, unsigned long id )
+        : VieVS_Object( id ), name_{std::move( name )}, alternativeName_{std::move( alternativeName )} {};
 
-    class VieVS_NamedObject: public VieVS_Object {
-    public:
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param name object name
-         * @param id object id
-         */
-        VieVS_NamedObject(std::string name, unsigned long id):VieVS_Object(id), name_{std::move(name)}{};
+    /**
+     * @brief get object name
+     * @author Matthias Schartner
+     *
+     * @return object name
+     */
+    const std::string &getName() const { return name_; }
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param name object name
-         * @param alternativeName object alternative name
-         * @param id object id
-         */
-        VieVS_NamedObject(std::string name, std::string alternativeName, unsigned long id):
-                VieVS_Object(id), name_{std::move(name)}, alternativeName_{std::move(alternativeName)}{
-        };
+    /**
+     * @brief get object alternative name
+     * @author Matthias Schartner
+     *
+     * @return object alternative name
+     */
+    const std::string &getAlternativeName() const { return alternativeName_; }
 
-        /**
-         * @brief get object name
-         * @author Matthias Schartner
-         *
-         * @return object name
-         */
-        const std::string &getName() const{
-            return name_;
-        }
+    /**
+     * @brief check if object has alternative name
+     * @author Matthias Schartner
+     *
+     * @return flag if alternative name exists
+     */
+    bool hasAlternativeName() const { return !alternativeName_.empty(); }
 
-        /**
-         * @brief get object alternative name
-         * @author Matthias Schartner
-         *
-         * @return object alternative name
-         */
-        const std::string &getAlternativeName() const{
-            return alternativeName_;
-        }
+    /**
+     * @brief check if object has name
+     * @author Matthias Schartner
+     *
+     * checks object name and alternative object name
+     *
+     * @param name target name
+     * @return true if object has target name
+     */
+    bool hasName( const std::string &name ) const { return name_ == name || alternativeName_ == name; }
 
-        /**
-         * @brief check if object has alternative name
-         * @author Matthias Schartner
-         *
-         * @return flag if alternative name exists
-         */
-        bool hasAlternativeName() const{
-            return !alternativeName_.empty();
-        }
+    /**
+     * @brief change name of object
+     * @author Matthias Schartner
+     *
+     * Typically Objects should have an distinct name which should not change.
+     * Try to avoid this function in the VieSchedpp Project!
+     * It is implemented mainly for GUI interactions through VieSchedppGUI.
+     *
+     * @param newName new name
+     */
+    void changeName( const std::string &newName ) { name_ = newName; }
 
-        /**
-         * @brief check if object has name
-         * @author Matthias Schartner
-         *
-         * checks object name and alternative object name
-         *
-         * @param name target name
-         * @return true if object has target name
-         */
-        bool hasName(const std::string &name) const{
-            return name_ == name || alternativeName_ == name;
-        }
+   private:
+    std::string name_ = "";             ///< object name
+    std::string alternativeName_ = "";  ///< object alternative name
+};
 
-        /**
-         * @brief change name of object
-         * @author Matthias Schartner
-         *
-         * Typically Objects should have an distinct name which should not change.
-         * Try to avoid this function in the VieSchedpp Project!
-         * It is implemented mainly for GUI interactions through VieSchedppGUI.
-         *
-         * @param newName new name
-         */
-        void changeName(const std::string &newName){
-            name_ = newName;
-        }
+}  // namespace VieVS
 
-    private:
-        std::string name_ = ""; ///< object name
-        std::string alternativeName_ = ""; ///< object alternative name
-    };
-
-}
-
-
-#endif //VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H
+#endif  // VLBI_SCHEDULER_VIEVS_NAMEDOBJECT_H

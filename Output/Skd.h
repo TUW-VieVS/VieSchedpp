@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,12 +17,12 @@
  */
 
 /**
-* @file Skd.h
-* @brief class Skd
-*
-* @author Matthias Schartner
-* @date 15.12.2017
-*/
+ * @file Skd.h
+ * @brief class Skd
+ *
+ * @author Matthias Schartner
+ * @date 15.12.2017
+ */
 
 #ifndef SKD_H
 #define SKD_H
@@ -32,176 +32,169 @@
 
 namespace VieVS {
 
-   /**
-    * @class Skd
-    * @brief this is the VLBI skd-output class
-    *
-    * @author Matthias Schartner
-    * @date 15.12.2017
-    */
-    class Skd: public VieVS_Object {
+/**
+ * @class Skd
+ * @brief this is the VLBI skd-output class
+ *
+ * @author Matthias Schartner
+ * @date 15.12.2017
+ */
+class Skd : public VieVS_Object {
+   public:
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param file file name
+     */
+    explicit Skd( const std::string &file );
 
-    public:
+    /**
+     * @brief creates a skd file
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sources source list
+     * @param scans scheduled scans
+     * @param skdCatalogReader skd catalog reader
+     * @param xml VieSchedpp.xml file
+     */
+    void writeSkd( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+                   const SkdCatalogReader &skdCatalogReader, const boost::property_tree::ptree &xml );
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param file file name
-         */
-        explicit Skd(const std::string &file);
+   private:
+    static unsigned long nextId;  ///< next id for this object type
 
-        /**
-         * @brief creates a skd file
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param sources source list
-         * @param scans scheduled scans
-         * @param skdCatalogReader skd catalog reader
-         * @param xml VieSchedpp.xml file
-         */
-        void writeSkd(const Network &network,
-                      const std::vector<Source>& sources,
-                      const std::vector<Scan> & scans,
-                      const SkdCatalogReader &skdCatalogReader,
-                      const boost::property_tree::ptree &xml);
+    std::ofstream of;  ///< output stream object *filename*.skd
 
-    private:
-        static unsigned long nextId; ///< next id for this object type
+    /**
+     * @brief write skd $PARAM block
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param xml VieSchedpp.xml file
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_PARAM( const Network &network, const boost::property_tree::ptree &xml,
+                    const SkdCatalogReader &skdCatalogReader );
 
-        std::ofstream of; ///< output stream object *filename*.skd
+    /**
+     * @brief write skd $OP block
+     * @author Matthias Schartner
+     */
+    void skd_OP();
 
-        /**
-         * @brief write skd $PARAM block
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param xml VieSchedpp.xml file
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_PARAM(const Network& network, const boost::property_tree::ptree &xml,
-                       const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $DOWNTIME block
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     */
+    void skd_DOWNTIME( const Network &network );
 
-        /**
-         * @brief write skd $OP block
-         * @author Matthias Schartner
-         */
-        void skd_OP();
+    /**
+     * @brief write skd $MAJOR block
+     * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     * @param sources list of all sources
+     * @param xml paramters.xml file
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_MAJOR( const std::vector<Station> &stations, const std::vector<Source> &sources,
+                    const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $DOWNTIME block
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         */
-        void skd_DOWNTIME(const Network& network);
+    /**
+     * @brief write skd $MINOR block
+     * @author Matthias Schartner
+     */
+    void skd_MINOR();
 
-        /**
-         * @brief write skd $MAJOR block
-         * @author Matthias Schartner
-         *
-         * @param stations list of all stations
-         * @param sources list of all sources
-         * @param xml paramters.xml file
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_MAJOR(const std::vector<Station> &stations, const std::vector<Source> &sources,
-                       const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $ASTROMETRIC block
+     * @author Matthias Schartner
+     */
+    void skd_ASTROMETRIC();
 
-        /**
-         * @brief write skd $MINOR block
-         * @author Matthias Schartner
-         */
-        void skd_MINOR();
+    /**
+     * @brief write skd %STATWT block
+     * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     */
+    void skd_STATWT( const std::vector<Station> &stations );
 
-        /**
-         * @brief write skd $ASTROMETRIC block
-         * @author Matthias Schartner
-         */
-        void skd_ASTROMETRIC();
+    /**
+     * @brief write skd $SRCWT block
+     * @author Matthias Schartner
+     *
+     * @param sources list of all sources
+     */
+    void skd_SRCWT( const std::vector<Source> &sources );
 
-        /**
-         * @brief write skd %STATWT block
-         * @author Matthias Schartner
-         *
-         * @param stations list of all stations
-         */
-        void skd_STATWT(const std::vector<Station>& stations);
+    /**
+     * @brief write skd $CATALOG_USED block
+     * @author Matthias Schartner
+     *
+     * @param xml paramters.xml file
+     * @param skdCatalogReader skd catalog reader
+     */
+    void skd_CATALOG_USED( const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $SRCWT block
-         * @author Matthias Schartner
-         *
-         * @param sources list of all sources
-         */
-        void skd_SRCWT(const std::vector<Source> &sources);
+    /**
+     * @brief write skd $BROADBAND block
+     * @author Matthias Schartner
+     */
+    void skd_BROADBAND();
 
-        /**
-         * @brief write skd $CATALOG_USED block
-         * @author Matthias Schartner
-         *
-         * @param xml paramters.xml file
-         * @param skdCatalogReader skd catalog reader
-         */
-        void skd_CATALOG_USED(const boost::property_tree::ptree &xml, const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $SOURCES block
+     * @author Matthias Schartner
+     *
+     * @param sources list of all sources
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_SOURCES( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $BROADBAND block
-         * @author Matthias Schartner
-         */
-        void skd_BROADBAND();
+    /**
+     * @brief write skd $STATIONS block
+     * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $SOURCES block
-         * @author Matthias Schartner
-         *
-         * @param sources list of all sources
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_SOURCES(const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $FLUX block
+     * @author Matthias Schartner
+     *
+     * @param sources list of all sources
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_FLUX( const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $STATIONS block
-         * @author Matthias Schartner
-         *
-         * @param stations list of all stations
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_STATIONS(const std::vector<Station>& stations, const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $SKED block
+     * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     * @param sources list of all sources
+     * @param scans list of all scheduled scans
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_SKED( const std::vector<Station> &stations, const std::vector<Source> &sources,
+                   const std::vector<Scan> &scans, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief write skd $FLUX block
-         * @author Matthias Schartner
-         *
-         * @param sources list of all sources
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_FLUX(const std::vector<Source> &sources, const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief write skd $CODES block
+     * @author Matthias Schartner
+     *
+     * @param stations list of all stations
+     * @param skdCatalogReader catalog reader
+     */
+    void skd_CODES( const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader );
+};
+}  // namespace VieVS
 
-        /**
-         * @brief write skd $SKED block
-         * @author Matthias Schartner
-         *
-         * @param stations list of all stations
-         * @param sources list of all sources
-         * @param scans list of all scheduled scans
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_SKED(const std::vector<Station> &stations,
-                      const std::vector<Source> &sources,
-                      const std::vector<Scan> &scans,
-                      const SkdCatalogReader &skdCatalogReader);
-
-        /**
-         * @brief write skd $CODES block
-         * @author Matthias Schartner
-         *
-         * @param stations list of all stations
-         * @param skdCatalogReader catalog reader
-         */
-        void skd_CODES(const std::vector<Station> &stations, const SkdCatalogReader &skdCatalogReader);
-    };
-}
-
-#endif //SKD_H
+#endif  // SKD_H

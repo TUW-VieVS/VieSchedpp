@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "CalibratorBlock.h"
 using namespace std;
 using namespace VieVS;
@@ -23,20 +23,21 @@ using namespace VieVS;
 bool CalibratorBlock::scheduleCalibrationBlocks = false;
 
 unsigned int CalibratorBlock::cadence = 0;
-CalibratorBlock::CadenceUnit CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds ;
+CalibratorBlock::CadenceUnit CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds;
 
 unsigned int CalibratorBlock::nextBlock = 0;
 
-std::vector<unsigned long> CalibratorBlock::calibratorSourceIds {};
+std::vector<unsigned long> CalibratorBlock::calibratorSourceIds{};
 
 unsigned int CalibratorBlock::nmaxScans = 0;
 
-CalibratorBlock::TargetScanLengthType CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::parameters;
-std::unordered_map<std::string,double> CalibratorBlock::minSNR {};
+CalibratorBlock::TargetScanLengthType CalibratorBlock::targetScanLengthType =
+    CalibratorBlock::TargetScanLengthType::parameters;
+std::unordered_map<std::string, double> CalibratorBlock::minSNR{};
 unsigned int CalibratorBlock::scanLength = 0;
 
-double CalibratorBlock::lowElevationStartWeight = 0*deg2rad;
-double CalibratorBlock::lowElevationFullWeight   = 0*deg2rad;
+double CalibratorBlock::lowElevationStartWeight = 0 * deg2rad;
+double CalibratorBlock::lowElevationFullWeight = 0 * deg2rad;
 
-double CalibratorBlock::highElevationStartWeight = 90*deg2rad;
-double CalibratorBlock::highElevationFullWeight   = 90*deg2rad;
+double CalibratorBlock::highElevationStartWeight = 90 * deg2rad;
+double CalibratorBlock::highElevationFullWeight = 90 * deg2rad;

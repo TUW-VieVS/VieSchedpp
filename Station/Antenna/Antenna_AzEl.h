@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -29,56 +29,51 @@
 
 #include "AbstractAntenna.h"
 
-namespace VieVS{
+namespace VieVS {
+/**
+ * @class Antenna_AzEl
+ * @brief azimuth, elevation antenna
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
+class Antenna_AzEl : public AbstractAntenna {
+   public:
     /**
-     * @class Antenna_AzEl
-     * @brief azimuth, elevation antenna
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 12.04.2018
+     *
+     * @param offset_m offset of antenna axis intersection in meters
+     * @param diam_m diameter of antenna dish in meters
+     * @param rateAz_deg_per_min slew rate of azimuth in degrees/seconds
+     * @param constantOverheadAz_s constant overhead for azimuth slew time in seconds
+     * @param rateEl_deg_per_min slew rate of elevation in degrees/secondds
+     * @param constantOverheadEl_s constant overhead for elevation slew time in seconds
      */
-    class Antenna_AzEl : public AbstractAntenna {
-    public:
+    Antenna_AzEl( double offset_m, double diam_m, double rateAz_deg_per_min, unsigned int constantOverheadAz_s,
+                  double rateEl_deg_per_min, unsigned int constantOverheadEl_s );
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param offset_m offset of antenna axis intersection in meters
-         * @param diam_m diameter of antenna dish in meters
-         * @param rateAz_deg_per_min slew rate of azimuth in degrees/seconds
-         * @param constantOverheadAz_s constant overhead for azimuth slew time in seconds
-         * @param rateEl_deg_per_min slew rate of elevation in degrees/secondds
-         * @param constantOverheadEl_s constant overhead for elevation slew time in seconds
-         */
-        Antenna_AzEl(double offset_m, double diam_m, double rateAz_deg_per_min,
-                     unsigned int constantOverheadAz_s, double rateEl_deg_per_min, unsigned int constantOverheadEl_s);
+    /**
+     * @brief calculates slew time
+     * @author Matthias Schartner
+     *
+     * @param old_pointingVector slew start point
+     * @param new_pointingVector slew end point
+     * @return slew time in seconds
+     */
+    unsigned int slewTime( const PointingVector &old_pointingVector, const PointingVector &new_pointingVector ) const
+        noexcept override;
 
+    /**
+     * @brief get mount name
+     * @author Matthias Schartner
+     *
+     * @return mount name
+     */
+    std::string getMount() const noexcept override { return "ALTAZ"; };
 
-        /**
-         * @brief calculates slew time
-         * @author Matthias Schartner
-         *
-         * @param old_pointingVector slew start point
-         * @param new_pointingVector slew end point
-         * @return slew time in seconds
-         */
-        unsigned int slewTime(const PointingVector &old_pointingVector,
-                              const PointingVector &new_pointingVector) const noexcept override;
+   private:
+};
+}  // namespace VieVS
 
-        /**
-         * @brief get mount name
-         * @author Matthias Schartner
-         *
-         * @return mount name
-         */
-        std::string getMount() const noexcept override{return "ALTAZ";};
-
-
-    private:
-
-    };
-}
-
-
-#endif //ANTENNA_AZEL_H
+#endif  // ANTENNA_AZEL_H

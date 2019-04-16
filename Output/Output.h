@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -32,147 +32,145 @@
 #endif
 
 #include "../Scheduler.h"
-#include "boost/format.hpp"
-#include "Vex.h"
-#include "Skd.h"
 #include "Ast.h"
 #include "OperationNotes.h"
 #include "SNR_table.h"
+#include "Skd.h"
+#include "Vex.h"
+#include "boost/format.hpp"
 
-namespace VieVS{
+namespace VieVS {
+
+/**
+ * @class Output
+ * @brief this is the VLBI output class that creates all output files
+ *
+ * @author Matthias Schartner
+ * @date 22.08.2017
+ */
+class Output : public VieVS_NamedObject {
+   public:
+    /**
+     * @brief possible group types
+     * @author Matthias Schartner
+     */
+    enum class GroupType {
+        station,   ///< stations wise group
+        source,    ///< source wise group
+        baseline,  ///< baseline wise group
+    };
 
     /**
-     * @class Output
-     * @brief this is the VLBI output class that creates all output files
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 22.08.2017
+     *
+     * @param sched scheduler
+     * @param path path to output directory
+     * @param fname file name
+     * @param version version number
      */
-    class Output: public VieVS_NamedObject {
-    public:
-        /**
-         * @brief possible group types
-         * @author Matthias Schartner
-         */
-        enum class GroupType {
-            station, ///< stations wise group
-            source, ///< source wise group
-            baseline, ///< baseline wise group
-        };
+    Output( Scheduler &sched, std::string path, std::string fname, int version );
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param sched scheduler
-         * @param path path to output directory
-         * @param fname file name
-         * @param version version number
-         */
-        Output(Scheduler &sched, std::string path, std::string fname, int version);
+    /**
+     * @brief writes a summary text file containing some basic statistics and overviews
+     * @author Matthias Schartner
+     */
+    void writeSkdsum();
 
-        /**
-         * @brief writes a summary text file containing some basic statistics and overviews
-         * @author Matthias Schartner
-         */
-        void writeSkdsum();
+    /**
+     * @brief write statistics line to statistics.csv file
+     * @author Matthias Schartner
+     *
+     * @param of statistics.csv file
+     */
+    void writeStatistics( std::ofstream &of );
 
-        /**
-         * @brief write statistics line to statistics.csv file
-         * @author Matthias Schartner
-         *
-         * @param of statistics.csv file
-         */
-        void writeStatistics(std::ofstream &of);
+    /**
+     * @brief create a ngs file
+     * @author Matthias Schartner
+     */
+    void writeNGS();
 
-        /**
-         * @brief create a ngs file
-         * @author Matthias Schartner
-         */
-        void writeNGS();
+    /**
+     * @brief create a operations notes file
+     * @author Matthias Schartner
+     */
+    void writeOperationsNotes();
 
-        /**
-         * @brief create a operations notes file
-         * @author Matthias Schartner
-         */
-        void writeOperationsNotes();
+    /**
+     * @brief creates a skd file
+     * @author Matthias Schartner
+     *
+     * @param skdCatalogReader sked catalogs
+     */
+    void writeSkd( const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief creates a skd file
-         * @author Matthias Schartner
-         *
-         * @param skdCatalogReader sked catalogs
-         */
-        void writeSkd(const SkdCatalogReader &skdCatalogReader);
+    /**
+     * @brief creates a vex file
+     * @author Matthias Schartner
+     */
+    void writeVex();
 
-        /**
-         * @brief creates a vex file
-         * @author Matthias Schartner
-         */
-        void writeVex();
+    /**
+     * @brief creates a SNR overview file
+     * @author Matthias Schartner
+     */
+    void writeSnrTable();
 
-        /**
-         * @brief creates a SNR overview file
-         * @author Matthias Schartner
-         */
-        void writeSnrTable();
+    /**
+     * @brief creates a ast file
+     * @author Matthias Schartner
+     */
+    void writeAstFile();
 
-        /**
-         * @brief creates a ast file
-         * @author Matthias Schartner
-         */
-        void writeAstFile();
+    /**
+     * @brief write statistics per source group file
+     * @author Matthias Schartner
+     */
+    void writeStatisticsPerSourceGroup();
 
-        /**
-         * @brief write statistics per source group file
-         * @author Matthias Schartner
-         */
-        void writeStatisticsPerSourceGroup();
+    /**
+     * @brief create all output files
+     * @author Matthias Schartner
+     *
+     * @param of statistics.csv file
+     * @param skdCatalogReader sked catalogs
+     */
+    void createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &skdCatalogReader );
 
-        /**
-         * @brief create all output files
-         * @author Matthias Schartner
-         *
-         * @param of statistics.csv file
-         * @param skdCatalogReader sked catalogs
-         */
-        void createAllOutputFiles(std::ofstream& of, const SkdCatalogReader &skdCatalogReader);
+   private:
+    static unsigned long nextId;  ///< next id for this object type
 
-    private:
-        static unsigned long nextId; ///< next id for this object type
+    boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-        boost::property_tree::ptree xml_; ///< content of VieSchedpp.xml file
+    std::string path_;                                                        ///< path to output directory
+    int version_;                                                             ///< number of this schedule
+    Network network_;                                                         ///< network
+    std::vector<Source> sources_;                                             ///< all sources
+    std::vector<Scan> scans_;                                                 ///< all scans in schedule
+    const std::shared_ptr<const ObservingMode> &obsModes_;                    ///< observing mode
+    boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
 
-        std::string path_; ///< path to output directory
-        int version_; ///< number of this schedule
-        Network network_; ///< network
-        std::vector<Source> sources_; ///< all sources
-        std::vector<Scan> scans_; ///< all scans in schedule
-        const std::shared_ptr<const ObservingMode> &obsModes_; ///< observing mode
-        boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_; ///< multi scheduling parameters
+    /**
+     * @brief read all groups from VieSchedpp.xml file
+     * @author Matthias Schartner
+     *
+     * @param root VieSchedpp.xml file
+     * @param type group type
+     * @return list of all groups
+     */
+    std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
+                                                                          GroupType type ) noexcept;
 
+    /**
+     * @brief calculate minutes where source is visible
+     * @author Matthias Schartner
+     *
+     * @param source target source
+     * @return total number of visible minutes
+     */
+    std::vector<unsigned int> minutesVisible( const Source &source );
+};
+}  // namespace VieVS
 
-        /**
-         * @brief read all groups from VieSchedpp.xml file
-         * @author Matthias Schartner
-         *
-         * @param root VieSchedpp.xml file
-         * @param type group type
-         * @return list of all groups
-         */
-        std::unordered_map<std::string, std::vector<std::string> > readGroups(boost::property_tree::ptree root,
-                                                                              GroupType type) noexcept;
-
-        /**
-         * @brief calculate minutes where source is visible
-         * @author Matthias Schartner
-         *
-         * @param source target source
-         * @return total number of visible minutes
-         */
-        std::vector<unsigned int> minutesVisible(const Source &source);
-    };
-}
-
-
-#endif //OUTPUT_H
+#endif  // OUTPUT_H

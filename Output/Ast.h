@@ -27,8 +27,8 @@
 #ifndef VIESCHEDPP_AST_H
 #define VIESCHEDPP_AST_H
 
-#include "../Scan/Scan.h"
 #include "../ObservingMode/ObservingMode.h"
+#include "../Scan/Scan.h"
 
 /*
  * NOTES: units for acceleration
@@ -44,81 +44,73 @@
  *
  */
 
-namespace VieVS{
+namespace VieVS {
+
+/**
+ * @class Ast
+ * @brief create Operation in Ast format
+ *
+ * @author Matthias Schartner
+ * @date 26.02.2019
+ */
+class Ast : public VieVS_Object {
+   public:
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param file file name
+     */
+    explicit Ast( const std::string &file );
 
     /**
-     * @class Ast
-     * @brief create Operation in Ast format
-     *
+     * @brief write ast file
      * @author Matthias Schartner
-     * @date 26.02.2019
+     *
+     * @param network station network
+     * @param sources list of all sources
+     * @param scans list of all scans
+     * @param xml paramters.xml file
+     * @param obsModes observing mode
      */
-    class Ast: public VieVS_Object{
-    public:
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param file file name
-         */
-        explicit Ast(const std::string &file);
+    void writeAstFile( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+                       const boost::property_tree::ptree &xml, const std::shared_ptr<const ObservingMode> &obsModes );
 
+   private:
+    static unsigned long nextId;  ///< next id for this object type
 
-        /**
-         * @brief write ast file
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param sources list of all sources
-         * @param scans list of all scans
-         * @param xml paramters.xml file
-         * @param obsModes observing mode
-         */
-        void writeAstFile(const Network &network,
-                          const std::vector<Source>& sources,
-                          const std::vector<Scan> & scans,
-                          const boost::property_tree::ptree &xml,
-                          const std::shared_ptr<const ObservingMode> &obsModes);
+    std::ofstream of;  ///< output stream object
 
+    /**
+     * @brief write experiment block
+     * @author Matthias Schartner
+     *
+     * @param xml paramters.xml file
+     */
+    void experiment( const boost::property_tree::ptree &xml );
 
-    private:
-        static unsigned long nextId; ///< next id for this object type
+    /**
+     * @brief write experiment block
+     * @author Matthias Schartner
+     *
+     * @param station station
+     * @param obsModes observing modes
+     */
+    void stationParameters( const Station &station, const std::shared_ptr<const ObservingMode> &obsModes );
 
-        std::ofstream of; ///< output stream object
+    /**
+     * @brief write experiment block
+     * @author Matthias Schartner
+     *
+     * @param scans list of all scans
+     * @param sources observed source
+     * @param stations list of stations
+     * @param obsModes observing modes
+     */
+    void scanOutput( const std::vector<Scan> &scans, const std::vector<Source> &sources,
+                     const std::vector<Station> &stations, const std::shared_ptr<const ObservingMode> &obsModes );
+};
 
-        /**
-         * @brief write experiment block
-         * @author Matthias Schartner
-         *
-         * @param xml paramters.xml file
-         */
-        void experiment(const boost::property_tree::ptree &xml);
+}  // namespace VieVS
 
-        /**
-         * @brief write experiment block
-         * @author Matthias Schartner
-         *
-         * @param station station
-         * @param obsModes observing modes
-         */
-        void stationParameters(const Station &station, const std::shared_ptr<const ObservingMode> &obsModes);
-
-        /**
-         * @brief write experiment block
-         * @author Matthias Schartner
-         *
-         * @param scans list of all scans
-         * @param sources observed source
-         * @param stations list of stations
-         * @param obsModes observing modes
-         */
-        void scanOutput(const std::vector<Scan> & scans,
-                        const std::vector<Source>& sources,
-                        const std::vector<Station> &stations,
-                        const std::shared_ptr<const ObservingMode> &obsModes);
-    };
-
-}
-
-
-#endif //VIESCHEDPP_AST_H
+#endif  // VIESCHEDPP_AST_H
