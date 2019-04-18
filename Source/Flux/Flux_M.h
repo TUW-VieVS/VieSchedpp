@@ -53,8 +53,8 @@ class Flux_M : public AbstractFlux {
      * @param axialRatio axial ratios
      * @param positionAngle position angles
      */
-    Flux_M( double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
-            const std::vector<double> &axialRatio, const std::vector<double> &positionAngle );
+    Flux_M( double wavelength, std::vector<double> flux, std::vector<double> majorAxis, std::vector<double> axialRatio,
+            std::vector<double> positionAngle );
 
 
     /**

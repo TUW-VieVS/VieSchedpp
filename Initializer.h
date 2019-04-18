@@ -233,7 +233,7 @@ class Initializer : public VieVS_Object {
      * @brief initializes astronomical parameters
      * @author Matthias Schartner
      */
-    void initializeAstronomicalParameteres() noexcept;
+    static void initializeAstronomicalParameteres() noexcept;
 
 
     /**

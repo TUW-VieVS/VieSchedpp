@@ -25,13 +25,13 @@ using namespace std;
 double Flux_M::flcon1_{( pi * pi ) / ( 4.0 * 0.6931471 )};  ///< constant precalculated value for model M
 // double Flux_M::flcon2_{pi / (3600.0 * 180.0 * 1000.0)}; ///< constant precalculated value for model M
 
-VieVS::Flux_M::Flux_M( double wavelength, const std::vector<double> &flux, const std::vector<double> &majorAxis,
-                       const std::vector<double> &axialRatio, const std::vector<double> &positionAngle )
+VieVS::Flux_M::Flux_M( double wavelength, std::vector<double> flux, std::vector<double> majorAxis,
+                       std::vector<double> axialRatio, std::vector<double> positionAngle )
     : AbstractFlux{wavelength},
-      flux_{flux},
-      majorAxis_{majorAxis},
-      axialRatio_{axialRatio},
-      positionAngle_{positionAngle} {}
+      flux_{std::move( flux )},
+      majorAxis_{std::move( majorAxis )},
+      axialRatio_{std::move( axialRatio )},
+      positionAngle_{std::move( positionAngle )} {}
 
 
 double Flux_M::getMaximumFlux() const noexcept {
