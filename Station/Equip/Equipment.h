@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
 /**
  * @file Equipment.h
  * @brief class Equipment
@@ -28,59 +27,58 @@
 #ifndef EQUIPMENT_H
 #define EQUIPMENT_H
 
-#include <vector>
-#include <unordered_map>
+
+#include <cmath>
 #include <iostream>
 #include <limits>
-#include <cmath>
+#include <unordered_map>
+#include <vector>
 #include "../../Misc/VieVS_Object.h"
 
 
-namespace VieVS{
+namespace VieVS {
+/**
+ * @class Equipment
+ * @brief representation of VLBI equipment
+ *
+ * @author Matthias Schartner
+ * @date 27.06.2017
+ */
+class Equipment : public VieVS_Object {
+   public:
     /**
-     * @class Equipment
-     * @brief representation of VLBI equipment
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 27.06.2017
+     *
+     * @param SEFDs SEFD per band - key is band name, value is SEFD
      */
-    class Equipment: public VieVS_Object {
-    public:
-
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param SEFDs SEFD per band - key is band name, value is SEFD
-         */
-        explicit Equipment(const std::unordered_map<std::string, double> &SEFDs);
+    explicit Equipment( const std::unordered_map<std::string, double> &SEFDs );
 
 
-        /**
-         * @brief getter function for antenna SEFD information
-         * @author Matthias Schartner
-         *
-         * @param band name of band
-         * @param el elevation
-         * @return SEFD of this band
-         */
-        virtual double getSEFD(const std::string &band, double el) const noexcept{
-            return SEFD_.at(band);
-        };
+    /**
+     * @brief getter function for antenna SEFD information
+     * @author Matthias Schartner
+     *
+     * @param band name of band
+     * @param el elevation
+     * @return SEFD of this band
+     */
+    virtual double getSEFD( const std::string &band, double el ) const noexcept { return SEFD_.at( band ); };
 
-        /**
-         * @brief returns maximum SEFD of this antenna
-         * @author Matthias Schartner
-         *
-         * @return maximum SEFD of this antenna
-         */
-        double getMaxSEFD() const noexcept;
 
-    private:
-        static unsigned long nextId; ///< next id for this object type
+    /**
+     * @brief returns maximum SEFD of this antenna
+     * @author Matthias Schartner
+     *
+     * @return maximum SEFD of this antenna
+     */
+    double getMaxSEFD() const noexcept;
 
-        std::unordered_map<std::string,double> SEFD_; ///< SEFD information per band
-    };
-}
+
+   private:
+    static unsigned long nextId;  ///< next id for this object type
+
+    std::unordered_map<std::string, double> SEFD_;  ///< SEFD information per band
+};
+}  // namespace VieVS
 #endif /* EQUIPMENT_H */
-

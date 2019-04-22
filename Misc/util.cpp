@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,192 +16,260 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #include "util.h"
+#include "util.h"
+
 
 using namespace std;
 using namespace VieVS;
 
-string util::ra2dms(double angle){
-    double af = angle*rad2deg/15;
-    double d = floor(af);
-    double mf = (af - d)*60;
-    double m = floor(mf);
-    double sf = (mf - m)*60;
 
-    return (boost::format("%02dh %02dm %05.2fs") %d %m %sf).str();
+string util::ra2dms( double angle ) {
+    double af = angle * rad2deg / 15;
+    double d = floor( af );
+    double mf = ( af - d ) * 60;
+    double m = floor( mf );
+    double sf = ( mf - m ) * 60;
 
-}
-std::string util::ra2dms_astFormat(double angle) {
-    double af = angle*rad2deg/15;
-    double d = floor(af);
-    double mf = (af - d)*60;
-    double m = floor(mf);
-    double sf = (mf - m)*60;
-
-    return (boost::format("%02d:%02d:%09.6f") %d %m %sf).str();
+    return ( boost::format( "%02dh %02dm %05.2fs" ) % d % m % sf ).str();
 }
 
-string util::dc2hms(double angle){
-    double af = angle*rad2deg;
+
+std::string util::ra2dms_astFormat( double angle ) {
+    double af = angle * rad2deg / 15;
+    double d = floor( af );
+    double mf = ( af - d ) * 60;
+    double m = floor( mf );
+    double sf = ( mf - m ) * 60;
+
+    return ( boost::format( "%02d:%02d:%09.6f" ) % d % m % sf ).str();
+}
+
+
+string util::dc2hms( double angle ) {
+    double af = angle * rad2deg;
     bool positive = true;
-    if( af < 0){
+    if ( af < 0 ) {
         positive = false;
     }
-    af = abs(af);
-    double h = floor(af);
-    double mf = (af - h)*60;
-    double m = floor(mf);
-    double sf = (mf - m)*60;
-    if(!positive){
-        h*=-1;
+    af = abs( af );
+    double h = floor( af );
+    double mf = ( af - h ) * 60;
+    double m = floor( mf );
+    double sf = ( mf - m ) * 60;
+    if ( !positive ) {
+        h *= -1;
     }
 
-    return (boost::format("%+03d° %02d' %05.2f\"") %h %m %sf).str();
-
+    return ( boost::format( "%+03d° %02d' %05.2f\"" ) % h % m % sf ).str();
 }
 
-string util::dc2hms_astFormat(double angle){
-    double af = angle*rad2deg;
+
+string util::dc2hms_astFormat( double angle ) {
+    double af = angle * rad2deg;
     bool positive = true;
-    if( af < 0){
+    if ( af < 0 ) {
         positive = false;
     }
-    af = abs(af);
-    double h = floor(af);
-    double mf = (af - h)*60;
-    double m = floor(mf);
-    double sf = (mf - m)*60;
-    if(!positive){
-        h*=-1;
+    af = abs( af );
+    double h = floor( af );
+    double mf = ( af - h ) * 60;
+    double m = floor( mf );
+    double sf = ( mf - m ) * 60;
+    if ( !positive ) {
+        h *= -1;
     }
 
-    return (boost::format("%+03d:%02d:%9.6f\"") %h %m %sf).str();
-
+    return ( boost::format( "%+03d:%02d:%9.6f\"" ) % h % m % sf ).str();
 }
 
-double util::wrap2twoPi(double angle){
-    angle = fmod(angle,twopi);
-    if(angle<0){
+
+double util::wrap2twoPi( double angle ) {
+    angle = fmod( angle, twopi );
+    if ( angle < 0 ) {
         angle += twopi;
     }
     return angle;
-
 }
 
-double util::wrap2pi(double angle){
-    angle = fmod(angle,pi);
+
+double util::wrap2pi( double angle ) {
+    angle = fmod( angle, pi );
     return angle;
 }
 
-int util::duration(const boost::posix_time::ptime &start, const boost::posix_time::ptime &end) {
+
+int util::duration( const boost::posix_time::ptime &start, const boost::posix_time::ptime &end ) {
     boost::posix_time::time_duration a = end - start;
-    return static_cast<int>(a.total_seconds());
+    return static_cast<int>( a.total_seconds() );
 }
 
-void util::outputObjectList(const std::string &title, const std::vector<std::string> &names, std::ofstream &of, unsigned long indents) {
 
-    string indent = string(indents,' ');
+void util::outputObjectList( const std::string &title, const std::vector<std::string> &names, std::ofstream &of,
+                             unsigned long indents ) {
+    string indent = string( indents, ' ' );
 
-    if(!names.empty()){
-
+    if ( !names.empty() ) {
         int longest = 0;
-        for(const auto&any:names){
-            if(any.size()>longest){
-                longest = static_cast<int>(any.size());
+        for ( const auto &any : names ) {
+            if ( any.size() > longest ) {
+                longest = static_cast<int>( any.size() );
             }
         }
 
-        unsigned long n=0;
-        if(longest != 0){
-            n = (100-indents)/longest;
+        unsigned long n = 0;
+        if ( longest != 0 ) {
+            n = ( 100 - indents ) / longest;
         }
-        string format = (boost::format("%%%ds ")%longest).str();
+        string format = ( boost::format( "%%%ds " ) % longest ).str();
 
         of << title << ": (" << names.size() << ")\n" << indent;
-        for(int i=0; i<names.size(); ++i){
-            if(i%n==0 && i!=0 ){
+        for ( int i = 0; i < names.size(); ++i ) {
+            if ( i % n == 0 && i != 0 ) {
                 of << "\n" << indent;
             }
-            of << boost::format(format)%names[i];
+            of << boost::format( format ) % names[i];
         }
         of << "\n";
     }
-
 }
 
 
 string util::version() {
     string v;
-    v = string(GIT_COMMIT_HASH);
+    v = string( GIT_COMMIT_HASH );
 
     return v;
 }
 
 
-double util::freqency2wavelenth( double frequency ){
-    return speedOfLight/frequency;
-}
+double util::freqency2wavelenth( double frequency ) { return speedOfLight / frequency; }
 
-double util::wavelength2frequency( double wavelength ){
-    return speedOfLight/wavelength;
-}
 
-unsigned long util::getNumberOfStations(const boost::property_tree::ptree &xml) {
+double util::wavelength2frequency( double wavelength ) { return speedOfLight / wavelength; }
+
+
+unsigned long util::getNumberOfStations( const boost::property_tree::ptree &xml ) {
     unsigned long nsta = 0;
 
-    auto ptree_stations = xml.get_child_optional("VieSchedpp.general.stations");
-    if (ptree_stations.is_initialized()) {
-        nsta = distance(ptree_stations->begin(), ptree_stations->end());
+    auto ptree_stations = xml.get_child_optional( "VieSchedpp.general.stations" );
+    if ( ptree_stations.is_initialized() ) {
+        nsta = distance( ptree_stations->begin(), ptree_stations->end() );
     }
 
     return nsta;
 }
 
-std::vector<std::string> util::getStationNames(const boost::property_tree::ptree &xml) {
+
+std::vector<std::string> util::getStationNames( const boost::property_tree::ptree &xml ) {
     vector<string> names;
-    auto ptree_stations = xml.get_child_optional("VieSchedpp.general.stations");
-    if (ptree_stations.is_initialized()) {
+    auto ptree_stations = xml.get_child_optional( "VieSchedpp.general.stations" );
+    if ( ptree_stations.is_initialized() ) {
         auto it = ptree_stations->begin();
-        while (it != ptree_stations->end()) {
+        while ( it != ptree_stations->end() ) {
             auto item = it->second.data();
-            names.push_back(item);
+            names.push_back( item );
             ++it;
         }
     }
     return names;
 }
 
-std::string util::weekDay2string(int weekday) {
+
+std::string util::weekDay2string( int weekday ) {
     string wd;
-    switch(weekday){
-        case 0:{ wd = "SUN"; break; }
-        case 1:{ wd = "MON"; break; }
-        case 2:{ wd = "TUE"; break; }
-        case 3:{ wd = "WED"; break; }
-        case 4:{ wd = "THU"; break; }
-        case 5:{ wd = "FRI"; break; }
-        case 6:{ wd = "SAT"; break; }
-        default:{ wd = "   "; break; };
+    switch ( weekday ) {
+        case 0: {
+            wd = "SUN";
+            break;
+        }
+        case 1: {
+            wd = "MON";
+            break;
+        }
+        case 2: {
+            wd = "TUE";
+            break;
+        }
+        case 3: {
+            wd = "WED";
+            break;
+        }
+        case 4: {
+            wd = "THU";
+            break;
+        }
+        case 5: {
+            wd = "FRI";
+            break;
+        }
+        case 6: {
+            wd = "SAT";
+            break;
+        }
+        default: {
+            wd = "   ";
+            break;
+        };
     }
     return wd;
 }
 
-std::string util::month2string(int month) {
+
+std::string util::month2string( int month ) {
     string monthStr;
-    switch(month){
-        case  1:{ monthStr = "JAN"; break; }
-        case  2:{ monthStr = "FEB"; break; }
-        case  3:{ monthStr = "MAR"; break; }
-        case  4:{ monthStr = "APR"; break; }
-        case  5:{ monthStr = "MAY"; break; }
-        case  6:{ monthStr = "JUN"; break; }
-        case  7:{ monthStr = "JUL"; break; }
-        case  8:{ monthStr = "AUG"; break; }
-        case  9:{ monthStr = "SEP"; break; }
-        case 10:{ monthStr = "OCT"; break; }
-        case 11:{ monthStr = "NOV"; break; }
-        case 12:{ monthStr = "DEC"; break; }
-        default:{ monthStr = "   "; break; };
+    switch ( month ) {
+        case 1: {
+            monthStr = "JAN";
+            break;
+        }
+        case 2: {
+            monthStr = "FEB";
+            break;
+        }
+        case 3: {
+            monthStr = "MAR";
+            break;
+        }
+        case 4: {
+            monthStr = "APR";
+            break;
+        }
+        case 5: {
+            monthStr = "MAY";
+            break;
+        }
+        case 6: {
+            monthStr = "JUN";
+            break;
+        }
+        case 7: {
+            monthStr = "JUL";
+            break;
+        }
+        case 8: {
+            monthStr = "AUG";
+            break;
+        }
+        case 9: {
+            monthStr = "SEP";
+            break;
+        }
+        case 10: {
+            monthStr = "OCT";
+            break;
+        }
+        case 11: {
+            monthStr = "NOV";
+            break;
+        }
+        case 12: {
+            monthStr = "DEC";
+            break;
+        }
+        default: {
+            monthStr = "   ";
+            break;
+        };
     }
     return monthStr;
 }

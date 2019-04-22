@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,33 +16,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-/* 
+/*
  * File:   equip.cpp
  * Author: mschartn
- * 
+ *
  * Created on June 27, 2017, 11:54 AM
  */
 
 #include "Equipment.h"
+
 
 using namespace std;
 using namespace VieVS;
 
 unsigned long Equipment::nextId = 0;
 
-Equipment::Equipment(const unordered_map<string, double> &SEFDs):VieVS_Object(nextId++), SEFD_{SEFDs}{
-}
+
+Equipment::Equipment( const unordered_map<string, double> &SEFDs ) : VieVS_Object( nextId++ ), SEFD_{SEFDs} {}
+
 
 double Equipment::getMaxSEFD() const noexcept {
     double maxSEFD = 0;
-    for(auto& any: SEFD_){
-        if(any.second>maxSEFD){
+    for ( auto &any : SEFD_ ) {
+        if ( any.second > maxSEFD ) {
             maxSEFD = any.second;
         }
     }
     return maxSEFD;
 }
-
-
-

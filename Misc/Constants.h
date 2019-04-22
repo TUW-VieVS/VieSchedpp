@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,7 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
 /**
  * @file Constants.h
  * @brief constants used in this program
@@ -29,16 +28,15 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-constexpr double pi = 3.141592653589793; ///< value of pi
-constexpr double twopi = 2 * pi; ///< value of 2 times pi
-constexpr double halfpi = pi / 2; ///< value of half pi
+constexpr double pi = 3.141592653589793;  ///< value of pi
+constexpr double twopi = 2 * pi;          ///< value of 2 times pi
+constexpr double halfpi = pi / 2;         ///< value of half pi
 
-constexpr double rad2deg = 180 / pi; ///< transforms radians to degrees
-constexpr double deg2rad = pi / 180; ///< transforms degrees to radians
+constexpr double rad2deg = 180 / pi;  ///< transforms radians to degrees
+constexpr double deg2rad = pi / 180;  ///< transforms degrees to radians
 
-constexpr double omega = 1.00273781191135448 * twopi / 86400; ///< earth rotation velocity in radians per second
+constexpr double omega = 1.00273781191135448 * twopi / 86400;  ///< earth rotation velocity in radians per second
 
-constexpr double speedOfLight = 299792458.0; ///< speed of light in meters per second
+constexpr double speedOfLight = 299792458.0;  ///< speed of light in meters per second
 
 #endif /* CONSTANTS_H */
-

@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,65 +17,65 @@
  */
 
 /**
-* @file Antenna_XYew.h
-* @brief class X, Y east west antenna
-*
-* @author Matthias Schartner
-* @date 12.04.2018
-*/
+ * @file Antenna_XYew.h
+ * @brief class X, Y east west antenna
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
 
 #ifndef ANTENNA_XYEW_H
 #define ANTENNA_XYEW_H
 
+
 #include "AbstractAntenna.h"
 
-namespace VieVS{
+
+namespace VieVS {
+/**
+ * @class Antenna_XYew
+ * @brief X, Y east west antenna
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
+class Antenna_XYew : public AbstractAntenna {
+   public:
     /**
-     * @class Antenna_XYew
-     * @brief X, Y east west antenna
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 12.04.2018
+     *
+     * @param offset_m offset of antenna axis intersection in meters
+     * @param diam_m diameter of antenna dish in meters
+     * @param rateX_deg_per_min slew rate of X in degrees/seconds
+     * @param constantOverheadX_s constant overhead for X slew time in seconds
+     * @param rateY_deg_per_min slew rate of Y in degrees/secondds
+     * @param constantOverheadY_s constant overhead for Y slew time in seconds
      */
-    class Antenna_XYew : public AbstractAntenna {
-    public:
-
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param offset_m offset of antenna axis intersection in meters
-         * @param diam_m diameter of antenna dish in meters
-         * @param rateX_deg_per_min slew rate of X in degrees/seconds
-         * @param constantOverheadX_s constant overhead for X slew time in seconds
-         * @param rateY_deg_per_min slew rate of Y in degrees/secondds
-         * @param constantOverheadY_s constant overhead for Y slew time in seconds
-         */
-        Antenna_XYew(double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
-                     double rateY_deg_per_min, unsigned int constantOverheadY_s);
+    Antenna_XYew( double offset_m, double diam_m, double rateX_deg_per_min, unsigned int constantOverheadX_s,
+                  double rateY_deg_per_min, unsigned int constantOverheadY_s );
 
 
-        /**
-         * @brief calculates slew time
-         * @author Matthias Schartner
-         *
-         * @param old_pointingVector slew start point
-         * @param new_pointingVector slew end point
-         * @return slew time in seconds
-         */
-        unsigned int slewTime(const PointingVector &old_pointingVector,
-                              const PointingVector &new_pointingVector) const noexcept override;
-
-        /**
-         * @brief get mount name
-         * @author Matthias Schartner
-         *
-         * @return mount name
-         */
-        std::string getMount() const noexcept override{return "XY_E";};
-    };
-}
+    /**
+     * @brief calculates slew time
+     * @author Matthias Schartner
+     *
+     * @param old_pointingVector slew start point
+     * @param new_pointingVector slew end point
+     * @return slew time in seconds
+     */
+    unsigned int slewTime( const PointingVector &old_pointingVector, const PointingVector &new_pointingVector ) const
+        noexcept override;
 
 
+    /**
+     * @brief get mount name
+     * @author Matthias Schartner
+     *
+     * @return mount name
+     */
+    std::string getMount() const noexcept override { return "XY_E"; };
+};
+}  // namespace VieVS
 
-#endif //ANTENNA_XYEW_H
+#endif  // ANTENNA_XYEW_H

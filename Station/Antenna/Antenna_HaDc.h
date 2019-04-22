@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,63 +17,66 @@
  */
 
 /**
-* @file Antenna_HaDc.h
-* @brief class hour angle, declination antenna
-*
-* @author Matthias Schartner
-* @date 12.04.2018
-*/
+ * @file Antenna_HaDc.h
+ * @brief class hour angle, declination antenna
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
 
 #ifndef ANTENNA_HADC_H
 #define ANTENNA_HADC_H
 
+
 #include "AbstractAntenna.h"
 
-namespace VieVS{
+
+namespace VieVS {
+/**
+ * @class Antenna_HaDc
+ * @brief hour angle, declination antenna
+ *
+ * @author Matthias Schartner
+ * @date 12.04.2018
+ */
+class Antenna_HaDc : public AbstractAntenna {
+   public:
     /**
-     * @class Antenna_HaDc
-     * @brief hour angle, declination antenna
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 12.04.2018
+     *
+     * @param offset_m offset of antenna axis intersection in meters
+     * @param diam_m diameter of antenna dish in meters
+     * @param rateHa_deg_per_min slew rate of hour angle in degrees/seconds
+     * @param constantOverheadHa_s constant overhead for hour angle slew time in seconds
+     * @param rateDc_deg_per_min slew rate of declination in degrees/secondds
+     * @param constantOverheadDc_s constant overhead for declination slew time in seconds
      */
-    class Antenna_HaDc : public AbstractAntenna {
-    public:
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param offset_m offset of antenna axis intersection in meters
-         * @param diam_m diameter of antenna dish in meters
-         * @param rateHa_deg_per_min slew rate of hour angle in degrees/seconds
-         * @param constantOverheadHa_s constant overhead for hour angle slew time in seconds
-         * @param rateDc_deg_per_min slew rate of declination in degrees/secondds
-         * @param constantOverheadDc_s constant overhead for declination slew time in seconds
-         */
-        Antenna_HaDc(double offset_m, double diam_m, double rateHa_deg_per_min,
-                     unsigned int constantOverheadHa_s, double rateDc_deg_per_min, unsigned int constantOverheadDc_s);
-
-        /**
-         * @brief calculates slew time
-         * @author Matthias Schartner
-         *
-         * @param old_pointingVector slew start point
-         * @param new_pointingVector slew end point
-         * @return slew time in seconds
-         */
-        unsigned int slewTime(const PointingVector &old_pointingVector,
-                              const PointingVector &new_pointingVector) const noexcept override;
-
-        /**
-         * @brief get mount name
-         * @author Matthias Schartner
-         *
-         * @return mount name
-         */
-        std::string getMount() const noexcept override{return "EQUA";};
-    };
-
-}
+    Antenna_HaDc( double offset_m, double diam_m, double rateHa_deg_per_min, unsigned int constantOverheadHa_s,
+                  double rateDc_deg_per_min, unsigned int constantOverheadDc_s );
 
 
-#endif //ANTENNA_HADC_H
+    /**
+     * @brief calculates slew time
+     * @author Matthias Schartner
+     *
+     * @param old_pointingVector slew start point
+     * @param new_pointingVector slew end point
+     * @return slew time in seconds
+     */
+    unsigned int slewTime( const PointingVector &old_pointingVector, const PointingVector &new_pointingVector ) const
+        noexcept override;
+
+
+    /**
+     * @brief get mount name
+     * @author Matthias Schartner
+     *
+     * @return mount name
+     */
+    std::string getMount() const noexcept override { return "EQUA"; };
+};
+
+}  // namespace VieVS
+
+#endif  // ANTENNA_HADC_H

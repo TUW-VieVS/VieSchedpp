@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,31 +17,30 @@
  */
 
 /**
-* @file Flags.h
-* @brief class Flags
-*
-* @author Matthias Schartner
-* @date 31.07.2018
-*/
+ * @file Flags.h
+ * @brief class Flags
+ *
+ * @author Matthias Schartner
+ * @date 31.07.2018
+ */
 
 #ifndef VIESCHEDPP_FLAGS_H
 #define VIESCHEDPP_FLAGS_H
 
-namespace VieVS{
+namespace VieVS {
 
-    /**
-     * @class Flags
-     * @brief VieSched++ flags
-     *
-     * @author Matthias Schartner
-     * @date 31.07.2018
-     */
-    class Flags{
-    public:
-        static bool logTrace; ///< write "trace" debug messages to log file
-        static bool logDebug; ///< write "debug" debug messages to log file
-    };
-}
+/**
+ * @class Flags
+ * @brief VieSched++ flags
+ *
+ * @author Matthias Schartner
+ * @date 31.07.2018
+ */
+class Flags {
+   public:
+    static bool logTrace;  ///< write "trace" debug messages to log file
+    static bool logDebug;  ///< write "debug" debug messages to log file
+};
+}  // namespace VieVS
 
-
-#endif //VIESCHEDPP_FLAGS_H
+#endif  // VIESCHEDPP_FLAGS_H

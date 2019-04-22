@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,48 +17,53 @@
  */
 
 #include "StationEndposition.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long StationEndposition::nextId = 0;
 
-StationEndposition::StationEndposition(unsigned long nsta) : VieVS_Object(nextId++) {
-    stationAvailable_ = vector<char>(nsta, false);
-    stationPossible_ = std::vector<char>(nsta, false);
-    finalPosition_ = vector< boost::optional<PointingVector> >(nsta);
+
+StationEndposition::StationEndposition( unsigned long nsta ) : VieVS_Object( nextId++ ) {
+    stationAvailable_ = vector<char>( nsta, false );
+    stationPossible_ = std::vector<char>( nsta, false );
+    finalPosition_ = vector<boost::optional<PointingVector>>( nsta );
 
     // if there is no subcon the earliest scan start is set to zero to be save
     earliestScanStart_ = numeric_limits<unsigned int>::max();
 }
 
-void StationEndposition::addPointingVectorAsEndposition(const PointingVector &pv) {
+
+void StationEndposition::addPointingVectorAsEndposition( const PointingVector &pv ) {
     unsigned long staid = pv.getStaid();
 
     // check if there is already an earlier endposition
-    if(finalPosition_[staid].is_initialized()){
-        if(pv.getTime() < finalPosition_[staid]->getTime()){
-            #ifdef VIESCHEDPP_LOG
-            if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set required endposition for station " << pv.getStaid();
-            #endif
+    if ( finalPosition_[staid].is_initialized() ) {
+        if ( pv.getTime() < finalPosition_[staid]->getTime() ) {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logTrace )
+                BOOST_LOG_TRIVIAL( trace ) << "set required endposition for station " << pv.getStaid();
+#endif
             finalPosition_[staid] = pv;
         }
-    }else{
-        #ifdef VIESCHEDPP_LOG
-        if(Flags::logTrace) BOOST_LOG_TRIVIAL(trace) << "set required endposition for station " << pv.getStaid();
-        #endif
+    } else {
+#ifdef VIESCHEDPP_LOG
+        if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "set required endposition for station " << pv.getStaid();
+#endif
         finalPosition_[staid] = pv;
     }
 
-    if(pv.getTime()<earliestScanStart_){
+    if ( pv.getTime() < earliestScanStart_ ) {
         earliestScanStart_ = pv.getTime();
     }
-
 }
 
-void StationEndposition::checkStationPossibility(const Station &thisStation) {
+
+void StationEndposition::checkStationPossibility( const Station &thisStation ) {
     unsigned long staid = thisStation.getId();
 
-    if(!thisStation.getPARA().available){
+    if ( !thisStation.getPARA().available ) {
         stationPossible_[staid] = false;
         return;
     }
@@ -66,19 +71,20 @@ void StationEndposition::checkStationPossibility(const Station &thisStation) {
     // get start time of this station
     unsigned int staStarttime = thisStation.getCurrentTime();
 
-    // estimat end time of this session, if there is a endposition then take this time, otherwise earliest scan start time
+    // estimat end time of this session, if there is a endposition then take this time, otherwise earliest scan start
+    // time
     unsigned int staEndtime = 0;
-    if (finalPosition_[staid].is_initialized()) {
+    if ( finalPosition_[staid].is_initialized() ) {
         staEndtime = finalPosition_[staid]->getTime();
-    }else{
+    } else {
         staEndtime = earliestScanStart_;
     }
 
     // calculate available time
     unsigned int availableTime;
-    if (staEndtime > staStarttime) {
+    if ( staEndtime > staStarttime ) {
         availableTime = staEndtime - staStarttime;
-    }else{
+    } else {
         stationPossible_[staid] = false;
         return;
     }
@@ -92,41 +98,39 @@ void StationEndposition::checkStationPossibility(const Station &thisStation) {
 }
 
 
-unsigned int StationEndposition::requiredEndpositionTime(unsigned long staid) const {
-
+unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid ) const {
     // check if station has a required endposition, otherwise use earliest scan start.
-    if(finalPosition_[staid].is_initialized()){
+    if ( finalPosition_[staid].is_initialized() ) {
         return finalPosition_[staid]->getTime();
-    }else{
+    } else {
         return earliestScanStart_;
     }
 }
 
-bool StationEndposition::checkStationPossibility(const std::vector<Station> &stations) {
 
-    for(const auto &any:stations){
-        checkStationPossibility(any);
+bool StationEndposition::checkStationPossibility( const std::vector<Station> &stations ) {
+    for ( const auto &any : stations ) {
+        checkStationPossibility( any );
     }
-    return count(stationPossible_.begin(),stationPossible_.end(), true) >= 2;
+    return count( stationPossible_.begin(), stationPossible_.end(), true ) >= 2;
 }
+
 
 std::set<unsigned long> StationEndposition::getObservedSources() const noexcept {
     set<unsigned long> obsSrc;
 
-    for (auto pv : finalPosition_) {
-        if(pv.is_initialized()){
-            obsSrc.insert(pv->getSrcid());
+    for ( auto pv : finalPosition_ ) {
+        if ( pv.is_initialized() ) {
+            obsSrc.insert( pv->getSrcid() );
         }
     }
 
-    return std::move(obsSrc);
+    return std::move( obsSrc );
 }
 
-void StationEndposition::setStationAvailable(const std::vector<Station> &stations) {
 
-    for(int i=0; i<stations.size(); ++i){
+void StationEndposition::setStationAvailable( const std::vector<Station> &stations ) {
+    for ( int i = 0; i < stations.size(); ++i ) {
         stationAvailable_[i] = stations[i].getPARA().available;
     }
 }
-
-

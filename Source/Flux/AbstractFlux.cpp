@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -15,27 +15,27 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
-/* 
+
+/*
  * File:   Flux.cpp
  * Author: mschartn
- * 
+ *
  * Created on June 28, 2017, 11:22 AM
  */
 
 #include "AbstractFlux.h"
+
+
 using namespace std;
 using namespace VieVS;
 
 unsigned long AbstractFlux::nextId = 0;
 
-AbstractFlux::AbstractFlux(double wavelength) : VieVS_Object{nextId++} {
-    wavelength_ = wavelength;
-}
 
-//std::unique_ptr<Flux> Flux::clone() const {
+AbstractFlux::AbstractFlux( double wavelength ) : VieVS_Object{nextId++} { wavelength_ = wavelength; }
+
+// std::unique_ptr<Flux> Flux::clone() const {
 //    std::unique_ptr<Flux> other(this->do_clone());
 //    assert(typeid(*this) == typeid(*other));
 //    return other;
 //};
-

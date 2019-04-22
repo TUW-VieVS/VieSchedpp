@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,44 +17,44 @@
  */
 
 /**
-* @file AstronomicalParameters.h
-* @brief class AstronomicalParameters
-*
-* @author Matthias Schartner
-* @date 22.05.2018
-*/
+ * @file AstronomicalParameters.h
+ * @brief class AstronomicalParameters
+ *
+ * @author Matthias Schartner
+ * @date 22.05.2018
+ */
 
 #ifndef ASTRONOMICALPARAMETERS_H
 #define ASTRONOMICALPARAMETERS_H
 
+
 #include <vector>
 
-namespace VieVS{
 
-    /**
-     * @class AstronomicalParameters
-     * @brief astronomical parameters needed for scheduling
-     *
-     * serves as a lookup table for some astronomical parameters
-     *
-     * @author Matthias Schartner
-     * @date 22.05.2018
-     */
-    class AstronomicalParameters {
-    public:
-        static std::vector<double> earth_velocity; ///< velocity of the earth in m/s
+namespace VieVS {
 
-        static std::vector<double> earth_nutX; ///< nutation x in one hour steps from IAU2006a model
-        static std::vector<double> earth_nutY; ///< nutation y in one hour steps from IAU2006a model
-        static std::vector<double> earth_nutS; ///< nutation s in one hour steps from IAU2006a model
-        static std::vector<unsigned int> earth_nutTime; ///< corresponding times of nut_x nut_y nut_s entries
+/**
+ * @class AstronomicalParameters
+ * @brief astronomical parameters needed for scheduling
+ *
+ * serves as a lookup table for some astronomical parameters
+ *
+ * @author Matthias Schartner
+ * @date 22.05.2018
+ */
+class AstronomicalParameters {
+   public:
+    static std::vector<double> earth_velocity;  ///< velocity of the earth in m/s
 
-      static std::vector<double> sun_ra; ///< right ascension of sun in radians
-      static std::vector<double> sun_dec; ///< declination of sun in radians
-      static std::vector<unsigned int> sun_time; ///< corresponding times of sun_ra and sun_rc entries
+    static std::vector<double> earth_nutX;           ///< nutation x in one hour steps from IAU2006a model
+    static std::vector<double> earth_nutY;           ///< nutation y in one hour steps from IAU2006a model
+    static std::vector<double> earth_nutS;           ///< nutation s in one hour steps from IAU2006a model
+    static std::vector<unsigned int> earth_nutTime;  ///< corresponding times of nut_x nut_y nut_s entries
 
-    };
-}
+    static std::vector<double> sun_ra;          ///< right ascension of sun in radians
+    static std::vector<double> sun_dec;         ///< declination of sun in radians
+    static std::vector<unsigned int> sun_time;  ///< corresponding times of sun_ra and sun_rc entries
+};
+}  // namespace VieVS
 
-
-#endif //ASTRONOMICALPARAMETERS_H
+#endif  // ASTRONOMICALPARAMETERS_H

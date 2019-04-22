@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,9 +17,9 @@
  */
 
 #include <chrono>
-#include "VieSchedpp.h"
-#include "Input/SkdParser.h"
 #include "Input/LogParser.h"
+#include "Input/SkdParser.h"
+#include "VieSchedpp.h"
 
 /**
  * @file main.cpp
@@ -43,13 +43,16 @@
  */
 void welcome();
 
+
 /**
  * @brief error message in case of termination
  * @author Matthias Schartner
  */
 void VieSchedppTerminate() {
-    std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue yourself contact matthias.schartner@geo.tuwien.ac.at\n";
+    std::cerr << "VieSched++ crashed. Check the log file for more information. In case you cannot solve the issue "
+                 "yourself contact matthias.schartner@geo.tuwien.ac.at\n";
 }
+
 
 /**
  * @brief main function
@@ -62,11 +65,10 @@ void VieSchedppTerminate() {
  * @param argv  argument list
  * @return return type
  */
-int main(int argc, char *argv[])
-{
-    std::set_terminate (VieSchedppTerminate);
+int main( int argc, char *argv[] ) {
+    std::set_terminate( VieSchedppTerminate );
 
-    if(argc != 2){
+    if ( argc != 2 ) {
         welcome();
         return 0;
     }
@@ -77,64 +79,63 @@ int main(int argc, char *argv[])
 
     // V1: standard usage:
     std::cout << "Processing file: " << file << "\n";
-    VieVS::VieSchedpp mainScheduler(file);
+    VieVS::VieSchedpp mainScheduler( file );
     mainScheduler.run();
 
-////    V2: parse skd and log files
-//    VieVS::SkdParser mySkdParser("/home/mschartn/programming/out/20181029164853_/dummy.skd");
-//    mySkdParser.read();
-//    VieVS::Scheduler sched = mySkdParser.createScheduler();
-//
-//
-////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
-////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
-////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
-////    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
-//
-//
-//    std::ofstream of("/data/CONT17/c1701.log");
-//    sched.checkAndStatistics(of);
-//
-//    VieVS::Output out(sched,"/data/CONT17/",0);
-//    out.writeNGS();
-//    out.writeOperationsNotes();
-//
-
+    ////    V2: parse skd and log files
+    //    VieVS::SkdParser mySkdParser("/home/mschartn/programming/out/20181029164853_/dummy.skd");
+    //    mySkdParser.read();
+    //    VieVS::Scheduler sched = mySkdParser.createScheduler();
+    //
+    //
+    ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
+    ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
+    ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
+    ////    htLogParser1.output("/data/Daten/Schedules/EINT05/log/times_sa.txt");
+    //
+    //
+    //    std::ofstream of("/data/CONT17/c1701.log");
+    //    sched.checkAndStatistics(of);
+    //
+    //    VieVS::Output out(sched,"/data/CONT17/",0);
+    //    out.writeNGS();
+    //    out.writeOperationsNotes();
+    //
 
     auto finish = std::chrono::high_resolution_clock::now();
-    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(finish - start);
+    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
     long long int usec = microseconds.count();
 
-    auto milliseconds = usec/1000            % 1000;
-    auto seconds =      usec/1000/1000       % 60;
-    auto minutes =      usec/1000/1000/60    % 60;
-    auto hours =        usec/1000/1000/60/60;
+    auto milliseconds = usec / 1000 % 1000;
+    auto seconds = usec / 1000 / 1000 % 60;
+    auto minutes = usec / 1000 / 1000 / 60 % 60;
+    auto hours = usec / 1000 / 1000 / 60 / 60;
     std::stringstream t;
     t << "execution time: ";
-    if(hours > 0){
+    if ( hours > 0 ) {
         t << hours << "h ";
     }
-    if(minutes > 0){
+    if ( minutes > 0 ) {
         t << minutes << "m ";
     }
-    if(seconds > 0){
+    if ( seconds > 0 ) {
         t << seconds << "s ";
     }
-    if(milliseconds > 0){
+    if ( milliseconds > 0 ) {
         t << milliseconds << "ms ";
     }
-    #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << t.str();
-    #else
+#ifdef VIESCHEDPP_LOG
+    BOOST_LOG_TRIVIAL( info ) << t.str();
+#else
     std::cout << "[info] " << t.str();
-    #endif
+#endif
     std::cout << std::endl;
 
     return 0;
 }
 
-void welcome(){
 
+void welcome() {
     std::cout << " __     ___      ____       _              _             \n"
                  " \\ \\   / (_) ___/ ___|  ___| |__   ___  __| |  _     _   \n"
                  "  \\ \\ / /| |/ _ \\___ \\ / __| '_ \\ / _ \\/ _` |_| |_ _| |_ \n"
@@ -142,7 +143,8 @@ void welcome(){
                  "    \\_/  |_|\\___|____/ \\___|_| |_|\\___|\\__,_| |_|   |_|  \n"
                  "                                                         \n"
                  "Welcome to VieSched++\n\n"
-                 "In case this was a test to verify the connection between the GUI and VieSched++ then you were successful!\n\n"
+                 "In case this was a test to verify the connection between the GUI and VieSched++ then you were "
+                 "successful!\n\n"
                  "In case you want to run VieSched++ from a terminal pass the path to the VieSchedpp.xml file as an "
                  "argument to the executable. \n"
                  "e.g.: ./VieSchedpp path/to/VieSchedpp.xml\n";

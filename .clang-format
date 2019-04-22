@@ -1,0 +1,13 @@
+﻿---
+BasedOnStyle: Google
+ColumnLimit: '120'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+Language: Cpp
+MaxEmptyLinesToKeep: '2'
+SpacesInParentheses: 'true'
+Standard: Cpp11
+TabWidth: '4'
+UseTab: Never
+
+...

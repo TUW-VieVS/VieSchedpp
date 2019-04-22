@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "WeightFactors.h"
+
 
 double thread_local VieVS::WeightFactors::weightSkyCoverage = 0;
 double thread_local VieVS::WeightFactors::weightNumberOfObservations = 0;

@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -17,6 +17,7 @@
  */
 
 #include "Flags.h"
+
 
 bool VieVS::Flags::logTrace = false;
 bool VieVS::Flags::logDebug = false;

@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -15,17 +15,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "AstronomicalParameters.h"
+
+
 using namespace VieVS;
 
-std::vector<double> AstronomicalParameters::earth_velocity; ///< velocity of the earth
+std::vector<double> AstronomicalParameters::earth_velocity;  ///< velocity of the earth
 
-std::vector<double> AstronomicalParameters::earth_nutX; ///< nutation x in one hour steps from IAU2006a model
-std::vector<double> AstronomicalParameters::earth_nutY; ///< nutation y in one hour steps from IAU2006a model
-std::vector<double> AstronomicalParameters::earth_nutS; ///< nutation s in one hour steps from IAU2006a model
-std::vector<unsigned int> AstronomicalParameters::earth_nutTime; ///< corresponding times of nut_x nut_y nut_s entries
+std::vector<double> AstronomicalParameters::earth_nutX;           ///< nutation x in one hour steps from IAU2006a model
+std::vector<double> AstronomicalParameters::earth_nutY;           ///< nutation y in one hour steps from IAU2006a model
+std::vector<double> AstronomicalParameters::earth_nutS;           ///< nutation s in one hour steps from IAU2006a model
+std::vector<unsigned int> AstronomicalParameters::earth_nutTime;  ///< corresponding times of nut_x nut_y nut_s entries
 
-std::vector<double> AstronomicalParameters::sun_ra; ///< right ascension and declination of sun
-std::vector<double> AstronomicalParameters::sun_dec; ///< right ascension and declination of sun
-std::vector<unsigned int> AstronomicalParameters::sun_time; ///< right ascension and declination of sun
+std::vector<double> AstronomicalParameters::sun_ra;          ///< right ascension and declination of sun
+std::vector<double> AstronomicalParameters::sun_dec;         ///< right ascension and declination of sun
+std::vector<unsigned int> AstronomicalParameters::sun_time;  ///< right ascension and declination of sun

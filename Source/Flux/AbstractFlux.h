@@ -1,4 +1,4 @@
-/* 
+/*
  *  VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
  *  Copyright (C) 2018  Matthias Schartner
  *
@@ -15,8 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
- /**
+
+/**
  * @file AbstractFlux.h
  * @brief class AbstractFlux
  *
@@ -26,75 +26,79 @@
 
 #ifndef FLUX_H
 #define FLUX_H
-#include <vector>
-#include <iostream>
+
+
 #include <boost/lexical_cast.hpp>
+#include <iostream>
+#include <vector>
 
 #include "../../Misc/Constants.h"
 #include "../../Misc/VieVS_Object.h"
 
-namespace VieVS{
+
+namespace VieVS {
+/**
+ * @class AbstractFlux
+ * @brief representation of source flux
+ *
+ * @author Matthias Schartner
+ * @date 28.06.2017
+ *
+ * This class serves as the base class for all flux implementations.
+ *
+ */
+class AbstractFlux : public VieVS_Object {
+   public:
     /**
-     * @class AbstractFlux
-     * @brief representation of source flux
-     *
+     * @brief constructor
      * @author Matthias Schartner
-     * @date 28.06.2017
      *
-     * This class serves as the base class for all flux implementations.
-     *
+     * @param wavelength wavelength of flux information in meters
      */
-    class AbstractFlux : public VieVS_Object {
-    public:
+    explicit AbstractFlux( double wavelength );
 
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param wavelength wavelength of flux information in meters
-         */
-        explicit AbstractFlux(double wavelength);
 
-        /**
-         * @brief virtual destructor
-         * @author Matthias Schartner
-         */
-        virtual ~AbstractFlux() = default;
+    /**
+     * @brief virtual destructor
+     * @author Matthias Schartner
+     */
+    virtual ~AbstractFlux() = default;
 
-        /**
-         * @brief maximum possible flux density
-         * @author Matthias Schartner
-         *
-         * @return maximum possible flux density
-         */
-        virtual double getMaximumFlux() const noexcept = 0;
 
-        /**
-         * @brief flux density based on uv
-         * @author Matthias Schartner
-         *
-         * @param u projected baseline length
-         * @param v projected baseline length
-         * @return flux density for this constellation
-         */
-        virtual double observedFlux(double u, double v) const noexcept = 0;
+    /**
+     * @brief maximum possible flux density
+     * @author Matthias Schartner
+     *
+     * @return maximum possible flux density
+     */
+    virtual double getMaximumFlux() const noexcept = 0;
 
-        /**
-         * @brief getter for wavelength
-         * @author Matthias Schartner
-         *
-         * @return wavelength in meters
-         */
-        double getWavelength() const {
-            return wavelength_;
-        }
 
-    private:
-        static unsigned long nextId;  ///< next id for this object type
+    /**
+     * @brief flux density based on uv
+     * @author Matthias Schartner
+     *
+     * @param u projected baseline length
+     * @param v projected baseline length
+     * @return flux density for this constellation
+     */
+    virtual double observedFlux( double u, double v ) const noexcept = 0;
 
-        double wavelength_; ///< wavelength of the band whose flux information is stored
-    };
 
-}
+    /**
+     * @brief getter for wavelength
+     * @author Matthias Schartner
+     *
+     * @return wavelength in meters
+     */
+    double getWavelength() const { return wavelength_; }
+
+
+   private:
+    static unsigned long nextId;  ///< next id for this object type
+
+    double wavelength_;  ///< wavelength of the band whose flux information is stored
+};
+
+}  // namespace VieVS
 #endif /* FLUX_H */
-
