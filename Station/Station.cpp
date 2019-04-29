@@ -174,7 +174,7 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
 
     auto it = precalc.begin();
     // iterate over each precalculated value
-    for ( it; it < precalc.end(); ++it ) {
+    for (; it < precalc.end(); ++it) {
         if ( it->getTime() >= time ) {
             break;
         }

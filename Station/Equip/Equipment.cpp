@@ -32,7 +32,7 @@ using namespace VieVS;
 unsigned long Equipment::nextId = 0;
 
 
-Equipment::Equipment( const unordered_map<string, double> &SEFDs ) : VieVS_Object( nextId++ ), SEFD_{SEFDs} {}
+Equipment::Equipment(unordered_map<string, double> SEFDs) : VieVS_Object(nextId++), SEFD_{std::move(SEFDs)} {}
 
 
 double Equipment::getMaxSEFD() const noexcept {
@@ -43,4 +43,12 @@ double Equipment::getMaxSEFD() const noexcept {
         }
     }
     return maxSEFD;
+}
+
+
+std::string Equipment::shortSummary(const std::string &band) const noexcept {
+    if (SEFD_.find(band) == SEFD_.end()) {
+        return (boost::format("%7s %7s %7s %7s") % "" % "" % "" % "").str();
+    }
+    return (boost::format("%7.0f %7s %7s %7s") % SEFD_.at(band) % "" % "" % "").str();
 }

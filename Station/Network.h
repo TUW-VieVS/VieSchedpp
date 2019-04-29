@@ -34,6 +34,7 @@
 #include "Baseline.h"
 #include "SkyCoverage.h"
 #include "Station.h"
+#include "../ObservingMode/ObservingMode.h"
 
 
 namespace VieVS {
@@ -390,6 +391,15 @@ class Network : public VieVS_Object {
      * @return lookup table
      */
     const std::map<unsigned long, unsigned long> &getStaid2skyCoverageId() const { return staids2skyCoverageId_; };
+
+
+    /**
+     * @brief creates station summary table
+     * @author Matthias Schartner
+     *
+     * @param of outfile stream
+     */
+    void stationSummary(std::ofstream &of) const;
 
    private:
     unsigned long nsta_;                     ///< number of stations

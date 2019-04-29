@@ -73,6 +73,8 @@ class Scheduler : public VieVS_NamedObject {
         unsigned int maxNumberOfIterations = 999;         ///< max number of iterations
         unsigned int numberOfGentleSourceReductions = 0;  ///< number of gentle source reductions
         unsigned int minNumberOfSourcesToReduce = 0;      ///< min number of sources to reduce
+        double reduceFactor = .5;                         ///< number of sources which should be reduced during
+        ///< gentle source reduction
 
         bool writeSkyCoverageData = false;  ///< flag if sky coverage data should be printed to file
     };
@@ -304,9 +306,10 @@ class Scheduler : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param station tagalong station
+     * @param skyCoverage sky coverage of tagalong station
      * @param of outstream object
      */
-    void startTagelongMode( Station &station, std::ofstream &of );
+    void startTagelongMode(Station &station, SkyCoverage &skyCoverage, std::ofstream &of);
 
 
     /**

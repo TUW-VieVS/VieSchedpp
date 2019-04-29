@@ -132,6 +132,10 @@ void SkyCoverage::calculateSkyCoverageScores() {
 double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
     double total_score = 0;
 
+    if (pointingVectors_.empty()) {
+        return 0;
+    }
+
     auto thisPv = pointingVectors_.begin();
     int c = 0;
     for ( unsigned int startTime = 0; startTime < TimeSystem::duration; startTime += deltaTime / 2 ) {
@@ -160,6 +164,10 @@ double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
 double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
     double total_score = 0;
 
+    if (pointingVectors_.empty()) {
+        return 0;
+    }
+
     auto thisPv = pointingVectors_.begin();
     int c = 0;
     for ( unsigned int startTime = 0; startTime < TimeSystem::duration; startTime += deltaTime / 2 ) {
@@ -187,6 +195,10 @@ double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
 
 double SkyCoverage::skyCoverageScore_37( unsigned int deltaTime ) const {
     double total_score = 0;
+
+    if (pointingVectors_.empty()) {
+        return 0;
+    }
 
     auto thisPv = pointingVectors_.begin();
     int c = 0;

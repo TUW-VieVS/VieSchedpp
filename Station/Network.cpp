@@ -257,11 +257,45 @@ double Network::calcScore_skyCoverage_subnetting(
     const vector<PointingVector> &pvs, const unordered_map<unsigned long, double> &staids2skyCoverageScore ) const {
     double score = 0;
 
-    for ( int i = 0; i < pvs.size(); ++i ) {
-        const PointingVector &pv = pvs[i];
+    for (const auto &pv : pvs) {
         unsigned long staid = pv.getStaid();
         score += staids2skyCoverageScore.at( staid );
     }
 
     return score / nsta_;
+}
+
+
+void Network::stationSummary(ofstream &of) const {
+
+    const auto &snr = ObservingMode::minSNR;
+    vector<string> bands;
+    for (auto const &element : snr) {
+        bands.push_back(element.first);
+    }
+
+
+    of << boost::format("%8s  %2s  %5s  %5s   ") % "name" % "ID" % "Mount" % "Diam";
+    for (const auto &any : bands) {
+        of << boost::format("%7s %7s %7s %7s   ") % ("SEFD_" + any) % ("y_" + any) % ("c0_" + any) % ("c1_" + any);
+    }
+    of << boost::format("   %7s %7s   %6s %6s %6s %6s\n") % "lat" % "lon" % "rate1" % "c1" % "rate2" % "c2";
+
+
+    for (const auto &sta: stations_) {
+        of << boost::format("%8s  %2s  %5s  %5.1f   ") % sta.getName() % sta.getAlternativeName() %
+              sta.getAntenna().getMount() % sta.getAntenna().getDiam();
+        for (const auto &band : bands) {
+            of << sta.getEquip().shortSummary(band);
+            of << "   ";
+        }
+        of << boost::format("   %7.2f %7.2f   %6.0f %6.0f %6.0f %6.0f\n")
+              % (sta.getPosition().getLat() * rad2deg)
+              % (sta.getPosition().getLon() * rad2deg)
+              % (sta.getAntenna().getRate1() * rad2deg * 60)
+              % sta.getAntenna().getCon1()
+              % (sta.getAntenna().getRate2() * rad2deg * 60)
+              % sta.getAntenna().getCon2();
+    }
+    of << "\n";
 }

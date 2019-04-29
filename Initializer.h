@@ -120,6 +120,8 @@ class Initializer : public VieVS_Object {
         unsigned int maxNumberOfIterations = 999;         ///< backup value for max number of iterations
         unsigned int numberOfGentleSourceReductions = 0;  ///< backup value for gentle source reduction interations
         unsigned int minNumberOfSourcesToReduce = 0;      ///< backup value for minimum number of sources to reduce
+        double reduceFactor = .5;                         ///< number of sources which should be reduced during
+        ///< gentle source reduction
 
         bool andAsConditionCombination = true;  ///< backup for condition combination. TRUE = and, FALSE = or
     };

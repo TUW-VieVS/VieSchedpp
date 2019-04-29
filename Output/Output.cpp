@@ -620,16 +620,28 @@ vector<unsigned int> Output::minutesVisible( const Source &source ) {
     vector<unsigned long> reqSta = parameters.requiredStations;
     vector<unsigned long> ignSta = parameters.ignoreStations;
 
+    for (auto &any : network_.refStations()) {
+        any.setNextEvent(0);
+        bool dummy = false;
+        any.checkForNewEvent(0, dummy);
+    }
+
     for ( unsigned int t = 0; t < TimeSystem::duration; t += 60 ) {
         unsigned int visible = 0;
 
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network_.getNSta(); ++staid ) {
+            Station &thisSta = network_.refStation(staid);
+            bool dummy = false;
+            thisSta.checkForNewEvent(t, dummy);
+
             if ( find( ignSta.begin(), ignSta.end(), staid ) != ignSta.end() ) {
                 continue;
             }
+            if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
+                continue;
+            }
 
-            Station &thisSta = network_.refStation( staid );
             PointingVector p( staid, source.getId() );
             p.setTime( t );
 
@@ -654,6 +666,13 @@ vector<unsigned int> Output::minutesVisible( const Source &source ) {
             visibleTimes.push_back( t );
         }
     }
+
+    for (auto &any : network_.refStations()) {
+        any.setNextEvent(0);
+        bool dummy = false;
+        any.checkForNewEvent(0, dummy);
+    }
+
     return visibleTimes;
 }
 

@@ -1187,6 +1187,22 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 #endif
         }
     }
+
+    if (!thisSource.getPARA().requiredStations.empty()) {
+        for (unsigned long requiredStationId : thisSource.getPARA().requiredStations) {
+            bool found = false;
+            for (const auto &pv : pointingVectors) {
+                if (pv.getStaid() == requiredStationId) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return;
+            }
+        }
+    }
+
     if ( visibleSta >= thisSource.getPARA().minNumberOfStations ) {
         addScan( Scan( pointingVectors, endOfLastScans, type ) );
     }

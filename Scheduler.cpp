@@ -61,6 +61,7 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.minNumberOfSourcesToReduce = init.parameters_.minNumberOfSourcesToReduce;
     parameters_.maxNumberOfIterations = init.parameters_.maxNumberOfIterations;
     parameters_.numberOfGentleSourceReductions = init.parameters_.numberOfGentleSourceReductions;
+    parameters_.reduceFactor = init.parameters_.reduceFactor;
 
     parameters_.writeSkyCoverageData = false;
 }
@@ -166,9 +167,11 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 for ( auto &any : network_.refStations() ) {
                     PointingVector pv = any.getCurrentPointingVector();
                     pv.setTime( pv.getTime() + 60 );
-                    any.setCurrentPointingVector( pv );
-                    if ( pv.getTime() > maxScanEnd ) {
-                        maxScanEnd = pv.getTime();
+                    if (!any.getPARA().available || !any.getPARA().tagalong) {
+                        any.setCurrentPointingVector(pv);
+                        if (pv.getTime() > maxScanEnd) {
+                            maxScanEnd = pv.getTime();
+                        }
                     }
                 }
 #ifdef VIESCHEDPP_LOG
@@ -820,7 +823,8 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
             if ( Flags::logDebug )
                 BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
 #endif
-            startTagelongMode( any, of );
+            auto &skyCoverage = network_.refSkyCoverage(network_.getStaid2skyCoverageId().at(any.getId()));
+            startTagelongMode(any, skyCoverage, of);
         }
     }
 
@@ -922,7 +926,7 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
 }
 
 
-void Scheduler::startTagelongMode( Station &station, std::ofstream &of ) {
+void Scheduler::startTagelongMode(Station &station, SkyCoverage &skyCoverage, std::ofstream &of) {
     unsigned long staid = station.getId();
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start tagalong mode for station " << station.getName();
@@ -936,6 +940,13 @@ void Scheduler::startTagelongMode( Station &station, std::ofstream &of ) {
     // loop through all scans
     unsigned long counter = 0;
     for ( auto &scan : scans_ ) {
+
+        bool hardBreak = false;
+        station.checkForNewEvent(scan.getTimes().getScanTime(Timestamp::start), hardBreak);
+        if (!station.getPARA().available) {
+            continue;
+        }
+
         ++counter;
         unsigned int scanStartTime = scan.getTimes().getObservingTime( Timestamp::start );
         unsigned int currentStationTime = station.getCurrentTime();
@@ -1173,7 +1184,8 @@ void Scheduler::startTagelongMode( Station &station, std::ofstream &of ) {
             if ( station.referencePARA().firstScan ) {
                 station.referencePARA().firstScan = false;
             }
-            station.setCurrentPointingVector( pv_new_end );
+            station.update(newObs.size(), pv_new_end, true);
+            skyCoverage.update(pv_new_end);
         }
     }
 
@@ -1252,7 +1264,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
                 continue;
             }
 
-            if ( counter < diff / 2.0 ) {
+            if (counter < diff * parameters_.reduceFactor) {
                 excludedScans += thisSource.getNTotalScans();
                 excludedBaselines += thisSource.getNObs();
                 excludedSources.push_back( thisSource.getName() );

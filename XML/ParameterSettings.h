@@ -476,10 +476,11 @@ class ParameterSettings {
      * @param maxNumberOfIterations maximum number of iterations
      * @param numberOfGentleSourceReductions number of gentle source reductions
      * @param minNumberOfSourcesToReduce minimum number of sources to reduce
+     * @param percentage percentage of sources to reduce during gentle source reduction
      */
-    void conditions( std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
-                     bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
-                     int minNumberOfSourcesToReduce );
+    void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
+                    bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
+                    int minNumberOfSourcesToReduce, double percentage);
 
 
     /**

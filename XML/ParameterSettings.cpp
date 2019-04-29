@@ -886,9 +886,10 @@ void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_n
 }
 
 
-void ParameterSettings::conditions( std::vector<string> members, std::vector<int> minScans,
-                                    std::vector<int> minBaselines, bool andForCombination, int maxNumberOfIterations,
-                                    int numberOfGentleSourceReductions, int minNumberOfSourcesToReduce ) {
+void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans,
+                                   std::vector<int> minBaselines, bool andForCombination, int maxNumberOfIterations,
+                                   int numberOfGentleSourceReductions, int minNumberOfSourcesToReduce,
+                                   double percentage) {
     boost::property_tree::ptree conditions;
     if ( andForCombination ) {
         conditions.add( "optimization.combination", "and" );
@@ -898,6 +899,7 @@ void ParameterSettings::conditions( std::vector<string> members, std::vector<int
     conditions.add( "optimization.maxNumberOfIterations", maxNumberOfIterations );
     conditions.add( "optimization.numberOfGentleSourceReductions", numberOfGentleSourceReductions );
     conditions.add( "optimization.minNumberOfSourcesToReduce", minNumberOfSourcesToReduce );
+    conditions.add("optimization.percentageGentleSourceReduction", percentage);
     for ( int i = 0; i < members.size(); ++i ) {
         boost::property_tree::ptree condition;
         condition.add( "condition.members", members.at( i ) );

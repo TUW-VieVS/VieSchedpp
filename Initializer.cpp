@@ -472,6 +472,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
     cout << "[info] successfully created " << network_.getBaselines().size() << " of " << nant * ( nant - 1 ) / 2
          << " baselines";
 #endif
+    network_.stationSummary(of);
 }
 
 
@@ -2791,8 +2792,14 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
 
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network_.getNSta(); ++staid ) {
-            const Station &thisSta = network_.getStation( staid );
+            Station &thisSta = network_.refStation(staid);
+            bool dummy = false;
+            thisSta.checkForNewEvent(t, dummy);
+
             if ( find( ignSta.begin(), ignSta.end(), staid ) != ignSta.end() ) {
+                continue;
+            }
+            if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
                 continue;
             }
 
@@ -2818,6 +2825,12 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
         if ( visible >= minVisible ) {
             ++minutes;
         }
+    }
+
+    for (auto &any : network_.refStations()) {
+        any.setNextEvent(0);
+        bool dummy = false;
+        any.checkForNewEvent(0, dummy);
     }
     return minutes;
 }
@@ -2907,15 +2920,17 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 parameters_.numberOfGentleSourceReductions = any.second.get_value<unsigned int>();
             } else if ( any.first == "minNumberOfSourcesToReduce" ) {
                 parameters_.minNumberOfSourcesToReduce = any.second.get_value<unsigned int>();
-            } else if ( any.first == "condition" ) {
-                string member = any.second.get<string>( "members" );
-                auto scans = any.second.get<unsigned int>( "minScans" );
-                auto bls = any.second.get<unsigned int>( "minBaselines" );
+            } else if (any.first == "percentageGentleSourceReduction") {
+                parameters_.reduceFactor = any.second.get_value<double>() / 100;
+            } else if (any.first == "condition" ) {
+                string member = any.second.get<string>("members" );
+                auto scans = any.second.get<unsigned int>("minScans" );
+                auto bls = any.second.get<unsigned int>("minBaselines" );
 
-                if ( groups.find( member ) != groups.end() ) {
-                    const vector<string> &group = groups.at( member );
+                if (groups.find(member ) != groups.end() ) {
+                    const vector<string> &group = groups.at(member );
                     for ( auto &source : sources_ ) {
-                        if ( find( group.begin(), group.end(), source.getName() ) != group.end() ) {
+                        if (find(group.begin(), group.end(), source.getName() ) != group.end() ) {
                             source.referenceCondition().minNumScans = scans;
                             source.referenceCondition().minNumObs = bls;
                         }
