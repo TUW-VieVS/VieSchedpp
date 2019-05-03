@@ -33,6 +33,7 @@
 #include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <iterator>
 #include <numeric>
 #include <random>
 #include <string>

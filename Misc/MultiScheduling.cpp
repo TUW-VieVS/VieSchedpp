@@ -87,6 +87,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     }
 
     // normalize all weight factors
+    vector<double> scaleFactors;
     vector<vector<double>> weightFactorValues;
     if ( weigthFactorFound ) {
         for ( double wsky : weightFactors["weight_factor_sky_coverage"] ) {
@@ -109,6 +110,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                                                               wasrc / sum, wasta / sum, wabls / sum,
                                                               widle / sum, wdec / sum,  wel / sum};
                                             weightFactorValues.push_back( std::move( wf ) );
+                                            scaleFactors.push_back(sum);
                                         }
                                     }
                                 }
@@ -136,11 +138,19 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
             }
             if ( equal == v1.size() ) {
                 weightFactorValues.erase( next( weightFactorValues.begin(), i2 ) );
+                scaleFactors.erase( next( scaleFactors.begin(), i2 ) );
             } else {
                 ++i2;
             }
         }
         ++i1;
+    }
+
+    for ( int i=0; i < weightFactorValues.size(); ++i){
+        double scaleFactor = scaleFactors[i];
+        for ( auto &v : weightFactorValues[i]){
+            v *= scaleFactor;
+        }
     }
 
     // count weight factors

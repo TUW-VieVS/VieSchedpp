@@ -472,7 +472,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
     cout << "[info] successfully created " << network_.getBaselines().size() << " of " << nant * ( nant - 1 ) / 2
          << " baselines";
 #endif
-    network_.stationSummary(of);
+    network_.stationSummary( of );
 }
 
 
@@ -2792,14 +2792,14 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
 
         bool requiredStationNotVisible = false;
         for ( unsigned long staid = 0; staid < network_.getNSta(); ++staid ) {
-            Station &thisSta = network_.refStation(staid);
+            Station &thisSta = network_.refStation( staid );
             bool dummy = false;
-            thisSta.checkForNewEvent(t, dummy);
+            thisSta.checkForNewEvent( t, dummy );
 
             if ( find( ignSta.begin(), ignSta.end(), staid ) != ignSta.end() ) {
                 continue;
             }
-            if (!thisSta.getPARA().available || thisSta.getPARA().tagalong) {
+            if ( !thisSta.getPARA().available || thisSta.getPARA().tagalong ) {
                 continue;
             }
 
@@ -2827,10 +2827,10 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
         }
     }
 
-    for (auto &any : network_.refStations()) {
-        any.setNextEvent(0);
+    for ( auto &any : network_.refStations() ) {
+        any.setNextEvent( 0 );
         bool dummy = false;
-        any.checkForNewEvent(0, dummy);
+        any.checkForNewEvent( 0, dummy );
     }
     return minutes;
 }
@@ -2838,12 +2838,14 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
 
 void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms ) {
     of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_"
-          "observations,";
-    of << "n_stations,n_sources,";
-    of << "time_average_observation,time_average_preob,time_average_slew,time_average_idle,time_average_field_system,";
-    of << "sky_coverage_average_13_areas_30_min,sky_coverage_average_25_areas_30_min,sky_coverage_average_37_areas_30_min,"
-          "sky_coverage_average_13_areas_60_min,sky_coverage_average_25_areas_60_min,sky_coverage_average_37_areas_60_min,";
-    for(const auto&any : network_.getStations()){
+          "observations,n_stations,n_sources,time_average_observation,time_average_preob,time_average_slew,time_"
+          "average_idle,time_average_field_system,sky_coverage_average_13_areas_30_min,sky_coverage_average_25_areas_"
+          "30_min,sky_coverage_average_37_areas_30_min,sky_coverage_average_13_areas_60_min,sky_coverage_average_25_"
+          "areas_60_min,sky_coverage_average_37_areas_60_min,";
+
+    of << WeightFactors::statisticsHeader();
+
+    for ( const auto &any : network_.getStations() ) {
         of << "time_" << any.getName() << "_observation,";
     }
     for ( const auto &any : network_.getStations() ) {
@@ -2859,22 +2861,22 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
         of << "time_" << any.getName() << "_field_system,";
     }
 
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_13_areas_30_min,";
     }
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_25_areas_30_min,";
     }
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_37_areas_30_min,";
     }
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_13_areas_60_min,";
     }
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_25_areas_60_min,";
     }
-    for(const auto&any : network_.getStations()){
+    for ( const auto &any : network_.getStations() ) {
         of << "sky_coverage_" << any.getName() << "_37_areas_60_min,";
     }
 
@@ -2920,17 +2922,17 @@ void Initializer::initializeOptimization( std::ofstream &of ) {
                 parameters_.numberOfGentleSourceReductions = any.second.get_value<unsigned int>();
             } else if ( any.first == "minNumberOfSourcesToReduce" ) {
                 parameters_.minNumberOfSourcesToReduce = any.second.get_value<unsigned int>();
-            } else if (any.first == "percentageGentleSourceReduction") {
+            } else if ( any.first == "percentageGentleSourceReduction" ) {
                 parameters_.reduceFactor = any.second.get_value<double>() / 100;
-            } else if (any.first == "condition" ) {
-                string member = any.second.get<string>("members" );
-                auto scans = any.second.get<unsigned int>("minScans" );
-                auto bls = any.second.get<unsigned int>("minBaselines" );
+            } else if ( any.first == "condition" ) {
+                string member = any.second.get<string>( "members" );
+                auto scans = any.second.get<unsigned int>( "minScans" );
+                auto bls = any.second.get<unsigned int>( "minBaselines" );
 
-                if (groups.find(member ) != groups.end() ) {
-                    const vector<string> &group = groups.at(member );
+                if ( groups.find( member ) != groups.end() ) {
+                    const vector<string> &group = groups.at( member );
                     for ( auto &source : sources_ ) {
-                        if (find(group.begin(), group.end(), source.getName() ) != group.end() ) {
+                        if ( find( group.begin(), group.end(), source.getName() ) != group.end() ) {
                             source.referenceCondition().minNumScans = scans;
                             source.referenceCondition().minNumObs = bls;
                         }

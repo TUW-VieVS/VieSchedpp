@@ -825,6 +825,8 @@ void Output::writeStatistics( std::ofstream &of ) {
     oString.append( std::to_string( a25m60Mean ) ).append( "," );
     oString.append( std::to_string( a37m60Mean ) ).append( "," );
 
+    oString.append( WeightFactors::statisticsValues() );
+
     for ( auto any : obsPer ) {
         oString.append( std::to_string( any ) ).append( "," );
     }

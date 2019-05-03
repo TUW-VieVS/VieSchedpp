@@ -30,6 +30,7 @@
 
 
 #include <fstream>
+#include <sstream>
 #include "Constants.h"
 
 
@@ -65,6 +66,8 @@ class WeightFactors {
     ///< (everything above has factor 0)
     static thread_local double lowElevationFullWeight;  ///< end elevation of additional declination weight slope
     ///< (everything below has factor 1)
+
+
     /**
      * @brief summary of all weight factors
      * @author Matthias Schartner
@@ -114,6 +117,69 @@ class WeightFactors {
                << " = 1\n";
         }
         of << "\n";
+    }
+
+
+    /**
+     * @brief header entries for statistics.csv file
+     * @author Matthias Schartner
+     */
+    static std::string statisticsHeader( ) {
+        return "weight_factor_sky_coverage,"
+               "weight_factor_number_of_observations,"
+               "weight_factor_duration,"
+               "weight_factor_average_sources,"
+               "weight_factor_average_stations,"
+               "weight_factor_average_baselines,"
+               "weight_factor_idle_time,"
+               "weight_factor_idle_time_interval,"
+               "weight_factor_low_declination,"
+               "weight_factor_low_declination_start_weight,"
+               "weight_factor_low_declination_full_weight,"
+               "weight_factor_low_elevation,"
+               "weight_factor_low_elevation_start_weight,"
+               "weight_factor_low_elevation_full_weight,";
+    }
+
+
+    /**
+     * @brief value entries for statistics.csv file
+     * @author Matthias Schartner
+     */
+    static std::string statisticsValues( ) {
+        double sum = weightSkyCoverage + weightNumberOfObservations + weightDuration + weightAverageSources +
+                     weightAverageStations + weightAverageBaselines + weightIdleTime + weightDeclination +
+                     weightLowElevation;
+
+        std::ostringstream str;
+
+        str << weightSkyCoverage / sum << "," << weightNumberOfObservations / sum << "," << weightDuration / sum << ","
+           << weightAverageSources / sum << "," << weightAverageStations / sum << "," << weightAverageBaselines / sum
+           << "," << weightIdleTime / sum << ",";
+
+        if(weightIdleTime == 0){
+            str << 0 << "," ;
+        }else{
+            str << idleTimeInterval << "," ;
+        }
+
+
+        str << weightDeclination / sum << ",";
+        if(weightDeclination == 0){
+            str << 0 << "," << 0 << "," ;
+        }else{
+            str << declinationStartWeight << "," << declinationFullWeight << "," ;
+        }
+
+
+        str << weightLowElevation / sum << ",";
+        if(weightIdleTime == 0){
+            str << 0 << "," << 0 << "," ;
+        }else{
+            str << lowElevationStartWeight << "," << lowElevationFullWeight << "," ;
+        }
+
+        return  str.str();
     }
 };
 }  // namespace VieVS
