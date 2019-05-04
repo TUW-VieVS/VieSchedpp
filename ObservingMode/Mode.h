@@ -32,6 +32,7 @@
 #include <boost/functional/hash.hpp>
 #include <boost/optional.hpp>
 #include <unordered_map>
+#include <utility>
 
 #include "../Input/SkdCatalogReader.h"
 #include "../Misc/VieVS_NamedObject.h"
