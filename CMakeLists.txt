@@ -84,7 +84,7 @@
          ObservingMode/Bbc.cpp ObservingMode/Bbc.h
          ObservingMode/If.cpp ObservingMode/If.h
          ObservingMode/Track.cpp ObservingMode/Track.h
-         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h)
+         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h Output/SourceStatistics.cpp Output/SourceStatistics.h)
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 

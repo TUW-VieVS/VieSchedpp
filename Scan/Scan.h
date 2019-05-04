@@ -83,6 +83,40 @@ class Scan : public VieVS_Object {
 
 
     /**
+     * @brief translates ScanType to string
+     * @author Matthias Schartner
+     *
+     * @return string of scan type
+     */
+    static std::string toString(ScanType type_) {
+        switch (type_) {
+            case ScanType::highImpact:
+                return "high impact";
+            case ScanType::standard:
+                return "target";
+            case ScanType::fillin:
+                return "fillin mode";
+            case ScanType::calibrator:
+                return "calibrator";
+        }
+    }
+
+    /**
+     * @brief translates ScanConstellation to string
+     * @author Matthias Schartner
+     *
+     * @return string of scan constellation
+     */
+    static std::string toString(ScanConstellation type_) {
+        switch (type_) {
+            case ScanConstellation::single:
+                return "single source scan";
+            case ScanConstellation::subnetting:
+                return "subnetting scan";
+        }
+    }
+
+    /**
      * @brief specify custom scan sequence rules
      * @author Matthias Schartner
      */

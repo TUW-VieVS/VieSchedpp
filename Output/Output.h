@@ -32,6 +32,7 @@
 #include "OperationNotes.h"
 #include "SNR_table.h"
 #include "Skd.h"
+#include "SourceStatistics.h"
 #include "Vex.h"
 #include "boost/format.hpp"
 #ifdef VIESCHEDPP_LOG
@@ -50,17 +51,6 @@ namespace VieVS {
  */
 class Output : public VieVS_NamedObject {
    public:
-    /**
-     * @brief possible group types
-     * @author Matthias Schartner
-     */
-    enum class GroupType {
-        station,   ///< stations wise group
-        source,    ///< source wise group
-        baseline,  ///< baseline wise group
-    };
-
-
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -104,6 +94,13 @@ class Output : public VieVS_NamedObject {
 
 
     /**
+     * @brief create a operations notes file
+     * @author Matthias Schartner
+     */
+    void writeSourceStatistics();
+
+
+    /**
      * @brief creates a skd file
      * @author Matthias Schartner
      *
@@ -134,13 +131,6 @@ class Output : public VieVS_NamedObject {
 
 
     /**
-     * @brief write statistics per source group file
-     * @author Matthias Schartner
-     */
-    void writeStatisticsPerSourceGroup();
-
-
-    /**
      * @brief create all output files
      * @author Matthias Schartner
      *
@@ -163,26 +153,7 @@ class Output : public VieVS_NamedObject {
     const std::shared_ptr<const ObservingMode> &obsModes_;                    ///< observing mode
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
 
-    /**
-     * @brief read all groups from VieSchedpp.xml file
-     * @author Matthias Schartner
-     *
-     * @param root VieSchedpp.xml file
-     * @param type group type
-     * @return list of all groups
-     */
-    std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
-                                                                          GroupType type ) noexcept;
 
-
-    /**
-     * @brief calculate minutes where source is visible
-     * @author Matthias Schartner
-     *
-     * @param source target source
-     * @return total number of visible minutes
-     */
-    std::vector<unsigned int> minutesVisible( const Source &source );
 };
 }  // namespace VieVS
 
