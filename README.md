@@ -8,6 +8,13 @@ Contact: matthias.schartner@geo.tuwien.ac.at
 
 Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
+# Getting started
+
+Have a look at our YouTube channel 
+https://www.youtube.com/channel/UCl2VPe7OrnznNtrh0_lwrqQ where we provide video tutorials. 
+Additionally, the graphical user interface of VieSched++ contains a build in help. 
+Read the text on the welcome page for more information. 
+
 # License
 > VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
 >
