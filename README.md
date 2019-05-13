@@ -8,6 +8,13 @@ Contact: matthias.schartner@geo.tuwien.ac.at
 
 Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
+# Getting started
+
+Have a look at our YouTube channel 
+https://www.youtube.com/channel/UCl2VPe7OrnznNtrh0_lwrqQ where we provide video tutorials. 
+Additionally, the graphical user interface of VieSched++ contains a build in help. 
+Read the text on the welcome page for more information. 
+
 # License
 > VieSched++ Very Long Baseline Interferometry (VLBI) Scheduling Software
 >
@@ -28,6 +35,12 @@ Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
 # Installation
 
+__Installers for Windows 10 and Ubuntu 18.04 are provided through the release page on GitHub!__
+
+Visit https://github.com/TUW-VieVS/VieSchedpp/releases.
+
+## Manual installation
+
 The software consists of two parts:
 * VieSched++: the scheduler (this repository)
 * VieSched++ GUI: the graphical user interface, hostet on https://github.com/TUW-VieVS/VieSchedppGUI
@@ -36,14 +49,12 @@ __It is highly recommended to use the GUI to create the VieSchedpp.xml input fil
 
 Have a look at https://github.com/TUW-VieVS/VieSchedppGUI/blob/master/README.md for installing the GUI.
 
-## Installation of VieSched++
+### Installation of VieSched++
 
 This section descripes how to install __VieSched++__ on LINUX.
 
 While an installation is possible on Windows (tested with Windows 10) it is no
 further discussed due to the many possibilieties of different compilers and options.
-
-Pre-build binaries are available for github releases. Visit https://github.com/TUW-VieVS/VieSchedpp/releases.
 
 If you run into any problems compiling __VieSched++__, contact me
 under matthias.schartner@geo.tuwien.ac.at and I can send you some pre-build binaries.
@@ -52,7 +63,7 @@ The source code is hosted at two git repositories:
 * https://github.com/TUW-VieVS/VieSchedpp.git (public)
 * https://git.geo.tuwien.ac.at/vievs/VieSchedpp/VieSchedpp.git (inside TU Vienna GEO Domain)
 
-## Dependencies
+### Dependencies
 
 Before you install __VieSched++__ check if you have the following dependencies installed:
 
@@ -67,7 +78,7 @@ Before you install __VieSched++__ check if you have the following dependencies i
   * possible installation on Ubuntu: `sudo apt-get install cmake` or visit https://cmake.org/
 * some other basic dependencies should already be part of your operating system or previous packages
 
-## Recommended software folder structure
+### Recommended software folder structure
 
 The full software contains 4 different packages which are all available in git under `git.geo.tuwien.ac.at/vievs/VieSchedpp/` (Inside the TU-Wien GEO domain). Two of the packages are also available on github `https://github.com/TUW-VieVS/`. 
 
@@ -78,7 +89,7 @@ It is recommended to copy the source code into one common directory here called 
     VieVS/IAU_SOFA (only for installation)
     VieVS/CATALOGS (not required for installation)
 
-## Build
+### Build
 
 clone git repository into `VieVS` or copy source code into `VieVS/VieSchedpp`
 
@@ -107,7 +118,7 @@ run make
 
 You should now be able to find the program in `VieVS/VieSchedpp/Release`
 
-## Build without c++ boost libraries
+### Build without c++ boost libraries
 
 Do the same as descriped in the previouse section but before running
 `cmake -DCMAKE_BUILD_TYPE=Release .. ` open file `CMakeLists.txt` in
