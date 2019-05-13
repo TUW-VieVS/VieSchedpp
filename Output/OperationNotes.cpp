@@ -34,6 +34,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
                                           const boost::property_tree::ptree &xml, int version,
                                           boost::optional<MultiScheduling::Parameters> multiSchedulingParameters ) {
     string expName = xml.get( "VieSchedpp.general.experimentName", "schedule" );
+    string description = xml.get( "VieSchedpp.output.experimentDescription", "" );
 
     string currentTimeString = xml.get<string>( "VieSchedpp.created.time", "" );
 
@@ -53,7 +54,38 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
 
     double yearDecimal = year + static_cast<double>( doy ) / static_cast<double>( maxDoy );
 
-    of << "\n                     <<<<< " << expName << " >>>>>\n\n";
+    vector<string> names;
+    vector<string> emails;
+    vector<string> phones;
+    vector<string> affiliations;
+    map<int, int> nameId2affiliationId;
+    contactInformations( names, emails, phones, affiliations, nameId2affiliationId, xml );
+
+
+    string experimentName_header = "<<<<< " + expName + " >>>>>";
+    of << boost::format( "%=80s\n" ) % experimentName_header;
+    if ( !description.empty() && description != "no further description" ) {
+        string description_header = "<<< " + description + " >>>";
+        of << boost::format( "%=80s\n" ) % description_header;
+    }
+    of << "\n";
+
+    for ( int i = 0; i < names.size(); ++i ) {
+        of << names[i];
+        if ( nameId2affiliationId[i] != -1 ) {
+            int id = nameId2affiliationId[i];
+            of << "(" << id << "), ";
+        } else {
+            of << ", ";
+        }
+    }
+    of << "\n";
+
+    for ( int i = 0; i < affiliations.size(); ++i ) {
+        of << "(" << i + 1 << ") " << affiliations[i] << "\n";
+    }
+    of << "\n";
+
 
     of << boost::format( "Date of experiment: %4d,%3s,%02d\n" ) % ( TimeSystem::startTime.date().year() ) %
               ( TimeSystem::startTime.date().month() ) % ( TimeSystem::startTime.date().day() );
@@ -70,29 +102,40 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     }
     of << "\n";
 
-    of << "Contact\n";
-    of << "=======\n";
-    std::string piName = xml.get( "VieSchedpp.output.piName", "" );
-    std::string piEmail = xml.get( "VieSchedpp.output.piEmail", "" );
-
-    std::string contactName = xml.get( "VieSchedpp.output.contactName", "" );
-    std::string contactEmail = xml.get( "VieSchedpp.output.contactEmail", "" );
+    std::string piName = xml.get( "VieSchedpp.output.pi.name", "" );
+    if ( !piName.empty() ) {
+        of << "PI:        " << piName << "\n";
+    }
 
     std::string schedulerName = xml.get( "VieSchedpp.created.name", "" );
-    std::string schedulerEmail = xml.get( "VieSchedpp.created.email", "" );
-
-    unsigned long nmax = max( {piName.size(), contactName.size(), schedulerName.size()} );
-    string format = ( boost::format( "%%-%ds    %%s\n" ) % nmax ).str();
-
-    if ( !contactName.empty() ) {
-        of << boost::format( format ) % contactName % contactEmail;
-    }
     if ( !schedulerName.empty() ) {
-        of << boost::format( format ) % schedulerName % schedulerEmail;
+        of << "scheduler: " << schedulerName << "\n";
     }
-    if ( !piName.empty() ) {
-        of << boost::format( format ) % piName % piEmail;
+    of << "\n";
+
+    of << "Contact\n";
+    of << "=======\n";
+
+    unsigned long maxName =
+        std::max_element( names.begin(), names.end(), []( const std::string &str1, const std::string &str2 ) {
+            return str1.length() < str2.length();
+        } )->size();
+    unsigned long maxEmail =
+        std::max_element( emails.begin(), emails.end(), []( const std::string &str1, const std::string &str2 ) {
+            return str1.length() < str2.length();
+        } )->size();
+
+    string format_noAffil = ( boost::format( "%%-%ds      %%-%ds  %%s\n" ) % maxName % maxEmail ).str();
+    string format_affil = ( boost::format( "%%-%ds (%%d)  %%-%ds  %%s\n" ) % maxName % maxEmail ).str();
+
+    for ( int i = 0; i < names.size(); ++i ) {
+        if ( nameId2affiliationId[i] != -1 ) {
+            of << boost::format( format_affil ) % names[i] % nameId2affiliationId[i] % emails[i] % phones[i];
+        } else {
+            of << boost::format( format_noAffil ) % names[i] % emails[i] % phones[i];
+        }
     }
+
     of << "\n";
     of << "Notes: \n";
     of << "===========================================================\n";
@@ -142,13 +185,12 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     of << boost::format( " GUI:        %-17s            Version:     %-s\n" ) % "VieSched++" %
               ( xml.get( "VieSchedpp.software.GUI_version", "unknown" ).substr( 0, 7 ) );
     if ( !piName.empty() ) {
-        of << boost::format( " PI:         %-27s  mail:        %-s\n" ) % piName % piEmail;
-    }
-    if ( !contactName.empty() ) {
-        of << boost::format( " contact:    %-27s  mail:        %-s\n" ) % contactName % contactEmail;
+        of << boost::format( " PI:         %-27s  mail:        %-s\n" ) % piName %
+                  xml.get( "VieSchedpp.output.pi.email", "" );
     }
     if ( !schedulerName.empty() ) {
-        of << boost::format( " scheduler:  %-27s  mail:        %-s\n" ) % schedulerName % schedulerEmail;
+        of << boost::format( " scheduler:  %-27s  mail:        %-s\n" ) % schedulerName %
+                  xml.get( "VieSchedpp.created.email", "" );
     }
     of << "===========================================================\n";
     firstLastObservations_skdStyle( expName, network, sources, scans );
@@ -1009,4 +1051,96 @@ void OperationNotes::displaySkyCoverageScore( const Network &network ) {
         of << boost::format( "----------" );
     }
     of << "-----------'\n\n";
+}
+
+
+void OperationNotes::contactInformations( std::vector<std::string> &names, std::vector<std::string> &emails,
+                                          std::vector<std::string> &phoneNumbers,
+                                          std::vector<std::string> &affiliations,
+                                          std::map<int, int> &nameId2affiliationId,
+                                          const boost::property_tree::ptree &xml ) {
+    string piName = xml.get( "VieSchedpp.output.pi.name", "" );
+    if ( !piName.empty() ) {
+        names.push_back( piName );
+        emails.push_back( xml.get( "VieSchedpp.output.pi.email", "" ) );
+        phoneNumbers.push_back( xml.get( "VieSchedpp.output.pi.phone", "" ) );
+
+        string affiliation = xml.get( "VieSchedpp.output.pi.affiliation", "" );
+
+        if ( !affiliation.empty() &&
+             find( affiliations.begin(), affiliations.end(), affiliation ) == affiliations.end() ) {
+            affiliations.push_back( affiliation );
+            nameId2affiliationId.insert( {names.size() - 1, affiliations.size()} );
+        } else if ( !affiliation.empty() ) {
+            auto it = find( affiliations.begin(), affiliations.end(), affiliation );
+            int id = std::distance( affiliations.begin(), it );
+
+            nameId2affiliationId.insert( {names.size() - 1, id + 1} );
+        } else {
+            nameId2affiliationId.insert( {names.size() - 1, -1} );
+        }
+    }
+
+    string contact1 = xml.get( "VieSchedpp.output.contact1.name", "" );
+    if ( !contact1.empty() ) {
+        names.push_back( contact1 );
+        emails.push_back( xml.get( "VieSchedpp.output.contact1.email", "" ) );
+        phoneNumbers.push_back( xml.get( "VieSchedpp.output.contact1.phone", "" ) );
+        string affiliation = xml.get( "VieSchedpp.output.contact1.affiliation", "" );
+
+        if ( !affiliation.empty() &&
+             find( affiliations.begin(), affiliations.end(), affiliation ) == affiliations.end() ) {
+            affiliations.push_back( affiliation );
+            nameId2affiliationId.insert( {names.size() - 1, affiliations.size()} );
+        } else if ( !affiliation.empty() ) {
+            auto it = find( affiliations.begin(), affiliations.end(), affiliation );
+            int id = std::distance( affiliations.begin(), it );
+
+            nameId2affiliationId.insert( {names.size() - 1, id + 1} );
+        } else {
+            nameId2affiliationId.insert( {names.size() - 1, -1} );
+        }
+    }
+
+    string contact2 = xml.get( "VieSchedpp.output.contact2.name", "" );
+    if ( !contact2.empty() ) {
+        names.push_back( contact2 );
+        emails.push_back( xml.get( "VieSchedpp.output.contact2.email", "" ) );
+        phoneNumbers.push_back( xml.get( "VieSchedpp.output.contact2.phone", "" ) );
+        string affiliation = xml.get( "VieSchedpp.output.contact2.affiliation", "" );
+
+        if ( !affiliation.empty() &&
+             find( affiliations.begin(), affiliations.end(), affiliation ) == affiliations.end() ) {
+            affiliations.push_back( affiliation );
+            nameId2affiliationId.insert( {names.size() - 1, affiliations.size()} );
+        } else if ( !affiliation.empty() ) {
+            auto it = find( affiliations.begin(), affiliations.end(), affiliation );
+            int id = std::distance( affiliations.begin(), it );
+
+            nameId2affiliationId.insert( {names.size() - 1, id + 1} );
+        } else {
+            nameId2affiliationId.insert( {names.size() - 1, -1} );
+        }
+    }
+
+    string contact3 = xml.get( "VieSchedpp.output.contact3.name", "" );
+    if ( !contact3.empty() ) {
+        names.push_back( contact3 );
+        emails.push_back( xml.get( "VieSchedpp.output.contact3.email", "" ) );
+        phoneNumbers.push_back( xml.get( "VieSchedpp.output.contact3.phone", "" ) );
+        string affiliation = xml.get( "VieSchedpp.output.contact3.affiliation", "" );
+
+        if ( !affiliation.empty() &&
+             find( affiliations.begin(), affiliations.end(), affiliation ) == affiliations.end() ) {
+            affiliations.push_back( affiliation );
+            nameId2affiliationId.insert( {names.size() - 1, affiliations.size()} );
+        } else if ( !affiliation.empty() ) {
+            auto it = find( affiliations.begin(), affiliations.end(), affiliation );
+            int id = std::distance( affiliations.begin(), it );
+
+            nameId2affiliationId.insert( {names.size() - 1, id + 1} );
+        } else {
+            nameId2affiliationId.insert( {names.size() - 1, -1} );
+        }
+    }
 }

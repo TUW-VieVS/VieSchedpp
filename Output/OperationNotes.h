@@ -29,7 +29,6 @@
 
 
 #include <boost/property_tree/xml_parser.hpp>
-
 #include "../Misc/MultiScheduling.h"
 #include "../ObservingMode/ObservingMode.h"
 #include "../Scan/Scan.h"
@@ -207,6 +206,21 @@ class OperationNotes : public VieVS_Object {
      * @param network station network
      */
     void displaySkyCoverageScore( const Network &network );
+
+    /**
+     * @brief get contact information from xml file
+     * @author Matthias Schartner
+     *
+     * @param names (output) list of all names found in xml file
+     * @param emails (output) list of all emails found in xml file
+     * @param phoneNumbers (output) list of all phone numbers found in xml file
+     * @param affiliations (output) list of all affiliations found in xml file
+     * @param nameId2affiliationId (output) map linking name and affiliation
+     * @param xml paramters.xml file
+     */
+    void contactInformations( std::vector<std::string> &names, std::vector<std::string> &emails,
+                              std::vector<std::string> &phoneNumbers, std::vector<std::string> &affiliations,
+                              std::map<int, int> &nameId2affiliationId, const boost::property_tree::ptree &xml );
 };
 }  // namespace VieVS
 

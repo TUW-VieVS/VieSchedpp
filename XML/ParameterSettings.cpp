@@ -886,10 +886,10 @@ void ParameterSettings::weightFactor( double weight_skyCoverage, double weight_n
 }
 
 
-void ParameterSettings::conditions(std::vector<string> members, std::vector<int> minScans,
-                                   std::vector<int> minBaselines, bool andForCombination, int maxNumberOfIterations,
-                                   int numberOfGentleSourceReductions, int minNumberOfSourcesToReduce,
-                                   double percentage) {
+void ParameterSettings::conditions( std::vector<string> members, std::vector<int> minScans,
+                                    std::vector<int> minBaselines, bool andForCombination, int maxNumberOfIterations,
+                                    int numberOfGentleSourceReductions, int minNumberOfSourcesToReduce,
+                                    double percentage ) {
     boost::property_tree::ptree conditions;
     if ( andForCombination ) {
         conditions.add( "optimization.combination", "and" );
@@ -899,7 +899,7 @@ void ParameterSettings::conditions(std::vector<string> members, std::vector<int>
     conditions.add( "optimization.maxNumberOfIterations", maxNumberOfIterations );
     conditions.add( "optimization.numberOfGentleSourceReductions", numberOfGentleSourceReductions );
     conditions.add( "optimization.minNumberOfSourcesToReduce", minNumberOfSourcesToReduce );
-    conditions.add("optimization.percentageGentleSourceReduction", percentage);
+    conditions.add( "optimization.percentageGentleSourceReduction", percentage );
     for ( int i = 0; i < members.size(); ++i ) {
         boost::property_tree::ptree condition;
         condition.add( "condition.members", members.at( i ) );
@@ -1023,12 +1023,13 @@ void ParameterSettings::multiCore( const string &threads, int nThreadsManual, co
 }
 
 
-void ParameterSettings::output( const string &experimentDescription, const string &scheduler, const string &correlator,
-                                const string &piName, const string &piEmail, const string &contactName,
-                                const string &contactEmail, const string &notes, bool initializer, bool iteration_log,
-                                bool createSummary, bool createNGS, const std::string &NGS_directory, bool createSKD,
-                                bool createVEX, bool createSnrTable, bool operNotes, bool createSrcGrp,
-                                const vector<string> &srcGroupsForStatistic, bool createSkyCoverage ) {
+void ParameterSettings::output( const std::string &experimentDescription, const std::string &scheduler,
+                                const std::string &correlator, const std::string &notes, bool initializer,
+                                bool iteration_log, bool createSummary, bool createNGS,
+                                const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable,
+                                bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
+                                bool createSkyCoverage, const Contact &pi, const Contact &contact1,
+                                const Contact &contact2, const Contact &contact3 ) {
     boost::property_tree::ptree output;
     if ( experimentDescription.empty() ) {
         output.add( "output.experimentDescription", "no further description" );
@@ -1045,18 +1046,10 @@ void ParameterSettings::output( const string &experimentDescription, const strin
     } else {
         output.add( "output.correlator", correlator );
     }
-    if ( !piName.empty() ) {
-        output.add( "output.piName", piName );
-    }
-    if ( !piEmail.empty() ) {
-        output.add( "output.piEmail", piEmail );
-    }
-    if ( !contactName.empty() ) {
-        output.add( "output.contactName", contactName );
-    }
-    if ( !contactEmail.empty() ) {
-        output.add( "output.contactEmail", contactEmail );
-    }
+    addContact(pi, output, "output.pi");
+    addContact(contact1, output, "output.contact1");
+    addContact(contact2, output, "output.contact2");
+    addContact(contact3, output, "output.contact3");
     if ( !notes.empty() ) {
         output.add( "output.notes", notes );
     }
@@ -1069,11 +1062,11 @@ void ParameterSettings::output( const string &experimentDescription, const strin
         output.add( "output.NGS_directory", NGS_directory );
     }
     output.add( "output.createSKD", createSKD );
-    output.add( "output.createVEX", createVEX );
+    output.add( "output.createVEX", createVex );
     output.add( "output.createSnrTable", createSnrTable );
     output.add( "output.createOperationsNotes", operNotes );
-    output.add( "output.createSourceGroupStatistics", createSrcGrp );
-    if ( createSrcGrp ) {
+    output.add( "output.createSourceGroupStatistics", srcGrp );
+    if ( srcGrp ) {
         boost::property_tree::ptree all_groups;
         for ( const auto &any : srcGroupsForStatistic ) {
             boost::property_tree::ptree tmp;
@@ -1194,4 +1187,26 @@ void ParameterSettings::highImpactAzEl( const std::vector<string> &members, cons
     }
 
     master_.add_child( "VieSchedpp.highImpact", hi.get_child( "highImpact" ) );
+}
+
+
+void ParameterSettings::addContact( const ParameterSettings::Contact &contact, boost::property_tree::ptree &tree,
+                                    const std::string &node ) {
+    if ( !contact.name.empty() ) {
+        tree.add( node + ".name", contact.name );
+        tree.add( node + ".email", contact.email );
+        tree.add( node + ".phone", contact.phone );
+        tree.add( node + ".affiliation", contact.affiliation );
+    }
+}
+
+
+VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::property_tree::ptree &tree ) {
+    Contact contact;
+    contact.name = tree.get( ".name", "" );
+    contact.email = tree.get( ".email", "" );
+    contact.phone = tree.get( ".phone", "" );
+    contact.affiliation = tree.get( ".affiliation", "" );
+
+    return contact;
 }

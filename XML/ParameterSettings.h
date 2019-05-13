@@ -64,6 +64,18 @@ class ParameterSettings {
     };
 
     /**
+     * @brief contact information
+     * @author Matthias Schartner
+     */
+    struct Contact {
+        std::string name;         ///< contact name
+        std::string email;        ///< contact email
+        std::string phone;        ///< contact phone number
+        std::string affiliation;  ///< contact affiliation
+    };
+
+
+    /**
      * @brief station parameters
      * @author Matthias Schartner
      */
@@ -478,9 +490,9 @@ class ParameterSettings {
      * @param minNumberOfSourcesToReduce minimum number of sources to reduce
      * @param percentage percentage of sources to reduce during gentle source reduction
      */
-    void conditions(std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
-                    bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
-                    int minNumberOfSourcesToReduce, double percentage);
+    void conditions( std::vector<std::string> members, std::vector<int> minScans, std::vector<int> minBaselines,
+                     bool andForCombination, int maxNumberOfIterations, int numberOfGentleSourceReductions,
+                     int minNumberOfSourcesToReduce, double percentage );
 
 
     /**
@@ -583,10 +595,6 @@ class ParameterSettings {
      * @param experimentDescription experiment description
      * @param scheduler scheduler
      * @param correlator correlator
-     * @param piName pi name
-     * @param piEmail pi email
-     * @param contactName contact name
-     * @param contactEmail contact email
      * @param notes schedule notes
      * @param initializer create initializer
      * @param iteration_log iteration log file
@@ -600,13 +608,15 @@ class ParameterSettings {
      * @param srcGrp create source group statistics file
      * @param srcGroupsForStatistic groups for source group statistics file
      * @param createSkyCoverage create sky coverage file
+     * @param Pi contact information of PI
+     * @param contact1 additional contact information
+     * @param contact2 additional contact information
+     * @param contact3 additional contact information
      */
     void output( const std::string &experimentDescription, const std::string &scheduler, const std::string &correlator,
-                 const std::string &piName, const std::string &piEmail, const std::string &contactName,
-                 const std::string &contactEmail, const std::string &notes, bool initializer, bool iteration_log,
-                 bool createSummary, bool createNGS, const std::string &NGS_directory, bool createSKD, bool createVex,
-                 bool createSnrTable, bool operNotes, bool srcGrp,
-                 const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage );
+                 const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, const std::string &NGS_directory, bool createSKD, bool createVex,
+                 bool createSnrTable, bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage,
+                 const Contact &pi, const Contact &contact1, const Contact &contact2, const Contact &contact3 );
 
 
     /**
@@ -746,6 +756,25 @@ class ParameterSettings {
      * @return child property tree
      */
     boost::property_tree::ptree getChildTree( const ParameterSetup &setup );
+
+    /**
+     * @brief add contact information to xml tree
+     * @author Matthias Schartner
+     *
+     * @param contact contact information
+     * @param tree xml tree
+     * @param node node where contact information should be added
+     */
+    void addContact( const Contact &contact, boost::property_tree::ptree &tree, const std::string &node );
+
+
+    /**
+     * @brief read contact information from xml tree
+     * @author Matthias Schartner
+     *
+     * @param tree xml tree with contact information
+     */
+    Contact readContact( const boost::property_tree::ptree &tree );
 };
 }  // namespace VieVS
 
