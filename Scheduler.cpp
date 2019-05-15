@@ -611,6 +611,8 @@ void Scheduler::consideredUpdate( unsigned long n1scans, unsigned long n2scans, 
 
 
 bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
+    resetAllEvents( of );
+
     bool everythingOk = true;
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "checking schedule";
@@ -744,24 +746,32 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
 
                     } else {
                         if ( idleTime > 1200 ) {
-                            ++countWarnings;
-                            of << "    WARNING #" << countWarnings
-                               << ": long idle time! scans: " << scan_thisEnd.printId() << " and "
-                               << scan_nextStart.printId() << "\n";
-                            of << "        idle time: " << idleTime << "[s]\n";
-                            boost::posix_time::ptime thisEndTime_ = TimeSystem::internalTime2PosixTime( thisEndTime );
-                            boost::posix_time::ptime nextStartTime_ =
-                                TimeSystem::internalTime2PosixTime( nextStartTime );
-                            of << "            end time of previouse scan: " << thisEndTime_.time_of_day() << " "
-                               << thisEnd.printId() << "\n";
-                            of << "            start time of next scan:    " << nextStartTime_.time_of_day() << " "
-                               << nextStart.printId() << "\n";
-                            of << "*\n";
+                            unsigned int midpoint = ( thisEndTime + nextStartTime ) / 2;
+                            bool dummy;
+                            thisStation.checkForNewEvent( midpoint, dummy );
+
+                            if ( thisStation.getPARA().available ) {
+                                ++countWarnings;
+                                of << "    WARNING #" << countWarnings
+                                   << ": long idle time! scans: " << scan_thisEnd.printId() << " and "
+                                   << scan_nextStart.printId() << "\n";
+                                of << "        idle time: " << idleTime << "[s]\n";
+                                boost::posix_time::ptime thisEndTime_ =
+                                    TimeSystem::internalTime2PosixTime( thisEndTime );
+                                boost::posix_time::ptime nextStartTime_ =
+                                    TimeSystem::internalTime2PosixTime( nextStartTime );
+                                of << "            end time of previouse scan: " << thisEndTime_.time_of_day() << " "
+                                   << thisEnd.printId() << "\n";
+                                of << "            start time of next scan:    " << nextStartTime_.time_of_day() << " "
+                                   << nextStart.printId() << "\n";
+                                of << "*\n";
 #ifdef VIESCHEDPP_LOG
-                            BOOST_LOG_TRIVIAL( warning )
-                                << boost::format( "%s iteration %d:" ) % getName() % ( parameters_.currentIteration )
-                                << "long idle time! (" << idleTime << " [s]) station: " << thisStation.getName();
+                                BOOST_LOG_TRIVIAL( warning )
+                                    << boost::format( "%s iteration %d:" ) % getName() %
+                                           ( parameters_.currentIteration )
+                                    << "long idle time! (" << idleTime << " [s]) station: " << thisStation.getName();
 #endif
+                            }
                         }
                     }
                 }
