@@ -116,14 +116,19 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     of << "Contact\n";
     of << "=======\n";
 
-    unsigned long maxName =
-        std::max_element( names.begin(), names.end(), []( const std::string &str1, const std::string &str2 ) {
+    unsigned long maxName = 0;
+    if (!names.empty()) {
+        maxName = std::max_element(names.begin(), names.end(), [](const std::string &str1, const std::string &str2) {
             return str1.length() < str2.length();
         } )->size();
-    unsigned long maxEmail =
-        std::max_element( emails.begin(), emails.end(), []( const std::string &str1, const std::string &str2 ) {
+    }
+
+    unsigned long maxEmail = 0;
+    if (!emails.empty()) {
+        maxEmail = std::max_element(emails.begin(), emails.end(), [](const std::string &str1, const std::string &str2) {
             return str1.length() < str2.length();
         } )->size();
+    }
 
     string format_noAffil = ( boost::format( "%%-%ds      %%-%ds  %%s\n" ) % maxName % maxEmail ).str();
     string format_affil = ( boost::format( "%%-%ds (%%d)  %%-%ds  %%s\n" ) % maxName % maxEmail ).str();
