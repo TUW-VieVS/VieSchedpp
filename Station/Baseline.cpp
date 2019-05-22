@@ -63,7 +63,7 @@ bool Baseline::hasStationIds( const std::pair<unsigned long, unsigned long> &sta
 
 bool Baseline::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+    while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
         parameters_ = events_->at( nextEvent_ ).PARA;
 
         hardBreak = hardBreak || !events_->at( nextEvent_ ).smoothTransition;

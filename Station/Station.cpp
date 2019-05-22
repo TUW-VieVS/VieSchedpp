@@ -354,7 +354,7 @@ void Station::update( unsigned long nbl, const PointingVector &end, bool addToSt
 
 bool Station::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+    while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
         bool oldAvailable = parameters_.available;
 
         parameters_ = events_->at( nextEvent_ ).PARA;

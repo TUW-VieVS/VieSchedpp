@@ -151,7 +151,7 @@ void Source::update( unsigned long nbl, unsigned int time, bool addToStatistics 
 
 bool Source::checkForNewEvent( unsigned int time, bool &hardBreak ) noexcept {
     bool flag = false;
-    while ( nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
+    while ( events_ != nullptr && nextEvent_ < events_->size() && events_->at( nextEvent_ ).time <= time ) {
         double oldMinFlux = parameters_.minFlux;
         bool oldGlobalAvailable = parameters_.globalAvailable;
         parameters_ = events_->at( nextEvent_ ).PARA;
