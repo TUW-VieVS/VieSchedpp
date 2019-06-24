@@ -8,6 +8,12 @@ Contact: matthias.schartner@geo.tuwien.ac.at
 
 Documentation: https://tuw-vievs.github.io/VieSchedpp/index.html
 
+# Reference
+
+doi: https://doi.org/10.1088/1538-3873/ab1820
+
+see: https://iopscience.iop.org/article/10.1088/1538-3873/ab1820
+
 # Getting started
 
 Have a look at our YouTube channel 
