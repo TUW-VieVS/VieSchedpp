@@ -68,26 +68,89 @@ void VieSchedppTerminate() {
 int main( int argc, char *argv[] ) {
     std::set_terminate( VieSchedppTerminate );
 
-    if ( argc != 2 ) {
+
+    if ( argc == 1 ) {
         welcome();
         return 0;
+
+    } else if ( argc == 2 ) {
+        // main scheduling program
+
+        std::string file = argv[1];
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // V1: standard usage:
+        std::cout << "Processing file: " << file << "\n";
+        VieVS::VieSchedpp mainScheduler( file );
+        mainScheduler.run();
+
+        auto finish = std::chrono::high_resolution_clock::now();
+        auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
+        long long int usec = microseconds.count();
+
+        auto milliseconds = usec / 1000 % 1000;
+        auto seconds = usec / 1000 / 1000 % 60;
+        auto minutes = usec / 1000 / 1000 / 60 % 60;
+        auto hours = usec / 1000 / 1000 / 60 / 60;
+        std::stringstream t;
+        t << "execution time: ";
+        if ( hours > 0 ) {
+            t << hours << "h ";
+        }
+        if ( minutes > 0 ) {
+            t << minutes << "m ";
+        }
+        if ( seconds > 0 ) {
+            t << seconds << "s ";
+        }
+        if ( milliseconds > 0 ) {
+            t << milliseconds << "ms ";
+        }
+#ifdef VIESCHEDPP_LOG
+        BOOST_LOG_TRIVIAL( info ) << t.str();
+#else
+        std::cout << "[info] " << t.str();
+#endif
+        std::cout << std::endl;
+
+    } else if ( argc == 3 ) {
+        std::string flag = argv[1];
+        std::string file = argv[2];
+
+        if ( flag == "--snr" ) {
+            VieVS::SkdParser mySkdParser( file );
+
+            std::cout << "read skd file\n";
+            mySkdParser.read();
+
+            std::cout << "generate schedule\n";
+            VieVS::Scheduler sched = mySkdParser.createScheduler();
+
+            std::cout << "write snr table to:";
+
+            std::string fname;
+            std::string path;
+            std::size_t found = file.find_last_of( "/\\" );
+            if ( found == std::string::npos ) {
+                path = "";
+                fname = file;
+            } else {
+                path = file.substr( 0, found + 1 );
+                fname = file.substr( found + 1 );
+            }
+            std::size_t dot = fname.find_last_of( '.' );
+            fname = fname.substr( 0, dot );
+            std::cout << path << "\n";
+
+            VieVS::Output out( sched, path, fname, 0 );
+            out.writeSnrTable();
+        }
     }
 
-    std::string file = argv[1];
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    // V1: standard usage:
-    std::cout << "Processing file: " << file << "\n";
-    VieVS::VieSchedpp mainScheduler( file );
-    mainScheduler.run();
 
     ////    V2: parse skd and log files
-    //    VieVS::SkdParser mySkdParser("/home/mschartn/programming/out/20181029164853_/dummy.skd");
-    //    mySkdParser.read();
-    //    VieVS::Scheduler sched = mySkdParser.createScheduler();
-    //
-    //
+    
     ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
     ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
     ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));
@@ -102,34 +165,6 @@ int main( int argc, char *argv[] ) {
     //    out.writeOperationsNotes();
     //
 
-    auto finish = std::chrono::high_resolution_clock::now();
-    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>( finish - start );
-    long long int usec = microseconds.count();
-
-    auto milliseconds = usec / 1000 % 1000;
-    auto seconds = usec / 1000 / 1000 % 60;
-    auto minutes = usec / 1000 / 1000 / 60 % 60;
-    auto hours = usec / 1000 / 1000 / 60 / 60;
-    std::stringstream t;
-    t << "execution time: ";
-    if ( hours > 0 ) {
-        t << hours << "h ";
-    }
-    if ( minutes > 0 ) {
-        t << minutes << "m ";
-    }
-    if ( seconds > 0 ) {
-        t << seconds << "s ";
-    }
-    if ( milliseconds > 0 ) {
-        t << milliseconds << "ms ";
-    }
-#ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL( info ) << t.str();
-#else
-    std::cout << "[info] " << t.str();
-#endif
-    std::cout << std::endl;
 
     return 0;
 }
