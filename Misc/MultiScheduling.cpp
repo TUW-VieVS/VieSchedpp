@@ -423,7 +423,7 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
                     allPara[c].stationMaxSlewtime[member] = static_cast<unsigned int>( lround( thisValue ) );
                 }
 
-            } else if ( name == "station_max_slew_time" ) {
+            } else if ( name == "station_min_slew_distance" ) {
                 if ( stationGroups_.find( member ) != stationGroups_.end() ) {
                     for ( const auto &thisId : stationGroups_[member] ) {
                         allPara[c].stationMinSlewDistance[thisId] = thisValue;
