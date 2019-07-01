@@ -131,7 +131,7 @@ class MultiScheduling : public VieVS_Object {
                 of << "    subnetting " << *subnetting << "\n";
             }
             if ( subnetting_minSourceAngle.is_initialized() ) {
-                of << "    subnetting minimum source distance " << *subnetting_minSourceAngle * rad2deg << " [deg]\n";
+                of << "    subnetting minimum source distance " << *subnetting_minSourceAngle << " [deg]\n";
             }
             if ( subnetting_minParticipatingStations.is_initialized() ) {
                 of << "    subnetting minimum participating stations " << *subnetting_minParticipatingStations
@@ -176,19 +176,19 @@ class MultiScheduling : public VieVS_Object {
                 of << "    weight low declination " << *weightLowDeclination << "\n";
             }
             if ( weightLowDeclination_begin.is_initialized() ) {
-                of << "    weight low declination start " << *weightLowDeclination_begin * rad2deg << " [deg]\n";
+                of << "    weight low declination start " << *weightLowDeclination_begin << " [deg]\n";
             }
             if ( weightLowDeclination_full.is_initialized() ) {
-                of << "    weight low declination full " << *weightLowDeclination_full * rad2deg << " [deg]\n";
+                of << "    weight low declination full " << *weightLowDeclination_full << " [deg]\n";
             }
             if ( weightLowElevation.is_initialized() ) {
                 of << "    weight low elevation " << *weightLowElevation << "\n";
             }
             if ( weightLowElevation_begin.is_initialized() ) {
-                of << "    weight low elevation start " << *weightLowElevation_begin * rad2deg << " [deg]\n";
+                of << "    weight low elevation start " << *weightLowElevation_begin << " [deg]\n";
             }
             if ( weightLowElevation_full.is_initialized() ) {
-                of << "    weight low elevation full " << *weightLowElevation_full * rad2deg << " [deg]\n";
+                of << "    weight low elevation full " << *weightLowElevation_full << " [deg]\n";
             }
 
             if ( skyCoverageInfluenceDistance.is_initialized() ) {
@@ -205,16 +205,16 @@ class MultiScheduling : public VieVS_Object {
                 of << "    station max slewtime " << any.first << ": " << any.second << " [s]\n";
             }
             for ( const auto &any : stationMinSlewDistance ) {
-                of << "    station max slew distance " << any.first << ": " << any.second * rad2deg << " [deg]\n";
+                of << "    station max slew distance " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : stationMaxSlewDistance ) {
-                of << "    station min slew distance " << any.first << ": " << any.second * rad2deg << " [deg]\n";
+                of << "    station min slew distance " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : stationMaxWait ) {
                 of << "    station max wait " << any.first << ": " << any.second << " [s]\n";
             }
             for ( const auto &any : stationMinElevation ) {
-                of << "    station min elevation " << any.first << ": " << any.second * rad2deg << " [deg]\n";
+                of << "    station min elevation " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : stationMaxNumberOfScans ) {
                 of << "    station max number of scans " << any.first << ": " << any.second << "\n";
@@ -239,10 +239,10 @@ class MultiScheduling : public VieVS_Object {
                 of << "    source max number of scans " << any.first << ": " << any.second << "\n";
             }
             for ( const auto &any : sourceMinElevation ) {
-                of << "    source min elevation " << any.first << ": " << any.second * rad2deg << " [deg]\n";
+                of << "    source min elevation " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : sourceMinSunDistance ) {
-                of << "    source min sun distance " << any.first << ": " << any.second * rad2deg << " [deg]\n";
+                of << "    source min sun distance " << any.first << ": " << any.second << " [deg]\n";
             }
             for ( const auto &any : sourceMaxScan ) {
                 of << "    source max scan time " << any.first << ": " << any.second << " [s]\n";
@@ -429,7 +429,7 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( *subnetting ) ).append( "," );
             }
             if ( subnetting_minSourceAngle.is_initialized() ) {
-                str.append( std::to_string( *subnetting_minSourceAngle * rad2deg ) ).append( "," );
+                str.append( std::to_string( *subnetting_minSourceAngle ) ).append( "," );
             }
             if ( subnetting_minParticipatingStations.is_initialized() ) {
                 str.append( std::to_string( *subnetting_minParticipatingStations ) ).append( "," );
@@ -473,19 +473,19 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( *weightLowDeclination ) ).append( "," );
             }
             if ( weightLowDeclination_begin.is_initialized() ) {
-                str.append( std::to_string( *weightLowDeclination_begin * rad2deg ) ).append( "," );
+                str.append( std::to_string( *weightLowDeclination_begin ) ).append( "," );
             }
             if ( weightLowDeclination_full.is_initialized() ) {
-                str.append( std::to_string( *weightLowDeclination_full * rad2deg ) ).append( "," );
+                str.append( std::to_string( *weightLowDeclination_full ) ).append( "," );
             }
             if ( weightLowElevation.is_initialized() ) {
                 str.append( std::to_string( *weightLowElevation ) ).append( "," );
             }
             if ( weightLowElevation_begin.is_initialized() ) {
-                str.append( std::to_string( *weightLowElevation_begin * rad2deg ) ).append( "," );
+                str.append( std::to_string( *weightLowElevation_begin ) ).append( "," );
             }
             if ( weightLowElevation_full.is_initialized() ) {
-                str.append( std::to_string( *weightLowElevation_full * rad2deg ) ).append( "," );
+                str.append( std::to_string( *weightLowElevation_full ) ).append( "," );
             }
 
             if ( skyCoverageInfluenceDistance.is_initialized() ) {
@@ -502,16 +502,16 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMinSlewDistance ) {
-                str.append( std::to_string( any.second * rad2deg ) ).append( "," );
+                str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxSlewDistance ) {
-                str.append( std::to_string( any.second * rad2deg ) ).append( "," );
+                str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxWait ) {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMinElevation ) {
-                str.append( std::to_string( any.second * rad2deg ) ).append( "," );
+                str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxNumberOfScans ) {
                 str.append( std::to_string( any.second ) ).append( "," );
@@ -536,10 +536,10 @@ class MultiScheduling : public VieVS_Object {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : sourceMinElevation ) {
-                str.append( std::to_string( any.second * rad2deg ) ).append( "," );
+                str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : sourceMinSunDistance ) {
-                str.append( std::to_string( any.second * rad2deg ) ).append( "," );
+                str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : sourceMaxScan ) {
                 str.append( std::to_string( any.second ) ).append( "," );

@@ -281,6 +281,11 @@ void SkdParser::read() {
     createScans( of );
     copyScanMembersToObjects( of );
 
+
+    for ( auto &sky : network_.refSkyCoverages() ) {
+        sky.calculateSkyCoverageScores();
+    }
+
     of.close();
 }
 
