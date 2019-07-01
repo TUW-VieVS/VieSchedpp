@@ -96,7 +96,7 @@ pair<double, double> AbstractCableWrap::getLimits( char section ) const {
 
 
 bool AbstractCableWrap::axisInsideCableWrap( double ax1, double ax2 ) const noexcept {
-    if ( ( axis1Up_ - axis1UpOffset_ - axis1Low_ + axis1LowOffset_ ) < 2 * pi ) {
+    if (((axis1Up_ - axis1UpOffset_) - (axis1Low_ + axis1LowOffset_)) < 2 * pi) {
         double ax1_1 = fmod( axis1Low_ + axis1LowOffset_, twopi );
         double ax1_2 = fmod( axis1Up_ - axis1UpOffset_, twopi );
 
