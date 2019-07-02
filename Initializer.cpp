@@ -1996,8 +1996,8 @@ void Initializer::initializeSkyCoverages() noexcept {
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "initialize sky coverage";
 #endif
 
-    SkyCoverage::maxInfluenceDistance = xml_.get<double>( "VieSchedpp.skyCoverage.skyCoverageDistance", 30 ) * deg2rad;
-    SkyCoverage::maxInfluenceTime = xml_.get<double>( "VieSchedpp.skyCoverage.skyCoverageInterval", 3600 );
+    SkyCoverage::maxInfluenceDistance = xml_.get<double>( "VieSchedpp.skyCoverage.influenceDistance", 30 ) * deg2rad;
+    SkyCoverage::maxInfluenceTime = xml_.get<double>( "VieSchedpp.skyCoverage.influenceInterval", 3600 );
 
     string interpolationDistance = xml_.get<string>( "VieSchedpp.skyCoverage.interpolationDistance", "linear" );
     if ( interpolationDistance == "constant" ) {
