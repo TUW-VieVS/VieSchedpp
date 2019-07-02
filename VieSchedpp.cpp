@@ -117,6 +117,7 @@ void VieSchedpp::run() {
     of.close();
 
     init.statisticsLogHeader( statisticsOf, multiSchedParameters_ );
+    int counter = 1;
 
 // check if openmp is available
 #ifdef _OPENMP
@@ -203,12 +204,19 @@ void VieSchedpp::run() {
         if ( flag_multiSched ) {
             fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d of %d" ) % version %
-                                             nsched;
+            BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
+                                             counter % nsched;
 #else
-            cout << boost::format( "[info] creating multi scheduling version %d of %d" ) % ( i + 1 ) % nsched;
+            cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)" ) % version % counter %
+                        nsched;
 #endif
         }
+#ifdef _OPENMP
+#pragma omp atomic
+        ++counter;
+#else
+        ++counter;
+#endif
 
         // add multi scheduling parameters
         if ( flag_multiSched ) {
