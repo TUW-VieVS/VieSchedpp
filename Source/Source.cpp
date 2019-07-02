@@ -48,6 +48,7 @@ void Source::Parameters::setParameters( const Source::Parameters &other ) {
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
     minElevation = other.minElevation;
+    minSunDistance = other.minSunDistance;
 
     tryToFocusIfObservedOnce = other.tryToFocusIfObservedOnce;
     tryToFocusFactor = other.tryToFocusFactor;
