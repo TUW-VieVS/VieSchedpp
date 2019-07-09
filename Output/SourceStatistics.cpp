@@ -387,13 +387,10 @@ vector<pair<unsigned int, unsigned int>> SourceStatistics::minutesVisible(Networ
                 }
             }
         }
-        if (requiredStationNotVisible) {
-            continue;
-        }
-        if (visible >= minVisible && !flagVisible) {
+        if ( visible >= minVisible && !flagVisible && !requiredStationNotVisible ) {
             visibleStart = t;
             flagVisible = true;
-        } else if (visible < minVisible && flagVisible) {
+        } else if ( ( visible < minVisible && flagVisible ) || ( requiredStationNotVisible && flagVisible ) ) {
             flagVisible = false;
             visibleTimes.emplace_back(visibleStart, t);
         }
