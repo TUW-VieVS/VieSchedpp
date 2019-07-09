@@ -68,6 +68,7 @@ class ParameterSettings {
      * @author Matthias Schartner
      */
     struct Contact {
+        std::string function;     ///< contact function e.g.: PI, scheduler, operator...
         std::string name;         ///< contact name
         std::string email;        ///< contact email
         std::string phone;        ///< contact phone number
@@ -608,15 +609,12 @@ class ParameterSettings {
      * @param srcGrp create source group statistics file
      * @param srcGroupsForStatistic groups for source group statistics file
      * @param createSkyCoverage create sky coverage file
-     * @param Pi contact information of PI
-     * @param contact1 additional contact information
-     * @param contact2 additional contact information
-     * @param contact3 additional contact information
+     * @param contacts list of contacts
      */
     void output( const std::string &experimentDescription, const std::string &scheduler, const std::string &correlator,
                  const std::string &notes, bool initializer, bool iteration_log, bool createSummary, bool createNGS, const std::string &NGS_directory, bool createSKD, bool createVex,
                  bool createSnrTable, bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic, bool createSkyCoverage,
-                 const Contact &pi, const Contact &contact1, const Contact &contact2, const Contact &contact3 );
+                 const std::vector<Contact> &contacts );
 
 
     /**

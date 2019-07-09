@@ -1028,8 +1028,7 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
                                 bool iteration_log, bool createSummary, bool createNGS,
                                 const std::string &NGS_directory, bool createSKD, bool createVex, bool createSnrTable,
                                 bool operNotes, bool srcGrp, const std::vector<std::string> &srcGroupsForStatistic,
-                                bool createSkyCoverage, const Contact &pi, const Contact &contact1,
-                                const Contact &contact2, const Contact &contact3 ) {
+                                bool createSkyCoverage, const std::vector<Contact> &contacts ) {
     boost::property_tree::ptree output;
     if ( experimentDescription.empty() ) {
         output.add( "output.experimentDescription", "no further description" );
@@ -1046,10 +1045,9 @@ void ParameterSettings::output( const std::string &experimentDescription, const 
     } else {
         output.add( "output.correlator", correlator );
     }
-    addContact(pi, output, "output.pi");
-    addContact(contact1, output, "output.contact1");
-    addContact(contact2, output, "output.contact2");
-    addContact(contact3, output, "output.contact3");
+    for ( auto &any : contacts ) {
+        addContact( any, output, "output.contacts" );
+    }
     if ( !notes.empty() ) {
         output.add( "output.notes", notes );
     }
@@ -1193,16 +1191,30 @@ void ParameterSettings::highImpactAzEl( const std::vector<string> &members, cons
 void ParameterSettings::addContact( const ParameterSettings::Contact &contact, boost::property_tree::ptree &tree,
                                     const std::string &node ) {
     if ( !contact.name.empty() ) {
-        tree.add( node + ".name", contact.name );
-        tree.add( node + ".email", contact.email );
-        tree.add( node + ".phone", contact.phone );
-        tree.add( node + ".affiliation", contact.affiliation );
+        boost::property_tree::ptree c;
+        if ( ~contact.function.empty() ) {
+            c.add( "contact.function", contact.function );
+        }
+        if ( ~contact.name.empty() ) {
+            c.add( "contact.name", contact.name );
+        }
+        if ( ~contact.email.empty() ) {
+            c.add( "contact.email", contact.email );
+        }
+        if ( ~contact.phone.empty() ) {
+            c.add( "contact.phone", contact.phone );
+        }
+        if ( ~contact.affiliation.empty() ) {
+            c.add( "contact.affiliation", contact.affiliation );
+        }
+        tree.add_child( node + ".contact", c.get_child( "contact" ) );
     }
 }
 
 
 VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::property_tree::ptree &tree ) {
     Contact contact;
+    contact.function = tree.get( ".contact", "" );
     contact.name = tree.get( ".name", "" );
     contact.email = tree.get( ".email", "" );
     contact.phone = tree.get( ".phone", "" );

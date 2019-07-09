@@ -211,6 +211,7 @@ class OperationNotes : public VieVS_Object {
      * @brief get contact information from xml file
      * @author Matthias Schartner
      *
+     * @param functions (output) list of all functions found in xml file
      * @param names (output) list of all names found in xml file
      * @param emails (output) list of all emails found in xml file
      * @param phoneNumbers (output) list of all phone numbers found in xml file
@@ -218,9 +219,10 @@ class OperationNotes : public VieVS_Object {
      * @param nameId2affiliationId (output) map linking name and affiliation
      * @param xml paramters.xml file
      */
-    void contactInformations( std::vector<std::string> &names, std::vector<std::string> &emails,
-                              std::vector<std::string> &phoneNumbers, std::vector<std::string> &affiliations,
-                              std::map<int, int> &nameId2affiliationId, const boost::property_tree::ptree &xml );
+    void contactInformations( std::vector<std::string> &functions, std::vector<std::string> &names,
+                              std::vector<std::string> &emails, std::vector<std::string> &phoneNumbers,
+                              std::vector<std::string> &affiliations, std::map<int, int> &nameId2affiliationId,
+                              const boost::property_tree::ptree &xml );
 };
 }  // namespace VieVS
 
