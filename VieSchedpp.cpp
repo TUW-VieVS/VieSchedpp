@@ -117,7 +117,7 @@ void VieSchedpp::run() {
     of.close();
 
     init.statisticsLogHeader( statisticsOf, multiSchedParameters_ );
-    int counter = 1;
+    int counter = 0;
 
 // check if openmp is available
 #ifdef _OPENMP
@@ -200,6 +200,14 @@ void VieSchedpp::run() {
         // get file name
         string fname = sessionName_;
 
+        // increment counter of multi scheduling version
+#ifdef _OPENMP
+#pragma omp atomic
+        ++counter;
+#else
+        ++counter;
+#endif
+
         // if you have multi schedule append version number to file name
         if ( flag_multiSched ) {
             fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
@@ -211,12 +219,6 @@ void VieSchedpp::run() {
                         nsched;
 #endif
         }
-#ifdef _OPENMP
-#pragma omp atomic
-        ++counter;
-#else
-        ++counter;
-#endif
 
         // add multi scheduling parameters
         if ( flag_multiSched ) {

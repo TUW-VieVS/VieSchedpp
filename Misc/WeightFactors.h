@@ -92,7 +92,7 @@ class WeightFactors {
             of << " average stations:       " << weightAverageStations << "\n";
         }
         if ( weightAverageBaselines != 0 ) {
-            of << " average baselines:      " << weightAverageStations << "\n";
+            of << " average baselines:      " << weightAverageBaselines << "\n";
         }
         if ( weightIdleTime != 0 ) {
             of << " weight idle time:       " << weightIdleTime << "\n";
