@@ -475,11 +475,11 @@ void Skd::skd_STATIONS( const std::vector<Station> &stations, const SkdCatalogRe
 
         vector<string> tmp = ant.at( staName );
 
-        string id_PO = boost::algorithm::to_upper_copy( tmp.at( 13 ) );
+        string id_PO = tmp.at( 13 );
         posMap[staName] = id_PO;
         string id_EQ = boost::algorithm::to_upper_copy( tmp.at( 14 ) ) + "|" + staName;
         equMap[staName] = id_EQ;
-        string id_MS = boost::algorithm::to_upper_copy( tmp.at( 15 ) );
+        string id_MS = tmp.at( 15 );
         masMap[staName] = id_MS;
 
         const auto &olc = skdCatalogReader.getOneLetterCode();

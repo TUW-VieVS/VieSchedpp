@@ -185,7 +185,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                         }
 
                         // get key and convert it to upper case for case insensitivity
-                        string key = boost::algorithm::to_upper_copy( splitVector[indexOfKey] );
+                        string key = splitVector[indexOfKey];
                         // add station name to key if you look at equip.cat because id alone is not unique in catalogs
                         if ( type == CATALOG::equip ) {
                             key = boost::algorithm::to_upper_copy( key + "|" + splitVector[indexOfKey - 1] );
@@ -197,10 +197,10 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             if ( find( staNames_.begin(), staNames_.end(), key ) == staNames_.end() ) {
                                 continue;
                             }
-                            antennaKey2positionKey_[key] = boost::algorithm::to_upper_copy( splitVector.at( 13 ) );
+                            antennaKey2positionKey_[key] = splitVector.at( 13 );
                             string id_EQ = boost::algorithm::to_upper_copy( splitVector.at( 14 ) + "|" + key );
                             antennaKey2equipKey_[key] = id_EQ;
-                            antennaKey2maskKey_[key] = boost::algorithm::to_upper_copy( splitVector.at( 15 ) );
+                            antennaKey2maskKey_[key] = splitVector.at( 15 );
                         } else if ( type == CATALOG::position ) {
                             if ( !util::valueExists( antennaKey2positionKey_, key ) ) {
                                 continue;
@@ -287,7 +287,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                             }
 
                             // get key and convert it to upper case for case insensitivity
-                            string key = boost::algorithm::to_upper_copy( splitVector_total[indexOfKey] );
+                            string key = splitVector_total[indexOfKey];
 
                             // previous mask is finished, add it to map
                             all.insert( pair<string, vector<string>>( key, splitVector_total ) );
@@ -313,7 +313,7 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                 } else {
                     return all;
                 }
-                string key = boost::algorithm::to_upper_copy( splitVector_total[indexOfKey] );
+                string key = splitVector_total[indexOfKey];
 
                 all.insert( pair<string, vector<string>>( key, splitVector_total ) );
             }
