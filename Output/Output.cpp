@@ -203,6 +203,63 @@ void Output::writeNGS() {
         }
     }
 
+    of << "DATA IN NGS FORMAT FROM VieSched++\n";
+    of << "This NGS file is empty and serves as input for simulations \n";
+    for ( const auto &sta : network_.getStations()){
+        string mount = sta.getAntenna().getMount();
+        string mountNGS;
+        if (mount == "ALTAZ"){
+            mountNGS = "AZEL";
+        }else if(mount == "EQUA"){
+            mountNGS = "EQUA";
+        }else if(mount == "XY_E"){
+            mountNGS = "X-YE";
+        }
+
+        of << boost::format("%-8s   %14.5f %14.5f %14.5f %s %9.5f\n") % sta.getName()
+            %sta.getPosition().getX() %sta.getPosition().getY() %sta.getPosition().getZ()
+            %mountNGS %sta.getAntenna().getOffset();
+    }
+    of << "$END\n";
+
+    for ( const auto &src : sources_){
+        if(src.getNTotalScans() == 0){
+            continue;
+        }
+
+        string strRa;
+        {
+            double ra = src.getRa();
+            double h = rad2deg * ra / 15;
+            auto m = fmod( h, 1. );
+            m *= 60;
+            auto s = fmod( m, 1. );
+            s *= 60;
+            strRa = ( boost::format( "%02d %02d   %08.5f " ) % static_cast<int>( h ) % static_cast<int>( m ) % s ).str();
+        }
+
+        string strDe;
+        {
+            double de = src.getDe();
+            double d = rad2deg * de;
+            auto m = abs( fmod( d, 1. ) );
+            m *= 60;
+            auto s = fmod( m, 1. );
+            s *= 60;
+            strDe = ( boost::format( "%+03d %02d   %08.5f" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
+        }
+
+        of << boost::format("%-8s  %s  %s\n") %src.getName() %strRa %strDe;
+    }
+    of << "$END\n";
+
+    double refFreq = 0;
+    if (obsModes_->getAllBands().find("X") != obsModes_->getAllBands().end()){
+        refFreq = util::wavelength2frequency(obsModes_->getWavelength("X"));
+    }
+    of << boost::format("%20e %19s %s %s\n") % refFreq %"" %"GR" %"PH";
+    of << "$END\n";
+
     boost::posix_time::ptime start = TimeSystem::startTime;
     unsigned long counter = 1;
 
