@@ -752,6 +752,7 @@ void SkdCatalogReader::readRxCatalog() {
 
 void SkdCatalogReader::readLoifCatalog() {
     string line;
+    vector<string> lastItem;
     for ( const auto &loifId : loifIds_ ) {
         ifstream floif( loifPath_ );
 
@@ -787,9 +788,14 @@ void SkdCatalogReader::readLoifCatalog() {
                             loifInfo.push_back( line );
                         }
                     }
+                    lastItem = loifInfo;
                 }
             }
         }
+        if ( loifId2loifInfo_.find( loifId ) == loifId2loifInfo_.end() ) {
+            loifId2loifInfo_[loifId] = lastItem;
+        }
+
         floif.close();
     }
 }
