@@ -68,6 +68,10 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                 double gmst = iauGmst82( date1, date2 );
 
                 for ( const auto &band : bands ) {
+                    if ( staid1 > staid2 ) {
+                        swap( staid1, staid2 );
+                    }
+
                     const auto &dxyz = network.getDxyz( staid1, staid2 );
                     double SEFD_src = src.observedFlux( band, gmst, dxyz );
                     if ( SEFD_src == 0 ) {
