@@ -41,6 +41,7 @@
 #include "../Misc/WeightFactors.h"
 #include "../Misc/util.h"
 #include "../ObservingMode/Mode.h"
+#include "../Satellite/Satellite.h"
 #include "../Source/Source.h"
 #include "../Station/Network.h"
 #include "Observation.h"
@@ -609,6 +610,15 @@ class Scan : public VieVS_Object {
     void output( unsigned long observed_scan_nr, const Network &network, const Source &source, std::ofstream &of ) const
         noexcept;
 
+    /**
+     * @brief outputs information of this scan to a satellite
+     * @author Helene Wolf
+     *
+     * @param observed_scan_nr scan number
+     * @param network station network
+     * @param source observed satellite
+     */
+    void outputSatScan( unsigned long observed_scan_nr, const Network &network, const Satellite &sat ) const noexcept;
 
     /**
      * @brief set scan times
@@ -625,6 +635,22 @@ class Scan : public VieVS_Object {
     bool setScanTimes( const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
                        const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
                        unsigned int scanStart, const std::vector<unsigned int> &observingTimes );
+
+    /**
+     * @brief set scan times
+     * @author Helene Wolf
+     *
+     * @param eols end of last scan per station
+     * @param fieldSystemTime  field system time per station
+     * @param slewTime slew time per station
+     * @param preob calibration time per station
+     * @param scanStart scan start time per station
+     * @param observingTimes observing time per station
+     * @return
+     */
+    bool setScanTimes( const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
+                       const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
+                       const std::vector<unsigned int> &scanStart, const std::vector<unsigned int> &observingTimes );
 
 
     /**
@@ -738,6 +764,14 @@ class Scan : public VieVS_Object {
      */
     bool hasObservation( unsigned long staid1, unsigned long staid2 ) const;
 
+    /**
+     * @brief sets observation vector
+     * @author Helene Wolf
+     *
+     *
+     * @param obs observations
+     */
+    void setObservations( std::vector<Observation> obs ) { this->observations_ = std::move( obs ); };
 
     /**
      * @brief output observing duration in sked output format

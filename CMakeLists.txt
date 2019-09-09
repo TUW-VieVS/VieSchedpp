@@ -84,7 +84,24 @@
          ObservingMode/Bbc.cpp ObservingMode/Bbc.h
          ObservingMode/If.cpp ObservingMode/If.h
          ObservingMode/Track.cpp ObservingMode/Track.h
-         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h Output/SourceStatistics.cpp Output/SourceStatistics.h)
+         ObservingMode/Freq.cpp ObservingMode/Freq.h
+         ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h
+         Output/SNR_table.cpp Output/SNR_table.h
+         Output/OperationNotes.cpp Output/OperationNotes.h
+         Output/Ast.cpp Output/Ast.h
+         Output/SourceStatistics.cpp Output/SourceStatistics.h
+         Satellite/libsgp4/CoordGeodetic.cc Satellite/libsgp4/CoordGeodetic.h
+         Satellite/libsgp4/Tle.cc Satellite/libsgp4/Tle.h
+         Satellite/libsgp4/TleException.cc Satellite/libsgp4/TleException.h
+         Satellite/libsgp4/DateTime.cc Satellite/libsgp4/DateTime.h
+         Satellite/Satellite.cpp Satellite/Satellite.h
+         Satellite/libsgp4/SGP4.cc Satellite/libsgp4/SGP4.h
+         Satellite/libsgp4/OrbitalElements.cc Satellite/libsgp4/OrbitalElements.h
+         Satellite/libsgp4/Observer.h Satellite/libsgp4/Observer.cc
+         Satellite/libsgp4/Eci.h Satellite/libsgp4/Eci.cc
+         Satellite/SatelliteObs.cpp Satellite/SatelliteObs.h
+         Satellite/SatelliteOutput.cpp Satellite/SatelliteOutput.h
+         )
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 

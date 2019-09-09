@@ -441,6 +441,15 @@ class ScanTimes : public VieVS_Object {
 
 
     /**
+     * @brief set observing start time if they are different for the stations
+     * @author Helene Wolf
+     *
+     * @param scanTimes new observing times
+     */
+    void setObservingStarts( const std::vector<unsigned int> &scanStart ) noexcept;
+
+
+    /**
      * @brief updates the slewtime of one element
      * @author Matthias Schartner
      *

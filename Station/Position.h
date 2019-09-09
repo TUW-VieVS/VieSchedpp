@@ -101,6 +101,13 @@ class Position : public VieVS_Object {
      */
     double getLon() const noexcept { return lon_; }
 
+    /**
+     * @brief getter for height
+     * @author Helene Wolf
+     *
+     * @return height in meters
+     */
+    double getHeight() const noexcept { return h_; }
 
     /**
      * @brief calculates distance between two stations

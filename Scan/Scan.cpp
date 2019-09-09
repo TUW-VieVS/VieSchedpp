@@ -1340,6 +1340,111 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
 }
 
 
+void Scan::outputSatScan( unsigned long observed_scan_nr, const Network &network, const Satellite &sat ) const
+    noexcept {
+    string type;
+    string type2;
+    switch ( type_ ) {
+        case ScanType::highImpact:
+            type = "high impact";
+            break;
+        case ScanType::standard:
+            type = "target";
+            break;
+        case ScanType::fillin:
+            type = "fillin mode";
+            break;
+        case ScanType::calibrator:
+            type = "calibrator";
+            break;
+    }
+
+    switch ( constellation_ ) {
+        case ScanConstellation::single:
+            type2 = "single source scan";
+            break;
+        case ScanConstellation::subnetting:
+            type2 = "subnetting scan";
+            break;
+    }
+
+    string line1Right = ( boost::format( " duration: %8s - %8s" ) %
+                          TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::start ) ) %
+                          TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::end ) ) )
+                            .str();
+    std::cout << boost::format( "| scan:   no%04d   %-15s                                  %74s |\n" ) %
+                     observed_scan_nr % printId() % line1Right;
+
+    string line2Right = ( boost::format( " type: %s %s" ) % type % type2 ).str();
+    std::cout << boost::format( "| Satellite: %8s %-15s                                    %72s |\n" ) % sat.getName() %
+                     sat.printId() % line2Right;
+
+    std::cout << "|----------------------------------------------------------------------------------------------------"
+                 "------------------------------------------|\n";
+    if ( observed_scan_nr % 5 == 0 ) {
+        std::cout << "|     station  | field |  slew |  idle | preob |  obs  |       duration      |        az [deg]   "
+                     "  |       unaz [deg]      |       el [deg]    |\n"
+                     "|              |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |    start - end      |    start - end    "
+                     "  |     start - end       |   start - end     |\n"
+                     "|--------------|-------|-------|-------|-------|-------|---------------------|-------------------"
+                     "--|-----------------------|-------------------|\n";
+    }
+
+    for ( int i = 0; i < nsta_; ++i ) {
+        const PointingVector &pv = pointingVectorsStart_[i];
+        const PointingVector &pve = pointingVectorsEnd_[i];
+        const Station &thisSta = network.getStation( pv.getStaid() );
+        double az_s = util::wrap2pi( pv.getAz() ) * rad2deg;
+        double az_e = util::wrap2pi( pve.getAz() ) * rad2deg;
+
+        std::cout << boost::format(
+                         "|     %-8s | %5d | %5d | %5d | %5d | %5d | %8s - %8s | %8.4f - %8.4f | %9.4f - %9.4f | %7.4f "
+                         "- %7.4f | (id: %d and %d) \n" ) %
+                         thisSta.getName() % times_.getFieldSystemDuration( i ) % times_.getSlewDuration( i ) %
+                         times_.getIdleDuration( i ) % times_.getPreobDuration( i ) % times_.getObservingDuration( i ) %
+                         TimeSystem::time2timeOfDay( times_.getObservingTime( i, Timestamp::start ) ) %
+                         TimeSystem::time2timeOfDay( times_.getObservingTime( i, Timestamp::end ) ) % az_s % az_e %
+                         ( pv.getAz() * rad2deg ) % ( pve.getAz() * rad2deg ) % ( pv.getEl() * rad2deg ) %
+                         ( pve.getEl() * rad2deg ) % pv.getId() % pve.getId();
+    }
+    vector<string> ignoreBaseline;
+    for ( int i = 0; i < nsta_; ++i ) {
+        for ( int j = i + 1; j < nsta_; ++j ) {
+            unsigned long staid1 = pointingVectorsStart_[i].getStaid();
+            unsigned long staid2 = pointingVectorsStart_[j].getStaid();
+            bool found = false;
+            for ( const auto &any : observations_ ) {
+                if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
+                    found = true;
+                    break;
+                }
+            }
+            if ( !found ) {
+                ignoreBaseline.push_back( network.getBaseline( staid1, staid2 ).getName() );
+            }
+        }
+    }
+    if ( !ignoreBaseline.empty() ) {
+        std::cout << "| ignore observations: ";
+        int i = 0;
+        for ( ; i < ignoreBaseline.size(); ++i ) {
+            if ( i % 20 == 0 && i > 0 ) {
+                std::cout << "|\n|                      ";
+            }
+            std::cout << ignoreBaseline[i] << " ";
+        }
+        i = i % 15;
+        if ( i > 0 ) {
+            for ( ; i < 20; ++i ) {
+                std::cout << "      ";
+            }
+        }
+        std::cout << "|\n";
+    }
+    std::cout << "'----------------------------------------------------------------------------------------------------"
+                 "------------------------------------------'\n";
+}
+
 boost::optional<Scan> Scan::copyScan( const std::vector<unsigned long> &ids, const Source &source ) const noexcept {
     vector<PointingVector> pv;
     pv.reserve( ids.size() );
@@ -1430,6 +1535,20 @@ bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vecto
     times_.setObservingStarts( scanStart );
     bool valid = times_.setPreobTime( preob );
     times_.setObservingTimes( observingTimes );
+    return valid;
+}
+
+bool Scan::setScanTimes( const std::vector<unsigned int> &eols, const std::vector<unsigned int> &fieldSystemTime,
+                         const std::vector<unsigned int> &slewTime, const std::vector<unsigned int> &preob,
+                         const std::vector<unsigned int> &scanStart, const std::vector<unsigned int> &observingTimes ) {
+    times_.setEndOfLastScan( eols );
+    for ( int i = 0; i < slewTime.size(); ++i ) {
+        times_.addTimes( i, fieldSystemTime[i], slewTime.at( static_cast<unsigned long>( i ) ), 0 );
+        times_.setObservingTime( i, observingTimes[i], Timestamp::end );
+    }
+    times_.setObservingStarts( scanStart );
+    bool valid = times_.setPreobTime( preob );
+    // times_.setObservingTimes(observingTimes);
     return valid;
 }
 
