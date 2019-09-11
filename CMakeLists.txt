@@ -94,11 +94,12 @@
          Satellite/libsgp4/Tle.cc Satellite/libsgp4/Tle.h
          Satellite/libsgp4/TleException.cc Satellite/libsgp4/TleException.h
          Satellite/libsgp4/DateTime.cc Satellite/libsgp4/DateTime.h
-         Satellite/Satellite.cpp Satellite/Satellite.h
          Satellite/libsgp4/SGP4.cc Satellite/libsgp4/SGP4.h
          Satellite/libsgp4/OrbitalElements.cc Satellite/libsgp4/OrbitalElements.h
          Satellite/libsgp4/Observer.h Satellite/libsgp4/Observer.cc
          Satellite/libsgp4/Eci.h Satellite/libsgp4/Eci.cc
+         Satellite/SatelliteMain.cpp Satellite/SatelliteMain.h
+         Satellite/Satellite.cpp Satellite/Satellite.h
          Satellite/SatelliteObs.cpp Satellite/SatelliteObs.h
          Satellite/SatelliteOutput.cpp Satellite/SatelliteOutput.h
          )

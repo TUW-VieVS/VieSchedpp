@@ -78,9 +78,8 @@ namespace VieVS {
  */
 class Initializer : public VieVS_Object {
     friend class Scheduler;
-
-
     friend class SkdParser;
+    friend class SatelliteMain;
 
 
    public:

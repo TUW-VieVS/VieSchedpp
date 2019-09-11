@@ -4,7 +4,7 @@
 
 #ifndef VIESCHEDPP_SATELLITE_H
 #define VIESCHEDPP_SATELLITE_H
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -98,8 +98,8 @@ class Satellite : public VieVS_NamedObject {
      *
      * @return pass list
      */
-    std::vector<std::vector<SatPass>> GeneratePassList( const VieVS::Network &network, const DateTime &start_time,
-                                                        const DateTime &end_time, const int time_step );
+    std::vector<std::vector<SatPass>> generatePassList( const VieVS::Network &network, const DateTime &start_time,
+                                                        const DateTime &end_time, const int time_step ) const;
 
     /**
      * @brief find exact time when the satellite crosses the horizon of station
@@ -113,8 +113,8 @@ class Satellite : public VieVS_NamedObject {
      *
      * @return Date and time of the satellite crossing horizon
      */
-    DateTime FindCrossingPoint( const VieVS::Station &station, const SGP4 &sgp4, const DateTime &initial_time1,
-                                const DateTime &initial_time2, bool finding_aos );
+    DateTime findCrossingPoint( const VieVS::Station &station, const SGP4 &sgp4, const DateTime &initial_time1,
+                                const DateTime &initial_time2, bool finding_aos ) const;
 
     /**
      * @brief reads the satellite file

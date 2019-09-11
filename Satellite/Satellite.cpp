@@ -35,10 +35,10 @@ const std::string Satellite::getLine2() const noexcept { return this->line2; }
 
 SGP4* Satellite::getSGP4Data() { return this->pSGP4Data; }
 
-std::vector<std::vector<Satellite::SatPass>> Satellite::GeneratePassList( const VieVS::Network& network,
+std::vector<std::vector<Satellite::SatPass>> Satellite::generatePassList( const VieVS::Network& network,
                                                                           const DateTime& start_time,
                                                                           const DateTime& end_time,
-                                                                          const int time_step ) {
+                                                                          const int time_step ) const {
 #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL( info ) << "start generating passlists for stations";
 #else
@@ -87,7 +87,7 @@ std::vector<std::vector<Satellite::SatPass>> Satellite::GeneratePassList( const 
                     /*
                      * find the point at which the satellite crossed the horizon
                      */
-                    aos_time = FindCrossingPoint( station, *sgp4, previous_time, current_time, true );
+                    aos_time = findCrossingPoint( station, *sgp4, previous_time, current_time, true );
                 }
                 found_aos = true;
             } else if ( found_aos && !station.isVisible( pv, 0 ) ) {
@@ -100,7 +100,7 @@ std::vector<std::vector<Satellite::SatPass>> Satellite::GeneratePassList( const 
                  * already have the aos, but now the satellite is below the horizon,
                  * so find the los
                  */
-                los_time = FindCrossingPoint( station, *sgp4, previous_time, current_time, false );
+                los_time = findCrossingPoint( station, *sgp4, previous_time, current_time, false );
 
                 struct SatPass pd;
                 pd.start = aos_time;
@@ -157,8 +157,8 @@ std::vector<std::vector<Satellite::SatPass>> Satellite::GeneratePassList( const 
     return PassList_;
 }
 
-DateTime Satellite::FindCrossingPoint( const VieVS::Station& station, const SGP4& sgp4, const DateTime& initial_time1,
-                                       const DateTime& initial_time2, bool finding_aos ) {
+DateTime Satellite::findCrossingPoint( const VieVS::Station& station, const SGP4& sgp4, const DateTime& initial_time1,
+                                       const DateTime& initial_time2, bool finding_aos ) const {
     CoordGeodetic user_geo( station.getPosition().getLat(), station.getPosition().getLon(),
                             station.getPosition().getHeight() / 1000, true );
     Observer obs( user_geo );
