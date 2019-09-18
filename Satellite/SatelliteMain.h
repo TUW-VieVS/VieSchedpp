@@ -40,6 +40,10 @@ class SatelliteMain {
 
     std::vector<Scan> generateScanList( const std::vector<Satellite> &satellites ) const;
 
+    const Network &refNetwork() const{
+        return network_;
+    }
+
    private:
     Network network_;
     DateTime startDate_;

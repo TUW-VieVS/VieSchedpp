@@ -218,13 +218,13 @@ vector<Satellite> Satellite::readSatelliteFile( std::string filename_ ) {
         if ( fid.is_open() ) {
             while ( getline( fid, line ) ) {
                 if ( isalpha( line[0] ) ) {
-                    hdr = line;
+                    hdr = boost::trim_copy(line);
                     continue;
                 } else if ( line[0] == '1' ) {
-                    line1 = line;
+                    line1 = boost::trim_copy(line);
                     continue;
                 } else if ( line[0] == '2' ) {
-                    line2 = line;
+                    line2 = boost::trim_copy(line);
                     if ( !hdr.empty() && !line1.empty() && !line.empty() ) {
                         Satellite sat( hdr, line1, line2 );
                         satellites_.push_back( sat );
