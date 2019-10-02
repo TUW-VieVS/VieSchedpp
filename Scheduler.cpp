@@ -705,6 +705,10 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                 } else {
                     // check slew time
                     unsigned int slewtime = thisStation.getAntenna().slewTime( thisEnd, nextStart );
+                    if ( slewtime < thisStation.getPARA().minSlewtime ) {
+                        slewtime = thisStation.getPARA().minSlewtime;
+                    }
+
                     unsigned int min_neededTime = slewtime + constTimes;
                     unsigned int availableTime = nextStartTime - thisEndTime;
                     unsigned int idleTime;
@@ -1720,6 +1724,10 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             // get times
             unsigned int availableTime = pv2.getTime() - pv1.getTime();
             unsigned int prevSlewTime = thisSta.getAntenna().slewTime( pv1, pv2 );
+            if ( prevSlewTime < thisSta.getPARA().minSlewtime ) {
+                prevSlewTime = thisSta.getPARA().minSlewtime;
+            }
+
             unsigned int fsTime = thisSta.getWaittimes().fieldSystem;
             unsigned int preobTime = thisSta.getWaittimes().preob;
 
@@ -1774,10 +1782,16 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             switch ( ts ) {
                 case Timestamp::start: {
                     slewTime = thisSta.getAntenna().slewTime( pv1, variable );
+                    if ( slewTime < thisSta.getPARA().minSlewtime ) {
+                        slewTime = thisSta.getPARA().minSlewtime;
+                    }
                     break;
                 }
                 case Timestamp::end: {
                     slewTime = thisSta.getAntenna().slewTime( variable, pv2 );
+                    if ( slewTime < thisSta.getPARA().minSlewtime ) {
+                        slewTime = thisSta.getPARA().minSlewtime;
+                    }
                     break;
                 }
             }
@@ -1819,10 +1833,16 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                 switch ( ts ) {
                     case Timestamp::start: {
                         slewTime = thisSta.getAntenna().slewTime( pv1, variable );
+                        if ( slewTime < thisSta.getPARA().minSlewtime ) {
+                            slewTime = thisSta.getPARA().minSlewtime;
+                        }
                         break;
                     }
                     case Timestamp::end: {
                         slewTime = thisSta.getAntenna().slewTime( variable, pv2 );
+                        if ( slewTime < thisSta.getPARA().minSlewtime ) {
+                            slewTime = thisSta.getPARA().minSlewtime;
+                        }
                         break;
                     }
                 }

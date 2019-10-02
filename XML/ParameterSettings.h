@@ -89,6 +89,7 @@ class ParameterSettings {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
+        boost::optional<unsigned int> minSlewtime;       ///< maximum allowed slewtime in seconds
         boost::optional<unsigned int> maxSlewtime;       ///< maximum allowed slewtime in seconds
         boost::optional<double> maxSlewDistance;         ///< maximum slew distance in degrees
         boost::optional<double> minSlewDistance;         ///< minimum slew distance in degrees

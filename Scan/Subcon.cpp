@@ -992,6 +992,9 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
 
                 // calculate slew time between pointing vectors
                 unsigned int slewtime = thisSta.getAntenna().slewTime( assumedSlewStart, thisEndposition );
+                if ( slewtime < thisSta.getPARA().minSlewtime ) {
+                    slewtime = thisSta.getPARA().minSlewtime;
+                }
 
                 // check if there is enough time
                 possibleEndpositionTime = times.getObservingTime( istation, Timestamp::end ) + waitTimes.fieldSystem +

@@ -414,6 +414,15 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
                     allPara[c].stationWeight[member] = thisValue;
                 }
 
+            } else if ( name == "station_min_slew_time" ) {
+                if ( stationGroups_.find( member ) != stationGroups_.end() ) {
+                    for ( const auto &thisId : stationGroups_[member] ) {
+                        allPara[c].stationMinSlewtime[thisId] = static_cast<unsigned int>( lround( thisValue ) );
+                    }
+                } else {
+                    allPara[c].stationMinSlewtime[member] = static_cast<unsigned int>( lround( thisValue ) );
+                }
+
             } else if ( name == "station_max_slew_time" ) {
                 if ( stationGroups_.find( member ) != stationGroups_.end() ) {
                     for ( const auto &thisId : stationGroups_[member] ) {

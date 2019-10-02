@@ -111,6 +111,7 @@ class Station : public VieVS_NamedObject {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
+        unsigned int minSlewtime = 0;            ///< minimum required slew time
         unsigned int maxSlewtime = 600;          ///< maximum allowed slewtime in seconds
         double maxSlewDistance = 175 * deg2rad;  ///< maximum allowed slew distance in radians
         double minSlewDistance = 0;              ///< minimum allowed slew distance in radians
@@ -134,6 +135,7 @@ class Station : public VieVS_NamedObject {
                 of << "    available: FALSE\n";
             }
 
+            of << "    minSlewtime: " << minSlewtime << "\n";
             of << "    maxSlewtime: " << maxSlewtime << "\n";
             of << "    maxWait:     " << maxWait << "\n";
             of << "    maxScan:     " << maxScan << "\n";

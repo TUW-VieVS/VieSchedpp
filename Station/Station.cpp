@@ -44,6 +44,7 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
 
     minSNR = other.minSNR;
 
+    minSlewtime = other.minSlewtime;
     maxSlewtime = other.maxSlewtime;
     maxSlewDistance = other.maxSlewDistance;
     minSlewDistance = other.minSlewDistance;
@@ -325,6 +326,10 @@ boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingV
         return 0;
     } else {
         unsigned int slewTime = antenna_->slewTime( currentPositionVector_, pointingVector );
+
+        if ( slewTime < parameters_.minSlewtime ) {
+            slewTime = parameters_.minSlewtime;
+        }
 
         float distance = LookupTable::angularDistance( currentPositionVector_, pointingVector );
 

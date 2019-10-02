@@ -92,6 +92,7 @@ class MultiScheduling : public VieVS_Object {
         boost::optional<double> skyCoverageInfluenceTime;      ///< sky coverage influence time
 
         std::map<std::string, double> stationWeight;                  ///< station weight
+        std::map<std::string, unsigned int> stationMinSlewtime;       ///< station minimum slew time in seconds
         std::map<std::string, unsigned int> stationMaxSlewtime;       ///< station maximum slew time in seconds
         std::map<std::string, double> stationMinSlewDistance;         ///< station minimum slew distance
         std::map<std::string, double> stationMaxSlewDistance;         ///< station maximum slew distance
@@ -200,6 +201,9 @@ class MultiScheduling : public VieVS_Object {
 
             for ( const auto &any : stationWeight ) {
                 of << "    station weight " << any.first << ": " << any.second << "\n";
+            }
+            for ( const auto &any : stationMinSlewtime ) {
+                of << "    station min slewtime " << any.first << ": " << any.second << " [s]\n";
             }
             for ( const auto &any : stationMaxSlewtime ) {
                 of << "    station max slewtime " << any.first << ": " << any.second << " [s]\n";
@@ -349,6 +353,9 @@ class MultiScheduling : public VieVS_Object {
             for ( const auto &any : stationWeight ) {
                 of << "station_weight_" << any.first << ",";
             }
+            for ( const auto &any : stationMinSlewtime ) {
+                of << "station_min_slewtime_" << any.first << ",";
+            }
             for ( const auto &any : stationMaxSlewtime ) {
                 of << "station_max_slewtime_" << any.first << ",";
             }
@@ -496,6 +503,9 @@ class MultiScheduling : public VieVS_Object {
             }
 
             for ( const auto &any : stationWeight ) {
+                str.append( std::to_string( any.second ) ).append( "," );
+            }
+            for ( const auto &any : stationMinSlewtime ) {
                 str.append( std::to_string( any.second ) ).append( "," );
             }
             for ( const auto &any : stationMaxSlewtime ) {

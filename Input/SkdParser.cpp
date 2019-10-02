@@ -411,6 +411,9 @@ void SkdParser::createScans( std::ofstream &of ) {
 
                 } else {
                     unsigned int thisSlewTime = thisSta.getAntenna().slewTime( thisSta.getCurrentPointingVector(), p );
+                    if ( thisSlewTime < thisSta.getPARA().minSlewtime ) {
+                        thisSlewTime = thisSta.getPARA().minSlewtime;
+                    }
                     fieldSystemTimes[i] = fieldSystemTimes_;
                     preobTimes[i] = preob;
                     slewTimes[i] = thisSlewTime;

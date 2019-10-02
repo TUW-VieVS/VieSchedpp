@@ -230,6 +230,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree( const str
     if ( PARA.maxScan.is_initialized() ) {
         parameters.add( "parameters.maxScan", PARA.maxScan );
     }
+    if ( PARA.minSlewtime.is_initialized() ) {
+        parameters.add( "parameters.minSlewtime", PARA.minSlewtime );
+    }
     if ( PARA.maxSlewtime.is_initialized() ) {
         parameters.add( "parameters.maxSlewtime", PARA.maxSlewtime );
     }
@@ -297,6 +300,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.minScan = it.second.get_value<unsigned int>();
         } else if ( paraName == "maxScan" ) {
             para.maxScan = it.second.get_value<unsigned int>();
+        } else if ( paraName == "minSlewtime" ) {
+            para.minSlewtime = it.second.get_value<unsigned int>();
         } else if ( paraName == "maxSlewtime" ) {
             para.maxSlewtime = it.second.get_value<unsigned int>();
         } else if ( paraName == "maxSlewDistance" ) {

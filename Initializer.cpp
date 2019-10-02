@@ -1243,6 +1243,9 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxScan.is_initialized() ) {
                 combinedPARA.maxScan = *newPARA.maxScan;
             }
+            if ( newPARA.minSlewtime.is_initialized() ) {
+                combinedPARA.minSlewtime = *newPARA.minSlewtime;
+            }
             if ( newPARA.maxSlewtime.is_initialized() ) {
                 combinedPARA.maxSlewtime = *newPARA.maxSlewtime;
             }
@@ -2355,6 +2358,15 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
             vector<unsigned long> ids = getMembers( name, network_.getStations() );
             for ( auto id : ids ) {
                 network_.refStation( id ).referencePARA().weight = any.second;
+            }
+        }
+    }
+    if ( !parameters.stationMinSlewtime.empty() ) {
+        for ( const auto &any : parameters.stationMinSlewtime ) {
+            string name = any.first;
+            vector<unsigned long> ids = getMembers( name, network_.getStations() );
+            for ( auto id : ids ) {
+                network_.refStation( id ).referencePARA().minSlewtime = any.second;
             }
         }
     }
