@@ -1329,7 +1329,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
         of << "|                                                                                                       "
               "                                       |\n";
-        if ( sourcesLeft < 25 ) {
+        if ( sourcesLeft < 10 ) {
             of << boost::format( "| %=140s |\n" ) % message;
             string message2 = ( boost::format( "Abortion: only %d sources left" ) % sourcesLeft ).str();
             of << boost::format( "| %=140s |\n" ) % message2;
