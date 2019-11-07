@@ -186,6 +186,10 @@ void Output::writeNGS() {
     if ( NGS_path.empty() ) {
         of.open( path_ + fname );
     } else {
+        if ( NGS_path.back() != '/' && NGS_path.back() != '\\' ) {
+            NGS_path.append( "/" );
+        }
+
         of.open( NGS_path + fname );
         if ( !of.good() ) {
             of.open( path_ + fname );
