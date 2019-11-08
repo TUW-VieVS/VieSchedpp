@@ -33,6 +33,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include "Algorithm/FocusCorners.h"
 #include "Initializer.h"
 #include "Misc/Constants.h"
 #include "Misc/StationEndposition.h"

@@ -127,6 +127,13 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             subcon = createSubcon( parameters_.subnetting, type, opt_endposition );
         }
 
+        // check algorithm focus corners for intensive sessions
+        if ( FocusCorners::flag ) {
+            of << "##################### reweight sources! #########################\n";
+            FocusCorners::reweight( subcon, sources_, of );
+            FocusCorners::nextStart += FocusCorners::interval;
+        }
+
         if ( type != Scan::ScanType::calibrator ) {
             // standard case
             subcon.generateScore( network_, sources_ );
@@ -147,6 +154,11 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             // special calibrator case
             bestScans = subcon.selectBest( network_, sources_, currentObservingMode_, prevLowElevationScores,
                                            prevHighElevationScores, opt_endposition );
+        }
+
+        if ( FocusCorners::flag ) {
+            FocusCorners::resetWeights( bestScans, sources_ );
+            FocusCorners::flag = false;
         }
 
         // check if you have possible next scan
@@ -201,6 +213,10 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             if ( any.getTimes().getScanTime( Timestamp::end ) > maxScanEnd ) {
                 maxScanEnd = any.getTimes().getScanTime( Timestamp::end );
             }
+        }
+
+        if ( maxScanEnd > FocusCorners::nextStart ) {
+            FocusCorners::flag = true;
         }
 
         // check if end time triggers a new event
@@ -373,6 +389,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
 
 void Scheduler::start() noexcept {
+    FocusCorners::initialize( network_.getNSta() );
+
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
     if ( xml_.get( "VieSchedpp.output.iteration_log", true ) ) {

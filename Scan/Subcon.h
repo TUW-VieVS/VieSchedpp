@@ -331,6 +331,8 @@ class Subcon : public VieVS_Object {
                       std::set<unsigned long> observedSources = std::set<unsigned long>() );
 
 
+    const std::vector<Scan> &getSingleSourceScans() const { return singleScans_; }
+
    private:
     static unsigned long nextId;  ///< next id for this object type
 
