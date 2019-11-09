@@ -40,11 +40,11 @@ namespace VieVS {
 
 class FocusCorners {
    public:
-    static void initialize( unsigned long nsta );
+    static void initialize(const Network &network, std::ofstream &of);
 
     static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0);
 
-    static void resetWeights( const std::vector<Scan> &bestScans, std::vector<Source> &sources );
+    static void reset(const std::vector<Scan> &bestScans, std::vector<Source> &sources);
 
     static bool flag;
     static thread_local unsigned int nextStart;
@@ -53,6 +53,7 @@ class FocusCorners {
    private:
     static thread_local std::vector<double> lastCornerAzimuth;
     static thread_local std::vector<std::pair<int, double>> backupWeight;
+    static std::vector<int> staid2groupid;
 
     static std::vector<int> findBestIndices( const std::vector<double> &values, int n );
 };

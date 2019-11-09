@@ -129,7 +129,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
         // check algorithm focus corners for intensive sessions
         if ( FocusCorners::flag ) {
-            of << "##################### reweight sources! #########################\n";
+            of << boost::format("| %=140s |\n") % "reweight sources to focus observation at corner";
             FocusCorners::reweight( subcon, sources_, of );
             FocusCorners::nextStart += FocusCorners::interval;
         }
@@ -157,8 +157,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         if ( FocusCorners::flag ) {
-            FocusCorners::resetWeights( bestScans, sources_ );
-            FocusCorners::flag = false;
+            FocusCorners::reset(bestScans, sources_);
         }
 
         // check if you have possible next scan
@@ -389,12 +388,14 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
 
 void Scheduler::start() noexcept {
-    FocusCorners::initialize( network_.getNSta() );
 
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
     if ( xml_.get( "VieSchedpp.output.iteration_log", true ) ) {
         of.open( path_ + fileName );
+    }
+    if (FocusCorners::flag) {
+        FocusCorners::initialize(network_, of);
     }
 
     if ( network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0 ) {
