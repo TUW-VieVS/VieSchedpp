@@ -37,7 +37,8 @@ void VieVS::FocusCorners::initialize( unsigned long nsta ) {
     lastCornerAzimuth = std::vector<double>( nsta, std::numeric_limits<double>::quiet_NaN() );
 }
 
-void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of ) {
+void
+VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction) {
     const auto &scans = subcon.getSingleSourceScans();
     vector<double> sumEl = vector<double>( scans.size() );
     //    vector<vector<double>> azimuths =
@@ -51,7 +52,7 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
             const auto &pv = scan.getPointingVector( ista, VieVS::Timestamp::start );
             unsigned long staid = pv.getStaid();
             double az = pv.getAz();
-            constexpr double threshold = 30 * deg2rad;
+            constexpr double threshold = 45 * deg2rad;
             if ( !isnan( lastCornerAzimuth[staid] ) && abs( az - lastCornerAzimuth[staid] ) < threshold ) {
                 mel += numeric_limits<double>::max();
                 break;
@@ -71,17 +72,30 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
     double minimum = sumEl[bestElements[0]];
     for ( int i = 0; i < bestElements.size(); ++i ) {
         int idx = bestElements[i];
-        if ( sumEl[idx] / minimum > 2 ) {
+        if (sumEl[idx] / minimum > fraction) {
             bestElements.resize( i );
             break;
         }
     }
+    if (bestElements.size() > 5) {
+        double newFraction = sqrt(fraction) * 1.1;
+        of << "adjust fraction " << newFraction << "\n";
+        reweight(subcon, sources, of, newFraction);
+        return;
+    } else if (bestElements.size() < 3) {
+        double newFraction = fraction * 1.25;
+        of << "adjust fraction " << newFraction << "\n";
+        reweight(subcon, sources, of, newFraction);
+        return;
+    }
 
-    for ( int idx : bestElements ) {
+    for (int i = 0; i < bestElements.size(); ++i) {
+        int idx = bestElements[i];
         unsigned long srcid = scans[idx].getSourceId();
         backupWeight.emplace_back( srcid, sources[srcid].getPARA().weight );
-        of << "############ increase weight of source " << sources[srcid].getName() << " \n";
-        sources[srcid].referencePARA().weight = 1000;
+        double newWeight = 1000 / (sumEl[idx] / minimum);
+        of << "############ increase weight of source " << sources[srcid].getName() << " to " << newWeight << " \n";
+        sources[srcid].referencePARA().weight = newWeight;
     }
 }
 

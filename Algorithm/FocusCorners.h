@@ -42,7 +42,7 @@ class FocusCorners {
    public:
     static void initialize( unsigned long nsta );
 
-    static void reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of );
+    static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0);
 
     static void resetWeights( const std::vector<Scan> &bestScans, std::vector<Source> &sources );
 
