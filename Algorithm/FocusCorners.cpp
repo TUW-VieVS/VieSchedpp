@@ -84,10 +84,26 @@ void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
         if (lon < leftLon) {
             lon += twopi;
         }
-        if (lon - leftLon < maxDLon * 0.33) {
-            staid2groupid[i] = 1;
-        } else if (rightLon - lon < maxDLon * 0.33) {
-            staid2groupid[i] = 2;
+        if (lon > rightLon) {
+            double dright = abs(rightLon - lon);
+            double dleft = abs(leftLon - lon - twopi);
+
+            if (dleft < dright) {
+                if (dleft < maxDLon * 0.33) {
+                    staid2groupid[i] = 1;
+                }
+            } else {
+                if (dright < maxDLon * 0.33) {
+                    staid2groupid[i] = 2;
+                }
+            }
+
+        } else {
+            if (lon - leftLon < maxDLon * 0.33) {
+                staid2groupid[i] = 1;
+            } else if (rightLon - lon < maxDLon * 0.33) {
+                staid2groupid[i] = 2;
+            }
         }
     }
     for (unsigned long i = 0; i < nsta; ++i) {
@@ -185,7 +201,7 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
             return;
         }
     } else if (bestElements.size() < 3) {
-        double newFraction = fraction * 1.25;
+        double newFraction = fraction * 1.20;
         if (iteration < 10 && newFraction < 2.5) {
             of << boost::format(
                     "| readjust source selection at corner (fraction %5.3f)                                    "
