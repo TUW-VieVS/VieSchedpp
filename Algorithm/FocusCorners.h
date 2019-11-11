@@ -40,24 +40,58 @@ namespace VieVS {
 
 class FocusCorners {
    public:
+    /**
+     * @brief initialize Focus Corner algorithm
+     * @author Matthias Schartner
+     *
+     * define group and set variables
+     *
+     * @param network station network
+     * @param of log file stream
+     */
     static void initialize(const Network &network, std::ofstream &of);
 
+    /**
+     *  @brief
+     * @author Matthias Schartner
+     *
+     * @param subcon list of all scans
+     * @param sources reference to all sources
+     * @param of log file stream
+     * @param fraction fraction between best and worst mean elevation (used during iteration)
+     * @param iteration iteration number
+     */
     static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0,
                          int iteration = 0);
 
+    /**
+     * @brief rest all weights and set new time for next algorithm start
+     * @author Matthias Schartner
+     *
+     * @param bestScans list of all best scans (to see which corner was observed)
+     * @param sources list of all sources
+     */
     static void reset(const std::vector<Scan> &bestScans, std::vector<Source> &sources);
 
-    static bool flag;
-    static thread_local bool startFocusCorner;
-    static thread_local unsigned int nextStart;
-    static unsigned int interval;
+    static bool flag; ///< use focus corner algorithm
+    static thread_local bool startFocusCorner; ///< focus observation at corner
+    static thread_local unsigned int nextStart; ///< next time when algorithm starts
+    static unsigned int interval; ///< time intervall between algorithm
 
    private:
-    static thread_local std::vector<double> lastCornerAzimuth;
-    static thread_local std::vector<std::pair<int, double>> backupWeight;
-    static std::vector<int> staid2groupid;
+    static thread_local std::vector<double> lastCornerAzimuth; ///< last observed azimuth (which corner was observed)
+    static thread_local std::vector<std::pair<int, double>> backupWeight; ///< backup weights
+    static std::vector<int> staid2groupid; ///< station id to corner group id
 
-    static std::vector<int> findBestIndices( const std::vector<double> &values, int n );
+    /**
+     * @brief find n lowest values
+     * @author Matthias Schartner
+     *
+     * @param values list of values
+     * @param n how many lowest are searched
+     * @return list of lowest indices
+     */
+    static std::vector<int> findBestIndices(const std::vector<double> &values, int n );
 };
 
 }  // namespace VieVS
