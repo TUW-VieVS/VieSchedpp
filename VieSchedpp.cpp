@@ -86,6 +86,7 @@ void VieSchedpp::run() {
     // initialize all Parameters
     init.initializeGeneral( of );
     init.initializeAstronomicalParameteres();
+    init.initializeFocusCornersAlgorithm();
     init.initializeObservingMode( skdCatalogs_, of );
 
     init.createSources( skdCatalogs_, of );

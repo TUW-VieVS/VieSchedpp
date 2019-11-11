@@ -128,7 +128,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check algorithm focus corners for intensive sessions
-        if ( FocusCorners::flag ) {
+        if (FocusCorners::startFocusCorner) {
             of << boost::format("| %=140s |\n") % "reweight sources to focus observation at corner";
             FocusCorners::reweight( subcon, sources_, of );
             FocusCorners::nextStart += FocusCorners::interval;
@@ -156,7 +156,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                                            prevHighElevationScores, opt_endposition );
         }
 
-        if ( FocusCorners::flag ) {
+        if (FocusCorners::startFocusCorner) {
             FocusCorners::reset(bestScans, sources_);
         }
 
@@ -215,7 +215,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         if ( maxScanEnd > FocusCorners::nextStart ) {
-            FocusCorners::flag = true;
+            FocusCorners::startFocusCorner = true;
         }
 
         // check if end time triggers a new event

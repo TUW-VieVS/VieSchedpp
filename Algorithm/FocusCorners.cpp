@@ -25,11 +25,12 @@
 using namespace VieVS;
 using namespace std;
 
-bool VieVS::FocusCorners::flag = true;
+bool VieVS::FocusCorners::flag = false;
+bool thread_local VieVS::FocusCorners::startFocusCorner = false;
 std::vector<double> thread_local VieVS::FocusCorners::lastCornerAzimuth = std::vector<double>();
 std::vector<std::pair<int, double>> thread_local VieVS::FocusCorners::backupWeight =
     std::vector<std::pair<int, double>>();
-unsigned int thread_local VieVS::FocusCorners::nextStart = 0;
+unsigned int thread_local VieVS::FocusCorners::nextStart = numeric_limits<unsigned int>::max();
 unsigned int VieVS::FocusCorners::interval = 900;
 std::vector<int> VieVS::FocusCorners::staid2groupid = std::vector<int>();
 
@@ -38,6 +39,8 @@ void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
     unsigned long nsta = network.getNSta();
     lastCornerAzimuth = std::vector<double>( nsta, std::numeric_limits<double>::quiet_NaN() );
     staid2groupid = std::vector<int>(nsta, 0);
+    FocusCorners::startFocusCorner = true;
+    FocusCorners::nextStart = 0;
 
     vector<double> lons = vector<double>(nsta);
     for (unsigned long i = 0; i < nsta; ++i) {
@@ -102,11 +105,10 @@ void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
 }
 
 void
-VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction) {
+VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction,
+                              int iteration) {
     const auto &scans = subcon.getSingleSourceScans();
     vector<double> sumEl = vector<double>( scans.size() );
-    //    vector<vector<double>> azimuths =
-    //    vector<vector<double>>(scans.size(),vector<double>(lastCornerAzimuth.size()));
 
     for ( int iscan = 0; iscan < scans.size(); ++iscan ) {
         const Scan &scan = scans[iscan];
@@ -157,7 +159,7 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
     }
 
     double minimum = sumEl[bestElements[0]];
-    for ( int i = 0; i < bestElements.size(); ++i ) {
+    for (unsigned long i = 0; i < bestElements.size(); ++i) {
         int idx = bestElements[i];
         if (sumEl[idx] == numeric_limits<double>::max()) {
             bestElements.resize(i);
@@ -173,21 +175,27 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
     }
 
     if (bestElements.size() > 5) {
+
         double newFraction = sqrt(fraction) * 1.1;
-        of << boost::format("| readjust source selection at corner (fraction %5.3f)                                    "
-                            "                                                     |\n") % newFraction;
-        reweight(subcon, sources, of, newFraction);
-        return;
+        if (iteration < 8 && newFraction > 1.25) {
+            of << boost::format(
+                    "| readjust source selection at corner (fraction %5.3f)                                    "
+                    "                                                     |\n") % newFraction;
+            reweight(subcon, sources, of, newFraction, ++iteration);
+            return;
+        }
     } else if (bestElements.size() < 3) {
         double newFraction = fraction * 1.25;
-        of << boost::format("| readjust source selection at corner (fraction %5.3f)                                    "
-                            "                                                     |\n") % newFraction;
-        reweight(subcon, sources, of, newFraction);
-        return;
+        if (iteration < 10 && newFraction < 2.5) {
+            of << boost::format(
+                    "| readjust source selection at corner (fraction %5.3f)                                    "
+                    "                                                     |\n") % newFraction;
+            reweight(subcon, sources, of, newFraction, ++iteration);
+            return;
+        }
     }
 
-    for (int i = 0; i < bestElements.size(); ++i) {
-        int idx = bestElements[i];
+    for (int idx : bestElements) {
         unsigned long srcid = scans[idx].getSourceId();
         backupWeight.emplace_back( srcid, sources[srcid].getPARA().weight );
         double newWeight = 1000 / (sumEl[idx] / minimum);
@@ -213,7 +221,7 @@ void FocusCorners::reset(const std::vector<Scan> &bestScans, std::vector<Source>
             lastCornerAzimuth[staid] = pv.getAz();
         }
     }
-    FocusCorners::flag = false;
+    FocusCorners::startFocusCorner = false;
 }
 
 

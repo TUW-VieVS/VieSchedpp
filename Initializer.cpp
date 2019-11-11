@@ -2655,6 +2655,17 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
     return std::vector<MultiScheduling::Parameters>{};
 }
 
+void Initializer::initializeFocusCornersAlgorithm() noexcept {
+    boost::optional<boost::property_tree::ptree &> t = xml_.get_child_optional("VieSchedpp.focusCorners");
+    if (t.is_initialized()) {
+        unsigned int cadence = xml_.get("VieSchedpp.focusCorners.cadence", 900u);
+        FocusCorners::flag = true;
+        FocusCorners::interval = cadence;
+    } else {
+        FocusCorners::flag = false;
+        FocusCorners::nextStart = numeric_limits<unsigned int>::max();
+    }
+}
 
 void Initializer::initializeSourceSequence() noexcept {
     boost::optional<boost::property_tree::ptree &> sq = xml_.get_child_optional( "VieSchedpp.rules.sourceSequence" );

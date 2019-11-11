@@ -638,6 +638,14 @@ class ParameterSettings {
 
 
     /**
+     * @brief focus observations at the corners of the commonly visible sky (for intensives)
+     * @author Matthias Schartner
+     *
+     * @param cadence cadence for focusing on one corner
+     */
+    void ruleFocusCorners(int cadence);
+
+    /**
      * @brief calibrator block in paramters.xml
      * @author Matthias Schartner
      *

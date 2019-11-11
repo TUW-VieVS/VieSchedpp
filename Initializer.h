@@ -36,6 +36,7 @@
 #include <numeric>
 #include <thread>
 #include <vector>
+#include "Algorithm/FocusCorners.h"
 #include "Input/SkdCatalogReader.h"
 #include "Misc/AstronomicalParameters.h"
 #include "Misc/CalibratorBlock.h"
@@ -285,6 +286,12 @@ class Initializer : public VieVS_Object {
      */
     void connectObservingMode( std::ofstream &of ) noexcept;
 
+
+    /**
+     * @brief initializes focus corner algorithm for intensives if there is one defined in the VieSchedpp.xml file
+     * @author Matthias Schartner
+     */
+    void initializeFocusCornersAlgorithm() noexcept;
 
     /**
      * @brief initializes a custom source sequence if there is one defined in the VieSchedpp.xml file

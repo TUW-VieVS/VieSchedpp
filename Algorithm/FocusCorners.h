@@ -42,11 +42,13 @@ class FocusCorners {
    public:
     static void initialize(const Network &network, std::ofstream &of);
 
-    static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0);
+    static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0,
+                         int iteration = 0);
 
     static void reset(const std::vector<Scan> &bestScans, std::vector<Source> &sources);
 
     static bool flag;
+    static thread_local bool startFocusCorner;
     static thread_local unsigned int nextStart;
     static unsigned int interval;
 
