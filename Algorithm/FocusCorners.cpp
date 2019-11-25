@@ -35,17 +35,17 @@ unsigned int VieVS::FocusCorners::interval = 900;
 std::vector<int> VieVS::FocusCorners::staid2groupid = std::vector<int>();
 
 
-void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
+void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
     unsigned long nsta = network.getNSta();
     lastCornerAzimuth = std::vector<double>( nsta, std::numeric_limits<double>::quiet_NaN() );
-    staid2groupid = std::vector<int>(nsta, 0);
+    staid2groupid = std::vector<int>( nsta, 0 );
     FocusCorners::startFocusCorner = true;
     FocusCorners::nextStart = 0;
 
-    vector<double> lons = vector<double>(nsta);
-    for (unsigned long i = 0; i < nsta; ++i) {
-        lons[i] = network.getStation(i).getPosition().getLon();
-        if (lons[i] < 0) {
+    vector<double> lons = vector<double>( nsta );
+    for ( unsigned long i = 0; i < nsta; ++i ) {
+        lons[i] = network.getStation( i ).getPosition().getLon();
+        if ( lons[i] < 0 ) {
             lons[i] = lons[i] + twopi;
         }
     }
@@ -54,22 +54,22 @@ void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
     double rightLon = 0;
     double maxDLon = 0;
 
-    for (unsigned long i = 0; i < nsta; ++i) {
-        for (unsigned long j = i + 1; j < nsta; ++j) {
+    for ( unsigned long i = 0; i < nsta; ++i ) {
+        for ( unsigned long j = i + 1; j < nsta; ++j ) {
             double tleftLon = lons[i];
             double trightLon = lons[j];
             double dlon = trightLon - tleftLon;
-            if (dlon < 0) {
-                swap(tleftLon, trightLon);
-                dlon = abs(dlon);
+            if ( dlon < 0 ) {
+                swap( tleftLon, trightLon );
+                dlon = abs( dlon );
             }
 
-            if (dlon > pi) {
+            if ( dlon > pi ) {
                 dlon = twopi - dlon;
-                swap(tleftLon, trightLon);
+                swap( tleftLon, trightLon );
                 trightLon += twopi;
             }
-            if (dlon > maxDLon) {
+            if ( dlon > maxDLon ) {
                 leftLon = tleftLon;
                 rightLon = trightLon;
                 maxDLon = dlon;
@@ -79,50 +79,47 @@ void VieVS::FocusCorners::initialize(const Network &network, ofstream &of) {
 
     of << "dividing stations in two groups based on longitude:\n";
 
-    for (unsigned long i = 0; i < nsta; ++i) {
+    for ( unsigned long i = 0; i < nsta; ++i ) {
         double lon = lons[i];
-        if (lon < leftLon) {
+        if ( lon < leftLon ) {
             lon += twopi;
         }
-        if (lon > rightLon) {
-            double dright = abs(rightLon - lon);
-            double dleft = abs(leftLon - lon - twopi);
+        if ( lon > rightLon ) {
+            double dright = abs( rightLon - lon );
+            double dleft = abs( leftLon - lon - twopi );
 
-            if (dleft < dright) {
-                if (dleft < maxDLon * 0.33) {
+            if ( dleft < dright ) {
+                if ( dleft < maxDLon * 0.33 ) {
                     staid2groupid[i] = 1;
                 }
             } else {
-                if (dright < maxDLon * 0.33) {
+                if ( dright < maxDLon * 0.33 ) {
                     staid2groupid[i] = 2;
                 }
             }
 
         } else {
-            if (lon - leftLon < maxDLon * 0.33) {
+            if ( lon - leftLon < maxDLon * 0.33 ) {
                 staid2groupid[i] = 1;
-            } else if (rightLon - lon < maxDLon * 0.33) {
+            } else if ( rightLon - lon < maxDLon * 0.33 ) {
                 staid2groupid[i] = 2;
             }
         }
     }
-    for (unsigned long i = 0; i < nsta; ++i) {
+    for ( unsigned long i = 0; i < nsta; ++i ) {
         int idx = staid2groupid[i];
-        if (idx == 1) {
-            of << boost::format("    %-8s: group 1\n") % network.getStation(i).getName();
-        } else if (idx == 2) {
-            of << boost::format("    %-8s: group 2\n") % network.getStation(i).getName();
+        if ( idx == 1 ) {
+            of << boost::format( "    %-8s: group 1\n" ) % network.getStation( i ).getName();
+        } else if ( idx == 2 ) {
+            of << boost::format( "    %-8s: group 2\n" ) % network.getStation( i ).getName();
         } else {
-            of << boost::format("    %-8s: no group\n") % network.getStation(i).getName();
+            of << boost::format( "    %-8s: no group\n" ) % network.getStation( i ).getName();
         }
-
     }
-
 }
 
-void
-VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction,
-                              int iteration) {
+void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of,
+                                    double fraction, int iteration ) {
     const auto &scans = subcon.getSingleSourceScans();
     vector<double> sumEl = vector<double>( scans.size() );
 
@@ -141,7 +138,7 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
             constexpr double threshold = 45 * deg2rad;
 
             int group = staid2groupid[staid];
-            if (group == 0) {
+            if ( group == 0 ) {
                 continue;
             }
             double el = pv.getEl();
@@ -150,19 +147,17 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
                 break;
             }
 
-            if (group == 1) {
+            if ( group == 1 ) {
                 mel1 += el;
                 ++nsta1;
             } else {
                 mel2 += el;
                 ++nsta2;
             }
-
-
         }
         double mel;
-        if (valid && nsta1 > 0 && nsta2 > 0) {
-            mel = (mel1 / nsta1 + mel2 / nsta2) / 2;
+        if ( valid && nsta1 > 0 && nsta2 > 0 ) {
+            mel = ( mel1 / nsta1 + mel2 / nsta2 ) / 2;
         } else {
             mel = numeric_limits<double>::max();
         }
@@ -175,56 +170,58 @@ VieVS::FocusCorners::reweight(const Subcon &subcon, std::vector<Source> &sources
     }
 
     double minimum = sumEl[bestElements[0]];
-    for (unsigned long i = 0; i < bestElements.size(); ++i) {
+    for ( unsigned long i = 0; i < bestElements.size(); ++i ) {
         int idx = bestElements[i];
-        if (sumEl[idx] == numeric_limits<double>::max()) {
-            bestElements.resize(i);
+        if ( sumEl[idx] == numeric_limits<double>::max() ) {
+            bestElements.resize( i );
         }
-        if (sumEl[idx] / minimum > fraction) {
+        if ( sumEl[idx] / minimum > fraction ) {
             bestElements.resize( i );
             break;
         }
     }
-    if (bestElements.empty()) {
+    if ( bestElements.empty() ) {
         of << "error: no valid scan found to focus in corner!\n";
         return;
     }
 
-    if (bestElements.size() > 5) {
-
-        double newFraction = sqrt(fraction) * 1.1;
-        if (iteration < 8 && newFraction > 1.25) {
+    if ( bestElements.size() > 5 ) {
+        double newFraction = sqrt( fraction ) * 1.1;
+        if ( iteration < 8 && newFraction > 1.25 ) {
             of << boost::format(
-                    "| readjust source selection at corner (fraction %5.3f)                                    "
-                    "                                                     |\n") % newFraction;
-            reweight(subcon, sources, of, newFraction, ++iteration);
+                      "| readjust source selection at corner (fraction %5.3f)                                    "
+                      "                                                     |\n" ) %
+                      newFraction;
+            reweight( subcon, sources, of, newFraction, ++iteration );
             return;
         }
-    } else if (bestElements.size() < 3) {
+    } else if ( bestElements.size() < 3 ) {
         double newFraction = fraction * 1.20;
-        if (iteration < 10 && newFraction < 2.5) {
+        if ( iteration < 10 && newFraction < 2.5 ) {
             of << boost::format(
-                    "| readjust source selection at corner (fraction %5.3f)                                    "
-                    "                                                     |\n") % newFraction;
-            reweight(subcon, sources, of, newFraction, ++iteration);
+                      "| readjust source selection at corner (fraction %5.3f)                                    "
+                      "                                                     |\n" ) %
+                      newFraction;
+            reweight( subcon, sources, of, newFraction, ++iteration );
             return;
         }
     }
 
-    for (int idx : bestElements) {
+    for ( int idx : bestElements ) {
         unsigned long srcid = scans[idx].getSourceId();
         backupWeight.emplace_back( srcid, sources[srcid].getPARA().weight );
-        double newWeight = 1000 / (sumEl[idx] / minimum);
-        of << boost::format("|     increase weight of source %-8s to %7.2f                                             "
-                            "                                               |\n") % sources[srcid].getName() %
-              newWeight;
+        double newWeight = 1000 / ( sumEl[idx] / minimum );
+        of << boost::format(
+                  "|     increase weight of source %-8s to %7.2f                                             "
+                  "                                               |\n" ) %
+                  sources[srcid].getName() % newWeight;
         sources[srcid].referencePARA().weight = newWeight;
     }
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
 }
 
-void FocusCorners::reset(const std::vector<Scan> &bestScans, std::vector<Source> &sources) {
+void FocusCorners::reset( const std::vector<Scan> &bestScans, std::vector<Source> &sources ) {
     for ( const auto &any : backupWeight ) {
         sources[any.first].referencePARA().weight = any.second;
     }

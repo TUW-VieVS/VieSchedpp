@@ -110,7 +110,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
                                                               wasrc / sum, wasta / sum, wabls / sum,
                                                               widle / sum, wdec / sum,  wel / sum};
                                             weightFactorValues.push_back( std::move( wf ) );
-                                            scaleFactors.push_back(sum);
+                                            scaleFactors.push_back( sum );
                                         }
                                     }
                                 }
@@ -146,9 +146,9 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
         ++i1;
     }
 
-    for ( int i=0; i < weightFactorValues.size(); ++i){
+    for ( int i = 0; i < weightFactorValues.size(); ++i ) {
         double scaleFactor = scaleFactors[i];
-        for ( auto &v : weightFactorValues[i]){
+        for ( auto &v : weightFactorValues[i] ) {
             v *= scaleFactor;
         }
     }

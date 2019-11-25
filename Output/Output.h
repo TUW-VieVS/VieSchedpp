@@ -152,8 +152,6 @@ class Output : public VieVS_NamedObject {
     std::vector<Scan> scans_;                                                 ///< all scans in schedule
     const std::shared_ptr<const ObservingMode> &obsModes_;                    ///< observing mode
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
-
-
 };
 }  // namespace VieVS
 

@@ -2656,9 +2656,9 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 }
 
 void Initializer::initializeFocusCornersAlgorithm() noexcept {
-    boost::optional<boost::property_tree::ptree &> t = xml_.get_child_optional("VieSchedpp.focusCorners");
-    if (t.is_initialized()) {
-        unsigned int cadence = xml_.get("VieSchedpp.focusCorners.cadence", 900u);
+    boost::optional<boost::property_tree::ptree &> t = xml_.get_child_optional( "VieSchedpp.focusCorners" );
+    if ( t.is_initialized() ) {
+        unsigned int cadence = xml_.get( "VieSchedpp.focusCorners.cadence", 900u );
         FocusCorners::flag = true;
         FocusCorners::interval = cadence;
     } else {

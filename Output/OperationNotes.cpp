@@ -117,7 +117,8 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
         maxFunction = std::max_element( functions.begin(), functions.end(),
                                         []( const std::string &str1, const std::string &str2 ) {
                                             return str1.length() < str2.length();
-        } )->size();
+                                        } )
+                          ->size();
     }
 
     unsigned long maxName = 0;
@@ -128,10 +129,11 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     }
 
     unsigned long maxEmail = 0;
-    if (!emails.empty()) {
-        maxEmail = std::max_element(emails.begin(), emails.end(), [](const std::string &str1, const std::string &str2) {
-            return str1.length() < str2.length();
-        } )->size();
+    if ( !emails.empty() ) {
+        maxEmail =
+            std::max_element( emails.begin(), emails.end(), []( const std::string &str1, const std::string &str2 ) {
+                return str1.length() < str2.length();
+            } )->size();
     }
 
     string format_noAffil =

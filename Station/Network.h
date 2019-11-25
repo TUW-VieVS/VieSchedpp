@@ -31,10 +31,10 @@
 #include <vector>
 
 #include "../Misc/VieVS_Object.h"
+#include "../ObservingMode/ObservingMode.h"
 #include "Baseline.h"
 #include "SkyCoverage.h"
 #include "Station.h"
-#include "../ObservingMode/ObservingMode.h"
 
 
 namespace VieVS {
@@ -399,7 +399,7 @@ class Network : public VieVS_Object {
      *
      * @param of outfile stream
      */
-    void stationSummary(std::ofstream &of) const;
+    void stationSummary( std::ofstream &of ) const;
 
    private:
     unsigned long nsta_;                     ///< number of stations

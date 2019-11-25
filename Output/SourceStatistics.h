@@ -44,57 +44,55 @@ namespace VieVS {
  * @date 28.06.2017
  */
 
-    class SourceStatistics : public VieVS_Object {
-    public:
-        /**
-         * @brief constructor
-         * @author Matthias Schartner
-         *
-         * @param file file name
-         */
-        explicit SourceStatistics(const std::string &file);
+class SourceStatistics : public VieVS_Object {
+   public:
+    /**
+     * @brief constructor
+     * @author Matthias Schartner
+     *
+     * @param file file name
+     */
+    explicit SourceStatistics( const std::string &file );
 
-        /**
-         * @brief write simple skdsum file
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param sources list of all sources
-         * @param scans list of all scans
-         * @param xml paramters.xml file
-         */
-        void writeFile(Network &network, std::vector<Source> &sources, const std::vector<Scan> &scans,
-                       const boost::property_tree::ptree &xml);
+    /**
+     * @brief write simple skdsum file
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sources list of all sources
+     * @param scans list of all scans
+     * @param xml paramters.xml file
+     */
+    void writeFile( Network &network, std::vector<Source> &sources, const std::vector<Scan> &scans,
+                    const boost::property_tree::ptree &xml );
 
-    private:
-        static unsigned long nextId;  ///< next id for this object type
+   private:
+    static unsigned long nextId;  ///< next id for this object type
 
-        std::ofstream of;  ///< output stream object
+    std::ofstream of;  ///< output stream object
 
-        /**
-         * @brief read all groups from VieSchedpp.xml file
-         * @author Matthias Schartner
-         *
-         * @param root VieSchedpp.xml file
-         * @param sources list of all sources
-         * @return list of all groups
-         */
-        std::unordered_map<std::string, std::vector<std::string>> readGroups(boost::property_tree::ptree root,
-                                                                             const std::vector<Source> &sources) noexcept;
-
-
-        /**
-         * @brief calculate minutes where source is visible
-         * @author Matthias Schartner
-         *
-         * @param network station network
-         * @param source target source
-         * @return pair of visible time periods
-         */
-        std::vector<std::pair<unsigned int, unsigned int>> minutesVisible(Network &network, const Source &source);
+    /**
+     * @brief read all groups from VieSchedpp.xml file
+     * @author Matthias Schartner
+     *
+     * @param root VieSchedpp.xml file
+     * @param sources list of all sources
+     * @return list of all groups
+     */
+    std::unordered_map<std::string, std::vector<std::string>> readGroups( boost::property_tree::ptree root,
+                                                                          const std::vector<Source> &sources ) noexcept;
 
 
-    };
+    /**
+     * @brief calculate minutes where source is visible
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source target source
+     * @return pair of visible time periods
+     */
+    std::vector<std::pair<unsigned int, unsigned int>> minutesVisible( Network &network, const Source &source );
+};
 }  // namespace VieVS
 
 #endif  // VIESCHEDPP_SOURCESTATISTICS_H

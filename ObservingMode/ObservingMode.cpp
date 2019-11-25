@@ -449,13 +449,12 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
     for ( const auto &staName : staNames ) {
         const string &id_EQ = skd.equipKey( staName );
 
-        if ( cat.find(id_EQ ) == cat.end() ){
+        if ( cat.find( id_EQ ) == cat.end() ) {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( fatal ) << "equip catalog not found (" << id_EQ << ")";
 #else
             cout << "[fatal] equip catalog not found (" << id_EQ << ")";
 #endif
-
         }
         const vector<string> &eq = cat.at( id_EQ );
         string recorder = eq.at( eq.size() - 1 );

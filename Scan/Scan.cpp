@@ -1262,8 +1262,8 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
 
 void Scan::output( unsigned long observed_scan_nr, const Network &network, const Source &source, ofstream &of ) const
     noexcept {
-    string type = toString(type_);
-    string type2 = toString(constellation_);
+    string type = toString( type_ );
+    string type2 = toString( constellation_ );
 
     string line1Right = ( boost::format( " duration: %8s - %8s" ) %
                           TimeSystem::time2timeOfDay( times_.getObservingTime( Timestamp::start ) ) %

@@ -150,7 +150,7 @@ int main( int argc, char *argv[] ) {
 
 
     ////    V2: parse skd and log files
-    
+
     ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
     ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
     ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));

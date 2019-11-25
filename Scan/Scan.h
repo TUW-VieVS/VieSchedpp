@@ -88,8 +88,8 @@ class Scan : public VieVS_Object {
      *
      * @return string of scan type
      */
-    static std::string toString(ScanType type_) {
-        switch (type_) {
+    static std::string toString( ScanType type_ ) {
+        switch ( type_ ) {
             case ScanType::highImpact:
                 return "high impact";
             case ScanType::standard:
@@ -107,8 +107,8 @@ class Scan : public VieVS_Object {
      *
      * @return string of scan constellation
      */
-    static std::string toString(ScanConstellation type_) {
-        switch (type_) {
+    static std::string toString( ScanConstellation type_ ) {
+        switch ( type_ ) {
             case ScanConstellation::single:
                 return "single source scan";
             case ScanConstellation::subnetting:

@@ -450,7 +450,7 @@ void SkdParser::createScans( std::ofstream &of ) {
             scan.createDummyObservations( network_ );
 
             const auto &thisSource = sources_[srcid];
-            scan.output(counter, network_, thisSource, of);
+            scan.output( counter, network_, thisSource, of );
 
             scans_.push_back( scan );
             ++counter;
