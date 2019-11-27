@@ -80,6 +80,11 @@ int main( int argc, char *argv[] ) {
             std::cout << versionNr << std::endl;
             return 0;
         }
+        if ( arg == "--help" || arg == "-h" ) {
+            std::cout << "pass path to a VieSchedpp.xml file as first input argument" << std::endl;
+            std::cout << "e.g. \"./VieSchedpp path/to/VieSchedpp.xml\"" << std::endl;
+            return 0;
+        }
 
 
         // main scheduling program
