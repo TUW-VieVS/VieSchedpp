@@ -74,15 +74,22 @@ int main( int argc, char *argv[] ) {
         return 0;
 
     } else if ( argc == 2 ) {
+        std::string arg = argv[1];
+        if ( arg == "--version" || arg == "-v" ) {
+            std::string versionNr = VieVS::util::version();
+            std::cout << versionNr << std::endl;
+            return 0;
+        }
+
+
         // main scheduling program
 
-        std::string file = argv[1];
 
         auto start = std::chrono::high_resolution_clock::now();
 
         // V1: standard usage:
-        std::cout << "Processing file: " << file << "\n";
-        VieVS::VieSchedpp mainScheduler( file );
+        std::cout << "Processing file: " << arg << "\n";
+        VieVS::VieSchedpp mainScheduler( arg );
         mainScheduler.run();
 
         auto finish = std::chrono::high_resolution_clock::now();
