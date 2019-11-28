@@ -929,10 +929,11 @@ void ParameterSettings::mode( const boost::property_tree::ptree &obsMode ) {
 }
 
 
-void ParameterSettings::mode( double sampleRate, unsigned int bits ) {
+void ParameterSettings::mode( double sampleRate, unsigned int bits, double efficiencyFactor ) {
     boost::property_tree::ptree mode;
     mode.add( "mode.sampleRate", sampleRate );
     mode.add( "mode.bits", bits );
+    mode.add( "mode.efficiencyFactor", efficiencyFactor );
 
     master_.add_child( "VieSchedpp.mode.simple", mode.get_child( "mode" ) );
 }

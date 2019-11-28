@@ -2081,9 +2081,11 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
                 band2channel[name] = channels;
                 band2wavelength[name] = wavelength;
             }
+            double efficiencyFactor = it.second.get<double>( "efficiencyFactor", -1.0 );
 
             obsModes_ = std::make_shared<ObservingMode>();
-            obsModes_->simpleMode( util::getNumberOfStations( xml_ ), samplerate, bits, band2channel, band2wavelength );
+            obsModes_->simpleMode( util::getNumberOfStations( xml_ ), samplerate, bits, band2channel, band2wavelength,
+                                   efficiencyFactor );
 
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "sample rate set to " << it.second.get_value<double>();
@@ -2192,7 +2194,8 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
 
 void Initializer::initializeObservingMode( unsigned long nsta, double samplerate, unsigned int bits,
                                            const std::unordered_map<std::string, unsigned int> &band2channel,
-                                           const std::unordered_map<std::string, double> &band2wavelength ) noexcept {
+                                           const std::unordered_map<std::string, double> &band2wavelength,
+                                           double efficiencyFactor ) noexcept {
     ObservingMode::type = ObservingMode::Type::simple;
     obsModes_ = std::make_shared<ObservingMode>();
     obsModes_->simpleMode( nsta, samplerate, bits, band2channel, band2wavelength );

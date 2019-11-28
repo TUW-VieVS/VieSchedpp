@@ -503,8 +503,9 @@ class ParameterSettings {
      *
      * @param sampleRate sample rate
      * @param bits bits
+     * @param efficiencyFactor recording efficiency factor (use -1 for internal calculation)
      */
-    void mode( double sampleRate, unsigned int bits );
+    void mode( double sampleRate, unsigned int bits, double efficiencyFactor = -1 );
 
 
     /**

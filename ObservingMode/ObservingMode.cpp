@@ -165,7 +165,8 @@ void ObservingMode::readFromSkedCatalogs( const SkdCatalogReader &skd ) {
 
 void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned int bits,
                                 const std::unordered_map<std::string, unsigned int> &band2channel,
-                                const std::unordered_map<std::string, double> &band2wavelength ) {
+                                const std::unordered_map<std::string, double> &band2wavelength,
+                                double efficiencyFactor ) {
     auto mode = make_shared<Mode>( "type", nsta );
 
     for ( const auto &any : band2channel ) {
@@ -177,6 +178,9 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
             mode->setEfficiencyFactor( 0.6366 * 0.97 );
         } else {
             mode->setEfficiencyFactor( 0.625 * 0.97 );
+        }
+        if ( efficiencyFactor != -1 ) {
+            mode->setEfficiencyFactor( efficiencyFactor );
         }
     }
 
