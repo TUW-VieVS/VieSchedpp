@@ -608,6 +608,12 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
     Source &thisSource = sources_[srcid];
     thisSource.update( nbl, latestTime, influence );
 
+    for ( int i = 0; i < scan.getNSta(); ++i ) {
+        unsigned long staid = scan.getPointingVector( i ).getStaid();
+        unsigned int duration = scan.getTimes().getObservingDuration( i );
+        network_.refStation( staid ).referencePARA().minSlewtime = duration;
+    }
+
     scan.output( scans_.size(), network_, thisSource, of );
     scans_.push_back( std::move( scan ) );
 }
