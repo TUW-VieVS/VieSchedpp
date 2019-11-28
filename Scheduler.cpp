@@ -128,7 +128,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check algorithm focus corners for intensive sessions
-        if ( FocusCorners::startFocusCorner ) {
+        if ( FocusCorners::startFocusCorner && depth == 0 ) {
             of << boost::format( "| %=140s |\n" ) % "reweight sources to focus observation at corner";
             FocusCorners::reweight( subcon, sources_, of );
             FocusCorners::nextStart += FocusCorners::interval;

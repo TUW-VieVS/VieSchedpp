@@ -42,70 +42,42 @@ void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
     FocusCorners::startFocusCorner = true;
     FocusCorners::nextStart = 0;
 
-    vector<double> lons = vector<double>( nsta );
-    for ( unsigned long i = 0; i < nsta; ++i ) {
-        lons[i] = network.getStation( i ).getPosition().getLon();
-        if ( lons[i] < 0 ) {
-            lons[i] = lons[i] + twopi;
+    auto getDxy = []( const Station &sta1, const Station &sta2 ) {
+        double dx = sta2.getPosition().getX() - sta1.getPosition().getX();
+        double dy = sta2.getPosition().getY() - sta1.getPosition().getY();
+        return sqrt( dx * dx + dy * dy );
+    };
+
+    vector<double> dxys;
+    for ( const auto &bl : network.getBaselines() ) {
+        const Station &sta1 = network.getStation( bl.getStaid1() );
+        const Station &sta2 = network.getStation( bl.getStaid2() );
+        dxys.push_back( getDxy( sta1, sta2 ) );
+    }
+
+    unsigned long maxBlid = distance( dxys.begin(), max_element( dxys.begin(), dxys.end() ) );
+    double maxBl = dxys[maxBlid];
+    unsigned long staid1 = network.getBaseline( maxBlid ).getStaid1();
+    const Station &sta1 = network.getStation( staid1 );
+    unsigned long staid2 = network.getBaseline( maxBlid ).getStaid2();
+    const Station &sta2 = network.getStation( staid2 );
+
+    of << "longest baseline in xy-direction: " << sta1.getName() << "-" << sta2.getName() << "\n";
+    of << "dividing stations in two groups:\n";
+
+
+    for ( unsigned long i = 0; i < network.getNSta(); ++i ) {
+        const Station &sta = network.getStation( i );
+        double dxy1 = getDxy( sta1, sta );
+        if ( dxy1 < maxBl * 0.33 ) {
+            staid2groupid[i] = 1;
+        }
+        double dxy2 = getDxy( sta2, sta );
+        if ( dxy2 < maxBl * 0.33 ) {
+            staid2groupid[i] = 2;
         }
     }
 
-    double leftLon = 0;
-    double rightLon = 0;
-    double maxDLon = 0;
-
-    for ( unsigned long i = 0; i < nsta; ++i ) {
-        for ( unsigned long j = i + 1; j < nsta; ++j ) {
-            double tleftLon = lons[i];
-            double trightLon = lons[j];
-            double dlon = trightLon - tleftLon;
-            if ( dlon < 0 ) {
-                swap( tleftLon, trightLon );
-                dlon = abs( dlon );
-            }
-
-            if ( dlon > pi ) {
-                dlon = twopi - dlon;
-                swap( tleftLon, trightLon );
-                trightLon += twopi;
-            }
-            if ( dlon > maxDLon ) {
-                leftLon = tleftLon;
-                rightLon = trightLon;
-                maxDLon = dlon;
-            }
-        }
-    }
-
-    of << "dividing stations in two groups based on longitude:\n";
-
-    for ( unsigned long i = 0; i < nsta; ++i ) {
-        double lon = lons[i];
-        if ( lon < leftLon ) {
-            lon += twopi;
-        }
-        if ( lon > rightLon ) {
-            double dright = abs( rightLon - lon );
-            double dleft = abs( leftLon - lon - twopi );
-
-            if ( dleft < dright ) {
-                if ( dleft < maxDLon * 0.33 ) {
-                    staid2groupid[i] = 1;
-                }
-            } else {
-                if ( dright < maxDLon * 0.33 ) {
-                    staid2groupid[i] = 2;
-                }
-            }
-
-        } else {
-            if ( lon - leftLon < maxDLon * 0.33 ) {
-                staid2groupid[i] = 1;
-            } else if ( rightLon - lon < maxDLon * 0.33 ) {
-                staid2groupid[i] = 2;
-            }
-        }
-    }
     for ( unsigned long i = 0; i < nsta; ++i ) {
         int idx = staid2groupid[i];
         if ( idx == 1 ) {
@@ -197,7 +169,7 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
         }
     } else if ( bestElements.size() < 3 ) {
         double newFraction = fraction * 1.20;
-        if ( iteration < 10 && newFraction < 2.5 ) {
+        if ( iteration < 10 && newFraction < 3.5 ) {
             of << boost::format(
                       "| readjust source selection at corner (fraction %5.3f)                                    "
                       "                                                     |\n" ) %
