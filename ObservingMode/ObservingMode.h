@@ -58,6 +58,7 @@ class ObservingMode : public VieVS_Object {
     enum class Backup {
         minValueTimes,  ///< use minimum value found in other bands times a factor
         maxValueTimes,  ///< use maximum value found in other bands times a factor
+        internalModel,  ///< use internal model to derive flux density of sources (sources only)
         value,          ///< use specific value
         none,           ///< no backup model
     };
@@ -302,7 +303,7 @@ class ObservingMode : public VieVS_Object {
      * @param band band
      * @return wavelength
      */
-    double getWavelength( const std::string &band ) const { return wavelength_.at( band ); }
+    static double getWavelength( const std::string &band ) { return wavelength_.at( band ); }
 
 
     /**
@@ -483,9 +484,8 @@ class ObservingMode : public VieVS_Object {
 
    private:
     static unsigned long nextId;                          ///< next id for this object type
-    std::vector<std::string> stationNames_;               ///< station names
-    std::set<std::string> bands_;                         ///< list of all observed bands
-    std::unordered_map<std::string, double> wavelength_;  ///< list of mean wavelength per band
+    std::vector<std::string> stationNames_;  ///< station names
+    std::set<std::string> bands_;            ///< list of all observed bands
 
     std::vector<std::shared_ptr<const Mode>> modes_;                     ///< list of all MODE blocks
     std::vector<std::shared_ptr<const If>> ifs_;                         ///< list of all IF blocks
@@ -493,6 +493,8 @@ class ObservingMode : public VieVS_Object {
     std::vector<std::shared_ptr<const Freq>> freqs_;                     ///< list of all FREQ blocks
     std::vector<std::shared_ptr<const Track>> tracks_;                   ///< list of all TRACKs blocks
     std::vector<std::shared_ptr<const std::string>> trackFrameFormats_;  ///< list of all track frame formats
+
+    static std::unordered_map<std::string, double> wavelength_;  ///< backup wavelength for commonly used bands
 
     /**
      * @brief create FREQ block from skd catalogs

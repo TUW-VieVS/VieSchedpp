@@ -12,6 +12,9 @@ unsigned long VieVS::ObservingMode::nextId = 0;
 
 VieVS::ObservingMode::Type VieVS::ObservingMode::type = VieVS::ObservingMode::Type::simple;
 
+std::unordered_map<std::string, double> VieVS::ObservingMode::wavelength_{
+    {"S", util::freqency2wavelenth( 2291 * 1e6 )}, {"X", util::freqency2wavelenth( 8593 * 1e6 )}};
+
 std::unordered_map<std::string, double> VieVS::ObservingMode::minSNR;  ///< backup min SNR
 
 std::unordered_map<std::string, VieVS::ObservingMode::Property>
@@ -186,7 +189,7 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
 
     mode->setBands( bands_ );
     addMode( mode );
-    wavelength_ = band2wavelength;
+    wavelength_.insert( band2wavelength.begin(), band2wavelength.end() );
 }
 
 

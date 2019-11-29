@@ -354,7 +354,7 @@ class Mode : public VieVS_NamedObject {
      *
      * @return list of all bands
      */
-    const std::set<std::string> getAllBands() const { return bands_; }
+    const std::set<std::string> &getAllBands() const { return bands_; }
 
 
     /**

@@ -629,10 +629,11 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             alreadyConsidered.push_back( cflux );
 
             string thisBand = flux_split[cflux][1];
-            if ( std::find( obsModes_->getAllBands().begin(), obsModes_->getAllBands().end(), thisBand ) ==
-                 obsModes_->getAllBands().end() ) {
-                continue;
-            }
+            //            if ( std::find( obsModes_->getAllBands().begin(), obsModes_->getAllBands().end(), thisBand )
+            //            ==
+            //                 obsModes_->getAllBands().end()) {
+            //                continue;
+            //            }
 
             string thisType = flux_split[cflux][2];
             if ( thisType == "M" ) {
@@ -711,8 +712,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    srcFlux = make_unique<Flux_M>( obsModes_->getWavelength( thisBand ), tflux, tmajorAxis, taxialRatio,
-                                                   tpositionAngle );
+                    srcFlux = make_unique<Flux_M>( ObservingMode::getWavelength( thisBand ), tflux, tmajorAxis,
+                                                   taxialRatio, tpositionAngle );
                 }
             } else {
                 std::vector<double> knots;   ///< baseline length of flux information (type B)
@@ -744,7 +745,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    double wavelength = obsModes_->getWavelength( thisBand );
+                    double wavelength = ObservingMode::getWavelength( thisBand );
                     srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
                 }
             }
@@ -764,7 +765,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
                 if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
                     flux[bandName] =
-                        make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                        make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
                                              vector<double>{ObservingMode::sourceBackupValue[bandName]} );
                 }
             }
@@ -805,19 +806,39 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
                                                  vector<double>{min * ObservingMode::stationBackupValue[bandName]} );
                     }
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
                                                  vector<double>{max * ObservingMode::stationBackupValue[bandName]} );
                     }
                 }
             }
         }
-
+        bool fluxValid = false;
         if ( flux.size() == obsModes_->getAllBands().size() ) {
+            fluxValid = true;
+        } else {
+            fluxValid = true;
+            for ( const auto &band : obsModes_->getAllBands() ) {
+                bool bandCorrect = false;
+                if ( flux.find( band ) != flux.end() ) {
+                    bandCorrect = true;
+                }
+                if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel && flux.size() == 2 ) {
+                    bandCorrect = true;
+                }
+
+                if ( !bandCorrect ) {
+                    fluxValid = false;
+                    break;
+                }
+            }
+        }
+
+        if ( fluxValid ) {
             string name1, name2;
             if ( commonname.empty() ) {
                 name1 = name;
@@ -2158,6 +2179,9 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
                                 } else if ( it_band_source.second.get_value<std::string>() == "optional" ) {
                                     source_property = ObservingMode::Property::optional;
                                 }
+                            } else if ( thisName == "backup_internalModel" ) {
+                                source_backup = ObservingMode::Backup::internalModel;
+
                             } else if ( thisName == "backup_maxValueTimes" ) {
                                 source_backup = ObservingMode::Backup::maxValueTimes;
                                 source_backupValue = it_band_source.second.get_value<double>();

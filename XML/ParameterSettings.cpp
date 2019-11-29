@@ -988,6 +988,8 @@ void ParameterSettings::mode_bandPolicy( const std::string &name, double minSNR,
         band.add( "band.source.backup_minValueTimes", sourceBackupValue );
     } else if ( sourceBackup == ObservationModeBackup::value ) {
         band.add( "band.source.backup_value", sourceBackupValue );
+    } else if ( sourceBackup == ObservationModeBackup::internalModel ) {
+        band.add_child( "band.source.backup_internalModel", boost::property_tree::ptree() );
     } else if ( sourceBackup == ObservationModeBackup::none ) {
     }
 

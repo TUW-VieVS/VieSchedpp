@@ -197,6 +197,7 @@ class ParameterSettings {
     enum class ObservationModeBackup {
         minValueTimes,  ///< use minimum value found in other bands times a factor
         maxValueTimes,  ///< use maximum value found in other bands times a factor
+        internalModel,  ///< use internal model to derive flux density of sources (sources only)
         value,          ///< use specific value
         none,           ///< no backup model
     };

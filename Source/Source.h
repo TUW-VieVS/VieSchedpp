@@ -517,6 +517,25 @@ class Source : public VieVS_NamedObject {
      */
     const Statistics &getStatistics() const { return statistics_; }
 
+    /**
+     * @brief calculate flux density of any band based on available flux densities
+     * @author Matthias Schartner
+     *
+     * @param wavelength target wavelength
+     * @param gmst greenwhich meridian sedirial time
+     * @param dxyz coordinate difference of participating stations
+     * @return observed flux density for this wavelength
+     */
+    double observedFlux_model( double wavelength, double gmst, const std::vector<double> &dxyz ) const;
+
+    /**
+     * @brief checks if flux information is available
+     * @author Matthias Schartner
+     *
+     * @param band band name
+     * @return true if flux information is available, otherwise false
+     */
+    bool hasFluxInformation( const std::string &band ) const { return flux_->find( band ) != flux_->end(); }
 
    private:
     static unsigned long nextId;  ///< next id for this object type

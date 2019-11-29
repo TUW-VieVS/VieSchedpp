@@ -1672,7 +1672,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             break;
     }
 
-    // hard copy previouse observing times
+    // hard copy previous observing times
     map<unsigned long, ScanTimes> oldScanTimes;
 
     for ( const auto &scan : scans_ ) {

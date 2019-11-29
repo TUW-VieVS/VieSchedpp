@@ -330,10 +330,21 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
         // loop over each band
         bool flag_observationRemoved = false;
         for ( auto &band : mode->getAllBands() ) {
-            // calculate observed flux density for each band
-            double SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+            double SEFD_src;
+            if ( source.hasFluxInformation( band ) ) {
+                // calculate observed flux density for each band
+                SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+            } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                // calculate observed flux density based on model
+                double wavelength = ObservingMode::getWavelength( band );
+                SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+            } else {
+                SEFD_src = 1e-3;
+            }
+
+
             if ( SEFD_src == 0 ) {
-                SEFD_src = 0.001;
+                SEFD_src = 1e-3;
             }
 
             // calculate system equivalent flux density for each station
