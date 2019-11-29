@@ -251,6 +251,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree( const str
     if ( PARA.maxNumberOfScans.is_initialized() ) {
         parameters.add( "parameters.maxNumberOfScans", PARA.maxNumberOfScans );
     }
+    if ( PARA.dataWriteSpeed.is_initialized() ) {
+        parameters.add( "parameters.dataWriteSpeed", PARA.dataWriteSpeed );
+    }
 
     if ( !PARA.minSNR.empty() ) {
         for ( const auto &any : PARA.minSNR ) {
@@ -314,6 +317,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxNumberOfScans = it.second.get_value<unsigned int>();
         } else if ( paraName == "minElevation" ) {
             para.minElevation = it.second.get_value<double>();
+        } else if ( paraName == "dataWriteSpeed" ) {
+            para.dataWriteSpeed = it.second.get_value<double>();
         } else if ( paraName == "minSNR" ) {
             string bandName = it.second.get_child( "<xmlattr>.band" ).data();
             auto value = it.second.get_value<double>();

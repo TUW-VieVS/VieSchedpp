@@ -608,10 +608,21 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
     Source &thisSource = sources_[srcid];
     thisSource.update( nbl, latestTime, influence );
 
+    // update minimum slew time in case of custom data write speed to disk
     for ( int i = 0; i < scan.getNSta(); ++i ) {
         unsigned long staid = scan.getPointingVector( i ).getStaid();
-        unsigned int duration = scan.getTimes().getObservingDuration( i );
-        network_.refStation( staid ).referencePARA().minSlewtime = duration;
+
+        Station &sta = network_.refStation( staid );
+        if ( sta.getPARA().dataWriteSpeed.is_initialized() ) {
+            double recRate = currentObservingMode_->recordingRate( staid );
+            double writeRate = *sta.getPARA().dataWriteSpeed;
+            double fraction = recRate / writeRate - 1;
+            unsigned int duration = scan.getTimes().getObservingDuration( i );
+            if ( fraction > 0 ) {
+                auto minSlewTime = static_cast<unsigned int>( ceil( static_cast<double>( duration ) * fraction ) );
+                sta.referencePARA().minSlewtime = minSlewTime;
+            }
+        }
     }
 
     scan.output( scans_.size(), network_, thisSource, of );

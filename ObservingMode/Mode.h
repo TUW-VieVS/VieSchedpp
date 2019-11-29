@@ -509,6 +509,8 @@ class Mode : public VieVS_NamedObject {
                        boost::hash<std::pair<unsigned long, unsigned long>>>
         staids2efficiency_;  ///< efficiency per station ids
 
+    std::unordered_map<unsigned long, double> staid2totalRecordingRate_;  ///< total recording rate per station id
+
     std::set<std::string> bands_;  ///< list of all bands
 
     /**

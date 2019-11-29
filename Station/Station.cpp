@@ -52,6 +52,7 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     maxScan = other.maxScan;
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
+    dataWriteSpeed = other.dataWriteSpeed;
 
     ignoreSources = other.ignoreSources;
 }

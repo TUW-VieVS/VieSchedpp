@@ -98,6 +98,7 @@ class ParameterSettings {
         boost::optional<unsigned int> minScan;           ///< minimum required scan time in seconds
         boost::optional<double> minElevation;            ///< minimum elevation of parameter in degrees
         boost::optional<unsigned int> maxNumberOfScans;  ///< maximum number of scans
+        boost::optional<double> dataWriteSpeed;          ///< maximum data write speed to disk in Mbps
 
         boost::optional<double> weight;  ///< multiplicative factor of score for scans with this station
 

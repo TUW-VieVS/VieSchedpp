@@ -1264,6 +1264,9 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
+            if ( newPARA.dataWriteSpeed.is_initialized() ) {
+                combinedPARA.dataWriteSpeed = *newPARA.dataWriteSpeed * 1e6;
+            }
 
             if ( !newPARA.minSNR.empty() ) {
                 for ( const auto &any : newPARA.minSNR ) {

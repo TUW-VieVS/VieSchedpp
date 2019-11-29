@@ -120,6 +120,8 @@ class Station : public VieVS_NamedObject {
         unsigned int minScan = 30;               ///< minimum required scan time in seconds
         unsigned int maxNumberOfScans = 9999;    ///< maximum allowed number of scans
 
+        boost::optional<double> dataWriteSpeed = 0;  ///< maximum data write speed to disk in Mbps
+
         std::vector<unsigned long> ignoreSources;  ///< list of all source ids which should be ignored
 
         /**
@@ -142,6 +144,7 @@ class Station : public VieVS_NamedObject {
             of << "    minScan:     " << minScan << "\n";
             of << "    weight:      " << weight << "\n";
             of << "    minElevation " << minElevation << "\n";
+            of << "    dataWriteSpeed " << dataWriteSpeed << "\n";
 
             for ( const auto &it : minSNR ) {
                 of << "    minSNR: " << it.first << " " << it.second << "\n";
