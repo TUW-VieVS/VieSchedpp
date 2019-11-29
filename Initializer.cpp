@@ -1007,12 +1007,13 @@ void Initializer::initializeStations() noexcept {
         }
 
         // create default events at start and end
-        for ( int i = 0; i < network_.getNSta(); ++i ) {
+        for ( int staid = 0; staid < network_.getNSta(); ++staid ) {
+            parentPARA.totalRecordingTime = obsModes_->getMode( 0 )->recordingRate( staid );
             Station::Event newEvent_start( 0, false, parentPARA );
-            events[i].push_back( newEvent_start );
+            events[staid].push_back( newEvent_start );
 
             Station::Event newEvent_end( TimeSystem::duration, true, parentPARA );
-            events[i].push_back( newEvent_end );
+            events[staid].push_back( newEvent_end );
         }
 
         // add setup for all stations

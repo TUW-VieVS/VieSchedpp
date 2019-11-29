@@ -614,14 +614,9 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
 
         Station &sta = network_.refStation( staid );
         if ( sta.getPARA().dataWriteSpeed.is_initialized() ) {
-            double recRate = currentObservingMode_->recordingRate( staid );
-            double writeRate = *sta.getPARA().dataWriteSpeed;
-            double fraction = recRate / writeRate - 1;
+            //            double recRate = currentObservingMode_->recordingRate( staid );
             unsigned int duration = scan.getTimes().getObservingDuration( i );
-            if ( fraction > 0 ) {
-                auto minSlewTime = static_cast<unsigned int>( ceil( static_cast<double>( duration ) * fraction ) );
-                sta.referencePARA().minSlewtime = minSlewTime;
-            }
+            sta.referencePARA().overheadTimeDueToDataWriteSpeed( duration );
         }
     }
 
@@ -740,6 +735,9 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                 } else {
                     // check slew time
                     unsigned int slewtime = thisStation.getAntenna().slewTime( thisEnd, nextStart );
+                    if ( slewtime < thisStation.getPARA().minSlewtimeDataWriteSpeed ) {
+                        slewtime = thisStation.getPARA().minSlewtimeDataWriteSpeed;
+                    }
                     if ( slewtime < thisStation.getPARA().minSlewtime ) {
                         slewtime = thisStation.getPARA().minSlewtime;
                     }
