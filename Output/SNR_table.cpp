@@ -30,7 +30,7 @@ SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of 
 
 void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {
-    const set<string> &bands = obsModes->getAllBands();
+    const set<string> &bands = ObservingMode::getAllBands();
 
     vector<string> stations;
     for ( const auto &any : network.getStations() ) {

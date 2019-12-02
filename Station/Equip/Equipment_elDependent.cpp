@@ -53,7 +53,7 @@ double Equipment_elDependent::getSEFD( const std::string &band, double el ) cons
 
 std::string Equipment_elDependent::shortSummary( const std::string &band ) const noexcept {
     if ( y_.find( band ) == y_.end() ) {
-        return ( boost::format( "%7s %7s %7s %7s" ) % "" % "" % "" % "" ).str();
+        return ( boost::format( "%7s %7s %7s %7s" ) % "---" % "---" % "---" % "---" ).str();
     }
     return ( boost::format( "%7.0f %7.4f %7.4f %7.4f" ) % Equipment::getSEFD( band, 0 ) % y_.at( band ) %
              c0_.at( band ) % c1_.at( band ) )

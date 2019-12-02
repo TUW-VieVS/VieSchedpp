@@ -12,6 +12,7 @@ unsigned long VieVS::ObservingMode::nextId = 0;
 
 VieVS::ObservingMode::Type VieVS::ObservingMode::type = VieVS::ObservingMode::Type::simple;
 
+std::set<std::string> VieVS::ObservingMode::bands_;
 std::unordered_map<std::string, double> VieVS::ObservingMode::wavelength_{
     {"S", util::freqency2wavelenth( 2291 * 1e6 )}, {"X", util::freqency2wavelenth( 8593 * 1e6 )}};
 

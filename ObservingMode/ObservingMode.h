@@ -293,7 +293,7 @@ class ObservingMode : public VieVS_Object {
      *
      * @return list of all bands
      */
-    const std::set<std::string> &getAllBands() const { return bands_; }
+    static std::set<std::string> &getAllBands() { return bands_; }
 
 
     /**
@@ -483,9 +483,8 @@ class ObservingMode : public VieVS_Object {
 
 
    private:
-    static unsigned long nextId;                          ///< next id for this object type
+    static unsigned long nextId;             ///< next id for this object type
     std::vector<std::string> stationNames_;  ///< station names
-    std::set<std::string> bands_;            ///< list of all observed bands
 
     std::vector<std::shared_ptr<const Mode>> modes_;                     ///< list of all MODE blocks
     std::vector<std::shared_ptr<const If>> ifs_;                         ///< list of all IF blocks
@@ -494,6 +493,7 @@ class ObservingMode : public VieVS_Object {
     std::vector<std::shared_ptr<const Track>> tracks_;                   ///< list of all TRACKs blocks
     std::vector<std::shared_ptr<const std::string>> trackFrameFormats_;  ///< list of all track frame formats
 
+    static std::set<std::string> bands_;                         ///< list of all observed bands
     static std::unordered_map<std::string, double> wavelength_;  ///< backup wavelength for commonly used bands
 
     /**

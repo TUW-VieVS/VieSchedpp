@@ -853,7 +853,7 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
                                         const std::vector<Scan> &scans,
                                         const std::shared_ptr<const ObservingMode> &obsModes ) {
     map<string, vector<vector<double>>> SNRs;
-    const auto &bands = obsModes->getAllBands();
+    const auto &bands = ObservingMode::getAllBands();
 
     for ( const auto &band : bands ) {
         SNRs[band] = vector<vector<double>>( network.getNBls() );

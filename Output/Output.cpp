@@ -253,11 +253,11 @@ void Output::writeNGS() {
     of << "$END\n";
 
     double refFreq = 0;
-    if ( obsModes_->getAllBands().find( "X" ) != obsModes_->getAllBands().end() ) {
+    if ( ObservingMode::getAllBands().find( "X" ) != ObservingMode::getAllBands().end() ) {
         refFreq = util::wavelength2frequency( ObservingMode::getWavelength( "X" ) );
+        of << boost::format( "%20e %19s %s %s\n" ) % refFreq % "" % "GR" % "PH";
+        of << "$END\n";
     }
-    of << boost::format( "%20e %19s %s %s\n" ) % refFreq % "" % "GR" % "PH";
-    of << "$END\n";
 
     boost::posix_time::ptime start = TimeSystem::startTime;
     unsigned long counter = 1;

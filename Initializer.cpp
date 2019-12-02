@@ -227,34 +227,42 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #endif
             continue;
         }
-        // check if SEFD_ information is in X and S band
-        if ( eq_cat[5] != "X" || eq_cat[7] != "S" ) {
-            of << "*** ERROR: creating station " << name << ": " << any.first << ": we only support SX equipment ***\n";
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: unknown band name";
-#else
-            cout << "[error] station " << name << " equip.cat: unknown band name";
-#endif
-            continue;
+
+        const auto &bands = ObservingMode::getAllBands();
+        int nbands = bands.size();
+
+        vector<int> band_idxs;
+        vector<string> band_names;
+        for ( int i = 5; i < eq_cat.size() - 2; i += 2 ) {
+            string t = eq_cat[i];
+            // if SEFD of "t" is already found --> skip
+            if ( find( band_names.begin(), band_names.end(), t ) != band_names.end() ) {
+                continue;
+            }
+            band_idxs.push_back( i );
+            band_names.push_back( t );
         }
 
         unordered_map<std::string, double> SEFDs;
         // convert all items from equip.cat
         unordered_map<std::string, double> SEFD_found;
-        try {
-            SEFD_found[eq_cat.at( 5 )] = boost::lexical_cast<double>( eq_cat.at( 6 ) );
-            SEFD_found[eq_cat.at( 7 )] = boost::lexical_cast<double>( eq_cat.at( 8 ) );
-        } catch ( const std::exception &e ) {
-            of << "*** ERROR: creating station " << name << ": " << e.what() << "\n";
+        for ( int i_band = 0; i_band < band_idxs.size(); ++i_band ) {
+            int band_idx = band_idxs[i_band];
+            string band_name = band_names[i_band];
+            try {
+                SEFD_found[band_name] = boost::lexical_cast<double>( eq_cat.at( band_idx + 1 ) );
+            } catch ( const std::exception &e ) {
+                of << "*** ERROR: creating station " << name << ": " << e.what() << "\n";
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: cannot cast text to number";
+                BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: cannot cast text to number";
 #else
-            cout << "[error] station " << name << " equip.cat: cannot cast text to number";
+                cout << "[error] station " << name << " equip.cat: cannot cast text to number";
 #endif
-            continue;
+                continue;
+            }
         }
         bool everythingOkWithBands = true;
-        for ( const auto &bandName : obsModes_->getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::getAllBands() ) {
             if ( SEFD_found.find( bandName ) != SEFD_found.end() ) {
                 SEFDs[bandName] = SEFD_found[bandName];
             } else {
@@ -275,7 +283,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             continue;
         }
 
-        if ( SEFDs.size() != obsModes_->getAllBands().size() ) {
+        if ( SEFDs.size() != ObservingMode::getAllBands().size() ) {
             if ( SEFDs.empty() ) {
                 of << "*** ERROR: creating station " << name
                    << ": no SEFD information found to calculate backup value!;\n";
@@ -297,7 +305,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                     max = any2.second;
                 }
             }
-            for ( const auto &bandName : obsModes_->getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::getAllBands() ) {
                 if ( SEFDs.find( bandName ) == SEFDs.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         SEFDs[bandName] = min * ObservingMode::stationBackupValue[bandName];
@@ -757,7 +765,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
         }
 
         bool fluxBandInfoOk = true;
-        for ( const auto &bandName : obsModes_->getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::getAllBands() ) {
             if ( flux.find( bandName ) == flux.end() ) {
                 if ( ObservingMode::sourceProperty[bandName] == ObservingMode::Property::required ) {
                     fluxBandInfoOk = false;
@@ -779,7 +787,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 #endif
         }
 
-        if ( flux.size() != obsModes_->getAllBands().size() ) {
+        if ( flux.size() != ObservingMode::getAllBands().size() ) {
             if ( flux.empty() ) {
                 src_failed.push_back( name );
                 of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
@@ -802,7 +810,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                     max = any2.second->getMaximumFlux();
                 }
             }
-            for ( const auto &bandName : obsModes_->getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::getAllBands() ) {
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
@@ -818,11 +826,11 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             }
         }
         bool fluxValid = false;
-        if ( flux.size() == obsModes_->getAllBands().size() ) {
+        if ( flux.size() == ObservingMode::getAllBands().size() ) {
             fluxValid = true;
         } else {
             fluxValid = true;
-            for ( const auto &band : obsModes_->getAllBands() ) {
+            for ( const auto &band : ObservingMode::getAllBands() ) {
                 bool bandCorrect = false;
                 if ( flux.find( band ) != flux.end() ) {
                     bandCorrect = true;
@@ -1022,7 +1030,7 @@ void Initializer::initializeStations() noexcept {
         vector<vector<Station::Event>> events( network_.getNSta() );
 
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::getAllBands() ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -1433,7 +1441,7 @@ void Initializer::initializeSources() noexcept {
 #endif
 
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::getAllBands() ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -1726,7 +1734,7 @@ void Initializer::initializeBaselines() noexcept {
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "create backup baseline parameters";
 #endif
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::getAllBands() ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -2071,7 +2079,7 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
             unordered_map<string, ObservingMode::Backup> sourceBackup;
             unordered_map<string, double> sourceBackupValue;
 
-            for ( const auto &any : obsModes_->getAllBands() ) {
+            for ( const auto &any : ObservingMode::getAllBands() ) {
                 stationProperty[any] = ObservingMode::Property::required;
                 sourceProperty[any] = ObservingMode::Property::required;
                 stationBackup[any] = ObservingMode::Backup::none;
