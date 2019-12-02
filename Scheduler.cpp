@@ -1943,10 +1943,23 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     const Source &thisSource = sources_[lastScan.getSourceId()];
                     const PointingVector &pv1 = lastScan.getPointingVector( staidx1, Timestamp::end );
 
+
+                    unsigned int sessionStop;
+                    double write_rec_fraction = 1;
+                    if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                        write_rec_fraction = *thisSta.getPARA().dataWriteRate / thisSta.getPARA().totalRecordingRate;
+                    }
+
+                    if ( write_rec_fraction < 1 ) {
+                        sessionStop = pv1.getTime() + ( TimeSystem::duration - pv1.getTime() ) * write_rec_fraction;
+                    } else {
+                        sessionStop = TimeSystem::duration;
+                    }
+
                     if ( pv1.getTime() != 0 ) {
                         PointingVector variable( pv1 );
                         variable.setId( pv1.getId() );
-                        variable.setTime( TimeSystem::duration );
+                        variable.setTime( sessionStop );
                         thisSta.calcAzEl_rigorous( thisSource, variable );
                         thisSta.getCableWrap().calcUnwrappedAz( pv1, variable );
                         bool valid = true;
