@@ -73,9 +73,16 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                     }
 
                     const auto &dxyz = network.getDxyz( staid1, staid2 );
-                    double SEFD_src = src.observedFlux( band, gmst, dxyz );
-                    if ( SEFD_src == 0 ) {
-                        SEFD_src = 0.001;
+                    double SEFD_src;
+                    if ( src.hasFluxInformation( band ) ) {
+                        // calculate observed flux density for each band
+                        SEFD_src = src.observedFlux( band, gmst, dxyz );
+                    } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                        // calculate observed flux density based on model
+                        double wavelength = ObservingMode::getWavelength( band );
+                        SEFD_src = src.observedFlux_model( wavelength, gmst, dxyz );
+                    } else {
+                        SEFD_src = 1e-3;
                     }
 
                     // calculate system equivalent flux density for each station

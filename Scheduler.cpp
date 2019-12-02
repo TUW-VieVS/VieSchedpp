@@ -1088,10 +1088,18 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                     maxScanDuration = *source.getPARA().fixedScanDuration;
                 } else {
                     for ( auto &band : currentObservingMode_->getAllBands() ) {
-                        double SEFD_src =
-                            source.observedFlux( band, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) );
-                        if ( SEFD_src == 0 ) {
-                            SEFD_src = 0.001;
+                        double SEFD_src;
+                        if ( source.hasFluxInformation( band ) ) {
+                            // calculate observed flux density for each band
+                            SEFD_src =
+                                source.observedFlux( band, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) );
+                        } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                            // calculate observed flux density based on model
+                            double wavelength = ObservingMode::getWavelength( band );
+                            SEFD_src = source.observedFlux_model( wavelength, gmst,
+                                                                  network_.getDxyz( sta1.getId(), sta2.getId() ) );
+                        } else {
+                            SEFD_src = 1e-3;
                         }
 
                         double el1 = pv_new_start.getEl();

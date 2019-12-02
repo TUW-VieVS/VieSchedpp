@@ -73,6 +73,16 @@ class Equipment : public VieVS_Object {
         }
     };
 
+    /**
+     *
+     */
+    const std::vector<std::string> getBands() const noexcept {
+        std::vector<std::string> v;
+        for ( const auto &any : SEFD_ ) {
+            v.push_back( any.first );
+        }
+        return v;
+    }
 
     /**
      * @brief returns maximum SEFD of this antenna

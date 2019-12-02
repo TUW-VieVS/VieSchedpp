@@ -179,39 +179,40 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
         of << "\n";
     }
 
+    set<string> bands;
+    for ( const auto &sta : network.getStations() ) {
+        const auto &b = sta.getEquip().getBands();
+        bands.insert( b.begin(), b.end() );
+    }
+
+
     counter = 0;
     for ( unsigned long staid1 = 0; staid1 < network.getNSta(); ++staid1 ) {
         const Station &sta1 = network.getStation( staid1 );
         for ( unsigned long staid2 = staid1 + 1; staid2 < network.getNSta(); ++staid2 ) {
             const Station &sta2 = network.getStation( staid2 );
-
-            if ( counter == 0 ) {
-                of << "SNR ";
-            }
-            double minSNR_X = network.getBaseline( staid1, staid2 ).getParameters().minSNR.at( "X" );
-            if ( sta1.getPARA().minSNR.at( "X" ) > minSNR_X ) {
-                minSNR_X = sta1.getPARA().minSNR.at( "X" );
-            }
-            if ( sta2.getPARA().minSNR.at( "X" ) > minSNR_X ) {
-                minSNR_X = sta2.getPARA().minSNR.at( "X" );
-            }
-            double minSNR_S = network.getBaseline( staid1, staid2 ).getParameters().minSNR.at( "S" );
-            if ( sta1.getPARA().minSNR.at( "S" ) > minSNR_S ) {
-                minSNR_S = sta1.getPARA().minSNR.at( "S" );
-            }
-            if ( sta2.getPARA().minSNR.at( "S" ) > minSNR_S ) {
-                minSNR_S = sta2.getPARA().minSNR.at( "S" );
-            }
-            of << boost::format( " %2s-%2s X %-4d %2s-%2s S %-4d " ) % sta1.getAlternativeName() %
-                      sta2.getAlternativeName() % minSNR_X % sta1.getAlternativeName() % sta2.getAlternativeName() %
-                      minSNR_S;
-            ++counter;
-            if ( counter == 3 ) {
-                of << "\n";
-                counter = 0;
+            for ( const auto &band : bands ) {
+                if ( counter == 0 ) {
+                    of << "SNR ";
+                }
+                double minSNR = network.getBaseline( staid1, staid2 ).getParameters().minSNR.at( band );
+                if ( sta1.getPARA().minSNR.at( band ) > minSNR ) {
+                    minSNR = sta1.getPARA().minSNR.at( band );
+                }
+                if ( sta2.getPARA().minSNR.at( band ) > minSNR ) {
+                    minSNR = sta2.getPARA().minSNR.at( band );
+                }
+                of << boost::format( " %2s-%2s %-2s %-4d " ) % sta1.getAlternativeName() % sta2.getAlternativeName() %
+                          band % minSNR;
+                ++counter;
+                if ( counter == 4 ) {
+                    of << "\n";
+                    counter = 0;
+                }
             }
         }
     }
+
     if ( counter != 0 ) {
         of << "\n";
     }
