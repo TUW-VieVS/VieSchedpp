@@ -239,8 +239,19 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             if ( find( band_names.begin(), band_names.end(), t ) != band_names.end() ) {
                 continue;
             }
-            band_idxs.push_back( i );
-            band_names.push_back( t );
+
+            // check if "t" is not a number...
+            bool isnumber;
+            try {
+                double dummy = boost::lexical_cast<double>( t );
+                isnumber = true;
+            } catch ( boost::bad_lexical_cast const &e ) {
+                isnumber = false;
+            }
+            if ( !isnumber ) {
+                band_idxs.push_back( i );
+                band_names.push_back( t );
+            }
         }
 
         unordered_map<std::string, double> SEFDs;
@@ -323,7 +334,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
         unordered_map<std::string, double> SEFD_c1;
 
         if ( eq_cat.size() >= 16 ) {
-            if ( eq_cat[9] == "X" || eq_cat[9] == "S" ) {
+            if ( bands.find( eq_cat[9] ) != bands.end() ) {
                 elSEFD = true;
                 try {
                     string band = eq_cat[9];
@@ -348,7 +359,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                     elSEFD = false;
                 }
             }
-            if ( eq_cat[13] == "X" || eq_cat[13] == "S" ) {
+            if ( bands.find( eq_cat[13] ) != bands.end() ) {
                 try {
                     string band = eq_cat[13];
                     auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 14 ) );
@@ -1037,7 +1048,7 @@ void Initializer::initializeStations() noexcept {
 
         // create default events at start and end
         for ( int staid = 0; staid < network_.getNSta(); ++staid ) {
-            parentPARA.totalRecordingTime = obsModes_->getMode( 0 )->recordingRate( staid );
+            parentPARA.totalRecordingRate = obsModes_->getMode( 0 )->recordingRate( staid );
             Station::Event newEvent_start( 0, false, parentPARA );
             events[staid].push_back( newEvent_start );
 
@@ -1294,8 +1305,8 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
-            if ( newPARA.dataWriteSpeed.is_initialized() ) {
-                combinedPARA.dataWriteSpeed = *newPARA.dataWriteSpeed * 1e6;
+            if ( newPARA.dataWriteRate.is_initialized() ) {
+                combinedPARA.dataWriteRate = *newPARA.dataWriteRate * 1e6;
             }
 
             if ( !newPARA.minSNR.empty() ) {

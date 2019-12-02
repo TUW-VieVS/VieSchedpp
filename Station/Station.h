@@ -120,9 +120,9 @@ class Station : public VieVS_NamedObject {
         unsigned int minScan = 30;               ///< minimum required scan time in seconds
         unsigned int maxNumberOfScans = 9999;    ///< maximum allowed number of scans
 
-        double totalRecordingTime = 0;               ///< total recording rate
-        boost::optional<double> dataWriteSpeed = 0;  ///< maximum data write speed to disk
-        unsigned int minSlewtimeDataWriteSpeed = 0;  ///< minimum required slew time due to data rate
+        double totalRecordingRate = 0;              ///< total recording rate
+        boost::optional<double> dataWriteRate = 0;  ///< maximum data write speed to disk
+        unsigned int minSlewtimeDataWriteRate = 0;  ///< minimum required slew time due to data rate
 
         std::vector<unsigned long> ignoreSources;  ///< list of all source ids which should be ignored
 
@@ -146,7 +146,7 @@ class Station : public VieVS_NamedObject {
             of << "    minScan:     " << minScan << "\n";
             of << "    weight:      " << weight << "\n";
             of << "    minElevation " << minElevation << "\n";
-            of << "    dataWriteSpeed " << dataWriteSpeed << "\n";
+            of << "    dataWriteRate " << dataWriteRate << "\n";
 
             for ( const auto &it : minSNR ) {
                 of << "    minSNR: " << it.first << " " << it.second << "\n";
@@ -168,7 +168,7 @@ class Station : public VieVS_NamedObject {
          * @param observingTime observation duration in seconds
          */
         void overheadTimeDueToDataWriteSpeed( unsigned int observingTime ) {
-            minSlewtimeDataWriteSpeed = minSlewTimeDueToDataWriteSpeed( observingTime );
+            minSlewtimeDataWriteRate = minSlewTimeDueToDataWriteSpeed( observingTime );
         }
 
         /**
@@ -180,9 +180,9 @@ class Station : public VieVS_NamedObject {
          */
         unsigned int minSlewTimeDueToDataWriteSpeed( unsigned int observingTime ) const {
             unsigned int minSlewTime = 0;
-            if ( dataWriteSpeed.is_initialized() ) {
-                double writeRate = *dataWriteSpeed;
-                double fraction = totalRecordingTime / writeRate - 1;
+            if ( dataWriteRate.is_initialized() ) {
+                double writeRate = *dataWriteRate;
+                double fraction = totalRecordingRate / writeRate - 1;
                 if ( fraction > 0 ) {
                     minSlewTime = static_cast<unsigned int>( ceil( static_cast<double>( observingTime ) * fraction ) );
                 }

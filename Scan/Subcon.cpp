@@ -994,7 +994,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
                 unsigned int slewtime = thisSta.getAntenna().slewTime( assumedSlewStart, thisEndposition );
 
                 // adjust minimum slew time due to lower data write speed
-                if ( thisSta.getPARA().dataWriteSpeed.is_initialized() ) {
+                if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
                     unsigned int duration = times.getObservingDuration( istation );
                     unsigned int minSlewTimeDueToWriteSpeed =
                         thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );

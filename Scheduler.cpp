@@ -613,7 +613,7 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
         unsigned long staid = scan.getPointingVector( i ).getStaid();
 
         Station &sta = network_.refStation( staid );
-        if ( sta.getPARA().dataWriteSpeed.is_initialized() ) {
+        if ( sta.getPARA().dataWriteRate.is_initialized() ) {
             //            double recRate = currentObservingMode_->recordingRate( staid );
             unsigned int duration = scan.getTimes().getObservingDuration( i );
             sta.referencePARA().overheadTimeDueToDataWriteSpeed( duration );
@@ -735,8 +735,8 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                 } else {
                     // check slew time
                     unsigned int slewtime = thisStation.getAntenna().slewTime( thisEnd, nextStart );
-                    if ( slewtime < thisStation.getPARA().minSlewtimeDataWriteSpeed ) {
-                        slewtime = thisStation.getPARA().minSlewtimeDataWriteSpeed;
+                    if ( slewtime < thisStation.getPARA().minSlewtimeDataWriteRate ) {
+                        slewtime = thisStation.getPARA().minSlewtimeDataWriteRate;
                     }
                     if ( slewtime < thisStation.getPARA().minSlewtime ) {
                         slewtime = thisStation.getPARA().minSlewtime;
@@ -1739,6 +1739,14 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             // check for new events
             checkForNewEvents( scan1.getTimes().getScanTime( Timestamp::start ), false, of, false );
 
+            double write_rec_fraction = 1;
+            if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                write_rec_fraction = *thisSta.getPARA().dataWriteRate / thisSta.getPARA().totalRecordingRate;
+            }
+            if ( write_rec_fraction < 1 && ts == Timestamp::start ) {
+                continue;
+            }
+
             // look for index of next scan with this station
             int iscan2 = iscan1 + 1;
             while ( iscan2 < scans_.size() && !scans_[iscan2].findIdxOfStationId( staid ).is_initialized() ) {
@@ -1778,6 +1786,12 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
 
             // calc idle time
             unsigned int idleTime = availableTime - prevSlewTime - fsTime - preobTime;
+            if ( write_rec_fraction < 1 ) {
+                unsigned int duration = scan1.getTimes().getObservingDuration( staidx1 );
+                prevSlewTime = max( {prevSlewTime, thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration )} );
+                idleTime = write_rec_fraction * ( availableTime - prevSlewTime - fsTime - preobTime );
+            }
+
             if ( idleTime == 0 ) {
                 continue;
             }
@@ -1831,6 +1845,10 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     slewTime = thisSta.getAntenna().slewTime( variable, pv2 );
                     if ( slewTime < thisSta.getPARA().minSlewtime ) {
                         slewTime = thisSta.getPARA().minSlewtime;
+                    }
+                    if ( write_rec_fraction < 1 ) {
+                        unsigned int duration = scan1.getTimes().getObservingDuration( staidx1 );
+                        slewTime = thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
                     }
                     break;
                 }
