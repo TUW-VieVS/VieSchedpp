@@ -351,7 +351,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check if you need to schedule a calibration block
-        if ( type == Scan::ScanType::standard && CalibratorBlock::scheduleCalibrationBlocks ) {
+        if ( type == Scan::ScanType::standard && CalibratorBlock::scheduleCalibrationBlocks && depth == 0 ) {
             switch ( CalibratorBlock::cadenceUnit ) {
                 case CalibratorBlock::CadenceUnit::scans: {
                     if ( Scan::nScanSelections == CalibratorBlock::nextBlock ) {

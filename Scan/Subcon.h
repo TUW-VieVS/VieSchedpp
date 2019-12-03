@@ -336,14 +336,15 @@ class Subcon : public VieVS_Object {
    private:
     static unsigned long nextId;  ///< next id for this object type
 
-    unsigned long nSingleScans_;     ///< number of single source scans
+    unsigned long nSingleScans_ = 0;     ///< number of single source scans
     std::vector<Scan> singleScans_;  ///< all single source scans
 
-    unsigned long nSubnettingScans_;                      ///< number of subnetting scans
+    unsigned long nSubnettingScans_ = 0;                      ///< number of subnetting scans
     std::vector<std::pair<Scan, Scan>> subnettingScans_;  ///< all subnetting scans
 
-    unsigned int minRequiredTime_;  ///< minimum time required for a scan
-    unsigned int maxRequiredTime_;  ///< maximum time required for a scan
+    unsigned int minRequiredTime_ = std::numeric_limits<unsigned int>::max();  ///< minimum time required for a scan
+    unsigned int maxRequiredTime_ = std::numeric_limits<unsigned int>::min();  ///< maximum time required for a scan
+
     std::vector<double> astas_;     ///< average station score for each station
     std::vector<double> asrcs_;     ///< average source score for each source
     std::vector<double> abls_;      ///< average baseline score for each baseline
