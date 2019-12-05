@@ -32,7 +32,7 @@ std::vector<std::pair<int, double>> thread_local VieVS::FocusCorners::backupWeig
     std::vector<std::pair<int, double>>();
 unsigned int thread_local VieVS::FocusCorners::nextStart = numeric_limits<unsigned int>::max();
 unsigned int VieVS::FocusCorners::interval = 900;
-std::vector<int> VieVS::FocusCorners::staid2groupid = std::vector<int>();
+std::vector<int> thread_local VieVS::FocusCorners::staid2groupid = std::vector<int>();
 
 
 void VieVS::FocusCorners::initialize( const Network &network, ofstream &of ) {
