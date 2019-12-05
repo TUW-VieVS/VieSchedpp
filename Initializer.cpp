@@ -228,7 +228,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             continue;
         }
 
-        const auto &bands = ObservingMode::getAllBands();
+        const auto &bands = ObservingMode::bands;
         int nbands = bands.size();
 
         vector<int> band_idxs;
@@ -273,7 +273,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             }
         }
         bool everythingOkWithBands = true;
-        for ( const auto &bandName : ObservingMode::getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::bands ) {
             if ( SEFD_found.find( bandName ) != SEFD_found.end() ) {
                 SEFDs[bandName] = SEFD_found[bandName];
             } else {
@@ -294,7 +294,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             continue;
         }
 
-        if ( SEFDs.size() != ObservingMode::getAllBands().size() ) {
+        if ( SEFDs.size() != ObservingMode::bands.size() ) {
             if ( SEFDs.empty() ) {
                 of << "*** ERROR: creating station " << name
                    << ": no SEFD information found to calculate backup value!;\n";
@@ -316,7 +316,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                     max = any2.second;
                 }
             }
-            for ( const auto &bandName : ObservingMode::getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::bands ) {
                 if ( SEFDs.find( bandName ) == SEFDs.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         SEFDs[bandName] = min * ObservingMode::stationBackupValue[bandName];
@@ -731,8 +731,8 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    srcFlux = make_unique<Flux_M>( ObservingMode::getWavelength( thisBand ), tflux, tmajorAxis,
-                                                   taxialRatio, tpositionAngle );
+                    srcFlux = make_unique<Flux_M>( ObservingMode::wavelengths[thisBand], tflux, tmajorAxis, taxialRatio,
+                                                   tpositionAngle );
                 }
             } else {
                 std::vector<double> knots;   ///< baseline length of flux information (type B)
@@ -764,7 +764,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    double wavelength = ObservingMode::getWavelength( thisBand );
+                    double wavelength = ObservingMode::wavelengths[thisBand];
                     srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
                 }
             }
@@ -776,7 +776,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
         }
 
         bool fluxBandInfoOk = true;
-        for ( const auto &bandName : ObservingMode::getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::bands ) {
             if ( flux.find( bandName ) == flux.end() ) {
                 if ( ObservingMode::sourceProperty[bandName] == ObservingMode::Property::required ) {
                     fluxBandInfoOk = false;
@@ -784,7 +784,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
                 if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
                     flux[bandName] =
-                        make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                              vector<double>{ObservingMode::sourceBackupValue[bandName]} );
                 }
             }
@@ -798,7 +798,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 #endif
         }
 
-        if ( flux.size() != ObservingMode::getAllBands().size() ) {
+        if ( flux.size() != ObservingMode::bands.size() ) {
             if ( flux.empty() ) {
                 src_failed.push_back( name );
                 of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
@@ -821,27 +821,27 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                     max = any2.second->getMaximumFlux();
                 }
             }
-            for ( const auto &bandName : ObservingMode::getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::bands ) {
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                                  vector<double>{min * ObservingMode::stationBackupValue[bandName]} );
                     }
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( ObservingMode::getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                                  vector<double>{max * ObservingMode::stationBackupValue[bandName]} );
                     }
                 }
             }
         }
         bool fluxValid = false;
-        if ( flux.size() == ObservingMode::getAllBands().size() ) {
+        if ( flux.size() == ObservingMode::bands.size() ) {
             fluxValid = true;
         } else {
             fluxValid = true;
-            for ( const auto &band : ObservingMode::getAllBands() ) {
+            for ( const auto &band : ObservingMode::bands ) {
                 bool bandCorrect = false;
                 if ( flux.find( band ) != flux.end() ) {
                     bandCorrect = true;
@@ -1041,7 +1041,7 @@ void Initializer::initializeStations() noexcept {
         vector<vector<Station::Event>> events( network_.getNSta() );
 
         // set observation mode band names
-        for ( const auto &any : ObservingMode::getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -1452,7 +1452,7 @@ void Initializer::initializeSources() noexcept {
 #endif
 
         // set observation mode band names
-        for ( const auto &any : ObservingMode::getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -1745,7 +1745,7 @@ void Initializer::initializeBaselines() noexcept {
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "create backup baseline parameters";
 #endif
         // set observation mode band names
-        for ( const auto &any : ObservingMode::getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -2090,7 +2090,7 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
             unordered_map<string, ObservingMode::Backup> sourceBackup;
             unordered_map<string, double> sourceBackupValue;
 
-            for ( const auto &any : ObservingMode::getAllBands() ) {
+            for ( const auto &any : ObservingMode::bands ) {
                 stationProperty[any] = ObservingMode::Property::required;
                 sourceProperty[any] = ObservingMode::Property::required;
                 stationBackup[any] = ObservingMode::Backup::none;

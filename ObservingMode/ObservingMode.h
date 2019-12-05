@@ -85,6 +85,9 @@ class ObservingMode : public VieVS_Object {
     static std::unordered_map<std::string, Backup> sourceBackup;       ///< backup version for source
     static std::unordered_map<std::string, double> sourceBackupValue;  ///< backup value for source
 
+    static std::set<std::string> bands;                          ///< list of all observed bands
+    static std::unordered_map<std::string, double> wavelengths;  ///< backup wavelength for commonly used bands
+
     /**
      * @brief constructor
      * @author Matthias Schartner
@@ -182,7 +185,7 @@ class ObservingMode : public VieVS_Object {
     void addBlock( const std::shared_ptr<const Freq> &newFreq ) {
         freqs_.push_back( newFreq );
         const auto &tmp = newFreq->getBands();
-        ObservingMode::bands_.insert( tmp.begin(), tmp.end() );
+        ObservingMode::bands.insert( tmp.begin(), tmp.end() );
     }
 
 
@@ -285,25 +288,6 @@ class ObservingMode : public VieVS_Object {
      *
      */
     void calcMeanFrequencies();
-
-
-    /**
-     * @brief get all bands
-     * @author Matthias Schartner
-     *
-     * @return list of all bands
-     */
-    static std::set<std::string> &getAllBands() { return bands_; }
-
-
-    /**
-     * @brief get wavelength per band
-     * @author Matthias Schartner
-     *
-     * @param band band
-     * @return wavelength
-     */
-    static double getWavelength( const std::string &band ) { return wavelength_.at( band ); }
 
 
     /**
@@ -493,8 +477,6 @@ class ObservingMode : public VieVS_Object {
     std::vector<std::shared_ptr<const Track>> tracks_;                   ///< list of all TRACKs blocks
     std::vector<std::shared_ptr<const std::string>> trackFrameFormats_;  ///< list of all track frame formats
 
-    static std::set<std::string> bands_;                         ///< list of all observed bands
-    static std::unordered_map<std::string, double> wavelength_;  ///< backup wavelength for commonly used bands
 
     /**
      * @brief create FREQ block from skd catalogs

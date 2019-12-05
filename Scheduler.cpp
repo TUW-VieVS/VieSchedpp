@@ -1095,7 +1095,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                                 source.observedFlux( band, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) );
                         } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                             // calculate observed flux density based on model
-                            double wavelength = ObservingMode::getWavelength( band );
+                            double wavelength = ObservingMode::wavelengths[band];
                             SEFD_src = source.observedFlux_model( wavelength, gmst,
                                                                   network_.getDxyz( sta1.getId(), sta2.getId() ) );
                         } else {

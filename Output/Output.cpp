@@ -253,8 +253,8 @@ void Output::writeNGS() {
     of << "$END\n";
 
     double refFreq = 0;
-    if ( ObservingMode::getAllBands().find( "X" ) != ObservingMode::getAllBands().end() ) {
-        refFreq = util::wavelength2frequency( ObservingMode::getWavelength( "X" ) );
+    if ( ObservingMode::bands.find( "X" ) != ObservingMode::bands.end() ) {
+        refFreq = util::wavelength2frequency( ObservingMode::wavelengths["X"] );
         of << boost::format( "%20e %19s %s %s\n" ) % refFreq % "" % "GR" % "PH";
         of << "$END\n";
     }

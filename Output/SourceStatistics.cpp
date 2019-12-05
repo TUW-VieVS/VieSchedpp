@@ -46,10 +46,10 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
                 }
             }
             if ( interestedSrcGroups.empty() ) {
-                return;
+                interestedSrcGroups.emplace_back( "__all__" );
             }
         } else {
-            return;
+            interestedSrcGroups.emplace_back( "__all__" );
         }
 
         auto nsrc = sources.size();

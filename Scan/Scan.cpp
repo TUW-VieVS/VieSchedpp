@@ -336,7 +336,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
                 SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
             } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                 // calculate observed flux density based on model
-                double wavelength = ObservingMode::getWavelength( band );
+                double wavelength = ObservingMode::wavelengths[band];
                 SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
             } else {
                 SEFD_src = 1e-3;
@@ -1112,8 +1112,7 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
     }
 
     if ( scanSequence.customScanSequence ) {
-        if ( nScanSelections != 0 &&
-             scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) != scanSequence.targetSources.end() ) {
+        if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) != scanSequence.targetSources.end() ) {
             const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
             if ( find( target.begin(), target.end(), source.getId() ) != target.end() ) {
                 this_score *= 100;

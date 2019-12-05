@@ -30,7 +30,7 @@ SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of 
 
 void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {
-    const set<string> &bands = ObservingMode::getAllBands();
+    const set<string> &bands = ObservingMode::bands;
 
     vector<string> stations;
     for ( const auto &any : network.getStations() ) {
@@ -79,7 +79,7 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                         SEFD_src = src.observedFlux( band, gmst, dxyz );
                     } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
                         // calculate observed flux density based on model
-                        double wavelength = ObservingMode::getWavelength( band );
+                        double wavelength = ObservingMode::wavelengths[band];
                         SEFD_src = src.observedFlux_model( wavelength, gmst, dxyz );
                     } else {
                         SEFD_src = 1e-3;
