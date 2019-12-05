@@ -128,8 +128,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check algorithm focus corners for intensive sessions
-        if (FocusCorners::startFocusCorner) {
-            of << boost::format("| %=140s |\n") % "reweight sources to focus observation at corner";
+        if ( FocusCorners::startFocusCorner && depth == 0 ) {
+            of << boost::format( "| %=140s |\n" ) % "reweight sources to focus observation at corner";
             FocusCorners::reweight( subcon, sources_, of );
             FocusCorners::nextStart += FocusCorners::interval;
         }
@@ -156,8 +156,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                                            prevHighElevationScores, opt_endposition );
         }
 
-        if (FocusCorners::startFocusCorner) {
-            FocusCorners::reset(bestScans, sources_);
+        if ( FocusCorners::startFocusCorner ) {
+            FocusCorners::reset( bestScans, sources_ );
         }
 
         // check if you have possible next scan
@@ -178,9 +178,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 for ( auto &any : network_.refStations() ) {
                     PointingVector pv = any.getCurrentPointingVector();
                     pv.setTime( pv.getTime() + 60 );
-                    if (!any.getPARA().available || !any.getPARA().tagalong) {
-                        any.setCurrentPointingVector(pv);
-                        if (pv.getTime() > maxScanEnd) {
+                    if ( !any.getPARA().available || !any.getPARA().tagalong ) {
+                        any.setCurrentPointingVector( pv );
+                        if ( pv.getTime() > maxScanEnd ) {
                             maxScanEnd = pv.getTime();
                         }
                     }
@@ -388,14 +388,13 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
 
 void Scheduler::start() noexcept {
-
     string fileName = getName() + "_iteration_" + to_string( parameters_.currentIteration ) + ".txt";
     ofstream of;
     if ( xml_.get( "VieSchedpp.output.iteration_log", true ) ) {
         of.open( path_ + fileName );
     }
-    if (FocusCorners::flag) {
-        FocusCorners::initialize(network_, of);
+    if ( FocusCorners::flag ) {
+        FocusCorners::initialize( network_, of );
     }
 
     if ( network_.getNSta() == 0 || sources_.empty() || network_.getNBls() == 0 ) {
@@ -856,8 +855,8 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
             if ( Flags::logDebug )
                 BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
 #endif
-            auto &skyCoverage = network_.refSkyCoverage(network_.getStaid2skyCoverageId().at(any.getId()));
-            startTagelongMode(any, skyCoverage, of);
+            auto &skyCoverage = network_.refSkyCoverage( network_.getStaid2skyCoverageId().at( any.getId() ) );
+            startTagelongMode( any, skyCoverage, of );
         }
     }
 
@@ -959,7 +958,7 @@ void Scheduler::listSourceOverview( ofstream &of ) noexcept {
 }
 
 
-void Scheduler::startTagelongMode(Station &station, SkyCoverage &skyCoverage, std::ofstream &of) {
+void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, std::ofstream &of ) {
     unsigned long staid = station.getId();
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start tagalong mode for station " << station.getName();
@@ -973,10 +972,9 @@ void Scheduler::startTagelongMode(Station &station, SkyCoverage &skyCoverage, st
     // loop through all scans
     unsigned long counter = 0;
     for ( auto &scan : scans_ ) {
-
         bool hardBreak = false;
-        station.checkForNewEvent(scan.getTimes().getScanTime(Timestamp::start), hardBreak);
-        if (!station.getPARA().available) {
+        station.checkForNewEvent( scan.getTimes().getScanTime( Timestamp::start ), hardBreak );
+        if ( !station.getPARA().available ) {
             continue;
         }
 
@@ -1217,8 +1215,8 @@ void Scheduler::startTagelongMode(Station &station, SkyCoverage &skyCoverage, st
             if ( station.referencePARA().firstScan ) {
                 station.referencePARA().firstScan = false;
             }
-            station.update(newObs.size(), pv_new_end, true);
-            skyCoverage.update(pv_new_end);
+            station.update( newObs.size(), pv_new_end, true );
+            skyCoverage.update( pv_new_end );
         }
     }
 
@@ -1297,7 +1295,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
                 continue;
             }
 
-            if (counter < diff * parameters_.reduceFactor) {
+            if ( counter < diff * parameters_.reduceFactor ) {
                 excludedScans += thisSource.getNTotalScans();
                 excludedBaselines += thisSource.getNObs();
                 excludedSources.push_back( thisSource.getName() );

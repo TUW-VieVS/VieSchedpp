@@ -138,10 +138,11 @@ class ObservingMode : public VieVS_Object {
      * @param bits sampling bits
      * @param band2channel band name to number of channels
      * @param band2wavelength band name to wavelength
+     * @param efficiencyFactor recording efficiency factor (use -1 for internal calculation)
      */
     void simpleMode( unsigned long nsta, double samplerate, unsigned int bits,
                      const std::unordered_map<std::string, unsigned int> &band2channel,
-                     const std::unordered_map<std::string, double> &band2wavelength );
+                     const std::unordered_map<std::string, double> &band2wavelength, double efficiencyFactor = -1 );
 
 
     /**

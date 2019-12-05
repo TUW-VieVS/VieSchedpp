@@ -124,7 +124,7 @@ class WeightFactors {
      * @brief header entries for statistics.csv file
      * @author Matthias Schartner
      */
-    static std::string statisticsHeader( ) {
+    static std::string statisticsHeader() {
         return "weight_factor_sky_coverage,"
                "weight_factor_number_of_observations,"
                "weight_factor_duration,"
@@ -146,7 +146,7 @@ class WeightFactors {
      * @brief value entries for statistics.csv file
      * @author Matthias Schartner
      */
-    static std::string statisticsValues( ) {
+    static std::string statisticsValues() {
         double sum = weightSkyCoverage + weightNumberOfObservations + weightDuration + weightAverageSources +
                      weightAverageStations + weightAverageBaselines + weightIdleTime + weightDeclination +
                      weightLowElevation;
@@ -154,32 +154,32 @@ class WeightFactors {
         std::ostringstream str;
 
         str << weightSkyCoverage / sum << "," << weightNumberOfObservations / sum << "," << weightDuration / sum << ","
-           << weightAverageSources / sum << "," << weightAverageStations / sum << "," << weightAverageBaselines / sum
-           << "," << weightIdleTime / sum << ",";
+            << weightAverageSources / sum << "," << weightAverageStations / sum << "," << weightAverageBaselines / sum
+            << "," << weightIdleTime / sum << ",";
 
-        if(weightIdleTime == 0){
-            str << 0 << "," ;
-        }else{
-            str << idleTimeInterval << "," ;
+        if ( weightIdleTime == 0 ) {
+            str << 0 << ",";
+        } else {
+            str << idleTimeInterval << ",";
         }
 
 
         str << weightDeclination / sum << ",";
-        if(weightDeclination == 0){
-            str << 0 << "," << 0 << "," ;
-        }else{
-            str << declinationStartWeight << "," << declinationFullWeight << "," ;
+        if ( weightDeclination == 0 ) {
+            str << 0 << "," << 0 << ",";
+        } else {
+            str << declinationStartWeight << "," << declinationFullWeight << ",";
         }
 
 
         str << weightLowElevation / sum << ",";
-        if(weightIdleTime == 0){
-            str << 0 << "," << 0 << "," ;
-        }else{
-            str << lowElevationStartWeight << "," << lowElevationFullWeight << "," ;
+        if ( weightIdleTime == 0 ) {
+            str << 0 << "," << 0 << ",";
+        } else {
+            str << lowElevationStartWeight << "," << lowElevationFullWeight << ",";
         }
 
-        return  str.str();
+        return str.str();
     }
 };
 }  // namespace VieVS

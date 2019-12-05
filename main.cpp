@@ -74,15 +74,27 @@ int main( int argc, char *argv[] ) {
         return 0;
 
     } else if ( argc == 2 ) {
+        std::string arg = argv[1];
+        if ( arg == "--version" || arg == "-v" ) {
+            std::string versionNr = VieVS::util::version();
+            std::cout << versionNr << std::endl;
+            return 0;
+        }
+        if ( arg == "--help" || arg == "-h" ) {
+            std::cout << "pass path to a VieSchedpp.xml file as first input argument" << std::endl;
+            std::cout << "e.g. \"./VieSchedpp path/to/VieSchedpp.xml\"" << std::endl;
+            return 0;
+        }
+
+
         // main scheduling program
 
-        std::string file = argv[1];
 
         auto start = std::chrono::high_resolution_clock::now();
 
         // V1: standard usage:
-        std::cout << "Processing file: " << file << "\n";
-        VieVS::VieSchedpp mainScheduler( file );
+        std::cout << "Processing file: " << arg << "\n";
+        VieVS::VieSchedpp mainScheduler( arg );
         mainScheduler.run();
 
         auto finish = std::chrono::high_resolution_clock::now();
@@ -150,7 +162,7 @@ int main( int argc, char *argv[] ) {
 
 
     ////    V2: parse skd and log files
-    
+
     ////    VieVS::LogParser htLogParser1("/data/Daten/Schedules/EINT05/log/eint05sa.log");
     ////    htLogParser1.parseLogFile("#flagr#flagr/antenna,new-source","#flagr#flagr/antenna,acquired");
     ////    htLogParser1.addScheduledTimes(mySkdParser.getScheduledTimes("RAEGSMAR"));

@@ -49,7 +49,7 @@ class FocusCorners {
      * @param network station network
      * @param of log file stream
      */
-    static void initialize(const Network &network, std::ofstream &of);
+    static void initialize( const Network &network, std::ofstream &of );
 
     /**
      *  @brief
@@ -61,8 +61,8 @@ class FocusCorners {
      * @param fraction fraction between best and worst mean elevation (used during iteration)
      * @param iteration iteration number
      */
-    static void reweight(const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0,
-                         int iteration = 0);
+    static void reweight( const Subcon &subcon, std::vector<Source> &sources, std::ofstream &of, double fraction = 2.0,
+                          int iteration = 0 );
 
     /**
      * @brief rest all weights and set new time for next algorithm start
@@ -71,12 +71,12 @@ class FocusCorners {
      * @param bestScans list of all best scans (to see which corner was observed)
      * @param sources list of all sources
      */
-    static void reset(const std::vector<Scan> &bestScans, std::vector<Source> &sources);
+    static void reset( const std::vector<Scan> &bestScans, std::vector<Source> &sources );
 
-    static bool flag; ///< use focus corner algorithm
-    static thread_local bool startFocusCorner; ///< focus observation at corner
-    static thread_local unsigned int nextStart; ///< next time when algorithm starts
-    static unsigned int interval; ///< time intervall between algorithm
+    static bool flag;                            ///< use focus corner algorithm
+    static thread_local bool startFocusCorner;   ///< focus observation at corner
+    static thread_local unsigned int nextStart;  ///< next time when algorithm starts
+    static unsigned int interval;                ///< time intervall between algorithm
 
    private:
     static thread_local std::vector<double> lastCornerAzimuth; ///< last observed azimuth (which corner was observed)
@@ -91,7 +91,7 @@ class FocusCorners {
      * @param n how many lowest are searched
      * @return list of lowest indices
      */
-    static std::vector<int> findBestIndices(const std::vector<double> &values, int n );
+    static std::vector<int> findBestIndices( const std::vector<double> &values, int n );
 };
 
 }  // namespace VieVS

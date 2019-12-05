@@ -115,14 +115,14 @@ void Output::writeOperationsNotes() {
 
 void Output::writeSourceStatistics() {
     string fileName = getName();
-    fileName.append("_sourceStatistics.txt");
+    fileName.append( "_sourceStatistics.txt" );
 #ifdef VIESCHEDPP_LOG
-    BOOST_LOG_TRIVIAL(info) << "writing source statistics file to: " << fileName;
+    BOOST_LOG_TRIVIAL( info ) << "writing source statistics file to: " << fileName;
 #else
     cout << "[info] writing operation notes file to: " << fileName;
 #endif
-    SourceStatistics sourceStatistics(path_ + fileName);
-    sourceStatistics.writeFile(network_, sources_, scans_, xml_);
+    SourceStatistics sourceStatistics( path_ + fileName );
+    sourceStatistics.writeFile( network_, sources_, scans_, xml_ );
 }
 
 
@@ -203,25 +203,24 @@ void Output::writeNGS() {
 
     of << "DATA IN NGS FORMAT FROM VieSched++\n";
     of << "This NGS file is empty and serves as input for simulations \n";
-    for ( const auto &sta : network_.getStations()){
+    for ( const auto &sta : network_.getStations() ) {
         string mount = sta.getAntenna().getMount();
         string mountNGS;
-        if (mount == "ALTAZ"){
+        if ( mount == "ALTAZ" ) {
             mountNGS = "AZEL";
-        }else if(mount == "EQUA"){
+        } else if ( mount == "EQUA" ) {
             mountNGS = "EQUA";
-        }else if(mount == "XY_E"){
+        } else if ( mount == "XY_E" ) {
             mountNGS = "X-YE";
         }
 
-        of << boost::format("%-8s   %14.5f %14.5f %14.5f %s %9.5f\n") % sta.getName()
-            %sta.getPosition().getX() %sta.getPosition().getY() %sta.getPosition().getZ()
-            %mountNGS %sta.getAntenna().getOffset();
+        of << boost::format( "%-8s   %14.5f %14.5f %14.5f %s %9.5f\n" ) % sta.getName() % sta.getPosition().getX() %
+                  sta.getPosition().getY() % sta.getPosition().getZ() % mountNGS % sta.getAntenna().getOffset();
     }
     of << "$END\n";
 
-    for ( const auto &src : sources_){
-        if(src.getNTotalScans() == 0){
+    for ( const auto &src : sources_ ) {
+        if ( src.getNTotalScans() == 0 ) {
             continue;
         }
 
@@ -233,7 +232,8 @@ void Output::writeNGS() {
             m *= 60;
             auto s = fmod( m, 1. );
             s *= 60;
-            strRa = ( boost::format( "%02d %02d   %08.5f " ) % static_cast<int>( h ) % static_cast<int>( m ) % s ).str();
+            strRa =
+                ( boost::format( "%02d %02d   %08.5f " ) % static_cast<int>( h ) % static_cast<int>( m ) % s ).str();
         }
 
         string strDe;
@@ -244,18 +244,19 @@ void Output::writeNGS() {
             m *= 60;
             auto s = fmod( m, 1. );
             s *= 60;
-            strDe = ( boost::format( "%+03d %02d   %08.5f" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
+            strDe =
+                ( boost::format( "%+03d %02d   %08.5f" ) % static_cast<int>( d ) % static_cast<int>( m ) % s ).str();
         }
 
-        of << boost::format("%-8s  %s  %s\n") %src.getName() %strRa %strDe;
+        of << boost::format( "%-8s  %s  %s\n" ) % src.getName() % strRa % strDe;
     }
     of << "$END\n";
 
     double refFreq = 0;
-    if (obsModes_->getAllBands().find("X") != obsModes_->getAllBands().end()){
-        refFreq = util::wavelength2frequency(obsModes_->getWavelength("X"));
+    if ( obsModes_->getAllBands().find( "X" ) != obsModes_->getAllBands().end() ) {
+        refFreq = util::wavelength2frequency( obsModes_->getWavelength( "X" ) );
     }
-    of << boost::format("%20e %19s %s %s\n") % refFreq %"" %"GR" %"PH";
+    of << boost::format( "%20e %19s %s %s\n" ) % refFreq % "" % "GR" % "PH";
     of << "$END\n";
 
     boost::posix_time::ptime start = TimeSystem::startTime;

@@ -28,13 +28,13 @@
 #define EQUIPMENT_H
 
 
+#include <boost/format.hpp>
 #include <cmath>
 #include <iostream>
 #include <limits>
 #include <unordered_map>
-#include <vector>
 #include <utility>
-#include <boost/format.hpp>
+#include <vector>
 #include "../../Misc/VieVS_Object.h"
 
 
@@ -54,7 +54,7 @@ class Equipment : public VieVS_Object {
      *
      * @param SEFDs SEFD per band - key is band name, value is SEFD
      */
-    explicit Equipment(std::unordered_map<std::string, double> SEFDs);
+    explicit Equipment( std::unordered_map<std::string, double> SEFDs );
 
 
     /**
@@ -65,9 +65,9 @@ class Equipment : public VieVS_Object {
      * @param el elevation
      * @return SEFD of this band
      */
-    virtual double getSEFD(const std::string &band, double el) const noexcept {
-        if (SEFD_.find(band) != SEFD_.end()) {
-            return SEFD_.at(band);
+    virtual double getSEFD( const std::string &band, double el ) const noexcept {
+        if ( SEFD_.find( band ) != SEFD_.end() ) {
+            return SEFD_.at( band );
         } else {
             return 0;
         }
@@ -90,7 +90,7 @@ class Equipment : public VieVS_Object {
      * @param band band name
      * @return short summary of SEFD parameters
      */
-    virtual std::string shortSummary(const std::string &band) const noexcept;
+    virtual std::string shortSummary( const std::string &band ) const noexcept;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

@@ -51,10 +51,10 @@ class Equipment_elDependent : public Equipment {
      * @param SEFD_c0 elevation dependent SEFD parameter "c1" per band - key is band name, value is parameter
      * @param SEFD_c1 elevation dependent SEFD parameter "c2" per band - key is band name, value is parameter
      */
-    Equipment_elDependent(std::unordered_map<std::string, double> SEFDs,
-                          std::unordered_map<std::string, double> SEFD_y,
-                          std::unordered_map<std::string, double> SEFD_c0,
-                          std::unordered_map<std::string, double> SEFD_c1);
+    Equipment_elDependent( std::unordered_map<std::string, double> SEFDs,
+                           std::unordered_map<std::string, double> SEFD_y,
+                           std::unordered_map<std::string, double> SEFD_c0,
+                           std::unordered_map<std::string, double> SEFD_c1 );
 
 
     /**
@@ -75,7 +75,7 @@ class Equipment_elDependent : public Equipment {
      * @param band band name
      * @return short summary of SEFD parameters
      */
-    std::string shortSummary(const std::string &band) const noexcept override;
+    std::string shortSummary( const std::string &band ) const noexcept override;
 
    private:
     std::unordered_map<std::string, double> y_;   ///< elevation dependent SEFD parameter "y"

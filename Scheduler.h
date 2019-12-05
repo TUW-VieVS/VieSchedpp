@@ -310,7 +310,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param skyCoverage sky coverage of tagalong station
      * @param of outstream object
      */
-    void startTagelongMode(Station &station, SkyCoverage &skyCoverage, std::ofstream &of);
+    void startTagelongMode( Station &station, SkyCoverage &skyCoverage, std::ofstream &of );
 
 
     /**
