@@ -81,7 +81,7 @@ class FocusCorners {
    private:
     static thread_local std::vector<double> lastCornerAzimuth; ///< last observed azimuth (which corner was observed)
     static thread_local std::vector<std::pair<int, double>> backupWeight; ///< backup weights
-    static std::vector<int> staid2groupid; ///< station id to corner group id
+    static thread_local std::vector<int> staid2groupid; ///< station id to corner group id
 
     /**
      * @brief find n lowest values
