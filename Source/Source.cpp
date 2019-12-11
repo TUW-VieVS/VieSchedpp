@@ -217,3 +217,24 @@ void Source::clearObservations() {
 //
 //    return Source(name_,alternativeName_,ra_*rad2deg, de_*rad2deg, newFlux);
 //}
+
+double Source::observedFlux_model( double wavelength, double gmst, const std::vector<double> &dxyz ) const {
+    std::pair<double, double> uv = calcUV( gmst, dxyz );
+
+    // first flux
+    auto it = flux_->begin();
+    double wl1 = it->second->getWavelength();
+    double flux1 = it->second->observedFlux( uv.first, uv.second );
+    // second flux
+    ++it;
+    double wl2 = it->second->getWavelength();
+    double flux2 = it->second->observedFlux( uv.first, uv.second );
+
+    // solve for alpha and K
+    double alpha = log( flux1 / flux2 ) / log( wl1 / wl2 );
+    double K = flux1 / pow( wl1, alpha );
+
+    // calculate observed flux density
+    double observedFlux = K * pow( wavelength, alpha );
+    return observedFlux;
+}

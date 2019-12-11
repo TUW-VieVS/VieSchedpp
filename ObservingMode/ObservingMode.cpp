@@ -12,6 +12,10 @@ unsigned long VieVS::ObservingMode::nextId = 0;
 
 VieVS::ObservingMode::Type VieVS::ObservingMode::type = VieVS::ObservingMode::Type::simple;
 
+std::set<std::string> VieVS::ObservingMode::bands;
+std::unordered_map<std::string, double> VieVS::ObservingMode::wavelengths{
+    {"S", util::freqency2wavelenth( 2291 * 1e6 )}, {"X", util::freqency2wavelenth( 8593 * 1e6 )}};
+
 std::unordered_map<std::string, double> VieVS::ObservingMode::minSNR;  ///< backup min SNR
 
 std::unordered_map<std::string, VieVS::ObservingMode::Property>
@@ -170,7 +174,7 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
     auto mode = make_shared<Mode>( "type", nsta );
 
     for ( const auto &any : band2channel ) {
-        bands_.insert( any.first );
+        bands.insert( any.first );
         double recRate = samplerate * bits * any.second * 1e6;
         mode->setRecordingRates( any.first, recRate );
 
@@ -184,9 +188,9 @@ void ObservingMode::simpleMode( unsigned long nsta, double samplerate, unsigned 
         }
     }
 
-    mode->setBands( bands_ );
+    mode->setBands( bands );
     addMode( mode );
-    wavelength_ = band2wavelength;
+    wavelengths.insert( band2wavelength.begin(), band2wavelength.end() );
 }
 
 
@@ -598,10 +602,10 @@ void ObservingMode::toTrackFrameFormatDefinitions( std::ofstream &of ) const {
 void ObservingMode::summary( std::ofstream &of ) const {
     if ( ObservingMode::type != ObservingMode::Type::simple ) {
         of << "Summary of observing mode(s):\n";
-        for ( const auto &band : bands_ ) {
+        for ( const auto &band : bands ) {
             double meanFrequency = 0;
-            auto it = wavelength_.find( band );
-            if ( it == wavelength_.end() ) {
+            auto it = wavelengths.find( band );
+            if ( it == wavelengths.end() ) {
                 continue;
             } else {
                 meanFrequency = util::wavelength2frequency( it->second ) * 1e-6;
@@ -616,7 +620,7 @@ void ObservingMode::summary( std::ofstream &of ) const {
 
     } else {
         of << "Simple observing mode used!\n";
-        for ( const auto &any : bands_ ) {
+        for ( const auto &any : bands ) {
             double rec = getMode( 0 )->recordingRate( 0, 1, any ) * 1e-6;
             double eff = getMode( 0 )->efficiency( 0, 1 );
 
@@ -641,7 +645,7 @@ void ObservingMode::operationNotesSummary( std::ofstream &of ) const {
 
 
 void ObservingMode::calcMeanFrequencies() {
-    for ( const auto &band : bands_ ) {
+    for ( const auto &band : bands ) {
         vector<double> frequencies;
         for ( const auto &freq : freqs_ ) {
             auto tmp = freq->getFrequencies( band );
@@ -650,15 +654,15 @@ void ObservingMode::calcMeanFrequencies() {
 
         double meanFrequency = std::accumulate( frequencies.begin(), frequencies.end(), 0.0 ) / frequencies.size();
         double meanWavelength = util::freqency2wavelenth( meanFrequency * 1e6 );
-        wavelength_[band] = meanWavelength;
+        wavelengths[band] = meanWavelength;
     }
 }
 
 
 void ObservingMode::addDummyBands( const std::map<std::string, std::vector<double>> &band ) {
     for ( const auto &any : band ) {
-        bands_.insert( any.first );
+        bands.insert( any.first );
         double mfreq = accumulate( any.second.begin(), any.second.end(), 0.0 ) / any.second.size();
-        wavelength_[any.first] = mfreq;
+        wavelengths[any.first] = mfreq;
     }
 }

@@ -52,6 +52,8 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     maxScan = other.maxScan;
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
+    dataWriteRate = other.dataWriteRate;
+    totalRecordingRate = other.totalRecordingRate;
 
     ignoreSources = other.ignoreSources;
 }
@@ -327,6 +329,9 @@ boost::optional<unsigned int> Station::slewTime( const PointingVector &pointingV
     } else {
         unsigned int slewTime = antenna_->slewTime( currentPositionVector_, pointingVector );
 
+        if ( slewTime < parameters_.minSlewtimeDataWriteRate ) {
+            slewTime = parameters_.minSlewtimeDataWriteRate;
+        }
         if ( slewTime < parameters_.minSlewtime ) {
             slewTime = parameters_.minSlewtime;
         }

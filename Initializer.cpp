@@ -227,34 +227,53 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
 #endif
             continue;
         }
-        // check if SEFD_ information is in X and S band
-        if ( eq_cat[5] != "X" || eq_cat[7] != "S" ) {
-            of << "*** ERROR: creating station " << name << ": " << any.first << ": we only support SX equipment ***\n";
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: unknown band name";
-#else
-            cout << "[error] station " << name << " equip.cat: unknown band name";
-#endif
-            continue;
+
+        const auto &bands = ObservingMode::bands;
+        int nbands = bands.size();
+
+        vector<int> band_idxs;
+        vector<string> band_names;
+        for ( int i = 5; i < eq_cat.size() - 2; i += 2 ) {
+            string t = eq_cat[i];
+            // if SEFD of "t" is already found --> skip
+            if ( find( band_names.begin(), band_names.end(), t ) != band_names.end() ) {
+                continue;
+            }
+
+            // check if "t" is not a number...
+            bool isnumber;
+            try {
+                double dummy = boost::lexical_cast<double>( t );
+                isnumber = true;
+            } catch ( boost::bad_lexical_cast const &e ) {
+                isnumber = false;
+            }
+            if ( !isnumber ) {
+                band_idxs.push_back( i );
+                band_names.push_back( t );
+            }
         }
 
         unordered_map<std::string, double> SEFDs;
         // convert all items from equip.cat
         unordered_map<std::string, double> SEFD_found;
-        try {
-            SEFD_found[eq_cat.at( 5 )] = boost::lexical_cast<double>( eq_cat.at( 6 ) );
-            SEFD_found[eq_cat.at( 7 )] = boost::lexical_cast<double>( eq_cat.at( 8 ) );
-        } catch ( const std::exception &e ) {
-            of << "*** ERROR: creating station " << name << ": " << e.what() << "\n";
+        for ( int i_band = 0; i_band < band_idxs.size(); ++i_band ) {
+            int band_idx = band_idxs[i_band];
+            string band_name = band_names[i_band];
+            try {
+                SEFD_found[band_name] = boost::lexical_cast<double>( eq_cat.at( band_idx + 1 ) );
+            } catch ( const std::exception &e ) {
+                of << "*** ERROR: creating station " << name << ": " << e.what() << "\n";
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: cannot cast text to number";
+                BOOST_LOG_TRIVIAL( error ) << "station " << name << " equip.cat: cannot cast text to number";
 #else
-            cout << "[error] station " << name << " equip.cat: cannot cast text to number";
+                cout << "[error] station " << name << " equip.cat: cannot cast text to number";
 #endif
-            continue;
+                continue;
+            }
         }
         bool everythingOkWithBands = true;
-        for ( const auto &bandName : obsModes_->getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::bands ) {
             if ( SEFD_found.find( bandName ) != SEFD_found.end() ) {
                 SEFDs[bandName] = SEFD_found[bandName];
             } else {
@@ -275,7 +294,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
             continue;
         }
 
-        if ( SEFDs.size() != obsModes_->getAllBands().size() ) {
+        if ( SEFDs.size() != ObservingMode::bands.size() ) {
             if ( SEFDs.empty() ) {
                 of << "*** ERROR: creating station " << name
                    << ": no SEFD information found to calculate backup value!;\n";
@@ -297,7 +316,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                     max = any2.second;
                 }
             }
-            for ( const auto &bandName : obsModes_->getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::bands ) {
                 if ( SEFDs.find( bandName ) == SEFDs.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         SEFDs[bandName] = min * ObservingMode::stationBackupValue[bandName];
@@ -315,7 +334,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
         unordered_map<std::string, double> SEFD_c1;
 
         if ( eq_cat.size() >= 16 ) {
-            if ( eq_cat[9] == "X" || eq_cat[9] == "S" ) {
+            if ( bands.find( eq_cat[9] ) != bands.end() ) {
                 elSEFD = true;
                 try {
                     string band = eq_cat[9];
@@ -340,7 +359,7 @@ void Initializer::createStations( const SkdCatalogReader &reader, ofstream &of )
                     elSEFD = false;
                 }
             }
-            if ( eq_cat[13] == "X" || eq_cat[13] == "S" ) {
+            if ( bands.find( eq_cat[13] ) != bands.end() ) {
                 try {
                     string band = eq_cat[13];
                     auto elSEFD_y = boost::lexical_cast<double>( eq_cat.at( 14 ) );
@@ -629,10 +648,11 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
             alreadyConsidered.push_back( cflux );
 
             string thisBand = flux_split[cflux][1];
-            if ( std::find( obsModes_->getAllBands().begin(), obsModes_->getAllBands().end(), thisBand ) ==
-                 obsModes_->getAllBands().end() ) {
-                continue;
-            }
+            //            if ( std::find( obsModes_->getAllBands().begin(), obsModes_->getAllBands().end(), thisBand )
+            //            ==
+            //                 obsModes_->getAllBands().end()) {
+            //                continue;
+            //            }
 
             string thisType = flux_split[cflux][2];
             if ( thisType == "M" ) {
@@ -711,7 +731,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    srcFlux = make_unique<Flux_M>( obsModes_->getWavelength( thisBand ), tflux, tmajorAxis, taxialRatio,
+                    srcFlux = make_unique<Flux_M>( ObservingMode::wavelengths[thisBand], tflux, tmajorAxis, taxialRatio,
                                                    tpositionAngle );
                 }
             } else {
@@ -744,7 +764,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
 
                 if ( !errorWhileReadingFlux ) {
-                    double wavelength = obsModes_->getWavelength( thisBand );
+                    double wavelength = ObservingMode::wavelengths[thisBand];
                     srcFlux = make_unique<Flux_B>( wavelength, std::move( knots ), std::move( values ) );
                 }
             }
@@ -756,7 +776,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
         }
 
         bool fluxBandInfoOk = true;
-        for ( const auto &bandName : obsModes_->getAllBands() ) {
+        for ( const auto &bandName : ObservingMode::bands ) {
             if ( flux.find( bandName ) == flux.end() ) {
                 if ( ObservingMode::sourceProperty[bandName] == ObservingMode::Property::required ) {
                     fluxBandInfoOk = false;
@@ -764,7 +784,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                 }
                 if ( ObservingMode::sourceBackup[bandName] == ObservingMode::Backup::value ) {
                     flux[bandName] =
-                        make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                        make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                              vector<double>{ObservingMode::sourceBackupValue[bandName]} );
                 }
             }
@@ -778,7 +798,7 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
 #endif
         }
 
-        if ( flux.size() != obsModes_->getAllBands().size() ) {
+        if ( flux.size() != ObservingMode::bands.size() ) {
             if ( flux.empty() ) {
                 src_failed.push_back( name );
                 of << "*** ERROR: source " << name << " no flux information found to calculate backup value!;\n";
@@ -801,23 +821,43 @@ void Initializer::createSources( const SkdCatalogReader &reader, std::ofstream &
                     max = any2.second->getMaximumFlux();
                 }
             }
-            for ( const auto &bandName : obsModes_->getAllBands() ) {
+            for ( const auto &bandName : ObservingMode::bands ) {
                 if ( flux.find( bandName ) == flux.end() ) {
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::minValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                                  vector<double>{min * ObservingMode::stationBackupValue[bandName]} );
                     }
                     if ( ObservingMode::stationBackup[bandName] == ObservingMode::Backup::maxValueTimes ) {
                         flux[bandName] =
-                            make_unique<Flux_B>( obsModes_->getWavelength( bandName ), vector<double>{0, 13000},
+                            make_unique<Flux_B>( ObservingMode::wavelengths[bandName], vector<double>{0, 13000},
                                                  vector<double>{max * ObservingMode::stationBackupValue[bandName]} );
                     }
                 }
             }
         }
+        bool fluxValid = false;
+        if ( flux.size() == ObservingMode::bands.size() ) {
+            fluxValid = true;
+        } else {
+            fluxValid = true;
+            for ( const auto &band : ObservingMode::bands ) {
+                bool bandCorrect = false;
+                if ( flux.find( band ) != flux.end() ) {
+                    bandCorrect = true;
+                }
+                if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel && flux.size() == 2 ) {
+                    bandCorrect = true;
+                }
 
-        if ( flux.size() == obsModes_->getAllBands().size() ) {
+                if ( !bandCorrect ) {
+                    fluxValid = false;
+                    break;
+                }
+            }
+        }
+
+        if ( fluxValid ) {
             string name1, name2;
             if ( commonname.empty() ) {
                 name1 = name;
@@ -1001,18 +1041,19 @@ void Initializer::initializeStations() noexcept {
         vector<vector<Station::Event>> events( network_.getNSta() );
 
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
 
         // create default events at start and end
-        for ( int i = 0; i < network_.getNSta(); ++i ) {
+        for ( int staid = 0; staid < network_.getNSta(); ++staid ) {
+            parentPARA.totalRecordingRate = obsModes_->getMode( 0 )->recordingRate( staid );
             Station::Event newEvent_start( 0, false, parentPARA );
-            events[i].push_back( newEvent_start );
+            events[staid].push_back( newEvent_start );
 
             Station::Event newEvent_end( TimeSystem::duration, true, parentPARA );
-            events[i].push_back( newEvent_end );
+            events[staid].push_back( newEvent_end );
         }
 
         // add setup for all stations
@@ -1264,6 +1305,9 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
+            if ( newPARA.dataWriteRate.is_initialized() ) {
+                combinedPARA.dataWriteRate = *newPARA.dataWriteRate * 1e6;
+            }
 
             if ( !newPARA.minSNR.empty() ) {
                 for ( const auto &any : newPARA.minSNR ) {
@@ -1408,7 +1452,7 @@ void Initializer::initializeSources() noexcept {
 #endif
 
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -1701,7 +1745,7 @@ void Initializer::initializeBaselines() noexcept {
         if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "create backup baseline parameters";
 #endif
         // set observation mode band names
-        for ( const auto &any : obsModes_->getAllBands() ) {
+        for ( const auto &any : ObservingMode::bands ) {
             const string &name = any;
             parentPARA.minSNR[name] = ObservingMode::minSNR[name];
         }
@@ -2046,7 +2090,7 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
             unordered_map<string, ObservingMode::Backup> sourceBackup;
             unordered_map<string, double> sourceBackupValue;
 
-            for ( const auto &any : obsModes_->getAllBands() ) {
+            for ( const auto &any : ObservingMode::bands ) {
                 stationProperty[any] = ObservingMode::Property::required;
                 sourceProperty[any] = ObservingMode::Property::required;
                 stationBackup[any] = ObservingMode::Backup::none;
@@ -2154,6 +2198,9 @@ void Initializer::initializeObservingMode( const SkdCatalogReader &skdCatalogs, 
                                 } else if ( it_band_source.second.get_value<std::string>() == "optional" ) {
                                     source_property = ObservingMode::Property::optional;
                                 }
+                            } else if ( thisName == "backup_internalModel" ) {
+                                source_backup = ObservingMode::Backup::internalModel;
+
                             } else if ( thisName == "backup_maxValueTimes" ) {
                                 source_backup = ObservingMode::Backup::maxValueTimes;
                                 source_backupValue = it_band_source.second.get_value<double>();

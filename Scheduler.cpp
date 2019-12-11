@@ -608,6 +608,18 @@ void Scheduler::update( Scan &scan, ofstream &of ) noexcept {
     Source &thisSource = sources_[srcid];
     thisSource.update( nbl, latestTime, influence );
 
+    // update minimum slew time in case of custom data write speed to disk
+    for ( int i = 0; i < scan.getNSta(); ++i ) {
+        unsigned long staid = scan.getPointingVector( i ).getStaid();
+
+        Station &sta = network_.refStation( staid );
+        if ( sta.getPARA().dataWriteRate.is_initialized() ) {
+            //            double recRate = currentObservingMode_->recordingRate( staid );
+            unsigned int duration = scan.getTimes().getObservingDuration( i );
+            sta.referencePARA().overheadTimeDueToDataWriteSpeed( duration );
+        }
+    }
+
     scan.output( scans_.size(), network_, thisSource, of );
     scans_.push_back( std::move( scan ) );
 }
@@ -723,6 +735,9 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
                 } else {
                     // check slew time
                     unsigned int slewtime = thisStation.getAntenna().slewTime( thisEnd, nextStart );
+                    if ( slewtime < thisStation.getPARA().minSlewtimeDataWriteRate ) {
+                        slewtime = thisStation.getPARA().minSlewtimeDataWriteRate;
+                    }
                     if ( slewtime < thisStation.getPARA().minSlewtime ) {
                         slewtime = thisStation.getPARA().minSlewtime;
                     }
@@ -1073,10 +1088,18 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                     maxScanDuration = *source.getPARA().fixedScanDuration;
                 } else {
                     for ( auto &band : currentObservingMode_->getAllBands() ) {
-                        double SEFD_src =
-                            source.observedFlux( band, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) );
-                        if ( SEFD_src == 0 ) {
-                            SEFD_src = 0.001;
+                        double SEFD_src;
+                        if ( source.hasFluxInformation( band ) ) {
+                            // calculate observed flux density for each band
+                            SEFD_src =
+                                source.observedFlux( band, gmst, network_.getDxyz( sta1.getId(), sta2.getId() ) );
+                        } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                            // calculate observed flux density based on model
+                            double wavelength = ObservingMode::wavelengths[band];
+                            SEFD_src = source.observedFlux_model( wavelength, gmst,
+                                                                  network_.getDxyz( sta1.getId(), sta2.getId() ) );
+                        } else {
+                            SEFD_src = 1e-3;
                         }
 
                         double el1 = pv_new_start.getEl();
@@ -1657,7 +1680,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             break;
     }
 
-    // hard copy previouse observing times
+    // hard copy previous observing times
     map<unsigned long, ScanTimes> oldScanTimes;
 
     for ( const auto &scan : scans_ ) {
@@ -1716,6 +1739,14 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             // check for new events
             checkForNewEvents( scan1.getTimes().getScanTime( Timestamp::start ), false, of, false );
 
+            double write_rec_fraction = 1;
+            if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                write_rec_fraction = *thisSta.getPARA().dataWriteRate / thisSta.getPARA().totalRecordingRate;
+            }
+            if ( write_rec_fraction < 1 && ts == Timestamp::start ) {
+                continue;
+            }
+
             // look for index of next scan with this station
             int iscan2 = iscan1 + 1;
             while ( iscan2 < scans_.size() && !scans_[iscan2].findIdxOfStationId( staid ).is_initialized() ) {
@@ -1755,6 +1786,12 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
 
             // calc idle time
             unsigned int idleTime = availableTime - prevSlewTime - fsTime - preobTime;
+            if ( write_rec_fraction < 1 ) {
+                unsigned int duration = scan1.getTimes().getObservingDuration( staidx1 );
+                prevSlewTime = max( {prevSlewTime, thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration )} );
+                idleTime = write_rec_fraction * ( availableTime - prevSlewTime - fsTime - preobTime );
+            }
+
             if ( idleTime == 0 ) {
                 continue;
             }
@@ -1808,6 +1845,10 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     slewTime = thisSta.getAntenna().slewTime( variable, pv2 );
                     if ( slewTime < thisSta.getPARA().minSlewtime ) {
                         slewTime = thisSta.getPARA().minSlewtime;
+                    }
+                    if ( write_rec_fraction < 1 ) {
+                        unsigned int duration = scan1.getTimes().getObservingDuration( staidx1 );
+                        slewTime = thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
                     }
                     break;
                 }
@@ -1902,10 +1943,23 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     const Source &thisSource = sources_[lastScan.getSourceId()];
                     const PointingVector &pv1 = lastScan.getPointingVector( staidx1, Timestamp::end );
 
+
+                    unsigned int sessionStop;
+                    double write_rec_fraction = 1;
+                    if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                        write_rec_fraction = *thisSta.getPARA().dataWriteRate / thisSta.getPARA().totalRecordingRate;
+                    }
+
+                    if ( write_rec_fraction < 1 ) {
+                        sessionStop = pv1.getTime() + ( TimeSystem::duration - pv1.getTime() ) * write_rec_fraction;
+                    } else {
+                        sessionStop = TimeSystem::duration;
+                    }
+
                     if ( pv1.getTime() != 0 ) {
                         PointingVector variable( pv1 );
                         variable.setId( pv1.getId() );
-                        variable.setTime( TimeSystem::duration );
+                        variable.setTime( sessionStop );
                         thisSta.calcAzEl_rigorous( thisSource, variable );
                         thisSta.getCableWrap().calcUnwrappedAz( pv1, variable );
                         bool valid = true;

@@ -30,7 +30,7 @@ SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of 
 
 void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {
-    const set<string> &bands = obsModes->getAllBands();
+    const set<string> &bands = ObservingMode::bands;
 
     vector<string> stations;
     for ( const auto &any : network.getStations() ) {
@@ -38,9 +38,9 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
     }
     obsModes->getMode( 0 )->summary( of, stations );
     of << "------------------------------------------------------------------------------------------------------------"
-          "------------\n";
+          "-------------\n";
 
-    of << boost::format( "%-9s  %-8s  %8s  %8s  %-8s  %5s  %4s  %4s  %7s  %5s  %5s  %7s  %7s  %9s\n" ) % "scan" %
+    of << boost::format( "%-9s  %-8s  %8s  %8s  %-8s  %6s  %4s  %4s  %7s  %5s  %5s  %7s  %7s  %9s\n" ) % "scan" %
               "baseline" % "SEFD1" % "SEFD2" % "source" % "flux" % "band" % "dur" % "SNR" % "el1" % "el2" % "unaz1" %
               "unaz2" % "scheduled";
 
@@ -73,9 +73,16 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                     }
 
                     const auto &dxyz = network.getDxyz( staid1, staid2 );
-                    double SEFD_src = src.observedFlux( band, gmst, dxyz );
-                    if ( SEFD_src == 0 ) {
-                        SEFD_src = 0.001;
+                    double SEFD_src;
+                    if ( src.hasFluxInformation( band ) ) {
+                        // calculate observed flux density for each band
+                        SEFD_src = src.observedFlux( band, gmst, dxyz );
+                    } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                        // calculate observed flux density based on model
+                        double wavelength = ObservingMode::wavelengths[band];
+                        SEFD_src = src.observedFlux_model( wavelength, gmst, dxyz );
+                    } else {
+                        SEFD_src = 1e-3;
                     }
 
                     // calculate system equivalent flux density for each station
@@ -107,8 +114,8 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
                     string blName = sta1.getAlternativeName() + "-" + sta2.getAlternativeName();
 
                     of << boost::format(
-                              "%-9s  %=8s  %8.2f  %8.2f  %8s  %5.2f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  "
-                              "%9s\n" ) %
+                              "%-9s  %=8s  %8.2f  %8.2f  %8s  %6.3f  %=4s  %4d  %7.2f  %5.2f  %5.2f  %7.2f  %7.2f  "
+                              "%=9s\n" ) %
                               scanName % blName % SEFD_sta1 % SEFD_sta2 % src.getName() % SEFD_src % band % dur % SNR %
                               ( el1 * rad2deg ) % ( el2 * rad2deg ) % ( pv1.getAz() * rad2deg ) %
                               ( pv2.getAz() * rad2deg ) % sscheduled;

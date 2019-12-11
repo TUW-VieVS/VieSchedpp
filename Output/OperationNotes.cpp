@@ -853,7 +853,7 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
                                         const std::vector<Scan> &scans,
                                         const std::shared_ptr<const ObservingMode> &obsModes ) {
     map<string, vector<vector<double>>> SNRs;
-    const auto &bands = obsModes->getAllBands();
+    const auto &bands = ObservingMode::bands;
 
     for ( const auto &band : bands ) {
         SNRs[band] = vector<vector<double>>( network.getNBls() );
@@ -883,7 +883,17 @@ void OperationNotes::displaySNRSummary( const Network &network, const std::vecto
             unsigned int duration = obs.getObservingTime();
 
             for ( const auto &band : bands ) {
-                double observedFlux = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+                double observedFlux;
+                if ( source.hasFluxInformation( band ) ) {
+                    // calculate observed flux density for each band
+                    observedFlux = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+                } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                    // calculate observed flux density based on model
+                    double wavelength = ObservingMode::wavelengths[band];
+                    observedFlux = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+                } else {
+                    observedFlux = 1e-3;
+                }
 
                 double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
                 double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );

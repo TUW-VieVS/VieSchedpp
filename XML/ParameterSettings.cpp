@@ -251,6 +251,9 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree( const str
     if ( PARA.maxNumberOfScans.is_initialized() ) {
         parameters.add( "parameters.maxNumberOfScans", PARA.maxNumberOfScans );
     }
+    if ( PARA.dataWriteRate.is_initialized() ) {
+        parameters.add( "parameters.dataWriteRate", PARA.dataWriteRate );
+    }
 
     if ( !PARA.minSNR.empty() ) {
         for ( const auto &any : PARA.minSNR ) {
@@ -314,6 +317,8 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.maxNumberOfScans = it.second.get_value<unsigned int>();
         } else if ( paraName == "minElevation" ) {
             para.minElevation = it.second.get_value<double>();
+        } else if ( paraName == "dataWriteRate" ) {
+            para.dataWriteRate = it.second.get_value<double>();
         } else if ( paraName == "minSNR" ) {
             string bandName = it.second.get_child( "<xmlattr>.band" ).data();
             auto value = it.second.get_value<double>();
@@ -983,6 +988,8 @@ void ParameterSettings::mode_bandPolicy( const std::string &name, double minSNR,
         band.add( "band.source.backup_minValueTimes", sourceBackupValue );
     } else if ( sourceBackup == ObservationModeBackup::value ) {
         band.add( "band.source.backup_value", sourceBackupValue );
+    } else if ( sourceBackup == ObservationModeBackup::internalModel ) {
+        band.add_child( "band.source.backup_internalModel", boost::property_tree::ptree() );
     } else if ( sourceBackup == ObservationModeBackup::none ) {
     }
 

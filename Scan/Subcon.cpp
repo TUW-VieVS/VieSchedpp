@@ -102,7 +102,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
                 }
             }
 
-            // look if there is enough time to reach endposition (if there is any) under perfect circonstance
+            // look if there is enough time to reach endposition (if there is any) under perfect circumstances
             if ( endposition.is_initialized() ) {
                 const auto &times = thisScan.getTimes();
 
@@ -992,6 +992,18 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
 
                 // calculate slew time between pointing vectors
                 unsigned int slewtime = thisSta.getAntenna().slewTime( assumedSlewStart, thisEndposition );
+
+                // adjust minimum slew time due to lower data write speed
+                if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                    unsigned int duration = times.getObservingDuration( istation );
+                    unsigned int minSlewTimeDueToWriteSpeed =
+                        thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
+                    if ( slewtime < minSlewTimeDueToWriteSpeed ) {
+                        slewtime = minSlewTimeDueToWriteSpeed;
+                    }
+                }
+
+                // adjust minimum slew time if spezified
                 if ( slewtime < thisSta.getPARA().minSlewtime ) {
                     slewtime = thisSta.getPARA().minSlewtime;
                 }

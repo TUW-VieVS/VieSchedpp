@@ -52,6 +52,7 @@ void SkdParser::read() {
         bool tapeFound = false;
         bool corSynchFound = false;
         bool calibrationFound = false;
+        bool freqFound = false;
         bool bandsFound = false;
 
         // loop through file
@@ -141,8 +142,27 @@ void SkdParser::read() {
                     splitVector.clear();
                 }
             }
-            if ( !bandsFound && trimmed == "$CODES" ) {
+            if ( !bandsFound && trimmed.substr( 0, 3 ) == "SNR" ) {
+                set<string> bands;
                 bandsFound = true;
+                do {
+                    boost::split( splitVector, trimmed, boost::is_space(), boost::token_compress_on );
+                    for ( int i = 2; i < splitVector.size(); i += 3 ) {
+                        string band = splitVector[i];
+                        bands.insert( band );
+                    }
+
+
+                    getline( fid, line );
+                    if ( line.empty() || line.at( 0 ) == '*' ) {
+                        continue;
+                    }
+                    trimmed = boost::trim_copy( line );
+                } while ( trimmed.substr( 0, 3 ) == "SNR" );
+                ObservingMode::bands = bands;
+            }
+            if ( !freqFound && trimmed == "$CODES" ) {
+                freqFound = true;
                 bool first = true;
                 while ( getline( fid, line ) ) {
                     if ( line == "* no sked observind mode used! " ) {
@@ -250,24 +270,38 @@ void SkdParser::read() {
 
     init.initializeObservingMode( staNames.size(), samRate, bits, band2channel, band2wavelength );
 
-    std::unordered_map<string, ObservingMode::Property> srcProperty{
+    std::unordered_map<string, ObservingMode::Property> optional{
         {"L", ObservingMode::Property::optional},  {"S", ObservingMode::Property::optional},
         {"C", ObservingMode::Property::optional},  {"X", ObservingMode::Property::optional},
         {"Ku", ObservingMode::Property::optional}, {"K", ObservingMode::Property::optional},
         {"Ka", ObservingMode::Property::optional}, {"E", ObservingMode::Property::optional},
-        {"W", ObservingMode::Property::optional}};
-    std::unordered_map<string, ObservingMode::Backup> sourceBackup{
-        {"L", ObservingMode::Backup::value},  {"S", ObservingMode::Backup::value},
-        {"C", ObservingMode::Backup::value},  {"X", ObservingMode::Backup::value},
-        {"Ku", ObservingMode::Backup::value}, {"K", ObservingMode::Backup::value},
-        {"Ka", ObservingMode::Backup::value}, {"E", ObservingMode::Backup::value},
-        {"W", ObservingMode::Backup::value}};
-    std::unordered_map<string, double> sourceBackupValue{{"L", 1}, {"S", 1},  {"C", 1}, {"X", 1}, {"Ku", 1},
-                                                         {"K", 1}, {"Ka", 1}, {"E", 1}, {"W", 1}};
+        {"W", ObservingMode::Property::optional},  {"A", ObservingMode::Property::optional},
+        {"B", ObservingMode::Property::optional},  {"C", ObservingMode::Property::optional},
+        {"D", ObservingMode::Property::optional}};
 
-    ObservingMode::sourceProperty = srcProperty;
-    ObservingMode::sourceBackup = sourceBackup;
+    std::unordered_map<string, ObservingMode::Backup> backup{
+        {"L", ObservingMode::Backup::value},  {"S", ObservingMode::Backup::value},  {"C", ObservingMode::Backup::value},
+        {"X", ObservingMode::Backup::value},  {"Ku", ObservingMode::Backup::value}, {"K", ObservingMode::Backup::value},
+        {"Ka", ObservingMode::Backup::value}, {"E", ObservingMode::Backup::value},  {"W", ObservingMode::Backup::value},
+        {"A", ObservingMode::Backup::value},  {"B", ObservingMode::Backup::value},  {"C", ObservingMode::Backup::value},
+        {"D", ObservingMode::Backup::value}};
+
+    std::unordered_map<string, double> sourceBackupValue{{"L", 1}, {"S", 1},  {"C", 1}, {"X", 1}, {"Ku", 1},
+                                                         {"K", 1}, {"Ka", 1}, {"E", 1}, {"W", 1}, {"A", 1},
+                                                         {"B", 1}, {"C", 1},  {"D", 1}};
+
+    std::unordered_map<string, double> stationBackupValue{
+        {"L", 1000}, {"S", 1000}, {"C", 1000}, {"X", 1000}, {"Ku", 1000}, {"K", 1000}, {"Ka", 1000},
+        {"E", 1000}, {"W", 1000}, {"A", 1000}, {"B", 1000}, {"C", 1000},  {"D", 1000}};
+
+    ObservingMode::sourceProperty = optional;
+    ObservingMode::stationProperty = optional;
+
+    ObservingMode::sourceBackup = backup;
+    ObservingMode::stationBackup = backup;
+
     ObservingMode::sourceBackupValue = sourceBackupValue;
+    ObservingMode::stationBackupValue = stationBackupValue;
 
     init.createSources( skd_, of );
     init.createStations( skd_, of );

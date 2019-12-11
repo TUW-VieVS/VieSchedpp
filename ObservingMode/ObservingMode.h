@@ -58,6 +58,7 @@ class ObservingMode : public VieVS_Object {
     enum class Backup {
         minValueTimes,  ///< use minimum value found in other bands times a factor
         maxValueTimes,  ///< use maximum value found in other bands times a factor
+        internalModel,  ///< use internal model to derive flux density of sources (sources only)
         value,          ///< use specific value
         none,           ///< no backup model
     };
@@ -83,6 +84,9 @@ class ObservingMode : public VieVS_Object {
     static std::unordered_map<std::string, Property> sourceProperty;   ///< is band required or optional for source
     static std::unordered_map<std::string, Backup> sourceBackup;       ///< backup version for source
     static std::unordered_map<std::string, double> sourceBackupValue;  ///< backup value for source
+
+    static std::set<std::string> bands;                          ///< list of all observed bands
+    static std::unordered_map<std::string, double> wavelengths;  ///< backup wavelength for commonly used bands
 
     /**
      * @brief constructor
@@ -181,7 +185,7 @@ class ObservingMode : public VieVS_Object {
     void addBlock( const std::shared_ptr<const Freq> &newFreq ) {
         freqs_.push_back( newFreq );
         const auto &tmp = newFreq->getBands();
-        ObservingMode::bands_.insert( tmp.begin(), tmp.end() );
+        ObservingMode::bands.insert( tmp.begin(), tmp.end() );
     }
 
 
@@ -284,25 +288,6 @@ class ObservingMode : public VieVS_Object {
      *
      */
     void calcMeanFrequencies();
-
-
-    /**
-     * @brief get all bands
-     * @author Matthias Schartner
-     *
-     * @return list of all bands
-     */
-    const std::set<std::string> &getAllBands() const { return bands_; }
-
-
-    /**
-     * @brief get wavelength per band
-     * @author Matthias Schartner
-     *
-     * @param band band
-     * @return wavelength
-     */
-    double getWavelength( const std::string &band ) const { return wavelength_.at( band ); }
 
 
     /**
@@ -482,10 +467,8 @@ class ObservingMode : public VieVS_Object {
 
 
    private:
-    static unsigned long nextId;                          ///< next id for this object type
-    std::vector<std::string> stationNames_;               ///< station names
-    std::set<std::string> bands_;                         ///< list of all observed bands
-    std::unordered_map<std::string, double> wavelength_;  ///< list of mean wavelength per band
+    static unsigned long nextId;             ///< next id for this object type
+    std::vector<std::string> stationNames_;  ///< station names
 
     std::vector<std::shared_ptr<const Mode>> modes_;                     ///< list of all MODE blocks
     std::vector<std::shared_ptr<const If>> ifs_;                         ///< list of all IF blocks
@@ -493,6 +476,7 @@ class ObservingMode : public VieVS_Object {
     std::vector<std::shared_ptr<const Freq>> freqs_;                     ///< list of all FREQ blocks
     std::vector<std::shared_ptr<const Track>> tracks_;                   ///< list of all TRACKs blocks
     std::vector<std::shared_ptr<const std::string>> trackFrameFormats_;  ///< list of all track frame formats
+
 
     /**
      * @brief create FREQ block from skd catalogs

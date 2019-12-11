@@ -98,6 +98,7 @@ class ParameterSettings {
         boost::optional<unsigned int> minScan;           ///< minimum required scan time in seconds
         boost::optional<double> minElevation;            ///< minimum elevation of parameter in degrees
         boost::optional<unsigned int> maxNumberOfScans;  ///< maximum number of scans
+        boost::optional<double> dataWriteRate;           ///< maximum data write speed to disk in Mbps
 
         boost::optional<double> weight;  ///< multiplicative factor of score for scans with this station
 
@@ -196,6 +197,7 @@ class ParameterSettings {
     enum class ObservationModeBackup {
         minValueTimes,  ///< use minimum value found in other bands times a factor
         maxValueTimes,  ///< use maximum value found in other bands times a factor
+        internalModel,  ///< use internal model to derive flux density of sources (sources only)
         value,          ///< use specific value
         none,           ///< no backup model
     };

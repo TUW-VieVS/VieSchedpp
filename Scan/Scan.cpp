@@ -330,10 +330,21 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
         // loop over each band
         bool flag_observationRemoved = false;
         for ( auto &band : mode->getAllBands() ) {
-            // calculate observed flux density for each band
-            double SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+            double SEFD_src;
+            if ( source.hasFluxInformation( band ) ) {
+                // calculate observed flux density for each band
+                SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+            } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                // calculate observed flux density based on model
+                double wavelength = ObservingMode::wavelengths[band];
+                SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+            } else {
+                SEFD_src = 1e-3;
+            }
+
+
             if ( SEFD_src == 0 ) {
-                SEFD_src = 0.001;
+                SEFD_src = 1e-3;
             }
 
             // calculate system equivalent flux density for each station
@@ -976,6 +987,13 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source
 
             // calculate slew time between pointing vectors
             unsigned int slewtime = thisSta.getAntenna().slewTime( slewStart, thisEndposition );
+            if ( thisSta.getPARA().dataWriteRate.is_initialized() ) {
+                unsigned int duration = times_.getObservingDuration( idxSta );
+                unsigned int minSlewTimeDueToWriteSpeed = thisSta.getPARA().minSlewTimeDueToDataWriteSpeed( duration );
+                if ( slewtime < minSlewTimeDueToWriteSpeed ) {
+                    slewtime = minSlewTimeDueToWriteSpeed;
+                }
+            }
             if ( slewtime < thisSta.getPARA().minSlewtime ) {
                 slewtime = thisSta.getPARA().minSlewtime;
             }
@@ -1094,8 +1112,7 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
     }
 
     if ( scanSequence.customScanSequence ) {
-        if ( nScanSelections != 0 &&
-             scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) != scanSequence.targetSources.end() ) {
+        if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) != scanSequence.targetSources.end() ) {
             const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
             if ( find( target.begin(), target.end(), source.getId() ) != target.end() ) {
                 this_score *= 100;

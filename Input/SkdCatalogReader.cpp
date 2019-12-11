@@ -188,7 +188,8 @@ std::map<std::string, std::vector<std::string>> SkdCatalogReader::readCatalog(
                         string key = splitVector[indexOfKey];
                         // add station name to key if you look at equip.cat because id alone is not unique in catalogs
                         if ( type == CATALOG::equip ) {
-                            key = boost::algorithm::to_upper_copy( key + "|" + splitVector[indexOfKey - 1] );
+                            key = boost::algorithm::to_upper_copy(
+                                key.append( "|" ).append( splitVector[indexOfKey - 1] ) );
                         }
 
                         // save all station keys in case of antenna catalog

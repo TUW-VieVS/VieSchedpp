@@ -85,7 +85,12 @@ void Mode::calcRecordingRates() {
                                          << getName();
 #endif
             continue;
+            staid2totalRecordingRate_[staid1] = 0;
         }
+        auto bitsPerChannel = tracks1.get()->numberOfBitsPerChannel();
+        double totalRecRate = freq1.get()->totalRate( bitsPerChannel );
+        staid2totalRecordingRate_[staid1] = totalRecRate;
+
 
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
             const auto &freq2 = getFreq( staid2 );
@@ -122,6 +127,13 @@ void Mode::calcRecordingRates() {
 
 void Mode::setRecordingRates( const std::string &band, double recRate ) {
     for ( unsigned long staid1 = 0; staid1 < nsta_; ++staid1 ) {
+        // update total recording rate for this station
+        if ( staid2totalRecordingRate_.find( staid1 ) == staid2totalRecordingRate_.end() ) {
+            staid2totalRecordingRate_[staid1] = recRate;
+        } else {
+            staid2totalRecordingRate_[staid1] += recRate;
+        }
+        // update recording rate for this baseline and band
         for ( unsigned long staid2 = staid1 + 1; staid2 < nsta_; ++staid2 ) {
             staids2recordingRate_[{staid1, staid2}][band] = recRate;
         }
@@ -224,13 +236,15 @@ void Mode::summary( std::ofstream &of, const std::vector<std::string> &stations 
 
 
 double Mode::recordingRate( unsigned long staid ) const {
-    const auto &freq = getFreq( staid );
-    const auto &track = getTracks( staid );
-    if ( freq.is_initialized() && track.is_initialized() ) {
-        auto bitsPerChannel = track.get()->numberOfBitsPerChannel();
-        return freq.get()->totalRate( bitsPerChannel );
-    }
-    return 0;
+    return staid2totalRecordingRate_.at( staid );
+
+    //    const auto &freq = getFreq( staid );
+    //    const auto &track = getTracks( staid );
+    //    if ( freq.is_initialized() && track.is_initialized() ) {
+    //        auto bitsPerChannel = track.get()->numberOfBitsPerChannel();
+    //        return freq.get()->totalRate( bitsPerChannel );
+    //    }
+    //    return 0;
 }
 
 

@@ -146,7 +146,7 @@ void Ast::stationParameters( const Station &station, const std::shared_ptr<const
 
     string recorder = boost::to_lower_copy( station.getRecord_transport_type() );
     of << boost::format( "  %-26s %-6s    %s\n" ) % "Recorder:" % staName % recorder;
-    double mbps = obsModes->getMode( 0 )->recordingRate( station.getId() );
+    double mbps = obsModes->getMode( 0 )->recordingRate( station.getId() ) * 1e-6;
     of << boost::format( "  %-26s %-6s    %f  Mbps\n" ) % "Recording_rate:" % staName % mbps;
     of << "#\n";
 }
