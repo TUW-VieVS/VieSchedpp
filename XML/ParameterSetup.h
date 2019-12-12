@@ -156,6 +156,14 @@ class ParameterSetup {
      */
     const std::vector<ParameterSetup> &getChildren() const { return childrens_; }
 
+    /**
+     * @brief reference for setup childrens
+     * @author Matthias Schartner
+     *
+     * @return reference to all setup childrens of this setup
+     */
+    std::vector<ParameterSetup> &refChildren() { return childrens_; }
+
 
     /**
      * @brief getter for transition type
