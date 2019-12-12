@@ -193,7 +193,7 @@ class ParameterSetup {
      * @param child child setup object
      * @return error code or 0 if everything is ok
      */
-    int addChild( const ParameterSetup &child );
+    int addChild( ParameterSetup child );
 
 
     /**

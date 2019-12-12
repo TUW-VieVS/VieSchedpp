@@ -97,19 +97,38 @@ int ParameterSetup::isValidSibling( const ParameterSetup &other ) const {
 }
 
 
-int ParameterSetup::addChild( const ParameterSetup &child ) {
+int ParameterSetup::addChild( ParameterSetup child ) {
     int errorCode = isValidChild( child );
     if ( errorCode != 0 ) {
         return errorCode;
     }
-    for ( const auto &any : childrens_ ) {
+
+    vector<ParameterSetup> newChildren;
+    int i = 0;
+    while ( i < childrens_.size() ) {
+        const auto &any = childrens_[i];
         errorCode = any.isValidSibling( child );
         if ( errorCode != 0 ) {
-            return errorCode;
+            int errorSibling = child.isValidChild( any );
+
+            if ( errorSibling == 0 ) {
+                newChildren.push_back( any );
+                childrens_.erase( childrens_.begin() + i );
+                --i;
+                errorCode = 0;
+            } else {
+                return errorCode;
+            }
         }
+        ++i;
+    }
+
+    for ( const auto &any : newChildren ) {
+        child.addChild( any );
     }
 
     childrens_.push_back( child );
+
 
     return errorCode;
 }
