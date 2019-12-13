@@ -198,10 +198,10 @@ class ParameterSetup {
      * @brief add a child setup to current setup
      * @author Matthias Schartner
      *
-     * @param child child setup object
+     * @param c child setup object
      * @return error code or 0 if everything is ok
      */
-    int addChild( ParameterSetup child );
+    int addChild( ParameterSetup c );
 
 
     /**

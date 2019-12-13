@@ -97,19 +97,35 @@ int ParameterSetup::isValidSibling( const ParameterSetup &other ) const {
 }
 
 
-int ParameterSetup::addChild( ParameterSetup child ) {
-    int errorCode = isValidChild( child );
+int ParameterSetup::addChild( ParameterSetup c ) {
+    // do not add children if it is equal to this
+    if ( this->isEqual( c.getParameterName(), c.getMemberName(), c.getMembers(), c.getTransition(), c.getStart(),
+                        c.getEnd() ) ) {
+        return 0;
+    }
+
+    // check if c is a valid child of this
+    int errorCode = isValidChild( c );
     if ( errorCode != 0 ) {
         return errorCode;
     }
 
+    // check if there is any already existing children who can serve as valid parent for c
+    for ( auto &any : childrens_ ) {
+        if ( any.isValidChild( c ) == 0 ) {
+            errorCode = any.addChild( c );
+            return errorCode;
+        }
+    }
+
+    // add c here and properly handly existing children (they can become child of c)
     vector<ParameterSetup> newChildren;
     int i = 0;
     while ( i < childrens_.size() ) {
         const auto &any = childrens_[i];
-        errorCode = any.isValidSibling( child );
+        errorCode = any.isValidSibling( c );
         if ( errorCode != 0 ) {
-            int errorSibling = child.isValidChild( any );
+            int errorSibling = c.isValidChild( any );
 
             if ( errorSibling == 0 ) {
                 newChildren.push_back( any );
@@ -124,10 +140,10 @@ int ParameterSetup::addChild( ParameterSetup child ) {
     }
 
     for ( const auto &any : newChildren ) {
-        child.addChild( any );
+        c.addChild( any );
     }
 
-    childrens_.push_back( child );
+    childrens_.push_back( c );
 
 
     return errorCode;
