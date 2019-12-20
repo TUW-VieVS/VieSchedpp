@@ -2643,7 +2643,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 
         for ( const auto &any : mstree ) {
             std::string name = any.first;
-            if ( name == "maxNumber" || name == "seed" || name == "version" ) {
+            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ) {
                 continue;
             }
             if ( name == "general_subnetting" || name == "general_fillinmode_during_scan_selection" ||

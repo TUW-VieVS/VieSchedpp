@@ -196,6 +196,8 @@ void VieSchedpp::run() {
             if ( o_version.is_initialized() ) {
                 version = *o_version;
             }
+            auto versionOffset = xml_.get( "VieSchedpp.multisched.version_offset", 0 );
+            version += versionOffset;
         }
 
         // get file name
