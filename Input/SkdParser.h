@@ -109,11 +109,11 @@ class SkdParser : public VieVS_Object {
    private:
     static unsigned long nextId;  ///< next id for this object type
 
-    std::string filename_;               ///< skd file name
-    unsigned int fieldSystemTimes_ = 0;  ///< scheduled field system time
-    unsigned int preob_ = 0;             ///< scheduled calibrator time
-    unsigned int midob_ = 0;             ///< scheduled correlator synchronization time
-    unsigned int postob_ = 0;            ///< scheduled postob time
+    std::string filename_;          ///< skd file name
+    unsigned int systemDelay_ = 0;  ///< scheduled field system time
+    unsigned int preob_ = 0;        ///< scheduled calibrator time
+    unsigned int midob_ = 0;        ///< scheduled correlator synchronization time
+    unsigned int postob_ = 0;       ///< scheduled postob time
 
     SkdCatalogReader skd_;  ///< sked catalog reader
 

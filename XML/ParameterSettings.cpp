@@ -255,6 +255,16 @@ boost::property_tree::ptree ParameterSettings::parameterStation2ptree( const str
         parameters.add( "parameters.dataWriteRate", PARA.dataWriteRate );
     }
 
+    if ( PARA.preob.is_initialized() ) {
+        parameters.add( "parameters.preob", PARA.preob );
+    }
+    if ( PARA.midob.is_initialized() ) {
+        parameters.add( "parameters.midob", PARA.midob );
+    }
+    if ( PARA.systemDelay.is_initialized() ) {
+        parameters.add( "parameters.systemDelay", PARA.systemDelay );
+    }
+
     if ( !PARA.minSNR.empty() ) {
         for ( const auto &any : PARA.minSNR ) {
             boost::property_tree::ptree minSNR;
@@ -319,6 +329,12 @@ std::pair<string, ParameterSettings::ParametersStations> ParameterSettings::ptre
             para.minElevation = it.second.get_value<double>();
         } else if ( paraName == "dataWriteRate" ) {
             para.dataWriteRate = it.second.get_value<double>();
+        } else if ( paraName == "preob" ) {
+            para.preob = it.second.get_value<double>();
+        } else if ( paraName == "midob" ) {
+            para.midob = it.second.get_value<double>();
+        } else if ( paraName == "systemDelay" ) {
+            para.systemDelay = it.second.get_value<double>();
         } else if ( paraName == "minSNR" ) {
             string bandName = it.second.get_child( "<xmlattr>.band" ).data();
             auto value = it.second.get_value<double>();

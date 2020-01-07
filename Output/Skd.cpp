@@ -97,8 +97,8 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
     auto et = TimeSystem::endTime;
     of << boost::format( "END %s \n" ) % TimeSystem::time2string_doy( et );
 
-    of << boost::format( "%-12s %4d " ) % "CALIBRATION" % network.getStation( 0 ).getWaittimes().preob;
-    of << boost::format( "%-12s %4d " ) % "CORSYNCH" % network.getStation( 0 ).getWaittimes().midob;
+    of << boost::format( "%-12s %4d " ) % "CALIBRATION" % network.getStation( 0 ).getPARA().preob;
+    of << boost::format( "%-12s %4d " ) % "CORSYNCH" % network.getStation( 0 ).getPARA().midob;
     of << boost::format( "%-12s %4d\n" ) % "DURATION" % 196;
 
     of << boost::format( "%-12s %4d " ) % "EARLY" % 0;
@@ -115,7 +115,7 @@ void Skd::skd_PARAM( const Network &network, const boost::property_tree::ptree &
     of << boost::format( "%-12s %4d\n" ) % "PARITY" % 0;
 
     of << boost::format( "%-12s %4d " ) % "SETUP" % 0;
-    of << boost::format( "%-12s %4d " ) % "SOURCE" % network.getStation( 0 ).getWaittimes().fieldSystem;
+    of << boost::format( "%-12s %4d " ) % "SOURCE" % network.getStation( 0 ).getPARA().systemDelay;
     of << boost::format( "%-12s %4d " ) % "TAPETM" % 0;
     of << boost::format( "%-12s %4d\n" ) % "WIDTH" % 0;
 
@@ -566,7 +566,7 @@ void Skd::skd_SKED( const std::vector<Station> &stations, const std::vector<Sour
     //    of <<
     //    "*=========================================================================================================\n";
     //    of << "*\n";
-    int preob = stations[0].getWaittimes().preob;
+    int preob = stations[0].getPARA().preob;
 
     const map<string, char> &olc = skdCatalogReader.getOneLetterCode();
 

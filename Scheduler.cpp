@@ -293,8 +293,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                                             idx, thisSta.getCurrentTime(), 0, slewTime, 0 );
                                     } else {
                                         valid = thisScan.referenceTime().updateAfterFillinmode(
-                                            idx, thisSta.getCurrentTime(), thisSta.getWaittimes().fieldSystem, slewTime,
-                                            thisSta.getWaittimes().preob );
+                                            idx, thisSta.getCurrentTime(), thisSta.getPARA().systemDelay, slewTime,
+                                            thisSta.getPARA().preob );
                                     }
                                 }
                             } else {
@@ -660,7 +660,7 @@ bool Scheduler::checkAndStatistics( ofstream &of ) noexcept {
 
         of << "    checking station " << thisStation.getName() << ":\n";
         unsigned long staid = thisStation.getId();
-        unsigned int constTimes = thisStation.getWaittimes().fieldSystem + thisStation.getWaittimes().preob;
+        unsigned int constTimes = thisStation.getPARA().systemDelay + thisStation.getPARA().preob;
 
         // sort scans based on observation start of this station (can be different if you align scans individual or at
         // end)
@@ -982,7 +982,7 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     of << "Start tagalong mode for station " << station.getName() << ": \n";
 
     // get wait times
-    unsigned int stationConstTimes = station.getWaittimes().fieldSystem + station.getWaittimes().preob;
+    unsigned int stationConstTimes = station.getPARA().systemDelay + station.getPARA().preob;
 
     // loop through all scans
     unsigned long counter = 0;
@@ -1126,9 +1126,9 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                             maxminSNR = minSNR_bl;
                         }
 
-                        double maxCorSynch1 = sta1.getWaittimes().midob;
+                        double maxCorSynch1 = sta1.getPARA().midob;
                         double maxCorSynch = maxCorSynch1;
-                        double maxCorSynch2 = sta2.getWaittimes().midob;
+                        double maxCorSynch2 = sta2.getPARA().midob;
                         if ( maxCorSynch2 > maxCorSynch ) {
                             maxCorSynch = maxCorSynch2;
                         }
@@ -1776,8 +1776,8 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                 prevSlewTime = thisSta.getPARA().minSlewtime;
             }
 
-            unsigned int fsTime = thisSta.getWaittimes().fieldSystem;
-            unsigned int preobTime = thisSta.getWaittimes().preob;
+            unsigned int fsTime = thisSta.getPARA().systemDelay;
+            unsigned int preobTime = thisSta.getPARA().preob;
 
             // avoid rounding errors
             if ( availableTime < prevSlewTime + fsTime + preobTime ) {

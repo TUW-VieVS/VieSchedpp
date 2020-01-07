@@ -126,6 +126,10 @@ class Station : public VieVS_NamedObject {
 
         std::vector<unsigned long> ignoreSources;  ///< list of all source ids which should be ignored
 
+        unsigned int preob = 10;       ///< time required for field system commands in seconds
+        unsigned int midob = 3;        ///< time required for calibration in seconds
+        unsigned int systemDelay = 6;  ///< extra observing time for correlator synchronization in seconds
+
         /**
          * @brief output of the curren parameters to out stream
          * @author Matthias Schartner
@@ -134,31 +138,34 @@ class Station : public VieVS_NamedObject {
          */
         void output( std::ofstream &of ) const {
             if ( available ) {
-                of << "    available: TRUE\n";
+                of << "    available:      TRUE\n";
             } else {
-                of << "    available: FALSE\n";
+                of << "    available:      FALSE\n";
             }
 
-            of << "    minSlewtime: " << minSlewtime << "\n";
-            of << "    maxSlewtime: " << maxSlewtime << "\n";
-            of << "    maxWait:     " << maxWait << "\n";
-            of << "    maxScan:     " << maxScan << "\n";
-            of << "    minScan:     " << minScan << "\n";
-            of << "    weight:      " << weight << "\n";
-            of << "    minElevation " << minElevation << "\n";
-            of << "    dataWriteRate " << dataWriteRate << "\n";
+            of << "    minSlewtime:   " << minSlewtime << "\n";
+            of << "    maxSlewtime:   " << maxSlewtime << "\n";
+            of << "    maxWait:       " << maxWait << "\n";
+            of << "    maxScan:       " << maxScan << "\n";
+            of << "    minScan:       " << minScan << "\n";
+            of << "    weight:        " << weight << "\n";
+            of << "    minElevation   " << minElevation << "\n";
 
             for ( const auto &it : minSNR ) {
-                of << "    minSNR: " << it.first << " " << it.second << "\n";
+                of << "    minSNR:        " << it.first << " " << it.second << "\n";
             }
 
             if ( !ignoreSources.empty() ) {
-                of << "    ignoreSources:";
+                of << "    ignoreSources: ";
                 for ( unsigned long ignoreSource : ignoreSources ) {
                     of << " " << ignoreSource;
                 }
                 of << "\n";
             }
+            of << "    dataWriteRate  " << dataWriteRate << "\n";
+            of << "    system delay   " << systemDelay << "\n";
+            of << "    preob          " << preob << "\n";
+            of << "    extra midob    " << midob << "\n";
         }
 
         /**
@@ -191,28 +198,6 @@ class Station : public VieVS_NamedObject {
         }
     };
 
-
-    /**
-     * @brief wait times for field system and correlator synchronization
-     * @author Matthias Schartner
-     */
-    struct WaitTimes {
-        unsigned int fieldSystem = 6;  ///< time required for field system commands
-        unsigned int preob = 10;       ///< time required for calibration
-        unsigned int midob = 3;        ///< extra observing time for correlator synchronization
-        unsigned int postob = 0;       ///< postob time
-    };
-
-
-    /**
-     * @brief setter for wait times
-     * @author Matthias Schartner
-     *
-     * @param waittimes new wait times
-     */
-    void setWaitTimes( WaitTimes &waittimes ) {
-        Station::waitTimes_ = std::make_shared<WaitTimes>( std::move( waittimes ) );
-    }
 
 
     /**
@@ -287,16 +272,6 @@ class Station : public VieVS_NamedObject {
      * @return reference of current parameters
      */
     Parameters &referencePARA() { return parameters_; }
-
-
-    /**
-     * @brief getter for wait times
-     * @author Matthias Schartner
-     *
-     * @return station wait times
-     */
-    const WaitTimes &getWaittimes() const { return *waitTimes_; }
-
 
     /**
      * @brief getter for cable wrap
@@ -663,7 +638,6 @@ class Station : public VieVS_NamedObject {
     std::shared_ptr<Position> position_;            ///< station position
     std::shared_ptr<Equipment> equip_;              ///< station equipment
     std::shared_ptr<AbstractHorizonMask> mask_;     ///< station horizon mask
-    std::shared_ptr<WaitTimes> waitTimes_;          ///< station wait times
     std::shared_ptr<std::vector<Event>> events_;    ///< list of all events
 
     std::string oneLetterCode_ = "_";                ///< one letter code for skd file

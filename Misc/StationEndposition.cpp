@@ -90,8 +90,8 @@ void StationEndposition::checkStationPossibility( const Station &thisStation ) {
     }
 
     // calculate minimum required time. Assumtion: only 5 sec slew time, min scan time and no idle time.
-    const Station::WaitTimes wtimes = thisStation.getWaittimes();
-    unsigned int requiredTime = wtimes.fieldSystem + wtimes.preob + 5 + wtimes.postob + thisStation.getPARA().minScan;
+    unsigned int requiredTime =
+        thisStation.getPARA().systemDelay + thisStation.getPARA().preob + 5 + thisStation.getPARA().minScan;
 
     // determine if station is possible
     stationPossible_[staid] = availableTime > requiredTime;

@@ -363,8 +363,8 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
             double maxminSNR = max( {minSNR_src, minSNR_bl, minSNR_sta1, minSNR_sta2} );
 
             // get maximum correlator synchronization time for
-            double maxCorSynch1 = sta1.getWaittimes().midob;
-            double maxCorSynch2 = sta2.getWaittimes().midob;
+            double maxCorSynch1 = sta1.getPARA().midob;
+            double maxCorSynch2 = sta2.getPARA().midob;
             double maxCorSynch = max( {maxCorSynch1, maxCorSynch2} );
 
             // calc required baseline scan duration
@@ -977,7 +977,6 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source
         // get station
         unsigned long staid = slewStart.getStaid();
         const Station &thisSta = network.getStation( staid );
-        const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
 
         // check if there is a required endposition
         int possibleEndpositionTime;
@@ -999,8 +998,8 @@ bool Scan::rigorousScanCanReachEndposition( const Network &network, const Source
             }
 
             // check if there is enough time
-            possibleEndpositionTime =
-                times_.getObservingTime( idxSta, Timestamp::end ) + waitTimes.fieldSystem + slewtime + waitTimes.preob;
+            possibleEndpositionTime = times_.getObservingTime( idxSta, Timestamp::end ) +
+                                      thisSta.getPARA().systemDelay + slewtime + thisSta.getPARA().preob;
         } else {
             possibleEndpositionTime = times_.getObservingTime( idxSta, Timestamp::end );
         }
@@ -1039,7 +1038,7 @@ void Scan::addTagalongStation( const PointingVector &pv_start, const PointingVec
         times_.addTagalongStationTime( pv_start, pv_end, 0, 0, 0, 0 );
     } else {
         times_.addTagalongStationTime( pv_start, pv_end, slewtime, station.getCurrentTime(),
-                                       station.getWaittimes().fieldSystem, station.getWaittimes().preob );
+                                       station.getPARA().systemDelay, station.getPARA().preob );
     }
 }
 
@@ -1296,7 +1295,7 @@ void Scan::output( unsigned long observed_scan_nr, const Network &network, const
     of << "|-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------|\n";
     if ( observed_scan_nr % 5 == 0 ) {
-        of << "|     station  | field |  slew |  idle | preob |  obs  |       duration      |        az [deg]     |    "
+        of << "|     station  | delay |  slew |  idle | preob |  obs  |       duration      |        az [deg]     |    "
               "   unaz [deg]      |       el [deg]    |\n"
               "|              |  [s]  |  [s]  |  [s]  |  [s]  |  [s]  |    start - end      |    start - end      |    "
               " start - end       |   start - end     |\n"

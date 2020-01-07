@@ -104,6 +104,10 @@ class ParameterSettings {
 
         std::vector<std::string> ignoreSourcesString;  ///< list of all source names which should be ignored
         std::vector<unsigned long> ignoreSources;      ///< list of all source ids which should be ignored
+
+        boost::optional<unsigned int> systemDelay;  ///< time required for field system commands in seconds
+        boost::optional<unsigned int> preob;        ///< time required for calibration in seconds
+        boost::optional<unsigned int> midob;        ///< extra observing time for correlator synchronization in seconds
     };
 
     /**

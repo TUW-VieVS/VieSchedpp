@@ -92,7 +92,7 @@ void SkdParser::read() {
                 boost::split( splitVector, trimmed, boost::is_space(), boost::token_compress_on );
                 for ( int i = 0; i < splitVector.size(); ++i ) {
                     if ( splitVector[i] == "SOURCE" ) {
-                        fieldSystemTimes_ += boost::lexical_cast<unsigned int>( splitVector[i + 1] );
+                        systemDelay_ += boost::lexical_cast<unsigned int>( splitVector[i + 1] );
                     }
                 }
                 sourceFound = true;
@@ -101,7 +101,7 @@ void SkdParser::read() {
                 boost::split( splitVector, trimmed, boost::is_space(), boost::token_compress_on );
                 for ( int i = 0; i < splitVector.size(); ++i ) {
                     if ( splitVector[i] == "TAPETM" ) {
-                        fieldSystemTimes_ += boost::lexical_cast<unsigned int>( splitVector[i + 1] );
+                        systemDelay_ += boost::lexical_cast<unsigned int>( splitVector[i + 1] );
                     }
                 }
                 tapeFound = true;
@@ -448,7 +448,7 @@ void SkdParser::createScans( std::ofstream &of ) {
                     if ( thisSlewTime < thisSta.getPARA().minSlewtime ) {
                         thisSlewTime = thisSta.getPARA().minSlewtime;
                     }
-                    fieldSystemTimes[i] = fieldSystemTimes_;
+                    fieldSystemTimes[i] = systemDelay_;
                     preobTimes[i] = preob;
                     slewTimes[i] = thisSlewTime;
                 }
@@ -549,13 +549,10 @@ std::vector<vector<unsigned int>> SkdParser::getScheduledTimes( const string &st
 
 
 Scheduler SkdParser::createScheduler() {
-    Station::WaitTimes wt;
-    wt.fieldSystem = fieldSystemTimes_;
-    wt.preob = preob_;
-    wt.midob = midob_;
-    wt.postob = postob_;
     for ( Station &station : network_.refStations() ) {
-        station.setWaitTimes( wt );
+        station.referencePARA().systemDelay = systemDelay_;
+        station.referencePARA().preob = preob_;
+        station.referencePARA().midob = midob_;
     }
 
     boost::property_tree::ptree xml;

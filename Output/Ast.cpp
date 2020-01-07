@@ -139,10 +139,8 @@ void Ast::stationParameters( const Station &station, const std::shared_ptr<const
     tmp = ( boost::format( "%7.1f  sec" ) % ( antenna.getCon2() ) ).str();
     of << boost::format( "  %-26s %-6s    %-36s  Axis : %s\n" ) % "2nd_axis_settle_time:" % staName % tmp % ax2;
 
-    of << boost::format( "  %-26s %-6s    %d  sec\n" ) % "Preob_proc_duration:" % staName %
-              station.getWaittimes().preob;
-    of << boost::format( "  %-26s %-6s    %d  sec\n" ) % "Postob_proc_duration:" % staName %
-              station.getWaittimes().postob;
+    of << boost::format( "  %-26s %-6s    %d  sec\n" ) % "Preob_proc_duration:" % staName % station.getPARA().preob;
+    of << boost::format( "  %-26s %-6s    %d  sec\n" ) % "Postob_proc_duration:" % staName % 0;
 
     string recorder = boost::to_lower_copy( station.getRecord_transport_type() );
     of << boost::format( "  %-26s %-6s    %s\n" ) % "Recorder:" % staName % recorder;

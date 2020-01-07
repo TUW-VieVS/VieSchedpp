@@ -53,7 +53,11 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
     dataWriteRate = other.dataWriteRate;
+
+    preob = other.preob;
+    midob = other.midob;
     totalRecordingRate = other.totalRecordingRate;
+    systemDelay = other.systemDelay;
 
     ignoreSources = other.ignoreSources;
 }

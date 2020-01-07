@@ -91,8 +91,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
             // look if slewtime is valid, if yes add field system, slew and preob times
             if ( slewtime.is_initialized() ) {
                 maxIdleTimes.push_back( thisSta.getPARA().maxWait );
-                const Station::WaitTimes wtimes = thisSta.getWaittimes();
-                thisScan.addTimes( j, wtimes.fieldSystem, *slewtime, wtimes.preob );
+                thisScan.addTimes( j, thisSta.getPARA().systemDelay, *slewtime, thisSta.getPARA().preob );
             } else {
                 scanValid_slew = thisScan.removeStation( j, thisSource );
                 if ( !scanValid_slew ) {
@@ -106,12 +105,11 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
             if ( endposition.is_initialized() ) {
                 const auto &times = thisScan.getTimes();
 
-                const auto &waitTimes = thisSta.getWaittimes();
                 unsigned int minimumScanTime = max( thisSta.getPARA().minScan, thisSource.getPARA().minScan );
 
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time and minimum scan time
                 int possibleEndpositionTime = times.getObservingTime( j, Timestamp::start ) + minimumScanTime + 5 +
-                                              waitTimes.fieldSystem + waitTimes.preob;
+                                              thisSta.getPARA().systemDelay + thisSta.getPARA().preob;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime( staid );
@@ -286,11 +284,9 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
                 unsigned long staid = thisScan.getStationId( staidx );
                 const Station &thisSta = network.getStation( staid );
 
-                const auto &waitTimes = thisSta.getWaittimes();
-
                 // calc possible endposition time. Assumtion: 5sec slew time, no idle time
-                int possibleEndpositionTime =
-                    times.getObservingTime( staidx, Timestamp::end ) + waitTimes.fieldSystem + waitTimes.preob + 5;
+                int possibleEndpositionTime = times.getObservingTime( staidx, Timestamp::end ) +
+                                              thisSta.getPARA().systemDelay + thisSta.getPARA().preob + 5;
 
                 // get minimum required endpositon time
                 int requiredEndpositionTime = endposition->requiredEndpositionTime( staid );
@@ -980,7 +976,6 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             // current station id
             unsigned long staid = thisScan.getStationId( istation );
             const Station &thisSta = network.getStation( staid );
-            const Station::WaitTimes &waitTimes = thisSta.getWaittimes();
 
             int possibleEndpositionTime;
             if ( endposition->hasEndposition( staid ) ) {
@@ -1009,8 +1004,8 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
                 }
 
                 // check if there is enough time
-                possibleEndpositionTime = times.getObservingTime( istation, Timestamp::end ) + waitTimes.fieldSystem +
-                                          slewtime + waitTimes.preob;
+                possibleEndpositionTime = times.getObservingTime( istation, Timestamp::end ) +
+                                          thisSta.getPARA().systemDelay + slewtime + thisSta.getPARA().preob;
             } else {
                 possibleEndpositionTime = times.getObservingTime( istation, Timestamp::end );
             }
@@ -1176,8 +1171,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         if ( thisSta.getPARA().firstScan ) {
             time = thisSta.getCurrentTime();
         } else {
-            const Station::WaitTimes &wtimes = thisSta.getWaittimes();
-            time = thisSta.getCurrentTime() + wtimes.fieldSystem + wtimes.preob;
+            time = thisSta.getCurrentTime() + thisSta.getPARA().systemDelay + thisSta.getPARA().preob;
         }
 
         p.setTime( time );

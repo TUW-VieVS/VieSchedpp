@@ -1085,64 +1085,6 @@ void Initializer::initializeStations() noexcept {
             thisStation.referencePARA().firstScan = true;
         }
 
-        // set wait times
-        vector<string> waitTimesInitialized;
-        auto waitTime_tree = PARA_station.get_child( "waitTimes" );
-        for ( auto &it : waitTime_tree ) {
-            string name = it.first;
-            if ( name == "waitTime" ) {
-                vector<string> waitTimesNow;
-                string memberName = it.second.get_child( "<xmlattr>.member" ).data();
-                if ( staGroups_.find( memberName ) != staGroups_.end() ) {
-                    waitTimesNow.insert( waitTimesNow.end(), staGroups_[memberName].begin(),
-                                         staGroups_[memberName].end() );
-                } else if ( memberName == "__all__" ) {
-                    for ( const auto &sta : network_.getStations() ) {
-                        waitTimesNow.push_back( sta.getName() );
-                    }
-                } else {
-                    waitTimesNow.push_back( memberName );
-                }
-
-                bool errorFlagWaitTime = false;
-                for ( const auto &any : waitTimesNow ) {
-                    if ( find( waitTimesInitialized.begin(), waitTimesInitialized.end(), any ) !=
-                         waitTimesInitialized.end() ) {
-#ifdef VIESCHEDPP_LOG
-                        BOOST_LOG_TRIVIAL( error ) << "double use of station/group " << name
-                                                   << " in wait times block! This whole block is ignored";
-#else
-                        cout << "[error] double use of station/group " << name
-                             << " in wait times block! This whole block is ignored";
-#endif
-                        errorFlagWaitTime = true;
-                    }
-                }
-                if ( errorFlagWaitTime ) {
-                    continue;
-                }
-
-                for ( const auto &any : waitTimesNow ) {
-                    for ( auto &sta : network_.refStations() ) {
-                        if ( sta.hasName( any ) ) {
-#ifdef VIESCHEDPP_LOG
-                            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "set wait times for " << sta.getName();
-#endif
-
-                            Station::WaitTimes wtimes;
-                            wtimes.fieldSystem = it.second.get<double>( "fieldSystem" );
-                            wtimes.preob = it.second.get<double>( "preob" );
-                            wtimes.midob = it.second.get<double>( "midob" );
-                            wtimes.postob = it.second.get<double>( "postob" );
-                            sta.setWaitTimes( wtimes );
-                            break;
-                        }
-                    }
-                }
-                waitTimesInitialized.insert( waitTimesInitialized.end(), waitTimesNow.begin(), waitTimesNow.end() );
-            }
-        }
-
         // set cable wrap buffers
         auto cableBuffer_tree = PARA_station.get_child( "cableWrapBuffers" );
         vector<string> cableInitialized;
@@ -1307,6 +1249,15 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             }
             if ( newPARA.dataWriteRate.is_initialized() ) {
                 combinedPARA.dataWriteRate = *newPARA.dataWriteRate * 1e6;
+            }
+            if ( newPARA.preob.is_initialized() ) {
+                combinedPARA.preob = *newPARA.preob;
+            }
+            if ( newPARA.midob.is_initialized() ) {
+                combinedPARA.midob = *newPARA.midob;
+            }
+            if ( newPARA.systemDelay.is_initialized() ) {
+                combinedPARA.systemDelay = *newPARA.systemDelay;
             }
 
             if ( !newPARA.minSNR.empty() ) {
