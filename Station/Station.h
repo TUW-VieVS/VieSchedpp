@@ -121,7 +121,7 @@ class Station : public VieVS_NamedObject {
         unsigned int maxNumberOfScans = 9999;    ///< maximum allowed number of scans
 
         double totalRecordingRate = 0;              ///< total recording rate
-        boost::optional<double> dataWriteRate = 0;  ///< maximum data write speed to disk
+        boost::optional<double> dataWriteRate;      ///< maximum data write speed to disk
         unsigned int minSlewtimeDataWriteRate = 0;  ///< minimum required slew time due to data rate
 
         std::vector<unsigned long> ignoreSources;  ///< list of all source ids which should be ignored
