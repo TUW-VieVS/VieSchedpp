@@ -655,6 +655,21 @@ class ParameterSettings {
     void ruleFocusCorners( int cadence );
 
     /**
+     * @brief define fringe finder block
+     * @author Matthias Schartner
+     *
+     * @param start schedule at session start
+     * @param offset offset from session start
+     * @param mid schedule during session
+     * @param end schedule at session end
+     * @param scans number of calibration scans
+     * @param dur scan duration
+     * @param sourceGroup allowed sources (source group)
+     */
+    void calibratorBlock( bool start, unsigned int offset, bool mid, bool end, unsigned int scans, unsigned int dur,
+                          const std::string &sourceGroup );
+
+    /**
      * @brief calibrator block in paramters.xml
      * @author Matthias Schartner
      *

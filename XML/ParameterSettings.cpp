@@ -1139,6 +1139,28 @@ void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<uns
     master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
 }
 
+void ParameterSettings::calibratorBlock( bool start, unsigned int offset, bool mid, bool end, unsigned int scans,
+                                         unsigned int dur, const string &sourceGroup ) {
+    if ( start || mid || end ) {
+        boost::property_tree::ptree rules;
+
+        if ( start ) {
+            rules.add( "calibration.start", start );
+            rules.add( "calibration.offset_start", offset );
+        }
+        if ( mid ) {
+            rules.add( "calibration.mid", mid );
+        }
+        if ( end ) {
+            rules.add( "calibration.end", end );
+        }
+        rules.add( "calibration.n_scans", scans );
+        rules.add( "calibration.scan_duration", dur );
+        rules.add( "calibration.sources", sourceGroup );
+
+        master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );
+    }
+}
 
 void ParameterSettings::ruleCalibratorBlockTime( unsigned int cadence, const std::string &member,
                                                  const std::vector<std::pair<double, double>> &between_elevation,
