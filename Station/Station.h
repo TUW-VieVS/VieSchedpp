@@ -119,6 +119,7 @@ class Station : public VieVS_NamedObject {
         unsigned int maxScan = 600;              ///< maximum allowed scan time in seconds
         unsigned int minScan = 30;               ///< minimum required scan time in seconds
         unsigned int maxNumberOfScans = 9999;    ///< maximum allowed number of scans
+        unsigned int maxTotalObsTime = 999999;   ///< maximum allowed total observing time in seconds
 
         double totalRecordingRate = 0;              ///< total recording rate
         boost::optional<double> dataWriteRate;      ///< maximum data write speed to disk
@@ -138,34 +139,35 @@ class Station : public VieVS_NamedObject {
          */
         void output( std::ofstream &of ) const {
             if ( available ) {
-                of << "    available:      TRUE\n";
+                of << "    available:         TRUE\n";
             } else {
-                of << "    available:      FALSE\n";
+                of << "    available:         FALSE\n";
             }
 
-            of << "    minSlewtime:   " << minSlewtime << "\n";
-            of << "    maxSlewtime:   " << maxSlewtime << "\n";
-            of << "    maxWait:       " << maxWait << "\n";
-            of << "    maxScan:       " << maxScan << "\n";
-            of << "    minScan:       " << minScan << "\n";
-            of << "    weight:        " << weight << "\n";
-            of << "    minElevation   " << minElevation << "\n";
+            of << "    minSlewtime:      " << minSlewtime << "\n";
+            of << "    maxSlewtime:      " << maxSlewtime << "\n";
+            of << "    maxWait:          " << maxWait << "\n";
+            of << "    maxScan:          " << maxScan << "\n";
+            of << "    minScan:          " << minScan << "\n";
+            of << "    weight:           " << weight << "\n";
+            of << "    minElevation      " << minElevation << "\n";
+            of << "    maxTotalObsTime   " << maxTotalObsTime << "\n";
 
             for ( const auto &it : minSNR ) {
-                of << "    minSNR:        " << it.first << " " << it.second << "\n";
+                of << "    minSNR:           " << it.first << " " << it.second << "\n";
             }
 
             if ( !ignoreSources.empty() ) {
-                of << "    ignoreSources: ";
+                of << "    ignoreSources:    ";
                 for ( unsigned long ignoreSource : ignoreSources ) {
                     of << " " << ignoreSource;
                 }
                 of << "\n";
             }
-            of << "    dataWriteRate  " << dataWriteRate << "\n";
-            of << "    system delay   " << systemDelay << "\n";
-            of << "    preob          " << preob << "\n";
-            of << "    extra midob    " << midob << "\n";
+            of << "    dataWriteRate     " << dataWriteRate << "\n";
+            of << "    system delay      " << systemDelay << "\n";
+            of << "    preob             " << preob << "\n";
+            of << "    extra midob       " << midob << "\n";
         }
 
         /**
@@ -629,6 +631,19 @@ class Station : public VieVS_NamedObject {
      */
     bool listTagalongTimes( std::ofstream &of, bool skdFormat = false ) const;
 
+    /**
+     * @brief get total scheduled observing time up to this point
+     * @author Matthias Schartner
+     *
+     * @return total scheduled observing time
+     */
+    unsigned int getTotalObservingTime() const { return totalObsTime_; }
+
+    /**
+     * @brief adds observing time to counter
+     * @author Matthias Schartner
+     */
+    void addObservingTime( unsigned int additionalTime ) { totalObsTime_ += additionalTime; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -655,6 +670,7 @@ class Station : public VieVS_NamedObject {
     int nScans_{0};                         ///< number of participated scans
     int nTotalScans_{0};                    ///< number of total scans
     int nObs_{0};                           ///< number of observed baselines
+    unsigned int totalObsTime_{0};          ///< total observing time in seconds
 };
 }  // namespace VieVS
 #endif /* STATION_H */

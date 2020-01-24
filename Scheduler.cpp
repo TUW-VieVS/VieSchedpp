@@ -242,6 +242,15 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 break;
             }
         }
+        // the best scans are now already fixed. add observing duraiton to total observing duration to avoid fillin mode
+        // scans which extend the allowed total observing time.
+        for ( const auto &scan : bestScans ) {
+            for ( int i = 0; i < scan.getNSta(); ++i ) {
+                unsigned long staid = scan.getStationId( i );
+                unsigned int obsDur = scan.getTimes().getObservingDuration( i );
+                network_.refStation( staid ).addObservingTime( obsDur );
+            }
+        }
 
         // check if it is possible to start a fillin mode block, otherwise put best scans to schedule
         if ( parameters_.fillinmodeDuringScanSelection && !scans_.empty() ) {
@@ -540,6 +549,7 @@ Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::
     subcon.constructAllBaselines( network_, sources_ );
     subcon.calcAllBaselineDurations( network_, sources_, currentObservingMode_ );
     subcon.calcAllScanDurations( network_, sources_, endposition );
+    subcon.checkTotalObservingTime( network_, sources_ );
     subcon.checkIfEnoughTimeToReachEndposition( network_, sources_, endposition );
 
     if ( subnetting != nullptr ) {
@@ -1190,17 +1200,17 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 continue;
             }
 
-            unsigned int maxBl = 0;
+            unsigned int obsDur = 0;
             for ( const auto &any : newObs ) {
-                if ( any.getObservingTime() > maxBl ) {
-                    maxBl = any.getObservingTime();
+                if ( any.getObservingTime() > obsDur ) {
+                    obsDur = any.getObservingTime();
                 }
             }
 
             // check if source is still visible at end of scan... with same cable wrap
             PointingVector pv_new_end( staid, srcid );
 
-            pv_new_end.setTime( scanStartTime + maxBl );
+            pv_new_end.setTime( scanStartTime + obsDur );
 
             station.calcAzEl_rigorous( source, pv_new_end );
 
@@ -1238,6 +1248,8 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             if ( station.referencePARA().firstScan ) {
                 station.referencePARA().firstScan = false;
             }
+
+            station.addObservingTime( obsDur );
             station.update( newObs.size(), pv_new_end, true );
             skyCoverage.update( pv_new_end );
         }
@@ -1730,8 +1742,13 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                     if ( !thisSta.isVisible( variable, thisSource.getPARA().minElevation ) ) {
                         valid = false;
                     }
+                    int extraTime = pv1.getTime();
+                    if ( thisSta.getTotalObservingTime() + extraTime > thisSta.getPARA().maxTotalObsTime ) {
+                        valid = false;
+                    }
                     if ( valid ) {
                         scan1.setPointingVector( staidx1, move( variable ), Timestamp::start );
+                        thisSta.addObservingTime( extraTime );
                     }
                 }
             }
@@ -1768,6 +1785,19 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             // get pointing vectors
             const PointingVector &pv1 = scan1.getPointingVector( staidx1, Timestamp::end );
             const PointingVector &pv2 = scan2.getPointingVector( staidx2, Timestamp::start );
+
+            unsigned int oldObservingTime;
+            switch ( ts ) {
+                case Timestamp::start: {
+                    oldObservingTime = scan2.getTimes().getObservingDuration( staidx2 );
+                    break;
+                }
+                case Timestamp::end: {
+                    oldObservingTime = scan1.getTimes().getObservingDuration( staidx1 );
+                    break;
+                }
+            }
+
 
             // get times
             unsigned int availableTime = pv2.getTime() - pv1.getTime();
@@ -1855,19 +1885,20 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             }
 
             // iteratively adjust new idle time and new slew time until it is equal to previous slew time
-            // we also allow 1 second offset (1 sec additional idle time) as a live saver
-            int offset = 0;
+            // we also allow 1 second additionalTime (1 sec additional idle time) as a live saver
+            // int extraTime = 0;
+            int additionalTime = 0;
             bool valid = true;
-            while ( slewTime + offset != prevSlewTime && slewTime + offset != prevSlewTime - 1 ) {
-                offset = prevSlewTime - slewTime;
-
+            while ( slewTime + additionalTime != prevSlewTime && slewTime + additionalTime != prevSlewTime - 1 ) {
+                additionalTime = prevSlewTime - slewTime;
+                // extraTime += additionalTime;
                 switch ( ts ) {
                     case Timestamp::start: {
-                        variable.setTime( variableStartTime - offset );
+                        variable.setTime( variableStartTime - additionalTime );
                         break;
                     }
                     case Timestamp::end: {
-                        variable.setTime( variableStartTime + offset );
+                        variable.setTime( variableStartTime + additionalTime );
                         break;
                     }
                 }
@@ -1912,18 +1943,46 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             }
 
             // if scan time would be reduced skip station!
-            if ( offset + static_cast<int>( idleTime ) < 0 ) {
+            if ( additionalTime + static_cast<int>( idleTime ) < 0 ) {
                 continue;
+            }
+            switch ( ts ) {
+                case Timestamp::start: {
+                    if ( ref.getTime() < variable.getTime() ) {
+                        continue;
+                        break;
+                    }
+                }
+                case Timestamp::end: {
+                    if ( ref.getTime() > variable.getTime() ) {
+                        continue;
+                        break;
+                    }
+                }
             }
 
             // adjust observing times
             switch ( ts ) {
                 case Timestamp::start: {
-                    scan2.setPointingVector( staidx2, move( variable ), Timestamp::start );
+                    unsigned int newObservingTime =
+                        scan2.getPointingVector( staidx2, Timestamp::end ).getTime() - variable.getTime();
+                    unsigned int extraTime = newObservingTime - oldObservingTime;
+                    if ( thisSta.getTotalObservingTime() + extraTime < thisSta.getPARA().maxTotalObsTime ) {
+                        scan2.setPointingVector( staidx2, move( variable ), Timestamp::start );
+                        thisSta.addObservingTime( extraTime );
+                    }
+
                     break;
                 }
                 case Timestamp::end: {
-                    scan1.setPointingVector( staidx1, move( variable ), Timestamp::end );
+                    unsigned int newObservingTime =
+                        variable.getTime() - scan1.getPointingVector( staidx1, Timestamp::start ).getTime();
+                    unsigned int extraTime = newObservingTime - oldObservingTime;
+                    if ( thisSta.getTotalObservingTime() + extraTime < thisSta.getPARA().maxTotalObsTime ) {
+                        scan1.setPointingVector( staidx1, move( variable ), Timestamp::end );
+                        thisSta.addObservingTime( extraTime );
+                    }
+
                     break;
                 }
             }
@@ -1971,8 +2030,14 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                         if ( !thisSta.isVisible( variable, thisSource.getPARA().minElevation ) ) {
                             valid = false;
                         }
+                        int extraTime = variable.getTime() - pv1.getTime();
+                        if ( thisSta.getTotalObservingTime() + extraTime > thisSta.getPARA().maxTotalObsTime ) {
+                            valid = false;
+                        }
+
                         if ( valid ) {
                             lastScan.setPointingVector( staidx1, move( variable ), Timestamp::end );
+                            thisSta.addObservingTime( extraTime );
                         }
                     }
                     break;

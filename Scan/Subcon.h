@@ -238,6 +238,16 @@ class Subcon : public VieVS_Object {
      *
      * @param network station network
      * @param sources list of all sources
+     */
+    void checkTotalObservingTime( const Network &network, const std::vector<Source> &sources );
+
+
+    /**
+     * @brief check if there is enough time to reach required endposition for all scans
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sources list of all sources
      * @param endposition required endposition
      */
     void checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
@@ -331,15 +341,21 @@ class Subcon : public VieVS_Object {
                       std::set<unsigned long> observedSources = std::set<unsigned long>() );
 
 
+    /**
+     * @brief Matthias Schartner
+     * @author Matthias Schartner
+     *
+     * @return single source scans
+     */
     const std::vector<Scan> &getSingleSourceScans() const { return singleScans_; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type
 
-    unsigned long nSingleScans_ = 0;     ///< number of single source scans
-    std::vector<Scan> singleScans_;  ///< all single source scans
+    unsigned long nSingleScans_ = 0;  ///< number of single source scans
+    std::vector<Scan> singleScans_;   ///< all single source scans
 
-    unsigned long nSubnettingScans_ = 0;                      ///< number of subnetting scans
+    unsigned long nSubnettingScans_ = 0;                  ///< number of subnetting scans
     std::vector<std::pair<Scan, Scan>> subnettingScans_;  ///< all subnetting scans
 
     unsigned int minRequiredTime_ = std::numeric_limits<unsigned int>::max();  ///< minimum time required for a scan

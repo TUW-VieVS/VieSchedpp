@@ -1247,6 +1247,10 @@ void Initializer::stationSetup( vector<vector<Station::Event>> &events, const bo
             if ( newPARA.maxNumberOfScans.is_initialized() ) {
                 combinedPARA.maxNumberOfScans = *newPARA.maxNumberOfScans;
             }
+            if ( newPARA.maxTotalObsTime.is_initialized() ) {
+                combinedPARA.maxTotalObsTime = *newPARA.maxTotalObsTime;
+            }
+
             if ( newPARA.dataWriteRate.is_initialized() ) {
                 combinedPARA.dataWriteRate = *newPARA.dataWriteRate * 1e6;
             }

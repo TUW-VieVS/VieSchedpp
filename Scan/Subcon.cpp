@@ -947,6 +947,44 @@ void Subcon::clearSubnettingScans() {
     subnettingScans_.clear();
 }
 
+void Subcon::checkTotalObservingTime( const Network &network, const vector<Source> &sources ) {
+    int iscan = 0;
+    while ( iscan < nSingleScans_ ) {
+        bool scanValid = true;
+        auto &thisScan = singleScans_[iscan];
+        const ScanTimes &times = thisScan.getTimes();
+        const Source &thisSource = sources[thisScan.getSourceId()];
+
+        int idx = 0;
+        while ( idx < thisScan.getNSta() ) {
+            unsigned long staid = thisScan.getStationId( idx );
+            const auto &thisSta = network.getStation( staid );
+            if ( thisSta.getTotalObservingTime() + times.getObservingDuration( idx ) >
+                 thisSta.getPARA().maxTotalObsTime ) {
+                scanValid = thisScan.removeStation( idx, thisSource );
+                if ( !scanValid ) {
+                    break;
+                }
+            } else {
+                ++idx;
+            }
+        }
+
+        // if scan is valid increment scan counter, otherwise remove scan.
+        if ( scanValid ) {
+            ++iscan;
+        } else {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logDebug )
+                BOOST_LOG_TRIVIAL( debug )
+                    << "subcon " << this->printId() << " scan " << thisScan.printId() << " no longer valid -> removed";
+#endif
+            singleScans_.erase( next( singleScans_.begin(), iscan ) );
+            --nSingleScans_;
+        }
+    }
+}
+
 
 void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const std::vector<Source> &sources,
                                                   const boost::optional<StationEndposition> &endposition ) {
@@ -1128,6 +1166,16 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
 #endif
             continue;
         }
+
+        if ( thisSta.getTotalObservingTime() + thisSta.getPARA().minScan > thisSta.getPARA().maxTotalObsTime ) {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logTrace )
+                BOOST_LOG_TRIVIAL( trace ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                                           << " ignore station " << thisSta.getName() << " (too much data)";
+#endif
+            continue;
+        }
+
 
         if ( thisSta.getNTotalScans() >= thisSta.getPARA().maxNumberOfScans ) {
 #ifdef VIESCHEDPP_LOG

@@ -699,6 +699,14 @@ bool Scan::rigorousUpdate( Network &network, const Source &source, const std::sh
             return scanValid;
         }
 
+        scanValid = rigorousTotalObservingDuration( network, source );
+        if ( !scanValid ) {
+#ifdef VIESCHEDPP_LOG
+            if ( Flags::logTrace ) BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " no longer valid";
+#endif
+            return scanValid;
+        }
+
         // align start times to earliest possible one:
         scanValid = rigorousScanStartTimeAlignment( network, source, mode );
         if ( !scanValid ) {
@@ -830,6 +838,27 @@ bool Scan::rigorousSlewtime( Network &network, const Source &source ) noexcept {
             // update the slewtime
             times_.setSlewTime( ista, max( {newSlewEnd, oldSlewEnd} ) - slewStart );
             ++ista;
+        }
+    }
+
+    return scanValid;
+}
+
+bool Scan::rigorousTotalObservingDuration( Network &network, const Source &source ) noexcept {
+    bool scanValid = true;
+
+    int idx = 0;
+    while ( idx < nsta_ ) {
+        PointingVector &pv = pointingVectorsStart_[idx];
+        const Station &thisStation = network.getStation( pv.getStaid() );
+        unsigned int dur = times_.getObservingDuration( idx );
+        if ( thisStation.getTotalObservingTime() + dur > thisStation.getPARA().maxTotalObsTime ) {
+            scanValid = removeStation( idx, source );
+            if ( !scanValid ) {
+                return scanValid;
+            }
+        } else {
+            ++idx;
         }
     }
 

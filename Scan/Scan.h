@@ -785,6 +785,16 @@ class Scan : public VieVS_Object {
      */
     bool rigorousSlewtime( Network &network, const Source &source ) noexcept;
 
+    /**
+     * @brief rigorous total observing duration calculation
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @return true if scan is still valid, otherwise false
+     */
+    bool rigorousTotalObservingDuration( Network &network, const Source &source ) noexcept;
+
 
     /**
      * @brief rigorous scan alignment

@@ -502,6 +502,9 @@ void SkdParser::copyScanMembersToObjects( std::ofstream &of ) {
             unsigned long staid = pv.getStaid();
             const PointingVector &pv_end = scan.getPointingVector( i, Timestamp::end );
             unsigned long nObs = scan.getNObs( staid );
+            unsigned int obsDur = pv_end.getTime() - pv.getTime();
+
+            network_.refStation( staid ).addObservingTime( obsDur );
             network_.update( nObs, pv_end );
         }
         for ( int i = 0; i < scan.getNObs(); ++i ) {

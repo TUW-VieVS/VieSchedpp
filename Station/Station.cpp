@@ -32,7 +32,6 @@ using namespace VieVS;
 unsigned long VieVS::Station::nextId = 0;
 unsigned long VieVS::Station::Parameters::nextId = 0;
 
-
 void Station::Parameters::setParameters( const Station::Parameters &other ) {
     firstScan = other.firstScan;
     available = other.available;
@@ -52,6 +51,7 @@ void Station::Parameters::setParameters( const Station::Parameters &other ) {
     maxScan = other.maxScan;
     minScan = other.minScan;
     maxNumberOfScans = other.maxNumberOfScans;
+    maxTotalObsTime = other.maxTotalObsTime;
     dataWriteRate = other.dataWriteRate;
 
     preob = other.preob;
@@ -451,6 +451,7 @@ void Station::clearObservations() {
     nScans_ = 0;
     nTotalScans_ = 0;
     nObs_ = 0;
+    totalObsTime_ = 0;
 
     parameters_.firstScan = true;
 }
