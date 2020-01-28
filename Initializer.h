@@ -36,10 +36,12 @@
 #include <numeric>
 #include <thread>
 #include <vector>
+
 #include "Algorithm/FocusCorners.h"
 #include "Input/SkdCatalogReader.h"
 #include "Misc/AstronomicalParameters.h"
 #include "Misc/CalibratorBlock.h"
+#include "Misc/CalibratorScanDescriptor.h"
 #include "Misc/Constants.h"
 #include "Misc/HighImpactScanDescriptor.h"
 #include "Misc/LookupTable.h"
@@ -333,13 +335,18 @@ class Initializer : public VieVS_Object {
 
 
     /**
-     * @brief initializes calibration block with settings from VieSchedpp.xml file
+     * @brief initializes astrometric calibration block with settings from VieSchedpp.xml file
      * @author Matthias Schartner
      *
      * @param of outstream to log file
      */
-    void initializeCalibrationBlocks( std::ofstream &of );
+    void initializeAstrometricCalibrationBlocks( std::ofstream &of );
 
+    /**
+     * @brief initializes calibration block with settings from VieSchedpp.xml file
+     * @author Matthias Schartner
+     */
+    void initializeCalibrationBlocks();
 
     /**
      * @brief writes statistics log header
@@ -385,6 +392,7 @@ class Initializer : public VieVS_Object {
     std::unordered_map<std::string, std::vector<std::string>> blGroups_;   ///< baseline groups
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
+    boost::optional<CalibratorScanDescriptor> calib_;                         ///< calibrator impact scan descriptor
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
     /**

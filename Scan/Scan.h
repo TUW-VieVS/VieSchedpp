@@ -75,10 +75,11 @@ class Scan : public VieVS_Object {
      * @author Matthias Schartner
      */
     enum class ScanType {
-        highImpact,  ///< high impact scan
-        standard,    ///< standard scan
-        fillin,      ///< fillin mode scan
-        calibrator   ///< calibrator scan
+        highImpact,       ///< high impact scan
+        standard,         ///< standard scan
+        fillin,           ///< fillin mode scan
+        astroCalibrator,  ///< astrometric calibrator scan
+        calibrator        ///< fringe finder
     };
 
 
@@ -96,6 +97,8 @@ class Scan : public VieVS_Object {
                 return "target";
             case ScanType::fillin:
                 return "fillin mode";
+            case ScanType::astroCalibrator:
+                return "astrometric calibrator";
             case ScanType::calibrator:
                 return "calibrator";
         }
@@ -407,6 +410,16 @@ class Scan : public VieVS_Object {
     bool calcObservationDuration( const Network &network, const Source &sources,
                                   const std::shared_ptr<const Mode> &mode ) noexcept;
 
+    /**
+     * @brief calculates the average SNR of all observations in this scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param mode observing mode
+     * @return average SNR of all observations in this scan
+     */
+    double getAverageSNR( const Network &network, const Source &source, const std::shared_ptr<const Mode> &mode );
 
     /**
      * @brief calculates the total scan duration per station
@@ -513,7 +526,7 @@ class Scan : public VieVS_Object {
 
 
     /**
-     * @brief calculates the score for a calibrator block scan
+     * @brief calculates the score for a astrometric calibrator block scan
      * @author Matthias Schartner
      *
      * @param prevLowElevationScores score for previouse low elevation scans
@@ -528,6 +541,18 @@ class Scan : public VieVS_Object {
                     const std::vector<double> &prevHighElevationScores, const Network &network,
                     unsigned int minRequiredTime, unsigned int maxRequiredTime, const Source &source, bool subnetting );
 
+
+    /**
+     * @brief calculates the score for a calibrator block scan
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param source observed source
+     * @param astas precalculated vector of average station score
+     * @param meanSNR average SNR
+     */
+    void calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
+                              double meanSNR );
 
     /**
      * @brief checks a scan with rigorous models

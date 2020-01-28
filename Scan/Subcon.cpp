@@ -549,7 +549,7 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
                                            maxRequiredTime_, sources[thisScan1.getSourceId()], true );
         //        double score1 = thisScan1.getScore();
 
-        Scan &thisScan2 = subnettingScans_[i].first;
+        Scan &thisScan2 = subnettingScans_[i].second;
 
         bool valid2 = thisScan2.calcScore( lowElevatrionScore, highElevationScore, network, minRequiredTime_,
                                            maxRequiredTime_, sources[thisScan2.getSourceId()], true );
@@ -561,6 +561,36 @@ void Subcon::generateScore( const std::vector<double> &lowElevatrionScore,
             --nSubnettingScans_;
             subnettingScans_.erase( next( subnettingScans_.begin(), i ) );
         }
+    }
+}
+
+void Subcon::generateCalibratorScore( const Network &network, const std::vector<Source> &sources,
+                                      const std::shared_ptr<const Mode> &mode ) {
+#ifdef VIESCHEDPP_LOG
+    if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " generate scores ";
+#endif
+
+    prepareAverageScore( network.getStations() );
+
+
+    for ( Scan &thisScan : singleScans_ ) {
+        const Source &source = sources[thisScan.getSourceId()];
+        double meanSNR = thisScan.getAverageSNR( network, source, mode );
+
+
+        thisScan.calcScoreCalibrator( network, source, astas_, meanSNR );
+    }
+
+    for ( auto &tmp : subnettingScans_ ) {
+        Scan &thisScan1 = tmp.first;
+        const Source &source1 = sources[thisScan1.getSourceId()];
+        double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
+        thisScan1.calcScoreCalibrator( network, source1, astas_, meanSNR1 );
+
+        Scan &thisScan2 = tmp.second;
+        const Source &source2 = sources[thisScan2.getSourceId()];
+        double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
+        thisScan2.calcScoreCalibrator( network, source2, astas_, meanSNR2 );
     }
 }
 
@@ -761,11 +791,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
             }
 
             // calculate score again
-            if ( prevLowElevationScores.empty() && prevHighElevationScores.empty() ) {
-                // standard case
-                thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
-                                    false, idle_ );
-            } else {
+            if ( thisScan.getType() == Scan::ScanType::astroCalibrator ) {
                 // special case for calibrator block
                 bool valid = thisScan.calcScore( prevLowElevationScores, prevHighElevationScores, network,
                                                  minRequiredTime_, maxRequiredTime_, thisSource, false );
@@ -779,6 +805,13 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
 #endif
                     continue;
                 }
+            } else if ( thisScan.getType() == Scan::ScanType::calibrator ) {
+                double meanSNR = thisScan.getAverageSNR( network, thisSource, mode );
+                thisScan.calcScoreCalibrator( network, thisSource, astas_, meanSNR );
+            } else {
+                // standard case
+                thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
+                                    false, idle_ );
             }
 
             // push score in queue
@@ -837,13 +870,7 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
             }
 
             // calculate score again
-            if ( prevLowElevationScores.empty() && prevHighElevationScores.empty() ) {
-                // standard case
-                thisScan1.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource1,
-                                     true, idle_ );
-                thisScan2.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource2,
-                                     true, idle_ );
-            } else {
+            if ( thisScan1.getType() == Scan::ScanType::astroCalibrator ) {
                 // special case for calibrator block
                 bool valid1 = thisScan1.calcScore( prevLowElevationScores, prevHighElevationScores, network,
                                                    minRequiredTime_, maxRequiredTime_, thisSource1, true );
@@ -860,6 +887,19 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
 #endif
                     continue;
                 }
+            } else if ( thisScan1.getType() == Scan::ScanType::calibrator ) {
+                double meanSNR1 = thisScan1.getAverageSNR( network, thisSource1, mode );
+                thisScan1.calcScoreCalibrator( network, thisSource1, astas_, meanSNR1 );
+
+                double meanSNR2 = thisScan2.getAverageSNR( network, thisSource2, mode );
+                thisScan2.calcScoreCalibrator( network, thisSource2, astas_, meanSNR2 );
+
+            } else {
+                // standard case
+                thisScan1.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource1,
+                                     true, idle_ );
+                thisScan2.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource2,
+                                     true, idle_ );
             }
 
             // push score in queue
@@ -1108,7 +1148,7 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         return;
     }
 
-    if ( type == Scan::ScanType::calibrator &&
+    if ( type == Scan::ScanType::astroCalibrator &&
          find( CalibratorBlock::calibratorSourceIds.begin(), CalibratorBlock::calibratorSourceIds.end(),
                thisSource.getId() ) == CalibratorBlock::calibratorSourceIds.end() ) {
 #ifdef VIESCHEDPP_LOG

@@ -151,7 +151,7 @@ void SourceStatistics::writeFile( Network &network, std::vector<Source> &sources
                     for ( int i = 0; i < nscans; ++i ) {
                         if ( flag[srcid][i] == Scan::ScanType::fillin ) {
                             ++sumFillinScans;
-                        } else if ( flag[srcid][i] == Scan::ScanType::calibrator ) {
+                        } else if ( flag[srcid][i] == Scan::ScanType::astroCalibrator ) {
                             ++sumCalibratorScans;
                         } else if ( flag[srcid][i] == Scan::ScanType::highImpact ) {
                             ++sumHighImpactScans;

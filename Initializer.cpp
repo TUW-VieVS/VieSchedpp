@@ -2724,8 +2724,64 @@ void Initializer::initializeSourceSequence() noexcept {
     }
 }
 
+void Initializer::initializeCalibrationBlocks() {
+    bool bStart = xml_.get_child_optional( "VieSchedpp.rules.calibration.start" ).is_initialized();
+    unsigned int start_offset = xml_.get( "VieSchedpp.rules.calibration.start.offset", 600 );
+    unsigned int start_scans = xml_.get( "VieSchedpp.rules.calibration.start.scans", 2 );
+    unsigned int start_duration = xml_.get( "VieSchedpp.rules.calibration.start.duration", 300 );
+    string start_sources = xml_.get( "VieSchedpp.rules.calibration.start.sources", "__all__" );
+    vector<string> allowedSources_start;
+    if ( srcGroups_.find( start_sources ) != srcGroups_.end() ) {
+        allowedSources_start = srcGroups_[start_sources];
+    } else {
+        allowedSources_start.push_back( start_sources );
+    }
+    CalibratorScanDescriptor::CalibratorBlock start;
+    start.flag = bStart;
+    start.startTime = start_offset;
+    start.nScans = start_scans;
+    start.duration = start_duration;
+    start.allowedSources = allowedSources_start;
 
-void Initializer::initializeCalibrationBlocks( std::ofstream &of ) {
+    bool bMid = xml_.get_child_optional( "VieSchedpp.rules.calibration.mid" ).is_initialized();
+    int mid_offset = xml_.get( "VieSchedpp.rules.calibration.mid.offset", 0 );
+    unsigned int mid_scans = xml_.get( "VieSchedpp.rules.calibration.mid.scans", 2 );
+    unsigned int mid_duration = xml_.get( "VieSchedpp.rules.calibration.mid.duration", 300 );
+    string mid_sources = xml_.get( "VieSchedpp.rules.calibration.mid.sources", "__all__" );
+    vector<string> allowedSources_mid;
+    if ( srcGroups_.find( mid_sources ) != srcGroups_.end() ) {
+        allowedSources_mid = srcGroups_[mid_sources];
+    } else {
+        allowedSources_mid.push_back( mid_sources );
+    }
+    CalibratorScanDescriptor::CalibratorBlock mid;
+    mid.flag = bMid;
+    mid.startTime = TimeSystem::duration / 2 + mid_offset;
+    mid.nScans = mid_scans;
+    mid.duration = mid_duration;
+    mid.allowedSources = allowedSources_mid;
+
+    bool bEnd = xml_.get_child_optional( "VieSchedpp.rules.calibration.end" ).is_initialized();
+    unsigned int end_offset = xml_.get( "VieSchedpp.rules.calibration.end.offset", 0 );
+    unsigned int end_scans = xml_.get( "VieSchedpp.rules.calibration.end.scans", 2 );
+    unsigned int end_duration = xml_.get( "VieSchedpp.rules.calibration.end.duration", 300 );
+    string end_sources = xml_.get( "VieSchedpp.rules.calibration.end.sources", "__all__" );
+    vector<string> allowedSources_end;
+    if ( srcGroups_.find( end_sources ) != srcGroups_.end() ) {
+        allowedSources_end = srcGroups_[end_sources];
+    } else {
+        allowedSources_end.push_back( end_sources );
+    }
+    CalibratorScanDescriptor::CalibratorBlock end;
+    end.flag = bEnd;
+    end.startTime = TimeSystem::duration - end_offset;
+    end.nScans = end_scans;
+    end.duration = end_duration;
+    end.allowedSources = allowedSources_end;
+    calib_ = CalibratorScanDescriptor( start, mid, end );
+}
+
+void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
     boost::optional<boost::property_tree::ptree &> cb = xml_.get_child_optional( "VieSchedpp.rules.calibratorBlock" );
     if ( cb.is_initialized() ) {
 #ifdef VIESCHEDPP_LOG

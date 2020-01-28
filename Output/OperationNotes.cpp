@@ -308,7 +308,7 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
                 obs_fillin += any.getNObs();
                 break;
             }
-            case Scan::ScanType::calibrator: {
+            case Scan::ScanType::astroCalibrator: {
                 ++n_calibrator;
                 obs_calibrator += any.getNObs();
                 break;

@@ -175,7 +175,7 @@ void Ast::scanOutput( const std::vector<Scan> &scans, const std::vector<Source> 
             case Scan::ScanType::fillin:
                 type = "target";
                 break;
-            case Scan::ScanType::calibrator:
+            case Scan::ScanType::astroCalibrator:
                 type = "calibrator";
                 break;
         }

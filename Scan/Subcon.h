@@ -207,7 +207,7 @@ class Subcon : public VieVS_Object {
 
 
     /**
-     * @brief generate score for all scans during calibrator block
+     * @brief generate score for all scans during astrometric calibrator block
      * @author Matthias Schartner
      *
      * @param lowElevatrionScore low elevation scores
@@ -220,7 +220,7 @@ class Subcon : public VieVS_Object {
 
 
     /**
-     * @brief
+     * @brief generate score for high impact scans
      * @author Matthias Schartner
      *
      * @param network station network
@@ -230,6 +230,18 @@ class Subcon : public VieVS_Object {
      */
     void generateScore( const Network &network, const std::vector<Source> &sources,
                         const std::vector<std::map<unsigned long, double>> &hiscores, unsigned int interval );
+
+
+    /**
+     * @brief generate score for calibrator blocks
+     * @author Matthias Schartner
+     *
+     * @param network station network
+     * @param sources list of all sources
+     * @param mode current observing mode
+     */
+    void generateCalibratorScore( const Network &network, const std::vector<Source> &sources,
+                                  const std::shared_ptr<const Mode> &mode );
 
 
     /**
@@ -280,7 +292,7 @@ class Subcon : public VieVS_Object {
 
 
     /**
-     * @brief rigorousely updates the best scans until the best one is found during calibrator block
+     * @brief rigorousely updates the best scans until the best one is found during astrometric calibrator block
      * @author Matthias Schartner
      *
      * in case a subnetting scan combination has highest score these two scans are returned, otherwise only a single

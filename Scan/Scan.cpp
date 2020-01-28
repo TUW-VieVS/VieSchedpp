@@ -274,6 +274,63 @@ bool Scan::checkIdleTimes( std::vector<unsigned int> &maxIdle, const Source &sou
     return scan_valid;
 }
 
+double Scan::getAverageSNR( const Network &network, const Source &source, const std::shared_ptr<const Mode> &mode ) {
+    double meanSNR = 0.;
+    //    vector<double> SNRs;
+    // loop over all observed baselines
+    for ( auto &thisObservation : observations_ ) {
+        // get station ids from this baseline
+        unsigned long staid1 = thisObservation.getStaid1();
+        const Station &sta1 = network.getStation( staid1 );
+        unsigned long staid2 = thisObservation.getStaid2();
+        const Station &sta2 = network.getStation( staid2 );
+        const Baseline &bl = network.getBaseline( staid1, staid2 );
+        unsigned int duration = thisObservation.getObservingTime();
+
+        // get baseline scan start time
+        unsigned int startTime = thisObservation.getStartTime();
+
+        // calculate greenwhich meridian sedirial time
+        double date1 = 2400000.5;
+        double date2 = TimeSystem::mjdStart + static_cast<double>( startTime ) / 86400.0;
+        double gmst = iauGmst82( date1, date2 );
+
+        // loop over each band
+        bool flag_observationRemoved = false;
+        for ( auto &band : mode->getAllBands() ) {
+            double SEFD_src;
+            if ( source.hasFluxInformation( band ) ) {
+                // calculate observed flux density for each band
+                SEFD_src = source.observedFlux( band, gmst, network.getDxyz( staid1, staid2 ) );
+            } else if ( ObservingMode::sourceBackup[band] == ObservingMode::Backup::internalModel ) {
+                // calculate observed flux density based on model
+                double wavelength = ObservingMode::wavelengths[band];
+                SEFD_src = source.observedFlux_model( wavelength, gmst, network.getDxyz( staid1, staid2 ) );
+            } else {
+                SEFD_src = 1e-3;
+            }
+
+
+            if ( SEFD_src == 0 ) {
+                SEFD_src = 1e-3;
+            }
+
+            // calculate system equivalent flux density for each station
+            double el1 = pointingVectorsStart_[*findIdxOfStationId( staid1 )].getEl();
+            double SEFD_sta1 = sta1.getEquip().getSEFD( band, el1 );
+            double el2 = pointingVectorsStart_[*findIdxOfStationId( staid2 )].getEl();
+            double SEFD_sta2 = sta2.getEquip().getSEFD( band, el2 );
+
+            double efficiency = mode->efficiency( sta1.getId(), sta2.getId() );
+            double rec = mode->recordingRate( staid1, staid2, band );
+            double SNR = efficiency * SEFD_src / sqrt( SEFD_sta1 * SEFD_sta2 ) * sqrt( rec * duration );
+            meanSNR += SNR / getNObs();
+        }
+    }
+
+    return meanSNR;
+}
+
 
 bool Scan::calcObservationDuration( const Network &network, const Source &source,
                                     const std::shared_ptr<const Mode> &mode ) noexcept {
@@ -283,7 +340,7 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
 #endif
 
     // check if it is a calibrator scan and there is a fixed scan duration for calibrator scans
-    if ( type_ == ScanType::calibrator ) {
+    if ( type_ == ScanType::astroCalibrator ) {
         if ( CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds ) {
             unsigned int maxObservingTime = CalibratorBlock::scanLength;
             // set baseline scan duration to fixed scan duration
@@ -418,7 +475,7 @@ bool Scan::scanDuration( const Network &network, const Source &source ) noexcept
 #endif
 
     // check if it is a calibrator scan with a fixed scan duration
-    if ( type_ == ScanType::calibrator ) {
+    if ( type_ == ScanType::astroCalibrator ) {
         if ( CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds ) {
             times_.setObservingTimes( CalibratorBlock::scanLength );
             return true;
@@ -1302,6 +1359,14 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
 #endif
         return false;
     }
+}
+
+void Scan::calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
+                                double meanSNR ) {
+    double scoreBaselines = calcScore_numberOfObservations( network.getNBls() );
+    double a = calcScore_averageStations( astas, network.getNBls() ) * 4;
+
+    score_ = meanSNR * scoreBaselines * a;
 }
 
 

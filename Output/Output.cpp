@@ -336,7 +336,7 @@ void Output::writeStatistics( std::ofstream &of ) {
                 ++n_fillin;
                 break;
             }
-            case Scan::ScanType::calibrator: {
+            case Scan::ScanType::astroCalibrator: {
                 ++n_calibrator;
                 break;
             }

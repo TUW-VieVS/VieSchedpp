@@ -35,6 +35,7 @@
 #include <ostream>
 #include <unordered_map>
 #include <utility>
+
 #include "../Misc/util.h"
 #include "ParameterGroup.h"
 #include "ParameterSetup.h"
@@ -658,16 +659,26 @@ class ParameterSettings {
      * @brief define fringe finder block
      * @author Matthias Schartner
      *
-     * @param start schedule at session start
-     * @param offset offset from session start
-     * @param mid schedule during session
-     * @param end schedule at session end
-     * @param scans number of calibration scans
-     * @param dur scan duration
-     * @param sourceGroup allowed sources (source group)
+     * @param start schedule block in the beginning
+     * @param start_offset time offset for beginning block
+     * @param start_scans number of scans for beginning block
+     * @param start_dur duration for beginning block
+     * @param start_sourceGroup allowed sources for beginning block
+     * @param mid schedule block in the middle
+     * @param mid_offset time offset for middle block
+     * @param mid_scans number of scans for middle block
+     * @param mid_dur duration for middle block
+     * @param mid_sourceGroup allowed sources for middle block
+     * @param end schedule block in the end
+     * @param end_offset time offset for end block
+     * @param end_scans number of scans for end block
+     * @param end_dur duration for end block
+     * @param end_sourceGroup allowed sources for end block
      */
-    void calibratorBlock( bool start, unsigned int offset, bool mid, bool end, unsigned int scans, unsigned int dur,
-                          const std::string &sourceGroup );
+    void calibratorBlock( bool start, unsigned int start_offset, unsigned int start_scans, unsigned int start_dur,
+                          const std::string &start_sourceGroup, bool mid, int mid_offset, unsigned int mid_scans,
+                          unsigned int mid_dur, const std::string &mid_sourceGroup, bool end, unsigned int end_offset,
+                          unsigned int end_scans, unsigned int end_dur, const std::string &end_sourceGroup );
 
     /**
      * @brief calibrator block in paramters.xml

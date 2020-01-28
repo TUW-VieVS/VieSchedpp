@@ -34,7 +34,9 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+
 #include "Initializer.h"
+#include "Misc/CalibratorScanDescriptor.h"
 #include "Misc/HighImpactScanDescriptor.h"
 #include "ObservingMode/Mode.h"
 #include "Output/Output.h"

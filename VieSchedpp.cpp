@@ -100,9 +100,10 @@ void VieSchedpp::run() {
     init.precalcSubnettingSrcIds();
     init.initializeSources();
     init.initializeSourceSequence();
-    init.initializeCalibrationBlocks( of );
+    init.initializeAstrometricCalibrationBlocks( of );
     init.initializeOptimization( of );
 
+    init.initializeCalibrationBlocks();
     init.initializeHighImpactScanDescriptor( of );
     init.initializeWeightFactors();
     init.initializeSkyCoverages();

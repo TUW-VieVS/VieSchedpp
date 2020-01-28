@@ -33,6 +33,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+
 #include "Algorithm/FocusCorners.h"
 #include "Initializer.h"
 #include "Misc/Constants.h"
@@ -186,6 +187,15 @@ class Scheduler : public VieVS_NamedObject {
      */
     void highImpactScans( HighImpactScanDescriptor &himp, std::ofstream &of );
 
+    /**
+     * @brief schedule calibrator blocks
+     * @author Matthias Schartner
+     *
+     * @param calib calibrator block descriptor
+     * @param of outstream object
+     */
+    void calibratorBlocks( CalibratorScanDescriptor &calib, std::ofstream &of );
+
 
     /**
      * @brief checks the schedule with an independend methode
@@ -260,8 +270,9 @@ class Scheduler : public VieVS_NamedObject {
     unsigned long nSubnettingScansConsidered = 0;  ///< considered subnetting scans
     unsigned long nObservationsConsidered = 0;     ///< considered baselines
 
-    boost::optional<HighImpactScanDescriptor> himp_;
-    boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;
+    boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
+    boost::optional<CalibratorScanDescriptor> calib_;                         ///< calibrator impact scan descriptor
+    boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
 
     /**
@@ -395,7 +406,7 @@ class Scheduler : public VieVS_NamedObject {
 
 
     /**
-     * @brief calibrator update
+     * @brief astrometric calibrator update
      * @author Matthias Schartner
      *
      * @param bestScans scheduled scans
@@ -403,7 +414,7 @@ class Scheduler : public VieVS_NamedObject {
      * @param prevLowElevationScores previouse low elevation scores
      * @param highestElevations highest elevation scores
      * @param lowestElevations lowest elevation scores
-     * @return true if no more calibrator scans are needed, otherwise false
+     * @return true if no more astrometric calibrator scans are needed, otherwise false
      */
     bool calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
                            std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
@@ -411,19 +422,19 @@ class Scheduler : public VieVS_NamedObject {
 
 
     /**
-     * @brief write calibrator statistics
+     * @brief write astrometric calibrator statistics
      * @author Matthias Schartner
      *
      * @param of output stream object
-     * @param highestElevations highest elevations scheduled so far in calibrator block
-     * @param lowestElevations lowest elevations scheduled so far in calibrator block
+     * @param highestElevations highest elevations scheduled so far in astrometric calibrator block
+     * @param lowestElevations lowest elevations scheduled so far in astrometric calibrator block
      */
     void writeCalibratorStatistics( std::ofstream &of, std::vector<double> &highestElevations,
                                     std::vector<double> &lowestElevations );
 
 
     /**
-     * @brief write calibrator block header
+     * @brief write astrometric calibrator block header
      * @author Matthias Schartner
      *
      * @param of outstream object

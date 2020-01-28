@@ -1139,25 +1139,33 @@ void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<uns
     master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
 }
 
-void ParameterSettings::calibratorBlock( bool start, unsigned int offset, bool mid, bool end, unsigned int scans,
-                                         unsigned int dur, const string &sourceGroup ) {
+void ParameterSettings::calibratorBlock( bool start, unsigned int start_offset, unsigned int start_scans,
+                                         unsigned int start_dur, const std::string &start_sourceGroup, bool mid,
+                                         int mid_offset, unsigned int mid_scans, unsigned int mid_dur,
+                                         const std::string &mid_sourceGroup, bool end, unsigned int end_offset,
+                                         unsigned int end_scans, unsigned int end_dur,
+                                         const std::string &end_sourceGroup ) {
     if ( start || mid || end ) {
         boost::property_tree::ptree rules;
 
         if ( start ) {
-            rules.add( "calibration.start", start );
-            rules.add( "calibration.offset_start", offset );
+            rules.add( "calibration.start.offset", start_offset );
+            rules.add( "calibration.start.scans", start_scans );
+            rules.add( "calibration.start.duration", start_dur );
+            rules.add( "calibration.start.sources", start_sourceGroup );
         }
         if ( mid ) {
-            rules.add( "calibration.mid", mid );
+            rules.add( "calibration.mid.offset", mid_offset );
+            rules.add( "calibration.mid.scans", mid_scans );
+            rules.add( "calibration.mid.duration", mid_dur );
+            rules.add( "calibration.mid.sources", mid_sourceGroup );
         }
         if ( end ) {
-            rules.add( "calibration.end", end );
+            rules.add( "calibration.end.offset", end_offset );
+            rules.add( "calibration.end.scans", end_scans );
+            rules.add( "calibration.end.duration", end_dur );
+            rules.add( "calibration.end.sources", end_sourceGroup );
         }
-        rules.add( "calibration.n_scans", scans );
-        rules.add( "calibration.scan_duration", dur );
-        rules.add( "calibration.sources", sourceGroup );
-
         master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );
     }
 }
