@@ -1139,35 +1139,22 @@ void ParameterSettings::ruleScanSequence( unsigned int cadence, const vector<uns
     master_.add_child( "VieSchedpp.rules.sourceSequence", rules.get_child( "rules.sourceSequence" ) );
 }
 
-void ParameterSettings::calibratorBlock( bool start, unsigned int start_offset, unsigned int start_scans,
-                                         unsigned int start_dur, const std::string &start_sourceGroup, bool mid,
-                                         int mid_offset, unsigned int mid_scans, unsigned int mid_dur,
-                                         const std::string &mid_sourceGroup, bool end, unsigned int end_offset,
-                                         unsigned int end_scans, unsigned int end_dur,
-                                         const std::string &end_sourceGroup ) {
-    if ( start || mid || end ) {
-        boost::property_tree::ptree rules;
-
-        if ( start ) {
-            rules.add( "calibration.start.offset", start_offset );
-            rules.add( "calibration.start.scans", start_scans );
-            rules.add( "calibration.start.duration", start_dur );
-            rules.add( "calibration.start.sources", start_sourceGroup );
-        }
-        if ( mid ) {
-            rules.add( "calibration.mid.offset", mid_offset );
-            rules.add( "calibration.mid.scans", mid_scans );
-            rules.add( "calibration.mid.duration", mid_dur );
-            rules.add( "calibration.mid.sources", mid_sourceGroup );
-        }
-        if ( end ) {
-            rules.add( "calibration.end.offset", end_offset );
-            rules.add( "calibration.end.scans", end_scans );
-            rules.add( "calibration.end.duration", end_dur );
-            rules.add( "calibration.end.sources", end_sourceGroup );
-        }
-        master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );
+void ParameterSettings::calibratorBlock( const std::vector<CalibratorBlock> &blocks ) {
+    if ( blocks.empty() ) {
+        return;
     }
+
+    boost::property_tree::ptree rules;
+    for ( const auto &any : blocks ) {
+        boost::property_tree::ptree tmp;
+        tmp.add( "block.startTime", any.getStartTime() );
+        tmp.add( "block.scans", any.getNScans() );
+        tmp.add( "block.duration", any.getDuration() );
+        tmp.add( "block.sources", any.getAllowedSourceGroup() );
+        rules.add_child( "calibration.block", tmp.get_child( "block" ) );
+    }
+
+    master_.add_child( "VieSchedpp.rules.calibration", rules.get_child( "calibration" ) );
 }
 
 void ParameterSettings::ruleCalibratorBlockTime( unsigned int cadence, const std::string &member,

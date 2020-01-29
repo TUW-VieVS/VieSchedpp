@@ -16,30 +16,28 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "CalibratorBlock.h"
 
+#include <utility>
 
 using namespace std;
 using namespace VieVS;
 
-bool CalibratorBlock::scheduleCalibrationBlocks = false;
+unsigned long CalibratorBlock::nextId = 0;
 
-unsigned int CalibratorBlock::cadence = 0;
-CalibratorBlock::CadenceUnit CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds;
+CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
+                                  std::string allowedSourceGroup )
+    : VieVS_Object( nextId++ ),
+      startTime{startTime},
+      nScans{nScans},
+      duration{duration},
+      allowedSourceGroup{std::move( allowedSourceGroup )} {}
 
-unsigned int CalibratorBlock::nextBlock = 0;
-
-std::vector<unsigned long> CalibratorBlock::calibratorSourceIds{};
-
-unsigned int CalibratorBlock::nmaxScans = 0;
-
-CalibratorBlock::TargetScanLengthType CalibratorBlock::targetScanLengthType =
-    CalibratorBlock::TargetScanLengthType::parameters;
-std::unordered_map<std::string, double> CalibratorBlock::minSNR{};
-unsigned int CalibratorBlock::scanLength = 0;
-
-double CalibratorBlock::lowElevationStartWeight = 0 * deg2rad;
-double CalibratorBlock::lowElevationFullWeight = 0 * deg2rad;
-
-double CalibratorBlock::highElevationStartWeight = 90 * deg2rad;
-double CalibratorBlock::highElevationFullWeight = 90 * deg2rad;
+CalibratorBlock::CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
+                                  std::vector<std::string> allowedSources )
+    : VieVS_Object( nextId++ ),
+      startTime{startTime},
+      nScans{nScans},
+      duration{duration},
+      allowedSources{std::move( allowedSources )} {}

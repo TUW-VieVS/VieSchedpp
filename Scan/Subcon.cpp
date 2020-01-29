@@ -321,7 +321,7 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
 
 void Subcon::calcCalibratorScanDuration( const vector<Station> &stations, const vector<Source> &sources ) {
     for ( auto &thisScan : singleScans_ ) {
-        thisScan.setFixedScanDuration( CalibratorBlock::scanLength );
+        thisScan.setFixedScanDuration( AstrometricCalibratorBlock::scanLength );
     }
 }
 
@@ -1152,8 +1152,9 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
     }
 
     if ( type == Scan::ScanType::astroCalibrator &&
-         find( CalibratorBlock::calibratorSourceIds.begin(), CalibratorBlock::calibratorSourceIds.end(),
-               thisSource.getId() ) == CalibratorBlock::calibratorSourceIds.end() ) {
+         find( AstrometricCalibratorBlock::calibratorSourceIds.begin(),
+               AstrometricCalibratorBlock::calibratorSourceIds.end(),
+               thisSource.getId() ) == AstrometricCalibratorBlock::calibratorSourceIds.end() ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
             BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()

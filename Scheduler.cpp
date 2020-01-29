@@ -347,7 +347,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
 
         // stop if calibration block is finished of number of maximum scans reached
         if ( type == Scan::ScanType::astroCalibrator ) {
-            if ( stopScanSelection || countCalibratorScans >= CalibratorBlock::nmaxScans ) {
+            if ( stopScanSelection || countCalibratorScans >= AstrometricCalibratorBlock::nmaxScans ) {
                 break;
             }
         }
@@ -361,23 +361,23 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         }
 
         // check if you need to schedule a calibration block
-        if ( type == Scan::ScanType::standard && CalibratorBlock::scheduleCalibrationBlocks && depth == 0 ) {
-            switch ( CalibratorBlock::cadenceUnit ) {
-                case CalibratorBlock::CadenceUnit::scans: {
-                    if ( Scan::nScanSelections == CalibratorBlock::nextBlock ) {
+        if ( type == Scan::ScanType::standard && AstrometricCalibratorBlock::scheduleCalibrationBlocks && depth == 0 ) {
+            switch ( AstrometricCalibratorBlock::cadenceUnit ) {
+                case AstrometricCalibratorBlock::CadenceUnit::scans: {
+                    if ( Scan::nScanSelections == AstrometricCalibratorBlock::nextBlock ) {
                         boost::optional<Subcon> empty_subcon = boost::none;
                         startScanSelection( endTime, of, Scan::ScanType::astroCalibrator, opt_endposition, empty_subcon,
                                             depth + 1 );
-                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                        AstrometricCalibratorBlock::nextBlock += AstrometricCalibratorBlock::cadence;
                     }
                     break;
                 }
-                case CalibratorBlock::CadenceUnit::seconds: {
-                    if ( maxScanEnd >= CalibratorBlock::nextBlock ) {
+                case AstrometricCalibratorBlock::CadenceUnit::seconds: {
+                    if ( maxScanEnd >= AstrometricCalibratorBlock::nextBlock ) {
                         boost::optional<Subcon> empty_subcon = boost::none;
                         startScanSelection( endTime, of, Scan::ScanType::astroCalibrator, opt_endposition, empty_subcon,
                                             depth + 1 );
-                        CalibratorBlock::nextBlock += CalibratorBlock::cadence;
+                        AstrometricCalibratorBlock::nextBlock += AstrometricCalibratorBlock::cadence;
                     }
                     break;
                 }
@@ -438,8 +438,8 @@ void Scheduler::start() noexcept {
     of << ".-----------------------------------------------------------------------------------------------------------"
           "-----------------------------------.\n";
 
-    if ( calib_.is_initialized() ) {
-        calibratorBlocks( calib_.get(), of );
+    if ( !calib_.empty() ) {
+        calibratorBlocks( of );
     }
 
     if ( himp_.is_initialized() ) {
@@ -1384,7 +1384,7 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "new schedule with reduced source list necessary";
 #endif
         message.append( "new schedule with reduced source list necessary" );
-        CalibratorBlock::nextBlock = 0;
+        AstrometricCalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
         of << "|                                                                                                       "
               "                                       |\n";
@@ -1564,28 +1564,26 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     sortSchedule( Timestamp::start );
 }
 
-void Scheduler::calibratorBlocks( CalibratorScanDescriptor &calib, std::ofstream &of ) {
+void Scheduler::calibratorBlocks( std::ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix calibrator block scans";
 #endif
 
-    if ( calib.startBlock() ) {
+    for ( const auto &block : calib_ ) {
         of << "|                                                                                                       "
               "                                       |\n";
-        of << "|                                                     start calibration block session start             "
+        of << "|                                                            start calibration block                    "
               "                                       |\n";
         of << "|                                                                                                       "
               "                                       |\n";
         of << "|-------------------------------------------------------------------------------------------------------"
               "---------------------------------------|\n";
 
-        CalibratorScanDescriptor::CalibratorBlock block = calib.getStartBlock();
-        // preparation
-        unsigned int time = block.startTime;
+        unsigned int time = block.getStartTime();
         if ( time < TimeSystem::duration ) {
             checkForNewEvents( time, false, of, false );
             for ( auto &src : sources_ ) {
-                src.referencePARA().fixedScanDuration = block.duration;
+                src.referencePARA().fixedScanDuration = block.getDuration();
                 if ( !block.isAllowedSource( src.getName() ) ) {
                     src.referencePARA().available = false;
                 }
@@ -1600,7 +1598,7 @@ void Scheduler::calibratorBlocks( CalibratorScanDescriptor &calib, std::ofstream
 
             // start scheduling
             int i_scan = 0;
-            while ( i_scan < block.nScans ) {
+            while ( i_scan < block.getNScans() ) {
                 Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::calibrator );
                 subcon.generateCalibratorScore( network_, sources_, currentObservingMode_ );
                 vector<Scan> bestScans = subcon.selectBest( network_, sources_, currentObservingMode_ );
@@ -1622,165 +1620,7 @@ void Scheduler::calibratorBlocks( CalibratorScanDescriptor &calib, std::ofstream
                     continue;
                 }
                 for ( auto &src : sources_ ) {
-                    src.referencePARA().fixedScanDuration = block.duration;
-                    if ( !block.isAllowedSource( src.getName() ) ) {
-                        src.referencePARA().available = false;
-                    }
-                }
-
-                // the best scans are now already fixed. add observing duration to total observing duration to avoid
-                // fillin mode scans which extend the allowed total observing time.
-                for ( const auto &scan : bestScans ) {
-                    for ( int i = 0; i < scan.getNSta(); ++i ) {
-                        unsigned long staid = scan.getStationId( i );
-                        unsigned int obsDur = scan.getTimes().getObservingDuration( i );
-                        network_.refStation( staid ).addObservingTime( obsDur );
-                    }
-                }
-
-                // update best possible scans
-                nSingleScansConsidered += subcon.getNumberSingleScans();
-                nSubnettingScansConsidered += subcon.getNumberSubnettingScans();
-                for ( auto &bestScan : bestScans ) {
-                    update( bestScan, of );
-                }
-                ++i_scan;
-            }
-        }
-    }
-
-    if ( calib.midBlock() ) {
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|                                                      start calibration block session mid              "
-              "                                       |\n";
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
-        CalibratorScanDescriptor::CalibratorBlock block = calib.getMidBlock();
-        // preparation
-        unsigned int time = block.startTime;
-        if ( time < TimeSystem::duration ) {
-            checkForNewEvents( time, false, of, false );
-            for ( auto &src : sources_ ) {
-                src.referencePARA().fixedScanDuration = block.duration;
-                if ( !block.isAllowedSource( src.getName() ) ) {
-                    src.referencePARA().available = false;
-                }
-            }
-
-            for ( auto &thisStation : network_.refStations() ) {
-                PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
-                pv.setTime( time );
-                thisStation.setCurrentPointingVector( pv );
-                thisStation.referencePARA().firstScan = true;
-            }
-
-            // start scheduling
-            int i_scan = 0;
-            while ( i_scan < block.nScans ) {
-                Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::calibrator );
-                subcon.generateCalibratorScore( network_, sources_, currentObservingMode_ );
-                vector<Scan> bestScans = subcon.selectBest( network_, sources_, currentObservingMode_ );
-
-                // check end time of best possible next scan
-                unsigned int maxScanEnd = 0;
-                for ( const auto &any : bestScans ) {
-                    if ( any.getTimes().getScanTime( Timestamp::end ) > maxScanEnd ) {
-                        maxScanEnd = any.getTimes().getScanTime( Timestamp::end );
-                    }
-                }
-                if ( maxScanEnd > TimeSystem::duration ) {
-                    break;
-                }
-
-                // check if end time triggers a new event
-                bool hardBreak = checkForNewEvents( maxScanEnd, true, of, true );
-                if ( hardBreak ) {
-                    continue;
-                }
-                for ( auto &src : sources_ ) {
-                    src.referencePARA().fixedScanDuration = block.duration;
-                    if ( !block.isAllowedSource( src.getName() ) ) {
-                        src.referencePARA().available = false;
-                    }
-                }
-
-                // the best scans are now already fixed. add observing duration to total observing duration to avoid
-                // fillin mode scans which extend the allowed total observing time.
-                for ( const auto &scan : bestScans ) {
-                    for ( int i = 0; i < scan.getNSta(); ++i ) {
-                        unsigned long staid = scan.getStationId( i );
-                        unsigned int obsDur = scan.getTimes().getObservingDuration( i );
-                        network_.refStation( staid ).addObservingTime( obsDur );
-                    }
-                }
-
-                // update best possible scans
-                nSingleScansConsidered += subcon.getNumberSingleScans();
-                nSubnettingScansConsidered += subcon.getNumberSubnettingScans();
-                for ( auto &bestScan : bestScans ) {
-                    update( bestScan, of );
-                }
-                ++i_scan;
-            }
-        }
-    }
-
-    if ( calib.endBlock() ) {
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|                                                      start calibration block session end              "
-              "                                       |\n";
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
-        CalibratorScanDescriptor::CalibratorBlock block = calib.getEndBlock();
-        // preparation
-        unsigned int time = block.startTime;
-        if ( time < TimeSystem::duration ) {
-            checkForNewEvents( time, false, of, false );
-            for ( auto &src : sources_ ) {
-                src.referencePARA().fixedScanDuration = block.duration;
-                if ( !block.isAllowedSource( src.getName() ) ) {
-                    src.referencePARA().available = false;
-                }
-            }
-
-            for ( auto &thisStation : network_.refStations() ) {
-                PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
-                pv.setTime( time );
-                thisStation.setCurrentPointingVector( pv );
-                thisStation.referencePARA().firstScan = true;
-            }
-
-            // start scheduling
-            int i_scan = 0;
-            while ( i_scan < block.nScans ) {
-                Subcon subcon = createSubcon( parameters_.subnetting, Scan::ScanType::calibrator );
-                subcon.generateCalibratorScore( network_, sources_, currentObservingMode_ );
-                vector<Scan> bestScans = subcon.selectBest( network_, sources_, currentObservingMode_ );
-
-                // check end time of best possible next scan
-                unsigned int maxScanEnd = 0;
-                for ( const auto &any : bestScans ) {
-                    if ( any.getTimes().getScanTime( Timestamp::end ) > maxScanEnd ) {
-                        maxScanEnd = any.getTimes().getScanTime( Timestamp::end );
-                    }
-                }
-                if ( maxScanEnd > TimeSystem::duration ) {
-                    break;
-                }
-
-                // check if end time triggers a new event
-                bool hardBreak = checkForNewEvents( maxScanEnd, true, of, true );
-                if ( hardBreak ) {
-                    continue;
-                }
-                for ( auto &src : sources_ ) {
-                    src.referencePARA().fixedScanDuration = block.duration;
+                    src.referencePARA().fixedScanDuration = block.getDuration();
                     if ( !block.isAllowedSource( src.getName() ) ) {
                         src.referencePARA().available = false;
                     }
@@ -2636,11 +2476,11 @@ void Scheduler::writeCalibratorStatistics( std::ofstream &of, std::vector<double
 bool Scheduler::calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
                                   std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
                                   std::vector<double> &lowestElevations ) {
-    double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
-    double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
+    double lowElevationSlopeStart = AstrometricCalibratorBlock::lowElevationStartWeight;
+    double lowElevationSlopeEnd = AstrometricCalibratorBlock::lowElevationFullWeight;
 
-    double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
-    double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
+    double highElevationSlopeStart = AstrometricCalibratorBlock::highElevationStartWeight;
+    double highElevationSlopeEnd = AstrometricCalibratorBlock::highElevationFullWeight;
 
     // update prev low/high elevation scores
     for ( const auto &scan : bestScans ) {

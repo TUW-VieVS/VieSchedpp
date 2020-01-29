@@ -191,10 +191,9 @@ class Scheduler : public VieVS_NamedObject {
      * @brief schedule calibrator blocks
      * @author Matthias Schartner
      *
-     * @param calib calibrator block descriptor
      * @param of outstream object
      */
-    void calibratorBlocks( CalibratorScanDescriptor &calib, std::ofstream &of );
+    void calibratorBlocks( std::ofstream &of );
 
 
     /**
@@ -271,7 +270,7 @@ class Scheduler : public VieVS_NamedObject {
     unsigned long nObservationsConsidered = 0;     ///< considered baselines
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
-    boost::optional<CalibratorScanDescriptor> calib_;                         ///< calibrator impact scan descriptor
+    std::vector<CalibratorBlock> calib_;                                      ///< calibrator impact scan descriptor
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
 

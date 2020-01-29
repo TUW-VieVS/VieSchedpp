@@ -341,8 +341,9 @@ bool Scan::calcObservationDuration( const Network &network, const Source &source
 
     // check if it is a calibrator scan and there is a fixed scan duration for calibrator scans
     if ( type_ == ScanType::astroCalibrator ) {
-        if ( CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds ) {
-            unsigned int maxObservingTime = CalibratorBlock::scanLength;
+        if ( AstrometricCalibratorBlock::targetScanLengthType ==
+             AstrometricCalibratorBlock::TargetScanLengthType::seconds ) {
+            unsigned int maxObservingTime = AstrometricCalibratorBlock::scanLength;
             // set baseline scan duration to fixed scan duration
             for ( auto &thisObservation : observations_ ) {
                 thisObservation.setObservingTime( maxObservingTime );
@@ -476,8 +477,9 @@ bool Scan::scanDuration( const Network &network, const Source &source ) noexcept
 
     // check if it is a calibrator scan with a fixed scan duration
     if ( type_ == ScanType::astroCalibrator ) {
-        if ( CalibratorBlock::targetScanLengthType == CalibratorBlock::TargetScanLengthType::seconds ) {
-            times_.setObservingTimes( CalibratorBlock::scanLength );
+        if ( AstrometricCalibratorBlock::targetScanLengthType ==
+             AstrometricCalibratorBlock::TargetScanLengthType::seconds ) {
+            times_.setObservingTimes( AstrometricCalibratorBlock::scanLength );
             return true;
         }
     }
@@ -1289,11 +1291,11 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
                       const std::vector<double> &prevHighElevationScores, const Network &network,
                       unsigned int minRequiredTime, unsigned int maxRequiredTime, const Source &source,
                       bool subnetting ) {
-    double lowElevationSlopeStart = CalibratorBlock::lowElevationStartWeight;
-    double lowElevationSlopeEnd = CalibratorBlock::lowElevationFullWeight;
+    double lowElevationSlopeStart = AstrometricCalibratorBlock::lowElevationStartWeight;
+    double lowElevationSlopeEnd = AstrometricCalibratorBlock::lowElevationFullWeight;
 
-    double highElevationSlopeStart = CalibratorBlock::highElevationStartWeight;
-    double highElevationSlopeEnd = CalibratorBlock::highElevationFullWeight;
+    double highElevationSlopeStart = AstrometricCalibratorBlock::highElevationStartWeight;
+    double highElevationSlopeEnd = AstrometricCalibratorBlock::highElevationFullWeight;
 
     double improvementLowElevation = 0;
     double improvementHighElevation = 0;

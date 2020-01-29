@@ -18,71 +18,55 @@
 
 /**
  * @file CalibratorBlock.h
- * @brief class for calibrator block
+ * @brief class CalibratorBlock
  *
  * @author Matthias Schartner
- * @date 26.09.2017
+ * @date 27.01.2020
  *
  */
+#ifndef VIESCHEDPP_CALIBRATORBLOCK_H
+#define VIESCHEDPP_CALIBRATORBLOCK_H
 
-#ifndef CALIBRATORBLOCK_H
-#define CALIBRATORBLOCK_H
-
-
-#include <unordered_map>
 #include <vector>
-#include "Constants.h"
 
+#include "TimeSystem.h"
+#include "VieVS_Object.h"
 
 namespace VieVS {
 /**
  * @class CalibratorBlock
- * @brief calibrator block
+ * @brief define calibrator blocks
  *
  * @author Matthias Schartner
- * @date 26.09.2017
+ * @date 27.01.2020
  */
-class CalibratorBlock {
+
+class CalibratorBlock : public VieVS_Object {
    public:
-    /**
-     * @brief calibrator block cadence unit
-     * @author Matthias Schartner
-     */
-    enum class CadenceUnit {
-        scans,    ///< based on number of scans
-        seconds,  ///< based on seconds passed
-    };
+    CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
+                     std::string allowedSourceGroup );
+    CalibratorBlock( unsigned int startTime, unsigned int nScans, unsigned int duration,
+                     std::vector<std::string> allowedSources );
 
-    /**
-     * @brief calibrator block scan length type
-     */
-    enum class TargetScanLengthType {
-        parameters,  ///< use time from parameters
-        minSNR,      ///< until target SNR is reached
-        seconds,     ///< fixed time in seconds
-    };
+    bool isAllowedSource( const std::string &name ) const {
+        return find( allowedSources.begin(), allowedSources.end(), name ) != allowedSources.end();
+    }
 
-    static bool scheduleCalibrationBlocks;  ///< flag if calibration block should be scheduled
+    unsigned int getStartTime() const { return startTime; }
+    unsigned int getNScans() const { return nScans; }
+    unsigned int getDuration() const { return duration; }
+    const std::vector<std::string> &getAllowedSources() const { return allowedSources; }
+    const std::string &getAllowedSourceGroup() const { return allowedSourceGroup; }
 
-    static unsigned int cadence;     ///< cadence
-    static CadenceUnit cadenceUnit;  ///< cadence unit
-
-    static unsigned int nextBlock;  ///< seconds/number of scans when next block should start
-
-    static std::vector<unsigned long> calibratorSourceIds;  ///< list of calibrator sources
-
-    static unsigned int nmaxScans;  ///< maximum number of scans per calibrator block
-
-    static TargetScanLengthType targetScanLengthType;       ///< target scan length type
-    static std::unordered_map<std::string, double> minSNR;  ///<  target minimum signal to noise ratio per band
-    static unsigned int scanLength;                         ///< target scan length in seconds
-
-    static double lowElevationStartWeight;  ///< low elevation start value in radians
-    static double lowElevationFullWeight;   ///< low elevation full value in radians
-
-    static double highElevationStartWeight;  ///< high elevation start value in radians
-    static double highElevationFullWeight;   ///< high elevation full value in radians
+   private:
+    static unsigned long nextId;  ///< next id for this object type
+    unsigned int startTime;
+    unsigned int nScans;
+    unsigned int duration;
+    std::string allowedSourceGroup;
+    std::vector<std::string> allowedSources;
 };
 }  // namespace VieVS
 
-#endif  // CALIBRATORBLOCK_H
+
+#endif  // VIESCHEDPP_CALIBRATORBLOCK_H

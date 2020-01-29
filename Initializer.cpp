@@ -2725,60 +2725,25 @@ void Initializer::initializeSourceSequence() noexcept {
 }
 
 void Initializer::initializeCalibrationBlocks() {
-    bool bStart = xml_.get_child_optional( "VieSchedpp.rules.calibration.start" ).is_initialized();
-    unsigned int start_offset = xml_.get( "VieSchedpp.rules.calibration.start.offset", 600 );
-    unsigned int start_scans = xml_.get( "VieSchedpp.rules.calibration.start.scans", 2 );
-    unsigned int start_duration = xml_.get( "VieSchedpp.rules.calibration.start.duration", 300 );
-    string start_sources = xml_.get( "VieSchedpp.rules.calibration.start.sources", "__all__" );
-    vector<string> allowedSources_start;
-    if ( srcGroups_.find( start_sources ) != srcGroups_.end() ) {
-        allowedSources_start = srcGroups_[start_sources];
-    } else {
-        allowedSources_start.push_back( start_sources );
-    }
-    CalibratorScanDescriptor::CalibratorBlock start;
-    start.flag = bStart;
-    start.startTime = start_offset;
-    start.nScans = start_scans;
-    start.duration = start_duration;
-    start.allowedSources = allowedSources_start;
+    const auto &tree = xml_.get_child_optional( "VieSchedpp.rules.calibration" );
+    if ( tree.is_initialized() ) {
+        for ( const auto &any : *tree ) {
+            if ( any.first == "block" ) {
+                unsigned int time = any.second.get( "startTime", TimeSystem::duration );
+                unsigned int scans = any.second.get( "scans", 2 );
+                unsigned int duration = any.second.get( "duration", 300 );
+                string sourceGroup = any.second.get( "sources", "__all__" );
+                vector<string> allowedSources;
+                if ( srcGroups_.find( sourceGroup ) != srcGroups_.end() ) {
+                    allowedSources = srcGroups_[sourceGroup];
+                } else {
+                    allowedSources.push_back( sourceGroup );
+                }
 
-    bool bMid = xml_.get_child_optional( "VieSchedpp.rules.calibration.mid" ).is_initialized();
-    int mid_offset = xml_.get( "VieSchedpp.rules.calibration.mid.offset", 0 );
-    unsigned int mid_scans = xml_.get( "VieSchedpp.rules.calibration.mid.scans", 2 );
-    unsigned int mid_duration = xml_.get( "VieSchedpp.rules.calibration.mid.duration", 300 );
-    string mid_sources = xml_.get( "VieSchedpp.rules.calibration.mid.sources", "__all__" );
-    vector<string> allowedSources_mid;
-    if ( srcGroups_.find( mid_sources ) != srcGroups_.end() ) {
-        allowedSources_mid = srcGroups_[mid_sources];
-    } else {
-        allowedSources_mid.push_back( mid_sources );
+                calib_.emplace_back( time, scans, duration, allowedSources );
+            }
+        }
     }
-    CalibratorScanDescriptor::CalibratorBlock mid;
-    mid.flag = bMid;
-    mid.startTime = TimeSystem::duration / 2 + mid_offset;
-    mid.nScans = mid_scans;
-    mid.duration = mid_duration;
-    mid.allowedSources = allowedSources_mid;
-
-    bool bEnd = xml_.get_child_optional( "VieSchedpp.rules.calibration.end" ).is_initialized();
-    unsigned int end_offset = xml_.get( "VieSchedpp.rules.calibration.end.offset", 0 );
-    unsigned int end_scans = xml_.get( "VieSchedpp.rules.calibration.end.scans", 2 );
-    unsigned int end_duration = xml_.get( "VieSchedpp.rules.calibration.end.duration", 300 );
-    string end_sources = xml_.get( "VieSchedpp.rules.calibration.end.sources", "__all__" );
-    vector<string> allowedSources_end;
-    if ( srcGroups_.find( end_sources ) != srcGroups_.end() ) {
-        allowedSources_end = srcGroups_[end_sources];
-    } else {
-        allowedSources_end.push_back( end_sources );
-    }
-    CalibratorScanDescriptor::CalibratorBlock end;
-    end.flag = bEnd;
-    end.startTime = TimeSystem::duration - end_offset;
-    end.nScans = end_scans;
-    end.duration = end_duration;
-    end.allowedSources = allowedSources_end;
-    calib_ = CalibratorScanDescriptor( start, mid, end );
 }
 
 void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
@@ -2790,21 +2755,21 @@ void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
         boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
         unordered_map<std::string, std::vector<std::string>> groups = readGroups( PARA_source, GroupType::source );
 
-        CalibratorBlock::scheduleCalibrationBlocks = true;
+        AstrometricCalibratorBlock::scheduleCalibrationBlocks = true;
 
         of << "Calibration Block found!\n";
 
         for ( const auto &any : *cb ) {
             if ( any.first == "cadence_nScanSelections" ) {
-                CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::scans;
-                CalibratorBlock::cadence = any.second.get_value<unsigned int>();
-                CalibratorBlock::nextBlock = CalibratorBlock::cadence;
-                of << "  calibration block every " << CalibratorBlock::cadence << " scan selections\n";
+                AstrometricCalibratorBlock::cadenceUnit = AstrometricCalibratorBlock::CadenceUnit::scans;
+                AstrometricCalibratorBlock::cadence = any.second.get_value<unsigned int>();
+                AstrometricCalibratorBlock::nextBlock = AstrometricCalibratorBlock::cadence;
+                of << "  calibration block every " << AstrometricCalibratorBlock::cadence << " scan selections\n";
             } else if ( any.first == "cadence_seconds" ) {
-                CalibratorBlock::cadenceUnit = CalibratorBlock::CadenceUnit::seconds;
-                CalibratorBlock::cadence = any.second.get_value<unsigned int>();
-                CalibratorBlock::nextBlock = CalibratorBlock::cadence;
-                of << "  calibration block every " << CalibratorBlock::cadence << " seconds\n";
+                AstrometricCalibratorBlock::cadenceUnit = AstrometricCalibratorBlock::CadenceUnit::seconds;
+                AstrometricCalibratorBlock::cadence = any.second.get_value<unsigned int>();
+                AstrometricCalibratorBlock::nextBlock = AstrometricCalibratorBlock::cadence;
+                of << "  calibration block every " << AstrometricCalibratorBlock::cadence << " seconds\n";
             } else if ( any.first == "member" ) {
                 string member = any.second.get_value<string>();
                 vector<string> targetSources;
@@ -2836,23 +2801,26 @@ void Initializer::initializeAstrometricCalibrationBlocks( std::ofstream &of ) {
                     }
                 }
                 of << "\n";
-                CalibratorBlock::calibratorSourceIds = std::move( targetIds );
+                AstrometricCalibratorBlock::calibratorSourceIds = std::move( targetIds );
             } else if ( any.first == "nMaxScans" ) {
-                CalibratorBlock::nmaxScans = any.second.get_value<unsigned int>();
-                of << "  maximum number of calibration block scans: " << CalibratorBlock::nmaxScans << "\n";
+                AstrometricCalibratorBlock::nmaxScans = any.second.get_value<unsigned int>();
+                of << "  maximum number of calibration block scans: " << AstrometricCalibratorBlock::nmaxScans << "\n";
 
             } else if ( any.first == "fixedScanTime" ) {
-                CalibratorBlock::targetScanLengthType = CalibratorBlock::TargetScanLengthType::seconds;
-                CalibratorBlock::scanLength = any.second.get_value<unsigned int>();
+                AstrometricCalibratorBlock::targetScanLengthType =
+                    AstrometricCalibratorBlock::TargetScanLengthType::seconds;
+                AstrometricCalibratorBlock::scanLength = any.second.get_value<unsigned int>();
 
-                of << "  fixed scan length for calibrator scans: " << CalibratorBlock::scanLength << " seconds\n";
+                of << "  fixed scan length for calibrator scans: " << AstrometricCalibratorBlock::scanLength
+                   << " seconds\n";
 
             } else if ( any.first == "lowElevation" ) {
-                CalibratorBlock::lowElevationStartWeight = any.second.get<double>( "startWeight" ) * deg2rad;
-                CalibratorBlock::lowElevationFullWeight = any.second.get<double>( "fullWeight" ) * deg2rad;
+                AstrometricCalibratorBlock::lowElevationStartWeight = any.second.get<double>( "startWeight" ) * deg2rad;
+                AstrometricCalibratorBlock::lowElevationFullWeight = any.second.get<double>( "fullWeight" ) * deg2rad;
             } else if ( any.first == "highElevation" ) {
-                CalibratorBlock::highElevationStartWeight = any.second.get<double>( "startWeight" ) * deg2rad;
-                CalibratorBlock::highElevationFullWeight = any.second.get<double>( "fullWeight" ) * deg2rad;
+                AstrometricCalibratorBlock::highElevationStartWeight =
+                    any.second.get<double>( "startWeight" ) * deg2rad;
+                AstrometricCalibratorBlock::highElevationFullWeight = any.second.get<double>( "fullWeight" ) * deg2rad;
             }
         }
     }

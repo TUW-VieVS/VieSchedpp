@@ -39,9 +39,9 @@
 
 #include "Algorithm/FocusCorners.h"
 #include "Input/SkdCatalogReader.h"
+#include "Misc/AstrometricCalibratorBlock.h"
 #include "Misc/AstronomicalParameters.h"
 #include "Misc/CalibratorBlock.h"
-#include "Misc/CalibratorScanDescriptor.h"
 #include "Misc/Constants.h"
 #include "Misc/HighImpactScanDescriptor.h"
 #include "Misc/LookupTable.h"
@@ -392,7 +392,7 @@ class Initializer : public VieVS_Object {
     std::unordered_map<std::string, std::vector<std::string>> blGroups_;   ///< baseline groups
 
     boost::optional<HighImpactScanDescriptor> himp_;                          ///< high impact scan descriptor
-    boost::optional<CalibratorScanDescriptor> calib_;                         ///< calibrator impact scan descriptor
+    std::vector<CalibratorBlock> calib_;                                      ///< calibrator impact scan descriptor
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling paramters
 
     /**

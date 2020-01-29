@@ -26,7 +26,7 @@
          Station/Baseline.cpp Station/Baseline.h
          Misc/AstronomicalParameters.cpp Misc/AstronomicalParameters.h
          Station/CableWrap/AbstractCableWrap.cpp Station/CableWrap/AbstractCableWrap.h
-         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h
+         Misc/AstrometricCalibratorBlock.cpp Misc/AstrometricCalibratorBlock.h
          Misc/Constants.h
          Station/Equip/Equipment.cpp Station/Equip/Equipment.h
          Misc/StationEndposition.cpp Misc/StationEndposition.h
@@ -84,7 +84,7 @@
          ObservingMode/Bbc.cpp ObservingMode/Bbc.h
          ObservingMode/If.cpp ObservingMode/If.h
          ObservingMode/Track.cpp ObservingMode/Track.h
-         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h Output/SourceStatistics.cpp Output/SourceStatistics.h Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h Misc/CalibratorScanDescriptor.cpp Misc/CalibratorScanDescriptor.h)
+         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h Output/SourceStatistics.cpp Output/SourceStatistics.h Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h)
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 

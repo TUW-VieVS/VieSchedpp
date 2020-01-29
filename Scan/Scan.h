@@ -36,7 +36,7 @@
 #include <utility>
 #include <vector>
 
-#include "../Misc/CalibratorBlock.h"
+#include "../Misc/AstrometricCalibratorBlock.h"
 #include "../Misc/StationEndposition.h"
 #include "../Misc/TimeSystem.h"
 #include "../Misc/WeightFactors.h"
