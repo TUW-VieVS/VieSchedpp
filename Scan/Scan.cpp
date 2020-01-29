@@ -1362,11 +1362,13 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
 }
 
 void Scan::calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
-                                double meanSNR ) {
+                                double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime ) {
     double scoreBaselines = calcScore_numberOfObservations( network.getNBls() );
     double a = calcScore_averageStations( astas, network.getNBls() ) * 4;
+    double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .5 + .5;
 
-    score_ = meanSNR * scoreBaselines * a;
+
+    score_ = meanSNR * scoreBaselines * a * dur;
 }
 
 

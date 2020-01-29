@@ -571,26 +571,26 @@ void Subcon::generateCalibratorScore( const Network &network, const std::vector<
 #endif
 
     prepareAverageScore( network.getStations() );
+    minMaxTime();
 
 
     for ( Scan &thisScan : singleScans_ ) {
         const Source &source = sources[thisScan.getSourceId()];
         double meanSNR = thisScan.getAverageSNR( network, source, mode );
 
-
-        thisScan.calcScoreCalibrator( network, source, astas_, meanSNR );
+        thisScan.calcScoreCalibrator( network, source, astas_, meanSNR, minRequiredTime_, maxRequiredTime_ );
     }
 
     for ( auto &tmp : subnettingScans_ ) {
         Scan &thisScan1 = tmp.first;
         const Source &source1 = sources[thisScan1.getSourceId()];
         double meanSNR1 = thisScan1.getAverageSNR( network, source1, mode );
-        thisScan1.calcScoreCalibrator( network, source1, astas_, meanSNR1 );
+        thisScan1.calcScoreCalibrator( network, source1, astas_, meanSNR1, minRequiredTime_, maxRequiredTime_ );
 
         Scan &thisScan2 = tmp.second;
         const Source &source2 = sources[thisScan2.getSourceId()];
         double meanSNR2 = thisScan2.getAverageSNR( network, source2, mode );
-        thisScan2.calcScoreCalibrator( network, source2, astas_, meanSNR2 );
+        thisScan2.calcScoreCalibrator( network, source2, astas_, meanSNR2, minRequiredTime_, maxRequiredTime_ );
     }
 }
 
@@ -807,7 +807,8 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
                 }
             } else if ( thisScan.getType() == Scan::ScanType::calibrator ) {
                 double meanSNR = thisScan.getAverageSNR( network, thisSource, mode );
-                thisScan.calcScoreCalibrator( network, thisSource, astas_, meanSNR );
+                thisScan.calcScoreCalibrator( network, thisSource, astas_, meanSNR, minRequiredTime_,
+                                              maxRequiredTime_ );
             } else {
                 // standard case
                 thisScan.calcScore( astas_, asrcs_, abls_, minRequiredTime_, maxRequiredTime_, network, thisSource,
@@ -889,10 +890,12 @@ vector<Scan> Subcon::selectBest( Network &network, const vector<Source> &sources
                 }
             } else if ( thisScan1.getType() == Scan::ScanType::calibrator ) {
                 double meanSNR1 = thisScan1.getAverageSNR( network, thisSource1, mode );
-                thisScan1.calcScoreCalibrator( network, thisSource1, astas_, meanSNR1 );
+                thisScan1.calcScoreCalibrator( network, thisSource1, astas_, meanSNR1, minRequiredTime_,
+                                               maxRequiredTime_ );
 
                 double meanSNR2 = thisScan2.getAverageSNR( network, thisSource2, mode );
-                thisScan2.calcScoreCalibrator( network, thisSource2, astas_, meanSNR2 );
+                thisScan2.calcScoreCalibrator( network, thisSource2, astas_, meanSNR2, minRequiredTime_,
+                                               maxRequiredTime_ );
 
             } else {
                 // standard case

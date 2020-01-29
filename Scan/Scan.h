@@ -35,6 +35,7 @@
 #include <limits>
 #include <utility>
 #include <vector>
+
 #include "../Misc/CalibratorBlock.h"
 #include "../Misc/StationEndposition.h"
 #include "../Misc/TimeSystem.h"
@@ -550,9 +551,11 @@ class Scan : public VieVS_Object {
      * @param source observed source
      * @param astas precalculated vector of average station score
      * @param meanSNR average SNR
+     * @param minRequiredTime minimum time required for a scan in seconds
+     * @param maxRequiredTime maximum time required for a scan in seconds
      */
     void calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
-                              double meanSNR );
+                              double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime );
 
     /**
      * @brief checks a scan with rigorous models
