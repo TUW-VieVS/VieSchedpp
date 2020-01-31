@@ -1367,10 +1367,11 @@ void Scan::calcScoreCalibrator( const Network &network, const Source &source, co
                                 double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime ) {
     double scoreBaselines = calcScore_numberOfObservations( network.getNBls() );
     double a = calcScore_averageStations( astas, network.getNBls() ) * 4;
-    double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .5 + .5;
+    double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
 
 
     score_ = meanSNR * scoreBaselines * a * dur;
+    //    score_ = meanSNR;
 }
 
 
