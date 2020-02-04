@@ -189,8 +189,7 @@ void VieVS::FocusCorners::reweight( const Subcon &subcon, std::vector<Source> &s
                   sources[srcid].getName() % newWeight;
         sources[srcid].referencePARA().weight = newWeight;
     }
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143T-||\n" );
 }
 
 void FocusCorners::reset( const std::vector<Scan> &bestScans, std::vector<Source> &sources ) {

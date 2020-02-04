@@ -186,15 +186,17 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                         }
                     }
                 }
+
+                if ( util::absDiff( endTime, maxScanEnd ) > 300 ) {
 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( warning ) << "no valid scan found, checking one minute later";
+                    BOOST_LOG_TRIVIAL( warning ) << "no valid scan found, checking one minute later";
 #else
-                cout << "[warning] no valid scan found, checking one minute later\n";
+                    cout << "[warning] no valid scan found, checking one minute later\n";
 #endif
 
-                of << ( boost::format( "[warning] no valid scan found, checking one minute later: %s\n" ) %
-                        TimeSystem::time2string( maxScanEnd ) )
-                          .str();
+                    of << boost::format( "| [warning] no valid scan found, checking one minute later: %s %143t|\n" ) %
+                              TimeSystem::time2string( maxScanEnd );
+                }
                 checkForNewEvents( maxScanEnd, true, of, true );
                 if ( maxScanEnd > endTime ) {
                     break;
@@ -434,9 +436,7 @@ void Scheduler::start() noexcept {
     boost::optional<StationEndposition> endposition = boost::none;
     boost::optional<Subcon> subcon = boost::none;
 
-
-    of << ".-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------.\n";
+    of << boost::format( ".%|143T-|.\n" );
 
     if ( !calib_.empty() ) {
         calibratorBlocks( of );
@@ -460,16 +460,11 @@ void Scheduler::start() noexcept {
 
     // start fillinmode a posterior
     if ( parameters_.fillinmodeAPosteriori ) {
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|                                                        start fillin mode a posteriori                 "
-              "                                       |\n";
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
+        of << boost::format( "|%|143T-||\n" );
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%=142s|\n" ) % "start fillin mode a posteriori";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
         startScanSelectionBetweenScans( TimeSystem::duration, of, Scan::ScanType::fillin, false, true );
     }
 
@@ -530,16 +525,18 @@ void Scheduler::start() noexcept {
 
 
 void Scheduler::statistics( ofstream &of ) {
-    of << "\n";
-    of << "\n";
-    of << "summary:\n";
-    of << "number of scheduled scans         " << scans_.size() << "\n";
-    of << "considered single source scans:   " << nSingleScansConsidered << "\n";
-    of << "considered subnetting combiation: " << nSubnettingScansConsidered << "\n";
-    of << "total scans considered:           " << nSingleScansConsidered + 2 * nSubnettingScansConsidered << "\n";
     int nobs = std::accumulate( scans_.begin(), scans_.end(), 0,
                                 []( int sum, const Scan &any ) { return sum + any.getNObs(); } );
-    of << "number of observations:           " << nobs << "\n";
+
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "SUMMARY";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "| %-35s %-30d %143t|\n" ) % "number of scans" % scans_.size();
+    of << boost::format( "| %-35s %-30d %143t|\n" ) % "number of observations" % nobs;
+    of << boost::format( "| %-35s %d (single source scans %d, subnetting scans %d) %143t|\n" ) %
+              "total scans considered" % ( nSingleScansConsidered + 2 * nSubnettingScansConsidered ) %
+              nSingleScansConsidered % ( 2 * nSubnettingScansConsidered );
+
 #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL( info ) << "created schedule with " << scans_.size() << " scans and " << nobs << " observations";
 #else
@@ -1386,25 +1383,20 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
         message.append( "new schedule with reduced source list necessary" );
         AstrometricCalibratorBlock::nextBlock = 0;
         unsigned long sourcesLeft = consideredSources - excludedSources.size();
-        of << "|                                                                                                       "
-              "                                       |\n";
+        of << boost::format( "|%|143t||\n" );
         if ( sourcesLeft < 10 ) {
             of << boost::format( "| %=140s |\n" ) % message;
             string message2 = ( boost::format( "Abortion: only %d sources left" ) % sourcesLeft ).str();
             of << boost::format( "| %=140s |\n" ) % message2;
-            of << "|                                                                                                   "
-                  "                                           |\n";
-            of << "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
             return false;
         }
         string message2 = ( boost::format( "creating new schedule with %d sources" ) % sourcesLeft ).str();
         of << boost::format( "| %=140s |\n" ) % message;
         of << boost::format( "| %=140s |\n" ) % message2;
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "'-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------'\n\n";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
 
         util::outputObjectList( "List of removed sources", excludedSources, of );
 
@@ -1427,13 +1419,10 @@ bool Scheduler::checkOptimizationConditions( ofstream &of ) {
         if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "no new iteration needed";
 #endif
         message.append( "no new iteration needed!" );
-        of << "|                                                                                                       "
-              "                                       |\n";
+        of << boost::format( "|%|143t||\n" );
         of << boost::format( "| %=140s |\n" ) % message;
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
         newScheduleNecessary = false;
     }
     return newScheduleNecessary;
@@ -1474,16 +1463,47 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     // reset all events
     resetAllEvents( of );
 
-    // loop through all predefined scans
-    for ( int i = 0; i < nMainScans - 1; ++i ) {
-        if ( output ) {
-            of << "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
-            of << "|                                                           start new scan selection                "
-                  "                                           |\n";
-            of << "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+    // ####### FIRST SCAN #######
+    // look through all stations and set first scan to true
+    for ( auto &thisSta : network_.refStations() ) {
+        thisSta.referencePARA().firstScan = true;
+    }
+    // loop through all upcoming scans and set endposition
+    boost::optional<StationEndposition> endposition( network_.getNSta() );
+    for ( int j = 0; j < nMainScans; ++j ) {
+        const Scan &nextScan = scans_[j];
+        bool nextRequired = true;
+        for ( int k = 0; k < nextScan.getNSta(); ++k ) {
+            endposition->addPointingVectorAsEndposition( nextScan.getPointingVector( k ) );
+            if ( endposition->everyStationInitialized() ) {
+                nextRequired = false;
+                break;
+            }
         }
+        if ( !nextRequired ) {
+            break;
+        }
+    }
+    endposition->setStationAvailable( network_.getStations() );
+    endposition->checkStationPossibility( network_.getStations() );
+
+    // recursively start scan selection
+    boost::optional<Subcon> subcon = boost::none;
+    unsigned int endTime = scans_[0].getTimes().getScanTime( Timestamp::start );
+    if ( output ) {
+        string s1 = TimeSystem::time2string( 0 );
+        string s2 = TimeSystem::time2string( endTime );
+        double dur = ( endTime - 0 ) / 3600.;
+        of << boost::format( "|%|143t||\n" );
+        string tmp = ( boost::format( "start scan selection:   %s - %s (%5.2f h)" ) % s1 % s2 % dur ).str();
+        of << boost::format( "|%=142s|\n" ) % tmp;
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
+    }
+    startScanSelection( endTime, of, type, endposition, subcon, 0 );
+
+    // loop through all predefined scans
+    for ( int i = 0; i < nMainScans; ++i ) {
         // look through all stations of last scan and set current pointing vector to last scan
         Scan &lastScan = scans_[i];
         for ( int k = 0; k < lastScan.getNSta(); ++k ) {
@@ -1524,42 +1544,24 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
-        startScanSelection( scans_[i + 1].getTimes().getScanTime( Timestamp::end ), of, type, endposition, subcon, 0 );
-    }
-
-    // do the same between time at from last scan until duration with no endposition
-    if ( output ) {
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
-        of << "|                                                          start final scan selection                   "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
-    }
-
-    // get last predefined scan and set current position of station
-    Scan &lastScan = scans_[nMainScans - 1];
-    for ( int k = 0; k < lastScan.getNSta(); ++k ) {
-        const auto &pv = lastScan.getPointingVector( k, Timestamp::end );
-        unsigned long staid = pv.getStaid();
-        unsigned int time = pv.getTime();
-        Station &thisSta = network_.refStation( staid );
-        if ( time >= thisSta.getCurrentTime() ) {
-            thisSta.setCurrentPointingVector( pv );
+        unsigned int endTime;
+        if ( i + 1 != nMainScans ) {
+            endTime = scans_[i + 1].getTimes().getScanTime( Timestamp::start );
+        } else {
+            endTime = duration;
         }
+        if ( output ) {
+            string s1 = TimeSystem::time2string( startTime );
+            string s2 = TimeSystem::time2string( endTime );
+            double dur = ( endTime - startTime ) / 3600.;
+            of << boost::format( "|%|143t||\n" );
+            string tmp = ( boost::format( "start scan selection:   %s - %s (%5.2f h)" ) % s1 % s2 % dur ).str();
+            of << boost::format( "|%=142s|\n" ) % tmp;
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
+        }
+        startScanSelection( endTime, of, type, endposition, subcon, 0 );
     }
-    // check if there was an new upcoming event in the meantime
-    unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
-    checkForNewEvents( startTime, true, of, false );
-    if ( ignoreTagalong ) {
-        ignoreTagalongParameter();
-    }
-
-    // recursively start scan selection
-    boost::optional<Subcon> subcon = boost::none;
-    boost::optional<StationEndposition> endposition = boost::none;
-    startScanSelection( duration, of, type, endposition, subcon, 0 );
-
     // sort scans at the end
     sortSchedule( Timestamp::start );
 }
@@ -1570,14 +1572,10 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
 #endif
 
     for ( const auto &block : calib_ ) {
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|                                                            start calibration block                    "
-              "                                       |\n";
-        of << "|                                                                                                       "
-              "                                       |\n";
-        of << "|-------------------------------------------------------------------------------------------------------"
-              "---------------------------------------|\n";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%=142s|\n" ) % "start calibration block";
+        of << boost::format( "|%|143t||\n" );
+        of << boost::format( "|%|143T-||\n" );
 
         unsigned int time = block.getStartTime();
         if ( time < TimeSystem::duration ) {
@@ -1653,16 +1651,12 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix high impact scans";
 #endif
 
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|                                                           fixing high impact scans                        "
-          "                                   |\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143T-||\n" );
+    of << boost::format( "|%|143t||\n" );
+
+    of << boost::format( "|%=142s|\n" ) % "fixing high impact scans";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
 
     unsigned int interval = himp.getInterval();
     int n = TimeSystem::duration / interval;
@@ -1706,16 +1700,11 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
 
     sortSchedule( Timestamp::start );
 
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|                                                       start with normal scan selection                    "
-          "                                   |\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143T-||\n" );
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "start with normal scan selection";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
 
     // reset all events
     resetAllEvents( of );
@@ -1758,27 +1747,20 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             if ( Flags::logDebug )
                 BOOST_LOG_TRIVIAL( debug ) << "start changing idle to observing time at start of scan";
 #endif
-            of << "|                                                                                                   "
-                  "                                           |\n"
-                  "|                                                  increasing observing time at start of scan       "
-                  "                                           |\n"
-                  "|                                                                                                   "
-                  "                                           |\n"
-                  "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%=142s|\n" ) % "increasing observing time at start of scan";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
             break;
         case Timestamp::end:
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start changing idle to observing time at end of scan";
 #endif
-            of << "|                                                                                                   "
-                  "                                           |\n"
-                  "|                                                   increasing observing time at end of scan        "
-                  "                                           |\n"
-                  "|                                                                                                   "
-                  "                                           |\n"
-                  "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%=142s|\n" ) % "increasing observing time at end of scan";
+            of << boost::format( "|%|143t||\n" );
+            of << boost::format( "|%|143T-||\n" );
+
             break;
     }
 
@@ -2277,8 +2259,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
             string right = ( boost::format( "source:  %s %s" ) % source.getName() % source.printId() ).str();
             of << boost::format( "| scan: %-15s                                  %85s |\n" ) % scan.printId() % right;
 
-            of << "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+            of << boost::format( "|%|143T-||\n" );
             if ( counter % 5 == 0 ) {
                 of << "|     station  | increase |     new duration    | new obs |                         |     old "
                       "duration    | old obs |                          |\n"
@@ -2309,8 +2290,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                           TimeSystem::time2timeOfDay( copyOfScanTimes.getObservingTime( i, Timestamp::end ) ) %
                           oldObservingTime % scan.getPointingVector( i, ts ).printId();
             }
-            of << "|---------------------------------------------------------------------------------------------------"
-                  "-------------------------------------------|\n";
+            of << boost::format( "|%|143T-||\n" );
             ++counter;
         }
     }
@@ -2342,8 +2322,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
               "|           on average per station: %-40s                                                               "
               "    |\n" ) %
               tmp;
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143T-||\n" );
 
     bool h = false;
     bool m = false;
@@ -2375,8 +2354,7 @@ void Scheduler::idleToScanTime( Timestamp ts, std::ofstream &of ) {
                   "    |\n" ) %
                   thisSta.getName() % tmp;
     }
-    of << "'-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------'\n";
+    of << boost::format( "|%|143T-||\n" );
 }
 
 
@@ -2412,33 +2390,22 @@ void Scheduler::sortSchedule( unsigned long staid, Timestamp ts ) {
 
 
 void Scheduler::writeCalibratorHeader( std::ofstream &of ) {
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|                                                           start calibration block                         "
-          "                                   |\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "start calibration block";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
 }
 
 
 void Scheduler::writeCalibratorStatistics( std::ofstream &of, std::vector<double> &highestElevations,
                                            std::vector<double> &lowestElevations ) {
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|                                                          calibration block summary                        "
-          "                                   |\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
-    of << "|     station  | highest elevation | lowest elevation  |                                                    "
-          "                                   |\n";
-    of << "|              |       [deg]       |       [deg]       |                                                    "
-          "                                   |\n";
-    of << "|--------------|-------------------|-------------------|                                                    "
-          "                                   |\n";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "calibration block summary";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
+    of << boost::format( "|     station  | highest elevation | lowest elevation  |%143t|\n" );
+    of << boost::format( "|              |       [deg]       |       [deg]       |%143t|\n" );
+    of << boost::format( "|--------------|-------------------|-------------------|%143t|\n" );
     for ( unsigned long i = 0; i < network_.getNSta(); ++i ) {
         const Station &sta = network_.getStation( i );
         double high = highestElevations[i] * rad2deg;
@@ -2455,21 +2422,14 @@ void Scheduler::writeCalibratorStatistics( std::ofstream &of, std::vector<double
         } else {
             lowstr = ( boost::format( "%5.2f" ) % low ).str();
         }
-        of << boost::format(
-                  "|     %-8s |       %5s       |       %5s       |                                                    "
-                  "                                   |\n" ) %
-                  sta.getName() % highstr % lowstr;
+        of << boost::format( "|     %-8s |       %5s       |       %5s       |%143t|\n" ) % sta.getName() % highstr %
+                  lowstr;
     }
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|                                                          finished calibration block                       "
-          "                                   |\n";
-    of << "|                                                                                                           "
-          "                                   |\n";
-    of << "|-----------------------------------------------------------------------------------------------------------"
-          "-----------------------------------|\n";
+    of << boost::format( "|%|143T-||\n" );
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%=142s|\n" ) % "finished calibration block";
+    of << boost::format( "|%|143t||\n" );
+    of << boost::format( "|%|143T-||\n" );
 }
 
 
