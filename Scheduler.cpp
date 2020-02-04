@@ -65,6 +65,7 @@ Scheduler::Scheduler( Initializer &init, string path, string fname )
     parameters_.reduceFactor = init.parameters_.reduceFactor;
 
     parameters_.writeSkyCoverageData = false;
+    parameters_.doNotObserveSourcesWithinMinRepeat = init.parameters_.doNotObserveSourcesWithinMinRepeat;
 }
 
 
@@ -547,7 +548,7 @@ void Scheduler::statistics( ofstream &of ) {
 
 Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::ScanType type,
                                 const boost::optional<StationEndposition> &endposition ) noexcept {
-    Subcon subcon = allVisibleScans( type, endposition );
+    Subcon subcon = allVisibleScans( type, endposition, parameters_.doNotObserveSourcesWithinMinRepeat );
     subcon.calcStartTimes( network_, sources_, endposition );
     subcon.updateAzEl( network_, sources_ );
     subcon.constructAllBaselines( network_, sources_ );
@@ -563,8 +564,8 @@ Subcon Scheduler::createSubcon( const shared_ptr<Subnetting> &subnetting, Scan::
 }
 
 
-Subcon Scheduler::allVisibleScans( Scan::ScanType type,
-                                   const boost::optional<StationEndposition> &endposition ) noexcept {
+Subcon Scheduler::allVisibleScans( Scan::ScanType type, const boost::optional<StationEndposition> &endposition,
+                                   bool doNotObserveSourcesWithinMinRepeat ) noexcept {
     // get latest start time of new scan
     unsigned int currentTime = 0;
     for ( auto &station : network_.getStations() ) {
@@ -586,7 +587,8 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type,
 #endif
 
     for ( const auto &thisSource : sources_ ) {
-        subcon.visibleScan( currentTime, type, network_, thisSource, observedSources );
+        subcon.visibleScan( currentTime, type, network_, thisSource, observedSources,
+                            doNotObserveSourcesWithinMinRepeat );
     }
 
     return subcon;

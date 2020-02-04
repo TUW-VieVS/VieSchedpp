@@ -1130,7 +1130,8 @@ void Subcon::changeType( Scan::ScanType type ) {
 
 
 void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network,
-                          const Source &thisSource, std::set<unsigned long> observedSources ) {
+                          const Source &thisSource, std::set<unsigned long> observedSources,
+                          bool doNotObserveSourcesWithinMinRepeat ) {
     unsigned long srcid = thisSource.getId();
 
     if ( !thisSource.getPARA().available || !thisSource.getPARA().globalAvailable ) {
@@ -1172,7 +1173,18 @@ void Subcon::visibleScan( unsigned int currentTime, Scan::ScanType type, const N
         return;
     }
 
-    if ( thisSource.getNscans() > 0 && currentTime - thisSource.lastScanTime() < thisSource.getPARA().minRepeat ) {
+    if ( thisSource.getNscans() > 0 && doNotObserveSourcesWithinMinRepeat &&
+         util::absDiff( currentTime, thisSource.lastScanTime() ) < thisSource.getPARA().minRepeat ) {
+#ifdef VIESCHEDPP_LOG
+        if ( Flags::logDebug )
+            BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()
+                                       << " not available - observed recently";
+#endif
+        return;
+    }
+
+    if ( thisSource.getNscans() > 0 &&
+         util::absDiff( currentTime, thisSource.lastScanTime() ) < thisSource.getPARA().minRepeat / 2 ) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logDebug )
             BOOST_LOG_TRIVIAL( debug ) << "subcon " << this->printId() << " source " << thisSource.getName()

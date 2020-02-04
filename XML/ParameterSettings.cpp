@@ -43,7 +43,8 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
                                  bool fillinmodeAPosteriori, bool idleToObservingTime,
                                  const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
                                  const std::vector<std::string> &srcNames, const std::string &scanAlignment,
-                                 const std::string &logConsole, const std::string &logFile ) {
+                                 const std::string &logConsole, const std::string &logFile,
+                                 bool doNotObserveSourcesWithinMinRepeat ) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -119,6 +120,7 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
 
     general.add( "general.logSeverityConsole", logConsole );
     general.add( "general.logSeverityFile", logFile );
+    general.add( "general.doNotObserveSourcesWithinMinRepeat", doNotObserveSourcesWithinMinRepeat );
 
     master_.add_child( "VieSchedpp.general", general.get_child( "general" ) );
 }

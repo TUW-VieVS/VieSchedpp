@@ -78,6 +78,9 @@ class Scheduler : public VieVS_NamedObject {
         double reduceFactor = .5;                         ///< number of sources which should be reduced during
         ///< gentle source reduction
 
+        bool doNotObserveSourcesWithinMinRepeat =
+            true;  ///< consider scans (with reduced weight) if they are within min repeat time
+
         bool writeSkyCoverageData = false;  ///< flag if sky coverage data should be printed to file
     };
 
@@ -141,10 +144,11 @@ class Scheduler : public VieVS_NamedObject {
      *
      * @param type scan type
      * @param endposition required endposition
+     * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      * @return subcon with all visible single source scans
      */
-    Subcon allVisibleScans( Scan::ScanType type,
-                            const boost::optional<StationEndposition> &endposition = boost::none ) noexcept;
+    Subcon allVisibleScans( Scan::ScanType type, const boost::optional<StationEndposition> &endposition = boost::none,
+                            bool doNotObserveSourcesWithinMinRepeat = true ) noexcept;
 
 
     /**

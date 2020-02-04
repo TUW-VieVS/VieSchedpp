@@ -978,6 +978,8 @@ void Initializer::initializeGeneral( ofstream &of ) noexcept {
         } else {
             of << "ERROR: cannot read scan alignment type:" << anchor << endl;
         }
+        parameters_.doNotObserveSourcesWithinMinRepeat =
+            xml_.get<bool>( "VieSchedpp.general.doNotObserveSourcesWithinMinRepeat", true );
 
     } catch ( const boost::property_tree::ptree_error &e ) {
         of << "ERROR: reading VieSchedpp.xml file!" << endl;

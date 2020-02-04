@@ -999,9 +999,11 @@ class Scan : public VieVS_Object {
      * @param this_score current score
      * @param network station network
      * @param source observed source
+     * @param ignoreScanSequence ignore scan sequence in score calculation
      * @return total score
      */
-    double calcScore_secondPart( double this_score, const Network &network, const Source &source );
+    double calcScore_secondPart( double this_score, const Network &network, const Source &source,
+                                 bool ignoreScanSequence = false );
 };
 }  // namespace VieVS
 #endif /* SCAN_H */

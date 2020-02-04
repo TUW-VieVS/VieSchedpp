@@ -348,9 +348,11 @@ class Subcon : public VieVS_Object {
      * @param network station network
      * @param thisSource target source
      * @param observedSources list of priviously observed sources
+     * @param doNotObserveSourcesWithinMinRepeat consider scans (with reduced weight) if they are within min repeat time
      */
     void visibleScan( unsigned int currentTime, Scan::ScanType type, const Network &network, const Source &thisSource,
-                      std::set<unsigned long> observedSources = std::set<unsigned long>() );
+                      std::set<unsigned long> observedSources = std::set<unsigned long>(),
+                      bool doNotObserveSourcesWithinMinRepeat = true );
 
 
     /**
@@ -373,10 +375,10 @@ class Subcon : public VieVS_Object {
     unsigned int minRequiredTime_ = std::numeric_limits<unsigned int>::max();  ///< minimum time required for a scan
     unsigned int maxRequiredTime_ = std::numeric_limits<unsigned int>::min();  ///< maximum time required for a scan
 
-    std::vector<double> astas_;     ///< average station score for each station
-    std::vector<double> asrcs_;     ///< average source score for each source
-    std::vector<double> abls_;      ///< average baseline score for each baseline
-    std::vector<double> idle_;      ///< extra score for long idle time
+    std::vector<double> astas_;  ///< average station score for each station
+    std::vector<double> asrcs_;  ///< average source score for each source
+    std::vector<double> abls_;   ///< average baseline score for each baseline
+    std::vector<double> idle_;   ///< extra score for long idle time
 
     /**
      * @brief precalculate all necessary parameters to generate scores

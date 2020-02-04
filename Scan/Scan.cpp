@@ -1178,7 +1178,8 @@ double Scan::calcScore_firstPart( const std::vector<double> &astas, const std::v
 }
 
 
-double Scan::calcScore_secondPart( double this_score, const Network &network, const Source &source ) {
+double Scan::calcScore_secondPart( double this_score, const Network &network, const Source &source,
+                                   bool ignoreScanSequence ) {
     if ( source.getPARA().tryToFocusIfObservedOnce ) {
         unsigned int nscans = source.getNscans();
         if ( nscans > 0 ) {
@@ -1198,15 +1199,27 @@ double Scan::calcScore_secondPart( double this_score, const Network &network, co
         }
     }
 
-    if ( scanSequence.customScanSequence ) {
-        if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) != scanSequence.targetSources.end() ) {
-            const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
-            if ( find( target.begin(), target.end(), source.getId() ) != target.end() ) {
-                this_score *= 100;
-            } else {
-                this_score /= 100;
+    if ( !ignoreScanSequence ) {
+        if ( scanSequence.customScanSequence ) {
+            if ( scanSequence.targetSources.find( scanSequence.moduloScanSelctions ) !=
+                 scanSequence.targetSources.end() ) {
+                const vector<unsigned long> &target = scanSequence.targetSources[scanSequence.moduloScanSelctions];
+                if ( find( target.begin(), target.end(), source.getId() ) != target.end() ) {
+                    this_score *= 100;
+                } else {
+                    this_score /= 100;
+                }
             }
         }
+    }
+
+
+    if ( source.getNTotalScans() > 0 &&
+         util::absDiff( times_.getScanTime( Timestamp::start ), source.lastScanTime() ) < source.getPARA().minRepeat ) {
+        double deltaTime = util::absDiff( times_.getScanTime( Timestamp::start ), source.lastScanTime() );
+        double d = deltaTime / source.getPARA().minRepeat * 1e-3;
+
+        this_score *= d;
     }
 
     this_score *=
@@ -1369,9 +1382,8 @@ void Scan::calcScoreCalibrator( const Network &network, const Source &source, co
     double a = calcScore_averageStations( astas, network.getNBls() ) * 4;
     double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
 
-
-    score_ = meanSNR * scoreBaselines * a * dur;
-    //    score_ = meanSNR;
+    double this_score = meanSNR * scoreBaselines * a * dur;
+    score_ = calcScore_secondPart( this_score, network, source );
 }
 
 

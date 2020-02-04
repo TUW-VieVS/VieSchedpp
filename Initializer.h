@@ -126,6 +126,9 @@ class Initializer : public VieVS_Object {
         double reduceFactor = .5;                         ///< number of sources which should be reduced during
         ///< gentle source reduction
 
+        bool doNotObserveSourcesWithinMinRepeat =
+            true;  ///< consider scans (with reduced weight) if they are within min repeat time
+
         bool andAsConditionCombination = true;  ///< backup for condition combination. TRUE = and, FALSE = or
     };
 
