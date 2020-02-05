@@ -158,7 +158,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                                            prevHighElevationScores, opt_endposition );
         }
 
-        if ( FocusCorners::startFocusCorner ) {
+        if ( FocusCorners::startFocusCorner && depth == 0 ) {
             FocusCorners::reset( bestScans, sources_ );
         }
 
