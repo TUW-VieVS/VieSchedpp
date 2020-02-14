@@ -28,7 +28,7 @@ unsigned long SNR_table::nextId = 0;
 SNR_table::SNR_table( const std::string &file ) : VieVS_Object( nextId++ ) { of = ofstream( file ); }
 
 
-void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+void SNR_table::writeTable( const Network &network, const std::vector<Source> &sources, std::vector<Scan> &scans,
                             const std::shared_ptr<const ObservingMode> &obsModes ) {
     const set<string> &bands = ObservingMode::bands;
 
@@ -45,7 +45,7 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
               "unaz2" % "scheduled";
 
     for ( unsigned long iScan = 0; iScan < scans.size(); ++iScan ) {
-        const Scan &thisScan = scans[iScan];
+        Scan &thisScan = scans[iScan];
         vector<unsigned long> staids = thisScan.getStationIds();
         unsigned long nsta = staids.size();
         string scanName = thisScan.getName( iScan, scans );
@@ -103,10 +103,11 @@ void SNR_table::writeTable( const Network &network, const std::vector<Source> &s
 
                     double SNR = efficiency * SEFD_src / sqrt( SEFD_sta1 * SEFD_sta2 ) * sqrt( recRate * dur );
 
-                    bool scheduled = thisScan.hasObservation( staid1, staid2 );
+                    unsigned long obsIdx = thisScan.indexOfObservation( staid1, staid2 );
                     string sscheduled;
-                    if ( scheduled ) {
+                    if ( obsIdx != -1 ) {
                         sscheduled = "true";
+//                        thisScan.refObservation(obsIdx).setSNR(SNR);
                     } else {
                         sscheduled = "false";
                     }

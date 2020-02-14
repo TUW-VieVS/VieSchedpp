@@ -1775,15 +1775,26 @@ string Scan::getName( unsigned long indexOfThisScanInList, const std::vector<Sca
 }
 
 
-bool Scan::hasObservation( unsigned long staid1, unsigned long staid2 ) const {
-    for ( const auto &any : observations_ ) {
+unsigned long Scan::indexOfObservation( unsigned long staid1, unsigned long staid2 ) const {
+
+    for ( unsigned long idx = 0; idx<observations_.size(); ++idx ) {
+        const auto &any = observations_[idx];
         if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
-            return true;
+            return idx;
         }
     }
 
-    return false;
+    return -1;
 }
+
+Observation &Scan::refObservation( unsigned long staid1, unsigned long staid2 ) {
+    for ( auto &any : observations_ ) {
+        if ( any.containsStation( staid1 ) && any.containsStation( staid2 ) ) {
+            return any;
+        }
+    }
+}
+
 
 
 std::string Scan::toSkedOutputTimes( const Source &source, unsigned long nMaxSta ) const {

@@ -51,6 +51,8 @@ namespace VieVS {
  */
 class Output : public VieVS_NamedObject {
    public:
+    friend class Simulator;
+
     /**
      * @brief constructor
      * @author Matthias Schartner

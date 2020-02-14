@@ -318,6 +318,32 @@ class Scan : public VieVS_Object {
      */
     const Observation &getObservation( int idx ) const noexcept { return observations_[idx]; }
 
+    /**
+     * @brief referemce to a single observations
+     * @author Matthias Schartner
+     *
+     * @param idx index of observation
+     * @return observation
+     */
+    Observation &refObservation( int idx ) noexcept { return observations_[idx]; }
+
+    /**
+     * @brief referemce to a single observations
+     * @author Matthias Schartner
+     *
+     * @param staid1 station id 1
+     * @param staid2 station id 2
+     * @return observation
+     */
+    Observation &refObservation( unsigned long staid1, unsigned long staid2 );
+
+    /**
+     * @brief referemces to all observations
+     * @author Matthias Schartner
+     *
+     * @return vector of all observations
+     */
+    std::vector<Observation> &refObservations() { return observations_; };
 
     /**
      * @brief get all observations
@@ -762,9 +788,9 @@ class Scan : public VieVS_Object {
      *
      * @param staid1 first station id
      * @param staid2 second station id
-     * @return true if observation is scheduled
+     * @return index of observation between these two stations or -1 in case observation is not scheduled
      */
-    bool hasObservation( unsigned long staid1, unsigned long staid2 ) const;
+    unsigned long indexOfObservation( unsigned long staid1, unsigned long staid2 ) const;
 
 
     /**

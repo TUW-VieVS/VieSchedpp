@@ -156,6 +156,13 @@ class Observation : public VieVS_Object {
      */
     static unsigned long numberOfCreatedObjects() { return nextId; }
 
+    /**
+     * @brief add noise to observed minus computed
+     * @author Matthias Schartner
+     *
+     * @param noise noise in seconds
+     */
+    void addNoise( double noise ) { o_c += noise; }
 
    private:
     static unsigned long nextId;  ///< next id for this object type
@@ -164,6 +171,9 @@ class Observation : public VieVS_Object {
     unsigned long staid1_;  ///< first station id
     unsigned long staid2_;  ///< second station id
     unsigned long srcid_;   ///< source id
+
+    double o_c = 0;
+    double sigma = 0;
 
     unsigned int startTime_;      ///< observation start time
     unsigned int observingTime_;  ///< observation duration

@@ -84,13 +84,20 @@
          ObservingMode/Bbc.cpp ObservingMode/Bbc.h
          ObservingMode/If.cpp ObservingMode/If.h
          ObservingMode/Track.cpp ObservingMode/Track.h
-         ObservingMode/Freq.cpp ObservingMode/Freq.h ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h Output/SNR_table.cpp Output/SNR_table.h Output/OperationNotes.cpp Output/OperationNotes.h Output/Ast.cpp Output/Ast.h Output/SourceStatistics.cpp Output/SourceStatistics.h Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h)
+         ObservingMode/Freq.cpp ObservingMode/Freq.h
+         ObservingMode/ObservingMode.cpp ObservingMode/ObservingMode.h
+         Output/SNR_table.cpp Output/SNR_table.h
+         Output/OperationNotes.cpp Output/OperationNotes.h
+         Output/Ast.cpp Output/Ast.h
+         Output/SourceStatistics.cpp Output/SourceStatistics.h
+         Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h
+         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h)
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 
- #############################################################################################
- ########################################## OpenMP ###########################################
- #############################################################################################
+ ###########################################################################################
+ ########################################## OpenMP #########################################
+ ###########################################################################################
 
  find_package(OpenMP)
  if (OPENMP_FOUND)
@@ -100,75 +107,76 @@
      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
  endif ()
 
- #############################################################################################
- ########################################### BOOST ###########################################
- #############################################################################################
+ ###########################################################################################
+ ########################################## Eigen ##########################################
+ ###########################################################################################
+ find_package(Eigen3 REQUIRED NO_MODULE)
+ if (Eigen3_FOUND)
+     message("Eigen found")
+     message("  Eigen location: ${Eigen3_DIR}")
+     message("  Eigen Version: ${Eigen3_VERSION}")
+     target_link_libraries (VieSchedpp Eigen3::Eigen)
+ endif ()
+
+ ###########################################################################################
+ ########################################### BOOST #########################################
+ ###########################################################################################
  # SET(BOOST_ROOT "C:/boost")
 
- ##### uncommend the following lines to use boost libraries and therefore enable logging #####
- #                                                                                           #
- add_definitions(-DVIESCHEDPP_LOG)                                                        #
- SET(Boost_USE_STATIC_LIBS ON)                                                          #
- find_package(Boost COMPONENTS log log_setup system REQUIRED)                               #
- #                                                                                           #
- ######################################## end of block #######################################
+ ##### uncommend the following lines to use boost libraries and therefore enable logging ###
+ add_definitions(-DVIESCHEDPP_LOG)
+ SET(Boost_USE_STATIC_LIBS ON)
+ find_package(Boost COMPONENTS log log_setup system REQUIRED)
+ ######################################## end of block #####################################
 
  # OR:
 
- #### uncommend the following lines to only use header only libraries and  disable logging ###
- #                                                                                           #
- # find_package(Boost  REQUIRED)                                                             #
- #                                                                                           #
- ######################################## end of block #######################################
+ #### uncommend the following lines to only use header only libraries and  disable logging
+ # find_package(Boost  REQUIRED)
 
+ ######################################## end of block #####################################
 
  if (Boost_FOUND)
      include_directories(${Boost_INCLUDE_DIRS})
-
-     message("Boost VERSION: ${Boost_VERSION}")
-     message("Boost INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-     message("Boost Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-     message("Boost LIBRARIES: ${Boost_LIBRARIES}")
+     message("Boost found:")
+     message("  Boost VERSION: ${Boost_VERSION}")
+     message("  Boost INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+     message("  Boost Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
+     message("  Boost LIBRARIES: ${Boost_LIBRARIES}")
      TARGET_LINK_LIBRARIES(VieSchedpp ${Boost_LIBRARIES})
  endif ()
 
+ ###########################################################################################
+ ########################################### SOFA ##########################################
+ ###########################################################################################
 
- #############################################################################################
- ########################################### SOFA ############################################
- #############################################################################################
-
- ######### uncommend the following lines to automatically look for SOFA and link it ##########
- #                                                                                           #
- FIND_LIBRARY(SOFA                                                                          #
-         NAMES libsofa_c.a libsofa_c.lib                                                    #
-         HINTS "../IAU_SOFA/Release/")                                                      #
- if (SOFA)                                                                                  #
-     message("SOFA library found: ${SOFA}")                                                 #
-     TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA})                                              #
- else ()                                                                                     #
-     message("ERROR: SOFA library not found!")                                              #
- endif ()                                                                                    #
- #                                                                                           #
- ######################################## end of block #######################################
+ ######### uncommend the following lines to automatically look for SOFA and link it ########
+ FIND_LIBRARY(SOFA
+         NAMES libsofa_c.a libsofa_c.lib
+         HINTS "../IAU_SOFA/Release/")
+ if (SOFA)
+     message("SOFA library found")
+     message("  SOFA location: ${SOFA}")
+     TARGET_LINK_LIBRARIES(VieSchedpp ${SOFA})
+ else ()
+     message("ERROR: SOFA library not found!")
+ endif ()
+ ######################################## end of block #####################################
 
 
- #############################################################################################
- ###################################### VERSION NUMBER #######################################
- #############################################################################################
- #                                                                                           #
- if (EXISTS "${CMAKE_SOURCE_DIR}/.git")                                                      #
-     execute_process(                                                                       #
-             COMMAND git log -1 --format=%H                                                     #
-             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}                                              #
-             OUTPUT_VARIABLE GIT_COMMIT_HASH                                                    #
-             OUTPUT_STRIP_TRAILING_WHITESPACE                                                   #
-             )                                                                                      #
- else ()                                                                                     #
-     set(GIT_COMMIT_HASH "unknown")                                                         #
- endif ()                                                                                    #
- #
- message("VieSched++ version: ${GIT_COMMIT_HASH}")                                          #
- #
- add_definitions("-DGIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")                                #
- #                                                                                           #                                                                                            #
- #############################################################################################
+ ###########################################################################################
+ ###################################### VERSION NUMBER #####################################
+ ###########################################################################################
+ if (EXISTS "${CMAKE_SOURCE_DIR}/.git")
+     execute_process(
+             COMMAND git log -1 --format=%H
+             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+             OUTPUT_VARIABLE GIT_COMMIT_HASH
+             OUTPUT_STRIP_TRAILING_WHITESPACE
+             )
+ else ()
+     set(GIT_COMMIT_HASH "unknown")
+ endif ()
+ message("VieSched++ version: ${GIT_COMMIT_HASH}")
+ add_definitions("-DGIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")
+ ###########################################################################################
