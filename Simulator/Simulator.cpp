@@ -25,6 +25,7 @@
 
 #include "Simulator.h"
 
+unsigned long VieVS::Simulator::nextId = 0;
 
 using namespace std;
 using namespace VieVS;
@@ -65,7 +66,6 @@ void Simulator::generateObsVector() {
     unsigned long nSta = network_.getNSta();
     unsigned long nScans = scans_.size();
     unsigned long nObs = obs_.size();
-
 }
 
 
@@ -182,7 +182,7 @@ void Simulator::simTropo() {
         };
 
         vector<MatrixXd> Ds;
-        MatrixXd C11 = MatrixXd::Zero( 0 );
+        MatrixXd C11 = MatrixXd::Zero( 0, 0 );
         for ( int i2 = 0; i2 < segments - 1; ++i2 ) {
             int i1 = i2 - 1;
             int num1;
@@ -212,8 +212,8 @@ void Simulator::simTropo() {
                     const PointingVector &pv2 = pvs[k + j];
 
                     double t2_h = pv2.getTime() / 3600.;
-                    auto r2 = calcR( pv2 );
-                    auto rz2 = r2 * z.transpose();
+                    Vector3d r2 = calcR( pv2 );
+                    MatrixXd rz2 = r2 * z.transpose();
                     rz2.row( 2 ) -= zs;
 
                     MatrixXd dd2 = rz2;
@@ -262,7 +262,7 @@ void Simulator::simTropo() {
             }
 
             int k = tn.head( i2 ).sum();
-            l.segment( k, num2 ) = l1;
+            l.block( k, 0, num2, nsim ) = l1;
         }
         double mfw = 1;
         tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 * speedOfLight );

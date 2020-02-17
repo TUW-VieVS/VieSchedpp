@@ -28,9 +28,9 @@
 #define VIESCHEDPP_SIMULATOR_H
 
 
-#include "../Output/Output.h"
 #include "../Misc/VieVS_NamedObject.h"
-#include <Eigen/Dense>
+#include "../Output/Output.h"
+#include "Eigen/Dense"
 
 namespace VieVS {
 
