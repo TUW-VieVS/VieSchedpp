@@ -47,6 +47,8 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
 void Simulator::start() {
     simWn();
     simClock();
+    simTropo();
+    calcO_C();
 }
 
 void Simulator::generateObsVector() {
@@ -86,17 +88,19 @@ void Simulator::simClock() {
     // loop over all stations
     for ( int ista = 0; ista < nsta; ++ista ) {
         unsigned int refTime = 0;
-        double rw = 0;
-        double irw = 0;
+        VectorXd rw = VectorXd::Zero( nsim );
+        VectorXd irw = VectorXd::Zero( nsim );
 
         const auto &simpara = simpara_[ista];
         double phic_rw = simpara.clockASD * simpara.clockASD * simpara.clockDur * 60;
         double phic_irw = simpara.clockASD * simpara.clockASD / ( simpara.clockDur * 60 ) * 3;
         normal_distribution<double> wn_rw = normal_distribution<double>( 0.0, sqrt( phic_rw ) );
+        auto wn_rw_f = [this, &wn_rw]() { return wn_rw( generator_ ); };
         normal_distribution<double> wn_irw = normal_distribution<double>( 0.0, sqrt( phic_irw ) );
-        double v = 0;
+        auto wn_irw_f = [this, &wn_irw]() { return wn_irw( generator_ ); };
+        VectorXd v = VectorXd::Zero( nsim, 1 );
 
-        Eigen::VectorXd clk(scans_.size());
+        Eigen::MatrixXd clk( nsim, scans_.size() );
 
         // loop over all scans
         for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
@@ -106,32 +110,31 @@ void Simulator::simClock() {
 
             // for the first scan, set noise to zero
             if ( iscan == 0 ) {
-                clk( iscan ) = 0;
+                clk.col( iscan ).array() = 0;
                 continue;
             }
 
             if ( dt != 0 ) {
-                rw += wn_rw( generator_ ) * sqrt( dt );
+                rw += VectorXd::NullaryExpr( nsim, wn_rw_f ) * sqrt( dt );
 
-                double tmp = wn_irw( generator_ ) * sqrt( dt );
+                VectorXd tmp = VectorXd::NullaryExpr( nsim, wn_irw_f ) * sqrt( dt );
                 irw += v * dt + tmp / 2 * dt;
                 v += tmp;
             }
-            clk( iscan ) = rw + irw;
+            clk.col( iscan ) = rw + irw;
 
             refTime = startTime;
         }
-        clk_.push_back(clk);
+        clk_.emplace_back( clk.transpose() );
     }
 }
+
 void Simulator::simTropo() {
     const unsigned long nsta = network_.getNSta();
     const double L23 = pow( 3e6, 2 / 3 );
     normal_distribution<double> normalDistribution = normal_distribution<double>( 0.0, 1.0 );
 
-    auto normalDist = [this] (normal_distribution<double> normalDistribution) {
-        return normalDistribution(generator_);
-    };
+    auto normalDist = [this, &normalDistribution]() { return normalDistribution( generator_ ); };
 
 
     // loop over all stations
@@ -238,7 +241,8 @@ void Simulator::simTropo() {
             C11 = C.bottomRightCorner( num2, num2 );
         }
 
-        VectorXd l(pvs.size());
+
+        MatrixXd l( pvs.size(), nsim );
         for ( int i2 = 0; i2 < segments - 1; ++i2 ) {
             int i1 = i2 - 1;
             int num1;
@@ -246,18 +250,22 @@ void Simulator::simTropo() {
             int num2 = tn( i2 );
 
             const MatrixXd &D = Ds[i2];
-            MatrixXd D11 = D.topLeftCorner(num1,num1);
-            MatrixXd D21 = D.bottomLeftCorner(num2,num1);
-            MatrixXd D22 = D.bottomRightCorner(num2,num2);
-            VectorXd x = VectorXd::NullaryExpr(num2, normalDist);
-            VectorXd l1 = D21 * D11.triangularView<Lower>().solve(l1) + D22*x;
+            MatrixXd D11 = D.topLeftCorner( num1, num1 );
+            MatrixXd D21 = D.bottomLeftCorner( num2, num1 );
+            MatrixXd D22 = D.bottomRightCorner( num2, num2 );
+            MatrixXd x = MatrixXd::NullaryExpr( num2, nsim, normalDist );
+            MatrixXd l1;
+            if ( D21.size() > 0 ) {
+                l1 = D21 * D11.triangularView<Lower>().solve( l1 ) + D22 * x;
+            } else {
+                l1 = D22 * x;
+            }
 
             int k = tn.head( i2 ).sum();
-            l.segment(k,num2) = l1;
+            l.segment( k, num2 ) = l1;
         }
         double mfw = 1;
-        tropo_.emplace_back((l.array() + simpara.tropo_wzd0) * mfw * 1e-3 * speedOfLight);
+        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 * speedOfLight );
     }
-
-
 }
+void Simulator::calcO_C() {}

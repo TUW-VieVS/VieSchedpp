@@ -75,22 +75,22 @@ class Simulator: public VieVS_NamedObject {
 
     boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-    std::string path_;                                     ///< path to output directory
-    int version_;                                          ///< number of this schedule
-    Network network_;                                      ///< network
-    std::vector<Source> sources_;                          ///< all sources
-    std::vector<Scan> scans_;                              ///< all scans in schedule
+    std::string path_;             ///< path to output directory
+    int version_;                  ///< number of this schedule
+    Network network_;              ///< network
+    std::vector<Source> sources_;  ///< all sources
+    std::vector<Scan> scans_;      ///< all scans in schedule
     std::vector<Observation> obs_;
-    const std::shared_ptr<const ObservingMode> &obsModes_; ///< observing mode
+    const std::shared_ptr<const ObservingMode> &obsModes_;  ///< observing mode
 
     Eigen::VectorXd wn_;
-    std::vector<Eigen::VectorXd> clk_;
-    std::vector<Eigen::VectorXd> tropo_;
+    std::vector<Eigen::MatrixXd> clk_;
+    std::vector<Eigen::MatrixXd> tropo_;
     Eigen::VectorXd o_c_;
 
     std::vector<SimPara> simpara_;
+    int nsim = 1;
     std::default_random_engine generator_;
-
 
 
     void generateObsVector();
@@ -100,6 +100,8 @@ class Simulator: public VieVS_NamedObject {
     void simClock();
 
     void simTropo();
+
+    void calcO_C();
 };
 }
 

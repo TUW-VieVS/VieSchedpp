@@ -60,7 +60,7 @@ class SNR_table : public VieVS_Object {
      * @param scans list of all scans
      * @param obsModes observin mode
      */
-    void writeTable( const Network &network, const std::vector<Source> &sources, const std::vector<Scan> &scans,
+    void writeTable( const Network &network, const std::vector<Source> &sources, std::vector<Scan> &scans,
                      const std::shared_ptr<const ObservingMode> &obsModes );
 
 
