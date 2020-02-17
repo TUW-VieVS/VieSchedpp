@@ -1572,6 +1572,8 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "fix calibrator block scans";
 #endif
+    auto tmp = parameters_.subnetting;
+    parameters_.subnetting = nullptr;
 
     for ( const auto &block : calib_ ) {
         of << boost::format( "|%|143t||\n" );
@@ -1646,6 +1648,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             }
         }
     }
+    parameters_.subnetting = tmp;
 }
 
 void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) {
