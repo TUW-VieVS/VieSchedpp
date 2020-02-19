@@ -46,8 +46,16 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
 }
 
 void Simulator::start() {
-    simClock();
-    simTropo();
+    if ( simClock_ ) {
+        simClock();
+    } else {
+        simClockDummy();
+    }
+    if ( simClock_ ) {
+        simTropo();
+    } else {
+        simTropoDummy();
+    }
     calcO_C();
 }
 
@@ -56,11 +64,16 @@ void Simulator::simClock() {
 
     // loop over all stations
     for ( int ista = 0; ista < nsta; ++ista ) {
+        const auto &simpara = simpara_[ista];
+        if ( simpara.clockASD < 1e-10 ) {
+            clk_.emplace_back( MatrixXd::Zero( scans_.size(), nsim ) );
+            continue;
+        }
+
         unsigned int refTime = 0;
         VectorXd rw = VectorXd::Zero( nsim );
         VectorXd irw = VectorXd::Zero( nsim );
 
-        const auto &simpara = simpara_[ista];
         double phic_rw = simpara.clockASD * simpara.clockASD * simpara.clockDur * 60;
         double phic_irw = simpara.clockASD * simpara.clockASD / ( simpara.clockDur * 60 ) * 3;
         normal_distribution<double> wn_rw = normal_distribution<double>( 0.0, sqrt( phic_rw ) );
@@ -110,6 +123,21 @@ void Simulator::simTropo() {
     for ( int staid = 0; staid < nsta; ++staid ) {
         const auto &simpara = simpara_[staid];
 
+        int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
+        VectorXd tn = VectorXd::Zero( segments );
+        vector<PointingVector> pvs;
+        for ( const auto &any : scans_ ) {
+            if ( any.findIdxOfStationId( staid ).is_initialized() ) {
+                PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
+                ++tn( pv.getTime() / ( simpara.tropo_dhseg * 3600 ) );
+                pvs.push_back( pv );
+            }
+        }
+
+        if ( simpara.tropo_Cn < 1e-10 ) {
+            tropo_.emplace_back( MatrixXd::Zero( pvs.size(), nsim ) );
+            continue;
+        }
         const double Cn = simpara.tropo_Cn * 1e-7;
         const Eigen::Vector3d v( simpara.tropo_vn * 3600, simpara.tropo_ve * 3600, 0 );
         const double Cnall = Cn * Cn / 2 * 1e6 * simpara.tropo_dh * simpara.tropo_dh;
@@ -134,17 +162,6 @@ void Simulator::simTropo() {
             }
         }
 
-
-        int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
-        VectorXd tn = VectorXd::Zero( segments );
-        vector<PointingVector> pvs;
-        for ( const auto &any : scans_ ) {
-            if ( any.findIdxOfStationId( staid ).is_initialized() ) {
-                PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
-                ++tn( pv.getTime() / ( simpara.tropo_dhseg * 3600 ) );
-                pvs.push_back( pv );
-            }
-        }
 
         auto calcR = []( const PointingVector &pv ) {
             Vector3d r( cos( pv.getAz() ) / tan( pv.getEl() ), sin( pv.getAz() ) / tan( pv.getEl() ), 1 );
@@ -247,11 +264,6 @@ void Simulator::simTropo() {
 }
 
 void Simulator::calcO_C() {
-    vector<normal_distribution<double>> distributions;
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        distributions.emplace_back( normal_distribution<double>( 0.0, simpara_[i].wn ) );
-    }
-
     int counter = 0;
     for ( const Scan &scan : scans_ ) {
         for ( const Observation &obs : scan.getObservations() ) {
@@ -261,28 +273,65 @@ void Simulator::calcO_C() {
 
     obs_minus_com_ = Eigen::MatrixXd( counter, nsim );
     counter = 0;
+    vector<unsigned int> tropoCounter( network_.getNSta(), 0 );
     for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
         const Scan &scan = scans_[iscan];
 
         for ( const Observation &obs : scan.getObservations() ) {
             unsigned long staid1 = obs.getStaid1();
             unsigned long staid2 = obs.getStaid2();
+            unsigned long tropoId_staid1 = tropoCounter[staid1]++;
+            unsigned long tropoId_staid2 = tropoCounter[staid2]++;
 
-            auto dist1 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
-            auto dist2 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
 
-            auto normalDist1 = [this, &dist1]() { return dist1( generator_ ); };
-            auto normalDist2 = [this, &dist2]() { return dist2( generator_ ); };
+            VectorXd wn1;
+            VectorXd wn2;
+            if ( simWn_ ) {
+                if ( simpara_[staid1].wn > 1e-10 ) {
+                    auto dist1 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
+                    auto normalDist1 = [this, &dist1]() { return dist1( generator_ ); };
+                    wn1 = VectorXd::NullaryExpr( nsim, normalDist1 );
+                } else {
+                    wn1 = VectorXd::Zero( nsim );
+                }
 
-            VectorXd wn1 = VectorXd::NullaryExpr( nsim, normalDist1 );
-            VectorXd wn2 = VectorXd::NullaryExpr( nsim, normalDist2 );
+                if ( simpara_[staid2].wn > 1e-10 ) {
+                    auto dist2 = normal_distribution<double>( 0.0, simpara_[staid2].wn );
+                    auto normalDist2 = [this, &dist2]() { return dist2( generator_ ); };
+                    wn2 = VectorXd::NullaryExpr( nsim, normalDist2 );
+                } else {
+                    wn2 = VectorXd::Zero( nsim );
+                }
+            } else {
+                wn1 = VectorXd::Zero( nsim );
+                wn2 = VectorXd::Zero( nsim );
+            }
 
             VectorXd oc = wn2 - wn1 + clk_[staid2].block( iscan, 0, 1, nsim ) -
-                          clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( iscan, 0, 1, nsim ) -
-                          tropo_[staid1].block( iscan, 0, 1, nsim );
+                          clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( tropoId_staid2, 0, 1, nsim ) -
+                          tropo_[staid1].block( tropoId_staid1, 0, 1, nsim );
 
             obs_minus_com_.block( counter, 0, 1, nsim ) = oc;
             ++counter;
         }
+    }
+}
+void Simulator::simClockDummy() {
+    unsigned long nsta = network_.getNSta();
+    for ( int ista = 0; ista < nsta; ++ista ) {
+        clk_.emplace_back( MatrixXd::Zero( scans_.size(), nsim ) );
+    }
+}
+
+void Simulator::simTropoDummy() {
+    const unsigned long nsta = network_.getNSta();
+    for ( int staid = 0; staid < nsta; ++staid ) {
+        int counter = 0;
+        for ( const auto &any : scans_ ) {
+            if ( any.findIdxOfStationId( staid ).is_initialized() ) {
+                ++counter;
+            }
+        }
+        tropo_.emplace_back( MatrixXd::Zero( counter, nsim ) );
     }
 }

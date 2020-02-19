@@ -86,14 +86,19 @@ class Simulator: public VieVS_NamedObject {
     std::vector<Eigen::MatrixXd> clk_;
     std::vector<Eigen::MatrixXd> tropo_;
     Eigen::MatrixXd obs_minus_com_;
+    bool simTropo_ = true;
+    bool simClock_ = true;
+    bool simWn_ = true;
 
     std::vector<SimPara> simpara_;
     int nsim = 1;
     std::default_random_engine generator_;
 
     void simClock();
+    void simClockDummy();
 
     void simTropo();
+    void simTropoDummy();
 
     void calcO_C();
 };
