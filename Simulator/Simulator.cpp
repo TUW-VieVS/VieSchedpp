@@ -131,7 +131,7 @@ void Simulator::simClock() {
 
 void Simulator::simTropo() {
     const unsigned long nsta = network_.getNSta();
-    const double L23 = pow( 3e6, 2 / 3 );
+    const double L23 = pow( 3e6, 2.0 / 3.0 );
     normal_distribution<double> normalDistribution = normal_distribution<double>( 0.0, 1.0 );
 
     auto normalDist = [this, &normalDistribution]() { return normalDistribution( generator_ ); };
@@ -155,12 +155,13 @@ void Simulator::simTropo() {
             for ( int j = 0; j < nh + 1; ++j ) {
                 double z_s = simpara.tropo_dh * j;
                 double rho4 = abs( z_s - zs_s );
-                double tmp = pow( rho4, 2 / 3 );
+                double tmp = pow( rho4, 2.0 / 3.0 );
                 double rho4x_s = tmp / ( 1 + tmp / L23 );
 
                 rho4x( c ) = rho4x_s;
                 z( c ) = z_s;
                 zs( c ) = zs_s;
+                ++c;
             }
         }
 
@@ -171,7 +172,7 @@ void Simulator::simTropo() {
         for ( const auto &any : scans_ ) {
             if ( any.findIdxOfStationId( staid ).is_initialized() ) {
                 PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
-                ++tn( pv.getTime() / simpara.tropo_dhseg );
+                ++tn( pv.getTime() / ( simpara.tropo_dhseg * 3600 ) );
                 pvs.push_back( pv );
             }
         }
@@ -183,29 +184,33 @@ void Simulator::simTropo() {
 
         vector<MatrixXd> Ds;
         MatrixXd C11 = MatrixXd::Zero( 0, 0 );
-        for ( int i2 = 0; i2 < segments - 1; ++i2 ) {
-            int i1 = i2 - 1;
-            int num1;
-            i1 >= 0 ? num1 = tn( i1 ) : num1 = 0;
+        for ( int i1 = 0; i1 < segments - 1; ++i1 ) {
+            int i2 = i1 + 1;
+            int num1 = tn( i1 );
             int num2 = tn( i2 );
+            int k = tn.head( i1 ).sum();
+            if ( i2 == 1 ) {
+                num2 += num1;
+                num1 = 0;
+                k = 0;
+            }
             int num3 = num1 + num2;
 
-            int k = tn.head( i2 ).sum();
-            MatrixXd C( num3, num3 );
+            MatrixXd C = MatrixXd::Zero( num3, num3 );
             C.topLeftCorner( num1, num1 ) = C11;
 
             for ( int i = 0; i < num3; ++i ) {
                 const PointingVector &pv1 = pvs[k + i];
                 double t1_h = pv1.getTime() / 3600.;
 
-                auto r1 = calcR( pv1 );
-                auto rz1 = r1 * z.transpose();
+                Vector3d r1 = calcR( pv1 );
+                MatrixXd rz1 = r1 * z.transpose();
 
                 MatrixXd dd1 = rz1;
-                dd1.row( 2 ) - zs.transpose();
+                dd1.row( 2 ) -= zs;
                 dd1 = dd1.colwise() + v * t1_h;
 
-                VectorXd rho1 = ( dd1.array() * dd1.array() ).colwise().sum().pow( 1 / 3 );
+                VectorXd rho1 = ( dd1.array() * dd1.array() ).colwise().sum().pow( 1.0 / 3.0 );
                 VectorXd rho1x = rho1.array() / ( 1 + rho1.array() / L23 );
 
                 for ( int j = max( i, num1 ); j < num3; ++j ) {
@@ -214,58 +219,61 @@ void Simulator::simTropo() {
                     double t2_h = pv2.getTime() / 3600.;
                     Vector3d r2 = calcR( pv2 );
                     MatrixXd rz2 = r2 * z.transpose();
-                    rz2.row( 2 ) -= zs;
 
                     MatrixXd dd2 = rz2;
-                    dd2.row( 2 ) - zs.transpose();
+                    dd2.row( 2 ) -= zs;
                     dd2 = dd2.colwise() + v * t2_h;
 
-                    auto rho2 = ( dd2.array() * dd2.array() ).colwise().sum().pow( 1 / 3 );
-
+                    VectorXd rho2 = ( dd2.array() * dd2.array() ).colwise().sum().pow( 1.0 / 3.0 );
 
                     double dt12_h = t2_h - t1_h;
-                    VectorXd rzs2 = r2 * zs.transpose();
+                    MatrixXd rzs2 = r2 * zs.transpose();
 
                     MatrixXd dd3 = rz1 - rzs2;
-                    dd2 = dd2.colwise() - v * dt12_h;
-                    VectorXd rho3 = ( dd3.array() * dd3.array() ).colwise().sum().pow( 1 / 3 );
+                    dd3 = dd3.colwise() - v * dt12_h;
+                    VectorXd rho3 = ( dd3.array() * dd3.array() ).colwise().sum().pow( 1.0 / 3.0 );
 
                     double result = ( rho1x.array() + rho2.array() / ( 1 + rho2.array() / L23 ) -
                                       rho3.array() / ( 1 + rho3.array() / L23 ) - rho4x.array() )
                                         .sum();
-                    C( i, j ) = Cnall * result;
+                    C( j, i ) = Cnall * result;
                 }
             }
-
-            Ds.emplace_back( C.llt().matrixU().transpose() );
-            C11 = C.bottomRightCorner( num2, num2 );
+            Ds.emplace_back( C.llt().matrixL() );
+            C11 = C.bottomRightCorner( tn( i2 ), tn( i2 ) );
         }
 
 
         MatrixXd l( pvs.size(), nsim );
-        for ( int i2 = 0; i2 < segments - 1; ++i2 ) {
-            int i1 = i2 - 1;
-            int num1;
-            i1 >= 0 ? num1 = tn( i1 ) : num1 = 0;
+        MatrixXd l1;
+        for ( int i1 = 0; i1 < segments - 1; ++i1 ) {
+            int i2 = i1 + 1;
+            int num1 = tn( i1 );
             int num2 = tn( i2 );
+            int k = tn.head( i2 ).sum();
+            if ( i1 == 0 ) {
+                num2 += num1;
+                num1 = 0;
+                k = 0;
+            }
 
-            const MatrixXd &D = Ds[i2];
+            const MatrixXd &D = Ds[i1];
             MatrixXd D11 = D.topLeftCorner( num1, num1 );
             MatrixXd D21 = D.bottomLeftCorner( num2, num1 );
             MatrixXd D22 = D.bottomRightCorner( num2, num2 );
             MatrixXd x = MatrixXd::NullaryExpr( num2, nsim, normalDist );
-            MatrixXd l1;
-            if ( D21.size() > 0 ) {
-                l1 = D21 * D11.triangularView<Lower>().solve( l1 ) + D22 * x;
-            } else {
-                l1 = D22 * x;
-            }
 
-            int k = tn.head( i2 ).sum();
-            l.block( k, 0, num2, nsim ) = l1;
+            if ( i1 == 0 ) {
+                MatrixXd tmp = D22 * x;
+                l.block( k, 0, num2, nsim ) = tmp;
+                l1 = tmp.block( tn( i1 ), 0, tn( i2 ), nsim );
+            } else {
+                l1 = D21 * D11.triangularView<Lower>().solve( l1 ) + D22 * x;
+                l.block( k, 0, num2, nsim ) = l1;
+            }
         }
         double mfw = 1;
-        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 * speedOfLight );
+        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 / speedOfLight );
     }
 }
 void Simulator::calcO_C() {}
