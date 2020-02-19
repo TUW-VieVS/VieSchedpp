@@ -46,7 +46,6 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
 }
 
 void Simulator::start() {
-    simWn();
     simClock();
     simTropo();
     calcO_C();
@@ -252,9 +251,6 @@ void Simulator::calcO_C() {
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         distributions.emplace_back( normal_distribution<double>( 0.0, simpara_[i].wn ) );
     }
-    auto normalDist = [this]( normal_distribution<double> &normalDistribution ) {
-        return normalDistribution( generator_ );
-    };
 
     int counter = 0;
     for ( const Scan &scan : scans_ ) {
@@ -272,9 +268,14 @@ void Simulator::calcO_C() {
             unsigned long staid1 = obs.getStaid1();
             unsigned long staid2 = obs.getStaid2();
 
-            VectorXd wn1 = VectorXd::NullaryExpr( nsim, normalDist( distributions[staid1] ) );
-            VectorXd wn2 = VectorXd::NullaryExpr( nsim, normalDist( distributions[staid2] ) );
+            auto dist1 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
+            auto dist2 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
 
+            auto normalDist1 = [this, &dist1]() { return dist1( generator_ ); };
+            auto normalDist2 = [this, &dist2]() { return dist2( generator_ ); };
+
+            VectorXd wn1 = VectorXd::NullaryExpr( nsim, normalDist1 );
+            VectorXd wn2 = VectorXd::NullaryExpr( nsim, normalDist2 );
 
             VectorXd oc = wn2 - wn1 + clk_[staid2].block( iscan, 0, 1, nsim ) -
                           clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( iscan, 0, 1, nsim ) -
