@@ -83,19 +83,13 @@ class Simulator: public VieVS_NamedObject {
     std::vector<Observation> obs_;
     const std::shared_ptr<const ObservingMode> &obsModes_;  ///< observing mode
 
-    Eigen::VectorXd wn_;
     std::vector<Eigen::MatrixXd> clk_;
     std::vector<Eigen::MatrixXd> tropo_;
-    Eigen::VectorXd o_c_;
+    Eigen::MatrixXd obs_minus_com_;
 
     std::vector<SimPara> simpara_;
     int nsim = 1;
     std::default_random_engine generator_;
-
-
-    void generateObsVector();
-
-    void simWn();
 
     void simClock();
 

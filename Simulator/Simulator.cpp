@@ -52,36 +52,6 @@ void Simulator::start() {
     calcO_C();
 }
 
-void Simulator::generateObsVector() {
-    for ( auto &scan : scans_ ) {
-        for ( auto &obs : scan.refObservations() ) {
-            unsigned long staidx1 = *scan.findIdxOfStationId( obs.getStaid1() );
-            unsigned long staidx2 = *scan.findIdxOfStationId( obs.getStaid2() );
-
-            obs.setStartTime( scan.getTimes().getObservingTime( staidx1, staidx2, Timestamp::start ) );
-            obs.setObservingTime( scan.getTimes().getObservingDuration( staidx1, staidx2 ) );
-            obs_.push_back( obs );
-        }
-    }
-    unsigned long nSta = network_.getNSta();
-    unsigned long nScans = scans_.size();
-    unsigned long nObs = obs_.size();
-}
-
-
-void Simulator::simWn() {
-    vector<normal_distribution<double>> distributions;
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        distributions.emplace_back( normal_distribution<double>( 0.0, simpara_[i].wn ) );
-    }
-
-    wn_ = Eigen::VectorXd( obs_.size() );
-    for ( int i = 0; i < obs_.size(); ++i ) {
-        const auto &obs = obs_[i];
-        double wn = distributions[obs.getStaid1()]( generator_ ) + distributions[obs.getStaid2()]( generator_ );
-        wn_( i ) = wn;
-    }
-}
 void Simulator::simClock() {
     unsigned long nsta = network_.getNSta();
 
@@ -276,4 +246,42 @@ void Simulator::simTropo() {
         tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 / speedOfLight );
     }
 }
-void Simulator::calcO_C() {}
+
+void Simulator::calcO_C() {
+    vector<normal_distribution<double>> distributions;
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        distributions.emplace_back( normal_distribution<double>( 0.0, simpara_[i].wn ) );
+    }
+    auto normalDist = [this]( normal_distribution<double> &normalDistribution ) {
+        return normalDistribution( generator_ );
+    };
+
+    int counter = 0;
+    for ( const Scan &scan : scans_ ) {
+        for ( const Observation &obs : scan.getObservations() ) {
+            ++counter;
+        }
+    }
+
+    obs_minus_com_ = Eigen::MatrixXd( counter, nsim );
+    counter = 0;
+    for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
+        const Scan &scan = scans_[iscan];
+
+        for ( const Observation &obs : scan.getObservations() ) {
+            unsigned long staid1 = obs.getStaid1();
+            unsigned long staid2 = obs.getStaid2();
+
+            VectorXd wn1 = VectorXd::NullaryExpr( nsim, normalDist( distributions[staid1] ) );
+            VectorXd wn2 = VectorXd::NullaryExpr( nsim, normalDist( distributions[staid2] ) );
+
+
+            VectorXd oc = wn2 - wn1 + clk_[staid2].block( iscan, 0, 1, nsim ) -
+                          clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( iscan, 0, 1, nsim ) -
+                          tropo_[staid1].block( iscan, 0, 1, nsim );
+
+            obs_minus_com_.block( counter, 0, 1, nsim ) = oc;
+            ++counter;
+        }
+    }
+}
