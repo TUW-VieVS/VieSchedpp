@@ -110,7 +110,7 @@
  ###########################################################################################
  ########################################## Eigen ##########################################
  ###########################################################################################
- find_package(Eigen3 REQUIRED NO_MODULE)
+ find_package(Eigen3 REQUIRED HINTS ./EIGEN/Eigen/src)
  if (Eigen3_FOUND)
      message("Eigen found")
      message("  Eigen location: ${Eigen3_DIR}")

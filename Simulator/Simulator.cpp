@@ -43,15 +43,23 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
       simpara_{vector<SimPara>( network_.getNSta() )} {
     unsigned long seed = std::chrono::system_clock::now().time_since_epoch().count();
     generator_ = default_random_engine( seed );
+
+    string file = path_;
+    file.append( getName() ).append( "_simulator.txt" );
+    of = ofstream( file );
 }
 
 void Simulator::start() {
+    setup();
+
+    parameterSummary();
+
     if ( simClock_ ) {
         simClock();
     } else {
         simClockDummy();
     }
-    if ( simClock_ ) {
+    if ( simTropo_ ) {
         simTropo();
     } else {
         simTropoDummy();
@@ -334,4 +342,71 @@ void Simulator::simTropoDummy() {
         }
         tropo_.emplace_back( MatrixXd::Zero( counter, nsim ) );
     }
+}
+void Simulator::setup() {
+    of << "setup simulator:\n";
+    unsigned long nsta = network_.getNSta();
+    const boost::property_tree::ptree &tree = xml_.get_child( "VieSchedpp.simulator" );
+    vector<SimPara> simparas;
+    vector<string> names;
+    bool all = false;
+    for ( const auto &any : tree ) {
+        if ( any.first == "station" ) {
+            string name = any.second.get( "<xmlattr>.name", "" );
+            SimPara tmp;
+            tmp.fromXML( any.second );
+
+            simparas.push_back( tmp );
+            names.emplace_back( name );
+            if ( name == "__all__" ) {
+                all = true;
+            }
+        }
+    }
+    if ( all ) {
+        for ( int i = 0; i < nsta; ++i ) {
+            simpara_[i] = simparas[0];
+        }
+    } else {
+        for ( int staid = 0; staid < nsta; ++staid ) {
+            const Station &station = network_.getStation( staid );
+            const string &staName = station.getName();
+            auto p_found = find( names.begin(), names.end(), staName );
+            if ( p_found == names.end() ) {
+#ifdef VIESCHEDPP_LOG
+                BOOST_LOG_TRIVIAL( error ) << "station: " << staName << " not found in simulator parameters";
+#endif
+                cout << "[error] station: " << staName << " not found in simulator parameters";
+                continue;
+            }
+            int idx = distance( names.begin(), p_found );
+
+            simpara_[staid] = simparas[idx];
+        }
+    }
+}
+void Simulator::parameterSummary() {
+    of << boost::format( ".%|86T-|.\n" );
+    of << "|   NAME   |   wn  |     ASD       @   |    Cn      H    dH    dt    ve    vn   wzwd0 |\n"
+          "|          |  [ps] |     [s]     [min] |  [m^-1/3] [m]   [m]  [h]  [m/s] [m/s]   [mm] |\n"
+          "|----------|-------|-------------------|----------------------------------------------|\n";
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        of << boost::format( "| %-8s %s \n" ) % network_.getStation( i ).getName() % simpara_[i].toString();
+    }
+    of << boost::format( "'%|86T-|'\n" );
+}
+
+void Simulator::SimPara::fromXML( const boost::property_tree::ptree &tree ) {
+    wn = tree.get( "wn", 25. );
+
+    clockASD = tree.get( "clockASD", 1. );
+    clockDur = tree.get( "clockDur", 50. );
+
+    tropo_Cn = tree.get( "tropo_Cn", 1.8 );
+    tropo_H = tree.get( "tropo_H", 2000. );
+    tropo_dh = tree.get( "tropo_dH", 200. );
+    tropo_dhseg = tree.get( "tropo_dHseg", 2. );
+    tropo_ve = tree.get( "tropo_ve", 8. );
+    tropo_vn = tree.get( "tropo_vn", 0. );
+    tropo_wzd0 = tree.get( "tropo_wzd0", 150. );
 }

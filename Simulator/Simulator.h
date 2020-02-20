@@ -41,9 +41,9 @@ namespace VieVS {
  * @author Matthias Schartner
  * @date 12.02.2020
  */
-class Simulator: public VieVS_NamedObject {
+class Simulator : public VieVS_NamedObject {
    public:
-    struct SimPara{
+    struct SimPara {
         double wn = 20;
         double clockASD = 1e-14;
         double clockDur = 50;
@@ -54,6 +54,15 @@ class Simulator: public VieVS_NamedObject {
         double tropo_dh = 200;
         double tropo_wzd0 = 150;
         double tropo_dhseg = 2;
+
+        void fromXML( const boost::property_tree::ptree &tree );
+
+        std::string toString() {
+            return ( boost::format( "| %5.1f | %7.4fe-14 %4.0f  | %5.2fe-7 %5.0f %4.0f %5.2f %5.1f %5.1f %6.1f |" ) %
+                     wn % clockASD % clockDur % tropo_Cn % tropo_H % tropo_dh % tropo_dhseg % tropo_ve % tropo_vn %
+                     tropo_wzd0 )
+                .str();
+        }
     };
 
 
@@ -72,6 +81,7 @@ class Simulator: public VieVS_NamedObject {
 
    private:
     static unsigned long nextId;  ///< next id for this object type
+    std::ofstream of;             ///< output stream object
 
     boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
@@ -101,8 +111,12 @@ class Simulator: public VieVS_NamedObject {
     void simTropoDummy();
 
     void calcO_C();
+
+    void setup();
+
+    void parameterSummary();
 };
-}
+}  // namespace VieVS
 
 
 #endif  // VIESCHEDPP_SIMULATOR_H

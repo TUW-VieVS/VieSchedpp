@@ -41,6 +41,7 @@
 #include "ObservingMode/Mode.h"
 #include "Output/Output.h"
 #include "Scheduler.h"
+#include "Simulator/Simulator.h"
 #include "XML/ParameterSettings.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/attributes/named_scope.hpp>

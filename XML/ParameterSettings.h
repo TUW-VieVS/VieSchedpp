@@ -712,6 +712,14 @@ class ParameterSettings {
 
 
     /**
+     * @brief adds simulator settings to xml file
+     * @author Matthias Schartner
+     *
+     * @param tree property tree with simulator settings
+     */
+    void simulator( const boost::property_tree::ptree &tree );
+
+    /**
      * @brief get station groups
      * @author Matthias Schartner
      *

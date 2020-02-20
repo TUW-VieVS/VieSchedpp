@@ -85,7 +85,7 @@ void VieSchedpp::run() {
 
     // initialize all Parameters
     init.initializeGeneral( of );
-    init.initializeAstronomicalParameteres();
+    Initializer::initializeAstronomicalParameteres();
     init.initializeFocusCornersAlgorithm();
     init.initializeObservingMode( skdCatalogs_, of );
 
@@ -247,6 +247,16 @@ void VieSchedpp::run() {
 
         VieVS::Output output( scheduler, path_, fname, version );
         output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
+
+        if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "start simulation";
+#else
+            cout << "[info] start simulation";
+#endif
+            VieVS::Simulator simulator( output, path_, fname, version );
+            simulator.start();
+        }
 
         if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG

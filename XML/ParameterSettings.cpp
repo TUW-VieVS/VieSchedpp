@@ -1270,6 +1270,9 @@ void ParameterSettings::addContact( const ParameterSettings::Contact &contact, b
     }
 }
 
+void ParameterSettings::simulator( const boost::property_tree::ptree &tree ) {
+    master_.add_child( "VieSchedpp.simulator", tree.get_child( "simulator" ) );
+}
 
 VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::property_tree::ptree &tree ) {
     Contact contact;
@@ -1281,3 +1284,4 @@ VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::p
 
     return contact;
 }
+
