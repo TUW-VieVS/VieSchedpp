@@ -28,7 +28,7 @@
 #define VIESCHEDPP_SIMULATOR_H
 
 // clang-format off
-#include "Eigen/Dense"
+#include "../Eigen/Dense"
 // clang-format on
 #include "../Misc/VieVS_NamedObject.h"
 #include "../Output/Output.h"

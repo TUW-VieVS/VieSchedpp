@@ -143,12 +143,14 @@ void Simulator::simTropo() {
 
         int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
         VectorXd tn = VectorXd::Zero( segments );
+        VectorXd mfw;
         vector<PointingVector> pvs;
         for ( const auto &any : scans_ ) {
             if ( any.findIdxOfStationId( staid ).is_initialized() ) {
                 PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
                 ++tn( pv.getTime() / ( simpara.tropo_dhseg * 3600 ) );
                 pvs.push_back( pv );
+                mfw << 1/sin(pv.getEl());
             }
         }
 
@@ -277,8 +279,7 @@ void Simulator::simTropo() {
                 l.block( k, 0, num2, nsim ) = l1;
             }
         }
-        double mfw = 1;
-        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 / speedOfLight );
+        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ).array() * mfw.array() * 1e-3 / speedOfLight );
         of << "done" << endl;
     }
 }

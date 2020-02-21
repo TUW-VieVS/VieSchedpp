@@ -110,13 +110,14 @@
  ###########################################################################################
  ########################################## Eigen ##########################################
  ###########################################################################################
- find_package(Eigen3 REQUIRED HINTS ./EIGEN/Eigen/src)
- if (Eigen3_FOUND)
-     message("Eigen found")
-     message("  Eigen location: ${Eigen3_DIR}")
-     message("  Eigen Version: ${Eigen3_VERSION}")
-     target_link_libraries (VieSchedpp Eigen3::Eigen)
- endif ()
+ add_subdirectory(Eigen)
+ # find_package(Eigen3 REQUIRED HINTS ./EIGEN)
+# if (Eigen3_FOUND)
+#     message("Eigen found")
+#     message("  Eigen location: ${Eigen3_DIR}")
+#     message("  Eigen Version: ${Eigen3_VERSION}")
+#     target_link_libraries (VieSchedpp Eigen3::Eigen)
+# endif ()
 
  ###########################################################################################
  ########################################### BOOST #########################################
