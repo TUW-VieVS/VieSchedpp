@@ -50,17 +50,25 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
 }
 
 void Simulator::start() {
+    stable_sort( scans_.begin(), scans_.end(), []( const Scan &scan1, const Scan &scan2 ) {
+        return scan1.getTimes().getObservingTime() < scan2.getTimes().getObservingTime();
+    } );
+
     setup();
 
     parameterSummary();
 
     if ( simClock_ ) {
+        of << "simulation clocks:" << endl;
         simClock();
+        of << endl;
     } else {
         simClockDummy();
     }
     if ( simTropo_ ) {
+        of << "simulation troposphere:" << endl;
         simTropo();
+        of << endl;
     } else {
         simTropoDummy();
     }
@@ -73,10 +81,11 @@ void Simulator::simClock() {
     // loop over all stations
     for ( int ista = 0; ista < nsta; ++ista ) {
         const auto &simpara = simpara_[ista];
-        if ( simpara.clockASD < 1e-10 ) {
+        if ( simpara.clockASD < 1e-20 ) {
             clk_.emplace_back( MatrixXd::Zero( scans_.size(), nsim ) );
             continue;
         }
+        of << boost::format( "    %-8s " ) % network_.getStation( ista ).getName();
 
         unsigned int refTime = 0;
         VectorXd rw = VectorXd::Zero( nsim );
@@ -95,7 +104,7 @@ void Simulator::simClock() {
         // loop over all scans
         for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
             const auto &scan = scans_[iscan];
-            unsigned int startTime = scan.getTimes().getScanTime( Timestamp::start );
+            unsigned int startTime = scan.getTimes().getObservingTime();
             auto dt = static_cast<double>( startTime - refTime );
 
             // for the first scan, set noise to zero
@@ -116,6 +125,7 @@ void Simulator::simClock() {
             refTime = startTime;
         }
         clk_.emplace_back( clk.transpose() );
+        of << "done" << endl;
     }
 }
 
@@ -142,11 +152,12 @@ void Simulator::simTropo() {
             }
         }
 
-        if ( simpara.tropo_Cn < 1e-10 ) {
+        if ( simpara.tropo_Cn < 1e-20 ) {
             tropo_.emplace_back( MatrixXd::Zero( pvs.size(), nsim ) );
             continue;
         }
-        const double Cn = simpara.tropo_Cn * 1e-7;
+        of << boost::format( "    %-8s " ) % network_.getStation( staid ).getName();
+        const double Cn = simpara.tropo_Cn;
         const Eigen::Vector3d v( simpara.tropo_vn * 3600, simpara.tropo_ve * 3600, 0 );
         const double Cnall = Cn * Cn / 2 * 1e6 * simpara.tropo_dh * simpara.tropo_dh;
 
@@ -268,6 +279,7 @@ void Simulator::simTropo() {
         }
         double mfw = 1;
         tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ) * mfw * 1e-3 / speedOfLight );
+        of << "done" << endl;
     }
 }
 
@@ -281,22 +293,29 @@ void Simulator::calcO_C() {
 
     obs_minus_com_ = Eigen::MatrixXd( counter, nsim );
     counter = 0;
-    vector<unsigned int> tropoCounter( network_.getNSta(), 0 );
+    vector<int> tropoCounter( network_.getNSta(), -1 );
+
     for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
         const Scan &scan = scans_[iscan];
+
+        for ( int ista = 0; ista < network_.getNSta(); ++ista ) {
+            if ( scan.findIdxOfStationId( ista ).is_initialized() ) {
+                ++tropoCounter[ista];
+            }
+        }
 
         for ( const Observation &obs : scan.getObservations() ) {
             unsigned long staid1 = obs.getStaid1();
             unsigned long staid2 = obs.getStaid2();
-            unsigned long tropoId_staid1 = tropoCounter[staid1]++;
-            unsigned long tropoId_staid2 = tropoCounter[staid2]++;
+            unsigned long tropoId_staid1 = tropoCounter[staid1];
+            unsigned long tropoId_staid2 = tropoCounter[staid2];
 
 
             VectorXd wn1;
             VectorXd wn2;
             if ( simWn_ ) {
                 if ( simpara_[staid1].wn > 1e-10 ) {
-                    auto dist1 = normal_distribution<double>( 0.0, simpara_[staid1].wn );
+                    auto dist1 = normal_distribution<double>( 0.0, simpara_[staid1].wn * 1e-12 );
                     auto normalDist1 = [this, &dist1]() { return dist1( generator_ ); };
                     wn1 = VectorXd::NullaryExpr( nsim, normalDist1 );
                 } else {
@@ -304,7 +323,7 @@ void Simulator::calcO_C() {
                 }
 
                 if ( simpara_[staid2].wn > 1e-10 ) {
-                    auto dist2 = normal_distribution<double>( 0.0, simpara_[staid2].wn );
+                    auto dist2 = normal_distribution<double>( 0.0, simpara_[staid2].wn * 1e-12 );
                     auto normalDist2 = [this, &dist2]() { return dist2( generator_ ); };
                     wn2 = VectorXd::NullaryExpr( nsim, normalDist2 );
                 } else {
@@ -347,6 +366,7 @@ void Simulator::setup() {
     of << "setup simulator:\n";
     unsigned long nsta = network_.getNSta();
     const boost::property_tree::ptree &tree = xml_.get_child( "VieSchedpp.simulator" );
+    nsim = tree.get( "number_of_simulations", 1000 );
     vector<SimPara> simparas;
     vector<string> names;
     bool all = false;
@@ -386,6 +406,8 @@ void Simulator::setup() {
     }
 }
 void Simulator::parameterSummary() {
+    of << "number of simulations: " << nsim << endl;
+
     of << boost::format( ".%|86T-|.\n" );
     of << "|   NAME   |   wn  |     ASD       @   |    Cn      H    dH    dt    ve    vn   wzwd0 |\n"
           "|          |  [ps] |     [s]     [min] |  [m^-1/3] [m]   [m]  [h]  [m/s] [m/s]   [mm] |\n"
@@ -394,15 +416,16 @@ void Simulator::parameterSummary() {
         of << boost::format( "| %-8s %s \n" ) % network_.getStation( i ).getName() % simpara_[i].toString();
     }
     of << boost::format( "'%|86T-|'\n" );
+    of << endl;
 }
 
 void Simulator::SimPara::fromXML( const boost::property_tree::ptree &tree ) {
     wn = tree.get( "wn", 25. );
 
-    clockASD = tree.get( "clockASD", 1. );
+    clockASD = tree.get( "clockASD", 1.0 ) * 1e-14;
     clockDur = tree.get( "clockDur", 50. );
 
-    tropo_Cn = tree.get( "tropo_Cn", 1.8 );
+    tropo_Cn = tree.get( "tropo_Cn", 1.8 ) * 1e-7;
     tropo_H = tree.get( "tropo_H", 2000. );
     tropo_dh = tree.get( "tropo_dH", 200. );
     tropo_dhseg = tree.get( "tropo_dHseg", 2. );

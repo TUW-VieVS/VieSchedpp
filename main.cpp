@@ -17,10 +17,11 @@
  */
 
 #include <chrono>
-
+// clang-format off
+#include "VieSchedpp.h"
+// clang-format on
 #include "Input/LogParser.h"
 #include "Input/SkdParser.h"
-#include "VieSchedpp.h"
 
 /**
  * @file main.cpp

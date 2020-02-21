@@ -27,10 +27,11 @@
 #ifndef VIESCHEDPP_SIMULATOR_H
 #define VIESCHEDPP_SIMULATOR_H
 
-
+// clang-format off
+#include "Eigen/Dense"
+// clang-format on
 #include "../Misc/VieVS_NamedObject.h"
 #include "../Output/Output.h"
-#include "Eigen/Dense"
 
 namespace VieVS {
 
@@ -47,7 +48,7 @@ class Simulator : public VieVS_NamedObject {
         double wn = 20;
         double clockASD = 1e-14;
         double clockDur = 50;
-        double tropo_Cn = 1.8;
+        double tropo_Cn = 1.8e-7;
         double tropo_H = 2000;
         double tropo_ve = 8;
         double tropo_vn = 0;

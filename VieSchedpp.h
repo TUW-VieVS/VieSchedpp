@@ -27,6 +27,9 @@
 #ifndef VIEVS_SCHEDULER_H
 #define VIEVS_SCHEDULER_H
 
+// clang-format off
+#include "Simulator/Simulator.h"
+// clang-format on
 
 #include <boost/format.hpp>
 #include <chrono>
@@ -41,7 +44,6 @@
 #include "ObservingMode/Mode.h"
 #include "Output/Output.h"
 #include "Scheduler.h"
-#include "Simulator/Simulator.h"
 #include "XML/ParameterSettings.h"
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/attributes/named_scope.hpp>

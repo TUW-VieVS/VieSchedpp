@@ -9,5 +9,5 @@ SpacesInParentheses: 'true'
 Standard: Cpp11
 TabWidth: '4'
 UseTab: Never
-
+SortIncludes: true
 ...
