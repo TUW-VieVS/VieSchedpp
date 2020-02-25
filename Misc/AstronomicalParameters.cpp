@@ -31,3 +31,44 @@ std::vector<unsigned int> AstronomicalParameters::earth_nutTime;  ///< correspon
 std::vector<double> AstronomicalParameters::sun_ra;          ///< right ascension and declination of sun
 std::vector<double> AstronomicalParameters::sun_dec;         ///< right ascension and declination of sun
 std::vector<unsigned int> AstronomicalParameters::sun_time;  ///< right ascension and declination of sun
+
+unsigned int AstronomicalParameters::getNutInterpolationIdx( unsigned int time ) {
+    unsigned int nut_precalc_idx = 0;
+    while ( AstronomicalParameters::earth_nutTime[nut_precalc_idx + 1] < time ) {
+        ++nut_precalc_idx;
+    }
+    return nut_precalc_idx;
+}
+
+double AstronomicalParameters::getNutX( unsigned int time, unsigned int interpolationIdx ) {
+    unsigned int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
+    unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[interpolationIdx];
+
+    double X = AstronomicalParameters::earth_nutX[interpolationIdx] +
+               ( AstronomicalParameters::earth_nutX[interpolationIdx + 1] -
+                 AstronomicalParameters::earth_nutX[interpolationIdx] ) /
+                   delta * deltaTime;
+    return X;
+}
+
+double AstronomicalParameters::getNutY( unsigned int time, unsigned int interpolationIdx ) {
+    unsigned int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
+    unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[interpolationIdx];
+
+    double Y = AstronomicalParameters::earth_nutY[interpolationIdx] +
+               ( AstronomicalParameters::earth_nutY[interpolationIdx + 1] -
+                 AstronomicalParameters::earth_nutY[interpolationIdx] ) /
+                   delta * deltaTime;
+    return Y;
+}
+
+double AstronomicalParameters::getNutS( unsigned int time, unsigned int interpolationIdx ) {
+    unsigned int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
+    unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[interpolationIdx];
+
+    double S = AstronomicalParameters::earth_nutS[interpolationIdx] +
+               ( AstronomicalParameters::earth_nutS[interpolationIdx + 1] -
+                 AstronomicalParameters::earth_nutS[interpolationIdx] ) /
+                   delta * deltaTime;
+    return S;
+}

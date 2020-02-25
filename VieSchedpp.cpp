@@ -255,6 +255,7 @@ void VieSchedpp::run() {
             cout << "[info] start simulation";
 #endif
             VieVS::Simulator simulator( output, path_, fname, version );
+
             simulator.start();
         }
 

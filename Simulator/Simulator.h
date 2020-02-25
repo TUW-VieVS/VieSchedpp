@@ -44,6 +44,7 @@ namespace VieVS {
  */
 class Simulator : public VieVS_NamedObject {
    public:
+    friend class Solver;
     struct SimPara {
         double wn = 20;
         double clockASD = 1e-14;
@@ -71,27 +72,27 @@ class Simulator : public VieVS_NamedObject {
      * @brief constructor
      * @author Matthias Schartner
      *
-     * @param sched scheduler
+     * @param output scheduler
      * @param path path to output directory
      * @param fname file name
      * @param version version number
      */
-    Simulator( Output &sched, std::string path, std::string fname, int version );
+    Simulator( Output &output, std::string path, std::string fname, int version );
 
     void start();
 
    private:
     static unsigned long nextId;  ///< next id for this object type
     std::ofstream of;             ///< output stream object
+    unsigned long seed_;
 
-    boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
+    const boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-    std::string path_;             ///< path to output directory
-    int version_;                  ///< number of this schedule
-    Network network_;              ///< network
-    std::vector<Source> sources_;  ///< all sources
-    std::vector<Scan> scans_;      ///< all scans in schedule
-    std::vector<Observation> obs_;
+    const std::string path_;                                ///< path to output directory
+    const int version_;                                     ///< number of this schedule
+    const Network network_;                                 ///< network
+    const std::vector<Source> sources_;                     ///< all sources
+    const std::vector<Scan> scans_;                         ///< all scans in schedule
     const std::shared_ptr<const ObservingMode> &obsModes_;  ///< observing mode
 
     std::vector<Eigen::MatrixXd> clk_;

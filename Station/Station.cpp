@@ -214,11 +214,12 @@ void Station::calcAzEl_rigorous( const Source &source, PointingVector &p ) noexc
     // precession nutation
     double C[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 
+    // TODO: change to helper functions
     unsigned int nut_precalc_idx = 0;
     while ( AstronomicalParameters::earth_nutTime[nut_precalc_idx + 1] < time ) {
         ++nut_precalc_idx;
     }
-    int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
+    unsigned int delta = AstronomicalParameters::earth_nutTime[1] - AstronomicalParameters::earth_nutTime[0];
 
     unsigned int deltaTime = time - AstronomicalParameters::earth_nutTime[nut_precalc_idx];
 

@@ -29,6 +29,7 @@
 
 // clang-format off
 #include "Simulator/Simulator.h"
+#include "Simulator/Solver.h"
 // clang-format on
 
 #include <boost/format.hpp>

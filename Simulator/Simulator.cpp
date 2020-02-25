@@ -31,18 +31,24 @@ using namespace std;
 using namespace VieVS;
 using namespace Eigen;
 
-Simulator::Simulator( Output &sched, std::string path, std::string fname, int version )
+Simulator::Simulator( Output &output, std::string path, std::string fname, int version )
     : VieVS_NamedObject( move( fname ), nextId++ ),
-      xml_{sched.xml_},
-      network_{std::move( sched.network_ )},
-      sources_{std::move( sched.sources_ )},
-      scans_{std::move( sched.scans_ )},
-      obsModes_{sched.obsModes_},
+      xml_{output.xml_},
+      network_{std::move( output.network_ )},
+      sources_{std::move( output.sources_ )},
+      scans_{std::move( output.scans_ )},
+      obsModes_{output.obsModes_},
       path_{std::move( path )},
       version_{version},
       simpara_{vector<SimPara>( network_.getNSta() )} {
-    unsigned long seed = std::chrono::system_clock::now().time_since_epoch().count();
-    generator_ = default_random_engine( seed );
+    auto tmp = xml_.get_optional<int>( "VieSchedpp.simulator.seed" );
+    if ( tmp.is_initialized() ) {
+        seed_ = *tmp;
+    } else {
+        seed_ = std::chrono::system_clock::now().time_since_epoch().count();
+    }
+
+    generator_ = default_random_engine( seed_ );
 
     string file = path_;
     file.append( getName() ).append( "_simulator.txt" );
@@ -50,10 +56,6 @@ Simulator::Simulator( Output &sched, std::string path, std::string fname, int ve
 }
 
 void Simulator::start() {
-    stable_sort( scans_.begin(), scans_.end(), []( const Scan &scan1, const Scan &scan2 ) {
-        return scan1.getTimes().getObservingTime() < scan2.getTimes().getObservingTime();
-    } );
-
     setup();
 
     parameterSummary();
@@ -407,6 +409,7 @@ void Simulator::setup() {
     }
 }
 void Simulator::parameterSummary() {
+    of << "random number generator seed: " << seed_ << endl;
     of << "number of simulations: " << nsim << endl;
 
     of << boost::format( ".%|86T-|.\n" );

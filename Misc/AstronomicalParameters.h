@@ -54,6 +54,11 @@ class AstronomicalParameters {
     static std::vector<double> sun_ra;          ///< right ascension of sun in radians
     static std::vector<double> sun_dec;         ///< declination of sun in radians
     static std::vector<unsigned int> sun_time;  ///< corresponding times of sun_ra and sun_rc entries
+
+    static unsigned int getNutInterpolationIdx( unsigned int time );
+    static double getNutX( unsigned int time, unsigned int interpolationIdx );
+    static double getNutY( unsigned int time, unsigned int interpolationIdx );
+    static double getNutS( unsigned int time, unsigned int interpolationIdx );
 };
 }  // namespace VieVS
 
