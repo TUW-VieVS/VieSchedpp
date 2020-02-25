@@ -39,6 +39,9 @@ Solver::Solver( Simulator &simulator, std::string fname )
       of{std::move( simulator.of )} {
     dWdx_ << 0, 0, -1, 0, 0, 0, 1, 0, 0;
     dWdy_ << 0, 0, 0, 0, 0, 1, 0, -1, 0;
+
+    estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
+    estimationParamSources_ = vector<EstimationParamSource>( sources_.size() );
 }
 
 void Solver::start() {
@@ -223,4 +226,42 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
         }
     }
     return r;
+}
+
+void Solver::setup() {
+    unsigned long nobs = 0;
+    for ( const auto &scan : scans_ ) {
+        nobs += scan.getNObs();
+    }
+    int daySecOfSessionStart = TimeSystem::startTime.time_of_day().total_seconds();
+
+    auto addPWL_params = [daySecOfSessionStart, this]( const PWL &p, const string &name = "" ) {
+        if ( p.estimate() ) {
+            int t = daySecOfSessionStart / p.interval * p.interval - daySecOfSessionStart;
+
+            unknowns.emplace_back( Type::CLK, t, name );
+            while ( t < TimeSystem::duration ) {
+                unknowns.emplace_back( Type::CLK, t, name );
+                t += p.interval;
+            }
+            unknowns.emplace_back( Type::CLK, t, name );
+        }
+    };
+
+
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        
+        addPWL_params( params.CLK, sta_name );
+        addPWL_params( params.ZWD, sta_name );
+        addPWL_params( params.NGR, sta_name );
+        addPWL_params( params.EGR, sta_name );
+    }
+
+    addPWL_params( estimationParamGlobal_.XPO );
+    addPWL_params( estimationParamGlobal_.YPO );
+    addPWL_params( estimationParamGlobal_.dUT1 );
+    addPWL_params( estimationParamGlobal_.NUTX );
+    addPWL_params( estimationParamGlobal_.NUTY );
 }

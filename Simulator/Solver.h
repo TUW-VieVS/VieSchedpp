@@ -28,6 +28,8 @@
 #define VIESCHEDPP_SOLVER_H
 
 // clang-format off
+#include <utility>
+
 #include "Simulator.h"
 // clang-format on
 #include "../Misc/AstronomicalParameters.h"
@@ -35,6 +37,7 @@
 
 namespace VieVS {
 
+class PWL;
 /**
  * @class Solver
  * @brief main class for least squares solver
@@ -56,7 +59,77 @@ class Solver : public VieVS_NamedObject {
     void start();
 
    private:
-   private:
+    enum class Type {
+        XPO,
+        YPO,
+        dUT1,
+        NUTX,
+        NUTY,
+        ZWD,
+        NGR,
+        EGR,
+        CLK,
+        CLK_quad,
+        COORD_X,
+        COORD_Y,
+        COORD_Z,
+        RA,
+        DEC,
+        undefined,
+    };
+
+    struct Unknown {
+        Unknown( Type type, int refTime, std::string member = "" )
+            : type{type}, refTime{refTime}, member{std::move( member )} {}
+
+        bool operator==( const Unknown &o ) { return type == o.type && refTime == o.refTime && member == o.member; }
+
+        const Type type;
+        const int refTime;
+        const std::string member;
+    };
+
+    struct PWL {
+        PWL() = default;
+
+        PWL( Type type, int interval, double constraint )
+            : type{type}, interval{interval}, flag_const{true}, constraint{constraint} {}
+
+        PWL( Type type, int interval ) : type{type}, interval{interval} {}
+
+        bool estimate() const { return type != Type::undefined; }
+
+        const Type type = Type::undefined;
+        const int interval = 0;
+        const bool flag_const = false;
+        const double constraint = 0;
+    };
+
+    struct EstimationParamGlobal {
+        PWL XPO;
+        PWL YPO;
+        PWL dUT1;
+        PWL NUTX;
+        PWL NUTY;
+    };
+
+    struct EstimationParamStation {
+        bool refClock = false;
+
+        PWL ZWD;
+        PWL NGR;
+        PWL EGR;
+        PWL CLK;
+
+        bool coord = true;
+        bool NNR_NNT = true;
+    };
+
+    struct EstimationParamSource {
+        bool coord = true;
+        bool NNR_NNT = true;
+    };
+
     enum class Axis {
         X,
         Y,
@@ -74,6 +147,16 @@ class Solver : public VieVS_NamedObject {
 
     Eigen::Matrix3d dWdx_;
     Eigen::Matrix3d dWdy_;
+
+
+    std::vector<EstimationParamStation> estimationParamStations_;
+    std::vector<EstimationParamSource> estimationParamSources_;
+    EstimationParamGlobal estimationParamGlobal_;
+    Eigen::Matrix3d A;
+    std::vector<Unknown> unknowns;
+
+
+    void setup();
 
     void partials( const Observation &obs, const Eigen::Matrix3d &t2c, const Eigen::Matrix3d &dQdx,
                    const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,
