@@ -1274,6 +1274,10 @@ void ParameterSettings::simulator( const boost::property_tree::ptree &tree ) {
     master_.add_child( "VieSchedpp.simulator", tree.get_child( "simulator" ) );
 }
 
+void ParameterSettings::solver( const boost::property_tree::ptree &tree ) {
+    master_.add_child( "VieSchedpp.solver", tree.get_child( "solver" ) );
+}
+
 VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::property_tree::ptree &tree ) {
     Contact contact;
     contact.function = tree.get( ".contact", "" );

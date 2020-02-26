@@ -720,6 +720,14 @@ class ParameterSettings {
     void simulator( const boost::property_tree::ptree &tree );
 
     /**
+     * @brief adds solver settings to xml file
+     * @author Matthias Schartner
+     *
+     * @param tree property tree with solver settings
+     */
+    void solver( const boost::property_tree::ptree &tree );
+
+    /**
      * @brief get station groups
      * @author Matthias Schartner
      *

@@ -243,12 +243,12 @@ void Solver::setup() {
         if ( p.estimate() && p.getType() != Unknown::Type::undefined ) {
             int t = daySecOfSessionStart / p.getInterval() * p.getInterval() - daySecOfSessionStart;
 
-            unknowns.emplace_back( Unknown::Type::CLK, t, name );
+            unknowns.emplace_back( p.getType(), t, name );
             while ( t < TimeSystem::duration ) {
-                unknowns.emplace_back( Unknown::Type::CLK, t, name );
+                unknowns.emplace_back( p.getType(), t, name );
                 t += p.getInterval();
             }
-            unknowns.emplace_back( Unknown::Type::CLK, t, name );
+            unknowns.emplace_back( p.getType(), t, name );
         }
     };
 
@@ -270,10 +270,16 @@ void Solver::setup() {
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
         const auto &params = estimationParamStations_[i];
         if ( params.CLK.estimate() && !params.refClock ) {
-            unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
-            unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
             addPWL_params( params.CLK, sta_name );
         }
     }
@@ -309,25 +315,25 @@ void Solver::readXML() {
 
     bool firstStation = true;
     for ( const auto &any : tree ) {
-        if ( any.first == "general" ) {
+        if ( any.first == "EOP" ) {
             if ( any.second.get_child_optional( "XPO" ).is_initialized() ) {
-                estimationParamGlobal_.XPO = PWL( Unknown::Type::XPO, any.second.get<int>( "XPO.interval" ),
+                estimationParamGlobal_.XPO = PWL( Unknown::Type::XPO, any.second.get<int>( "XPO.interval" ) * 3600,
                                                   any.second.get<double>( "XPO.constraint" ) );
             }
             if ( any.second.get_child_optional( "YPO" ).is_initialized() ) {
-                estimationParamGlobal_.YPO = PWL( Unknown::Type::YPO, any.second.get<int>( "YPO.interval" ),
+                estimationParamGlobal_.YPO = PWL( Unknown::Type::YPO, any.second.get<int>( "YPO.interval" ) * 3600,
                                                   any.second.get<double>( "YPO.constraint" ) );
             }
             if ( any.second.get_child_optional( "dUT1" ).is_initialized() ) {
-                estimationParamGlobal_.dUT1 = PWL( Unknown::Type::dUT1, any.second.get<int>( "dUT1.interval" ),
+                estimationParamGlobal_.dUT1 = PWL( Unknown::Type::dUT1, any.second.get<int>( "dUT1.interval" ) * 3600,
                                                    any.second.get<double>( "dUT1.constraint" ) );
             }
             if ( any.second.get_child_optional( "NUTX" ).is_initialized() ) {
-                estimationParamGlobal_.NUTX = PWL( Unknown::Type::NUTX, any.second.get<int>( "NUTX.interval" ),
+                estimationParamGlobal_.NUTX = PWL( Unknown::Type::NUTX, any.second.get<int>( "NUTX.interval" ) * 3600,
                                                    any.second.get<double>( "NUTX.constraint" ) );
             }
             if ( any.second.get_child_optional( "NUTY" ).is_initialized() ) {
-                estimationParamGlobal_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<int>( "NUTY.interval" ),
+                estimationParamGlobal_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<int>( "NUTY.interval" ) * 3600,
                                                    any.second.get<double>( "NUTY.constraint" ) );
             }
         }
@@ -335,7 +341,7 @@ void Solver::readXML() {
         if ( any.first == "station" ) {
             string name = any.second.get( "<xmlattr>.name", "" );
             EstimationParamStation tmp;
-            tmp.coord = any.second.get( "coord", false );
+            tmp.coord = any.second.get( "coordinates", false );
             tmp.datum = any.second.get( "datum", true );
             if ( firstStation && refClock.empty() ) {
                 tmp.refClock = true;
@@ -344,21 +350,21 @@ void Solver::readXML() {
                 tmp.refClock = true;
             }
             tmp.linear_clk = any.second.get( "linear_clock", true );
-            tmp.quadratic_clk = any.second.get( "quadratic_clk", true );
+            tmp.quadratic_clk = any.second.get( "quadratic_clock", true );
             if ( any.second.get_child_optional( "PWL_clock" ).is_initialized() ) {
-                tmp.CLK = PWL( Unknown::Type::CLK, any.second.get<int>( "PWL_clock.interval" ),
+                tmp.CLK = PWL( Unknown::Type::CLK, any.second.get<int>( "PWL_clock.interval" ) * 60,
                                any.second.get<double>( "PWL_clock.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_ZWD" ).is_initialized() ) {
-                tmp.ZWD = PWL( Unknown::Type::ZWD, any.second.get<int>( "PWL_ZWD.interval" ),
+                tmp.ZWD = PWL( Unknown::Type::ZWD, any.second.get<int>( "PWL_ZWD.interval" ) * 60,
                                any.second.get<double>( "PWL_ZWD.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_NGR" ).is_initialized() ) {
-                tmp.ZWD = PWL( Unknown::Type::NGR, any.second.get<int>( "WPL_NGR.interval" ),
+                tmp.ZWD = PWL( Unknown::Type::NGR, any.second.get<int>( "WPL_NGR.interval" ) * 60,
                                any.second.get<double>( "WPL_NGR.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_EGR" ).is_initialized() ) {
-                tmp.ZWD = PWL( Unknown::Type::EGR, any.second.get<int>( "PWL_EGR.interval" ),
+                tmp.ZWD = PWL( Unknown::Type::EGR, any.second.get<int>( "PWL_EGR.interval" ) * 60,
                                any.second.get<double>( "PWL_EGR.constraint" ) );
             }
 
