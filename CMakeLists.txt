@@ -91,7 +91,7 @@
          Output/Ast.cpp Output/Ast.h
          Output/SourceStatistics.cpp Output/SourceStatistics.h
          Algorithm/FocusCorners.cpp Algorithm/FocusCorners.h
-         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h)
+         Misc/CalibratorBlock.cpp Misc/CalibratorBlock.h Simulator/Simulator.cpp Simulator/Simulator.h Simulator/Solver.cpp Simulator/Solver.h Simulator/Unknown.cpp Simulator/Unknown.h)
 
  add_executable(VieSchedpp ${SOURCE_FILES})
 

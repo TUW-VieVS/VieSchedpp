@@ -31,6 +31,7 @@
 #include <utility>
 
 #include "Simulator.h"
+#include "Unknown.h"
 // clang-format on
 #include "../Misc/AstronomicalParameters.h"
 
@@ -59,50 +60,28 @@ class Solver : public VieVS_NamedObject {
     void start();
 
    private:
-    enum class Type {
-        XPO,
-        YPO,
-        dUT1,
-        NUTX,
-        NUTY,
-        ZWD,
-        NGR,
-        EGR,
-        CLK,
-        CLK_quad,
-        COORD_X,
-        COORD_Y,
-        COORD_Z,
-        RA,
-        DEC,
-        undefined,
-    };
+    class PWL : public VieVS_Object {
+       public:
+        PWL() : VieVS_Object( nextId++ ) {}
 
-    struct Unknown {
-        Unknown( Type type, int refTime, std::string member = "" )
-            : type{type}, refTime{refTime}, member{std::move( member )} {}
+        PWL( Unknown::Type type, int interval, double constraint )
+            : VieVS_Object( nextId++ ), type{type}, interval{interval}, flag_constraint{true}, constraint{constraint} {}
 
-        bool operator==( const Unknown &o ) { return type == o.type && refTime == o.refTime && member == o.member; }
+        PWL( Unknown::Type type, int interval ) : VieVS_Object( nextId++ ), type{type}, interval{interval} {}
 
-        const Type type;
-        const int refTime;
-        const std::string member;
-    };
+        bool estimate() const { return type != Unknown::Type::undefined; }
 
-    struct PWL {
-        PWL() = default;
+        Unknown::Type getType() const { return type; }
+        int getInterval() const { return interval; }
+        bool isFlagConstraint() const { return flag_constraint; }
+        double getConstraint() const { return constraint; }
 
-        PWL( Type type, int interval, double constraint )
-            : type{type}, interval{interval}, flag_const{true}, constraint{constraint} {}
-
-        PWL( Type type, int interval ) : type{type}, interval{interval} {}
-
-        bool estimate() const { return type != Type::undefined; }
-
-        const Type type = Type::undefined;
-        const int interval = 0;
-        const bool flag_const = false;
-        const double constraint = 0;
+       private:
+        static unsigned long nextId;  ///< next id for this object type
+        Unknown::Type type = Unknown::Type::undefined;
+        int interval = 0;
+        bool flag_constraint = false;
+        double constraint = 0;
     };
 
     struct EstimationParamGlobal {
@@ -115,19 +94,21 @@ class Solver : public VieVS_NamedObject {
 
     struct EstimationParamStation {
         bool refClock = false;
+        bool linear_clk = true;
+        bool quadratic_clk = true;
+        PWL CLK;
 
         PWL ZWD;
         PWL NGR;
         PWL EGR;
-        PWL CLK;
 
-        bool coord = true;
-        bool NNR_NNT = true;
+        bool coord = false;
+        bool datum = true;
     };
 
     struct EstimationParamSource {
-        bool coord = true;
-        bool NNR_NNT = true;
+        bool coord = false;
+        bool datum = true;
     };
 
     enum class Axis {
@@ -157,6 +138,8 @@ class Solver : public VieVS_NamedObject {
 
 
     void setup();
+
+    void readXML();
 
     void partials( const Observation &obs, const Eigen::Matrix3d &t2c, const Eigen::Matrix3d &dQdx,
                    const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,

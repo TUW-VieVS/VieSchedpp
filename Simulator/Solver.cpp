@@ -30,6 +30,8 @@ using namespace VieVS;
 using namespace Eigen;
 
 unsigned long VieVS::Solver::nextId = 0;
+unsigned long VieVS::Solver::PWL::nextId = 0;
+
 Solver::Solver( Simulator &simulator, std::string fname )
     : VieVS_NamedObject( move( fname ), nextId++ ),
       xml_{simulator.xml_},
@@ -229,6 +231,8 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
 }
 
 void Solver::setup() {
+    readXML();
+
     unsigned long nobs = 0;
     for ( const auto &scan : scans_ ) {
         nobs += scan.getNObs();
@@ -236,15 +240,15 @@ void Solver::setup() {
     int daySecOfSessionStart = TimeSystem::startTime.time_of_day().total_seconds();
 
     auto addPWL_params = [daySecOfSessionStart, this]( const PWL &p, const string &name = "" ) {
-        if ( p.estimate() ) {
-            int t = daySecOfSessionStart / p.interval * p.interval - daySecOfSessionStart;
+        if ( p.estimate() && p.getType() != Unknown::Type::undefined ) {
+            int t = daySecOfSessionStart / p.getInterval() * p.getInterval() - daySecOfSessionStart;
 
-            unknowns.emplace_back( Type::CLK, t, name );
+            unknowns.emplace_back( Unknown::Type::CLK, t, name );
             while ( t < TimeSystem::duration ) {
-                unknowns.emplace_back( Type::CLK, t, name );
-                t += p.interval;
+                unknowns.emplace_back( Unknown::Type::CLK, t, name );
+                t += p.getInterval();
             }
-            unknowns.emplace_back( Type::CLK, t, name );
+            unknowns.emplace_back( Unknown::Type::CLK, t, name );
         }
     };
 
@@ -252,16 +256,145 @@ void Solver::setup() {
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
         const auto &params = estimationParamStations_[i];
-        
-        addPWL_params( params.CLK, sta_name );
-        addPWL_params( params.ZWD, sta_name );
-        addPWL_params( params.NGR, sta_name );
-        addPWL_params( params.EGR, sta_name );
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_X, sta_name );
+            unknowns.emplace_back( Unknown::Type::COORD_Y, sta_name );
+            unknowns.emplace_back( Unknown::Type::COORD_Z, sta_name );
+        }
     }
-
     addPWL_params( estimationParamGlobal_.XPO );
     addPWL_params( estimationParamGlobal_.YPO );
     addPWL_params( estimationParamGlobal_.dUT1 );
     addPWL_params( estimationParamGlobal_.NUTX );
     addPWL_params( estimationParamGlobal_.NUTY );
+
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        if ( params.CLK.estimate() && !params.refClock ) {
+            unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
+            unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
+            addPWL_params( params.CLK, sta_name );
+        }
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        addPWL_params( params.ZWD, sta_name );
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        addPWL_params( params.NGR, sta_name );
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        addPWL_params( params.EGR, sta_name );
+    }
+    for ( int i = 0; i < sources_.size(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamSources_[i];
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::RA, sta_name );
+            unknowns.emplace_back( Unknown::Type::DEC, sta_name );
+        }
+    }
+}
+
+void Solver::readXML() {
+    const auto &tree = xml_.get_child( "VieSchedpp.Solver" );
+
+    string refClock = tree.get( "reference_clock", "" );
+
+    bool firstStation = true;
+    for ( const auto &any : tree ) {
+        if ( any.first == "general" ) {
+            if ( any.second.get_child_optional( "XPO" ).is_initialized() ) {
+                estimationParamGlobal_.XPO = PWL( Unknown::Type::XPO, any.second.get<int>( "XPO.interval" ),
+                                                  any.second.get<double>( "XPO.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "YPO" ).is_initialized() ) {
+                estimationParamGlobal_.YPO = PWL( Unknown::Type::YPO, any.second.get<int>( "YPO.interval" ),
+                                                  any.second.get<double>( "YPO.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "dUT1" ).is_initialized() ) {
+                estimationParamGlobal_.dUT1 = PWL( Unknown::Type::dUT1, any.second.get<int>( "dUT1.interval" ),
+                                                   any.second.get<double>( "dUT1.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "NUTX" ).is_initialized() ) {
+                estimationParamGlobal_.NUTX = PWL( Unknown::Type::NUTX, any.second.get<int>( "NUTX.interval" ),
+                                                   any.second.get<double>( "NUTX.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "NUTY" ).is_initialized() ) {
+                estimationParamGlobal_.NUTY = PWL( Unknown::Type::NUTY, any.second.get<int>( "NUTY.interval" ),
+                                                   any.second.get<double>( "NUTY.constraint" ) );
+            }
+        }
+
+        if ( any.first == "station" ) {
+            string name = any.second.get( "<xmlattr>.name", "" );
+            EstimationParamStation tmp;
+            tmp.coord = any.second.get( "coord", false );
+            tmp.datum = any.second.get( "datum", true );
+            if ( firstStation && refClock.empty() ) {
+                tmp.refClock = true;
+            }
+            if ( refClock == name ) {
+                tmp.refClock = true;
+            }
+            tmp.linear_clk = any.second.get( "linear_clock", true );
+            tmp.quadratic_clk = any.second.get( "quadratic_clk", true );
+            if ( any.second.get_child_optional( "PWL_clock" ).is_initialized() ) {
+                tmp.CLK = PWL( Unknown::Type::CLK, any.second.get<int>( "PWL_clock.interval" ),
+                               any.second.get<double>( "PWL_clock.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "PWL_ZWD" ).is_initialized() ) {
+                tmp.ZWD = PWL( Unknown::Type::ZWD, any.second.get<int>( "PWL_ZWD.interval" ),
+                               any.second.get<double>( "PWL_ZWD.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "PWL_NGR" ).is_initialized() ) {
+                tmp.ZWD = PWL( Unknown::Type::NGR, any.second.get<int>( "WPL_NGR.interval" ),
+                               any.second.get<double>( "WPL_NGR.constraint" ) );
+            }
+            if ( any.second.get_child_optional( "PWL_EGR" ).is_initialized() ) {
+                tmp.ZWD = PWL( Unknown::Type::EGR, any.second.get<int>( "PWL_EGR.interval" ),
+                               any.second.get<double>( "PWL_EGR.constraint" ) );
+            }
+
+            firstStation = false;
+            if ( name == "__all__" ) {
+                for ( int i = 0; i < network_.getNSta(); ++i ) {
+                    estimationParamStations_[i] = tmp;
+                }
+            } else {
+                for ( int i = 0; i < network_.getNSta(); ++i ) {
+                    if ( network_.getStation( i ).getName() == name ) {
+                        estimationParamStations_[i] = tmp;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( any.first == "source" ) {
+            string name = any.second.get( "<xmlattr>.name", "" );
+            EstimationParamSource tmp;
+            tmp.coord = any.second.get( "coord", false );
+            tmp.datum = any.second.get( "datum", true );
+
+            if ( name == "__all__" ) {
+                for ( int i = 0; i < sources_.size(); ++i ) {
+                    estimationParamSources_[i] = tmp;
+                }
+            } else {
+                for ( int i = 0; i < sources_.size(); ++i ) {
+                    if ( sources_[i].getName() == name ) {
+                        estimationParamSources_[i] = tmp;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
