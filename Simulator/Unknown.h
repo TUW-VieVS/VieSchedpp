@@ -30,7 +30,9 @@
 #include <limits>
 #include <string>
 
+#include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_Object.h"
+#include "../boost/format.hpp"
 
 namespace VieVS {
 
@@ -64,6 +66,8 @@ class Unknown : public VieVS_Object {
         undefined,
     };
 
+    static std::string typeString( Type t );
+
     explicit Unknown( Type type, int refTime = std::numeric_limits<int>::min(), std::string member = "" )
         : VieVS_Object( nextId++ ), type{type}, refTime{refTime}, member{std::move( member )} {}
 
@@ -77,6 +81,8 @@ class Unknown : public VieVS_Object {
     const Type type = Type::undefined;
     const int refTime = std::numeric_limits<int>::min();
     const std::string member = "";
+
+    std::string toString() const;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

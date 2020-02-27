@@ -47,6 +47,8 @@ Solver::Solver( Simulator &simulator, std::string fname )
 }
 
 void Solver::start() {
+    setup();
+
     for ( const auto &scan : scans_ ) {
         double date1 = 2400000.5;
         unsigned int startTime = scan.getTimes().getObservingTime();
@@ -232,6 +234,7 @@ Matrix3d Solver::drotm( double angle, Axis ax ) {
 
 void Solver::setup() {
     readXML();
+    setupSummary();
 
     unsigned long nobs = 0;
     for ( const auto &scan : scans_ ) {
@@ -244,7 +247,8 @@ void Solver::setup() {
             int t = daySecOfSessionStart / p.getInterval() * p.getInterval() - daySecOfSessionStart;
 
             unknowns.emplace_back( p.getType(), t, name );
-            while ( t < TimeSystem::duration ) {
+            t += p.getInterval();
+            while ( t < static_cast<int>( TimeSystem::duration ) ) {
                 unknowns.emplace_back( p.getType(), t, name );
                 t += p.getInterval();
             }
@@ -270,15 +274,26 @@ void Solver::setup() {
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        if ( params.refClock ) {
+            continue;
+        }
         unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        if ( params.refClock ) {
+            continue;
+        }
         unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
         const auto &params = estimationParamStations_[i];
+        if ( params.refClock ) {
+            continue;
+        }
         if ( params.CLK.estimate() && !params.refClock ) {
             addPWL_params( params.CLK, sta_name );
         }
@@ -306,10 +321,12 @@ void Solver::setup() {
             unknowns.emplace_back( Unknown::Type::DEC, sta_name );
         }
     }
+
+    listUnknowns();
 }
 
 void Solver::readXML() {
-    const auto &tree = xml_.get_child( "VieSchedpp.Solver" );
+    const auto &tree = xml_.get_child( "VieSchedpp.solver" );
 
     string refClock = tree.get( "reference_clock", "" );
 
@@ -360,11 +377,11 @@ void Solver::readXML() {
                                any.second.get<double>( "PWL_ZWD.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_NGR" ).is_initialized() ) {
-                tmp.ZWD = PWL( Unknown::Type::NGR, any.second.get<int>( "WPL_NGR.interval" ) * 60,
-                               any.second.get<double>( "WPL_NGR.constraint" ) );
+                tmp.NGR = PWL( Unknown::Type::NGR, any.second.get<int>( "PWL_NGR.interval" ) * 60,
+                               any.second.get<double>( "PWL_NGR.constraint" ) );
             }
             if ( any.second.get_child_optional( "PWL_EGR" ).is_initialized() ) {
-                tmp.ZWD = PWL( Unknown::Type::EGR, any.second.get<int>( "PWL_EGR.interval" ) * 60,
+                tmp.EGR = PWL( Unknown::Type::EGR, any.second.get<int>( "PWL_EGR.interval" ) * 60,
                                any.second.get<double>( "PWL_EGR.constraint" ) );
             }
 
@@ -403,4 +420,75 @@ void Solver::readXML() {
             }
         }
     }
+}
+
+void Solver::setupSummary() {
+    of << "Estimate EOP:\n";
+
+    of << ".---------------------------------------------.\n";
+    of << "|   type   | estimate | interval | constraint |\n";
+    of << "|          |          |    [h]   |    [mas]   |\n";
+    of << "|----------|----------|----------|------------|\n";
+
+    auto f = [this]( const PWL &pwl ) {
+        string flag;
+        pwl.estimate() ? flag = "true" : flag = "false";
+        of << boost::format( "| %-8s | %=8s | %8.2f | %10.4f |\n" ) % Unknown::typeString( pwl.getType() ) % flag %
+                  ( pwl.getInterval() / 3600. ) % pwl.getConstraint();
+    };
+    f( estimationParamGlobal_.XPO );
+    f( estimationParamGlobal_.YPO );
+    f( estimationParamGlobal_.dUT1 );
+    f( estimationParamGlobal_.NUTX );
+    f( estimationParamGlobal_.NUTY );
+    of << "'---------------------------------------------'\n\n";
+
+    of << "Estimate station parameters:\n"
+          ".-----------------------------------------------------------------------------------------------------------"
+          "--------------------.\n"
+          "|   name   | coord | datum | lin CLK | quad CLK |      PWL CLK      |      PWL ZWD      |      PWL NGR      "
+          "|      PWL EGT      |\n"
+          "|          |       |       |         |          | interval | constr | interval | constr | interval | constr "
+          "| interval | constr |\n"
+          "|          |       |       |         |          |   [min]  |  [cm]  |   [min]  |  [cm]  |   [min]  |   [cm] "
+          "|   [min]  |  [cm]  |\n"
+          "|----------|-------|-------|---------|----------|----------|--------|----------|--------|----------|--------"
+          "|----------|--------|\n";
+
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const auto &p = estimationParamStations_[i];
+        const auto &name = network_.getStation( i ).getName();
+
+        string flagCoord = p.coord ? "yes" : "no";
+        string flagDatum = p.coord && p.datum ? "yes" : "no";
+        string flagLinClk = p.linear_clk ? "yes" : "no";
+        string flagQuadClk = p.quadratic_clk ? "yes" : "no";
+        of << boost::format( "| %-8s | %=5s | %=5s | %=7s | %=8s " ) % name % flagCoord % flagDatum % flagLinClk %
+                  flagQuadClk;
+        auto fn = [this]( const PWL &pwl ) {
+            if ( pwl.estimate() ) {
+                of << boost::format( "| %8.2f | %6.3f " ) % ( pwl.getInterval() / 60. ) % pwl.getConstraint();
+            } else {
+                of << boost::format( "| %=8s | %=6s " ) % "--" % "--";
+            }
+        };
+        fn( p.CLK );
+        fn( p.ZWD );
+        fn( p.NGR );
+        fn( p.EGR );
+        of << "|\n";
+    }
+    of << "'-----------------------------------------------------------------------------------------------------------"
+          "--------------------'\n";
+}
+
+void Solver::listUnknowns() {
+    int i = 0;
+
+    of << "\nList of estimated parameters\n";
+    of << ".---------------------------------------------------.\n";
+    for ( const auto &u : unknowns ) {
+        of << boost::format( "| %5d %s \n" ) % i++ % u.toString();
+    }
+    of << "'---------------------------------------------------'\n";
 }

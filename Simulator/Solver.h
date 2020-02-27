@@ -64,12 +64,21 @@ class Solver : public VieVS_NamedObject {
        public:
         PWL() : VieVS_Object( nextId++ ) {}
 
+        explicit PWL( Unknown::Type type ) : VieVS_Object( nextId++ ), flag{false}, type{type} {}
+
+        PWL( Unknown::Type type, int interval )
+            : VieVS_Object( nextId++ ), flag{true}, type{type}, interval{interval} {}
+
         PWL( Unknown::Type type, int interval, double constraint )
-            : VieVS_Object( nextId++ ), type{type}, interval{interval}, flag_constraint{true}, constraint{constraint} {}
+            : VieVS_Object( nextId++ ),
+              flag{true},
+              type{type},
+              interval{interval},
+              flag_constraint{true},
+              constraint{constraint} {}
 
-        PWL( Unknown::Type type, int interval ) : VieVS_Object( nextId++ ), type{type}, interval{interval} {}
 
-        bool estimate() const { return type != Unknown::Type::undefined; }
+        bool estimate() const { return flag; }
 
         Unknown::Type getType() const { return type; }
         int getInterval() const { return interval; }
@@ -79,28 +88,33 @@ class Solver : public VieVS_NamedObject {
        private:
         static unsigned long nextId;  ///< next id for this object type
         Unknown::Type type = Unknown::Type::undefined;
+        bool flag = false;
         int interval = 0;
         bool flag_constraint = false;
         double constraint = 0;
     };
 
     struct EstimationParamGlobal {
-        PWL XPO;
-        PWL YPO;
-        PWL dUT1;
-        PWL NUTX;
-        PWL NUTY;
+        PWL XPO{Unknown::Type::XPO};
+        PWL YPO{Unknown::Type::YPO};
+        PWL dUT1{Unknown::Type::dUT1};
+        PWL NUTX{Unknown::Type::NUTX};
+        PWL NUTY{Unknown::Type::NUTY};
     };
 
     struct EstimationParamStation {
         bool refClock = false;
         bool linear_clk = true;
         bool quadratic_clk = true;
-        PWL CLK;
+        PWL CLK{Unknown::Type::CLK};
+        ;
 
-        PWL ZWD;
-        PWL NGR;
-        PWL EGR;
+        PWL ZWD{Unknown::Type::ZWD};
+        ;
+        PWL NGR{Unknown::Type::NGR};
+        ;
+        PWL EGR{Unknown::Type::EGR};
+        ;
 
         bool coord = false;
         bool datum = true;
@@ -139,11 +153,15 @@ class Solver : public VieVS_NamedObject {
 
     void setup();
 
+    void setupSummary();
+
     void readXML();
 
     void partials( const Observation &obs, const Eigen::Matrix3d &t2c, const Eigen::Matrix3d &dQdx,
                    const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,
                    const Eigen::Matrix3d &dQdY );
+
+    void listUnknowns();
 
     static Eigen::Matrix3d rotm( double angle, Axis ax );
 

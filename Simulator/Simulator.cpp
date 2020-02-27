@@ -145,14 +145,25 @@ void Simulator::simTropo() {
 
         int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
         VectorXd tn = VectorXd::Zero( segments );
-        VectorXd mfw;
         vector<PointingVector> pvs;
+
+        unsigned int c = 0;
         for ( const auto &any : scans_ ) {
             if ( any.findIdxOfStationId( staid ).is_initialized() ) {
                 PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
                 ++tn( pv.getTime() / ( simpara.tropo_dhseg * 3600 ) );
                 pvs.push_back( pv );
-                mfw << 1/sin(pv.getEl());
+                ++c;
+            }
+        }
+
+        VectorXd mfw = VectorXd::Zero( c );
+        c = 0;
+        for ( const auto &any : scans_ ) {
+            if ( any.findIdxOfStationId( staid ).is_initialized() ) {
+                PointingVector pv = any.getPointingVector( *any.findIdxOfStationId( staid ) );
+                mfw( c ) = 1 / sin( pv.getEl() );
+                ++c;
             }
         }
 
@@ -169,7 +180,7 @@ void Simulator::simTropo() {
         VectorXd rho4x = VectorXd( ( nh + 1 ) * ( nh + 1 ) );
         VectorXd z = VectorXd( ( nh + 1 ) * ( nh + 1 ) );
         VectorXd zs = VectorXd( ( nh + 1 ) * ( nh + 1 ) );
-        int c = 0;
+        c = 0;
         for ( int i = 0; i < nh + 1; ++i ) {
             double zs_s = simpara.tropo_dh * i;
             for ( int j = 0; j < nh + 1; ++j ) {
@@ -253,7 +264,7 @@ void Simulator::simTropo() {
         }
 
 
-        MatrixXd l( pvs.size(), nsim );
+        MatrixXd l = MatrixXd::Zero( pvs.size(), nsim );
         MatrixXd l1;
         for ( int i1 = 0; i1 < segments - 1; ++i1 ) {
             int i2 = i1 + 1;
@@ -281,7 +292,7 @@ void Simulator::simTropo() {
                 l.block( k, 0, num2, nsim ) = l1;
             }
         }
-        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ).array() * mfw.array() * 1e-3 / speedOfLight );
+        tropo_.emplace_back( ( l.array() + simpara.tropo_wzd0 ).array().colwise() * mfw.array() * 1e-3 / speedOfLight );
         of << "done" << endl;
     }
 }
@@ -337,11 +348,11 @@ void Simulator::calcO_C() {
                 wn2 = VectorXd::Zero( nsim );
             }
 
-            VectorXd oc = wn2 - wn1 + clk_[staid2].block( iscan, 0, 1, nsim ) -
-                          clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( tropoId_staid2, 0, 1, nsim ) -
-                          tropo_[staid1].block( tropoId_staid1, 0, 1, nsim );
+            obs_minus_com_.block( counter, 0, 1, nsim ) =
+                wn2.transpose() - wn1.transpose() + clk_[staid2].block( iscan, 0, 1, nsim ) -
+                clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( tropoId_staid2, 0, 1, nsim ) -
+                tropo_[staid1].block( tropoId_staid1, 0, 1, nsim );
 
-            obs_minus_com_.block( counter, 0, 1, nsim ) = oc;
             ++counter;
         }
     }

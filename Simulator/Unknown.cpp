@@ -28,3 +28,50 @@ using namespace std;
 using namespace VieVS;
 
 unsigned long VieVS::Unknown::nextId = 0;
+
+std::string Unknown::typeString( Type t ) {
+    switch ( t ) {
+        case Type::XPO:
+            return "PWL_XPO";
+        case Type::YPO:
+            return "PWL_YPO";
+        case Type::dUT1:
+            return "PWL_dUT1";
+        case Type::NUTX:
+            return "PWL_NUTX";
+        case Type::NUTY:
+            return "PWL_NUTY";
+        case Type::ZWD:
+            return "PWL_ZWD";
+        case Type::NGR:
+            return "PWL_NGR";
+        case Type::EGR:
+            return "PWL_EGR";
+        case Type::CLK:
+            return "PWL_CLK";
+        case Type::CLK_linear:
+            return "lin_CLK";
+        case Type::CLK_quad:
+            return "qua_CLK";
+        case Type::COORD_X:
+            return "STA_X";
+        case Type::COORD_Y:
+            return "STA_Y";
+        case Type::COORD_Z:
+            return "STA_Z";
+        case Type::RA:
+            return "SRC_RA";
+        case Type::DEC:
+            return "SRC_DE";
+        case Type::undefined:
+            return "UNDEF!";
+    }
+}
+std::string Unknown::toString() const {
+    string t = typeString( type );
+    string m = member.empty() ? "--" : member;
+    string e = refTime == std::numeric_limits<int>::min()
+                   ? "--"
+                   : TimeSystem::time2string( TimeSystem::startTime + boost::posix_time::seconds( refTime ) );
+    return ( boost::format( "| %-8s | %-8s | %-19s | " ) % t % m % e ).str();
+}

@@ -61,8 +61,8 @@ class Simulator : public VieVS_NamedObject {
 
         std::string toString() {
             return ( boost::format( "| %5.1f | %7.4fe-14 %4.0f  | %5.2fe-7 %5.0f %4.0f %5.2f %5.1f %5.1f %6.1f |" ) %
-                     wn % clockASD % clockDur % tropo_Cn % tropo_H % tropo_dh % tropo_dhseg % tropo_ve % tropo_vn %
-                     tropo_wzd0 )
+                     wn % ( clockASD * 1e14 ) % clockDur % ( tropo_Cn * 1e7 ) % tropo_H % tropo_dh % tropo_dhseg %
+                     tropo_ve % tropo_vn % tropo_wzd0 )
                 .str();
         }
     };
