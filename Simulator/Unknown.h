@@ -29,6 +29,7 @@
 
 #include <limits>
 #include <string>
+#include <unordered_map>
 
 #include "../Misc/TimeSystem.h"
 #include "../Misc/VieVS_Object.h"
@@ -63,8 +64,12 @@ class Unknown : public VieVS_Object {
         COORD_Z,
         RA,
         DEC,
+        datum_station,
+        datum_source,
         undefined,
     };
+
+    static std::string getUnit( Type t );
 
     static std::string typeString( Type t );
 

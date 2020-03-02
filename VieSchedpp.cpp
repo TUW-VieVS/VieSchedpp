@@ -257,6 +257,11 @@ void VieSchedpp::run() {
             VieVS::Simulator simulator( output, path_, fname, version );
             simulator.start();
 
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << "start analysis";
+#else
+            cout << "[info] start analysis";
+#endif
             VieVS::Solver solver( simulator, fname );
             solver.start();
         }

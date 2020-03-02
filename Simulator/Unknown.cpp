@@ -63,15 +63,63 @@ std::string Unknown::typeString( Type t ) {
             return "SRC_RA";
         case Type::DEC:
             return "SRC_DE";
+        case Type::datum_station:
+            return "DAT_STA";
+        case Type::datum_source:
+            return "DAT_SRC";
         case Type::undefined:
             return "UNDEF!";
     }
 }
+
+std::string Unknown::getUnit( Type t ) {
+    switch ( t ) {
+        case Type::XPO:
+            return "[mas]";
+        case Type::YPO:
+            return "[mas]";
+        case Type::dUT1:
+            return "[mas]";
+        case Type::NUTX:
+            return "[mas]";
+        case Type::NUTY:
+            return "[mas]";
+        case Type::ZWD:
+            return "[cm]";
+        case Type::NGR:
+            return "[cm]";
+        case Type::EGR:
+            return "[cm]";
+        case Type::CLK:
+            return "[cm]";
+        case Type::CLK_linear:
+            return "[cm/day]";
+        case Type::CLK_quad:
+            return "[cm/day^2]";
+        case Type::COORD_X:
+            return "[cm]";
+        case Type::COORD_Y:
+            return "[cm]";
+        case Type::COORD_Z:
+            return "[cm]";
+        case Type::RA:
+            return "[mas]";
+        case Type::DEC:
+            return "[mas]";
+        case Type::datum_station:
+            return "[]";
+        case Type::datum_source:
+            return "[]";
+        case Type::undefined:
+            return "[]";
+    }
+}
+
 std::string Unknown::toString() const {
     string t = typeString( type );
     string m = member.empty() ? "--" : member;
     string e = refTime == std::numeric_limits<int>::min()
                    ? "--"
                    : TimeSystem::time2string( TimeSystem::startTime + boost::posix_time::seconds( refTime ) );
-    return ( boost::format( "| %-8s | %-8s | %-19s | " ) % t % m % e ).str();
+    return ( boost::format( "| %-8s | %-8s | %-19s |" ) % t % m % e ).str();
 }

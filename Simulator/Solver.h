@@ -176,7 +176,7 @@ class Solver : public VieVS_NamedObject {
                        const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,
                        const Eigen::Matrix3d &dQdY );
 
-    void listUnknowns();
+    void listUnknowns( const Eigen::VectorXd &sigma_x );
 
     void buildConstraintsMatrix();
 

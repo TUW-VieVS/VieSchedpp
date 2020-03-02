@@ -52,15 +52,6 @@ void Solver::start() {
     buildConstraintsMatrix();
     buildDesignMatrix();
     solve();
-
-    ofstream of_dummy( "A.txt" );
-    if ( of_dummy.is_open() ) {
-        of_dummy << A_;
-    }
-    ofstream of_dummy2( "B.txt" );
-    if ( of_dummy2.is_open() ) {
-        of_dummy2 << B_;
-    }
 }
 
 void Solver::setup() {
@@ -173,8 +164,6 @@ void Solver::setup() {
     P_A_ = VectorXd::Zero( nobs );
     B_ = MatrixXd::Zero( constraints, unknowns.size() );
     P_B_ = VectorXd::Zero( constraints );
-
-    listUnknowns();
 }
 
 void Solver::buildConstraintsMatrix() {
@@ -268,7 +257,7 @@ void Solver::buildDesignMatrix() {
 
         for ( const auto &obs : scan.getObservations() ) {
             const PointingVector &pv1 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid1() ) );
-            const PointingVector &pv2 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid1() ) );
+            const PointingVector &pv2 = scan.getPointingVector( *scan.findIdxOfStationId( obs.getStaid2() ) );
             // partials stations
             Partials p = partials( obs, t2c, dQdx, dQdy, dQdut, dQdX, dQdY );
             partialsToA( iobs, obs, pv1, pv2, p );
@@ -284,20 +273,95 @@ void Solver::solve() {
     VectorXd P( P_A_.size() + P_B_.size() );
     P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
-    MatrixXd dummy = MatrixXd::Zero( A.rows() - obs_minus_com_.rows(), obs_minus_com_.cols() );
-    o_c << obs_minus_com_, dummy;
+    o_c << obs_minus_com_, MatrixXd::Zero( B_.rows(), obs_minus_com_.cols() );
 
     MatrixXd N = A.transpose() * P.asDiagonal() * A;
     MatrixXd n = A.transpose() * P.asDiagonal() * o_c;
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
-    MatrixXd x1 = N.ldlt().solve( n );
+    ofstream of_dummy4( "A.txt" );
+    if ( of_dummy4.is_open() ) {
+        of_dummy4 << A;
+    }
+    ofstream of_dummy5( "P.txt" );
+    if ( of_dummy5.is_open() ) {
+        of_dummy5 << P;
+    }
 
-    MatrixXd x2 = N.colPivHouseholderQr().solve( n );
+    ofstream of_dummy3( "N.txt" );
+    if ( of_dummy3.is_open() ) {
+        of_dummy3 << N;
+    }
+
+
+    MatrixXd x1 = N.ldlt().solve( n );
+    ofstream of_dummy( "x1.txt" );
+    if ( of_dummy.is_open() ) {
+        of_dummy << x1;
+    }
+
+    MatrixXd x = N.colPivHouseholderQr().solve( n );
+    ofstream of_dummy2( "x2.txt" );
+    if ( of_dummy2.is_open() ) {
+        of_dummy2 << x;
+    }
+
+    MatrixXd v = A * x.topRows( A.cols() ) - o_c;
+    double vTPv = ( v.transpose() * P.asDiagonal() * v ).diagonal().mean();
+    int red = n.rows() - unknowns.size();
+    double m0 = vTPv / red;
+    of << "chi^2: " << m0 << endl;
+
+    VectorXd sigma_x = m0 * N.inverse().diagonal().array().sqrt();
+    listUnknowns( sigma_x );
 }
 
-void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {}
+void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
+    MatrixXd dat = MatrixXd::Zero( 7, N.cols() );
+    bool stationInDatum = false;
+    double cc = 6371000.;
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const auto &sta = network_.getStation( i );
+        const auto &para = estimationParamStations_[i];
+
+        double xii = sta.getPosition().getX() / cc;
+        double yii = sta.getPosition().getY() / cc;
+        double zii = sta.getPosition().getZ() / cc;
+
+        MatrixXd B = MatrixXd::Zero( 7, 3 );
+        if ( para.coord && para.datum ) {
+            B( 0, 0 ) = 1;
+            B( 1, 1 ) = 1;
+            B( 2, 2 ) = 1;
+
+            B( 3, 1 ) = -zii;
+            B( 3, 2 ) = yii;
+
+            B( 4, 0 ) = zii;
+            B( 4, 2 ) = -xii;
+
+            B( 5, 0 ) = -yii;
+            B( 5, 1 ) = xii;
+
+            B( 6, 0 ) = xii;
+            B( 6, 1 ) = yii;
+            B( 6, 2 ) = zii;
+            stationInDatum = true;
+        }
+        dat.block( 0, i * 3, 7, 3 ) = B;
+    }
+
+    if ( stationInDatum ) {
+        N.conservativeResize( N.rows() + 7, N.cols() + 7 );
+        N.block( N.rows() - 7, 0, 7, dat.cols() ) = dat;
+        N.block( 0, N.cols() - 7, dat.cols(), 7 ) = dat.transpose();
+        N.block( N.rows() - 7, N.rows() - 7, 7, 7 ) = MatrixXd::Zero( 7, 7 );
+
+        n.conservativeResize( n.rows() + 7, n.cols() );
+        n.block( n.rows() - 7, 0, 7, n.cols() ) = MatrixXd::Zero( 7, n.cols() );
+    }
+}
 
 void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {}
 
@@ -383,7 +447,7 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
             int rs = unknowns[prev].refTime;
             int re = unknowns[follow].refTime;
             auto dt = static_cast<double>( re - rs );
-            double f2 = ( time - rs ) / ( dt );
+            double f2 = ( static_cast<int>( time ) - rs ) / ( dt );
             double f1 = 1. - f2;
             A_( iobs, prev ) = f1 * val;
             A_( iobs, follow ) = f2 * val;
@@ -395,13 +459,13 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
         unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1];
         unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2];
 
-        A_( iobs, idx1 ) = -p.coord_x;
-        A_( iobs, idx1 + 1 ) = -p.coord_y;
-        A_( iobs, idx1 + 2 ) = -p.coord_z;
+        A_( iobs, idx1 ) = p.coord_x;
+        A_( iobs, idx1 + 1 ) = p.coord_y;
+        A_( iobs, idx1 + 2 ) = p.coord_z;
 
-        A_( iobs, idx2 ) = p.coord_x;
-        A_( iobs, idx2 + 1 ) = p.coord_y;
-        A_( iobs, idx2 + 2 ) = p.coord_z;
+        A_( iobs, idx2 ) = -p.coord_x;
+        A_( iobs, idx2 + 1 ) = -p.coord_y;
+        A_( iobs, idx2 + 2 ) = -p.coord_z;
     }
 
     // EOP
@@ -450,7 +514,7 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
 
     // ngr
     if ( para1.NGR.estimate() ) {
-        double val = ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * cos( pv1.getAz() );
+        double val = -( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * cos( pv1.getAz() );
         partialsPWL( Unknown::Type::NGR, val, sta1 );
     }
     if ( para2.NGR.estimate() ) {
@@ -460,7 +524,7 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
 
     // egr
     if ( para1.EGR.estimate() ) {
-        double val = ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * sin( pv1.getAz() );
+        double val = -( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * sin( pv1.getAz() );
         partialsPWL( Unknown::Type::EGR, val, sta1 );
     }
     if ( para2.EGR.estimate() ) {
@@ -569,10 +633,7 @@ void Solver::readXML() {
             tmp.coord = any.second.get( "coordinates", false );
             tmp.datum = any.second.get( "datum", true );
             if ( firstStation && refClock.empty() ) {
-                tmp.refClock = true;
-            }
-            if ( refClock == name ) {
-                tmp.refClock = true;
+                refClock = name;
             }
             tmp.linear_clk = any.second.get( "linear_clock", true );
             tmp.quadratic_clk = any.second.get( "quadratic_clock", true );
@@ -597,11 +658,24 @@ void Solver::readXML() {
             if ( name == "__all__" ) {
                 for ( int i = 0; i < network_.getNSta(); ++i ) {
                     estimationParamStations_[i] = tmp;
+                    if ( network_.getStation( i ).getName() == refClock ) {
+                        tmp.refClock = true;
+                        estimationParamStations_[i] = tmp;
+                        tmp.refClock = false;
+                    } else {
+                        estimationParamStations_[i] = tmp;
+                    }
                 }
             } else {
                 for ( int i = 0; i < network_.getNSta(); ++i ) {
                     if ( network_.getStation( i ).getName() == name ) {
-                        estimationParamStations_[i] = tmp;
+                        if ( network_.getStation( i ).getName() == refClock ) {
+                            tmp.refClock = true;
+                            estimationParamStations_[i] = tmp;
+                            tmp.refClock = false;
+                        } else {
+                            estimationParamStations_[i] = tmp;
+                        }
                         break;
                     }
                 }
@@ -669,8 +743,8 @@ void Solver::setupSummary() {
 
         string flagCoord = p.coord ? "yes" : "no";
         string flagDatum = p.coord && p.datum ? "yes" : "no";
-        string flagLinClk = p.linear_clk ? "yes" : "no";
-        string flagQuadClk = p.quadratic_clk ? "yes" : "no";
+        string flagLinClk = p.refClock ? "ref" : p.linear_clk ? "yes" : "no";
+        string flagQuadClk = p.refClock ? "ref" : p.quadratic_clk ? "yes" : "no";
         of << boost::format( "| %-8s | %=5s | %=5s | %=7s | %=8s " ) % name % flagCoord % flagDatum % flagLinClk %
                   flagQuadClk;
         auto fn = [this]( const PWL &pwl ) {
@@ -680,7 +754,11 @@ void Solver::setupSummary() {
                 of << boost::format( "| %=8s | %=6s " ) % "--" % "--";
             }
         };
-        fn( p.CLK );
+        if ( p.refClock ) {
+            of << "|       -- |     -- ";
+        } else {
+            fn( p.CLK );
+        }
         fn( p.ZWD );
         fn( p.NGR );
         fn( p.EGR );
@@ -690,15 +768,17 @@ void Solver::setupSummary() {
           "--------------------'\n";
 }
 
-void Solver::listUnknowns() {
-    int i = 0;
-
+void Solver::listUnknowns( const VectorXd &sigma_x ) {
     of << "\nList of estimated parameters\n";
-    of << ".---------------------------------------------------.\n";
-    for ( const auto &u : unknowns ) {
-        of << boost::format( "| %5d %s \n" ) % i++ % u.toString();
+    of << ".---------------------------------------------------------------------------.\n";
+    of << "|     # | Type     | member   | reference epoch     | sigma          [unit] |\n"
+          "|-------|----------|----------|---------------------|-----------------------|\n";
+    for ( int i = 0; i < unknowns.size(); ++i ) {
+        const auto &u = unknowns[i];
+        double sig = sigma_x[i];
+        of << boost::format( "| %5d %s %10.4e %10s |\n" ) % i % u.toString() % sig % Unknown::getUnit( u.type );
     }
-    of << "'---------------------------------------------------'\n";
+    of << "'---------------------------------------------------------------------------'\n";
 }
 
 unsigned long Solver::findStartIdxPWL( unsigned int time, unsigned long startIdx ) {
