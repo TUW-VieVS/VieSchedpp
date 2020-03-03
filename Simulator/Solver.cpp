@@ -39,6 +39,7 @@ Solver::Solver( Simulator &simulator, std::string fname )
       sources_{std::move( simulator.sources_ )},
       scans_{std::move( simulator.scans_ )},
       obs_minus_com_{std::move( simulator.obs_minus_com_ )},
+      P_A_{std::move( simulator.P_ )},
       of{std::move( simulator.of )} {
     dWdx_ << 0, 0, -1, 0, 0, 0, 1, 0, 0;
     dWdy_ << 0, 0, 0, 0, 0, 1, 0, -1, 0;
@@ -85,23 +86,14 @@ void Solver::setup() {
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
         const auto &params = estimationParamStations_[i];
-        name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta_name] = unknowns.size();
-        if ( params.coord ) {
-            unknowns.emplace_back( Unknown::Type::COORD_X, sta_name );
-            unknowns.emplace_back( Unknown::Type::COORD_Y, sta_name );
-            unknowns.emplace_back( Unknown::Type::COORD_Z, sta_name );
+        if ( params.refClock ) {
+            continue;
+        }
+        if ( params.CLK.estimate() && !params.refClock ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta_name] = unknowns.size();
+            addPWL_params( params.CLK, sta_name );
         }
     }
-    name2startIdx[Unknown::typeString( Unknown::Type::XPO )] = unknowns.size();
-    addPWL_params( estimationParamEOP_.XPO );
-    name2startIdx[Unknown::typeString( Unknown::Type::YPO )] = unknowns.size();
-    addPWL_params( estimationParamEOP_.YPO );
-    name2startIdx[Unknown::typeString( Unknown::Type::dUT1 )] = unknowns.size();
-    addPWL_params( estimationParamEOP_.dUT1 );
-    name2startIdx[Unknown::typeString( Unknown::Type::NUTX )] = unknowns.size();
-    addPWL_params( estimationParamEOP_.NUTX );
-    name2startIdx[Unknown::typeString( Unknown::Type::NUTY )] = unknowns.size();
-    addPWL_params( estimationParamEOP_.NUTY );
 
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
@@ -111,26 +103,8 @@ void Solver::setup() {
         }
         name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta_name] = unknowns.size();
         unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
-    }
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        const string &sta_name = network_.getStation( i ).getName();
-        const auto &params = estimationParamStations_[i];
-        if ( params.refClock ) {
-            continue;
-        }
         name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta_name] = unknowns.size();
         unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
-    }
-    for ( int i = 0; i < network_.getNSta(); ++i ) {
-        const string &sta_name = network_.getStation( i ).getName();
-        const auto &params = estimationParamStations_[i];
-        if ( params.refClock ) {
-            continue;
-        }
-        if ( params.CLK.estimate() && !params.refClock ) {
-            name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta_name] = unknowns.size();
-            addPWL_params( params.CLK, sta_name );
-        }
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
@@ -150,18 +124,56 @@ void Solver::setup() {
         name2startIdx[Unknown::typeString( Unknown::Type::EGR ) + sta_name] = unknowns.size();
         addPWL_params( params.EGR, sta_name );
     }
+    name2startIdx[Unknown::typeString( Unknown::Type::XPO )] = unknowns.size();
+    addPWL_params( estimationParamEOP_.XPO );
+    name2startIdx[Unknown::typeString( Unknown::Type::YPO )] = unknowns.size();
+    addPWL_params( estimationParamEOP_.YPO );
+    name2startIdx[Unknown::typeString( Unknown::Type::dUT1 )] = unknowns.size();
+    addPWL_params( estimationParamEOP_.dUT1 );
+    name2startIdx[Unknown::typeString( Unknown::Type::NUTX )] = unknowns.size();
+    addPWL_params( estimationParamEOP_.NUTX );
+    name2startIdx[Unknown::typeString( Unknown::Type::NUTY )] = unknowns.size();
+    addPWL_params( estimationParamEOP_.NUTY );
+
+
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_X, sta_name );
+        }
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_Y, sta_name );
+        }
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const string &sta_name = network_.getStation( i ).getName();
+        const auto &params = estimationParamStations_[i];
+        name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta_name] = unknowns.size();
+        if ( params.coord ) {
+            unknowns.emplace_back( Unknown::Type::COORD_Z, sta_name );
+        }
+    }
+
+
     for ( int i = 0; i < sources_.size(); ++i ) {
         const string &src_name = sources_[i].getName();
         const auto &params = estimationParamSources_[i];
         if ( params.coord ) {
             name2startIdx[Unknown::typeString( Unknown::Type::RA ) + src_name] = unknowns.size();
             unknowns.emplace_back( Unknown::Type::RA, src_name );
+            name2startIdx[Unknown::typeString( Unknown::Type::DEC ) + src_name] = unknowns.size();
             unknowns.emplace_back( Unknown::Type::DEC, src_name );
         }
     }
 
     A_ = MatrixXd::Zero( nobs, unknowns.size() );
-    P_A_ = VectorXd::Zero( nobs );
     B_ = MatrixXd::Zero( constraints, unknowns.size() );
     P_B_ = VectorXd::Zero( constraints );
 }
@@ -177,8 +189,8 @@ void Solver::buildConstraintsMatrix() {
 
             while ( follow_idx < unknowns.size() &&
                     ( unknowns[follow_idx].type == pwl.getType() && unknowns[follow_idx].member == name ) ) {
-                B_( i, prev_idx ) = -1;
-                B_( i, follow_idx ) = 1;
+                B_( i, prev_idx ) = 1;
+                B_( i, follow_idx ) = -1;
                 P_B_( i ) = v;
                 ++prev_idx;
                 ++follow_idx;
@@ -187,20 +199,32 @@ void Solver::buildConstraintsMatrix() {
         }
     };
 
+    for ( int i_sta = 0; i_sta < network_.getNSta(); ++i_sta ) {
+        const auto &sta = network_.getStation( i_sta ).getName();
+        const auto &para = estimationParamStations_[i_sta];
+        f( para.CLK, sta );
+    }
+    for ( int i_sta = 0; i_sta < network_.getNSta(); ++i_sta ) {
+        const auto &sta = network_.getStation( i_sta ).getName();
+        const auto &para = estimationParamStations_[i_sta];
+        f( para.ZWD, sta );
+    }
+    for ( int i_sta = 0; i_sta < network_.getNSta(); ++i_sta ) {
+        const auto &sta = network_.getStation( i_sta ).getName();
+        const auto &para = estimationParamStations_[i_sta];
+        f( para.NGR, sta );
+    }
+    for ( int i_sta = 0; i_sta < network_.getNSta(); ++i_sta ) {
+        const auto &sta = network_.getStation( i_sta ).getName();
+        const auto &para = estimationParamStations_[i_sta];
+        f( para.EGR, sta );
+    }
+
     f( estimationParamEOP_.XPO );
     f( estimationParamEOP_.YPO );
     f( estimationParamEOP_.dUT1 );
     f( estimationParamEOP_.NUTX );
     f( estimationParamEOP_.NUTY );
-
-    for ( int i_sta = 0; i_sta < network_.getNSta(); ++i_sta ) {
-        const auto &sta = network_.getStation( i_sta ).getName();
-        const auto &para = estimationParamStations_[i_sta];
-        f( para.CLK, sta );
-        f( para.ZWD, sta );
-        f( para.NGR, sta );
-        f( para.EGR, sta );
-    }
 }
 
 void Solver::buildDesignMatrix() {
@@ -213,7 +237,7 @@ void Solver::buildDesignMatrix() {
         // calculate EOP transformation and rotation matrizes:
         double era = iauEra00( date1, mjd );
         Matrix3d R = rotm( -era, Axis::Z );
-        Matrix3d dR = drotm( -era, Axis::Z ) * 1.00273781191135448;
+        Matrix3d dR = -drotm( -era, Axis::Z ) * 1.00273781191135448;
         unsigned int nutIdx = AstronomicalParameters::getNutInterpolationIdx( startTime );
         double X = AstronomicalParameters::getNutX( startTime, nutIdx );
         double Y = AstronomicalParameters::getNutY( startTime, nutIdx );
@@ -229,23 +253,24 @@ void Solver::buildDesignMatrix() {
         double dEdY = X / X2Y2;
 
         double dddX = X / ( z * v );
-        double dddY = X / ( z * v );
+        double dddY = Y / ( z * v );
         double dSdX = -Y / 2;
         double dSdY = -X / 2;
 
         Matrix3d rotm_Ez = rotm( E, Axis::Z );
+        Matrix3d m_rotm_Ez = rotm( -E, Axis::Z );
         Matrix3d rotm_Sz = rotm( S, Axis::Z );
-        Matrix3d m_rotm_dy = rotm( -d, Axis::Y );
+        Matrix3d m_rotm_d = rotm( -d, Axis::Y );
 
-        Matrix3d dPNdX = drotm( -E, Axis::Z ) * m_rotm_dy * rotm_Ez * rotm_Sz * -dEdX +
-                         -rotm_Ez * drotm( -d, Axis::Y ) * rotm_Ez * rotm_Sz * -dddX +
-                         -rotm_Ez * m_rotm_dy * drotm( E, Axis::Z ) * rotm_Sz * dEdX +
-                         -rotm_Ez * m_rotm_dy * rotm_Ez * drotm( S, Axis::Z ) * dSdX;
+        Matrix3d dPNdX = drotm( -E, Axis::Z ) * m_rotm_d * rotm_Ez * rotm_Sz * -dEdX +
+                         m_rotm_Ez * drotm( -d, Axis::Y ) * rotm_Ez * rotm_Sz * -dddX +
+                         m_rotm_Ez * m_rotm_d * drotm( E, Axis::Z ) * rotm_Sz * dEdX +
+                         m_rotm_Ez * m_rotm_d * rotm_Ez * drotm( S, Axis::Z ) * dSdX;
 
-        Matrix3d dPNdY = drotm( -E, Axis::Z ) * m_rotm_dy * rotm_Ez * rotm_Sz * -dEdY +
-                         -rotm_Ez * drotm( -d, Axis::Y ) * rotm_Ez * rotm_Sz * -dddY +
-                         -rotm_Ez * m_rotm_dy * drotm( E, Axis::Z ) * rotm_Sz * dEdY +
-                         -rotm_Ez * m_rotm_dy * rotm_Ez * drotm( S, Axis::Z ) * dSdY;
+        Matrix3d dPNdY = drotm( -E, Axis::Z ) * m_rotm_d * rotm_Ez * rotm_Sz * -dEdY +
+                         m_rotm_Ez * drotm( -d, Axis::Y ) * rotm_Ez * rotm_Sz * -dddY +
+                         m_rotm_Ez * m_rotm_d * drotm( E, Axis::Z ) * rotm_Sz * dEdY +
+                         m_rotm_Ez * m_rotm_d * rotm_Ez * drotm( S, Axis::Z ) * dSdY;
 
         Matrix3d t2c = PN * R;
 
@@ -261,66 +286,71 @@ void Solver::buildDesignMatrix() {
             // partials stations
             Partials p = partials( obs, t2c, dQdx, dQdy, dQdut, dQdX, dQdY );
             partialsToA( iobs, obs, pv1, pv2, p );
-            P_A_( iobs ) = .5;
             ++iobs;
         }
     }
 }
 
 void Solver::solve() {
+    of << "\n";
+    of << "Number of unknowns:       " << unknowns.size() << "\n";
+    of << "Number of observations:   " << A_.rows() << "\n";
+    of << "Number of constraints:    " << B_.rows() << endl;
     MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
     A << A_, B_;
     VectorXd P( P_A_.size() + P_B_.size() );
     P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
     o_c << obs_minus_com_, MatrixXd::Zero( B_.rows(), obs_minus_com_.cols() );
+    o_c *= speedOfLight * 100;
 
     MatrixXd N = A.transpose() * P.asDiagonal() * A;
     MatrixXd n = A.transpose() * P.asDiagonal() * o_c;
     addDatum_stations( N, n );
     addDatum_sources( N, n );
 
-    ofstream of_dummy4( "A.txt" );
-    if ( of_dummy4.is_open() ) {
-        of_dummy4 << A;
-    }
-    ofstream of_dummy5( "P.txt" );
-    if ( of_dummy5.is_open() ) {
-        of_dummy5 << P;
-    }
-
-    ofstream of_dummy3( "N.txt" );
-    if ( of_dummy3.is_open() ) {
-        of_dummy3 << N;
-    }
-
-
-    MatrixXd x1 = N.ldlt().solve( n );
-    ofstream of_dummy( "x1.txt" );
-    if ( of_dummy.is_open() ) {
-        of_dummy << x1;
-    }
-
-    MatrixXd x = N.colPivHouseholderQr().solve( n );
-    ofstream of_dummy2( "x2.txt" );
-    if ( of_dummy2.is_open() ) {
-        of_dummy2 << x;
-    }
+    MatrixXd x = N.completeOrthogonalDecomposition().solve( n );
 
     MatrixXd v = A * x.topRows( A.cols() ) - o_c;
-    double vTPv = ( v.transpose() * P.asDiagonal() * v ).diagonal().mean();
-    int red = n.rows() - unknowns.size();
-    double m0 = vTPv / red;
-    of << "chi^2: " << m0 << endl;
+    auto fun_std = []( const VectorXd &v ) {
+        return sqrt( ( v.array() - v.mean() ).square().sum() / ( v.size() - 1 ) );
+    };
 
-    VectorXd sigma_x = m0 * N.inverse().diagonal().array().sqrt();
-    listUnknowns( sigma_x );
+
+    VectorXd vTPv = ( v.transpose() * P.asDiagonal() * v ).diagonal();
+    int red = A.rows() - unknowns.size();
+    of << "vTPv:                     " << vTPv.mean() << " +/- " << fun_std( vTPv ) << endl;
+    of << "redundancy:               " << red << endl;
+    VectorXd m0 = ( vTPv / red ).array().sqrt();
+    of << "chi^2:                    " << m0.mean() << " +/- " << fun_std( m0 ) << endl;
+
+    VectorXd tmp = N.inverse().diagonal().array().sqrt();
+    MatrixXd sigma_x = tmp * m0.transpose();
+
+    VectorXd mean_sig = sigma_x.rowwise().mean();
+
+    VectorXd rep = VectorXd::Zero( sigma_x.rows() );
+    if ( sigma_x.cols() > 1 ) {
+        Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
+        rep = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
+    }
+
+    listUnknowns( mean_sig, rep );
 }
 
 void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
-    MatrixXd dat = MatrixXd::Zero( 7, N.cols() );
+    MatrixXd dat = MatrixXd::Zero( 6, N.cols() );
     bool stationInDatum = false;
-    double cc = 6371000.;
+
+    double cc = 0;
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        const auto &sta = network_.getStation( i );
+        cc += sta.getPosition().getX() * sta.getPosition().getX();
+        cc += sta.getPosition().getY() * sta.getPosition().getY();
+        cc += sta.getPosition().getZ() * sta.getPosition().getZ();
+    }
+    cc = sqrt( cc );
+    int c = 0;
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const auto &sta = network_.getStation( i );
         const auto &para = estimationParamStations_[i];
@@ -329,7 +359,7 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
         double yii = sta.getPosition().getY() / cc;
         double zii = sta.getPosition().getZ() / cc;
 
-        MatrixXd B = MatrixXd::Zero( 7, 3 );
+        MatrixXd B = MatrixXd::Zero( 6, 3 );
         if ( para.coord && para.datum ) {
             B( 0, 0 ) = 1;
             B( 1, 1 ) = 1;
@@ -343,24 +373,27 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
 
             B( 5, 0 ) = -yii;
             B( 5, 1 ) = xii;
-
-            B( 6, 0 ) = xii;
-            B( 6, 1 ) = yii;
-            B( 6, 2 ) = zii;
             stationInDatum = true;
+            ++c;
         }
-        dat.block( 0, i * 3, 7, 3 ) = B;
+        unsigned long idx_x = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta.getName()];
+        unsigned long idx_y = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta.getName()];
+        unsigned long idx_z = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta.getName()];
+        dat.col( idx_x ) = B.col( 0 );
+        dat.col( idx_y ) = B.col( 1 );
+        dat.col( idx_z ) = B.col( 2 );
     }
 
     if ( stationInDatum ) {
-        N.conservativeResize( N.rows() + 7, N.cols() + 7 );
-        N.block( N.rows() - 7, 0, 7, dat.cols() ) = dat;
-        N.block( 0, N.cols() - 7, dat.cols(), 7 ) = dat.transpose();
-        N.block( N.rows() - 7, N.rows() - 7, 7, 7 ) = MatrixXd::Zero( 7, 7 );
+        N.conservativeResize( N.rows() + 6, N.cols() + 6 );
+        N.block( N.rows() - 6, 0, 6, dat.cols() ) = dat;
+        N.block( 0, N.cols() - 6, dat.cols(), 6 ) = dat.transpose();
+        N.block( N.rows() - 6, N.rows() - 6, 6, 6 ) = MatrixXd::Zero( 6, 6 );
 
-        n.conservativeResize( n.rows() + 7, n.cols() );
-        n.block( n.rows() - 7, 0, 7, n.cols() ) = MatrixXd::Zero( 7, n.cols() );
+        n.conservativeResize( n.rows() + 6, n.cols() );
+        n.block( n.rows() - 6, 0, 6, n.cols() ) = MatrixXd::Zero( 6, n.cols() );
     }
+    of << "Number of datum stations: " << c << endl;
 }
 
 void Solver::addDatum_sources( MatrixXd &N, MatrixXd &n ) {}
@@ -456,52 +489,58 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
 
     // station coordinates
     if ( !isnan( p.coord_x ) ) {
-        unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1];
-        unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2];
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1] ) = p.coord_x;
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1] ) = p.coord_y;
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1] ) = p.coord_z;
 
-        A_( iobs, idx1 ) = p.coord_x;
-        A_( iobs, idx1 + 1 ) = p.coord_y;
-        A_( iobs, idx1 + 2 ) = p.coord_z;
-
-        A_( iobs, idx2 ) = -p.coord_x;
-        A_( iobs, idx2 + 1 ) = -p.coord_y;
-        A_( iobs, idx2 + 2 ) = -p.coord_z;
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2] ) = -p.coord_x;
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2] ) = -p.coord_y;
+        A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2] ) = -p.coord_z;
     }
 
     // EOP
-    partialsPWL( Unknown::Type::XPO, p.xpo * speedOfLight * 1 / rad2mas );
-    partialsPWL( Unknown::Type::YPO, p.ypo * speedOfLight * 1 / rad2mas );
-    partialsPWL( Unknown::Type::dUT1, p.dut1 * speedOfLight * 1 / rad2mas );
-    partialsPWL( Unknown::Type::NUTX, p.nutx * speedOfLight * 1 / rad2mas );
-    partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 1 / rad2mas );
+    partialsPWL( Unknown::Type::XPO, p.xpo * speedOfLight * 100 / rad2mas );
+    partialsPWL( Unknown::Type::YPO, p.ypo * speedOfLight * 100 / rad2mas );
+    partialsPWL( Unknown::Type::dUT1, p.dut1 * speedOfLight * 100 / rad2mas );
+    partialsPWL( Unknown::Type::NUTX, p.nutx * speedOfLight * 100 / rad2mas );
+    partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
 
     // clock
-    double clk_lin = obs.getStartTime() / 86400.;
-    double clk_quad = clk_lin * clk_lin;
-    if ( para1.CLK.estimate() && !para1.refClock ) {
-        partialsPWL( Unknown::Type::CLK, -1, sta1 );
-    }
-    if ( para1.linear_clk && !para1.refClock ) {
-        unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta1];
-        A_( iobs, idx1 ) = -clk_lin;
-    }
-    if ( para1.quadratic_clk && !para1.refClock ) {
-        unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta1];
-        A_( iobs, idx1 ) = -clk_quad;
-    }
-
-    if ( para2.CLK.estimate() && !para2.refClock ) {
-        partialsPWL( Unknown::Type::CLK, 1, sta2 );
-    }
-    if ( para2.linear_clk && !para2.refClock ) {
-        unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta2];
-        A_( iobs, idx2 ) = clk_lin;
-    }
-    if ( para2.quadratic_clk && !para2.refClock ) {
-        unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta2];
-        A_( iobs, idx2 ) = clk_quad;
+    if ( !para1.refClock ) {
+        double clk_lin1 = ( static_cast<int>( obs.getStartTime() ) -
+                            unknowns[name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta1]].refTime ) /
+                          86400.;
+        double clk_quad1 = clk_lin1 * clk_lin1;
+        if ( para1.CLK.estimate() ) {
+            partialsPWL( Unknown::Type::CLK, -1, sta1 );
+        }
+        if ( para1.linear_clk ) {
+            unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta1];
+            A_( iobs, idx1 ) = -clk_lin1;
+        }
+        if ( para1.quadratic_clk ) {
+            unsigned long idx1 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta1];
+            A_( iobs, idx1 ) = -clk_quad1;
+        }
     }
 
+    if ( !para2.refClock ) {
+        double clk_lin2 = ( static_cast<int>( obs.getStartTime() ) -
+                            unknowns[name2startIdx[Unknown::typeString( Unknown::Type::CLK ) + sta2]].refTime ) /
+                          86400.;
+        double clk_quad2 = clk_lin2 * clk_lin2;
+        if ( para2.CLK.estimate() ) {
+            partialsPWL( Unknown::Type::CLK, 1, sta2 );
+        }
+        if ( para2.linear_clk ) {
+            unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta2];
+            A_( iobs, idx2 ) = clk_lin2;
+        }
+        if ( para2.quadratic_clk ) {
+            unsigned long idx2 = name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta2];
+            A_( iobs, idx2 ) = clk_quad2;
+        }
+    }
     // zwd
     if ( para1.ZWD.estimate() ) {
         double val = -1 / sin( pv1.getEl() );
@@ -514,21 +553,21 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
 
     // ngr
     if ( para1.NGR.estimate() ) {
-        double val = -( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * cos( pv1.getAz() );
+        double val = -1 / ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * cos( pv1.getAz() );
         partialsPWL( Unknown::Type::NGR, val, sta1 );
     }
     if ( para2.NGR.estimate() ) {
-        double val = ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * cos( pv2.getAz() );
+        double val = 1 / ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * cos( pv2.getAz() );
         partialsPWL( Unknown::Type::NGR, val, sta2 );
     }
 
     // egr
     if ( para1.EGR.estimate() ) {
-        double val = -( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * sin( pv1.getAz() );
+        double val = -1 / ( tan( pv1.getEl() ) * sin( pv1.getEl() ) + 0.0032 ) * sin( pv1.getAz() );
         partialsPWL( Unknown::Type::EGR, val, sta1 );
     }
     if ( para2.EGR.estimate() ) {
-        double val = ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * sin( pv2.getAz() );
+        double val = 1 / ( tan( pv2.getEl() ) * sin( pv2.getEl() ) + 0.0032 ) * sin( pv2.getAz() );
         partialsPWL( Unknown::Type::EGR, val, sta2 );
     }
 }
@@ -768,17 +807,24 @@ void Solver::setupSummary() {
           "--------------------'\n";
 }
 
-void Solver::listUnknowns( const VectorXd &sigma_x ) {
+void Solver::listUnknowns( const VectorXd &sigma_x, const VectorXd &repeatab ) {
     of << "\nList of estimated parameters\n";
-    of << ".---------------------------------------------------------------------------.\n";
-    of << "|     # | Type     | member   | reference epoch     | sigma          [unit] |\n"
-          "|-------|----------|----------|---------------------|-----------------------|\n";
+    of << ".---------------------------------------------------------------------------------------------------.\n";
+    of << "|     # | Type     | member   | reference epoch     |      sigma [unit]     | repeatability [unit]  |\n"
+          "|-------|----------|----------|---------------------|-----------------------|-----------------------|\n";
     for ( int i = 0; i < unknowns.size(); ++i ) {
         const auto &u = unknowns[i];
         double sig = sigma_x[i];
-        of << boost::format( "| %5d %s %10.4e %10s |\n" ) % i % u.toString() % sig % Unknown::getUnit( u.type );
+        double rep = repeatab[i];
+        if ( rep != 0 ) {
+            of << boost::format( "| %5d %s%11.5f %-10s |%11.5f %-10s |\n" ) % i % u.toString() % sig %
+                      Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
+        } else {
+            of << boost::format( "| %5d %s%11.5f %-10s |%11s %10s |\n" ) % i % u.toString() % sig %
+                      Unknown::getUnit( u.type ) % "--" % "";
+        }
     }
-    of << "'---------------------------------------------------------------------------'\n";
+    of << "'---------------------------------------------------------------------------------------------------'\n";
 }
 
 unsigned long Solver::findStartIdxPWL( unsigned int time, unsigned long startIdx ) {

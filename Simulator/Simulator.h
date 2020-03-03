@@ -60,7 +60,7 @@ class Simulator : public VieVS_NamedObject {
         void fromXML( const boost::property_tree::ptree &tree );
 
         std::string toString() {
-            return ( boost::format( "| %5.1f | %7.4fe-14 %4.0f  | %5.2fe-7 %5.0f %4.0f %5.2f %5.1f %5.1f %6.1f |" ) %
+            return ( boost::format( "| %6.2f | %7.4fe-14 %4.0f  | %5.2fe-7 %5.0f %4.0f %5.2f %5.1f %5.1f %6.1f |" ) %
                      wn % ( clockASD * 1e14 ) % clockDur % ( tropo_Cn * 1e7 ) % tropo_H % tropo_dh % tropo_dhseg %
                      tropo_ve % tropo_vn % tropo_wzd0 )
                 .str();
@@ -98,6 +98,7 @@ class Simulator : public VieVS_NamedObject {
     std::vector<Eigen::MatrixXd> clk_;
     std::vector<Eigen::MatrixXd> tropo_;
     Eigen::MatrixXd obs_minus_com_;
+    Eigen::VectorXd P_;
     bool simTropo_ = true;
     bool simClock_ = true;
     bool simWn_ = true;

@@ -260,6 +260,7 @@ void Simulator::simTropo() {
                 }
             }
             Ds.emplace_back( C.llt().matrixL() );
+            // cout << Ds.back() << endl << endl;
             C11 = C.bottomRightCorner( tn( i2 ), tn( i2 ) );
         }
 
@@ -279,8 +280,11 @@ void Simulator::simTropo() {
 
             const MatrixXd &D = Ds[i1];
             MatrixXd D11 = D.topLeftCorner( num1, num1 );
+            //            cout << "D11" << endl << D11 << endl << endl;
             MatrixXd D21 = D.bottomLeftCorner( num2, num1 );
+            //            cout << "D21" << endl << D21 << endl << endl;
             MatrixXd D22 = D.bottomRightCorner( num2, num2 );
+            //            cout << "D22" << endl << D22 << endl << endl;
             MatrixXd x = MatrixXd::NullaryExpr( num2, nsim, normalDist );
 
             if ( i1 == 0 ) {
@@ -298,15 +302,18 @@ void Simulator::simTropo() {
 }
 
 void Simulator::calcO_C() {
-    int counter = 0;
+    int nobs = 0;
     for ( const Scan &scan : scans_ ) {
         for ( const Observation &obs : scan.getObservations() ) {
-            ++counter;
+            ++nobs;
         }
     }
 
-    obs_minus_com_ = Eigen::MatrixXd( counter, nsim );
-    counter = 0;
+    obs_minus_com_ = Eigen::MatrixXd( nobs, nsim );
+    P_ = Eigen::VectorXd( nobs );
+
+    double constexpr constNoise = ( 0.005 / speedOfLight ) * ( 0.005 / speedOfLight );
+    unsigned int iobs = 0;
     vector<int> tropoCounter( network_.getNSta(), -1 );
 
     for ( int iscan = 0; iscan < scans_.size(); ++iscan ) {
@@ -323,6 +330,8 @@ void Simulator::calcO_C() {
             unsigned long staid2 = obs.getStaid2();
             unsigned long tropoId_staid1 = tropoCounter[staid1];
             unsigned long tropoId_staid2 = tropoCounter[staid2];
+            const auto &p1 = simpara_[staid1];
+            const auto &p2 = simpara_[staid2];
 
 
             VectorXd wn1;
@@ -348,12 +357,14 @@ void Simulator::calcO_C() {
                 wn2 = VectorXd::Zero( nsim );
             }
 
-            obs_minus_com_.block( counter, 0, 1, nsim ) =
-                wn2.transpose() - wn1.transpose() + clk_[staid2].block( iscan, 0, 1, nsim ) -
-                clk_[staid1].block( iscan, 0, 1, nsim ) + tropo_[staid2].block( tropoId_staid2, 0, 1, nsim ) -
-                tropo_[staid1].block( tropoId_staid1, 0, 1, nsim );
+            obs_minus_com_.row( iobs ) = wn2.transpose() - wn1.transpose() + clk_[staid2].row( iscan ) -
+                                         clk_[staid1].row( iscan ) + tropo_[staid2].row( tropoId_staid2 ) -
+                                         tropo_[staid1].row( tropoId_staid1 );
 
-            ++counter;
+            double varNoise = ( p1.wn * p1.wn + p2.wn * p2.wn ) * 1e-24;
+            double sigma = 1 / ( ( constNoise + varNoise ) * speedOfLight * speedOfLight * 100 * 100 );
+            P_( iobs ) = sigma;
+            ++iobs;
         }
     }
 }
@@ -423,14 +434,14 @@ void Simulator::parameterSummary() {
     of << "random number generator seed: " << seed_ << endl;
     of << "number of simulations: " << nsim << endl;
 
-    of << boost::format( ".%|86T-|.\n" );
-    of << "|   NAME   |   wn  |     ASD       @   |    Cn      H    dH    dt    ve    vn   wzwd0 |\n"
-          "|          |  [ps] |     [s]     [min] |  [m^-1/3] [m]   [m]  [h]  [m/s] [m/s]   [mm] |\n"
-          "|----------|-------|-------------------|----------------------------------------------|\n";
+    of << boost::format( ".%|87T-|.\n" );
+    of << "|   NAME   |    wn  |     ASD       @   |    Cn      H    dH    dt    ve    vn   wzwd0 |\n"
+          "|          |   [ps] |     [s]     [min] |  [m^-1/3] [m]   [m]  [h]  [m/s] [m/s]   [mm] |\n"
+          "|----------|--------|-------------------|----------------------------------------------|\n";
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         of << boost::format( "| %-8s %s \n" ) % network_.getStation( i ).getName() % simpara_[i].toString();
     }
-    of << boost::format( "'%|86T-|'\n" );
+    of << boost::format( "'%|87T-|'\n" );
     of << endl;
 }
 
