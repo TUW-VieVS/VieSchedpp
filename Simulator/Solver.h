@@ -60,6 +60,18 @@ class Solver : public VieVS_NamedObject {
 
     void start();
 
+    std::vector<double> getMeanSigma();
+
+    std::vector<double> getRepeatabilities();
+
+    /**
+     * @brief write statistics line to statistics.csv file
+     * @author Matthias Schartner
+     *
+     * @param of statistics.csv file
+     */
+    void writeStatistics( std::ofstream &of );
+
    private:
     class PWL : public VieVS_Object {
        public:
@@ -150,9 +162,10 @@ class Solver : public VieVS_NamedObject {
     const std::vector<Source> sources_;  ///< all sources
     const std::vector<Scan> scans_;      ///< all scans in schedule
     const Eigen::MatrixXd obs_minus_com_;
+    const int version_;                                                       ///< number of this schedule
+    boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
+    int nsim_;
 
-    Eigen::Matrix3d dWdx_;
-    Eigen::Matrix3d dWdy_;
 
     std::unordered_map<std::string, unsigned long> name2startIdx;
 
@@ -165,6 +178,9 @@ class Solver : public VieVS_NamedObject {
     Eigen::VectorXd P_B_;
     std::vector<Unknown> unknowns;
 
+    Eigen::VectorXd mean_sig_;
+    Eigen::VectorXd rep_;
+
 
     void setup();
 
@@ -176,7 +192,7 @@ class Solver : public VieVS_NamedObject {
                        const Eigen::Matrix3d &dQdy, const Eigen::Matrix3d &dQdut, const Eigen::Matrix3d &dQdX,
                        const Eigen::Matrix3d &dQdY );
 
-    void listUnknowns( const Eigen::VectorXd &sigma_x, const Eigen::VectorXd &repeatab );
+    void listUnknowns();
 
     void buildConstraintsMatrix();
 
@@ -197,6 +213,8 @@ class Solver : public VieVS_NamedObject {
                       const Partials &p );
 
     unsigned long findStartIdxPWL( unsigned int time, unsigned long startIdx );
+
+    std::vector<double> summarizeResult( const Eigen::VectorXd & );
 };
 
 

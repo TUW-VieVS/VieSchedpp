@@ -264,6 +264,7 @@ void VieSchedpp::run() {
 #endif
             VieVS::Solver solver( simulator, fname );
             solver.start();
+            solver.writeStatistics( statisticsOf );
         }
 
         if ( flag_multiSched ) {

@@ -45,7 +45,9 @@ void Output::createAllOutputFiles( std::ofstream &of, const SkdCatalogReader &sk
         return;
     }
 
-    writeStatistics( of );
+    if ( !xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+        writeStatistics( of );
+    }
 
     if ( xml_.get<bool>( "VieSchedpp.output.createSummary", false ) ) {
         writeSkdsum();

@@ -88,12 +88,13 @@ class Simulator : public VieVS_NamedObject {
 
     const boost::property_tree::ptree xml_;  ///< content of VieSchedpp.xml file
 
-    const std::string path_;                                ///< path to output directory
-    const int version_;                                     ///< number of this schedule
-    const Network network_;                                 ///< network
-    const std::vector<Source> sources_;                     ///< all sources
-    const std::vector<Scan> scans_;                         ///< all scans in schedule
-    const std::shared_ptr<const ObservingMode> &obsModes_;  ///< observing mode
+    const std::string path_;                                                  ///< path to output directory
+    const int version_;                                                       ///< number of this schedule
+    const Network network_;                                                   ///< network
+    const std::vector<Source> sources_;                                       ///< all sources
+    const std::vector<Scan> scans_;                                           ///< all scans in schedule
+    const std::shared_ptr<const ObservingMode> &obsModes_;                    ///< observing mode
+    boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
 
     std::vector<Eigen::MatrixXd> clk_;
     std::vector<Eigen::MatrixXd> tropo_;

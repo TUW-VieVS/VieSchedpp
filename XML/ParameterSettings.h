@@ -728,6 +728,14 @@ class ParameterSettings {
     void solver( const boost::property_tree::ptree &tree );
 
     /**
+     * @brief adds priorities settings to xml file
+     * @author Matthias Schartner
+     *
+     * @param tree property tree with priorities settings
+     */
+    void priorities( const boost::property_tree::ptree &tree );
+
+    /**
      * @brief get station groups
      * @author Matthias Schartner
      *

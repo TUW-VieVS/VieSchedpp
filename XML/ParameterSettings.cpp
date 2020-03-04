@@ -1278,6 +1278,10 @@ void ParameterSettings::solver( const boost::property_tree::ptree &tree ) {
     master_.add_child( "VieSchedpp.solver", tree.get_child( "solver" ) );
 }
 
+void ParameterSettings::priorities( const boost::property_tree::ptree &tree ) {
+    master_.add_child( "VieSchedpp.priorities", tree.get_child( "priorities" ) );
+}
+
 VieVS::ParameterSettings::Contact ParameterSettings::readContact( const boost::property_tree::ptree &tree ) {
     Contact contact;
     contact.function = tree.get( ".contact", "" );

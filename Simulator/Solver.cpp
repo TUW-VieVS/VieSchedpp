@@ -38,11 +38,12 @@ Solver::Solver( Simulator &simulator, std::string fname )
       network_{std::move( simulator.network_ )},
       sources_{std::move( simulator.sources_ )},
       scans_{std::move( simulator.scans_ )},
+      multiSchedulingParameters_{std::move( simulator.multiSchedulingParameters_ )},
+      version_{simulator.version_},
       obs_minus_com_{std::move( simulator.obs_minus_com_ )},
       P_A_{std::move( simulator.P_ )},
+      nsim_{simulator.nsim},
       of{std::move( simulator.of )} {
-    dWdx_ << 0, 0, -1, 0, 0, 0, 1, 0, 0;
-    dWdy_ << 0, 0, 0, 0, 0, 1, 0, -1, 0;
 
     estimationParamStations_ = vector<EstimationParamStation>( network_.getNSta() );
     estimationParamSources_ = vector<EstimationParamSource>( sources_.size() );
@@ -229,6 +230,12 @@ void Solver::buildConstraintsMatrix() {
 
 void Solver::buildDesignMatrix() {
     unsigned int iobs = 0;
+
+    Eigen::Matrix3d dWdx;
+    Eigen::Matrix3d dWdy;
+    dWdx << 0, 0, -1, 0, 0, 0, 1, 0, 0;
+    dWdy << 0, 0, 0, 0, 0, 1, 0, -1, 0;
+
     for ( const auto &scan : scans_ ) {
         double date1 = 2400000.5;
         unsigned int startTime = scan.getTimes().getObservingTime();
@@ -274,8 +281,8 @@ void Solver::buildDesignMatrix() {
 
         Matrix3d t2c = PN * R;
 
-        Matrix3d dQdx = t2c * dWdx_;
-        Matrix3d dQdy = t2c * dWdy_;
+        Matrix3d dQdx = t2c * dWdx;
+        Matrix3d dQdy = t2c * dWdy;
         Matrix3d dQdut = PN * dR;
         Matrix3d dQdX = dPNdX * R;
         Matrix3d dQdY = dPNdY * R;
@@ -327,15 +334,14 @@ void Solver::solve() {
     VectorXd tmp = N.inverse().diagonal().array().sqrt();
     MatrixXd sigma_x = tmp * m0.transpose();
 
-    VectorXd mean_sig = sigma_x.rowwise().mean();
-
-    VectorXd rep = VectorXd::Zero( sigma_x.rows() );
+    mean_sig_ = sigma_x.rowwise().mean();
+    rep_ = VectorXd::Zero( sigma_x.rows() );
     if ( sigma_x.cols() > 1 ) {
         Eigen::ArrayXXd s = x.topRows( A.cols() ).transpose().array();
-        rep = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
+        rep_ = ( ( ( s.rowwise() - s.colwise().mean() ).square().colwise().sum() / ( s.rows() - 1 ) ).sqrt() ).matrix();
     }
 
-    listUnknowns( mean_sig, rep );
+    listUnknowns();
 }
 
 void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
@@ -807,15 +813,15 @@ void Solver::setupSummary() {
           "--------------------'\n";
 }
 
-void Solver::listUnknowns( const VectorXd &sigma_x, const VectorXd &repeatab ) {
+void Solver::listUnknowns() {
     of << "\nList of estimated parameters\n";
     of << ".---------------------------------------------------------------------------------------------------.\n";
     of << "|     # | Type     | member   | reference epoch     |      sigma [unit]     | repeatability [unit]  |\n"
           "|-------|----------|----------|---------------------|-----------------------|-----------------------|\n";
     for ( int i = 0; i < unknowns.size(); ++i ) {
         const auto &u = unknowns[i];
-        double sig = sigma_x[i];
-        double rep = repeatab[i];
+        double sig = mean_sig_[i];
+        double rep = rep_[i];
         if ( rep != 0 ) {
             of << boost::format( "| %5d %s%11.5f %-10s |%11.5f %-10s |\n" ) % i % u.toString() % sig %
                       Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
@@ -834,4 +840,342 @@ unsigned long Solver::findStartIdxPWL( unsigned int time, unsigned long startIdx
         ++it;
     }
     return distance( unknowns.begin(), it ) - 1;
+}
+
+std::vector<double> Solver::getMeanSigma() { return summarizeResult( mean_sig_ ); }
+std::vector<double> Solver::getRepeatabilities() { return summarizeResult( rep_ ); }
+
+std::vector<double> Solver::summarizeResult( const Eigen::VectorXd &vec ) {
+    vector<double> v;
+    vector<Unknown::Type> types{Unknown::Type::dUT1, Unknown::Type::XPO, Unknown::Type::YPO, Unknown::Type::NUTX,
+                                Unknown::Type::NUTY};
+
+    for ( const auto &t : types ) {
+        double val = 0;
+        int c = 0;
+
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == t ) {
+                val += vec[j];
+                ++c;
+            }
+        }
+        if ( c == 0 ) {
+            v.push_back( numeric_limits<double>::quiet_NaN() );
+        } else {
+            if ( t == Unknown::Type::dUT1 ) {
+                v.push_back( val / c / 15. * 1000 );
+            } else {
+                v.push_back( val / c * 1000 );
+            }
+        }
+    }
+
+    for ( const auto &sta : network_.getStations() ) {
+        const string &name = sta.getName();
+        double x = 0;
+        double y = 0;
+        double z = 0;
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::COORD_X && u.member == name ) {
+                x = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::COORD_Y && u.member == name ) {
+                y = vec[j];
+                break;
+            }
+        }
+        for ( int j = 0; j < unknowns.size(); ++j ) {
+            const auto &u = unknowns[j];
+            if ( u.type == Unknown::Type::COORD_Z && u.member == name ) {
+                z = vec[j];
+                break;
+            }
+        }
+        double val = sqrt( x * x + y * y + z * z );
+        if ( val == 0 ) {
+            v.push_back( numeric_limits<double>::quiet_NaN() );
+        } else {
+            v.push_back( val * 10 );
+        }
+    }
+
+    return v;
+}
+
+void Solver::writeStatistics( std::ofstream &stat_of ) {
+    string oString;
+
+    auto n_scans = static_cast<int>( scans_.size() );
+    int n_standard = 0;
+    int n_fillin = 0;
+    int n_calibrator = 0;
+    int n_single = 0;
+    int n_subnetting = 0;
+    int n_obs_total = 0;
+    vector<unsigned int> nscan_sta( network_.getNSta(), 0 );
+    vector<unsigned int> nobs_sta( network_.getNSta(), 0 );
+    vector<unsigned int> nobs_bl( network_.getNBls(), 0 );
+    vector<unsigned int> nscan_src( sources_.size(), 0 );
+    vector<unsigned int> nobs_src( sources_.size(), 0 );
+
+    for ( const auto &any : scans_ ) {
+        switch ( any.getType() ) {
+            case Scan::ScanType::fillin: {
+                ++n_fillin;
+                break;
+            }
+            case Scan::ScanType::astroCalibrator: {
+                ++n_calibrator;
+                break;
+            }
+            case Scan::ScanType::standard: {
+                ++n_standard;
+                break;
+            }
+            case Scan::ScanType::highImpact: {
+                ++n_standard;
+                break;
+            }
+        }
+        switch ( any.getScanConstellation() ) {
+            case Scan::ScanConstellation::single: {
+                ++n_single;
+                break;
+            }
+            case Scan::ScanConstellation::subnetting: {
+                ++n_subnetting;
+                break;
+            }
+        }
+        auto n_obs = any.getNObs();
+        n_obs_total += n_obs;
+        for ( int ista = 0; ista < any.getNSta(); ++ista ) {
+            const PointingVector &pv = any.getPointingVector( ista );
+            unsigned long id = pv.getStaid();
+            ++nscan_sta[id];
+        }
+        for ( int ibl = 0; ibl < any.getNObs(); ++ibl ) {
+            const Observation &obs = any.getObservation( ibl );
+            ++nobs_sta[obs.getStaid1()];
+            ++nobs_sta[obs.getStaid2()];
+            ++nobs_bl[network_.getBaseline( obs.getStaid1(), obs.getStaid2() ).getId()];
+        }
+        unsigned long id = any.getSourceId();
+        ++nscan_src[id];
+        nobs_src[id] += n_obs;
+    }
+    int n_src = static_cast<int>( count_if( nscan_src.begin(), nscan_src.end(), []( int i ) { return i > 0; } ) );
+
+    auto totalTime = static_cast<double>( TimeSystem::duration );
+    vector<double> obsPer;
+    for ( const auto &station : network_.getStations() ) {
+        int t = station.getStatistics().totalObservingTime;
+        obsPer.push_back( static_cast<double>( t ) / totalTime * 100 );
+    }
+    double obsMean = accumulate( obsPer.begin(), obsPer.end(), 0.0 ) / ( network_.getNSta() );
+
+    vector<double> preobPer;
+    for ( const auto &station : network_.getStations() ) {
+        int t = station.getStatistics().totalPreobTime;
+        preobPer.push_back( static_cast<double>( t ) / totalTime * 100 );
+    }
+    double preobMean = accumulate( preobPer.begin(), preobPer.end(), 0.0 ) / ( network_.getNSta() );
+
+    vector<double> slewPer;
+    for ( const auto &station : network_.getStations() ) {
+        int t = station.getStatistics().totalSlewTime;
+        slewPer.push_back( static_cast<double>( t ) / totalTime * 100 );
+    }
+    double slewMean = accumulate( slewPer.begin(), slewPer.end(), 0.0 ) / ( network_.getNSta() );
+
+    vector<double> idlePer;
+    for ( const auto &station : network_.getStations() ) {
+        int t = station.getStatistics().totalIdleTime;
+        idlePer.push_back( static_cast<double>( t ) / totalTime * 100 );
+    }
+    double idleMean = accumulate( idlePer.begin(), idlePer.end(), 0.0 ) / ( network_.getNSta() );
+
+    vector<double> fieldPer;
+    for ( const auto &station : network_.getStations() ) {
+        int t = station.getStatistics().totalFieldSystemTime;
+        fieldPer.push_back( static_cast<double>( t ) / totalTime * 100 );
+    }
+    double fieldMean = accumulate( fieldPer.begin(), fieldPer.end(), 0.0 ) / ( network_.getNSta() );
+
+    vector<double> a13m30;
+    vector<double> a25m30;
+    vector<double> a37m30;
+    vector<double> a13m60;
+    vector<double> a25m60;
+    vector<double> a37m60;
+    for ( const auto &station : network_.getStations() ) {
+        unsigned long id = station.getId();
+        const auto &map = network_.getStaid2skyCoverageId();
+        unsigned long skyCovId = map.at( id );
+        const auto &skyCov = network_.getSkyCoverage( skyCovId );
+        a13m30.push_back( skyCov.getSkyCoverageScore_a13m30() );
+        a25m30.push_back( skyCov.getSkyCoverageScore_a25m30() );
+        a37m30.push_back( skyCov.getSkyCoverageScore_a37m30() );
+        a13m60.push_back( skyCov.getSkyCoverageScore_a13m60() );
+        a25m60.push_back( skyCov.getSkyCoverageScore_a25m60() );
+        a37m60.push_back( skyCov.getSkyCoverageScore_a37m60() );
+    }
+    double a13m30Mean = accumulate( a13m30.begin(), a13m30.end(), 0.0 ) / ( network_.getNSta() );
+    double a25m30Mean = accumulate( a25m30.begin(), a25m30.end(), 0.0 ) / ( network_.getNSta() );
+    double a37m30Mean = accumulate( a37m30.begin(), a37m30.end(), 0.0 ) / ( network_.getNSta() );
+    double a13m60Mean = accumulate( a13m60.begin(), a13m60.end(), 0.0 ) / ( network_.getNSta() );
+    double a25m60Mean = accumulate( a25m60.begin(), a25m60.end(), 0.0 ) / ( network_.getNSta() );
+    double a37m60Mean = accumulate( a37m60.begin(), a37m60.end(), 0.0 ) / ( network_.getNSta() );
+
+    oString.append( std::to_string( version_ ) ).append( "," );
+    oString.append( std::to_string( n_scans ) ).append( "," );
+    oString.append( std::to_string( n_single ) ).append( "," );
+    oString.append( std::to_string( n_subnetting ) ).append( "," );
+    oString.append( std::to_string( n_fillin ) ).append( "," );
+    oString.append( std::to_string( n_calibrator ) ).append( "," );
+    oString.append( std::to_string( n_obs_total ) ).append( "," );
+    oString.append( std::to_string( network_.getNSta() ) ).append( "," );
+    oString.append( std::to_string( n_src ) ).append( "," );
+
+    oString.append( std::to_string( obsMean ) ).append( "," );
+    oString.append( std::to_string( preobMean ) ).append( "," );
+    oString.append( std::to_string( slewMean ) ).append( "," );
+    oString.append( std::to_string( idleMean ) ).append( "," );
+    oString.append( std::to_string( fieldMean ) ).append( "," );
+
+    oString.append( std::to_string( a13m30Mean ) ).append( "," );
+    oString.append( std::to_string( a25m30Mean ) ).append( "," );
+    oString.append( std::to_string( a37m30Mean ) ).append( "," );
+    oString.append( std::to_string( a13m60Mean ) ).append( "," );
+    oString.append( std::to_string( a25m60Mean ) ).append( "," );
+    oString.append( std::to_string( a37m60Mean ) ).append( "," );
+
+    oString.append( WeightFactors::statisticsValues() );
+
+    for ( auto any : obsPer ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : preobPer ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : slewPer ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : idlePer ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : fieldPer ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+
+    for ( auto any : a13m30 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : a25m30 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : a37m30 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : a13m60 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : a25m60 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+    for ( auto any : a37m60 ) {
+        oString.append( std::to_string( any ) ).append( "," );
+    }
+
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        oString.append( std::to_string( nscan_sta[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < network_.getNSta(); ++i ) {
+        oString.append( std::to_string( nobs_sta[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < network_.getNBls(); ++i ) {
+        oString.append( std::to_string( nobs_bl[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < sources_.size(); ++i ) {
+        oString.append( std::to_string( nscan_src[i] ) ).append( "," );
+    }
+    for ( int i = 0; i < sources_.size(); ++i ) {
+        oString.append( std::to_string( nobs_src[i] ) ).append( "," );
+    }
+
+    if ( multiSchedulingParameters_.is_initialized() ) {
+        oString.append( multiSchedulingParameters_->statisticsOutput() );
+    }
+
+    vector<double> msig = getMeanSigma();
+    oString.append( std::to_string( nsim_ ) ).append( "," );
+    for ( int i = 0; i < 5; ++i ) {
+        double v = msig[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    double meanS = 0;
+    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+        meanS += msig[i];
+    }
+    meanS /= network_.getNSta();
+    if ( isnan( meanS ) ) {
+        oString.append( "0," );
+    } else {
+        oString.append( std::to_string( meanS ) ).append( "," );
+    }
+    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+        double v = msig[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+
+
+    vector<double> rep = getRepeatabilities();
+    oString.append( std::to_string( nsim_ ) ).append( "," );
+    for ( int i = 0; i < 5; ++i ) {
+        double v = rep[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+    double meanR = 0;
+    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+        meanR += rep[i];
+    }
+    meanR /= network_.getNSta();
+    if ( isnan( meanR ) ) {
+        oString.append( "0," );
+    } else {
+        oString.append( std::to_string( meanR ) ).append( "," );
+    }
+    for ( int i = 5; i < 5 + network_.getNSta(); ++i ) {
+        double v = rep[i];
+        if ( isnan( v ) ) {
+            oString.append( "0," );
+        } else {
+            oString.append( std::to_string( v ) ).append( "," );
+        }
+    }
+
+
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+    { stat_of << oString << endl; };
 }

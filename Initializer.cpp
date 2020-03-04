@@ -2952,6 +2952,35 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
     if ( !ms.empty() ) {
         ms[0].statisticsHeaderOutput( of );
     }
+
+    if ( xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+        of << "sim_mean_formal_error_n_sim,";
+
+        of << "sim_mean_formal_error_dUT1_[mus],";
+        of << "sim_mean_formal_error_x_pol_[muas],";
+        of << "sim_mean_formal_error_y_pol_[muas],";
+        of << "sim_mean_formal_error_x_nut_[muas],";
+        of << "sim_mean_formal_error_y_nut_[muas],";
+
+        of << "sim_mean_formal_error_average_3d_coordinates_[mm],";
+        for ( const auto &sta : network_.getStations() ) {
+            of << "sim_mean_formal_error_" << sta.getName() << ",";
+        }
+
+        of << "sim_repeatability_n_sim,";
+
+        of << "sim_repeatability_dUT1_[mus],";
+        of << "sim_repeatability_x_pol_[muas],";
+        of << "sim_repeatability_y_pol_[muas],";
+        of << "sim_repeatability_x_nut_[muas],";
+        of << "sim_repeatability_y_nut_[muas],";
+
+        of << "sim_repeatability_average_3d_coordinates_[mm],";
+        for ( const auto &sta : network_.getStations() ) {
+            of << "sim_repeatability_" << sta.getName() << ",";
+        }
+    }
+
     of << "\n";
 }
 
