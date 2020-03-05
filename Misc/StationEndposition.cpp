@@ -31,7 +31,7 @@ StationEndposition::StationEndposition( unsigned long nsta ) : VieVS_Object( nex
     finalPosition_ = vector<boost::optional<PointingVector>>( nsta );
 
     // if there is no subcon the earliest scan start is set to zero to be save
-    earliestScanStart_ = numeric_limits<unsigned int>::max();
+    earliestScanStart_ = TimeSystem::duration;
 }
 
 

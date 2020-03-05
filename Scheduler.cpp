@@ -188,7 +188,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                     }
                 }
 
-                if ( util::absDiff( endTime, maxScanEnd ) > 300 ) {
+                if ( util::absDiff( endTime, maxScanEnd ) > 1800 ) {
 #ifdef VIESCHEDPP_LOG
                     BOOST_LOG_TRIVIAL( warning ) << "no valid scan found, checking one minute later";
 #else
@@ -1515,6 +1515,7 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             Station &thisSta = network_.refStation( staid );
             if ( time >= thisSta.getCurrentTime() ) {
                 thisSta.setCurrentPointingVector( pv );
+                thisSta.referencePARA().firstScan = false;
             }
         }
 
@@ -1555,7 +1556,10 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         if ( output ) {
             string s1 = TimeSystem::time2string( startTime );
             string s2 = TimeSystem::time2string( endTime );
-            double dur = ( endTime - startTime ) / 3600.;
+            double dur = 0;
+            if ( endTime > startTime ) {
+                dur = ( endTime - startTime ) / 3600.;
+            }
             of << boost::format( "|%|143t||\n" );
             string tmp = ( boost::format( "start scan selection:   %s - %s (%5.2f h)" ) % s1 % s2 % dur ).str();
             of << boost::format( "|%=142s|\n" ) % tmp;

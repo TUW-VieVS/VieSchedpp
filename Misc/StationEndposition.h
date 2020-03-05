@@ -208,7 +208,7 @@ class StationEndposition : public VieVS_Object {
     std::vector<char> stationAvailable_;                          ///< saves available state of station
     std::vector<char> stationPossible_;                           ///< true if it is possible to use this station
     std::vector<boost::optional<PointingVector>> finalPosition_;  ///< final required end position for all stations
-    unsigned int earliestScanStart_;                              ///< earliest scan start
+    unsigned int earliestScanStart_ = TimeSystem::duration;       ///< earliest scan start
 };
 }  // namespace VieVS
 

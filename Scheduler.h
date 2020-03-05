@@ -419,9 +419,9 @@ class Scheduler : public VieVS_NamedObject {
      * @param lowestElevations lowest elevation scores
      * @return true if no more astrometric calibrator scans are needed, otherwise false
      */
-    bool calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
-                           std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
-                           std::vector<double> &lowestElevations );
+    static bool calibratorUpdate( const std::vector<Scan> &bestScans, std::vector<double> &prevHighElevationScores,
+                                  std::vector<double> &prevLowElevationScores, std::vector<double> &highestElevations,
+                                  std::vector<double> &lowestElevations );
 
 
     /**

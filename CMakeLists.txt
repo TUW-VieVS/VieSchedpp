@@ -112,12 +112,12 @@
  ###########################################################################################
  add_subdirectory(Eigen)
  # find_package(Eigen3 REQUIRED HINTS ./EIGEN)
-# if (Eigen3_FOUND)
-#     message("Eigen found")
-#     message("  Eigen location: ${Eigen3_DIR}")
-#     message("  Eigen Version: ${Eigen3_VERSION}")
-#     target_link_libraries (VieSchedpp Eigen3::Eigen)
-# endif ()
+ # if (Eigen3_FOUND)
+ #     message("Eigen found")
+ #     message("  Eigen location: ${Eigen3_DIR}")
+ #     message("  Eigen Version: ${Eigen3_VERSION}")
+ #     target_link_libraries (VieSchedpp Eigen3::Eigen)
+ # endif ()
 
  ###########################################################################################
  ########################################### BOOST #########################################
@@ -174,7 +174,7 @@
              WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
              OUTPUT_VARIABLE GIT_COMMIT_HASH
              OUTPUT_STRIP_TRAILING_WHITESPACE
-             )
+     )
  else ()
      set(GIT_COMMIT_HASH "unknown")
  endif ()
