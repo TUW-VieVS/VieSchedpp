@@ -283,7 +283,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection( maxScanEnd, of, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth + 1 );
+            startScanSelection( maxScanEnd + 600, of, Scan::ScanType::fillin, newEndposition, new_opt_subcon,
+                                depth + 1 );
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
@@ -1445,7 +1446,8 @@ void Scheduler::changeStationAvailability( const boost::optional<StationEndposit
         }
         case StationEndposition::change::end: {
             for ( auto &sta : network_.refStations() ) {
-                sta.referencePARA().available = endposition->getStationAvailable( sta.getId() );
+                sta.referencePARA().available =
+                    endposition->getStationAvailable( sta.getId() ) || sta.getPARA().available;
             }
             break;
         }
