@@ -71,7 +71,7 @@ void StationEndposition::checkStationPossibility( const Station &thisStation ) {
     // get start time of this station
     unsigned int staStarttime = thisStation.getCurrentTime();
 
-    // estimat end time of this session, if there is a endposition then take this time, otherwise earliest scan start
+    // estimate end time of this session, if there is a endposition then take this time, otherwise earliest scan start
     // time
     unsigned int staEndtime = 0;
     if ( finalPosition_[staid].is_initialized() ) {
@@ -116,12 +116,19 @@ bool StationEndposition::checkStationPossibility( const std::vector<Station> &st
 }
 
 
-std::set<unsigned long> StationEndposition::getObservedSources() const noexcept {
+std::set<unsigned long> StationEndposition::getObservedSources( unsigned int time, const vector<Source> &sources ) const
+    noexcept {
     set<unsigned long> obsSrc;
 
     for ( auto pv : finalPosition_ ) {
         if ( pv.is_initialized() ) {
-            obsSrc.insert( pv->getSrcid() );
+            unsigned long srcid = pv->getSrcid();
+            const Source &src = sources[srcid];
+            unsigned int minRep = src.getPARA().minRepeat;
+            unsigned int dT = util::absDiff( pv->getTime(), time );
+            if ( dT < minRep ) {
+                obsSrc.insert( srcid );
+            }
         }
     }
 

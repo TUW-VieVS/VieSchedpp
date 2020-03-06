@@ -217,6 +217,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 maxScanEnd = any.getTimes().getScanTime( Timestamp::end );
             }
         }
+        if ( maxScanEnd > endTime ) {
+            break;
+        }
 
         if ( maxScanEnd > FocusCorners::nextStart ) {
             FocusCorners::startFocusCorner = true;
@@ -271,6 +274,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 for ( int i = 0; i < any.getNSta(); ++i ) {
                     newEndposition->addPointingVectorAsEndposition( any.getPointingVector( i ) );
                 }
+                //                newEndposition->setBackupEarliestScanStart(any.getTimes().getObservingTime());
             }
 
             newEndposition->setStationAvailable( network_.getStations() );
@@ -279,8 +283,7 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection( newEndposition->getEarliestScanStart(), of, Scan::ScanType::fillin, newEndposition,
-                                new_opt_subcon, depth + 1 );
+            startScanSelection( maxScanEnd, of, Scan::ScanType::fillin, newEndposition, new_opt_subcon, depth + 1 );
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
@@ -577,7 +580,7 @@ Subcon Scheduler::allVisibleScans( Scan::ScanType type, const boost::optional<St
     // save all ids of the next observed sources (if there is a required endposition)
     set<unsigned long> observedSources;
     if ( endposition.is_initialized() ) {
-        observedSources = endposition->getObservedSources();
+        observedSources = endposition->getObservedSources( currentTime, sources_ );
     }
 
     // create subcon with all visible scans

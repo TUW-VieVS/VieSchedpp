@@ -179,9 +179,23 @@ class StationEndposition : public VieVS_Object {
      * @brief get observed sources
      * @author Matthias Schartner
      *
+     * @param time current scheduling time
+     * @param sources list of all sources
      * @return all next observed source ids
      */
-    std::set<unsigned long> getObservedSources() const noexcept;
+    std::set<unsigned long> getObservedSources( unsigned int time, const std::vector<Source> &sources ) const noexcept;
+
+    //    /**
+    //    * @brief set earliest scan start variable as a backup to avoid wired scenario of diverging schedules
+    //    * @author Matthias Schartner
+    //    *
+    //    * @param time backup earliest scan start time
+    //    */
+    //    void setBackupEarliestScanStart( unsigned int time){
+    //        if(time < earliestScanStart_){
+    //            earliestScanStart_ = time;
+    //        }
+    //    }
 
 
     /**
