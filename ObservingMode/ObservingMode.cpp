@@ -298,7 +298,15 @@ std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mo
                     }
                 } else if ( splitVector.size() > 2 ) {
                     // 2 bit
-                    for ( int i = 0; i < splitVector.size() / 2; ++i ) {
+                    int i = 0;
+                    try {
+                        auto nr = boost::lexical_cast<int>( splitVector.at( i ) );
+                    }catch(const boost::bad_lexical_cast &){
+                        i = 1;
+                    }
+
+
+                    for ( ; i < splitVector.size() / 2; ++i ) {
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
                         auto nr = boost::lexical_cast<int>( splitVector.at( i ) );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3 );
