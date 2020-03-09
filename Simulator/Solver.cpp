@@ -507,11 +507,21 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     }
 
     // EOP
-    partialsPWL( Unknown::Type::XPO, p.xpo * speedOfLight * 100 / rad2mas );
-    partialsPWL( Unknown::Type::YPO, p.ypo * speedOfLight * 100 / rad2mas );
-    partialsPWL( Unknown::Type::dUT1, p.dut1 * speedOfLight * 100 / rad2mas );
-    partialsPWL( Unknown::Type::NUTX, p.nutx * speedOfLight * 100 / rad2mas );
-    partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
+    if ( estimationParamEOP_.XPO.estimate() ) {
+        partialsPWL( Unknown::Type::XPO, p.xpo * speedOfLight * 100 / rad2mas );
+    }
+    if ( estimationParamEOP_.XPO.estimate() ) {
+        partialsPWL( Unknown::Type::YPO, p.ypo * speedOfLight * 100 / rad2mas );
+    }
+    if ( estimationParamEOP_.XPO.estimate() ) {
+        partialsPWL( Unknown::Type::dUT1, p.dut1 * speedOfLight * 100 / rad2mas );
+    }
+    if ( estimationParamEOP_.XPO.estimate() ) {
+        partialsPWL( Unknown::Type::NUTX, p.nutx * speedOfLight * 100 / rad2mas );
+    }
+    if ( estimationParamEOP_.XPO.estimate() ) {
+        partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
+    }
 
     // clock
     if ( !para1.refClock ) {
