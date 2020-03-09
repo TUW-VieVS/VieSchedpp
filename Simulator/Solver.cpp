@@ -309,7 +309,6 @@ void Solver::solve() {
     of << "Number of constraints:    " << B_.rows() << endl;
     MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
     A << A_, B_;
-    cout << A << endl;
     VectorXd P( P_A_.size() + P_B_.size() );
     P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
