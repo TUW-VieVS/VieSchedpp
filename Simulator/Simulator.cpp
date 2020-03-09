@@ -145,6 +145,9 @@ void Simulator::simTropo() {
         const auto &simpara = simpara_[staid];
 
         int segments = ceil( TimeSystem::duration / ( simpara.tropo_dhseg * 3600 ) );
+        if ( segments == 1 ) {
+            segments = 2;
+        }
         VectorXd tn = VectorXd::Zero( segments );
         vector<PointingVector> pvs;
 
