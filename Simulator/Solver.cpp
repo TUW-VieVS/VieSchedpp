@@ -102,10 +102,14 @@ void Solver::setup() {
         if ( params.refClock ) {
             continue;
         }
-        name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta_name] = unknowns.size();
-        unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
-        name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta_name] = unknowns.size();
-        unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
+        if ( params.linear_clk ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::CLK_linear ) + sta_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::CLK_linear, sta_name );
+        }
+        if ( params.quadratic_clk ) {
+            name2startIdx[Unknown::typeString( Unknown::Type::CLK_quad ) + sta_name] = unknowns.size();
+            unknowns.emplace_back( Unknown::Type::CLK_quad, sta_name );
+        }
     }
     for ( int i = 0; i < network_.getNSta(); ++i ) {
         const string &sta_name = network_.getStation( i ).getName();
@@ -305,6 +309,7 @@ void Solver::solve() {
     of << "Number of constraints:    " << B_.rows() << endl;
     MatrixXd A( A_.rows() + B_.rows(), A_.cols() );
     A << A_, B_;
+    cout << A << endl;
     VectorXd P( P_A_.size() + P_B_.size() );
     P << P_A_, P_B_;
     MatrixXd o_c( A.rows(), obs_minus_com_.cols() );
@@ -510,16 +515,16 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     if ( estimationParamEOP_.XPO.estimate() ) {
         partialsPWL( Unknown::Type::XPO, p.xpo * speedOfLight * 100 / rad2mas );
     }
-    if ( estimationParamEOP_.XPO.estimate() ) {
+    if ( estimationParamEOP_.YPO.estimate() ) {
         partialsPWL( Unknown::Type::YPO, p.ypo * speedOfLight * 100 / rad2mas );
     }
-    if ( estimationParamEOP_.XPO.estimate() ) {
+    if ( estimationParamEOP_.dUT1.estimate() ) {
         partialsPWL( Unknown::Type::dUT1, p.dut1 * speedOfLight * 100 / rad2mas );
     }
-    if ( estimationParamEOP_.XPO.estimate() ) {
+    if ( estimationParamEOP_.NUTX.estimate() ) {
         partialsPWL( Unknown::Type::NUTX, p.nutx * speedOfLight * 100 / rad2mas );
     }
-    if ( estimationParamEOP_.XPO.estimate() ) {
+    if ( estimationParamEOP_.NUTY.estimate() ) {
         partialsPWL( Unknown::Type::NUTY, p.nuty * speedOfLight * 100 / rad2mas );
     }
 
@@ -812,7 +817,7 @@ void Solver::setupSummary() {
             }
         };
         if ( p.refClock ) {
-            of << "|       -- |     -- ";
+            of << "|   ref    |   ref  ";
         } else {
             fn( p.CLK );
         }
