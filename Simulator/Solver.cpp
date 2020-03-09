@@ -365,8 +365,8 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
         double yii = sta.getPosition().getY() / cc;
         double zii = sta.getPosition().getZ() / cc;
 
-        MatrixXd B = MatrixXd::Zero( 6, 3 );
         if ( para.coord && para.datum ) {
+            MatrixXd B = MatrixXd::Zero( 6, 3 );
             B( 0, 0 ) = 1;
             B( 1, 1 ) = 1;
             B( 2, 2 ) = 1;
@@ -380,14 +380,15 @@ void Solver::addDatum_stations( MatrixXd &N, MatrixXd &n ) {
             B( 5, 0 ) = -yii;
             B( 5, 1 ) = xii;
             stationInDatum = true;
+
+            unsigned long idx_x = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta.getName()];
+            unsigned long idx_y = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta.getName()];
+            unsigned long idx_z = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta.getName()];
+            dat.col( idx_x ) = B.col( 0 );
+            dat.col( idx_y ) = B.col( 1 );
+            dat.col( idx_z ) = B.col( 2 );
             ++c;
         }
-        unsigned long idx_x = name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta.getName()];
-        unsigned long idx_y = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta.getName()];
-        unsigned long idx_z = name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta.getName()];
-        dat.col( idx_x ) = B.col( 0 );
-        dat.col( idx_y ) = B.col( 1 );
-        dat.col( idx_z ) = B.col( 2 );
     }
 
     if ( stationInDatum ) {
@@ -494,11 +495,12 @@ void Solver::partialsToA( unsigned int iobs, const Observation &obs, const Point
     };
 
     // station coordinates
-    if ( !isnan( p.coord_x ) ) {
+    if ( para1.coord ) {
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta1] ) = p.coord_x;
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta1] ) = p.coord_y;
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta1] ) = p.coord_z;
-
+    }
+    if ( para2.coord ) {
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_X ) + sta2] ) = -p.coord_x;
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Y ) + sta2] ) = -p.coord_y;
         A_( iobs, name2startIdx[Unknown::typeString( Unknown::Type::COORD_Z ) + sta2] ) = -p.coord_z;
@@ -810,7 +812,8 @@ void Solver::setupSummary() {
         of << "|\n";
     }
     of << "'-----------------------------------------------------------------------------------------------------------"
-          "--------------------'\n";
+          "--------------------'"
+       << endl;
 }
 
 void Solver::listUnknowns() {
