@@ -130,7 +130,7 @@ void VieSchedpp::run() {
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << "using OpenMP to parallize multi scheduling!";
 #else
-        cout << "[info] using OpenMP to parallize multi scheduling!";
+        cout << "[info] using OpenMP to parallize multi scheduling!\n";
 #endif
 
         omp_sched_t omp_sched;
@@ -157,7 +157,7 @@ void VieSchedpp::run() {
         BOOST_LOG_TRIVIAL( info ) << boost::format( "OpenMP: job scheduling %s chunk size %d" ) % jobScheduling %
                                          chunkSize;
 #else
-        cout << boost::format( "[info] OpenMP: job scheduling %s chunk size %d" ) % jobScheduling % chunkSize;
+        cout << boost::format( "[info] OpenMP: job scheduling %s chunk size %d\n" ) % jobScheduling % chunkSize;
 #endif
     }
 
@@ -168,7 +168,7 @@ void VieSchedpp::run() {
         BOOST_LOG_TRIVIAL( warning )
             << "VieSchedpp was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
 #else
-        cout << "[warning] VieSchedpp was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
+        cout << "[warning] VieSchedpp was not compiled with OpenMP! Recompile it with OpenMP for multi core support\n";
 #endif
     }
 #endif
@@ -179,7 +179,7 @@ void VieSchedpp::run() {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << boost::format( "number of threads %d" ) % omp_get_num_threads();
 #else
-            cout << boost::format( "number of threads %d" ) % omp_get_num_threads();
+            cout << boost::format( "number of threads %d\n" ) % omp_get_num_threads();
 #endif
         }
 
@@ -211,15 +211,16 @@ void VieSchedpp::run() {
 #else
         ++counter;
 #endif
-
+        string prefix = "";
         // if you have multi schedule append version number to file name
         if ( flag_multiSched ) {
+            prefix = ( boost::format( "version %d: " ) % version ).str();
             fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
                                              counter % nsched;
 #else
-            cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)" ) % version % counter %
+            cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version % counter %
                         nsched;
 #endif
         }
@@ -231,18 +232,18 @@ void VieSchedpp::run() {
 
 // create scheduler and start scheduling
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << "start scheduling";
+        BOOST_LOG_TRIVIAL( info ) << prefix << "start scheduling";
 #else
-        cout << "[info] start scheduling";
+        cout << "[info] " + prefix + "start scheduling";
 #endif
         VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
         scheduler.start();
 
 // create output
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << "start writing output";
+        BOOST_LOG_TRIVIAL( info ) << prefix << "start writing output";
 #else
-        cout << "[info] start writing output";
+        cout << "[info] " + prefix + "start writing output";
 #endif
 
         VieVS::Output output( scheduler, path_, fname, version );
@@ -250,32 +251,34 @@ void VieSchedpp::run() {
 
         if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "start simulation";
+            BOOST_LOG_TRIVIAL( info ) << prefix << "start simulation";
 #else
-            cout << "[info] start simulation";
+            cout << "[info] " + prefix + "start simulation";
 #endif
             VieVS::Simulator simulator( output, path_, fname, version );
             simulator.start();
 
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "start analysis";
+            BOOST_LOG_TRIVIAL( info ) << prefix << "start analysis";
 #else
-            cout << "[info] start analysis";
+            cout << "[info] " + prefix + "start analysis";
 #endif
             VieVS::Solver solver( simulator, fname );
             solver.start();
             solver.writeStatistics( statisticsOf );
         }
 
-        if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << boost::format( "version %d finished" ) % version;
+        BOOST_LOG_TRIVIAL( info ) << prefix << "finished";
 #else
-            cout << boost::format( "[info] version %d finished" ) % ( i + 1 );
+        cout << boost::format( "[info] " + prefix + "finished" ) % ( i + 1 );
 #endif
-        }
     }
     statisticsOf.close();
+
+    if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+        summarizeSimulationResult();
+    }
 
 #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL( info ) << "VieSched++ is closing";
@@ -386,15 +389,7 @@ void VieSchedpp::init_log() {
     if ( tmp.is_initialized() ) {
         std::string threads = xml_.get<std::string>( "VieSchedpp.multiCore.threads", "auto" );
         int nThreads = xml_.get<int>( "VieSchedpp.multiCore.nThreads", 1 );
-        if ( threads == "single" || ( threads == "manual" && nThreads == 1 ) ) {
-            withThreadId = false;
-        } else {
-#ifdef _OPENMP
-            withThreadId = true;
-#else
-            withThreadId = false;
-#endif
-        }
+        withThreadId = !( threads == "single" || ( threads == "manual" && nThreads == 1 ) );
     } else {
         withThreadId = false;
     }
@@ -441,4 +436,276 @@ void VieSchedpp::init_log() {
     fsSink->set_formatter( logFmt );
     fsSink->locked_backend()->auto_flush( true );
 #endif
+}
+
+void VieSchedpp::summarizeSimulationResult() {
+    ifstream in( path_ + "statistics.csv" );
+    if ( in.is_open() ) {
+        string header;
+        getline( in, header );
+        vector<string> splitHeader;
+        boost::split( splitHeader, header, boost::is_any_of( "," ), boost::token_compress_on );
+        vector<tuple<string, int, double>> priorityLookup = getPriorityCoefficients( splitHeader );
+
+        map<int, vector<double>> storage;
+        string line;
+        while ( getline( in, line ) ) {
+            vector<double> vals;
+            vector<string> splitLine;
+            boost::split( splitLine, line, boost::is_any_of( "," ), boost::token_compress_on );
+
+            int idx;
+            try {
+                idx = boost::lexical_cast<int>( splitLine[0] );
+            } catch ( const boost::bad_lexical_cast & ) {
+                idx = -1;
+            }
+
+            int c = 0;
+            for ( const auto &any : priorityLookup ) {
+                double val;
+                try {
+                    val = boost::lexical_cast<double>( splitLine[get<1>( any )] );
+                } catch ( const boost::bad_lexical_cast & ) {
+                    val = numeric_limits<double>::quiet_NaN();
+                }
+                ++c;
+                vals.push_back( val );
+            }
+            storage[idx] = vals;
+        }
+        listBest( storage, priorityLookup );
+
+        in.close();
+    }
+}
+
+vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const std::vector<std::string> &header ) {
+    vector<tuple<string, int, double>> v;
+
+    const auto &tree = xml_.get_child( "VieSchedpp.priorities" );
+    string prefix;
+    if ( tree.get( "type", "mean formal errors" ) == "mean formal errors" ) {
+        prefix = "sim_mean_formal_error_";
+    } else {
+        prefix = "sim_repeatability_";
+    }
+
+    for ( const auto &any : tree ) {
+        if ( any.first == "variable" ) {
+            string name = any.second.get( "<xmlattr>.name", "" );
+            if ( name.empty() ) {
+                continue;
+            }
+            auto val = any.second.get_value<double>();
+
+            if ( name == "#obs" ) {
+                auto it = find( header.begin(), header.end(), "n_observations" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "EOP" ) {
+                vector<string> EOPs{prefix + "dUT1_[mus]", prefix + "x_pol_[muas]", prefix + "y_pol_[muas]",
+                                    prefix + "x_nut_[muas]", prefix + "y_nut_[muas]"};
+                vector<string> EOP_name{"dUT1", "XPO", "YPO", "NUTX", "NUTY"};
+
+                int c = 0;
+                for ( const auto &n : EOPs ) {
+                    auto it = find( header.begin(), header.end(), n );
+                    if ( it != header.end() ) {
+                        int idx = distance( header.begin(), it );
+                        v.emplace_back( EOP_name[c], idx, val );
+                    }
+                    ++c;
+                }
+
+            } else if ( name == "stations" ) {
+                const auto &stas = xml_.get_child( "VieSchedpp.general.stations" );
+                for ( const auto &station : stas ) {
+                    const string &sta = station.second.get_value<string>();
+                    auto it = find( header.begin(), header.end(), prefix + sta );
+                    if ( it != header.end() ) {
+                        int idx = distance( header.begin(), it );
+                        v.emplace_back( sta, idx, val );
+                    }
+                }
+            } else if ( name == "XPO" ) {
+                auto it = find( header.begin(), header.end(), prefix + "x_pol_[muas]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "YPO" ) {
+                auto it = find( header.begin(), header.end(), prefix + "y_pol_[muas]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "dUT1" ) {
+                auto it = find( header.begin(), header.end(), prefix + "dUT1_[mus]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "NUTX" ) {
+                auto it = find( header.begin(), header.end(), prefix + "x_nut_[muas]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else if ( name == "NUTY" ) {
+                auto it = find( header.begin(), header.end(), prefix + "y_nut_[muas]" );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            } else {
+                auto it = find( header.begin(), header.end(), prefix + name );
+                if ( it != header.end() ) {
+                    int idx = distance( header.begin(), it );
+                    v.emplace_back( name, idx, val );
+                }
+            }
+        }
+    }
+    return v;
+}
+
+
+void VieSchedpp::listBest( const std::map<int, std::vector<double>> &storage,
+                           const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
+    ofstream of( path_ + "simulation_summary.txt" );
+
+    unsigned long n = storage.size();
+    double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
+    unsigned long nq = lround( n * percentile );
+    if ( nq >= n ) {
+        nq = n - 1;
+    }
+
+    vector<double> scores( n, 0. );
+    for ( int j = 0; j < priorityLookup.size(); ++j ) {
+        double scale = get<2>( priorityLookup[j] );
+
+        vector<double> vals;
+        for ( int i = 0; i < n; ++i ) {
+            if ( n == 1 ) {
+                vals.push_back( storage.at( i )[j] );
+            } else {
+                vals.push_back( storage.at( i + 1 )[j] );
+            }
+        }
+        sort( vals.begin(), vals.end() );
+        double minVal = vals[0];
+        double pVal = vals[nq];
+
+        for ( int i = 0; i < n; ++i ) {
+            double v;
+            if ( n == 1 ) {
+                v = storage.at( i )[j];
+            } else {
+                v = storage.at( i + 1 )[j];
+            }
+
+            if ( isnan( v ) ) {
+                continue;
+            }
+            double cost;
+            if ( v < pVal ) {
+                cost = ( v - minVal ) / ( pVal - minVal ) * scale;
+            } else {
+                cost = scale;
+            }
+            scores[i] += cost;
+        }
+    }
+
+    if ( n > 1 ) {
+        double minScore = numeric_limits<double>::max();
+        double maxScore = numeric_limits<double>::min();
+        for ( double &score : scores ) {
+            if ( score < minScore ) {
+                minScore = score;
+            }
+            if ( score > maxScore ) {
+                maxScore = score;
+            }
+        }
+
+        for ( double &score : scores ) {
+            score = 1 - ( score - minScore ) / ( maxScore - minScore );
+        }
+    } else {
+        scores[0] = 1;
+    }
+
+
+    vector<int> sidx = util::sortIndexes( scores );
+    of << ".------------------";
+    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+        of << "-------------";
+    }
+    of << "-----------.\n";
+
+    of << boost::format( "| %=4s | %=7s | " ) % "v" % "score";
+    for ( const auto &v : priorityLookup ) {
+        const string &name = get<0>( v );
+        of << boost::format( "%=10s | " ) % name;
+    }
+    of << "\n";
+
+    of << "|------|---------|-";
+    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+        of << "-----------|-";
+    }
+    of << "-----------|\n";
+
+    for ( int i = sidx.size() - 1; i >= 0; --i ) {
+        int idx = sidx[i];
+
+        int idx_map = i + 1;
+        if ( n == 1 ) {
+            idx_map = 0;
+        }
+
+        const vector<double> &vals = storage.at( idx_map );
+
+        of << boost::format( "| %4d | %7.4f | %10d | " ) % ( idx + 1 ) % scores[idx] % vals[0];
+        string prefix;
+        if ( idx == sidx.size() - 1 ) {
+            prefix = "recommended";
+        } else {
+            prefix = "alternative";
+        }
+
+        if ( scores[idx] > 0.9 && i > static_cast<long>( sidx.size() ) - 10 ) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix %
+                                             ( idx + 1 ) % scores[idx] % vals[0];
+#else
+            cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % ( idx + 1 ) %
+                        scores[idx] % vals[0];
+#endif
+        }
+
+        bool first = true;
+        for ( const auto &v : vals ) {
+            if ( first ) {
+                first = false;
+                continue;
+            }
+            if ( isnan( v ) || v < 1e-10 ) {
+                of << boost::format( "%=10s | " ) % "--";
+            } else {
+                of << boost::format( "%10.4f | " ) % v;
+            }
+        }
+        of << "\n";
+    }
+    of << "'------------------";
+    for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
+        of << "-------------";
+    }
+    of << "-----------'\n";
 }
