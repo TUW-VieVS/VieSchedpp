@@ -144,7 +144,7 @@ class Solver : public VieVS_NamedObject {
 
     struct EstimationParamSource {
         bool coord = false;
-        bool datum = true;
+        bool datum = false;
     };
 
     enum class Axis {

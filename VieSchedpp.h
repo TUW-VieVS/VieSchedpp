@@ -141,19 +141,23 @@ class VieSchedpp {
      * @brief get priority values from xml file
      * @author Matthias Schartner
      *
+     * @param type output type (mfe or rep)
      * @param header list of header file entries
      * @return list of tuples (first = name, second = index, third = priority value) of priority elements
      */
-    std::vector<std::tuple<std::string, int, double>> getPriorityCoefficients( const std::vector<std::string> &header );
+    std::vector<std::tuple<std::string, int, double>> getPriorityCoefficients( const std::string &type,
+                                                                               const std::vector<std::string> &header );
 
     /**
      * @brief list best schedules based on simulations
      * @author Matthias Schartner
      *
+     * @param of out file stream
+     * @param type output type (mfe or rep)
      * @param storage values per schedule (first = version, second = list of values)
      * @param priorityLookup list of tuples (first = name, second = index, third = priority value) of priority elements
      */
-    void listBest( const std::map<int, std::vector<double>> &storage,
+    void listBest( std::ofstream &of, const std::string &type, const std::map<int, std::vector<double>> &storage,
                    const std::vector<std::tuple<std::string, int, double>> &priorityLookup );
 };
 }  // namespace VieVS

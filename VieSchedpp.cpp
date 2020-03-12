@@ -439,53 +439,63 @@ void VieSchedpp::init_log() {
 }
 
 void VieSchedpp::summarizeSimulationResult() {
-    ifstream in( path_ + "statistics.csv" );
-    if ( in.is_open() ) {
-        string header;
-        getline( in, header );
-        vector<string> splitHeader;
-        boost::split( splitHeader, header, boost::is_any_of( "," ), boost::token_compress_on );
-        vector<tuple<string, int, double>> priorityLookup = getPriorityCoefficients( splitHeader );
+    ofstream of( path_ + "simulation_summary.txt" );
 
-        map<int, vector<double>> storage;
-        string line;
-        while ( getline( in, line ) ) {
-            vector<double> vals;
-            vector<string> splitLine;
-            boost::split( splitLine, line, boost::is_any_of( "," ), boost::token_compress_on );
+    vector<string> types{"mean formal errors", "repeatability"};
+    for ( const auto &type : types ) {
+        of << type << ":\n";
 
-            int idx;
-            try {
-                idx = boost::lexical_cast<int>( splitLine[0] );
-            } catch ( const boost::bad_lexical_cast & ) {
-                idx = -1;
-            }
+        ifstream in( path_ + "statistics.csv" );
+        if ( in.is_open() ) {
+            string header;
+            getline( in, header );
+            vector<string> splitHeader;
+            boost::split( splitHeader, header, boost::is_any_of( "," ), boost::token_compress_on );
+            vector<tuple<string, int, double>> priorityLookup = getPriorityCoefficients( type, splitHeader );
 
-            int c = 0;
-            for ( const auto &any : priorityLookup ) {
-                double val;
+            map<int, vector<double>> storage;
+            string line;
+            while ( getline( in, line ) ) {
+                vector<double> vals;
+                vector<string> splitLine;
+                boost::split( splitLine, line, boost::is_any_of( "," ), boost::token_compress_on );
+
+                int idx;
                 try {
-                    val = boost::lexical_cast<double>( splitLine[get<1>( any )] );
+                    idx = boost::lexical_cast<int>( splitLine[0] );
                 } catch ( const boost::bad_lexical_cast & ) {
-                    val = numeric_limits<double>::quiet_NaN();
+                    idx = -1;
                 }
-                ++c;
-                vals.push_back( val );
-            }
-            storage[idx] = vals;
-        }
-        listBest( storage, priorityLookup );
 
-        in.close();
+                int c = 0;
+                for ( const auto &any : priorityLookup ) {
+                    double val;
+                    try {
+                        val = boost::lexical_cast<double>( splitLine[get<1>( any )] );
+                    } catch ( const boost::bad_lexical_cast & ) {
+                        val = numeric_limits<double>::quiet_NaN();
+                    }
+                    ++c;
+                    vals.push_back( val );
+                }
+                storage[idx] = vals;
+            }
+            listBest( of, type, storage, priorityLookup );
+
+            in.close();
+            of << "\n";
+        }
     }
 }
 
-vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const std::vector<std::string> &header ) {
+vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const string &type,
+                                                                        const std::vector<std::string> &header ) {
     vector<tuple<string, int, double>> v;
 
     const auto &tree = xml_.get_child( "VieSchedpp.priorities" );
+
     string prefix;
-    if ( tree.get( "type", "mean formal errors" ) == "mean formal errors" ) {
+    if ( type == "mean formal errors" ) {
         prefix = "sim_mean_formal_error_";
     } else {
         prefix = "sim_repeatability_";
@@ -573,9 +583,9 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 }
 
 
-void VieSchedpp::listBest( const std::map<int, std::vector<double>> &storage,
+void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int, std::vector<double>> &storage,
                            const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-    ofstream of( path_ + "simulation_summary.txt" );
+    const auto &targetType = xml_.get( "VieSchedpp.priorities.type", "mean formal errors" );
 
     unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
@@ -671,24 +681,25 @@ void VieSchedpp::listBest( const std::map<int, std::vector<double>> &storage,
 
         const vector<double> &vals = storage.at( idx_map );
 
-        of << boost::format( "| %4d | %7.4f | %10d | " ) % ( idx + 1 ) % scores[idx] % vals[0];
-        string prefix;
-        if ( idx == sidx.size() - 1 ) {
-            prefix = "recommended";
-        } else {
-            prefix = "alternative";
-        }
-
-        if ( scores[idx] > 0.9 && i > static_cast<long>( sidx.size() ) - 10 ) {
+        if ( targetType == type ) {
+            string prefix;
+            if ( idx == sidx.size() - 1 ) {
+                prefix = "recommended";
+            } else {
+                prefix = "alternative";
+            }
+            if ( scores[idx] > 0.9 && i > static_cast<long>( sidx.size() ) - 10 ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix %
-                                             ( idx + 1 ) % scores[idx] % vals[0];
+                BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) %
+                                                 prefix % ( idx + 1 ) % scores[idx] % vals[0];
 #else
-            cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % ( idx + 1 ) %
-                        scores[idx] % vals[0];
+                cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % ( idx + 1 ) %
+                            scores[idx] % vals[0];
 #endif
+            }
         }
 
+        of << boost::format( "| %4d | %7.4f | %10d | " ) % ( idx + 1 ) % scores[idx] % vals[0];
         bool first = true;
         for ( const auto &v : vals ) {
             if ( first ) {
