@@ -36,15 +36,15 @@ void ParameterSettings::software( const std::string &name, const std::string &ve
 }
 
 
-void ParameterSettings::general( const std::string &experimentName, const boost::posix_time::ptime &startTime,
-                                 const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
-                                 bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
-                                 bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
-                                 bool fillinmodeAPosteriori, bool idleToObservingTime,
-                                 const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
-                                 const std::vector<std::string> &srcNames, const std::string &scanAlignment,
-                                 const std::string &logConsole, const std::string &logFile,
-                                 bool doNotObserveSourcesWithinMinRepeat ) {
+void ParameterSettings::general(const std::string &experimentName, const boost::posix_time::ptime &startTime,
+                                const boost::posix_time::ptime &endTime, bool subnetting, double subnettingMinAngle,
+                                bool useSubnettingPercent_otherwiseAllBut, double subnettingNumber,
+                                bool fillinmodeInfluenceOnSchedule, bool fillinmodeDuringScan,
+                                bool fillinmodeAPosteriori, bool idleToObservingTime,
+                                const std::vector<std::string> &stations, bool useSourcesFromParameter_otherwiseIgnore,
+                                const std::vector<std::string> &srcNames, const std::string &scanAlignment,
+                                const std::string &logConsole, const std::string &logFile,
+                                bool doNotObserveSourcesWithinMinRepeat, int versionOffset) {
     boost::property_tree::ptree general;
 
     if ( experimentName.empty() ) {
@@ -121,6 +121,10 @@ void ParameterSettings::general( const std::string &experimentName, const boost:
     general.add( "general.logSeverityConsole", logConsole );
     general.add( "general.logSeverityFile", logFile );
     general.add( "general.doNotObserveSourcesWithinMinRepeat", doNotObserveSourcesWithinMinRepeat );
+
+    if (versionOffset > 0) {
+        general.add("general.versionOffset", versionOffset);
+    }
 
     master_.add_child( "VieSchedpp.general", general.get_child( "general" ) );
 }
