@@ -606,6 +606,7 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
                 vals.push_back( storage.at( i + 1 )[j] );
             }
         }
+        // TODO: EOP+coord minimum is best, #scans and #obs maximum is best!!!
         sort( vals.begin(), vals.end() );
         double minVal = vals[0];
         double pVal = vals[nq];
