@@ -197,9 +197,9 @@ void VieSchedpp::run() {
             if ( o_version.is_initialized() ) {
                 version = *o_version;
             }
-            auto versionOffset = xml_.get( "VieSchedpp.multisched.version_offset", 0 );
-            version += versionOffset;
         }
+        auto versionOffset = xml_.get("VieSchedpp.general.versionOffset", 0);
+        version += versionOffset;
 
         // get file name
         string fname = sessionName_;
@@ -212,10 +212,12 @@ void VieSchedpp::run() {
         ++counter;
 #endif
         string prefix = "";
+        if (version > 0) {
+            prefix = (boost::format("version %d: ") % version).str();
+            fname.append((boost::format("_v%03d") % (version)).str());
+        }
         // if you have multi schedule append version number to file name
         if ( flag_multiSched ) {
-            prefix = ( boost::format( "version %d: " ) % version ).str();
-            fname.append( ( boost::format( "_v%03d" ) % ( version ) ).str() );
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
                                              counter % nsched;
