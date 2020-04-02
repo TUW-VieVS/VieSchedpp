@@ -587,74 +587,82 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 
 void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int, std::vector<double>> &storage,
                            const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-    const auto &targetType = xml_.get( "VieSchedpp.priorities.type", "mean formal errors" );
+    const auto &targetType = xml_.get("VieSchedpp.priorities.type", "none");
 
     unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
-    unsigned long nq = lround( n * percentile );
+    long nq = lround(n * percentile - 1);
     if ( nq >= n ) {
         nq = n - 1;
     }
+    if (nq < 0) {
+        nq = 0;
+    }
 
-    vector<double> scores( n, 0. );
+    map<int, double> costs;
+    vector<int> versions;
+    for (const auto &a:storage) {
+        versions.push_back(a.first);
+        costs[a.first] = 0;
+    }
+
     for ( int j = 0; j < priorityLookup.size(); ++j ) {
+        const string &name = get<0>(priorityLookup[j]);
         double scale = get<2>( priorityLookup[j] );
 
         vector<double> vals;
-        for ( int i = 0; i < n; ++i ) {
-            if ( n == 1 ) {
-                vals.push_back( storage.at( i )[j] );
-            } else {
-                vals.push_back( storage.at( i + 1 )[j] );
-            }
+        for (int version : versions) {
+            vals.push_back(storage.at(version)[j]);
         }
-        // TODO: EOP+coord minimum is best, #scans and #obs maximum is best!!!
-        sort( vals.begin(), vals.end() );
-        double minVal = vals[0];
+
+        if (name[0] == '#') {
+            sort(vals.begin(), vals.end(), greater<double>());
+        } else {
+            sort(vals.begin(), vals.end());
+        }
+
+        double bestVal = vals[0];
         double pVal = vals[nq];
 
-        for ( int i = 0; i < n; ++i ) {
+        for (int version : versions) {
             double v;
-            if ( n == 1 ) {
-                v = storage.at( i )[j];
-            } else {
-                v = storage.at( i + 1 )[j];
-            }
+            v = storage.at(version)[j];
 
             if ( isnan( v ) ) {
                 continue;
             }
             double cost;
-            if ( v < pVal ) {
-                cost = ( v - minVal ) / ( pVal - minVal ) * scale;
-            } else {
-                cost = scale;
+            cost = (abs(v - bestVal)) / (abs(pVal - bestVal)) * scale;
+            if (cost > 1) {
+                cost = 1;
             }
-            scores[i] += cost;
+
+            costs[version] += cost;
         }
     }
 
     if ( n > 1 ) {
         double minScore = numeric_limits<double>::max();
         double maxScore = numeric_limits<double>::min();
-        for ( double &score : scores ) {
-            if ( score < minScore ) {
-                minScore = score;
+        for (const auto &any : costs) {
+            double cost = any.second;
+            if (cost < minScore) {
+                minScore = cost;
             }
-            if ( score > maxScore ) {
-                maxScore = score;
+            if (cost > maxScore) {
+                maxScore = cost;
             }
         }
 
-        for ( double &score : scores ) {
-            score = 1 - ( score - minScore ) / ( maxScore - minScore );
+        for (auto &any : costs) {
+            double cost = any.second;
+            cost = (cost - minScore) / (maxScore - minScore);
+            costs[any.first] = cost;
         }
     } else {
-        scores[0] = 1;
+        costs[versions[0]] = 1;
     }
 
-
-    vector<int> sidx = util::sortIndexes( scores );
     of << ".------------------";
     for ( int i = 0; i < priorityLookup.size() - 1; ++i ) {
         of << "-------------";
@@ -674,35 +682,43 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
     }
     of << "-----------|\n";
 
-    for ( int i = sidx.size() - 1; i >= 0; --i ) {
-        int idx = sidx[i];
+    // write recommended to log file
+    bool first = true;
+    int counter = 0;
+    map<double, int> best = util::flip_map(costs);
+    for (const auto &any : best) {
+        double cost = any.first;
+        int version = any.second;
 
-        int idx_map = i + 1;
-        if ( n == 1 ) {
-            idx_map = 0;
-        }
+        const vector<double> &vals = storage.at(version);
 
-        const vector<double> &vals = storage.at( idx_map );
-
-        if ( targetType == type ) {
+        if (targetType == type) {
             string prefix;
-            if ( idx == sidx.size() - 1 ) {
+            if (first) {
                 prefix = "recommended";
+                first = false;
             } else {
                 prefix = "alternative";
             }
-            if ( scores[idx] > 0.9 && i > static_cast<long>( sidx.size() ) - 10 ) {
+            if ((cost < 0.1 && counter < 10) || counter < 3) {
 #ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL( info ) << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) %
-                                                 prefix % ( idx + 1 ) % scores[idx] % vals[0];
+                BOOST_LOG_TRIVIAL(info) << boost::format("%s schedule: version %d (score: %.4f # obs: %d)") %
+                                           prefix % version % (1 - cost) % vals[0];
 #else
-                cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % ( idx + 1 ) %
-                            scores[idx] % vals[0];
+                cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % version %
+                            (1-cost) % vals[0];
 #endif
+                ++counter;
             }
         }
+    }
 
-        of << boost::format( "| %4d | %7.4f | %10d | " ) % ( idx + 1 ) % scores[idx] % vals[0];
+    // write to statistics file
+    for (const auto &any : costs) {
+        double cost = any.second;
+        int version = any.first;
+        const vector<double> &vals = storage.at(version);
+        of << boost::format("| %4d | %7.4f | %10d | ") % version % (1 - cost) % vals[0];
         bool first = true;
         for ( const auto &v : vals ) {
             if ( first ) {

@@ -832,6 +832,14 @@ void Solver::readXML() {
                 }
             }
 
+            if (any.second.get("estimate", "") == "__none__") {
+                for (int i = 0; i < sources_.size(); ++i) {
+                    const Source &src = sources_[i];
+                    EstimationParamSource &estimationParamSource = estimationParamSources_[i];
+                    estimationParamSource.coord = false;
+                }
+            }
+
             if ( any.second.get( "datum", "" ) == "__all__" ) {
                 for ( int i = 0; i < sources_.size(); ++i ) {
                     const Source &src = sources_[i];

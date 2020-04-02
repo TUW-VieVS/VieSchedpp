@@ -298,6 +298,33 @@ std::string weekDay2string( int weekday );
  */
 std::string month2string( int month );
 
+/**
+ * @brief flip pair
+ * @author Matthias Schartner
+ *
+ * @param p pair to flip
+ * @return flipped pair
+ */
+    template<typename A, typename B>
+    std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
+        return std::pair<B, A>(p.second, p.first);
+    }
+
+/**
+ * @brief flip map
+ * @author Matthias Schartner
+ *
+ * @param src map to flip
+ * @return flipped map
+ */
+    template<typename A, typename B>
+    std::map<B, A> flip_map(const std::map<A, B> &src) {
+        std::map<B, A> dst;
+        std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
+                       flip_pair<A, B>);
+        return dst;
+    }
+
 }  // namespace util
 }  // namespace VieVS
 
