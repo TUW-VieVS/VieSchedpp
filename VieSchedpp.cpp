@@ -477,6 +477,9 @@ void VieSchedpp::summarizeSimulationResult() {
                     } catch ( const boost::bad_lexical_cast & ) {
                         val = numeric_limits<double>::quiet_NaN();
                     }
+                    if (val == 9999) {
+                        val = numeric_limits<double>::quiet_NaN();
+                    }
                     ++c;
                     vals.push_back( val );
                 }
@@ -514,14 +517,14 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
             if ( name == "#obs" ) {
                 auto it = find( header.begin(), header.end(), "n_observations" );
                 if ( it != header.end() ) {
-                    int idx = distance( header.begin(), it );
+                    int idx = distance(header.begin(), it);
                     v.emplace_back( name, idx, val );
                 }
             } else if ( name == "EOP" ) {
-                vector<string> EOPs{prefix + "dUT1_[mus]", prefix + "x_pol_[muas]", prefix + "y_pol_[muas]",
+                vector<string> EOPs{prefix + "x_pol_[muas]", prefix + "y_pol_[muas]", prefix + "dUT1_[mus]",
                                     prefix + "x_nut_[muas]", prefix + "y_nut_[muas]"};
-                vector<string> EOP_name{"dUT1", "XPO", "YPO", "NUTX", "NUTY"};
-
+                vector<string> EOP_name{"XPO", "YPO", "dUT1", "NUTX", "NUTY"};
+                val /= 5;
                 int c = 0;
                 for ( const auto &n : EOPs ) {
                     auto it = find( header.begin(), header.end(), n );
@@ -534,6 +537,11 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 
             } else if ( name == "stations" ) {
                 const auto &stas = xml_.get_child( "VieSchedpp.general.stations" );
+                int nsta = 0;
+                for (const auto &station : stas) {
+                    ++nsta;
+                }
+                val /= nsta;
                 for ( const auto &station : stas ) {
                     const string &sta = station.second.get_value<string>();
                     auto it = find( header.begin(), header.end(), prefix + sta );
@@ -609,10 +617,20 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
     for ( int j = 0; j < priorityLookup.size(); ++j ) {
         const string &name = get<0>(priorityLookup[j]);
         double scale = get<2>( priorityLookup[j] );
+        if (scale == 0) {
+            continue;
+        }
 
         vector<double> vals;
         for (int version : versions) {
-            vals.push_back(storage.at(version)[j]);
+            double d = storage.at(version)[j];
+            if (!isnan(d)) {
+                vals.push_back(d);
+            }
+        }
+
+        if (vals.empty()) {
+            continue;
         }
 
         if (name[0] == '#') {
@@ -629,10 +647,14 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
             v = storage.at(version)[j];
 
             if ( isnan( v ) ) {
-                continue;
+                costs[version] = numeric_limits<double>::quiet_NaN();
             }
             double cost;
-            cost = (abs(v - bestVal)) / (abs(pVal - bestVal)) * scale;
+            if (bestVal == pVal) {
+                cost = 0;
+            } else {
+                cost = (abs(v - bestVal)) / (abs(pVal - bestVal)) * scale;
+            }
             if (cost > 1) {
                 cost = 1;
             }
@@ -646,6 +668,9 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
         double maxScore = numeric_limits<double>::min();
         for (const auto &any : costs) {
             double cost = any.second;
+            if (isnan(cost)) {
+                continue;
+            }
             if (cost < minScore) {
                 minScore = cost;
             }
@@ -656,6 +681,10 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
 
         for (auto &any : costs) {
             double cost = any.second;
+            if (isnan(cost) || maxScore == minScore) {
+                continue;
+            }
+
             cost = (cost - minScore) / (maxScore - minScore);
             costs[any.first] = cost;
         }
@@ -716,9 +745,16 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
     // write to statistics file
     for (const auto &any : costs) {
         double cost = any.second;
+        string costStr;
+        if (isnan(cost)) {
+            costStr = "--";
+        } else {
+            costStr = (boost::format("%7.4f") % (1 - cost)).str();
+        }
+
         int version = any.first;
         const vector<double> &vals = storage.at(version);
-        of << boost::format("| %4d | %7.4f | %10d | ") % version % (1 - cost) % vals[0];
+        of << boost::format("| %4d | %=7s | %10d | ") % version % costStr % vals[0];
         bool first = true;
         for ( const auto &v : vals ) {
             if ( first ) {

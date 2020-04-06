@@ -145,6 +145,7 @@ class Solver : public VieVS_NamedObject {
     struct EstimationParamSource {
         bool coord = false;
         bool datum = false;
+        bool forceIgnore = false;
     };
 
     enum class Axis {
@@ -161,7 +162,7 @@ class Solver : public VieVS_NamedObject {
     const Network network_;              ///< network
     const std::vector<Source> sources_;  ///< all sources
     const std::vector<Scan> scans_;      ///< all scans in schedule
-    const Eigen::MatrixXd obs_minus_com_;
+    Eigen::MatrixXd obs_minus_com_;
     const int version_;                                                       ///< number of this schedule
     boost::optional<MultiScheduling::Parameters> multiSchedulingParameters_;  ///< multi scheduling parameters
     int nsim_;
@@ -180,6 +181,8 @@ class Solver : public VieVS_NamedObject {
 
     Eigen::VectorXd mean_sig_;
     Eigen::VectorXd rep_;
+
+    bool singular_ = false;
 
 
     void setup();
@@ -215,6 +218,12 @@ class Solver : public VieVS_NamedObject {
     unsigned long findStartIdxPWL( unsigned int time, unsigned long startIdx );
 
     std::vector<double> summarizeResult( const Eigen::VectorXd & );
+
+    void dummyMatrixToFile(const Eigen::MatrixXd &M, const std::string &name) {
+        auto stream = std::ofstream(name);
+        stream << M;
+        stream.close();
+    }
 };
 
 
