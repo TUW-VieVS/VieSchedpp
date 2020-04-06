@@ -1524,6 +1524,17 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             }
         }
 
+        // reset all events
+        resetAllEvents(of);
+
+        // check if there was an new upcoming event in the meantime
+        unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
+        checkForNewEvents(startTime, true, of, false);
+        if (ignoreTagalong) {
+            ignoreTagalongParameter();
+        }
+
+
         // loop through all upcoming scans and set endposition
         boost::optional<StationEndposition> endposition( network_.getNSta() );
         for ( int j = i + 1; j < nMainScans; ++j ) {
@@ -1543,12 +1554,6 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
         endposition->setStationAvailable( network_.getStations() );
         endposition->checkStationPossibility( network_.getStations() );
 
-        // check if there was an new upcoming event in the meantime
-        unsigned int startTime = lastScan.getTimes().getScanTime( Timestamp::end );
-        checkForNewEvents( startTime, true, of, false );
-        if ( ignoreTagalong ) {
-            ignoreTagalongParameter();
-        }
 
         // recursively start scan selection
         boost::optional<Subcon> subcon = boost::none;
@@ -1658,6 +1663,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
         }
     }
     parameters_.subnetting = tmp;
+    resetAllEvents(of);
 }
 
 void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) {
