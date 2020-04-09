@@ -87,7 +87,7 @@ class Unknown : public VieVS_Object {
     const int refTime = std::numeric_limits<int>::min();
     const std::string member = "";
 
-    std::string toString() const;
+    std::string toString(std::string datum = " ") const;
 
    private:
     static unsigned long nextId;  ///< next id for this object type

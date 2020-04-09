@@ -256,7 +256,7 @@ void Solver::buildConstraintsMatrix() {
 void Solver::buildDesignMatrix() {
     unsigned int iobs = 0;
     int sources_minScans = xml_.get( "solver.source.minScans", 3 );
-    int sources_minObs = xml_.get( "solver.source.minObs", 4 );
+    int sources_minObs = xml_.get("solver.source.minObs", 5);
 
     Eigen::Matrix3d dWdx;
     Eigen::Matrix3d dWdy;
@@ -393,7 +393,10 @@ void Solver::solve() {
 
     VectorXd tmp = N.inverse().diagonal().array().sqrt();
     MatrixXd sigma_x = tmp * m0.transpose();
-    dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
+
+
+    // dummyMatrixToFile(sigma_x, (boost::format("sigma_x_%d.txt") % version_).str());
+
     for (int r = 0; r < unknowns.size(); ++r) {
         double d = sigma_x(r, 0);
         if (isnan(d)) {
@@ -860,7 +863,8 @@ void Solver::readXML() {
         }
 
         int sources_minScans = xml_.get( "solver.source.minScans", 3 );
-        int sources_minObs = xml_.get( "solver.source.minObs", 4 );
+        int sources_minObs = xml_.get("solver.source.minObs", 5);
+        int sources_minObs_datum = xml_.get("solver.source.minObs_datum", 25);
         if ( any.first == "source" ) {
             if ( any.second.get( "estimate", "" ) == "__all__" ) {
                 for ( int i = 0; i < sources_.size(); ++i ) {
@@ -882,7 +886,8 @@ void Solver::readXML() {
                 for ( int i = 0; i < sources_.size(); ++i ) {
                     const Source &src = sources_[i];
                     EstimationParamSource &estimationParamSource = estimationParamSources_[i];
-                    if ( estimationParamSource.coord ) {
+                    if (estimationParamSource.coord && src.getNObs() >= sources_minObs_datum &&
+                        src.getNObs() > src.getNTotalScans()) {
                         estimationParamSource.datum = true;
                     }
                 }
@@ -907,7 +912,7 @@ void Solver::readXML() {
                     for ( int i = 0; i < sources_.size(); ++i ) {
                         const Source &src = sources_[i];
                         if (src.getName() == target && estimationParamSources_[i].coord) {
-                            if (estimationParamSources_[i].coord) {
+                            if (estimationParamSources_[i].coord && src.getNObs() >= sources_minObs_datum) {
                                 estimationParamSources_[i].datum = true;
                             }
 
@@ -999,22 +1004,47 @@ void Solver::setupSummary() {
 
 void Solver::listUnknowns() {
     of << "\nList of estimated parameters\n";
-    of << ".---------------------------------------------------------------------------------------------------.\n";
-    of << "|     # | Type     | member   | reference epoch     |      sigma [unit]     | repeatability [unit]  |\n"
-          "|-------|----------|----------|---------------------|-----------------------|-----------------------|\n";
+    of << ".----------------------------------------------------------------------------------------------------.\n";
+    of << "|     # |  Type     | member   | reference epoch     |      sigma [unit]     | repeatability [unit]  |\n"
+          "|-------|-----------|----------|---------------------|-----------------------|-----------------------|\n";
     for ( int i = 0; i < unknowns.size(); ++i ) {
         const auto &u = unknowns[i];
+        Unknown::Type type = u.type;
+
+        string name = u.member;
+        string datum_str = " ";
+        if (type == Unknown::Type::COORD_X || type == Unknown::Type::COORD_Y || type == Unknown::Type::COORD_Z) {
+            for (int j = 0; j < network_.getNSta(); ++j) {
+                if (network_.getStation(j).hasName(name)) {
+                    if (estimationParamStations_[j].datum) {
+                        datum_str = "*";
+                    }
+                    break;
+                }
+            }
+        }
+        if (type == Unknown::Type::RA || type == Unknown::Type::DEC) {
+            for (int j = 0; j < sources_.size(); ++j) {
+                if (sources_[j].hasName(name)) {
+                    if (estimationParamSources_[j].datum) {
+                        datum_str = "*";
+                    }
+                    break;
+                }
+            }
+        }
+
         double sig = mean_sig_[i];
         double rep = rep_[i];
         if ( rep != 0 ) {
-            of << boost::format( "| %5d %s%11.5f %-10s |%11.5f %-10s |\n" ) % i % u.toString() % sig %
-                      Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
+            of << boost::format("| %5d %s%11.5f %-10s |%11.5f %-10s |\n") % i % u.toString(datum_str) % sig %
+                  Unknown::getUnit( u.type ) % rep % Unknown::getUnit( u.type );
         } else {
-            of << boost::format( "| %5d %s%11.5f %-10s |%11s %10s |\n" ) % i % u.toString() % sig %
-                      Unknown::getUnit( u.type ) % "--" % "";
+            of << boost::format("| %5d %s%11.5f %-10s |%11s %10s |\n") % i % u.toString(datum_str) % sig %
+                  Unknown::getUnit( u.type ) % "--" % "";
         }
     }
-    of << "'---------------------------------------------------------------------------------------------------'\n";
+    of << "'----------------------------------------------------------------------------------------------------'\n";
 }
 
 unsigned long Solver::findStartIdxPWL( unsigned int time, unsigned long startIdx ) {

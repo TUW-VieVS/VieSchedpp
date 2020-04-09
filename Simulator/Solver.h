@@ -220,9 +220,10 @@ class Solver : public VieVS_NamedObject {
     std::vector<double> summarizeResult( const Eigen::VectorXd & );
 
     void dummyMatrixToFile(const Eigen::MatrixXd &M, const std::string &name) {
-        auto stream = std::ofstream(name);
-        stream << M;
-        stream.close();
+
+        // auto stream = std::ofstream(name);
+        // stream << M;
+        // stream.close();
     }
 };
 

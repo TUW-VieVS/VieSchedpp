@@ -115,11 +115,11 @@ std::string Unknown::getUnit( Type t ) {
     }
 }
 
-std::string Unknown::toString() const {
-    string t = typeString( type );
+std::string Unknown::toString(string datum) const {
+    string t = datum + typeString(type);
     string m = member.empty() ? "--" : member;
     string e = refTime == std::numeric_limits<int>::min()
                    ? "--"
                    : TimeSystem::time2string( TimeSystem::startTime + boost::posix_time::seconds( refTime ) );
-    return ( boost::format( "| %-8s | %-8s | %-19s |" ) % t % m % e ).str();
+    return (boost::format("| %-9s | %-8s | %-19s |") % t % m % e).str();
 }

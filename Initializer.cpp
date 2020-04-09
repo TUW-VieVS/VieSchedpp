@@ -1505,7 +1505,11 @@ void Initializer::sourceSetup( vector<vector<Source::Event>> &events, const boos
             }
 
             if ( newPARA.minNumberOfStations.is_initialized() ) {
-                combinedPARA.minNumberOfStations = *newPARA.minNumberOfStations;
+                int n = *newPARA.minNumberOfStations;
+                if (n > network_.getNSta()) {
+                    n = network_.getNSta();
+                }
+                combinedPARA.minNumberOfStations = n;
             }
             if ( newPARA.minFlux.is_initialized() ) {
                 combinedPARA.minFlux = *newPARA.minFlux;
@@ -2463,9 +2467,13 @@ void Initializer::applyMultiSchedParameters( const VieVS::MultiScheduling::Param
     if ( !parameters.sourceMinNumberOfStations.empty() ) {
         for ( const auto &any : parameters.sourceMinNumberOfStations ) {
             string name = any.first;
+            int n = any.second;
+            if (n > network_.getNSta()) {
+                n = network_.getNSta();
+            }
             vector<unsigned long> ids = getMembers( name, sources_ );
             for ( auto id : ids ) {
-                sources_[id].referencePARA().minNumberOfStations = any.second;
+                sources_[id].referencePARA().minNumberOfStations = n;
             }
         }
     }

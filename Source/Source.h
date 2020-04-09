@@ -111,7 +111,7 @@ class Source : public VieVS_NamedObject {
 
         std::unordered_map<std::string, double> minSNR;  ///< minimum required signal to noise ration for each band
 
-        unsigned int minNumberOfStations = 2;  ///< minimum number of stations for a scan
+        unsigned int minNumberOfStations = 3;  ///< minimum number of stations for a scan
         double minFlux = 0.001;                ///< minimum flux density required for this source in jansky
         unsigned int minRepeat = 1800;         ///< minimum time between two observations of this source in seconds
         unsigned int maxScan = 9999;           ///< maximum allowed scan time in seconds
