@@ -176,10 +176,12 @@ void VieSchedpp::run() {
     // create all required schedules
     for ( int i = 0; i < nsched; ++i ) {
         if ( i == 0 && nsched > 1 ) {
+#ifdef _OPENMP
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL( info ) << boost::format( "number of threads %d" ) % omp_get_num_threads();
 #else
             cout << boost::format( "number of threads %d\n" ) % omp_get_num_threads();
+#endif
 #endif
         }
 
