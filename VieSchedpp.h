@@ -156,9 +156,22 @@ class VieSchedpp {
      * @param type output type (mfe or rep)
      * @param storage values per schedule (first = version, second = list of values)
      * @param priorityLookup list of tuples (first = name, second = index, third = priority value) of priority elements
+     * @return list of scores per session (key = version number, value = score)
      */
-    void listBest( std::ofstream &of, const std::string &type, const std::map<int, std::vector<double>> &storage,
-                   const std::vector<std::tuple<std::string, int, double>> &priorityLookup );
+    std::map<int, double>
+    listBest(std::ofstream &of, const std::string &type, const std::map<int, std::vector<double>> &storage,
+             const std::vector<std::tuple<std::string, int, double>> &priorityLookup );
+
+    /**
+     * @brief output best schedules based on simulations
+     * @author Matthias Schartner
+     *
+     * @param mfe_scores mean formal error costs
+     * @param rep_scores repeatability costs
+      * @param storage values per schedule (first = version, second = list of values)
+    */
+    void printRecommendation(const std::map<int, double> &mfe_costs, const std::map<int, double> &rep_costs,
+                             const std::map<int, std::vector<double>> &storage);
 };
 }  // namespace VieVS
 

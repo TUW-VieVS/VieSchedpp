@@ -446,6 +446,10 @@ void VieSchedpp::summarizeSimulationResult() {
     ofstream of( path_ + "simulation_summary.txt" );
 
     vector<string> types{"mean formal errors", "repeatability"};
+    map<int, double> mfe_costs;
+    map<int, double> rep_costs;
+    map<int, vector<double>> storage;
+
     for ( const auto &type : types ) {
         of << type << ":\n";
 
@@ -457,7 +461,7 @@ void VieSchedpp::summarizeSimulationResult() {
             boost::split( splitHeader, header, boost::is_any_of( "," ), boost::token_compress_on );
             vector<tuple<string, int, double>> priorityLookup = getPriorityCoefficients( type, splitHeader );
 
-            map<int, vector<double>> storage;
+            storage = map<int, vector<double>>();
             string line;
             while ( getline( in, line ) ) {
                 vector<double> vals;
@@ -487,12 +491,18 @@ void VieSchedpp::summarizeSimulationResult() {
                 }
                 storage[idx] = vals;
             }
-            listBest( of, type, storage, priorityLookup );
+            map<int, double> costs = listBest(of, type, storage, priorityLookup);
+            if (type == "mean formal errors") {
+                mfe_costs = move(costs);
+            } else if (type == "repeatability") {
+                rep_costs = move(costs);
+            }
 
             in.close();
             of << "\n";
         }
     }
+    printRecommendation(mfe_costs, rep_costs, storage);
 }
 
 vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const string &type,
@@ -595,9 +605,9 @@ vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const st
 }
 
 
-void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int, std::vector<double>> &storage,
-                           const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
-    const auto &targetType = xml_.get("VieSchedpp.priorities.type", "none");
+map<int, double>
+VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::vector<double>> &storage,
+                     const std::vector<std::tuple<std::string, int, double>> &priorityLookup ) {
 
     unsigned long n = storage.size();
     double percentile = xml_.get( "VieSchedpp.priorities.percentile", 0.75 );
@@ -713,37 +723,6 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
     }
     of << "-----------|\n";
 
-    // write recommended to log file
-    bool first = true;
-    int counter = 0;
-    map<double, int> best = util::flip_map(costs);
-    for (const auto &any : best) {
-        double cost = any.first;
-        int version = any.second;
-
-        const vector<double> &vals = storage.at(version);
-
-        if (targetType == type) {
-            string prefix;
-            if (first) {
-                prefix = "recommended";
-                first = false;
-            } else {
-                prefix = "alternative";
-            }
-            if ((cost < 0.1 && counter < 10) || counter < 3) {
-#ifdef VIESCHEDPP_LOG
-                BOOST_LOG_TRIVIAL(info) << boost::format("%s schedule: version %d (score: %.4f # obs: %d)") %
-                                           prefix % version % (1 - cost) % vals[0];
-#else
-                cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % version %
-                            (1-cost) % vals[0];
-#endif
-                ++counter;
-            }
-        }
-    }
-
     // write to statistics file
     for (const auto &any : costs) {
         double cost = any.second;
@@ -776,4 +755,56 @@ void VieSchedpp::listBest( ofstream &of, const string &type, const std::map<int,
         of << "-------------";
     }
     of << "-----------'\n";
+
+    return costs;
+}
+
+void VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, const std::map<int, double> &rep_costs,
+                                     const std::map<int, std::vector<double>> &storage) {
+
+    std::map<int, double> costs;
+    const auto &type = xml_.get_child_optional("VieSchedpp.priorities.type");
+    if (type.is_initialized()) {
+        double fraction = xml_.get("VieSchedpp.priorities.type.fraction", 70.0);
+        double f_mfe = 1 - fraction / 100.;
+        double f_rep = fraction / 100.;
+
+        for (const auto &any : mfe_costs) {
+            int version = any.first;
+            costs[version] = mfe_costs.at(version) * f_mfe + rep_costs.at(version) * f_rep;
+        }
+    } else {
+        return;
+    }
+
+
+    // write recommended to log file
+    bool first = true;
+    int counter = 0;
+    map<double, int> best = util::flip_map(costs);
+    for (const auto &any : best) {
+        double cost = any.first;
+        int version = any.second;
+
+        const vector<double> &vals = storage.at(version);
+
+        string prefix;
+        if (first) {
+            prefix = "recommended";
+            first = false;
+        } else {
+            prefix = "alternative";
+        }
+        if ((cost < 0.1 && counter < 10) || counter < 3) {
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL(info) << boost::format("%s schedule: version %d (score: %.4f # obs: %d)") %
+                                       prefix % version % (1 - cost) % vals[0];
+#else
+            cout << boost::format( "%s schedule: version %d (score: %.4f # obs: %d)" ) % prefix % version %
+                        (1-cost) % vals[0];
+#endif
+            ++counter;
+        }
+    }
+
 }
