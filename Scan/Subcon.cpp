@@ -1058,16 +1058,11 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             unsigned long staid = thisScan.getStationId( istation );
             const Station &thisSta = network.getStation( staid );
 
-            if (thisSource.getId() == 234) {
-                double x = 0;
-            }
-            PointingVector dummy(0, 0);
 
             int possibleEndpositionTime;
             if (endposition->hasEndposition(staid) && !endposition->hugeOffset(staid)) {
                 // required endposition
                 const PointingVector &thisEndposition = endposition->getFinalPosition( staid ).get();
-                dummy = thisEndposition;
 
                 // assume that pointing vector at scan end is same as pointing vector at scan start
                 const PointingVector &assumedSlewStart = thisScan.getPointingVector( istation );
