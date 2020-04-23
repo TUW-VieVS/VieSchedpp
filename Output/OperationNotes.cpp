@@ -205,6 +205,7 @@ void OperationNotes::writeOperationNotes( const Network &network, const std::vec
     of << "===========================================================\n";
     firstLastObservations_skdStyle( expName, network, sources, scans );
     of << "===========================================================\n";
+    calibrators_skdStyle(expName, network, sources, scans);
 
     if ( version > 0 ) {
         of << " Schedule was created using multi scheduling tool\n";
@@ -309,6 +310,11 @@ void OperationNotes::displayGeneralStatistics( const std::vector<Scan> &scans ) 
                 break;
             }
             case Scan::ScanType::astroCalibrator: {
+                ++n_calibrator;
+                obs_calibrator += any.getNObs();
+                break;
+            }
+            case Scan::ScanType::calibrator: {
                 ++n_calibrator;
                 obs_calibrator += any.getNObs();
                 break;
@@ -433,6 +439,34 @@ void OperationNotes::firstLastObservations_skdStyle( const string &expName, cons
     for ( ; i < scans.size(); ++i ) {
         const auto &scan = scans[i];
         of << scan.toSkedOutputTimes( sources[scan.getSourceId()], network.getNSta() );
+    }
+}
+
+void OperationNotes::calibrators_skdStyle(const string &expName, const Network &network,
+                                          const std::vector<Source> &sources,
+                                          const std::vector<Scan> &scans) {
+
+    bool first = true;
+    for (const auto &scan : scans) {
+        if (scan.getType() == Scan::ScanType::calibrator) {
+            if (first) {
+                of << " Calibrator scans\n";
+                of << " Observation listing from file " << boost::algorithm::to_lower_copy(expName)
+                   << ".skd for experiment "
+                   << expName << "\n";
+                of << " Source      Start      DURATIONS           \n";
+                of << " name     yyddd-hhmmss   ";
+                for (const auto &any : network.getStations()) {
+                    of << any.getAlternativeName() << "  ";
+                }
+                of << "\n";
+            }
+            first = false;
+            of << scan.toSkedOutputTimes(sources[scan.getSourceId()], network.getNSta());
+        }
+    }
+    if (!first) {
+        of << "===========================================================\n";
     }
 }
 

@@ -1509,6 +1509,9 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
     }
     startScanSelection( endTime, of, type, endposition, subcon, 0 );
 
+    // reset all events
+    resetAllEvents(of, false);
+
     // loop through all predefined scans
     for ( int i = 0; i < nMainScans; ++i ) {
         // look through all stations of last scan and set current pointing vector to last scan
@@ -1524,8 +1527,6 @@ void Scheduler::startScanSelectionBetweenScans( unsigned int duration, std::ofst
             }
         }
 
-        // reset all events
-        resetAllEvents(of);
 
         // check if there was an new upcoming event in the meantime
         unsigned int startTime = lastScan.getTimes().getScanTime(Timestamp::end);
@@ -1606,7 +1607,7 @@ void Scheduler::calibratorBlocks( std::ofstream &of ) {
             }
 
             for ( auto &thisStation : network_.refStations() ) {
-                PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
+                PointingVector pv(thisStation.getCurrentPointingVector());
                 pv.setTime( time );
                 thisStation.setCurrentPointingVector( pv );
                 thisStation.referencePARA().firstScan = true;
@@ -1689,6 +1690,8 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
         for ( auto &thisStation : network_.refStations() ) {
             PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
             pv.setTime( time );
+            pv.setAz((thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp()) / 2);
+            pv.setEl(0);
             thisStation.setCurrentPointingVector( pv );
             thisStation.referencePARA().firstScan = true;
         }
@@ -1732,22 +1735,28 @@ void Scheduler::highImpactScans( HighImpactScanDescriptor &himp, ofstream &of ) 
     for ( auto &thisStation : network_.refStations() ) {
         PointingVector pv( thisStation.getId(), numeric_limits<unsigned long>::max() );
         pv.setTime( 0 );
+        pv.setAz((thisStation.getCableWrap().getNLow() + thisStation.getCableWrap().getNUp()) / 2);
+        pv.setEl(0);
         thisStation.setCurrentPointingVector( pv );
         thisStation.referencePARA().firstScan = true;
     }
 }
 
 
-void Scheduler::resetAllEvents( std::ofstream &of ) {
+void Scheduler::resetAllEvents(std::ofstream &of, bool resetCurrentPointingVector) {
 #ifdef VIESCHEDPP_LOG
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "reset all events";
 #endif
 
     // reset all events
     for ( auto &any : network_.refStations() ) {
-        PointingVector pv( any.getId(), numeric_limits<unsigned long>::max() );
-        pv.setTime( 0 );
-        any.setCurrentPointingVector( pv );
+        if (resetCurrentPointingVector) {
+            PointingVector pv(any.getId(), numeric_limits<unsigned long>::max());
+            pv.setTime(0);
+            pv.setAz((any.getCableWrap().getNLow() + any.getCableWrap().getNUp()) / 2);
+            pv.setEl(0);
+            any.setCurrentPointingVector(pv);
+        }
         any.setNextEvent( 0 );
     }
     for ( auto &any : sources_ ) {

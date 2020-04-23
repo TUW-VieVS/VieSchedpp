@@ -191,6 +191,21 @@ class OperationNotes : public VieVS_Object {
 
 
     /**
+     * @brief list calibrator scans in skd style
+     * @author Matthias Schartner
+     *
+     * lists all calibrator scans
+     *
+     * @param expName experiment name
+     * @param network station network
+     * @param sources list of all sources
+     * @param scans list of all scans
+     */
+    void calibrators_skdStyle(const std::string &expName, const Network &network,
+                              const std::vector<Source> &sources, const std::vector<Scan> &scans);
+
+
+    /**
      * @brief list key=stationName
      * @author Matthias Schartner
      *

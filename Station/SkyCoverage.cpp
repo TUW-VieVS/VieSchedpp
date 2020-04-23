@@ -143,7 +143,7 @@ double SkyCoverage::skyCoverageScore_13( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while ( thisPv->getTime() < endTime && thisPv != pointingVectors_.end() ) {
+        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
             areas1.insert( areaIndex13_v1( *thisPv ) );
             areas2.insert( areaIndex13_v2( *thisPv ) );
 
@@ -175,7 +175,7 @@ double SkyCoverage::skyCoverageScore_25( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while ( thisPv->getTime() < endTime && thisPv != pointingVectors_.end() ) {
+        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
             areas1.insert( areaIndex25_v1( *thisPv ) );
             areas2.insert( areaIndex25_v2( *thisPv ) );
 
@@ -207,7 +207,7 @@ double SkyCoverage::skyCoverageScore_37( unsigned int deltaTime ) const {
 
         set<int> areas1;
         set<int> areas2;
-        while ( thisPv->getTime() < endTime && thisPv != pointingVectors_.end() ) {
+        while (thisPv != pointingVectors_.end() && thisPv->getTime() < endTime) {
             areas1.insert( areaIndex37_v1( *thisPv ) );
             areas2.insert( areaIndex37_v2( *thisPv ) );
 

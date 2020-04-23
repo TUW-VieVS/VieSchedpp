@@ -662,12 +662,16 @@ double Scan::calcScore_idleTime( const std::vector<double> &idleScore ) const no
 double Scan::calcScore_averageStations( const vector<double> &astas, unsigned long nMaxSta ) const noexcept {
     double finalScore = 0;
     unsigned long nMaxStaPossible = nMaxSta - 1;
+    double max = accumulate(astas.begin(), astas.end(), 0.0);
+    if (max < 1e-4) {
+        return 0;
+    }
 
     for ( const auto &pv : pointingVectorsStart_ ) {
         unsigned long staid = pv.getStaid();
-        unsigned long nObs = getNObs( staid );
-        finalScore += astas[staid] * static_cast<double>( nObs ) / static_cast<double>( nMaxStaPossible );
+        finalScore += astas[staid];
     }
+    finalScore /= max;
 
     return finalScore;
 }
@@ -1378,12 +1382,17 @@ bool Scan::calcScore( const std::vector<double> &prevLowElevationScores,
 
 void Scan::calcScoreCalibrator( const Network &network, const Source &source, const std::vector<double> &astas,
                                 double meanSNR, unsigned int minRequiredTime, unsigned int maxRequiredTime ) {
-    double scoreBaselines = calcScore_numberOfObservations( network.getNBls() );
-    double a = calcScore_averageStations( astas, network.getNBls() ) * 4;
+    double scoreBaselines = (calcScore_numberOfObservations(network.getNBls()) * 5);
+    double a = (1 + calcScore_averageStations(astas, network.getNBls()) * 5);
     double dur = calcScore_duration( network.getNSta(), minRequiredTime, maxRequiredTime ) * .2 + 1;
 
     double this_score = meanSNR * scoreBaselines * a * dur;
     score_ = calcScore_secondPart( this_score, network, source );
+
+    if (nsta_ < network.getNSta() * 0.7) {
+        score_ *= 0.01;
+    }
+
 }
 
 

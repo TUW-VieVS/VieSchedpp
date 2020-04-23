@@ -368,8 +368,9 @@ class Scheduler : public VieVS_NamedObject {
      * @author Matthias Schartner
      *
      * @param of outstream object
+     * @param resetCurrentPointingVector change the current pointing vector
      */
-    void resetAllEvents( std::ofstream &of );
+    void resetAllEvents(std::ofstream &of, bool resetCurrentPointingVector = true);
 
 
     /**
