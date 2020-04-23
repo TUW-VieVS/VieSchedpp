@@ -112,7 +112,7 @@ void Subcon::calcStartTimes( const Network &network, const vector<Source> &sourc
                                               thisSta.getPARA().systemDelay + thisSta.getPARA().preob;
 
                 // get minimum required endpositon time
-                int requiredEndpositionTime = endposition->requiredEndpositionTime( staid );
+                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
 
                 // check if there is enough time left
                 if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
@@ -289,7 +289,7 @@ void Subcon::calcAllScanDurations( const Network &network, const vector<Source> 
                                               thisSta.getPARA().systemDelay + thisSta.getPARA().preob + 5;
 
                 // get minimum required endpositon time
-                int requiredEndpositionTime = endposition->requiredEndpositionTime( staid );
+                int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
 
                 // check if there is enough time left
                 if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
@@ -1058,10 +1058,16 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             unsigned long staid = thisScan.getStationId( istation );
             const Station &thisSta = network.getStation( staid );
 
+            if (thisSource.getId() == 234) {
+                double x = 0;
+            }
+            PointingVector dummy(0, 0);
+
             int possibleEndpositionTime;
-            if ( endposition->hasEndposition( staid ) ) {
+            if (endposition->hasEndposition(staid) && !endposition->hugeOffset(staid)) {
                 // required endposition
                 const PointingVector &thisEndposition = endposition->getFinalPosition( staid ).get();
+                dummy = thisEndposition;
 
                 // assume that pointing vector at scan end is same as pointing vector at scan start
                 const PointingVector &assumedSlewStart = thisScan.getPointingVector( istation );
@@ -1092,7 +1098,7 @@ void Subcon::checkIfEnoughTimeToReachEndposition( const Network &network, const 
             }
 
             // get minimum required endpositon time
-            int requiredEndpositionTime = endposition->requiredEndpositionTime( staid );
+            int requiredEndpositionTime = endposition->requiredEndpositionTime(staid, false);
 
             if ( possibleEndpositionTime - 5 > requiredEndpositionTime ) {
                 scanValid = thisScan.removeStation( istation, thisSource );

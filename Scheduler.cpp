@@ -111,6 +111,9 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             }
         }
 
+        if (endTime == 2509 && scans_.size() == 10) {
+            double x = 0;
+        }
         // create a subcon with all possible next scans
         Subcon subcon;
         if ( opt_subcon.is_initialized() ) {
@@ -142,6 +145,18 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
         } else {
             // special case for calibrator scans
             subcon.generateScore( prevLowElevationScores, prevHighElevationScores, network_, sources_ );
+        }
+
+        int ubest = -1;
+        double hscore = 0;
+        for (const auto &scan : subcon.getSingleSourceScans()) {
+            if (scan.getScore() > hscore) {
+                hscore = scan.getScore();
+                ubest = scan.getSourceId();
+            }
+        }
+        if (ubest == 111) {
+            double x = 0;
         }
 
         unsigned long nSingleScans = subcon.getNumberSingleScans();
@@ -345,6 +360,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             stopScanSelection = calibratorUpdate( bestScans, prevHighElevationScores, prevLowElevationScores,
                                                   highestElevations, lowestElevations );
         }
+
+        of << boost::format("%d --> %.3f \n") % ubest % hscore;
 
         // update best possible scans
         consideredUpdate( nSingleScans, nSubnettingScans, depth, of );

@@ -124,10 +124,22 @@ class StationEndposition : public VieVS_Object {
      * @brief get required scan end time
      * @author Matthias Schartner
      *
+     * if rigorous check is false: use earliest_scan_start_time instead of final_position_time in case the difference is
+     * larger than 20 minutes
+     *
      * @param staid station id
+     * @param flag_rigorous rigorous check
      * @return latest possible scan end time
      */
-    unsigned int requiredEndpositionTime( unsigned long staid ) const;
+    unsigned int requiredEndpositionTime(unsigned long staid, bool flag_rigorous = true) const;
+
+
+    /**
+     *
+     * @param staid
+     * @return
+     */
+    bool hugeOffset(unsigned long staid) const;
 
 
     /**

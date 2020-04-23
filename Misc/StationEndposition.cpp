@@ -98,13 +98,24 @@ void StationEndposition::checkStationPossibility( const Station &thisStation ) {
 }
 
 
-unsigned int StationEndposition::requiredEndpositionTime( unsigned long staid ) const {
+unsigned int StationEndposition::requiredEndpositionTime(unsigned long staid, bool flag_rigorous) const {
     // check if station has a required endposition, otherwise use earliest scan start.
     if ( finalPosition_[staid].is_initialized() ) {
-        return finalPosition_[staid]->getTime();
+        unsigned int finalPositionTime = finalPosition_[staid]->getTime();
+        if (!flag_rigorous && hugeOffset(staid)) {
+            return earliestScanStart_;
+        } else {
+            return finalPositionTime;
+        }
     } else {
         return earliestScanStart_;
     }
+}
+
+
+bool StationEndposition::hugeOffset(unsigned long staid) const {
+    unsigned int finalPositionTime = finalPosition_[staid]->getTime();
+    return finalPositionTime - earliestScanStart_ > 1800;
 }
 
 
