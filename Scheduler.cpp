@@ -217,10 +217,6 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
                 maxScanEnd = any.getTimes().getScanTime( Timestamp::end );
             }
         }
-        if ( maxScanEnd > endTime ) {
-            break;
-        }
-
         if ( maxScanEnd > FocusCorners::nextStart ) {
             FocusCorners::startFocusCorner = true;
         }
@@ -283,8 +279,8 @@ void Scheduler::startScanSelection( unsigned int endTime, std::ofstream &of, Sca
             boost::optional<Subcon> new_opt_subcon( std::move( subcon ) );
             // start recursion for fillin mode scans
             unsigned long scansBefore = scans_.size();
-            startScanSelection( maxScanEnd + 600, of, Scan::ScanType::fillin, newEndposition, new_opt_subcon,
-                                depth + 1 );
+            startScanSelection(min(maxScanEnd + 600, TimeSystem::duration), of, Scan::ScanType::fillin, newEndposition,
+                               new_opt_subcon, depth + 1);
 
             // check if a fillin mode scan was created and update times if necessary
             unsigned long scansAfter = scans_.size();
