@@ -458,6 +458,7 @@ void Scheduler::start() noexcept {
     } else {
         startScanSelectionBetweenScans( TimeSystem::duration, of, Scan::ScanType::standard, true, false );
     }
+    checkForNewEvents(TimeSystem::duration, true, of, true);
 
     // start fillinmode a posterior
     if ( parameters_.fillinmodeAPosteriori ) {
@@ -1000,9 +1001,33 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     // get wait times
     unsigned int stationConstTimes = station.getPARA().systemDelay + station.getPARA().preob;
 
+    // sort and keep indices
+    int n_scans = scans_.size();
+    vector<pair<Scan, unsigned long> > vp;
+    vp.reserve(n_scans);
+    for (unsigned long i = 0; i < n_scans; ++i) {
+        vp.push_back({move(scans_[i]), i});
+    }
+
+    Timestamp ts = Timestamp::start;
+    stable_sort(vp.begin(), vp.end(),
+                [ts](const pair<Scan, unsigned long> &scan1, const pair<Scan, unsigned long> &scan2) {
+                    return scan1.first.getTimes().getObservingTime(ts) < scan2.first.getTimes().getObservingTime(ts);
+                });
+
+    // split sorted
+    vector<Scan> newScans;
+    newScans.reserve(n_scans);
+    vector<unsigned long> indices = vector<unsigned long>(n_scans);
+    for (int i = 0; i < n_scans; ++i) {
+        newScans.push_back(move(vp[i].first));
+        indices[i] = vp[i].second;
+    }
+
+
     // loop through all scans
     unsigned long counter = 0;
-    for ( auto &scan : scans_ ) {
+    for (auto &scan : newScans) {
         bool hardBreak = false;
         station.checkForNewEvent( scan.getTimes().getScanTime( Timestamp::start ), hardBreak );
         if ( !station.getPARA().available ) {
@@ -1241,6 +1266,12 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             }
 
             scan.addTagalongStation( pv_new_start, pv_new_end, newObs, *slewtime, station );
+            for (const auto &o : newObs) {
+                unsigned long staid2 = o.getStaid2();
+                Station &sta2 = network_.refStation(staid2);
+                sta2.increaseNObs();
+                source.increaseNObs();
+            }
             auto txt =
                 boost::format( "    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n" ) %
                 source.getName() % counter % TimeSystem::time2timeOfDay( pv_new_start.getTime() ) %
@@ -1259,6 +1290,14 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             station.update( newObs.size(), pv_new_end, true );
             skyCoverage.update( pv_new_end );
         }
+    }
+
+    // sort back to original order
+    scans_ = vector<Scan>();
+    scans_.reserve(n_scans);
+    for (int i = 0; i < n_scans; ++i) {
+        unsigned long idx = distance(indices.begin(), find(indices.begin(), indices.end(), i));
+        scans_.push_back(move(newScans[idx]));
     }
 
     //    station.applyNextEvent(of);

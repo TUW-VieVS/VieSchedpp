@@ -374,6 +374,13 @@ class Source : public VieVS_NamedObject {
 
 
     /**
+     * @brief increase number of observations by one
+     * @author Matthias Schartner
+     */
+    void increaseNObs() noexcept { ++nObs_; }
+
+
+    /**
      * @brief geter for number of already scheduled scans to this source
      * @author Matthias Schartner
      *

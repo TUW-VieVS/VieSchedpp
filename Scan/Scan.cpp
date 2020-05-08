@@ -1118,7 +1118,7 @@ void Scan::addTagalongStation( const PointingVector &pv_start, const PointingVec
     pointingVectorsStart_.push_back( pv_start );
     pointingVectorsEnd_.push_back( pv_end );
     ++nsta_;
-    for ( auto &any : observations ) {
+    for (const auto &any : observations) {
 #ifdef VIESCHEDPP_LOG
         if ( Flags::logTrace )
             BOOST_LOG_TRIVIAL( trace ) << "scan " << this->printId() << " add tagalong observation between stations "

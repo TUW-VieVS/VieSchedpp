@@ -581,7 +581,7 @@ bool Station::listTagalongTimes( std::ofstream &of, bool skdFormat ) const {
     }
 
     for ( const auto &any : *events_ ) {
-        if ( any.PARA.tagalong ) {
+        if (!search && any.PARA.tagalong) {
             start = any.time;
             search = true;
             res = true;
