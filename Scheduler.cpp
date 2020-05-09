@@ -882,7 +882,6 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     for ( auto &any : network_.refStations() ) {
         bool tagalong = any.checkForTagalongMode( time );
         if ( tagalong && scheduleTagalong ) {
-            of << "TAGALONG for station " << any.getName() << " required!\n";
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug )
                 BOOST_LOG_TRIVIAL( debug ) << "tagalong for station " << any.getName() << " required";
@@ -905,6 +904,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     }
     if ( !stationChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "station parameter changed", stationChanged, of );
+        of << boost::format("|%|143T-||\n");
     }
 
     // check if a source has to be changed
@@ -921,6 +921,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     if ( !sourcesChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "source parameter changed", sourcesChanged, of );
         listSourceOverview( of );
+        of << boost::format("|%|143T-||\n");
     }
 
     // check if a baseline has to be changed
@@ -936,6 +937,7 @@ bool Scheduler::checkForNewEvents( unsigned int time, bool output, ofstream &of,
     }
     if ( !baselineChanged.empty() && output && time < TimeSystem::duration ) {
         util::outputObjectList( "baseline parameter changed", baselineChanged, of );
+        of << boost::format("|%|143T-||\n");
     }
     return hard_break;
 }
@@ -996,13 +998,16 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << "start tagalong mode for station " << station.getName();
 #endif
 
-    of << "Start tagalong mode for station " << station.getName() << ": \n";
+    of << boost::format("| Start tagalong mode for station %s %|143t||\n") % station.getName();
 
     // get wait times
     unsigned int stationConstTimes = station.getPARA().systemDelay + station.getPARA().preob;
 
+    // tagalong end time
+    unsigned int tagalongEndTime = scans_.back().getTimes().getScanTime(Timestamp::end);
+
     // sort and keep indices
-    int n_scans = scans_.size();
+    unsigned long n_scans = scans_.size();
     vector<pair<Scan, unsigned long> > vp;
     vp.reserve(n_scans);
     for (unsigned long i = 0; i < n_scans; ++i) {
@@ -1028,6 +1033,10 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
     // loop through all scans
     unsigned long counter = 0;
     for (auto &scan : newScans) {
+        if (scan.getTimes().getScanTime(Timestamp::end) > tagalongEndTime) {
+            continue;
+        }
+
         bool hardBreak = false;
         station.checkForNewEvent( scan.getTimes().getScanTime( Timestamp::start ), hardBreak );
         if ( !station.getPARA().available ) {
@@ -1273,9 +1282,10 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
                 source.increaseNObs();
             }
             auto txt =
-                boost::format( "    possible to observe source: %-8s (scan: %4d) scan start: %s scan end: %s \n" ) %
-                source.getName() % counter % TimeSystem::time2timeOfDay( pv_new_start.getTime() ) %
-                TimeSystem::time2timeOfDay( pv_new_end.getTime() );
+                    boost::format(
+                            "|    possible to observe source: %-8s scan start: %s scan end: %s  (scan: %d) %|143t||\n") %
+                    source.getName() % TimeSystem::time2timeOfDay(pv_new_start.getTime()) %
+                    TimeSystem::time2timeOfDay(pv_new_end.getTime()) % scan.getId();
 
 #ifdef VIESCHEDPP_LOG
             if ( Flags::logDebug ) BOOST_LOG_TRIVIAL( debug ) << txt;
@@ -1291,6 +1301,8 @@ void Scheduler::startTagelongMode( Station &station, SkyCoverage &skyCoverage, s
             skyCoverage.update( pv_new_end );
         }
     }
+    of << boost::format("|%|143T-||\n");
+
 
     // sort back to original order
     scans_ = vector<Scan>();
