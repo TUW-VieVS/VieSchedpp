@@ -150,7 +150,7 @@ class MultiScheduling : public VieVS_Object {
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
-                of << "    weight sky coverage " << *weightSkyCoverage << "\n";
+                of << "    weight sky-coverage " << *weightSkyCoverage << "\n";
             }
             if ( weightNumberOfObservations.is_initialized() ) {
                 of << "    weight number of observations " << *weightNumberOfObservations << "\n";
@@ -193,10 +193,10 @@ class MultiScheduling : public VieVS_Object {
             }
 
             if ( skyCoverageInfluenceDistance.is_initialized() ) {
-                of << "    sky coverage influence distance " << *skyCoverageInfluenceDistance << " [deg]\n";
+                of << "    sky-coverage influence distance " << *skyCoverageInfluenceDistance << " [deg]\n";
             }
             if ( skyCoverageInfluenceTime.is_initialized() ) {
-                of << "    sky coverage influence time " << *skyCoverageInfluenceTime << " [s]\n";
+                of << "    sky-coverage influence time " << *skyCoverageInfluenceTime << " [s]\n";
             }
 
             for ( const auto &any : stationWeight ) {
@@ -291,17 +291,17 @@ class MultiScheduling : public VieVS_Object {
             }
 
             if ( fillinmode_duringScanSelection.is_initialized() ) {
-                of << "fillinmode_during_scan_selection,";
+                of << "fillin-mode_during_scan_selection,";
             }
             if ( fillinmode_aPosteriori.is_initialized() ) {
-                of << "fillinmode_a_posteriori,";
+                of << "fillin-mode_a_posteriori,";
             }
             if ( fillinmode_influenceOnScanSelection.is_initialized() ) {
-                of << "fillinmode_influence_on_scan_selection,";
+                of << "fillin-mode_influence_on_scan_selection,";
             }
 
             if ( weightSkyCoverage.is_initialized() ) {
-                of << "weight_sky_coverage,";
+                of << "weight_sky-coverage,";
             }
             if ( weightNumberOfObservations.is_initialized() ) {
                 of << "weight_number_of_observations,";
@@ -344,10 +344,10 @@ class MultiScheduling : public VieVS_Object {
             }
 
             if ( skyCoverageInfluenceDistance.is_initialized() ) {
-                of << "sky_coverage_influence_distance,";
+                of << "sky-coverage_influence_distance,";
             }
             if ( skyCoverageInfluenceTime.is_initialized() ) {
-                of << "sky_coverage_influence_time,";
+                of << "sky-coverage_influence_time,";
             }
 
             for ( const auto &any : stationWeight ) {

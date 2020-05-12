@@ -64,15 +64,15 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
     // create map with all weight factors
     map<string, vector<double>> weightFactors = {
-        {"weight_factor_sky_coverage", vector<double>{WeightFactors::weightSkyCoverage}},
-        {"weight_factor_number_of_observations", vector<double>{WeightFactors::weightNumberOfObservations}},
-        {"weight_factor_duration", vector<double>{WeightFactors::weightDuration}},
-        {"weight_factor_average_sources", vector<double>{WeightFactors::weightAverageSources}},
-        {"weight_factor_average_stations", vector<double>{WeightFactors::weightAverageStations}},
-        {"weight_factor_average_baselines", vector<double>{WeightFactors::weightAverageBaselines}},
-        {"weight_factor_idle_time", vector<double>{WeightFactors::weightIdleTime}},
-        {"weight_factor_low_declination", vector<double>{WeightFactors::weightDeclination}},
-        {"weight_factor_low_elevation", vector<double>{WeightFactors::weightLowElevation}}};
+            {"weight_factor_sky-coverage",           vector<double>{WeightFactors::weightSkyCoverage}},
+            {"weight_factor_number_of_observations", vector<double>{WeightFactors::weightNumberOfObservations}},
+            {"weight_factor_duration",               vector<double>{WeightFactors::weightDuration}},
+            {"weight_factor_average_sources",        vector<double>{WeightFactors::weightAverageSources}},
+            {"weight_factor_average_stations",       vector<double>{WeightFactors::weightAverageStations}},
+            {"weight_factor_average_baselines",      vector<double>{WeightFactors::weightAverageBaselines}},
+            {"weight_factor_idle_time",              vector<double>{WeightFactors::weightIdleTime}},
+            {"weight_factor_low_declination", vector<double>{WeightFactors::weightDeclination}},
+            {"weight_factor_low_elevation", vector<double>{WeightFactors::weightLowElevation}}};
 
     // check if a weight factor is changed during multi scheduling
     bool weigthFactorFound = false;
@@ -90,7 +90,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
     vector<double> scaleFactors;
     vector<vector<double>> weightFactorValues;
     if ( weigthFactorFound ) {
-        for ( double wsky : weightFactors["weight_factor_sky_coverage"] ) {
+        for (double wsky : weightFactors["weight_factor_sky-coverage"]) {
             for ( double wobs : weightFactors["weight_factor_number_of_observations"] ) {
                 for ( double wdur : weightFactors["weight_factor_duration"] ) {
                     for ( double wasrc : weightFactors["weight_factor_average_sources"] ) {
@@ -220,7 +220,7 @@ std::vector<MultiScheduling::Parameters> MultiScheduling::createMultiSchedulePar
 
             for ( int i_item = 0; i_item < n_items; ++i_item ) {
                 for ( const auto &any : singleArgumentNumeric ) {
-                    if ( any.first == "weight_factor_sky_coverage" ) {
+                    if (any.first == "weight_factor_sky-coverage") {
                         allPARA[c].weightSkyCoverage = thisValue[0];
                         break;
                     }
@@ -331,11 +331,11 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
         for ( int i_item = 0; i_item < n_items; ++i_item ) {
             if ( name == "general_subnetting" ) {
                 allPara[c].subnetting = thisValue;
-            } else if ( name == "general_fillinmode_during_scan_selection" ) {
+            } else if (name == "general_fillin-mode_during_scan_selection") {
                 allPara[c].fillinmode_duringScanSelection = thisValue;
-            } else if ( name == "general_fillinmode_influence_on_scan_selection" ) {
+            } else if (name == "general_fillin-mode_influence_on_scan_selection") {
                 allPara[c].fillinmode_influenceOnScanSelection = thisValue;
-            } else if ( name == "general_fillinmode_a_posteriori" ) {
+            } else if (name == "general_fillin-mode_a_posteriori") {
                 allPara[c].fillinmode_aPosteriori = thisValue;
             }
             ++c;
@@ -380,10 +380,10 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
             } else if ( name == "weight_factor_low_elevation_full" ) {
                 allPara[c].weightLowElevation_full = thisValue;
 
-            } else if ( name == "weight_factor_influence_distance" ) {
+            } else if (name == "sky-coverage_influence_distance") {
                 allPara[c].skyCoverageInfluenceDistance = thisValue;
 
-            } else if ( name == "weight_factor_influence_time" ) {
+            } else if (name == "sky-coverage_influence_time") {
                 allPara[c].skyCoverageInfluenceTime = thisValue;
             }
             ++c;

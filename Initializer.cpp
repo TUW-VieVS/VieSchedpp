@@ -2611,9 +2611,9 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
             if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ) {
                 continue;
             }
-            if ( name == "general_subnetting" || name == "general_fillinmode_during_scan_selection" ||
-                 name == "general_fillinmode_influence_on_scan_selection" ||
-                 name == "general_fillinmode_a_posteriori" ) {
+            if (name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
+                name == "general_fillin-mode_influence_on_scan_selection" ||
+                name == "general_fillin-mode_a_posteriori") {
                 ms.addParameters( name );
                 continue;
             }
@@ -2899,11 +2899,11 @@ unsigned int Initializer::minutesVisible( const Source &source, const Source::Pa
 
 
 void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::MultiScheduling::Parameters> &ms ) {
-    of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillinmode_scans,n_calibrator_scans,n_"
+    of << "version,n_scans,n_single_source_scans,n_subnetting_scans,n_fillin-mode_scans,n_calibrator_scans,n_"
           "observations,n_stations,n_sources,time_average_observation,time_average_preob,time_average_slew,time_"
-          "average_idle,time_average_field_system,sky_coverage_average_13_areas_30_min,sky_coverage_average_25_areas_"
-          "30_min,sky_coverage_average_37_areas_30_min,sky_coverage_average_13_areas_60_min,sky_coverage_average_25_"
-          "areas_60_min,sky_coverage_average_37_areas_60_min,";
+          "average_idle,time_average_field_system,sky-coverage_average_13_areas_30_min,sky-coverage_average_25_areas_"
+          "30_min,sky-coverage_average_37_areas_30_min,sky-coverage_average_13_areas_60_min,sky-coverage_average_25_"
+          "areas_60_min,sky-coverage_average_37_areas_60_min,";
 
     of << WeightFactors::statisticsHeader();
 
@@ -2924,22 +2924,22 @@ void Initializer::statisticsLogHeader( ofstream &of, const std::vector<VieVS::Mu
     }
 
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_13_areas_30_min,";
+        of << "sky-coverage_" << any.getName() << "_13_areas_30_min,";
     }
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_25_areas_30_min,";
+        of << "sky-coverage_" << any.getName() << "_25_areas_30_min,";
     }
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_37_areas_30_min,";
+        of << "sky-coverage_" << any.getName() << "_37_areas_30_min,";
     }
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_13_areas_60_min,";
+        of << "sky-coverage_" << any.getName() << "_13_areas_60_min,";
     }
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_25_areas_60_min,";
+        of << "sky-coverage_" << any.getName() << "_25_areas_60_min,";
     }
     for ( const auto &any : network_.getStations() ) {
-        of << "sky_coverage_" << any.getName() << "_37_areas_60_min,";
+        of << "sky-coverage_" << any.getName() << "_37_areas_60_min,";
     }
 
     for ( const auto &any : network_.getStations() ) {
