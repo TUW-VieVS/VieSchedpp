@@ -476,6 +476,8 @@ void ObservingMode::readSkdTrackFrameFormat( const std::shared_ptr<Mode> &mode, 
         string recorder = eq.at( eq.size() - 1 );
         if ( recorder == "MARK5B" || recorder == "K5" ) {
             recorder = "Mark5B";
+        } else if ( recorder == "MARK5A") {
+            recorder = "MARK5A";
         } else {
             recorder = "Mark4";
         }
