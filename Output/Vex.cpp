@@ -88,28 +88,28 @@ void Vex::exper_block( const std::string &expName, const std::string &expDescrip
           "\n";
     of << "    def " << expName << eol;
     of << "        exper_name = " << boost::replace_all_copy( expName, " ", "_" ) << eol;
-    of << "        exper_description = " << boost::replace_all_copy( expDescription, " ", "_" ) << eol;
+    of << "        exper_description = \"" << boost::replace_all_copy( expDescription, " ", "_" ) << "\"" << eol;
     auto st = TimeSystem::startTime;
     of << "        exper_nominal_start = " << TimeSystem::time2string_doy_units( st ) << eol;
     auto et = TimeSystem::endTime;
     of << "        exper_nominal_stop = " << TimeSystem::time2string_doy_units( et ) << eol;
 
     if ( !piName.empty() ) {
-        of << "        PI_name = " << boost::replace_all_copy( piName, " ", "_" ) << eol;
+        of << "        PI_name = \"" << boost::replace_all_copy( piName, " ", "_" ) << "\"" << eol;
     }
     if ( !piEmail.empty() ) {
         of << "        PI_email = " << piEmail << eol;
     }
 
     if ( !contactName.empty() ) {
-        of << "        contact_name = " << boost::replace_all_copy( contactName, " ", "_" ) << eol;
+        of << "        contact_name = \"" << boost::replace_all_copy( contactName, " ", "_" ) << "\"" << eol;
     }
     if ( !contactEmail.empty() ) {
         of << "        contact_email = " << contactEmail << eol;
     }
 
     if ( !schedulerName.empty() ) {
-        of << "        scheduler_name = " << boost::replace_all_copy( schedulerName, " ", "_" ) << eol;
+        of << "        scheduler_name = \"" << boost::replace_all_copy( schedulerName, " ", "_" ) << "\"" << eol;
     }
     if ( !schedulerEmail.empty() ) {
         of << "        scheduler_email = " << schedulerEmail << eol;
@@ -339,7 +339,6 @@ void Vex::sched_block( const std::vector<Scan> &scans, const Network &network, c
         for ( int j = 0; j < nsta; ++j ) {
             const PointingVector &pv = scan.getPointingVector( j );
             unsigned long staid = pv.getStaid();
-            double az = pv.getAz();
             const Station &thisStation = network.getStation( staid );
             const string &thisTlc = thisStation.getAlternativeName();
             string cwvex;
