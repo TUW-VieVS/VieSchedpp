@@ -16,8 +16,9 @@
  #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  #
 
- cmake_minimum_required(VERSION 3.8)
+ cmake_minimum_required(VERSION 3.5)
  project(VieSchedpp)
+ message(Build: ${CMAKE_BUILD_TYPE})
 
  set(CMAKE_CXX_STANDARD 14)
 
@@ -122,20 +123,18 @@
  ###########################################################################################
  ########################################### BOOST #########################################
  ###########################################################################################
- # SET(BOOST_ROOT "C:/boost")
+ set(LINK_BOOST "True" CACHE STRING "link against boost libraries")
 
- ##### uncommend the following lines to use boost libraries and therefore enable logging ###
- add_definitions(-DVIESCHEDPP_LOG)
- SET(Boost_USE_STATIC_LIBS ON)
- find_package(Boost COMPONENTS log log_setup system REQUIRED)
- ######################################## end of block #####################################
-
- # OR:
-
- #### uncommend the following lines to only use header only libraries and  disable logging
- # find_package(Boost  REQUIRED)
-
- ######################################## end of block #####################################
+ if(LINK_BOOST)
+     message("Link against BOOST libraries")
+     add_definitions(-DVIESCHEDPP_LOG)
+     SET(Boost_USE_STATIC_LIBS ON)
+     find_package(Boost COMPONENTS log log_setup system REQUIRED)
+ else()
+     message("use BOOST header only")
+     message("Boost found:")
+     find_package(Boost  REQUIRED)
+ endif()
 
  if (Boost_FOUND)
      include_directories(${Boost_INCLUDE_DIRS})
@@ -147,14 +146,15 @@
      TARGET_LINK_LIBRARIES(VieSchedpp ${Boost_LIBRARIES})
  endif ()
 
+
  ###########################################################################################
  ########################################### SOFA ##########################################
  ###########################################################################################
 
- ######### uncommend the following lines to automatically look for SOFA and link it ########
+ set(PATH_IAU_SOFA "../IAU_SOFA/Release/" CACHE STRING "path to folder containing IAU SOFA library")
  FIND_LIBRARY(SOFA
          NAMES libsofa_c.a libsofa_c.lib
-         HINTS "../IAU_SOFA/Release/")
+         HINTS ${PATH_IAU_SOFA})
  if (SOFA)
      message("SOFA library found")
      message("  SOFA location: ${SOFA}")
