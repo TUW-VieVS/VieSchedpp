@@ -41,178 +41,86 @@ Read the text on the welcome page for more information.
 
 # Installation
 
+## VieSched++ installers 
+
 __Installers for Windows 10 and Ubuntu 18.04 are provided through the release page on GitHub!__
 
 Visit https://github.com/TUW-VieVS/VieSchedpp/releases.
 
 ## Manual installation
 
-The software consists of two parts:
+This section descripes how to manually install __VieSched++__. Please note that we provide installers for several operating systems. It is a lot easier to use one of the installers instead of building __VieSched++__ manually! 
+
+The software consists of several parts:
 * VieSched++: the scheduler (this repository)
-* VieSched++ GUI: the graphical user interface, hostet on https://github.com/TUW-VieVS/VieSchedppGUI
+* VieSched++ GUI (optional): the graphical user interface, hostet on https://github.com/TUW-VieVS/VieSchedppGUI
+* VieSched++ AUTO (optional): enables automated scheduling based on daily cronjob 
 
 __It is highly recommended to use the GUI to create the VieSchedpp.xml input files!__
 
-Have a look at https://github.com/TUW-VieVS/VieSchedppGUI/blob/master/README.md for installing the GUI.
+The following code shows how to install all components of VieSched++ as well as their dependencies on a plain Ubuntu 18.04 installation:
 
-### Installation of VieSched++
+	sudo apt update
+	sudo apt install git
+	sudo apt install build-essential
+	sudo apt install cmake 
+	sudo apt install libboost-all-dev
 
-This section descripes how to install __VieSched++__ on LINUX.
+	mkdir VieSchedpp
+	cd VieSchedpp
 
-While an installation is possible on Windows (tested with Windows 10) it is no
-further discussed due to the many possibilieties of different compilers and options.
+	# make IAU_SOFA (get source code from any repository you like)
+	git clone https://github.com/Starlink/sofa.git --single-branch --branch=vendor IAU_SOFA 
+	cd IAU_SOFA 
+	mkdir Release 
+	cd src/
+	make 
+	mv libsofa_c.a ../Release/
+	make clean
+	cd ../../
 
-If you run into any problems compiling __VieSched++__, contact me
-under matthias.schartner@geo.tuwien.ac.at and I can send you some pre-build binaries.
+	# make VieSched++
+	git clone https://github.com/TUW-VieVS/VieSchedpp.git 
+	cd VieSchedpp 
+	mkdir Release 
+	cd Release 
+	cmake -DCMAKE_BUILD_TYPE=Release .. 
+	make 
+	# [OPTIONAL] test installation: "$ ./VieSchedpp" 
+	cd ../../
 
-The source code is hosted at two git repositories:
-* https://github.com/TUW-VieVS/VieSchedpp.git (public)
-* https://git.geo.tuwien.ac.at/vievs/VieSchedpp/VieSchedpp.git (inside TU Vienna GEO Domain)
+	# make VieSched++ GUI (optional - graphical user interface)
+	sudo apt install qt5-default libqt5charts5 libqt5charts5-dev libqt5network5 
+	git clone https://github.com/TUW-VieVS/VieSchedppGUI.git 
+	cd VieSchedppGUI
+	mkdir Release 
+	cd Release 
+	qmake "IAU_SOFA=../../IAU_SOFA/Release/libsofa_c.a" ../VieSchedppGUI.pro 
+	make 
+	# [OPTIONAL] test installation: "$ ./VieSchedppGUI" 
+	cd ../../
 
-### Dependencies
+	# install VieSched++ AUTO (optional - auto scheduling program)
+	# first install a python version to activate the environment (I'm using Miniconda here)
+	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	bash Miniconda3-latest-Linux-x86_64.sh # follow the installation instructions
+	conda env create -f ./VieSchedpp_AUTO/environment.yml # create new environment for VieSchedpp_AUTO
+	conda activate VieSchedpp_AUTO # activate the new environment
+	# download VieSched++ AUTO
+	git clone https://github.com/TUW-VieVS/VieSchedpp_AUTO.git 
+	# [OPTIONAL] test installation: "$ python VieSchedpp_AUTO/VieSchedpp_AUTO.py -h"
 
-Before you install __VieSched++__ check if you have the following dependencies installed:
 
-* gcc/g++ (tested with version 7.2.0, 7.3.0 and 8.1.0)
-  * possible installation on Ubuntu: `sudo apt-get install build-essentials`
-* SOFA libraries
-  * check out git project `https://git.geo.tuwien.ac.at/vievs/VieSchedpp/IAU_SOFA.git` (inside TU-Wien GEO domain) or visit http://www.iausofa.org/
-  * The SOFA library has to be locate in `../IAU_SOFA/Release`, otherwise change search path in `CMakeLists.txt` file manually
-* boost c++ libraries (tested with version 1.58.00, 1.64.0 and 1.67.0)
-  * possible installation on Ubuntu: `sudo apt-get install libboost-all-dev` or check out https://www.boost.org/
-* cmake (tested with Version 3.8 and 3.12)
-  * possible installation on Ubuntu: `sudo apt-get install cmake` or visit https://cmake.org/
-* some other basic dependencies should already be part of your operating system or previous packages
+### Tipps installing VieSchedpp
+- `-DPATH_IAU_SOFA="./path/to/IAU_SOFA/"` --> set path to IAU_SOFA library (default: "../IAU_SOFA/Release")
+- `-DLINK_BOOST=False` --> link against Boost libraries (default: "True")
+- If you have troubles finding boost try to set path `-DBOOST_ROOT="./path/to/boost/"` 
 
-### Recommended software folder structure
+### Tipps installing VieSchedppGUI:
+- you can set path to `IAU_SOFA` library using `qmake "IAU_SOFA=../../IAU_SOFA/libsofa_c.a"` (default path is "../IAU_SOFA/Release")
+ 
 
-The full software contains 4 different packages which are all available in git under `git.geo.tuwien.ac.at/vievs/VieSchedpp/` (Inside the TU-Wien GEO domain). Two of the packages are also available on github `https://github.com/TUW-VieVS/`. 
-
-It is recommended to copy the source code into one common directory here called `VieVS`
-
-    VieVS/VieSchedpp
-    VieVS/VieSchedppGUI
-    VieVS/IAU_SOFA (only for installation)
-    VieVS/CATALOGS (not required for installation)
-
-### Build
-
-clone git repository into `VieVS` or copy source code into `VieVS/VieSchedpp`
-
-    cd VieVS
-    git clone https://github.com/TUW-VieVS/VieSchedpp.git
-
-make sure that the `IAU_SOFA` library is already build in `VieVS/IAU_SOFA/Release/libsofa_c.a`.
-See `README.md` from `IAU_SOFA` for help.
-
-browse to newly created folder `VieSchedpp`
-
-    cd VieSchedpp
-
-create new folder `Release` and browse there
-
-    mkdir Release
-    cd Release
-
-run CMake with `Release` flag with `CMakeLists.txt` from parent directory:
-
-    cmake -DCMAKE_BUILD_TYPE=Release ..
-
-run make
-
-    make
-
-You should now be able to find the program in `VieVS/VieSchedpp/Release`
-
-### Build without c++ boost libraries
-
-Do the same as descriped in the previouse section but before running
-`cmake -DCMAKE_BUILD_TYPE=Release .. ` open file `CMakeLists.txt` in
-`VieVS/VieSchedpp/` and change the boost blocks.
-(commend first block and uncommend second block)
-
-# Documentation
-
-The Documentation of the __VieSched++__ source code can be found at https://tuw-vievs.github.io/VieSchedpp/index.html.
-
-**WARNING:** This documentation always refers to the actual `master` branch on `GitHub`. This might be different then your personal version. 
-
-## Create documentation by yourself
-
-To create a documentation you should have installed `doxygen` and optionally
-the `dot` tool from `Graphviz`.
-If you want to create diagrams make sure that the `dot` executable is in your
-path variable.
-
-### Via batch file
-
-Run the `createDocumentation_linux.sh` bash script or `createDocumentation_windows.bat` batch file.
-(Make sure you have the appropriate file permissions to run the script. If not run `chmod 711 createDocumentation_linux.sh` or equivalent windows commands before)
-
-You should now get a `index.html` link and a `refman.pdf` file in your `VieSchedpp/documentation/` directory.
-
-The `index.html` file is the startpoint of your manual in `html` format.
-
-### Directly via doxygen
-
-To create a documentation run `doxygen` in the `VieSchedpp/documentation/`
-subfolder.
-
-This should create a `html` and `latex` documentation.
-
-For more infos visit http://www.doxygen.nl/.
-
-# Troubleshooting
-
-## Installation
-
-After calling `cmake` your output should look like the following:
-
-    -- The C compiler identification is GNU 7.2.0
-    -- The CXX compiler identification is GNU 7.2.0
-    -- Check for working C compiler: /usr/bin/cc
-    -- Check for working C compiler: /usr/bin/cc -- works
-    -- Detecting C compiler ABI info
-    -- Detecting C compiler ABI info - done
-    -- Detecting C compile features
-    -- Detecting C compile features - done
-    -- Check for working CXX compiler: /usr/bin/c++
-    -- Check for working CXX compiler: /usr/bin/c++ -- works
-    -- Detecting CXX compiler ABI info
-    -- Detecting CXX compiler ABI info - done
-    -- Detecting CXX compile features
-    -- Detecting CXX compile features - done
-    -- Found OpenMP_C: -fopenmp (found version "4.5")
-    -- Found OpenMP_CXX: -fopenmp (found version "4.5")
-    -- Found OpenMP: TRUE (found version "4.5")  
-    OpenMP found
-    -- Looking for pthread.h
-    -- Looking for pthread.h - found
-    -- Looking for pthread_create
-    -- Looking for pthread_create - found
-    -- Found Threads: TRUE  
-    -- Boost version: 1.64.0
-    -- Found the following Boost libraries:
-    --   log
-    --   log_setup
-    --   system
-    --   date_time
-    --   filesystem
-    --   thread
-    --   regex
-    --   chrono
-    --   atomic
-    Boost VERSION: 106400
-    Boost INCLUDE_DIRS: /usr/local/include
-    Boost Boost_LIBRARY_DIRS: /usr/local/lib
-    Boost LIBRARIES: /usr/local/lib/libboost_log.a;/usr/local/lib/libboost_log_setup.a;/usr/local/lib/libboost_system.a;/usr/local/lib/libboost_date_time.a;/usr/local/lib/libboost_filesystem.a;/usr/local/lib/libboost_thread.a;/usr/local/lib/libboost_regex.a;/usr/local/lib/libboost_chrono.a;/usr/local/lib/libboost_atomic.a
-    SOFA library found: /home/mschartn/programming/test/IAU_SOFA/Release/libsofa_c.a
-    VieSched++ version: f20be1498274232acb46cf44121f9e60278c6528
-    -- Configuring done
-    -- Generating done
-    -- Build files have been written to: /home/mschartn/programming/test/VieSchedpp/Release
-
-----
+## Troubleshooting installation
 
 If your Output contains some `CMake` warnings like:
 
@@ -229,11 +137,11 @@ Check if your `c++ boost libraries` and the `SOFA` library is found. If not set 
 
 ----
 
-If you have troubles getting `boost` to work simply try to build it without `c++ boost libraries` (header only - see `CMakeLists.txt` file `BOOST` section).
+If you have troubles getting `boost` to work simply try to build it without `c++ boost libraries`. (see Section "Tipps installing VieSchedpp")
 
 ----
 
-If you still have troubles installing the software contact me under: matthias.schartner@geo.tuwien.ac.at.
+If you still have troubles installing the software contact me: matthias.schartner@geo.tuwien.ac.at.
 
 ## Software errors
 
