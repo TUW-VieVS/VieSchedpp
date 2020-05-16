@@ -88,22 +88,9 @@ class Vex : public VieVS_Object {
      * @brief write vex $EXPER block
      * @author Matthias Schartner
      *
-     * @param expName experiment name
-     * @param expDescription experiment description
-     * @param piName pi name
-     * @param piEmail pi email
-     * @param contactName contact name
-     * @param contactEmail contact email
-     * @param schedulerName scheduler name
-     * @param schedulerEmail scheduler email
-     * @param notes additional notes
-     * @param targetCorrelator target correlator
-     * @param gui_version gui scheduler version
+     * @param xml VieSchedpp.xml property tree
      */
-    void exper_block( const std::string &expName, const std::string &expDescription, const std::string &piName,
-                      const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
-                      const std::string &schedulerName, const std::string &schedulerEmail, const std::string &notes,
-                      const std::string &targetCorrelator, const std::string &gui_version );
+    void exper_block( const boost::property_tree::ptree &xml );
 
 
     /**

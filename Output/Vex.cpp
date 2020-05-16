@@ -34,17 +34,7 @@ void Vex::writeVex( const Network &network, const std::vector<Source> &sources, 
                     const std::shared_ptr<const ObservingMode> &obsModes, const boost::property_tree::ptree &xml ) {
     global_block( xml.get( "VieSchedpp.general.experimentName", "schedule" ) );
 
-    exper_block( boost::trim_copy( xml.get( "VieSchedpp.general.experimentName", "dummy" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.experimentDescription", "no further description" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.piName", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.piEmail", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.contactName", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.contactEmail", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.created.name", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.created.email", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.notes", "" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.output.correlator", "unknown" ) ),
-                 boost::trim_copy( xml.get( "VieSchedpp.software.GUI_version", "unknown" ) ) );
+    exper_block( xml );
 
     station_block( network.getStations() );
     mode_block( obsModes );
@@ -77,10 +67,17 @@ void Vex::global_block( const std::string &expName ) {
 }
 
 
-void Vex::exper_block( const std::string &expName, const std::string &expDescription, const std::string &piName,
-                       const std::string &piEmail, const std::string &contactName, const std::string &contactEmail,
-                       const std::string &schedulerName, const std::string &schedulerEmail, const std::string &notes,
-                       const std::string &targetCorrelator, const std::string &gui_version ) {
+void Vex::exper_block( const boost::property_tree::ptree &xml ) {
+    const string &expName = boost::trim_copy( xml.get( "VieSchedpp.general.experimentName", "dummy" ) );
+    const string &expDescription = boost::trim_copy( xml.get( "VieSchedpp.output.experimentDescription", "no further description" ) );
+    const string &piName = boost::trim_copy( xml.get( "VieSchedpp.output.piName", "" ) );
+    const string &piEmail = boost::trim_copy( xml.get( "VieSchedpp.output.piEmail", "" ) );
+    const string &schedulerName = boost::trim_copy( xml.get( "VieSchedpp.created.name", "" ) );
+    const string &schedulerEmail = boost::trim_copy( xml.get( "VieSchedpp.created.email", "" ) );
+    const string &notes = boost::trim_copy( xml.get( "VieSchedpp.output.notes", "" ) );
+    const string &targetCorrelator = boost::trim_copy( xml.get( "VieSchedpp.output.correlator", "unknown" ) );
+    const string &gui_version = boost::trim_copy( xml.get( "VieSchedpp.software.GUI_version", "unknown" ) );
+
     of << "*========================================================================================================="
           "\n";
     of << "$EXPER;\n";
@@ -88,28 +85,45 @@ void Vex::exper_block( const std::string &expName, const std::string &expDescrip
           "\n";
     of << "    def " << expName << eol;
     of << "        exper_name = " << boost::replace_all_copy( expName, " ", "_" ) << eol;
-    of << "        exper_description = \"" << boost::replace_all_copy( expDescription, " ", "_" ) << "\"" << eol;
+    of << "        exper_description = " << boost::replace_all_copy( expDescription, " ", "_" ) << eol;
     auto st = TimeSystem::startTime;
     of << "        exper_nominal_start = " << TimeSystem::time2string_doy_units( st ) << eol;
     auto et = TimeSystem::endTime;
     of << "        exper_nominal_stop = " << TimeSystem::time2string_doy_units( et ) << eol;
 
     if ( !piName.empty() ) {
-        of << "        PI_name = \"" << boost::replace_all_copy( piName, " ", "_" ) << "\"" << eol;
+        of << "        PI_name = " << boost::replace_all_copy( piName, " ", "_" ) << eol;
     }
     if ( !piEmail.empty() ) {
         of << "        PI_email = " << piEmail << eol;
     }
 
-    if ( !contactName.empty() ) {
-        of << "        contact_name = \"" << boost::replace_all_copy( contactName, " ", "_" ) << "\"" << eol;
-    }
-    if ( !contactEmail.empty() ) {
-        of << "        contact_email = " << contactEmail << eol;
+    const auto &pt = xml.get_child_optional( "VieSchedpp.output.contacts" );
+    if ( pt.is_initialized() ) {
+        for (const auto &any : *pt) {
+            const string &name = any.second.get("name", "");
+            const string &email = any.second.get("email", "");
+            const string &phone = any.second.get("phone", "");
+            const string &affiliation = any.second.get("affiliation", "");
+            if ( !name.empty() ) {
+                string l = name;
+                if(!email.empty()){
+                    l += ", " + email;
+                }
+                if(!affiliation.empty()){
+                    l += " (" + affiliation + ")";
+                }
+                if(!phone.empty()){
+                    l += " tel.: " + phone;
+                }
+                of << "*       contact = " << l << eol;
+            }
+
+        }
     }
 
     if ( !schedulerName.empty() ) {
-        of << "        scheduler_name = \"" << boost::replace_all_copy( schedulerName, " ", "_" ) << "\"" << eol;
+        of << "        scheduler_name = " << boost::replace_all_copy( schedulerName, " ", "_" ) << eol;
     }
     if ( !schedulerEmail.empty() ) {
         of << "        scheduler_email = " << schedulerEmail << eol;

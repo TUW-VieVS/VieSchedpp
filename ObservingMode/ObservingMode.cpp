@@ -221,7 +221,7 @@ boost::property_tree::ptree ObservingMode::toPropertytree() const {
 
 
 void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd,
-                                 const std::map<int, int> &channelNr2Bbc ) {
+                                 const std::map<int, pair<int, Freq::Net_sideband > > &channelNr2Bbc ) {
     const auto &staNames = skd.getStaNames();
 
     const auto &freqName = skd.getFreqName();
@@ -236,16 +236,14 @@ void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCat
     const auto &channelNumber2Bbc = skd.getChannelNumber2BBC();
     const auto &channelNumber2skyFreq = skd.getChannelNumber2skyFreq();
 
-    int lastBbcNr = -1;
     for ( const auto &any : channelNr2Bbc ) {
         int chNr = any.first;
-        int bbcNr = any.second;
+        int bbcNr = any.second.first;
+        Freq::Net_sideband sideband = any.second.second;
         string chStr = ( boost::format( "&CH%02d" ) % chNr ).str();
         string bbcStr = ( boost::format( "&BBC%02d" ) % bbcNr ).str();
-        Freq::Net_sideband sideband = bbcNr == lastBbcNr ? Freq::Net_sideband::L : Freq::Net_sideband::U;
         auto skyFreq = boost::lexical_cast<double>( channelNumber2skyFreq.at( bbcNr ) );
         thisFreq->addChannel( channelNumber2band.at( bbcNr ), skyFreq, sideband, bandwidth, chStr, bbcStr, "&U_cal" );
-        lastBbcNr = bbcNr;
     }
 
     // add freq to mode
@@ -254,9 +252,9 @@ void ObservingMode::readSkdFreq( const std::shared_ptr<Mode> &mode, const SkdCat
 }
 
 
-std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
+std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mode, const SkdCatalogReader &skd ) {
     const auto &staNames = skd.getStaNames();
-    std::map<int, int> channelNr2Bbc;
+    std::map<int, pair<int, Freq::Net_sideband > > channelNr2Bbc;
 
     // create tracks object
     const auto &staName2tracksMap = skd.getStaName2tracksMap();
@@ -289,30 +287,32 @@ std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mo
                 boost::split( splitVector, tracks, boost::is_any_of( "," ), boost::token_compress_off );
                 if ( splitVector.size() <= 2 ) {
                     // 1 bit
-                    for ( const auto &ch : splitVector ) {
+                    for ( int ich = 0; ich < splitVector.size(); ++ich ) {
+                        const auto &ch = splitVector[ich];
+                        if(ch.empty()){
+                            continue;
+                        }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
                         auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3 );
-                        channelNr2Bbc[chn] = bbcNr;
+                        Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
+                        channelNr2Bbc[chn] = {bbcNr, nsb};
                         ++chn;
                     }
                 } else if ( splitVector.size() > 2 ) {
-                    // 2 bit
-                    int i = 0;
-                    try {
-                        auto nr = boost::lexical_cast<int>( splitVector.at( i ) );
-                    }catch(const boost::bad_lexical_cast &){
-                        i = 1;
-                    }
+                    for ( int ich = 0; ich < splitVector.size() /2; ++ich ) {
+                        const auto &ch = splitVector[ich];
+                        if(ch.empty()){
+                            continue;
+                        }
 
-
-                    for ( ; i < splitVector.size() / 2; ++i ) {
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
-                        auto nr = boost::lexical_cast<int>( splitVector.at( i ) );
+                        auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3 );
-                        nr = boost::lexical_cast<int>( splitVector.at( i + 2 ) );
+                        nr = boost::lexical_cast<int>( splitVector.at( ich + 2 ) );
                         track->addFanout( "A", chStr, Track::Bitstream::mag, 1, nr + 3 );
-                        channelNr2Bbc[chn] = bbcNr;
+                        Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
+                        channelNr2Bbc[chn] = {bbcNr, nsb};
                         ++chn;
                     }
                 }
@@ -329,22 +329,32 @@ std::map<int, int> ObservingMode::readSkdTracks( const std::shared_ptr<Mode> &mo
                 boost::split( splitVector, tracks, boost::is_any_of( "," ), boost::token_compress_off );
                 if ( splitVector.size() <= 2 ) {
                     // 1 bit
-                    for ( const auto &ch : splitVector ) {
+                    for ( int ich = 0; ich < splitVector.size(); ++ich ) {
+                        const auto &ch = splitVector[ich];
+                        if(ch.empty()){
+                            continue;
+                        }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
                         auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3, nr + 5 );
-                        channelNr2Bbc[chn] = bbcNr;
+                        Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
+                        channelNr2Bbc[chn] = {bbcNr, nsb};
                         ++chn;
                     }
                 } else if ( splitVector.size() > 2 ) {
                     // 2 bits
-                    for ( int i = 0; i < splitVector.size() / 2; ++i ) {
+                    for ( int ich = 0; ich < splitVector.size(); ++ich ) {
+                        const auto &ch = splitVector[ich];
+                        if(ch.empty()){
+                            continue;
+                        }
                         string chStr = ( boost::format( "&CH%02d" ) % chn ).str();
-                        auto nr = boost::lexical_cast<int>( splitVector.at( i ) );
+                        auto nr = boost::lexical_cast<int>( ch );
                         track->addFanout( "A", chStr, Track::Bitstream::sign, 1, nr + 3, nr + 5 );
-                        nr = boost::lexical_cast<int>( splitVector.at( i + 2 ) );
+                        nr = boost::lexical_cast<int>( splitVector.at( ich + 2 ) );
                         track->addFanout( "A", chStr, Track::Bitstream::mag, 1, nr + 3, nr + 5 );
-                        channelNr2Bbc[chn] = bbcNr;
+                        Freq::Net_sideband nsb = ich == 0 ? Freq::Net_sideband::U : Freq::Net_sideband::L;
+                        channelNr2Bbc[chn] = {bbcNr, nsb};
                         ++chn;
                     }
                 }

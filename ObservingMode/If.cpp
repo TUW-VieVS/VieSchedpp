@@ -61,9 +61,20 @@ void If::toVecIfDefinition( std::ofstream &of, const std::string &comment ) cons
     of << "*                  IF   Physical Pol    Total      Net     Phase-cal   P-cal base  \n"
           "*                  ID     Name            IO        SB   freq spacing     freq\n";
     for ( const auto &any : if_defs_ ) {
-        of << boost::format( "        if_def = %6s :   %2s : %2s : %7.2f MHz : %2s : %7.2f MHz : % 7.2f Hz;\n" ) %
-                  any.getName() % any.physical_name_ % toString( any.polarization_ ) % any.total_lo_ %
-                  toString( any.net_sidband_ ) % any.phase_cal_freq_spacing_ % any.phase_cal_base_frequency_;
+        of << boost::format( "        if_def = %6s :   %2s : %2s : %7.2f MHz : %2s : %7.2f MHz : % 7.2f Hz;" ) %
+              any.getName() % any.physical_name_ % toString( any.polarization_ ) % any.total_lo_ %
+              toString( any.net_sidband_ ) % any.phase_cal_freq_spacing_ % any.phase_cal_base_frequency_;
+        if(getName() == "VG_2GB"){
+            if(any.physical_name_ == "A"){
+                of << " *    7900.00   3100.00  13cm     0 NA\n";
+            }else if(any.physical_name_ == "B"){
+                of << " *    7900.00   3100.00  4cm     0 NA\n";
+            }else{
+                of << "\n";
+            };
+        }else{
+            of << "\n";
+        }
     }
 
     of << "    enddef;\n";
