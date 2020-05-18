@@ -57,7 +57,7 @@ boost::property_tree::ptree If::toPropertytree() const {
 
 
 void If::toVecIfDefinition( std::ofstream &of, const std::string &comment ) const {
-    of << "    def " << getName() << ";    " << comment << "\n";
+    of << "    def " << getName() << ";\n*   " << comment << "\n";
     of << "*                  IF   Physical Pol    Total      Net     Phase-cal   P-cal base  \n"
           "*                  ID     Name            IO        SB   freq spacing     freq\n";
     for ( const auto &any : if_defs_ ) {

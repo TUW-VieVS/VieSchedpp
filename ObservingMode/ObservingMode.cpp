@@ -561,7 +561,7 @@ void ObservingMode::toVexBbcBlock( std::ofstream &of ) const {
 
 void ObservingMode::toVexIfBlock( std::ofstream &of ) const {
     for ( const auto &any : ifs_ ) {
-        string c = "* ";
+        string c;
         for ( const auto &mode : modes_ ) {
             c.append( mode.get()->getName() );
             const auto &o_all = mode->getAllStationsWithBlock( any );
