@@ -58,7 +58,7 @@ The software consists of several parts:
 
 __It is highly recommended to use the GUI to create the VieSchedpp.xml input files!__
 
-The following code shows how to install all components of VieSched++ as well as their dependencies on a plain Ubuntu 18.04 installation:
+The following code shows how to install all components of VieSched++ as well as their dependencies on a plain Ubuntu installation (tested with 18.04 and 20.04):
 
 	sudo apt update
 	sudo apt install git
@@ -101,13 +101,13 @@ The following code shows how to install all components of VieSched++ as well as 
 	cd ../../
 
 	# install VieSched++ AUTO (optional - auto scheduling program)
-	# first install a python version to activate the environment (I'm using Miniconda here)
+	# download VieSched++ AUTO
+	git clone https://github.com/TUW-VieVS/VieSchedpp_AUTO.git 
+	# install python and activate the VieSchedpp_AUTO environment (I'm using Miniconda here)
 	wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 	bash Miniconda3-latest-Linux-x86_64.sh # follow the installation instructions
 	conda env create -f ./VieSchedpp_AUTO/environment.yml # create new environment for VieSchedpp_AUTO
 	conda activate VieSchedpp_AUTO # activate the new environment
-	# download VieSched++ AUTO
-	git clone https://github.com/TUW-VieVS/VieSchedpp_AUTO.git 
 	# [OPTIONAL] test installation: "$ python VieSchedpp_AUTO/VieSchedpp_AUTO.py -h"
 
 
