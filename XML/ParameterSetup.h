@@ -34,6 +34,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 
 namespace VieVS {
