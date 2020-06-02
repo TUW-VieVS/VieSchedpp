@@ -1036,14 +1036,29 @@ void ParameterSettings::write( const std::string &name ) {
 
 
 void ParameterSettings::multisched( const boost::property_tree::ptree &ms_tree, const std::string &number, int maxn,
-                                    const std::string &useSeed, int seed ) {
+                                    const std::string &useSeed, int seed, bool pick_random ) {
     master_.add_child( "VieSchedpp.multisched", ms_tree.get_child( "multisched" ) );
-    if ( number != "all" ) {
+    if ( number != "all" || pick_random) {
         master_.add( "VieSchedpp.multisched.maxNumber", maxn );
     }
     if ( useSeed != "random" ) {
         master_.add( "VieSchedpp.multisched.seed", seed );
     }
+    if ( pick_random ) {
+        master_.add( "VieSchedpp.multisched.pick_random", true );
+    }
+}
+
+
+void ParameterSettings::mulitsched_genetic(int maxIterations, int populationSize, double selectBest,
+        double selectRandom, double mutation, double minMutation, int parents){
+    master_.add( "VieSchedpp.multisched.genetic.evolutions", maxIterations );
+    master_.add( "VieSchedpp.multisched.genetic.population_size", populationSize );
+    master_.add( "VieSchedpp.multisched.genetic.select_best_percent", selectBest );
+    master_.add( "VieSchedpp.multisched.genetic.select_random_percent", selectRandom );
+    master_.add( "VieSchedpp.multisched.genetic.mutation_acceleration", mutation );
+    master_.add( "VieSchedpp.multisched.genetic.min_mutation_percent", minMutation );
+    master_.add( "VieSchedpp.multisched.genetic.parents_for_crossover", parents );
 }
 
 

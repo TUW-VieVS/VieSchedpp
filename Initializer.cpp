@@ -2576,6 +2576,7 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
     vector<MultiScheduling::Parameters> para;
 
     MultiScheduling ms( staGroups_, srcGroups_, blGroups_ );
+    std::vector<MultiScheduling::Parameters> ms_para;
     boost::optional<boost::property_tree::ptree &> mstree_o = xml_.get_child_optional( "VieSchedpp.multisched" );
     if ( mstree_o.is_initialized() ) {
 #ifdef VIESCHEDPP_LOG
@@ -2583,32 +2584,18 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
 #endif
         boost::property_tree::ptree mstree = *mstree_o;
 
-        boost::property_tree::ptree PARA_station = xml_.get_child( "VieSchedpp.station" );
-        unordered_map<std::string, std::vector<std::string>> group_station =
-            readGroups( PARA_station, GroupType::station );
-        boost::property_tree::ptree PARA_source = xml_.get_child( "VieSchedpp.source" );
-        unordered_map<std::string, std::vector<std::string>> group_source =
-            readGroups( PARA_source, GroupType::source );
-
-        boost::property_tree::ptree PARA_baseline = xml_.get_child( "VieSchedpp.baseline" );
-        unordered_map<std::string, std::vector<std::string>> group_baseline =
-            readGroups( PARA_baseline, GroupType::baseline );
-
         unsigned int maxNumber = mstree.get( "maxNumber", numeric_limits<unsigned int>::max() );
-        boost::optional<unsigned int> o_seed = mstree.get_optional<unsigned int>( "seed" );
-        unsigned int seed;
-        if ( o_seed.is_initialized() ) {
-            seed = *o_seed;
-        } else {
-            std::default_random_engine generator;
-            generator.seed( static_cast<unsigned int>( std::chrono::system_clock::now().time_since_epoch().count() ) );
-            std::uniform_int_distribution<unsigned int> distribution( 0, 2147483647 );
-            seed = distribution( generator );
-        }
+        unsigned int seed = mstree.get( "seed",
+                static_cast<unsigned int>( chrono::system_clock::now().time_since_epoch().count() ) % 2147483647);
+        MultiScheduling::setSeed(seed);
 
         for ( const auto &any : mstree ) {
             std::string name = any.first;
-            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" ) {
+            if ( name == "maxNumber" || name == "seed" || name == "version" || name == "version_offset" || name == "genetic" ) {
+                continue;
+            }
+            if ( name == "pick_random"){
+                MultiScheduling::pick_random_values(any.second.get_value<bool>());
                 continue;
             }
             if (name == "general_subnetting" || name == "general_fillin-mode_during_scan_selection" ||
@@ -2619,13 +2606,8 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
             }
 
             vector<double> values;
-            const auto &valueTree = any.second;
-            std::string member;
-            boost::optional<string> om = valueTree.get_optional<std::string>( "<xmlattr>.member" );
-            if ( om.is_initialized() ) {
-                member = *om;
-            }
-            for ( const auto &any2 : valueTree ) {
+            string member = any.second.get( "<xmlattr>.member", "" );
+            for ( const auto &any2 : any.second ) {
                 std::string name2 = any2.first;
                 if ( name2 == "value" ) {
                     values.push_back( any2.second.get_value<double>() );
@@ -2638,36 +2620,35 @@ vector<MultiScheduling::Parameters> Initializer::readMultiSched( std::ostream &o
             }
         }
 
-        std::vector<MultiScheduling::Parameters> ans = ms.createMultiScheduleParameters( maxNumber, seed );
+        ms_para = ms.createMultiScheduleParameters( maxNumber );
 
-        if ( ans.size() != maxNumber ) {
+        if ( ms_para.size() != maxNumber ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ans.size() << " schedules!";
+            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ms_para.size() << " schedules!";
 #else
-            cout << "[info] multi scheduling found ... creating " << ans.size() << " schedules!\n";
+            cout << "[info] multi scheduling found ... creating " << ms_para.size() << " schedules!\n";
 #endif
-            out << "multi scheduling found ... creating " << ans.size() << " schedules!\n";
+            out << "multi scheduling found ... creating " << ms_para.size() << " schedules!\n";
         } else {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ans.size()
+            BOOST_LOG_TRIVIAL( info ) << "multi scheduling found ... creating " << ms_para.size()
                                       << " schedules using this seed: " << seed << "!";
 #else
-            cout << "[info] multi scheduling found ... creating " << ans.size()
+            cout << "[info] multi scheduling found ... creating " << ms_para.size()
                  << " schedules using this seed: " << seed << "!\n";
 #endif
-            out << "multi scheduling found ... creating " << ans.size() << " schedules using this seed: " << seed
+            out << "multi scheduling found ... creating " << ms_para.size() << " schedules using this seed: " << seed
                 << "!\n";
         }
 
         // only calculate single version from multi scheduling
         auto version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
-        if ( version.is_initialized() && *version - 1 < ans.size() ) {
-            ans = std::vector<MultiScheduling::Parameters>{ans.at( *version - 1 )};
+        if ( version.is_initialized() && *version - 1 < ms_para.size() ) {
+            ms_para = std::vector<MultiScheduling::Parameters>{ms_para.at( *version - 1 )};
         }
-
-        return ans;
     }
-    return std::vector<MultiScheduling::Parameters>{};
+
+    return ms_para;
 }
 
 void Initializer::initializeFocusCornersAlgorithm() noexcept {

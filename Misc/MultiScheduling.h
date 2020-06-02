@@ -43,6 +43,8 @@
 #include "Constants.h"
 #include "VieVS_Object.h"
 #include "WeightFactors.h"
+#include "util.h"
+
 #ifdef VIESCHEDPP_LOG
 #include <boost/log/trivial.hpp>
 #endif
@@ -115,6 +117,28 @@ class MultiScheduling : public VieVS_Object {
         std::map<std::string, double> baselineWeight;         ///< baseline weight
         std::map<std::string, unsigned int> baselineMaxScan;  ///< baseline maximum scan time in seconds
         std::map<std::string, unsigned int> baselineMinScan;  ///< baseline minimum scan time in seconds
+
+        /**
+         * @brief default constructor
+         * @author Matthias Schartner
+         */
+        Parameters() = default;;
+
+        /**
+         * @brief constructor based on two parents
+         * @author Matthias Schartner
+         *
+         * @param v vector of parents
+         * @param mutation mutation acceleration
+         * @param minMutation minimum mutation
+         */
+        Parameters(const std::vector<Parameters> &v, double mutation, double minMutation);
+
+        /**
+         * @brief normalize weight factors
+         * @author Matthias Schartner
+         */
+        void normalizeWeightFactors();
 
         /**
          * @brief output function to stream object
@@ -319,7 +343,7 @@ class MultiScheduling : public VieVS_Object {
                 of << "weight_average_baselines,";
             }
             if ( weightIdleTime.is_initialized() ) {
-                of << "weight_iIdle_time,";
+                of << "weight_idle_time,";
             }
             if ( weightIdleTime_interval.is_initialized() ) {
                 of << "weight_idle_time_interval,";
@@ -632,10 +656,23 @@ class MultiScheduling : public VieVS_Object {
      * @author Matthias Schartner
      *
      * @param maxNr maximum number of parameters
-     * @param seed seed for random number generator
      * @return all possible multi scheduling parameter combinations
      */
-    std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr, unsigned int seed );
+    std::vector<Parameters> createMultiScheduleParameters( unsigned int maxNr );
+
+
+    /**
+     * @brief generate new population of multi-scheduling parameters
+     * @author Matthias Schartner
+     *
+     * @param gen generation number
+     * @param old_pop old populatoin of parameters
+     * @param scores score of each parameter
+     * @param tree xml property tree
+     * @return new population of parameters
+     */
+    static std::vector<Parameters> evolution_step( int gen, const std::vector<Parameters> &old_pop,
+                                    const std::vector<double>& scores, const boost::property_tree::ptree &tree);
 
 
     /**
@@ -646,9 +683,31 @@ class MultiScheduling : public VieVS_Object {
      */
     boost::property_tree::ptree createPropertyTree() const;
 
+    /**
+     * @brief set seed for RNG generator
+     * @author Matthias Schartner
+     *
+     * @param seed seed
+     */
+    static void setSeed(unsigned int seed){
+        random_engine_ = std::default_random_engine(seed);
+    }
+
+    /**
+     * @brief set pick random values
+     * @author Matthias Schartner
+     *
+     * @param flag flag
+     */
+    static void pick_random_values(bool flag){
+        pick_random = flag;
+    }
+
 
    private:
-    static unsigned long nextId;
+    static unsigned long nextId;                      ///< next id
+    static std::default_random_engine random_engine_; ///< random number generator engine
+    static bool pick_random;
 
     std::unordered_map<std::string, std::vector<std::string>> stationGroups_;   ///< used station groups
     std::unordered_map<std::string, std::vector<std::string>> sourceGroups_;    ///< used source groups
@@ -669,7 +728,7 @@ class MultiScheduling : public VieVS_Object {
      * @param n_before number of blocks
      * @param name parameter name
      */
-    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name );
+    void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name, bool pick_random = false );
 
 
     /**
@@ -682,7 +741,7 @@ class MultiScheduling : public VieVS_Object {
      * @param value number of values
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
-                       const std::vector<double> &value );
+                       const std::vector<double> &value, bool pick_random = false );
 
 
     /**
@@ -696,7 +755,46 @@ class MultiScheduling : public VieVS_Object {
      * @param value number of values
      */
     void addParameter( std::vector<Parameters> &allPara, unsigned long &n_before, const std::string &name,
-                       const std::string &member, const std::vector<double> &value );
+                       const std::string &member, const std::vector<double> &value, bool pick_random = false );
+
+    /**
+     * @brief create vector of all possible multi scheduling parameter combinations (gridwise selection)
+     * @author Matthias Schartner
+     *
+     * @param maxNr maximum number of parameters
+     * @return all possible multi scheduling parameter combinations
+     */
+    std::vector<Parameters> createMultiScheduleParameters_gridwise( unsigned int maxNr );
+
+
+    /**
+     * @brief create vector of all possible multi scheduling parameter combinations (random selection)
+     * @author Matthias Schartner
+     *
+     * @param maxNr maximum number of parameters
+     * @return all possible multi scheduling parameter combinations
+     */
+    std::vector<Parameters> createMultiScheduleParameters_random( unsigned int maxNr );
+
+
+    /**
+     * @brief collecs all entries of a fiven field of a vector of parameters
+     * @author Matthias Schartner
+     *
+     * @tparam T type
+     * @param f field
+     * @param v vector of parameters
+     * @return vector of field entries (type T)
+     */
+    template<typename T>
+    static std::vector<T> collect(T Parameters::* f, std::vector<Parameters> const& v) {
+        std::vector<T> output;
+        for (auto const& elem : v) {
+            output.push_back(elem.*f);
+        }
+        return output;
+    }
+
 };
 }  // namespace VieVS
 

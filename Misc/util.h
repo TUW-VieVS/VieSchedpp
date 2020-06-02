@@ -320,8 +320,8 @@ std::string month2string( int month );
     template<typename A, typename B>
     std::map<B, A> flip_map(const std::map<A, B> &src) {
         std::map<B, A> dst;
-        std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
-                       flip_pair<A, B>);
+        for (const auto &any : src)
+            dst[any.second] = any.first;
         return dst;
     }
 

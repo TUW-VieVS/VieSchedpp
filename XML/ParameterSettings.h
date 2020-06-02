@@ -577,10 +577,26 @@ class ParameterSettings {
      * @param maxn maximum number of schedules number
      * @param useSeed use seed model ("random" or "select")
      * @param seed number
+     * @param pick_random default is false
      */
     void multisched( const boost::property_tree::ptree &multiSched, const std::string &number, int maxn,
-                     const std::string &useSeed, int seed );
+                     const std::string &useSeed, int seed, bool pick_random = false );
 
+
+    /**
+     * @brief multisched block in parameter.xml
+     * @author Matthias Schartner
+     *
+     * @param maxIterations maximum number of evolutions
+     * @param populationSize population size after crossover
+     * @param selectBest percentage of best parents to select
+     * @param selectRandom percentage of random parents to select
+     * @param mutation mutation acceleration
+     * @param minMutation minimum mutation
+     * @param parents number of parents for crossover
+     */
+    void mulitsched_genetic(int maxIterations, int populationSize, double selectBest, double selectRandom,
+            double mutation, double minMutation, int parents);
 
     /**
      * @brief multiCore multi core support for scheduling

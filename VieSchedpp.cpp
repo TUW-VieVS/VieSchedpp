@@ -156,14 +156,14 @@ void VieSchedpp::run() {
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( info ) << boost::format( "OpenMP: job scheduling %s chunk size %d" ) % jobScheduling %
                                          chunkSize;
+        BOOST_LOG_TRIVIAL( info ) << boost::format( "number of threads %d" ) % omp_get_num_threads();
 #else
         cout << boost::format( "[info] OpenMP: job scheduling %s chunk size %d\n" ) % jobScheduling % chunkSize;
+        cout << boost::format( "number of threads %d\n" ) % omp_get_num_threads();
 #endif
     }
-
-#pragma omp parallel for schedule( runtime )
 #else
-    if ( nsched > 1 ) {
+if ( nsched > 1 ) {
 #ifdef VIESCHEDPP_LOG
         BOOST_LOG_TRIVIAL( warning )
             << "VieSchedpp was not compiled with OpenMP! Recompile it with OpenMP for multi core support";
@@ -173,116 +173,149 @@ void VieSchedpp::run() {
     }
 #endif
 
-    // create all required schedules
-    for ( int i = 0; i < nsched; ++i ) {
-        if ( i == 0 && nsched > 1 ) {
+    int versionOffset = xml_.get("VieSchedpp.general.versionOffset", 0);
+    int startCounter = 0;
+
+    int nsched_total = nsched;
+    int maxGeneration = 1;
+    if(xml_.get_child_optional("VieSchedpp.multisched.genetic").is_initialized()){
+        maxGeneration = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
+        int n_it = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
+        int n = xml_.get("VieSchedpp.multisched.genetic.population_size",32);
+        nsched_total += (n_it-1)*n;
+    }
+
+    unsigned int population_size = 32;
+    double keep_best = 0.1;
+    double keep_random = 0.025;
+    double mutation_factor = 0.5;
+
+    for(int i_generation = 0; i_generation < maxGeneration; ++i_generation ){
+        // main scheduling code start
 #ifdef _OPENMP
-#ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << boost::format( "number of threads %d" ) % omp_get_num_threads();
-#else
-            cout << boost::format( "number of threads %d\n" ) % omp_get_num_threads();
+#pragma omp parallel for schedule( runtime )
 #endif
-#endif
-        }
+        // create all required schedules
+        for ( int i = 0; i < nsched; ++i ) {
+            // create initializer and set static parameters for each thread
+            Initializer newInit( init );
+            newInit.initializeWeightFactors();
+            newInit.initializeSkyCoverages();
 
-        // create initializer and set static parameters for each thread
-        Initializer newInit( init );
-        newInit.initializeWeightFactors();
-        newInit.initializeSkyCoverages();
-
-        // get version number
-        int version = 0;
-        if ( flag_multiSched ) {
-            version = i + 1;
-            // change version number in case you only process one solution
-            auto o_version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
-            if ( o_version.is_initialized() ) {
-                version = *o_version;
+            // get version number
+            int version = startCounter + versionOffset;
+            if ( flag_multiSched ) {
+                version += i + 1;
+                // change version number in case you only process one solution
+                auto o_version = xml_.get_optional<int>( "VieSchedpp.multisched.version" );
+                if ( o_version.is_initialized() ) {
+                    version = *o_version;
+                }
             }
-        }
-        auto versionOffset = xml_.get("VieSchedpp.general.versionOffset", 0);
-        version += versionOffset;
 
-        // get file name
-        string fname = sessionName_;
+            // get file name
+            string fname = sessionName_;
 
-        // increment counter of multi scheduling version
+            // increment counter of multi scheduling version
 #ifdef _OPENMP
 #pragma omp atomic
-        ++counter;
-#else
-        ++counter;
 #endif
-        string prefix = "";
-        if (version > 0) {
-            prefix = (boost::format("version %d: ") % version).str();
-            fname.append((boost::format("_v%03d") % (version)).str());
-        }
-        // if you have multi schedule append version number to file name
-        if ( flag_multiSched ) {
+            ++counter;
+            string prefix = "";
+            if (version > 0) {
+                prefix = (boost::format("version %d: ") % version).str();
+                fname.append((boost::format("_v%03d") % (version)).str());
+            }
+            // if you have multi schedule append version number to file name
+            if ( flag_multiSched ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
-                                             counter % nsched;
+                BOOST_LOG_TRIVIAL( info ) << boost::format( "creating multi scheduling version %d (%d of %d)" ) % version %
+                                             counter % nsched_total;
 #else
-            cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version % counter %
+                cout << boost::format( "[info] creating multi scheduling version %d (%d of %d)\n" ) % version % counter %
                         nsched;
 #endif
-        }
+            }
 
-        // add multi scheduling parameters
-        if ( flag_multiSched ) {
-            newInit.applyMultiSchedParameters( multiSchedParameters_[i] );
-        }
-
-// create scheduler and start scheduling
-#ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << prefix << "start scheduling";
-#else
-        cout << "[info] " + prefix + "start scheduling";
-#endif
-        VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
-        scheduler.start();
+            // add multi scheduling parameters
+            if ( flag_multiSched ) {
+                newInit.applyMultiSchedParameters( multiSchedParameters_[startCounter + i] );
+            }
+            VieVS::Scheduler scheduler = VieVS::Scheduler( newInit, path_, fname );
+            scheduler.start();
 
 // create output
 #ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << prefix << "start writing output";
+            BOOST_LOG_TRIVIAL( info ) << prefix << "start writing output";
 #else
-        cout << "[info] " + prefix + "start writing output";
+            cout << "[info] " + prefix + "start writing output";
 #endif
 
-        VieVS::Output output( scheduler, path_, fname, version );
-        output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
+            VieVS::Output output( scheduler, path_, fname, version );
+            output.createAllOutputFiles( statisticsOf, skdCatalogs_ );
 
-        if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
+            if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "start simulation";
+                BOOST_LOG_TRIVIAL( info ) << prefix << "start simulation";
 #else
-            cout << "[info] " + prefix + "start simulation";
+                cout << "[info] " + prefix + "start simulation";
 #endif
-            VieVS::Simulator simulator( output, path_, fname, version );
-            simulator.start();
+                VieVS::Simulator simulator( output, path_, fname, version );
+                simulator.start();
 
 #ifdef VIESCHEDPP_LOG
-            BOOST_LOG_TRIVIAL( info ) << prefix << "start analysis";
+                BOOST_LOG_TRIVIAL( info ) << prefix << "start analysis";
 #else
-            cout << "[info] " + prefix + "start analysis";
+                cout << "[info] " + prefix + "start analysis";
 #endif
-            VieVS::Solver solver( simulator, fname );
-            solver.start();
-            solver.writeStatistics( statisticsOf );
+                VieVS::Solver solver( simulator, fname );
+                solver.start();
+                solver.writeStatistics( statisticsOf );
+            }
+
+#ifdef VIESCHEDPP_LOG
+            BOOST_LOG_TRIVIAL( info ) << prefix << "finished";
+#else
+            cout << boost::format( "[info] " + prefix + "finished" ) % ( i + 1 );
+#endif
         }
 
-#ifdef VIESCHEDPP_LOG
-        BOOST_LOG_TRIVIAL( info ) << prefix << "finished";
-#else
-        cout << boost::format( "[info] " + prefix + "finished" ) % ( i + 1 );
-#endif
+        vector<double> scores = summarizeSimulationResult();
+
+        // main scheduling code end;
+
+        // generate new population of multi-scheduling parameters
+        if(nsched > 0 && i_generation+1 < maxGeneration){
+            startCounter += nsched;
+            vector<MultiScheduling::Parameters> newPara = MultiScheduling::evolution_step(i_generation,
+                    multiSchedParameters_, scores, xml_);
+            nsched = newPara.size();
+            multiSchedParameters_.insert(multiSchedParameters_.end(), newPara.begin(), newPara.end());
+        }
     }
+
     statisticsOf.close();
 
-    if ( auto ctree = xml_.get_child_optional( "VieSchedpp.simulator" ).is_initialized() ) {
-        summarizeSimulationResult();
+    // TODO: temporary output of evolution (maybe remove this in future)
+    if(maxGeneration>1){
+        ofstream fid_genOutput( path_ + "evolution.csv" );
+        int n_it = xml_.get("VieSchedpp.multisched.genetic.evolutions",2);
+        int n = xml_.get("VieSchedpp.multisched.genetic.population_size",32);
+        double best_f = xml_.get("VieSchedpp.multisched.genetic.select_best_percent",20.0)/100;
+        double random_f = xml_.get("VieSchedpp.multisched.genetic.select_random_percent",5.0)/100;
+        double mutation = xml_.get("VieSchedpp.multisched.genetic.mutation_acceleration",0.5);
+        double minMutation = xml_.get("VieSchedpp.multisched.genetic.min_mutation_percent",10.0) / 100;
+        int n_parents = xml_.get("VieSchedpp.multisched.genetic.parents_for_crossover",2);
+        fid_genOutput << boost::format("# %d %d %f %f %f %f %d\n") % n_it % n % best_f % random_f % mutation % minMutation % n_parents;
+        fid_genOutput << "score,";
+        multiSchedParameters_[0].statisticsHeaderOutput(fid_genOutput);
+        fid_genOutput << endl;
+        vector<double> scores = summarizeSimulationResult(false);
+        for(int i = 0; i<multiSchedParameters_.size(); ++i){
+            fid_genOutput << scores[i] << "," << multiSchedParameters_[i].statisticsOutput() << endl;
+        }
     }
+
 
 #ifdef VIESCHEDPP_LOG
     BOOST_LOG_TRIVIAL( info ) << "VieSched++ is closing";
@@ -442,8 +475,9 @@ void VieSchedpp::init_log() {
 #endif
 }
 
-void VieSchedpp::summarizeSimulationResult() {
+std::vector<double>  VieSchedpp::summarizeSimulationResult(bool output) {
     ofstream of( path_ + "simulation_summary.txt" );
+    vector<double> scores;
 
     vector<string> types{"mean formal errors", "repeatability"};
     map<int, double> mfe_costs;
@@ -499,10 +533,11 @@ void VieSchedpp::summarizeSimulationResult() {
             }
 
             in.close();
-            of << "\n";
+            of << endl;
         }
     }
-    printRecommendation(mfe_costs, rep_costs, storage);
+    scores = printRecommendation(mfe_costs, rep_costs, storage, output);
+    return scores;
 }
 
 vector<tuple<string, int, double>> VieSchedpp::getPriorityCoefficients( const string &type,
@@ -759,10 +794,12 @@ VieSchedpp::listBest(ofstream &of, const string &type, const std::map<int, std::
     return costs;
 }
 
-void VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, const std::map<int, double> &rep_costs,
-                                     const std::map<int, std::vector<double>> &storage) {
+vector<double> VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, const std::map<int, double> &rep_costs,
+                                     const std::map<int, std::vector<double>> &storage, bool output) {
 
+    int n = mfe_costs.size();
     std::map<int, double> costs;
+    vector<double> scores(n,0);
     const auto &type = xml_.get_child_optional("VieSchedpp.priorities.type");
     if (type.is_initialized()) {
         double fraction = xml_.get("VieSchedpp.priorities.type.fraction", 70.0);
@@ -771,10 +808,12 @@ void VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, con
 
         for (const auto &any : mfe_costs) {
             int version = any.first;
-            costs[version] = mfe_costs.at(version) * f_mfe + rep_costs.at(version) * f_rep;
+            double c = mfe_costs.at(version) * f_mfe + rep_costs.at(version) * f_rep;
+            costs[version] = c;
+            scores[version-1] = 1-c;
         }
     } else {
-        return;
+        return scores;
     }
 
 
@@ -795,7 +834,7 @@ void VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, con
         } else {
             prefix = "alternative";
         }
-        if ((cost < 0.1 && counter < 10) || counter < 3) {
+        if (output && ((cost < 0.1 && counter < 10) || counter < 3)) {
 #ifdef VIESCHEDPP_LOG
             BOOST_LOG_TRIVIAL(info) << boost::format("%s schedule: version %d (score: %.4f # obs: %d)") %
                                        prefix % version % (1 - cost) % vals[0];
@@ -806,5 +845,5 @@ void VieSchedpp::printRecommendation(const std::map<int, double> &mfe_costs, con
             ++counter;
         }
     }
-
+    return scores;
 }
