@@ -426,24 +426,32 @@ void MultiScheduling::addParameter( vector<MultiScheduling::Parameters> &allPara
 
         for ( int i_item = 0; i_item < n_items; ++i_item ) {
             if(pick_random){
+                double randomValue = abs(gen_norm(random_engine_));
+                int ci = 0;
+                while (ci<10 && (randomValue < *min_element(values.begin(), values.end()) ||
+                                 randomValue > *max_element(values.begin(), values.end()))) {
+                    randomValue = abs(gen_norm(random_engine_));
+                    ++ci;
+                }
+
                 if (name == "weight_factor_sky-coverage") {
-                    allPara[c].weightSkyCoverage = abs(gen_norm(random_engine_));
+                    allPara[c].weightSkyCoverage = randomValue;
                 } else if ( name == "weight_factor_number_of_observations" ) {
-                    allPara[c].weightNumberOfObservations = abs(gen_norm(random_engine_));
+                    allPara[c].weightNumberOfObservations = randomValue;
                 } else if ( name == "weight_factor_duration" ) {
-                    allPara[c].weightDuration = abs(gen_norm(random_engine_));
+                    allPara[c].weightDuration = randomValue;
                 } else if ( name == "weight_factor_average_sources" ) {
-                    allPara[c].weightAverageSources = abs(gen_norm(random_engine_));
+                    allPara[c].weightAverageSources = randomValue;
                 } else if ( name == "weight_factor_average_stations" ) {
-                    allPara[c].weightAverageStations = abs(gen_norm(random_engine_));
+                    allPara[c].weightAverageStations = randomValue;
                 } else if ( name == "weight_factor_average_baselines" ) {
-                    allPara[c].weightAverageBaselines = abs(gen_norm(random_engine_));
+                    allPara[c].weightAverageBaselines = randomValue;
                 } else if ( name == "weight_factor_idle_time" ) {
-                    allPara[c].weightIdleTime = abs(gen_norm(random_engine_));
+                    allPara[c].weightIdleTime = randomValue;
                 } else if ( name == "weight_factor_low_declination" ) {
-                    allPara[c].weightLowDeclination = abs(gen_norm(random_engine_));
+                    allPara[c].weightLowDeclination = randomValue;
                 } else if ( name == "weight_factor_low_elevation" ) {
-                    allPara[c].weightLowElevation = abs(gen_norm(random_engine_));
+                    allPara[c].weightLowElevation = randomValue;
                 }
             }
 

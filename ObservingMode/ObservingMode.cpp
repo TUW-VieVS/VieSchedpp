@@ -343,7 +343,7 @@ std::map<int, pair<int, Freq::Net_sideband >> ObservingMode::readSkdTracks( cons
                     }
                 } else if ( splitVector.size() > 2 ) {
                     // 2 bits
-                    for ( int ich = 0; ich < splitVector.size(); ++ich ) {
+                    for ( int ich = 0; ich < splitVector.size() /2; ++ich ) {
                         const auto &ch = splitVector[ich];
                         if(ch.empty()){
                             continue;
